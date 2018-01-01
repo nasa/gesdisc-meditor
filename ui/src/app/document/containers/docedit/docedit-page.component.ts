@@ -33,6 +33,7 @@ export class DocEditPageComponent implements OnInit {
 	@Select(DocumentState.currentDocumentHistory) history$: Observable<DocHistory>;
 	@Select(DocumentState.currentDocumentVersion) version$: Observable<string>;
   @Select(DocumentState.currentDocumentComments) comments$: Observable<Comment[]>;
+  @Select(DocumentState.currentCommentsCount) commentsCount$: Observable<number>;
 	@Select(WorkflowState.currentEdges) edges$: Observable<Edge[]>;
 	@Select(WorkflowState.currentWorkflow) workflow$: Observable<Edge>;
 	@Select(AuthState.userPrivileges) userPrivileges$: Observable<string[]>;

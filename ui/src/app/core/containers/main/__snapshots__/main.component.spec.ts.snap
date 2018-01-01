@@ -1,7 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Main Page should compile main container 1`] = `
-<meditor-app>
+<meditor-app
+  version={[Function String]}
+>
   <div
     class="app-container"
     fxfill=""
@@ -16,6 +18,11 @@ exports[`Main Page should compile main container 1`] = `
       style="overflow: scroll; padding: 0 16px;"
     >
       <router-outlet />
+    </div>
+    <div
+      class="app-version"
+    >
+      v0.9.0
     </div>
     <med-loading />
     <med-notification />

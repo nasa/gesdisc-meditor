@@ -40,7 +40,7 @@
 				<mat-card-content>
 					<div class="button-panel">
 						<button mat-mini-fab
-										matBadge="{{(comments$ | async)?.length}}"
+										matBadge="{{commentsCount$ | async}}"
 										matBadgeColor="warn" (click)="showDocumentComments()">
 							<mat-icon>question_answer</mat-icon>
 						</button>

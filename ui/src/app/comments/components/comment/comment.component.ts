@@ -24,7 +24,6 @@ export class CommentComponent implements OnInit {
 	set comments(comments: Comment[]) {
 		this.extComments = comments.map(c => Object.assign({}, c));
 		if(this._tree) this.extComments = this.treeify(this.extComments, '_id', 'parentId', 'children');
-
 	};
 
 	@Input()

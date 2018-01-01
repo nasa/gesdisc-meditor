@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed  } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { SearchResultListComponent } from './search-result-list.component';
-
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('SearchResultListComponent', () => {
@@ -11,12 +10,12 @@ describe('SearchResultListComponent', () => {
 	beforeEach(() => {
 		TestBed.configureTestingModule({
 			imports: [
-				NoopAnimationsModule,
+				NoopAnimationsModule
 			],
 			declarations: [
 				SearchResultListComponent
 			],
-			schemas: [ NO_ERRORS_SCHEMA ]
+      schemas: [ NO_ERRORS_SCHEMA ] 
 		});
 
 		fixture = TestBed.createComponent(SearchResultListComponent);
@@ -32,7 +31,7 @@ describe('SearchResultListComponent', () => {
 
 	describe('with mock data', () => {
 
-		it('should compile with minimum input (have 2 med-search-result elements)', () => {
+		it('should compile with minimum input (have 2 <med-search-result /> elements in snapshot)', () => {
 			instance.results = [
 				{ title: 'test title',
 					'x-meditor': {

@@ -43,6 +43,11 @@ export class DocumentState {
 		@Selector() static currentDocumentHistory(state: DocumentStateModel): DocHistory { return state.currentDocumentHistory; }
 		@Selector() static currentDocumentVersion(state: DocumentStateModel): string { return state.currentDocumentVersion; }
     @Selector() static currentDocumentComments(state: DocumentStateModel): Comment[] { return state.currentDocumentComments; }
+    @Selector() static currentCommentsCount(state: DocumentStateModel): number { 
+      return _.filter(state.currentDocumentComments, function (c) {
+        return c.parentId == 'root' && !c.resolved
+      }).length }
+
 
 		constructor(private store: Store, private service: DefaultService) {}
 
@@ -108,17 +113,13 @@ export class DocumentState {
 
     @Action(actions.ResolveComment)
 		resolveComment({ patchState, getState, dispatch }: StateContext<DocumentStateModel>, { payload }: actions.ResolveComment) {
-				// patchState({ loading: true, });
-				// const documentTitle = getState().currentDocumentTitle;
+        
+        let user = this.store.selectSnapshot(AuthState.user);
+        let resolvedBy = user.uid;
 
-				return this.service.resolveComment(payload)
+				return this.service.resolveComment(payload, resolvedBy)
           .pipe(
             tap(() => { 
-              // let resolvedComment = _.findWhere(getState().currentDocumentComments, {_id: payload});
-              // resolvedComment!.resolved = true;
-              // patchState({
-              //   currentDocumentComments: [...getState().currentDocumentComments, resolvedComment!]
-              // })
               dispatch(new actions.GetCurrentDocumentComments())
             }),
           );

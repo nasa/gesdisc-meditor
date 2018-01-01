@@ -177,7 +177,8 @@ module.exports.putModel = function putModel (req, res, next) {
 
 module.exports.resolveComment = function resolveComment (req, res, next) {
   var id = req.swagger.params['id'].value;
-  Default.resolveComment(id)
+  var resolvedBy = req.swagger.params['resolvedBy'].value;
+  Default.resolveComment(id, resolvedBy)
     .then(function (response) {
       utils.writeJson(res, response);
     })

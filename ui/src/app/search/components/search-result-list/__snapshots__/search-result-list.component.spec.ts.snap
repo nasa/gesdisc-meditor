@@ -5,6 +5,6 @@ exports[`SearchResultListComponent with mock data should compile with minimum in
   loadDocument={[Function EventEmitter]}
   results={[Function Array]}
 >
-  <med-search-result /><med-search-result />
+  <med-search-result /><med-search-result /><med-search-result />
 </med-search-result-list>
 `;

@@ -1,6 +1,6 @@
 {
   "x-meditor": {
-    "title": "ummvarsections"
+    "title": "Name"
   },
   "name": "UMMvar Sections",
   "description": "UMMvar sections",
@@ -44,10 +44,10 @@
                                 "type": "div",
                                 "items": [
                                   { "key": "Dimensions[].Name", 
-                                    "notitle": true, "placeholder": "Name"
+                                    "placeholder": "Name"
                                   },
                                   { "key": "Dimensions[].Size",
-                                    "notitle": true, "placeholder": "Size"
+                                    "placeholder": "Size"
                                   }
                                 ]
                               } 
@@ -60,10 +60,10 @@
                                 "type": "div",
                                 "items": [
                                   { "key": "ValidRanges[].Min", 
-                                    "notitle": true, "placeholder": "Min"
+                                    "placeholder": "Min"
                                   },
                                   { "key": "ValidRanges[].Max",
-                                    "notitle": true, "placeholder": "Max"
+                                    "placeholder": "Max"
                                   }
                                 ]
                               } 
@@ -76,13 +76,13 @@
                                 "type": "div",
                                 "items": [
                                   { "key": "FillValues[].Value", 
-                                    "notitle": true, "placeholder": "Min"
+                                    "placeholder": "Min"
                                   },
                                   { "key": "FillValues[].Type",
-                                    "notitle": true, "placeholder": "Max"
+                                    "placeholder": "Max"
                                   },
                                   { "key": "FillValues[].Description",
-                                    "notitle": true, "placeholder": "Max"
+                                    "placeholder": "Max"
                                   }
                                 ]
                               } 
@@ -142,10 +142,10 @@
                                 "type": "div",
                                 "items": [
                                   { "key": "Measurements[].MeasurementName", 
-                                    "notitle": true, "placeholder": "Measurement Name"
+                                    "placeholder": "Measurement Name"
                                   },
                                   { "key": "Measurements[].MeasurementSource",
-                                    "notitle": true, "placeholder": "Measurement Source"
+                                    "placeholder": "Measurement Source"
                                   }
                                 ]
                               } 
@@ -158,16 +158,16 @@
                                 "type": "div",
                                 "items": [
                                   { "key": "Sets[].Name", 
-                                    "notitle": true, "placeholder": "Name"
+                                    "placeholder": "Name"
                                   },
                                   { "key": "Sets[].Type",
-                                    "notitle": true, "placeholder": "Type"
+                                    "placeholder": "Type"
                                   },
                                   { "key": "Sets[].Size", 
-                                    "notitle": true, "placeholder": "Size"
+                                    "placeholder": "Size"
                                   },
                                   { "key": "Sets[].Index",
-                                    "notitle": true, "placeholder": "Index"
+                                    "placeholder": "Index"
                                   }
                                 ]
                               } 
@@ -183,25 +183,25 @@
                         "flex-flow": "row wrap",
                         "items": [
                           { "key": "ScienceKeywords[].Category", 
-                            "notitle": true, "placeholder": "Category", "flex" : "1 1 400px"
+                            "placeholder": "Category", "flex" : "1 1 400px"
                           },
                           { "key": "ScienceKeywords[].Topic",
-                            "notitle": true, "placeholder": "Topic", "flex" : "1 1 400px"
+                            "placeholder": "Topic", "flex" : "1 1 400px"
                           },
                           { "key": "ScienceKeywords[].Term", 
-                            "notitle": true, "placeholder": "Term", "flex" : "1 1 400px"
+                            "placeholder": "Term", "flex" : "1 1 400px"
                           },
                           { "key": "ScienceKeywords[].VariableLevel1",
-                            "notitle": true, "placeholder": "Variable Level 1", "flex" : "1 1 300px"
+                            "placeholder": "Variable Level 1", "flex" : "1 1 300px"
                           },
                           { "key": "ScienceKeywords[].VariableLevel2",
-                            "notitle": true, "placeholder": "Variable Level 2", "flex" : "1 1 300px"
+                            "placeholder": "Variable Level 2", "flex" : "1 1 300px"
                           },
                           { "key": "ScienceKeywords[].VariableLevel3",
-                            "notitle": true, "placeholder": "Variable Level 3", "flex" : "1 1 300px"
+                            "placeholder": "Variable Level 3", "flex" : "1 1 300px"
                           },
                           { "key": "ScienceKeywords[].DetailedVariable",
-                            "notitle": true, "placeholder": "Detailed Variable", "flex" : "1 1 300px"
+                            "placeholder": "Detailed Variable", "flex" : "1 1 300px"
                           }
                         ]
                       } 
