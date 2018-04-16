@@ -4,8 +4,12 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
 	selector: 'med-splash-page',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
-		<med-content-type></med-content-type>
-	`,
+		<div>it works!</div>
+	`
+	// TODO: Create component and add it to template
+	// <med-content-type></med-content-type>
+
+	,
 	styles: [
 		`
 		:host {
