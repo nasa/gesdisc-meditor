@@ -5,7 +5,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { AppComponent } from './containers/app';
 import { NotFoundPageComponent } from './containers/not-found-page';
-import { HomePageComponent } from './containers/home-page';
+import { SplashPageComponent } from './containers/splash-page';
 import { LayoutComponent } from './components/layout';
 import { NavItemComponent } from './components/nav-item';
 import { SidenavComponent } from './components/sidenav';
@@ -17,7 +17,7 @@ import { AuthModule } from '../auth/auth.module';
 export const COMPONENTS = [
   AppComponent,
   NotFoundPageComponent,
-  HomePageComponent,
+  SplashPageComponent,
   LayoutComponent,
   NavItemComponent,
   SidenavComponent,

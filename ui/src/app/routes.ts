@@ -1,14 +1,14 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './auth/services/auth-guard.service';
 import { NotFoundPageComponent } from './core/containers/not-found-page';
-import { HomePageComponent } from './core/containers/home-page';
+import { SplashPageComponent } from './core/containers/splash-page';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/home', pathMatch: 'full' },
+  { path: '', redirectTo: '/splash', pathMatch: 'full' },
   {
-    path: 'home',
-    component: HomePageComponent,
-    canActivate: [AuthGuard],
+    path: 'splash',
+    component: SplashPageComponent,
+   // canActivate: [AuthGuard],
   },
   { path: '**', component: NotFoundPageComponent },
 ];

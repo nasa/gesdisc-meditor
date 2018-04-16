@@ -6,6 +6,7 @@ import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { LoginPageComponent } from './containers/login-page.component';
 import { LoginComponent } from './components/login.component';
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { AuthService } from './services/auth.service';
 import { AuthGuard } from './services/auth-guard.service';
@@ -17,7 +18,7 @@ import { AuthConfig, JwksValidationHandler, OAuthModule, ValidationHandler } fro
 export const COMPONENTS = [LoginComponent, LoginPageComponent];
 
 @NgModule({
-  imports: [CommonModule, ReactiveFormsModule, MaterialModule],
+  imports: [CommonModule, ReactiveFormsModule, MaterialModule, FlexLayoutModule],
   declarations: COMPONENTS,
   exports: COMPONENTS,
 })

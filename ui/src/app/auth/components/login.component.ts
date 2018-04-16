@@ -56,8 +56,6 @@ export class LoginComponent implements OnInit {
 		// this.oauthService.loadDiscoveryDocument();
 	}
 
-	primary = 'yellow';
-
 	ngOnInit() {}
 
 	// onSubmit($event: Authenticate) {
