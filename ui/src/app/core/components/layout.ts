@@ -7,7 +7,7 @@ import * as layout from '../actions/layout';
 @Component({
   selector: 'gc-layout',
   template: `
-    <mat-sidenav-container fullscreen (backdropClick)="console.log('hello')">
+    <mat-sidenav-container fullscreen>
       <ng-content></ng-content>
     </mat-sidenav-container>
   `,

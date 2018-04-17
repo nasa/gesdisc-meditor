@@ -18,7 +18,7 @@ import { AuthModule } from './auth/auth.module';
 
 import { CustomRouterStateSerializer } from './shared/utils';
 
-import { AppComponent } from './core/containers/app';
+import { MainComponent } from './core/containers/main';
 import { environment } from '../environments/environment';
 
 import { routes } from './routes';
@@ -84,7 +84,6 @@ import { reducers, metaReducers } from './reducers';
 		 */
 
 		CoreModule.forRoot(),
-
 		AuthModule.forRoot()
 	],
 	providers: [
@@ -95,6 +94,6 @@ import { reducers, metaReducers } from './reducers';
 		 */
 		{ provide: RouterStateSerializer, useClass: CustomRouterStateSerializer },
 	],
-	bootstrap: [AppComponent]
+	bootstrap: [ MainComponent ]
 })
 export class AppModule { }

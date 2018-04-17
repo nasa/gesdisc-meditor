@@ -16,21 +16,21 @@
     "baseUrl": ".",
     "rootDir": "../",
     "paths": {
-      // "@ngrx/effects": [
-      //   "../node_modules/effects"
-      // ],
-      // "@ngrx/store": [
-      //   "../node_modules/store"
-      // ],
-      // "@ngrx/store-devtools": [
-      //   "../node_modules/store-devtools"
-      // ],
-      // "@ngrx/router-store": [
-      //   "../node_modules/router-store"
-      // ],
-      // "@ngrx/entity": [
-      //   "../node_modules/entity"
-      // ]
+    //   "@ngrx/effects": [
+    //     "../node_modules/effects"
+    //   ],
+    //   "@ngrx/store": [
+    //     "../node_modules/store"
+    //   ],
+    //   "@ngrx/store-devtools": [
+    //     "../node_modules/store-devtools"
+    //   ],
+    //   "@ngrx/router-store": [
+    //     "../node_modules/router-store"
+    //   ],
+    //   "@ngrx/entity": [
+    //     "../node_modules/entity"
+    //   ]
     }
   },
   "exclude": [

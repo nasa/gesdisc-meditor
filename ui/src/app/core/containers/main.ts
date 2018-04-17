@@ -40,7 +40,7 @@ import * as Auth from '../../auth/actions/auth';
   //   `
   ,
 })
-export class AppComponent {
+export class MainComponent {
   showSidenav$: Observable<boolean>;
   loggedIn$: Observable<boolean>;
 
