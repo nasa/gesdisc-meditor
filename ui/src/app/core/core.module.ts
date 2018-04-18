@@ -6,6 +6,8 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { MainComponent } from './containers/main';
 import { NotFoundPageComponent } from './containers/not-found-page';
 import { SplashPageComponent } from './containers/splash-page';
+import { ContentTypeBoxComponent } from './components/content-type-box';
+import { ContentTypeSplashComponent } from './components/content-type-splash';
 import { LayoutComponent } from './components/layout';
 import { NavItemComponent } from './components/nav-item';
 import { SidenavComponent } from './components/sidenav';
@@ -20,6 +22,8 @@ export const COMPONENTS = [
   MainComponent,
   NotFoundPageComponent,
   SplashPageComponent,
+  ContentTypeBoxComponent,
+  ContentTypeSplashComponent,
   LayoutComponent,
   NavItemComponent,
   SidenavComponent,
