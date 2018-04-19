@@ -4,11 +4,11 @@
 
 @font-face {
   font-family: "fontcustom";
-  src: url("assets/fonts/fontcustom.eot");
-  src: url("assets/fonts/fontcustom.eot?#iefix") format("embedded-opentype"),
-       url("assets/fonts/fontcustom.woff") format("woff"),
-       url("assets/fonts/fontcustom.ttf") format("truetype"),
-       url("assets/fonts/fontcustom.svg#fontcustom") format("svg");
+  src: url("assets/fonts/fontcustom/fontcustom.eot");
+  src: url("assets/fonts/fontcustom/fontcustom.eot?#iefix") format("embedded-opentype"),
+       url("assets/fonts/fontcustom/fontcustom.woff") format("woff"),
+       url("assets/fonts/fontcustom/fontcustom.ttf") format("truetype"),
+       url("assets/fonts/fontcustom/fontcustom.svg#fontcustom") format("svg");
   font-weight: normal;
   font-style: normal;
 }
@@ -16,7 +16,7 @@
 @media screen and (-webkit-min-device-pixel-ratio:0) {
   @font-face {
     font-family: "fontcustom";
-    src: url("assets/fonts/fontcustom.svg#fontcustom") format("svg");
+    src: url("assets/fonts/fontcustom/fontcustom.svg#fontcustom") format("svg");
   }
 }
 

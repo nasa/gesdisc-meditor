@@ -24,7 +24,7 @@ import { environment } from '../environments/environment';
 import { routes } from './routes';
 import { reducers, metaReducers } from './reducers';
 
-
+import { ContentTypeService } from './core/services/content-type.service';
 
 @NgModule({
 	imports: [
@@ -93,6 +93,7 @@ import { reducers, metaReducers } from './reducers';
 		 * by `@ngrx/router-store` to include only the desired pieces of the snapshot.
 		 */
 		{ provide: RouterStateSerializer, useClass: CustomRouterStateSerializer },
+		ContentTypeService
 	],
 	bootstrap: [ MainComponent ]
 })
