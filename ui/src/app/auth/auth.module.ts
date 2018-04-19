@@ -13,7 +13,7 @@ import { AuthGuard } from './services/auth-guard.service';
 import { AuthEffects } from './effects/auth.effects';
 import { reducers } from './reducers';
 import { MaterialModule } from '../material';
-import { AuthConfig, JwksValidationHandler, OAuthModule, ValidationHandler } from 'angular-oauth2-oidc';
+import { AuthConfig, JwksValidationHandler, OAuthModule, ValidationHandler } from '../../libs/angular-oauth2-oidc/angular-oauth2-oidc/src';
 
 export const COMPONENTS = [LoginComponent, LoginPageComponent];
 
