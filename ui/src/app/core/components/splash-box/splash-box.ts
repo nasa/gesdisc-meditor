@@ -1,10 +1,10 @@
 import { Component, Input, Output } from '@angular/core';
-import { ContentTypeService } from '../services/content-type.service';
-import { ContentType } from '../models/content-type';
+import { ContentTypeService } from '../../services/content-type.service';
+import { ContentType } from '../../models/content-type';
 
 @Component({
-  selector: 'med-content-type-splash',
-  templateUrl: `./content-type-splash.html`
+  selector: 'med-splash-box',
+  templateUrl: `./splash-box.html`
 })
 export class ContentTypeSplashComponent {
   

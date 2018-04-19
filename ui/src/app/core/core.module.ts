@@ -5,9 +5,9 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { MainComponent } from './containers/main';
 import { NotFoundPageComponent } from './containers/not-found-page';
-import { SplashPageComponent } from './containers/splash-page';
-import { ContentTypeBoxComponent } from './components/content-type-box';
-import { ContentTypeSplashComponent } from './components/content-type-splash';
+import { SplashPageComponent } from './containers/splash-page/splash-page';
+import { ContentTypeBoxComponent } from './components/content-type-button/content-type-button';
+import { ContentTypeSplashComponent } from './components/splash-box/splash-box';
 import { LayoutComponent } from './components/layout';
 import { NavItemComponent } from './components/nav-item';
 import { SidenavComponent } from './components/sidenav';
