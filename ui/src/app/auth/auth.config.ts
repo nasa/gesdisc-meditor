@@ -1,4 +1,4 @@
-import { AuthConfig } from '../../libs/angular-oauth2-oidc/angular-oauth2-oidc/src';
+import { AuthConfig } from '../../libs/angular-oauth2-oidc/src';
 
 export const noDiscoveryAuthConfig: AuthConfig = {
 

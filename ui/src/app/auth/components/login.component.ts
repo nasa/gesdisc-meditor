@@ -5,7 +5,7 @@ import { Store, select } from '@ngrx/store';
 import { Authenticate } from '../models/user';
 import * as fromAuth from '../reducers';
 import * as Auth from '../actions/auth';
-import { OAuthService } from '../../../libs/angular-oauth2-oidc/angular-oauth2-oidc/src';
+import { OAuthService } from '../../../libs/angular-oauth2-oidc/src';
 import { noDiscoveryAuthConfig } from '../auth.config';
 
 
