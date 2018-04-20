@@ -4,7 +4,7 @@ import { ContentType } from '../../models/content-type';
 
 @Component({
   selector: 'med-splash-box',
-  templateUrl: `./splash-box.html`
+  templateUrl: `./splash-box.component.html`
 })
 export class ContentTypeSplashComponent {
   
