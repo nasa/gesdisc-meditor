@@ -1,6 +1,6 @@
 // define 3 theme color
 // mat-palette accepts $palette-name, main, lighter and darker variants
-$main-theme-primary: mat-palette($mat-grey, 50, 50, 50);
+$main-theme-primary: mat-palette($mat-grey, 100, 50, 200);
 $main-theme-accent: mat-palette($mat-light-blue);
 $main-theme-warn: mat-palette($mat-deep-orange, A200);
 

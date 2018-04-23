@@ -46,10 +46,6 @@ html {
 /* START - Content Type Icons   */
 /********************************/
 
-/* Colors definitions*/
-$alerts-color: #FFC104;
-$howto-color: #6d456e;
-
 @mixin iconBadge($name, $diameter, $font-size) {
   .icon-badge-#{$name} {
     width: $diameter;
@@ -74,15 +70,6 @@ $howto-color: #6d456e;
   color: #F2F2F2;
 }
 
-.alerts-bg-color {
-  color: #eee;
-  background-color: $alerts-color;
-}
-
-.howto-bg-color {
-  background-color: $howto-color;
-}
-
 .fa-warning:before {
   bottom: 1px;
   position: relative; 
@@ -90,26 +77,3 @@ $howto-color: #6d456e;
 /*******************************/
 /* END - Content Type Icons    */
 /*******************************/
-
-.sec1 {
-  background: red;
-  color:white;
-  text-transform: uppercase
-}
-
-.sec2 {
-  background: yellow;
-  color:blue;
-  
-}
-
-.sec3 {
-  background: blue;
-  color:white;
-  text-transform: uppercase
-}
-
-.content {
-  min-width: 300px;
-  /*height: 400px;*/
-}
