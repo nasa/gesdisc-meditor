@@ -13,7 +13,6 @@ import { AuthGuard } from './services/auth-guard.service';
 import { AuthEffects } from './effects/auth.effects';
 import { reducers } from './reducers';
 import { MaterialModule } from '../material';
-import { AuthConfig, JwksValidationHandler, OAuthModule, ValidationHandler } from '../../libs/angular-oauth2-oidc/src';
 
 export const COMPONENTS = [LoginComponent, LoginPageComponent];
 
@@ -36,8 +35,7 @@ export class AuthModule {
     AuthModule,
     RouterModule.forChild([{ path: 'login', component: LoginPageComponent }]),
     StoreModule.forFeature('auth', reducers),
-    EffectsModule.forFeature([AuthEffects]),
-    OAuthModule.forRoot()
+    EffectsModule.forFeature([AuthEffects])
   ],
   exports: [ LoginComponent ]
 })
