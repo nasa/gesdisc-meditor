@@ -5,14 +5,12 @@ import { Store, select } from '@ngrx/store';
 import { Authenticate } from '../models/user';
 import * as fromAuth from '../reducers';
 import * as Auth from '../actions/auth';
-import { OAuthService } from '../../../libs/angular-oauth2-oidc/src';
-import { noDiscoveryAuthConfig } from '../auth.config';
 
 
 
 @Component({
   selector: 'med-login',
-  template: `<button mat-raised-button (click)="login()" color="warn">Earthdata Login</button>`
+  template: `<a mat-raised-button href="http://localhost:4201/login" color="warn">Earthdata Login</a>`
   ,
   styles: [
     `
@@ -50,11 +48,8 @@ import { noDiscoveryAuthConfig } from '../auth.config';
 })
 export class LoginComponent implements OnInit {
 
-  constructor(private store: Store<fromAuth.State>, private oauthService: OAuthService) {
-		this.oauthService.configure(noDiscoveryAuthConfig);
-		// this.oauthService.loadDiscoveryDocument();
-		this.oauthService.tryLogin();
-		// this.oauthService.loadDiscoveryDocumentAndTryLogin();
+  constructor(private store: Store<fromAuth.State>) {
+
 	}
 
 	ngOnInit() {}
@@ -63,19 +58,5 @@ export class LoginComponent implements OnInit {
 	// 	this.store.dispatch(new Auth.Login($event));
 	// }
 
-	login() {
-		// this.oauthService.initImplicitFlow();
-		this.oauthService.initAuthorizationCodeFlow();
-	}
 
-	logout() {
-		this.oauthService.logOut();
-	}
-
-
-  // login() {
-  //   if (this.form.valid) {
-  //     this.login.emit(this.form.value);
-  //   }
-  // }
 }
