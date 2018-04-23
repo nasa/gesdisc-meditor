@@ -1,6 +1,7 @@
 import { Component, Input, Output } from '@angular/core';
 import { ContentTypeService } from '../../services/content-type.service';
 import { ContentType } from '../../models/content-type';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'med-splash-box',
@@ -8,14 +9,25 @@ import { ContentType } from '../../models/content-type';
 })
 export class ContentTypeSplashComponent {
   
-  contentTypes: ContentType[];
+  contentTypes : ContentType[];
 
   constructor(
-    private contentTypeService: ContentTypeService
+    private contentTypeService: ContentTypeService,
+    private cdRef:ChangeDetectorRef
   ) { }
 
   ngOnInit() {
-    this.contentTypes = this.contentTypeService.getContentTypes();
+    this.getContentTypes();
   }
 
+  getContentTypes() {
+    // get content type list
+    this.contentTypeService.listModels().subscribe(
+      data => { 
+        this.contentTypes = data;
+        this.cdRef.detectChanges();
+      },
+      err => console.error(err)
+    );
+  }
 }
