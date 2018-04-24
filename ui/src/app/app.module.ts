@@ -24,7 +24,7 @@ import { environment } from '../environments/environment';
 import { routes } from './routes';
 import { reducers, metaReducers } from './reducers';
 
-import { ContentTypeService } from './core/services/content-type.service';
+import { ContentTypeService } from './core/services/content-type/content-type.service';
 
 @NgModule({
 	imports: [

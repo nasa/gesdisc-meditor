@@ -1,5 +1,5 @@
 import { Component, Input, Output } from '@angular/core';
-import { ContentTypeService } from '../../services/content-type.service';
+import { ContentTypeService } from '../../services/content-type/content-type.service';
 import { ContentType } from '../../models/content-type';
 import { ChangeDetectorRef } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
@@ -8,7 +8,7 @@ import { Observable } from 'rxjs/Observable';
   selector: 'med-splash-box',
   templateUrl: `./splash-box.component.html`
 })
-export class ContentTypeSplashComponent {
+export class SplashBoxComponent {
   
   contentTypes : Observable<Array<ContentType>>;
 

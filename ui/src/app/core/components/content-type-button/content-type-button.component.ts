@@ -6,8 +6,8 @@ import * as _ from 'lodash';
   selector: 'med-content-type-button',
   templateUrl: `./content-type-button.component.html`
 })
-export class ContentTypeBoxComponent {
-  @Input() contentType:ContentType;
+export class ContentTypeButtonComponent {
+  @Input() public contentType:ContentType;
 
   ngOnInit() {
     if (_.isNil(this.contentType.count)) {

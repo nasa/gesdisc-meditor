@@ -3,8 +3,8 @@ export class ContentType {
         public name: String,
         public description: String,
         public icon: ContentTypeIcon,
-        public count: Number
-	) {};
+        public count?: Number
+    ) {};
 }
 
 export class ContentTypeIcon {
