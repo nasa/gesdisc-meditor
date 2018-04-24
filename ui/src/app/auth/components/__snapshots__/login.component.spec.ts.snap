@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Login Component should compile 1`] = `
+<med-login
+  store={[Function Store]}
+>
+  <a
+    _ngcontent-c0=""
+    color="warn"
+    href="http://localhost:4201/login"
+    mat-raised-button=""
+  >
+    Earthdata Login
+  </a>
+</med-login>
+`;
