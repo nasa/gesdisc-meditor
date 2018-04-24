@@ -4,22 +4,33 @@ import { ContentType } from '../../models/content-type';
 import { ChangeDetectorRef } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
+import { Store, select } from '@ngrx/store';
+
+import * as fromContentTypes from '../../reducers/content-types';
+import * as ContentTypes from '../../actions/content-types';
+
 @Component({
   selector: 'med-splash-box',
   templateUrl: `./splash-box.component.html`
 })
 export class SplashBoxComponent {
-  
-  contentTypes : Observable<Array<ContentType>>;
+
+  contentTypes$ : Observable<Array<ContentType>>;
 
   constructor(
     private contentTypeService: ContentTypeService,
+    private store: Store<fromContentTypes.State>,
     private cdRef:ChangeDetectorRef
-  ) { }
+  ) {
+  	this.contentTypes$ = store.pipe(select(fromContentTypes.getContentTypes))
+  }
 
   ngOnInit() {
     // get content type list
-    this.contentTypes = this.contentTypeService.listModels();
+    // this.contentTypes = this.contentTypeService.listModels();
+
+    this.store.dispatch(new ContentTypes.LoadContentTypes());
+
   }
 
 }

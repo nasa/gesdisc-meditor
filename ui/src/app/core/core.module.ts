@@ -15,6 +15,9 @@ import { SidenavComponent } from './components/sidenav';
 import { SplashBoxComponent } from './components/splash-box/splash-box.component';
 import { ToolbarComponent } from './components/toolbar';
 
+import { EffectsModule } from '@ngrx/effects';
+import { ContentTypesEffects } from './effects/content-types';
+
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
 
 import { AuthModule } from '../auth/auth.module';
@@ -32,7 +35,15 @@ export const COMPONENTS = [
 ];
 
 @NgModule({
-  imports: [CommonModule, RouterModule, MaterialModule, FlexLayoutModule, AngularFontAwesomeModule, AuthModule.forRoot()],
+  imports: [
+  	CommonModule,
+  	RouterModule,
+  	MaterialModule,
+  	FlexLayoutModule,
+  	AngularFontAwesomeModule,
+  	AuthModule.forRoot(),
+  	EffectsModule.forFeature([ContentTypesEffects]),
+  ],
   declarations: COMPONENTS,
   exports: COMPONENTS
 })

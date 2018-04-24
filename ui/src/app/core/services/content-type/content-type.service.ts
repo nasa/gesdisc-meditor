@@ -21,7 +21,7 @@ export class ContentTypeService {
     return this.httpClient.get<Array<ContentType>>(this.URL+'/listModels');
   }
 
-  // getContentTypes() {
-  //   return CONTENT_TYPES;
-  // }
+  getContentTypes() {
+    return CONTENT_TYPES;
+  }
 }
