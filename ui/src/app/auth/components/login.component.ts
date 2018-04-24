@@ -5,7 +5,6 @@ import { Store, select } from '@ngrx/store';
 import { Authenticate } from '../models/user';
 import * as fromAuth from '../reducers';
 import * as Auth from '../actions/auth';
-import { CookieService } from 'ngx-cookie-service';
 
 
 
@@ -13,7 +12,7 @@ import { CookieService } from 'ngx-cookie-service';
 	selector: 'med-login',
 	template:
 	`
-		<a mat-raised-button (click)="login()" color="warn" *ngIf="!loginStatus$">Earthdata Login</a>
+		<a mat-raised-button (click)="login()" color="primary" *ngIf="!loginStatus$">Earthdata Login</a>
 		<div *ngIf="(user$ | async) as user" class="user-box">Hi, {{user.name}}</div>
 	`
 	,
@@ -60,7 +59,7 @@ export class LoginComponent implements OnInit {
 	loginStatus$: Observable<boolean>;
 	user$: Observable<any>;
 
-	constructor(private store: Store<fromAuth.State>, private cookieService: CookieService) {
+	constructor(private store: Store<fromAuth.State>) {
 		this.loginStatus$ = store.pipe(select(fromAuth.getLoggedIn));
 		this.user$ = store.pipe(select(fromAuth.getUser));
 	}
