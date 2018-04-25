@@ -1,24 +1,29 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { StoreModule, Store, combineReducers } from '@ngrx/store';
-import { LoginFormComponent } from './login-form.component';
+import { LoginComponent } from './login.component';
 import * as Auth from '../actions/auth';
 import * as fromAuth from '../reducers';
-import { ReactiveFormsModule } from '@angular/forms';
 
-describe('Login Page', () => {
-  let fixture: ComponentFixture<LoginFormComponent>;
-  let instance: LoginFormComponent;
+describe('Login Component', () => {
+  let fixture: ComponentFixture<LoginComponent>;
+  let store: Store<fromAuth.State>;
+  let instance: LoginComponent;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [ReactiveFormsModule],
-      declarations: [LoginFormComponent],
+    	imports: [
+    		StoreModule.forRoot({
+          auth: combineReducers(fromAuth.reducers),
+        }),
+    	],
+      declarations: [LoginComponent],
       schemas: [NO_ERRORS_SCHEMA],
     });
 
-    fixture = TestBed.createComponent(LoginFormComponent);
+    fixture = TestBed.createComponent(LoginComponent);
     instance = fixture.componentInstance;
+    store = TestBed.get(Store);
   });
 
   it('should compile', () => {
@@ -39,32 +44,32 @@ describe('Login Page', () => {
     expect(fixture).toMatchSnapshot();
   });
 
-  it('should disable the form if pending', () => {
-    instance.pending = true;
+  // it('should disable the form if pending', () => {
+  //   instance.pending = true;
 
-    fixture.detectChanges();
+  //   fixture.detectChanges();
 
-    expect(fixture).toMatchSnapshot();
-  });
+  //   expect(fixture).toMatchSnapshot();
+  // });
 
-  it('should display an error message if provided', () => {
-    instance.errorMessage = 'Invalid credentials';
+  // it('should display an error message if provided', () => {
+  //   instance.errorMessage = 'Invalid credentials';
 
-    fixture.detectChanges();
+  //   fixture.detectChanges();
 
-    expect(fixture).toMatchSnapshot();
-  });
+  //   expect(fixture).toMatchSnapshot();
+  // });
 
-  it('should emit an event if the form is valid when submitted', () => {
-    const credentials = {
-      username: 'user',
-      password: 'pass',
-    };
-    instance.form.setValue(credentials);
+  // it('should emit an event if the form is valid when submitted', () => {
+  //   const credentials = {
+  //     username: 'user',
+  //     password: 'pass',
+  //   };
+  //   instance.form.setValue(credentials);
 
-    spyOn(instance.submitted, 'emit');
-    instance.submit();
+  //   spyOn(instance.submitted, 'emit');
+  //   instance.submit();
 
-    expect(instance.submitted.emit).toHaveBeenCalledWith(credentials);
-  });
+  //   expect(instance.submitted.emit).toHaveBeenCalledWith(credentials);
+  // });
 });

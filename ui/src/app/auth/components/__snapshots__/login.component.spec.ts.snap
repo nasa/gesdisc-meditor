@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Login Component should compile 1`] = `
+<med-login
+  loginStatus$={[Function Store]}
+  store={[Function Store]}
+  user$={[Function Store]}
+>
+  
+  		
+  		
+  	
+</med-login>
+`;

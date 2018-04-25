@@ -1,0 +1,234 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "0.0.1",
+        "title": "Model Editor API"
+    },
+    "basePath": "/meditor",
+    "schemes": [
+        "http"
+    ],
+    "port": {
+        "default": 8082
+    },
+    "paths": {
+        "/listModels": {
+            "options": {
+                "summary": "CORS support",
+                "description": "Provides support for OPTIONS request",
+                "operationId": "listModelsOPTIONS",
+                "x-swagger-router-controller": "Meditor",
+                "responses": {
+                    "default": {
+                        "description": "Default response for CORS method",
+                        "headers": {
+                            "Access-Control-Allow-Headers": {
+                                "type": "string"
+                            },
+                            "Access-Control-Allow-Methods": {
+                                "type": "string"
+                            },
+                            "Access-Control-Allow-Origin": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "operationId": "listModelsGET",
+                "x-swagger-router-controller": "Meditor",
+                "summary": "Gets the list of Models with their attributes",
+                "description": "Gets 'Model' objects each with an icon, description and count of number of instances of an object.\n",
+                "parameters": [
+                    {
+                        "name": "fields",
+                        "in": "query",
+                        "description": "Comma-separated list of fields to be returned",
+                        "required": false,
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "collectionFormat": "csv"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "schema": {
+                            "title": "ArrayOfModels",
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/error"
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid syntax",
+                        "schema": {
+                            "$ref": "#/definitions/error"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/error"
+                        }
+                    },
+                    "503": {
+                        "description": "Service not available",
+                        "schema": {
+                            "$ref": "#/definitions/error"
+                        }
+                    }
+                }
+            }
+        },
+        "/putModel": {
+            "post": {
+                "operationId": "putModelPOST",
+                "x-swagger-router-controller": "Meditor",
+                "summary": "Adds a Model",
+                "description": "Adds a Model object",
+                "parameters": [
+                    {
+                        "name": "file",
+                        "in": "formData",
+                        "description": "Uploaded model file (JSON)",
+                        "required": true,
+                        "type": "file"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "schema": {
+                            "$ref": "#/definitions/success"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/error"
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid syntax",
+                        "schema": {
+                            "$ref": "#/definitions/error"
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "schema": {
+                            "$ref": "#/definitions/error"
+                        }
+                    },
+                    "503": {
+                        "description": "Service not available",
+                        "schema": {
+                            "$ref": "#/definitions/error"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "error": {
+            "title": "ServerError",
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                }
+            }
+        },
+        "success": {
+            "title": "ServerSuccess",
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                }
+            }
+        },
+        "model": {
+            "title": "Model",
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "description": "Name of the model (ex: FAQ, Alert, Collection etc.,): displayed to the user in UI"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Description of the model (ex: FAQ, Alert, Collection etc.,): description of the model; might be shown to user as a tooltip"
+                },
+                "icon": {
+                    "type": "object",
+                    "description": "Icon for the model: currently limited to Font Awesome",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "description": "Name of the Font Awesome icon (ex: )"
+                        },
+                        "color": {
+                            "type": "string",
+                            "description": "Background color to be used for the Font Awesome icon (ex: )"
+                        }
+                    }
+                },
+                "count": {
+                    "type": "integer",
+                    "description": "Number of instances of the model",
+                    "minimum": 1
+                },
+                "schema": {
+                    "type": "string",
+                    "description": "JSON Schema of the model itself"
+                },
+                "version": {
+                    "type": "string",
+                    "description": "Version of the model represented by date-time of modification"
+                },
+                "modifiedOn": {
+                    "type": "string",
+                    "description": "Date-time of modification"
+                },
+                "modifiedBy": {
+                    "type": "string",
+                    "description": "Modifier's user name"
+                },
+                "documentation\"": {
+                    "type": "string",
+                    "description": "Link to model's documentation"
+                },
+                "tag": {
+                    "type": "array",
+                    "description": "An array of tags associated with the model: can be used for searching models",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "name",
+                "description"
+            ]
+        }
+    }
+}

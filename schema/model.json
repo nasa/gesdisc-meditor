@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "id": "https://disc.gsfc.nasa.gov/schemas/model.json",
+  "type": "object",
+  "properties": {
+    "name": {
+      "$comment": "Name of the model (ex: FAQ, Alert, Collection etc.,): displayed to the user in UI",
+      "type": "string",
+      "minLength": 3,
+      "required": true
+    },
+    "description": {
+      "$comment": "Description of the model (ex: FAQ, Alert, Collection etc.,): description of the model; might be shown to user as a tooltip",
+      "type": "string",
+      "minLength": 10,
+      "required": true
+    },
+    "icon": {
+      "$comment": "Icon for the model: currently limited to Font Awesome",
+      "type": "object",
+      "properties": {
+        "name": {
+          "$comment": "Name of the Font Awesome icon (ex: )",
+          "type": "string",
+          "required": "true"
+        },
+        "color": {
+          "$comment": "Background color to be used for the Font Awesome icon (ex: )",
+          "type": "string",
+          "required": "false"
+        }
+      }
+    },
+    "schema": {
+      "$comment": "JSON Schema of the model itself",
+      "type": "string",
+      "required": true
+    },
+    "documentation": {
+      "$comment": "Link to model's documentation",
+      "type": "string",
+      "required": false
+    },
+    "tag": {
+      "$comment": "An array of tags associated with the model: can be used for searching models",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "required": false
+    }
+  }
+}

@@ -32,7 +32,7 @@ import { ContentTypeService } from './core/services/content-type/content-type.se
 		BrowserModule,
 		BrowserAnimationsModule,
 		HttpClientModule,
-		RouterModule.forRoot(routes, { useHash: true }),
+		RouterModule.forRoot(routes, { }),
 
 		/**
 		 * StoreModule.forRoot is imported once in the root module, accepting a reducer

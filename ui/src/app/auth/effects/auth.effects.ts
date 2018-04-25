@@ -6,22 +6,22 @@ import { tap, map, exhaustMap, catchError } from 'rxjs/operators';
 
 import { AuthService } from '../services/auth.service';
 import {
-  Login,
+  GetUser,
   LoginSuccess,
   LoginFailure,
   AuthActionTypes,
 } from '../actions/auth';
-import { User, Authenticate } from '../models/user';
+import { User } from '../models/user';
 
 @Injectable()
 export class AuthEffects {
   @Effect()
   login$ = this.actions$.pipe(
-    ofType(AuthActionTypes.Login),
-    map((action: Login) => action.payload),
-    exhaustMap((auth: Authenticate) =>
+    ofType(AuthActionTypes.GetUser),
+    //map((action: GetUser) => action.payload),
+    exhaustMap(() =>
       this.authService
-        .login(auth)
+        .login()
         .pipe(
           map(user => new LoginSuccess({ user })),
           catchError(error => of(new LoginFailure(error)))
@@ -39,7 +39,8 @@ export class AuthEffects {
   loginRedirect$ = this.actions$.pipe(
     ofType(AuthActionTypes.LoginRedirect, AuthActionTypes.Logout),
     tap(authed => {
-      this.router.navigate(['/login']);
+      // this.router.navigate(['http://localhost:4201/login']);
+      window.location.href = 'http://localhost:4201/login';
     })
   );
 

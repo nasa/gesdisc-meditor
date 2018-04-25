@@ -1,79 +1,81 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { FormGroup, FormControl } from '@angular/forms';
+import { Observable } from 'rxjs/Observable';
 
 import { Store, select } from '@ngrx/store';
 import { Authenticate } from '../models/user';
 import * as fromAuth from '../reducers';
 import * as Auth from '../actions/auth';
-import { OAuthService } from "angular-oauth2-oidc";
-import { noDiscoveryAuthConfig } from '../auth.config';
 
 
 
 @Component({
-  selector: 'med-login',
-  template: `<button mat-raised-button (click)="login()" color="warn">Earthdata Login</button>`
-  ,
-  styles: [
-    `
-    :host {
-      display: flex;
-      justify-content: center;
-      margin: 72px 0;
-    }
+	selector: 'med-login',
+	template:
+	`
+		<a mat-raised-button (click)="login()" color="primary" *ngIf="!loginStatus$">Earthdata Login</a>
+		<div *ngIf="(user$ | async) as user" class="user-box">Hi, {{user.name}}</div>
+	`
+	,
+	styles: [
+	`
+		:host {
+			display: flex;
+			justify-content: center;
+			margin: 72px 0;
+		}
 
-    .mat-form-field {
-      width: 100%;
-      min-width: 300px;
-    }
+		.mat-form-field {
+			width: 100%;
+			min-width: 300px;
+		}
 
-    mat-card-title,
-    mat-card-content {
-      display: flex;
-      justify-content: center;
-    }
+		mat-card-title,
+		mat-card-content {
+			display: flex;
+			justify-content: center;
+		}
 
-    .loginError {
-      padding: 16px;
-      width: 300px;
-      color: white;
-      background-color: red;
-    }
+		.loginError {
+			padding: 16px;
+			width: 300px;
+			color: white;
+			background-color: red;
+		}
 
-    .loginButtons {
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-end;
-    }
-  `,
-  ],
+		.loginButtons {
+			display: flex;
+			flex-direction: row;
+			justify-content: flex-end;
+		}
+
+		.user-box {
+			color: black;
+		}
+	`,
+	],
 })
 export class LoginComponent implements OnInit {
 
-  constructor(private store: Store<fromAuth.State>, private oauthService: OAuthService) {
-		this.oauthService.configure(noDiscoveryAuthConfig);
-		this.oauthService.tryLogin();
-		// this.oauthService.loadDiscoveryDocument();
+	loginStatus$: Observable<boolean>;
+	user$: Observable<any>;
+
+	constructor(private store: Store<fromAuth.State>) {
+		this.loginStatus$ = store.pipe(select(fromAuth.getLoggedIn));
+		this.user$ = store.pipe(select(fromAuth.getUser));
 	}
 
-	ngOnInit() {}
+	ngOnInit() {
+		this.store.dispatch(new Auth.GetUser());
+	}
+
+	login() {
+		this.store.dispatch(new Auth.LoginRedirect());
+		// window.location.href = 'http://localhost:4201/login';
+	}
 
 	// onSubmit($event: Authenticate) {
 	// 	this.store.dispatch(new Auth.Login($event));
 	// }
 
-	login() {
-		this.oauthService.initImplicitFlow();
-	}
 
-	logout() {
-		this.oauthService.logOut();
-	}
-
-
-  // login() {
-  //   if (this.form.valid) {
-  //     this.login.emit(this.form.value);
-  //   }
-  // }
 }
