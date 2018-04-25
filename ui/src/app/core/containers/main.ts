@@ -11,9 +11,13 @@ import * as Auth from '../../auth/actions/auth';
   selector: 'meditor-app',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-  	<med-toolbar>
-    </med-toolbar>
-  	<router-outlet></router-outlet>
+    <div fxFill fxLayout="column">
+      <med-toolbar fxFlex="60px">
+      </med-toolbar>
+      <div fxFlex="100">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
   `
   // `
   //   <gc-layout>

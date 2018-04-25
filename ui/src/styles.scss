@@ -2,15 +2,18 @@
 @import '~@angular/material/theming';
 @import "~@angular/material/prebuilt-themes/pink-bluegrey.css";
 
-// @include mat-core();
+// always include only once per project
+@include mat-core();
 
-// $my-app-primary: mat-palette($mat-blue-grey);
-// $my-app-accent:  mat-palette($mat-pink, 500, 900, A100);
-// $my-app-warn:    mat-palette($mat-deep-orange);
+// import our custom theme
+@import 'main-theme.scss';
 
-// $my-app-theme: mat-light-theme($my-app-primary, $my-app-accent, $my-app-warn);
-
-// @include angular-material-theme($my-app-theme);
+// specify theme class eg: <body class="my-theme"> ... </body>
+.main-theme {
+  
+  // use our theme with angular-material-theme mixin
+  @include angular-material-theme($main-theme);
+}
 
 html,
 body {
@@ -29,8 +32,48 @@ html {
   overflow: auto;
 }
 
-
 .mat-progress-spinner svg {
   width: 30px !important;
   height: 30px !important;
 }
+
+.align-middle {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/********************************/
+/* START - Content Type Icons   */
+/********************************/
+
+@mixin iconBadge($name, $diameter, $font-size) {
+  .icon-badge-#{$name} {
+    width: $diameter;
+    height: $diameter;
+    line-height: $diameter + 2px !important;
+    font-size: $font-size !important;
+  }
+  .icon-badge-title-#{$name} {
+    width: calc(100% - #{$diameter + 10px});
+  }
+}
+
+@include iconBadge("sm", 36px, 22px);
+@include iconBadge("md", 44px, 24px);
+@include iconBadge("lg", 64px, 36px);
+
+.icon-badge {
+  border-radius: 50%;
+  text-align: center;
+  background-color: gray;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+  color: #F2F2F2;
+}
+
+.fa-warning:before {
+  bottom: 1px;
+  position: relative; 
+}
+/*******************************/
+/* END - Content Type Icons    */
+/*******************************/

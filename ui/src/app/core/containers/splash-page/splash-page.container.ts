@@ -3,14 +3,7 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
 @Component({
 	selector: 'med-splash-page',
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	template:
-	`
-	`
-	// TODO: Create component and add it to template
-	// <med-content-type></med-content-type>
-
-
-	,
+	templateUrl: './splash-page.container.html',
 	styles: [
 		`
 		:host {
@@ -19,4 +12,4 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
 	`,
 	],
 })
-export class SplashPageComponent {}
+export class SplashPageContainer {}

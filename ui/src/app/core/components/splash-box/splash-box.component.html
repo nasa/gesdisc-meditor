@@ -1,0 +1,9 @@
+<mat-card >
+  <mat-card-title  style="text-align: left; color:gray;">
+    Select a content type to edit
+  </mat-card-title>
+  <mat-card-content fxLayout="row wrap" fxLayoutAlign="center center">
+    <med-content-type-button style="margin:10px" *ngFor="let contentType of contentTypes$ | async" [contentType]="contentType">
+    </med-content-type-button>
+  </mat-card-content>
+</mat-card>

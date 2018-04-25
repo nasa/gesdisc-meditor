@@ -1,33 +1,53 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { StoreModule } from '@ngrx/store';
 import { FlexLayoutModule } from '@angular/flex-layout';
-
+// CONTAINERS
 import { MainComponent } from './containers/main';
 import { NotFoundPageComponent } from './containers/not-found-page';
-import { SplashPageComponent } from './containers/splash-page';
+import { SplashPageContainer } from './containers/splash-page/splash-page.container';
+// COMPONENTS
+import { ContentTypeButtonComponent } from './components/content-type-button/content-type-button.component';
 import { LayoutComponent } from './components/layout';
+import { MaterialModule } from '../material';
 import { NavItemComponent } from './components/nav-item';
 import { SidenavComponent } from './components/sidenav';
+import { SplashBoxComponent } from './components/splash-box/splash-box.component';
 import { ToolbarComponent } from './components/toolbar';
-import { MaterialModule } from '../material';
+
+import { EffectsModule } from '@ngrx/effects';
+import { ContentTypesEffects } from './effects/content-types';
+
+import { reducers } from './reducers';
 
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
 
 import { AuthModule } from '../auth/auth.module';
 
 export const COMPONENTS = [
+  ContentTypeButtonComponent,
+  LayoutComponent,
   MainComponent,
   NotFoundPageComponent,
-  SplashPageComponent,
-  LayoutComponent,
+  SplashBoxComponent,
+  SplashPageContainer,
   NavItemComponent,
   SidenavComponent,
   ToolbarComponent,
 ];
 
 @NgModule({
-  imports: [CommonModule, RouterModule, MaterialModule, FlexLayoutModule, AngularFontAwesomeModule, AuthModule.forRoot()],
+  imports: [
+  	CommonModule,
+  	RouterModule,
+  	MaterialModule,
+  	FlexLayoutModule,
+  	AngularFontAwesomeModule,
+  	AuthModule.forRoot(),
+  	StoreModule.forFeature('contentTypes', reducers),
+  	EffectsModule.forFeature([ContentTypesEffects]),
+  ],
   declarations: COMPONENTS,
   exports: COMPONENTS
 })

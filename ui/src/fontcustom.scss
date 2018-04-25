@@ -1,0 +1,49 @@
+//
+// Icon Font: fontcustom
+//
+
+@font-face {
+  font-family: "fontcustom";
+  src: url("assets/fonts/fontcustom/fontcustom.eot");
+  src: url("assets/fonts/fontcustom/fontcustom.eot?#iefix") format("embedded-opentype"),
+       url("assets/fonts/fontcustom/fontcustom.woff") format("woff"),
+       url("assets/fonts/fontcustom/fontcustom.ttf") format("truetype"),
+       url("assets/fonts/fontcustom/fontcustom.svg#fontcustom") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: "fontcustom";
+    src: url("assets/fonts/fontcustom/fontcustom.svg#fontcustom") format("svg");
+  }
+}
+
+[data-icon]:before { content: attr(data-icon); }
+
+[data-icon]:before,
+.i-datasets:before,
+.i-howto:before,
+.i-search:before {
+  display: inline-block;
+  font-family: "fontcustom";
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  line-height: 1;
+  text-decoration: inherit;
+  text-rendering: optimizeLegibility;
+  text-transform: none;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  font-smoothing: antialiased;
+}
+
+.i-datasets:before { content: "\f100"; }
+.i-howto:before { content: "\f103"; }
+.i-search:before { content: "\f104"; }
+
+$font-fontcustom-datasets: "\f100";
+$font-fontcustom-howto: "\f103";
+$font-fontcustom-search: "\f104";
