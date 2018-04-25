@@ -26,8 +26,6 @@ export class ContentTypeService {
   }
 
   public getContentTypes(): Observable<ContentType[]> {
-    // return Observable.from(CONTENT_TYPES);
-
 		return Observable.create((observer: Subscriber<any>) => {
 	    observer.next(CONTENT_TYPES);
 	    observer.complete();

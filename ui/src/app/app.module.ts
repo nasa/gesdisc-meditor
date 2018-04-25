@@ -65,7 +65,7 @@ import { ContentTypeService } from './core/services/content-type/content-type.se
 		 * See: https://github.com/zalmoxisus/redux-devtools-extension
 		 */
 		StoreDevtoolsModule.instrument({
-			name: 'NgRx Book Store DevTools',
+			name: 'NgRx Meditor Store DevTools',
 			logOnly: environment.production,
 		}),
 

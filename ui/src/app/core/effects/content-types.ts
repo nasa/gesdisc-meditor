@@ -36,13 +36,9 @@ export class ContentTypesEffects {
 	@Effect()
 	load$: Observable<Action> = this.actions$.pipe(
 		ofType<LoadContentTypes>(ContentTypesActionTypes.LoadContentTypes),
-		// map(action => action.payload),
 		switchMap(() => this.contentTypesService.getContentTypes()),
-		map((contentTypes: ContentType[]) => {
-			console.log(contentTypes);
-			return new LoadComplete(contentTypes)
-		}),
-		//catchError(err => of(new LoadError(err)))
+		map((contentTypes: ContentType[]) =>  new LoadComplete(contentTypes)),
+		// catchError(err => of(new LoadError(err)))
 	);
 
 	constructor(

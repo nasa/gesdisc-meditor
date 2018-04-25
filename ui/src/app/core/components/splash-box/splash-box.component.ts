@@ -26,10 +26,7 @@ export class SplashBoxComponent {
   }
 
   ngOnInit() {
-    // get content type list
-    // this.contentTypes = this.contentTypeService.listModels();
     this.store.dispatch(new ContentTypes.LoadContentTypes());
-
   }
 
 }

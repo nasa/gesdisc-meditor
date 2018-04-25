@@ -27,14 +27,4 @@ export const {
   selectAll: getAllContentTypes,
   selectTotal: getTotalContentTypes,
 } = fromContentTypes.adapter.getSelectors(getContentTypesEntitiesState);
-// export const selectContentTypesIds = createSelector(selectContentTypesState, fromContentTypes.selectContentTypesIds);
-// export const selectContentTypesEntities = createSelector(selectContentTypesState, fromContentTypes.selectContentTypesEntities);
-// export const selectAllContentTypes = createSelector(selectContentTypesState, fromContentTypes.selectAllContentTypes);
-// export const selectContentTypesTotal = createSelector(selectContentTypesState, fromContentTypes.selectContentTypesTotal);
-// export const selectCurrentUserId = createSelector(selectUserState, fromContentTypes.getSelectedUserId);
 
-// export const selectCurrentUser = createSelector(
-//   selectUserEntities,
-//   selectCurrentUserId,
-//   (userEntities, userId) => userEntities[userId]
-// );
