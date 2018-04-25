@@ -6,7 +6,7 @@ import { Observable } from 'rxjs/Observable';
 
 import { Store, select } from '@ngrx/store';
 
-import * as fromContentTypes from '../../reducers/content-types';
+import * as fromContentTypes from '../../reducers';
 import * as ContentTypes from '../../actions/content-types';
 
 @Component({
@@ -15,20 +15,19 @@ import * as ContentTypes from '../../actions/content-types';
 })
 export class SplashBoxComponent {
 
-  contentTypes$ : Observable<Array<ContentType>>;
+  contentTypes$ : Observable<ContentType[]>;
 
   constructor(
     private contentTypeService: ContentTypeService,
     private store: Store<fromContentTypes.State>,
     private cdRef:ChangeDetectorRef
   ) {
-  	this.contentTypes$ = store.pipe(select(fromContentTypes.getContentTypes))
+  	this.contentTypes$ = store.pipe(select(fromContentTypes.getAllContentTypes))
   }
 
   ngOnInit() {
     // get content type list
     // this.contentTypes = this.contentTypeService.listModels();
-
     this.store.dispatch(new ContentTypes.LoadContentTypes());
 
   }

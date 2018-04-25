@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
-// import 'rxjs/add/operator/map';
+import { Subscriber } from 'rxjs/Subscriber';
+
+import { map } from 'rxjs/operators';
 // import 'rxjs/add/operator/do';
 
 // model
@@ -17,11 +19,18 @@ export class ContentTypeService {
 
   constructor(protected httpClient: HttpClient) {}
 
-  public listModels(): Observable<Array<ContentType>> {
-    return this.httpClient.get<Array<ContentType>>(this.URL+'/listModels');
+  public listModels(): Observable<ContentType[]> {
+    return this.httpClient
+    	.get<{items: ContentType[]}>(this.URL+'/listModels')
+    	.pipe(map(models => models.items || []));							;
   }
 
-  getContentTypes() {
-    return CONTENT_TYPES;
+  public getContentTypes(): Observable<ContentType[]> {
+    // return Observable.from(CONTENT_TYPES);
+
+		return Observable.create((observer: Subscriber<any>) => {
+	    observer.next(CONTENT_TYPES);
+	    observer.complete();
+		});
   }
 }

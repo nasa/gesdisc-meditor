@@ -44,7 +44,7 @@ export interface State {
  */
 export const reducers: ActionReducerMap<State> = {
   layout: fromLayout.reducer,
-  contentTypes: fromContentTypes.reducer;
+  contentTypes: fromContentTypes.reducer,
   router: fromRouter.routerReducer,
 };
 

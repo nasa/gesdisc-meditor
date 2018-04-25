@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { StoreModule } from '@ngrx/store';
 import { FlexLayoutModule } from '@angular/flex-layout';
 // CONTAINERS
 import { MainComponent } from './containers/main';
@@ -17,6 +18,8 @@ import { ToolbarComponent } from './components/toolbar';
 
 import { EffectsModule } from '@ngrx/effects';
 import { ContentTypesEffects } from './effects/content-types';
+
+import { reducers } from './reducers';
 
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
 
@@ -42,6 +45,7 @@ export const COMPONENTS = [
   	FlexLayoutModule,
   	AngularFontAwesomeModule,
   	AuthModule.forRoot(),
+  	StoreModule.forFeature('contentTypes', reducers),
   	EffectsModule.forFeature([ContentTypesEffects]),
   ],
   declarations: COMPONENTS,
