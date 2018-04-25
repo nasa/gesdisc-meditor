@@ -4,9 +4,9 @@ import { NotFoundPageComponent } from './core/containers/not-found-page';
 import { SplashPageContainer } from './core/containers/splash-page/splash-page.container';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/splash', pathMatch: 'full' },
+  { path: '', redirectTo: '/meditor', pathMatch: 'full' },
   {
-    path: 'splash',
+    path: 'meditor',
     component: SplashPageContainer,
    // canActivate: [AuthGuard],
   },
