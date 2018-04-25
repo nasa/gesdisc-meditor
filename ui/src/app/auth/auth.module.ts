@@ -13,7 +13,6 @@ import { AuthGuard } from './services/auth-guard.service';
 import { AuthEffects } from './effects/auth.effects';
 import { reducers } from './reducers';
 import { MaterialModule } from '../material';
-import { CookieService } from 'ngx-cookie-service';
 
 export const COMPONENTS = [LoginComponent, LoginPageComponent];
 
@@ -38,7 +37,6 @@ export class AuthModule {
     StoreModule.forFeature('auth', reducers),
     EffectsModule.forFeature([AuthEffects])
   ],
-  exports: [ LoginComponent ],
-  providers: [ CookieService ]
+  exports: [ LoginComponent ]
 })
 export class RootAuthModule {}
