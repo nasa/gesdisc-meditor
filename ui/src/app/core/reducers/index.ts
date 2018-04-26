@@ -1,4 +1,4 @@
-import { createSelector, createFeatureSelector, ActionReducerMap } from '@ngrx/store';
+import { createSelector, createFeatureSelector } from '@ngrx/store';
 import * as fromContentTypes from './content-types';
 
 export interface ContentTypesState {

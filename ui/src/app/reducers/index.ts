@@ -26,6 +26,9 @@ import { storeFreeze } from 'ngrx-store-freeze';
 import * as fromLayout from '../core/reducers/layout';
 import * as fromContentTypes from '../core/reducers/content-types';
 
+export interface ContentTypesState {
+  contentTypes: fromContentTypes.State;
+}
 
 /**
  * As mentioned, we treat each reducer like a table in a database. This means
@@ -76,3 +79,24 @@ export const getShowSidenav = createSelector(
   getLayoutState,
   fromLayout.getShowSidenav
 );
+
+/**
+ * Content Type Reducers
+ */
+
+export const selectContentTypesState = createFeatureSelector<ContentTypesState>('contentTypes');
+
+
+export const getContentTypesEntitiesState = createSelector(
+  selectContentTypesState,
+  state => state.contentTypes
+);
+
+export const {
+  selectIds: getContentTypeIds,
+  selectEntities: getContentTypeEntities,
+  selectAll: getAllContentTypes,
+  selectTotal: getTotalContentTypes,
+} = fromContentTypes.adapter.getSelectors(getContentTypesEntitiesState);
+
+

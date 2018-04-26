@@ -1,8 +1,8 @@
-import { ContentType, ContentTypeIcon } from '../models/content-type';
- 
+import { ContentType, ContentTypeIcon } from '../../models/content-type';
+
 export const CONTENT_TYPES: ContentType[] = [
-  { 
-    name: 'Alerts', 
+  {
+    name: 'Alerts',
     description: 'Message to notify visitors of important information regarding data availability, site availability and performance issues.',
     icon: {
       name: 'fa-warning',
@@ -10,8 +10,8 @@ export const CONTENT_TYPES: ContentType[] = [
     },
     count: 324
   },
-  { 
-    name: 'Docs', 
+  {
+    name: 'Docs',
     description: 'Supporting documentation, information and publications related to data collections.',
     icon: {
       name: 'fa-file-text',
@@ -20,7 +20,7 @@ export const CONTENT_TYPES: ContentType[] = [
     count: 153
   },
   {
-    name: 'FAQs', 
+    name: 'FAQs',
     description: 'Answers to frequently asked questions.',
     icon: {
       name: 'fa-question',
@@ -29,7 +29,7 @@ export const CONTENT_TYPES: ContentType[] = [
     count: 90
   },
   {
-    name: 'Glossary', 
+    name: 'Glossary',
     description: 'Definitions of terms to help in your understanding.',
     icon: {
       name: 'fa-info',
@@ -37,8 +37,8 @@ export const CONTENT_TYPES: ContentType[] = [
     },
     count: 34
   },
-  { 
-    name: 'How-To\'s', 
+  {
+    name: 'How-To\'s',
     description: 'Step-by-step procedure which shows end users how to accomplish a task using tools and services available at the GES DISC as well as external tools and services. These tasks include searching and access data, exercising value-added services, visualizing data, and analyzing data.',
     icon: {
       name: 'i-howto',
@@ -47,7 +47,7 @@ export const CONTENT_TYPES: ContentType[] = [
     count: 189
   },
   {
-    name: 'Images', 
+    name: 'Images',
     description: 'Images of interest to the science community.',
     icon: {
       name: 'fa-picture-o',
@@ -56,7 +56,7 @@ export const CONTENT_TYPES: ContentType[] = [
     count: 519
   },
   {
-    name: 'News', 
+    name: 'News',
     description: 'Articles of interest to the science community.',
     icon: {
       name: 'fa-newspaper-o',
@@ -65,7 +65,7 @@ export const CONTENT_TYPES: ContentType[] = [
     count: 201
   },
   {
-    name: 'Tools', 
+    name: 'Tools',
     description: 'Web-based applications and utilities for accessing, processing and visualizing data.',
     icon: {
       name: 'fa-wrench',

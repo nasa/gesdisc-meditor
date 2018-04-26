@@ -24,6 +24,8 @@ import { reducers } from './reducers';
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
 
 import { AuthModule } from '../auth/auth.module';
+import { SearchModule } from '../search/search.module';
+
 
 export const COMPONENTS = [
   ContentTypeButtonComponent,
@@ -45,6 +47,7 @@ export const COMPONENTS = [
   	FlexLayoutModule,
   	AngularFontAwesomeModule,
   	AuthModule.forRoot(),
+  	SearchModule.forRoot(),
   	StoreModule.forFeature('contentTypes', reducers),
   	EffectsModule.forFeature([ContentTypesEffects]),
   ],

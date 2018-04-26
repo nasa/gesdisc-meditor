@@ -1,6 +1,6 @@
 import { ContentTypesActionTypes, ContentTypesActions } from '../actions/content-types';
 import { createEntityAdapter, EntityAdapter, EntityState } from '@ngrx/entity';
-import { ContentType } from '../models/content-type';
+import { ContentType } from '@models/content-type';
 
 export interface State extends EntityState<ContentType> {
 	// selectedContentTypeId: number | null;

@@ -1,5 +1,5 @@
 import { Action } from '@ngrx/store';
-import { ContentType } from '../models/content-type';
+import { ContentType } from '@models/content-type';
 
 export enum ContentTypesActionTypes {
 	LoadContentTypes = '[ContentType] Add content types',

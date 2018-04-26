@@ -18,7 +18,7 @@ import {
 	LoadComplete,
 	LoadError
 } from '../actions/content-types';
-import { ContentType } from '../models/content-type';
+import { ContentType } from '@models/content-type';
 
 /**
  * Effects offer a way to isolate and easily test side-effects within your

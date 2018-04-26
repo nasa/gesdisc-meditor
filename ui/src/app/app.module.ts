@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, APP_BASE_HREF } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -77,12 +77,6 @@ import { ContentTypeService } from './core/services/content-type/content-type.se
 		 * See: https://github.com/ngrx/platform/blob/master/docs/effects/api.md#forroot
 		 */
 		EffectsModule.forRoot([]),
-
-		/**
-		 * `provideDB` sets up @ngrx/db with the provided schema and makes the Database
-		 * service available.
-		 */
-
 		CoreModule.forRoot(),
 		AuthModule.forRoot()
 	],
@@ -93,6 +87,7 @@ import { ContentTypeService } from './core/services/content-type/content-type.se
 		 * by `@ngrx/router-store` to include only the desired pieces of the snapshot.
 		 */
 		{ provide: RouterStateSerializer, useClass: CustomRouterStateSerializer },
+		// { provide: APP_BASE_HREF, useValue : 'meditor' },
 		ContentTypeService
 	],
 	bootstrap: [ MainComponent ]

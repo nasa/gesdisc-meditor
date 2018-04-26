@@ -1,0 +1,17 @@
+<div fxLayout="row wrap" fxLayoutAlign="center center" class="search-bar-container">
+  <mat-form-field>
+	  <mat-select [(ngModel)]="selected">
+	  	<mat-select-trigger *ngIf="selected">
+		  	<i class="icon-badge icon-badge-xs fa {{selected.icon.name}} align-middle" [style.background-color]="selected.icon.color"></i>
+		    {{selected.name}}
+      </mat-select-trigger>
+	    <mat-option *ngFor="let contentType of contentTypes$ | async" [value]="contentType">
+	    	<i class="icon-badge icon-badge-xs fa {{contentType.icon.name}} align-middle" [style.background-color]="contentType.icon.color"></i>
+	    	{{contentType.name}}
+	    </mat-option>
+	  </mat-select>
+	</mat-form-field>
+	<mat-form-field class="search-bar-input">
+		<input matInput placeholder="Search..." type="text" name="search" >
+	</mat-form-field>
+</div>

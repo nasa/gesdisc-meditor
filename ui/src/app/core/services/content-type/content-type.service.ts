@@ -7,7 +7,7 @@ import { map } from 'rxjs/operators';
 // import 'rxjs/add/operator/do';
 
 // model
-import { ContentType } from '../../models/content-type';
+import { ContentType } from '@models/content-type';
 
 // mock data
 import { CONTENT_TYPES } from '../../mock-data/content-type.mock';

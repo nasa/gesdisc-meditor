@@ -6,6 +6,7 @@ import * as fromRoot from '../../reducers';
 import * as fromAuth from '../../auth/reducers';
 import * as layout from '../actions/layout';
 import * as Auth from '../../auth/actions/auth';
+import * as ContentTypes from '../actions/content-types';
 
 @Component({
   selector: 'meditor-app',
@@ -19,29 +20,6 @@ import * as Auth from '../../auth/actions/auth';
       </div>
     </div>
   `
-  // `
-  //   <gc-layout>
-  //     <gc-sidenav [open]="showSidenav$ | async">
-  //       <gc-nav-item (navigate)="closeSidenav()" *ngIf="loggedIn$ | async" routerLink="/addplot/map" icon="map" hint="">
-  //         Create a map
-  //       </gc-nav-item>
-  //       <gc-nav-item (navigate)="closeSidenav()" *ngIf="loggedIn$ | async" routerLink="/addplot/lineplot" icon="timeline" hint="">
-  //         Create a time-series
-  //       </gc-nav-item>
-  //       <gc-nav-item (navigate)="closeSidenav()" *ngIf="!(loggedIn$ | async)">
-  //         Sign In
-  //       </gc-nav-item>
-  //       <gc-nav-item (navigate)="logout()" *ngIf="loggedIn$ | async">
-  //         Sign Out
-  //       </gc-nav-item>
-  //     </gc-sidenav>
-  //     <gc-toolbar (openMenu)="openSidenav()">
-
-  //     </gc-toolbar>
-  //     <router-outlet></router-outlet>
-  //   </gc-layout>
-
-  //   `
   ,
 })
 export class MainComponent {
@@ -55,6 +33,7 @@ export class MainComponent {
      */
     this.showSidenav$ = this.store.pipe(select(fromRoot.getShowSidenav));
     this.loggedIn$ = this.store.pipe(select(fromAuth.getLoggedIn));
+    store.dispatch(new ContentTypes.LoadContentTypes());
   }
 
   closeSidenav() {

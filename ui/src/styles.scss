@@ -10,7 +10,7 @@
 
 // specify theme class eg: <body class="my-theme"> ... </body>
 .main-theme {
-  
+
   // use our theme with angular-material-theme mixin
   @include angular-material-theme($main-theme);
 }
@@ -58,6 +58,7 @@ html {
   }
 }
 
+@include iconBadge("xs", 20px, 10px);
 @include iconBadge("sm", 36px, 22px);
 @include iconBadge("md", 44px, 24px);
 @include iconBadge("lg", 64px, 36px);
@@ -72,7 +73,7 @@ html {
 
 .fa-warning:before {
   bottom: 1px;
-  position: relative; 
+  position: relative;
 }
 /*******************************/
 /* END - Content Type Icons    */
