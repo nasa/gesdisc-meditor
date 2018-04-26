@@ -2,15 +2,20 @@ import { Action } from '@ngrx/store';
 import { ContentType } from '@models/content-type';
 
 export enum ContentTypesActionTypes {
+	SelectContentType = "[ContentType] Select Content Type",
 	LoadContentTypes = '[ContentType] Add content types',
 	LoadComplete = '[ContentType] Load Complete',
   LoadError = '[ContentType] Load Error',
 }
 
+export class SelectContentType implements Action {
+  readonly type = ContentTypesActionTypes.SelectContentType;
+
+  constructor(public payload: string) { }
+}
+
 export class LoadContentTypes implements Action {
   readonly type = ContentTypesActionTypes.LoadContentTypes;
-
-  // constructor(public payload: ContentType[]) { }
 }
 
 export class LoadComplete implements Action {
@@ -27,6 +32,7 @@ export class LoadError implements Action {
 
 
 export type ContentTypesActions =
-	LoadContentTypes
+	| SelectContentType
+	| LoadContentTypes
 	| LoadComplete
 	| LoadError;

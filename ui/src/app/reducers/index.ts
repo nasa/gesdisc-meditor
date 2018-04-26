@@ -92,11 +92,22 @@ export const getContentTypesEntitiesState = createSelector(
   state => state.contentTypes
 );
 
+export const getSelectedContentTypeId = createSelector(
+  selectContentTypesState,
+  state => state.contentTypes.selectedContentTypeId
+);
+
 export const {
   selectIds: getContentTypeIds,
   selectEntities: getContentTypeEntities,
   selectAll: getAllContentTypes,
   selectTotal: getTotalContentTypes,
 } = fromContentTypes.adapter.getSelectors(getContentTypesEntitiesState);
+
+export const selectCurrentContentType = createSelector(
+  getContentTypeEntities,
+  getSelectedContentTypeId,
+  (ctEntities, ctId) => ctEntities[ctId]
+);
 
 

@@ -1,6 +1,10 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { ContentType } from '@models/content-type';
+import * as ContentTypes from '../../actions/content-types';
+import { Store, select } from '@ngrx/store';
+import * as fromRoot from '@reducers/index';
+
 import * as _ from 'lodash';
 
 @Component({
@@ -10,7 +14,7 @@ import * as _ from 'lodash';
 export class ContentTypeButtonComponent {
   @Input() public contentType:ContentType;
 
-  constructor (private router: Router) {}
+  constructor (private router: Router, private store: Store<fromRoot.State>) {}
 
   ngOnInit() {
     if (_.isNil(this.contentType.count)) {
@@ -19,6 +23,7 @@ export class ContentTypeButtonComponent {
   }
 
   goSearch() {
+  	this.store.dispatch(new ContentTypes.SelectContentType(this.contentType.name));
   	this.router.navigate(['/search'], {queryParams: { byType: this.contentType.name }});
   }
 }
