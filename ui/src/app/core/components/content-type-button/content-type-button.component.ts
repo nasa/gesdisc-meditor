@@ -23,7 +23,6 @@ export class ContentTypeButtonComponent {
   }
 
   goSearch() {
-  	this.store.dispatch(new ContentTypes.SelectContentType(this.contentType.name));
   	this.router.navigate(['/search'], {queryParams: { byType: this.contentType.name }});
   }
 }
