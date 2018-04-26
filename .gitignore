@@ -14,7 +14,6 @@
 /node_modules
 /ui/node_modules
 
-
 # IDEs and editors
 /.idea
 .project
@@ -48,3 +47,10 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+
+# Environment configuration file
+.env
+
+# environment.ts will not be included in the git repo
+# since it is automatically created on "npm start"
+/ui/src/environments/*
