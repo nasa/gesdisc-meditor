@@ -1,12 +1,11 @@
 /* You can add global styles to this file, and also import other style files */
-@import '~@angular/material/theming';
-@import "~@angular/material/prebuilt-themes/pink-bluegrey.css";
+@import '../node_modules/@angular/material/theming';
 
 // always include only once per project
 @include mat-core();
 
 // import our custom theme
-@import 'main-theme.scss';
+@import 'main-theme';
 
 // specify theme class eg: <body class="my-theme"> ... </body>
 .main-theme {

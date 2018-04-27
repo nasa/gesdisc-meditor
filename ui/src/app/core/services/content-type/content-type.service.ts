@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
+import { environment } from '../../../../environments/environment'
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Subscriber } from 'rxjs/Subscriber';
 
@@ -14,10 +15,11 @@ import { CONTENT_TYPES } from '../../mock-data/content-type.mock';
 
 @Injectable()
 export class ContentTypeService {
-  // set this as an env variable
-  private readonly URL = 'http://localhost:8082/meditor';
+  private readonly URL;
 
-  constructor(protected httpClient: HttpClient) {}
+  constructor(protected httpClient: HttpClient) { 
+    this.URL = environment.mongodbServiceUrl;
+  }
 
   public listModels(): Observable<ContentType[]> {
     return this.httpClient

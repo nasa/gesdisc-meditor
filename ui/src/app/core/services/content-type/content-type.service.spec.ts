@@ -1,58 +1,107 @@
-import { TestBed, inject } from '@angular/core/testing';
+// service and other application-specific parts
 import { ContentType } from '../../models/content-type'
 import { ContentTypeService } from './content-type.service';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CONTENT_TYPES } from '../../mock-data/content-type.mock'
+import { environment } from '../../../../environments/environment'
+
+// Other generic imports
+import { async, TestBed, inject } from '@angular/core/testing';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import * as _ from 'lodash';
 
 describe('ContentTypeService', () => {
-  let service: ContentTypeService;
-  let http: HttpClient;
-  beforeEach(() => { service = new ContentTypeService(http) });
+  let contentTypeService;
+  let httpClient: HttpClient;
 
-  it('#listModels should return real value', () => {
-    // let mockData: ContentType[];
-    // let mockDatum = Object.create(ContentType.prototype);
-    // Object.assign(mockDatum, 
-    //   {
-    //     name : "Alerts",
-    //     description : "Message to notify visitors of important information regarding data availability, site availability and performance issues.",
-    //     icon : {
-    //       name : "fa-warning",
-    //       color : "#FFC104"
-    //     }
-    //   });
-
-    // mockData.push(mockDatum);
-
-
-    let CONTENT_TYPES: ContentType[] = [
-      { 
-        name: 'Alerts', 
-        description: 'Message to notify visitors of important information regarding data availability, site availability and performance issues.',
-        icon: {
-          name: 'fa-warning',
-          color: '#FFC104'
-        }
-      }
-    ];
-
-    // service.listModels().subscribe(result => 
-    //   {
-    //     // expect(result).toBeDefined();
-    //     // expect(result.length).toBe(8);
-    //     // expect(result).toEqual(CONTENT_TYPES);
-    //   }
-    // );
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [ HttpClientModule ],
+      providers: [ ContentTypeService ]
+    });
   });
 
-  // beforeEach(() => {
-  //   TestBed.configureTestingModule({
-  //     imports: [ ],
-  //     providers: [ ContentTypeService ]
-  //   });
-  // });
+  it('should be created', inject([ContentTypeService], (contentTypeService) => {
+    expect(contentTypeService).toBeDefined();
+  }));
 
-  // it('should be created', inject([ContentTypeService], (service: ContentTypeService) => {
-  //   expect(service).toBeTruthy();
-  // }));
+  describe('#getContentTypes', () => {
+    it('should exist', inject([ContentTypeService], (contentTypeService) => {
+      expect(contentTypeService.getContentTypes).toBeDefined();
+    }));
+
+    it('should return something', async(inject([ContentTypeService], (contentTypeService) => {
+      contentTypeService.getContentTypes().subscribe( result => { 
+        expect(result).toBeDefined();
+      });
+    })));
+
+    it('returned value should match CONTENT_TYPES', async(inject([ContentTypeService], (contentTypeService) => {
+      contentTypeService.getContentTypes().subscribe( result => { 
+        expect(result).toEqual(CONTENT_TYPES);
+      });
+    })));
+  });
+
+  describe('#listModels', () => {
+    it('should exist', inject([ContentTypeService], (contentTypeService) => {
+      expect(contentTypeService.listModels).toBeDefined();
+    }));
+  
+    it('should return something', async(inject([ContentTypeService], (contentTypeService) => {
+      contentTypeService.listModels().subscribe( result => { 
+        expect(result).toBeDefined();
+      });
+    })));
+  
+    it('should return exactly eight (8) content types', async(inject([ContentTypeService], (contentTypeService) => {
+      contentTypeService.listModels().subscribe( result => { 
+        expect(result.length).toBe(8);
+      });
+    })));
+  
+    for (let contentType of CONTENT_TYPES) {
+      describe('"' + contentType.name + '" content type', () => {
+
+        it('should exist', async(inject([ContentTypeService], (contentTypeService) => {
+          contentTypeService.listModels().subscribe( result => { 
+            expect(_.find(result, function(o) { return o.name === contentType.name; })).toBeTruthy();
+          });
+        })));
+  
+        it('should be unique', async(inject([ContentTypeService], (contentTypeService) => {
+          contentTypeService.listModels().subscribe( result => { 
+            expect(_.filter(result, function(o) { return o.name === contentType.name; }).length).toBe(1);
+          });
+        })));
+  
+        it('should contain the appropriate description', async(inject([ContentTypeService], (contentTypeService) => {
+          contentTypeService.listModels().subscribe( result => { 
+            expect(_.find(result, function(o) { return o.name === contentType.name; }).description)
+            .toBe(contentType.description);
+          });
+        })));
+  
+        describe('icon', () => {
+  
+          it('should exist', async(inject([ContentTypeService], (contentTypeService) => {
+            contentTypeService.listModels().subscribe( result => { 
+              expect(_.find(result, function(o) { return o.name === contentType.name; }).icon).toBeDefined();
+            });
+          })));
+  
+          it('should have the appropriate color', async(inject([ContentTypeService], (contentTypeService) => {
+            contentTypeService.listModels().subscribe( result => { 
+              expect(_.find(result, function(o) { return o.name === contentType.name; }).icon.color).toBe(contentType.icon.color);
+            });
+          })));
+  
+          it('should have the appropriate css class name (image)', async(inject([ContentTypeService], (contentTypeService) => {
+            contentTypeService.listModels().subscribe( result => { 
+              expect(_.find(result, function(o) { return o.name === contentType.name; }).icon.name).toBe(contentType.icon.name);
+            });
+          })));
+        });
+      });
+    }
+  });
 });
