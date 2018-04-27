@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs/Observable';
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { Store, select } from '@ngrx/store';
 
 import * as fromRoot from '@reducers/index';
@@ -22,37 +22,14 @@ import * as ContentTypes from '../actions/content-types';
   `
   ,
 })
-export class MainComponent {
-  showSidenav$: Observable<boolean>;
-  loggedIn$: Observable<boolean>;
+export class MainComponent implements OnInit {
 
   constructor(private store: Store<fromRoot.State>) {
-    /**
-     * Selectors can be applied with the `select` operator which passes the state
-     * tree to the provided selector
-     */
-    this.showSidenav$ = this.store.pipe(select(fromRoot.getShowSidenav));
-    this.loggedIn$ = this.store.pipe(select(fromAuth.getLoggedIn));
-    store.dispatch(new ContentTypes.LoadContentTypes());
+
   }
 
-  closeSidenav() {
-    /**
-     * All state updates are handled through dispatched actions in 'container'
-     * components. This provides a clear, reproducible history of state
-     * updates and user interaction through the life of our
-     * application.
-     */
-    this.store.dispatch(new layout.CloseSidenav());
+  ngOnInit() {
+  	this.store.dispatch(new ContentTypes.LoadContentTypes());
   }
 
-  openSidenav() {
-    this.store.dispatch(new layout.OpenSidenav());
-  }
-
-  logout() {
-    this.closeSidenav();
-
-    this.store.dispatch(new Auth.Logout());
-  }
 }

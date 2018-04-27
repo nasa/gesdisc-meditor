@@ -3,7 +3,7 @@ import { ContentType } from '@models/content-type';
 
 export enum ContentTypesActionTypes {
 	SelectContentType = "[ContentType] Select Content Type",
-	LoadContentTypes = '[ContentType] Add content types',
+	LoadContentTypes = '[ContentType] Load content types',
 	LoadComplete = '[ContentType] Load Complete',
   LoadError = '[ContentType] Load Error',
 }

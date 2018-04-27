@@ -1,5 +1,5 @@
 import { TestBed, ComponentFixture } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+// import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { StoreModule, Store, combineReducers } from '@ngrx/store';
 import { LoginComponent } from './login.component';
 import * as Auth from '../actions/auth';
@@ -18,7 +18,7 @@ describe('Login Component', () => {
         }),
     	],
       declarations: [LoginComponent],
-      schemas: [NO_ERRORS_SCHEMA],
+      // schemas: [NO_ERRORS_SCHEMA],
     });
 
     fixture = TestBed.createComponent(LoginComponent);
