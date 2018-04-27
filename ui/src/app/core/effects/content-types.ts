@@ -8,12 +8,14 @@ import {
 	map,
 	skip,
 	switchMap,
-	takeUntil,
+	toArray,
+	takeUntil
 } from 'rxjs/operators';
 
 import { ContentTypeService } from '../services/content-type/content-type.service';
 import {
 	ContentTypesActionTypes,
+	ContentTypesActions,
 	LoadContentTypes,
 	LoadComplete,
 	LoadError
@@ -33,13 +35,21 @@ import { ContentType } from '@models/content-type';
 
 @Injectable()
 export class ContentTypesEffects {
+
 	@Effect()
 	load$: Observable<Action> = this.actions$.pipe(
-		ofType<LoadContentTypes>(ContentTypesActionTypes.LoadContentTypes),
-		switchMap(() => this.contentTypesService.getContentTypes()),
-		map((contentTypes: ContentType[]) =>  new LoadComplete(contentTypes)),
-		// catchError(err => of(new LoadError(err)))
+		ofType(ContentTypesActionTypes.LoadContentTypes),
+		switchMap(() =>
+			this.contentTypesService
+				.getContentTypes()
+				.pipe(
+					map((contentTypes: ContentType[]) =>  new LoadComplete(contentTypes)),
+					catchError(err => of(new LoadError(err)))
+				)
+		)
 	);
+
+
 
 	constructor(
 		private actions$: Actions,

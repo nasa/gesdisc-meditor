@@ -16,6 +16,8 @@ export class SelectContentType implements Action {
 
 export class LoadContentTypes implements Action {
   readonly type = ContentTypesActionTypes.LoadContentTypes;
+
+  constructor() { }
 }
 
 export class LoadComplete implements Action {
@@ -27,7 +29,7 @@ export class LoadComplete implements Action {
 export class LoadError implements Action {
   readonly type = ContentTypesActionTypes.LoadError;
 
-  constructor(public payload: string) {}
+  constructor(public payload: any) {}
 }
 
 
