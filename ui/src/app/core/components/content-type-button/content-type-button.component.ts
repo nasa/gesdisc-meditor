@@ -7,10 +7,10 @@ import * as _ from 'lodash';
   templateUrl: `./content-type-button.component.html`
 })
 export class ContentTypeButtonComponent {
-  @Input() public contentType:ContentType;
+  @Input() contentType:ContentType;
 
   ngOnInit() {
-    if (_.isNil(this.contentType.count)) {
+    if (this.contentType && _.isNil(this.contentType.count)) {
       this.contentType.count = 0;
     }
   }

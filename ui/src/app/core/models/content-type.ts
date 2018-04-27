@@ -3,7 +3,7 @@ export class ContentType {
     public name: string,
     public description: string,
     public icon: ContentTypeIcon,
-    public count?: number
+    public count: number = 0
   ) {};
 }
 

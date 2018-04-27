@@ -24,20 +24,36 @@ describe('ContentTypeService', () => {
     expect(contentTypeService).toBeDefined();
   }));
 
+  describe('#getContentTypes', () => {
+    it('should exist', inject([ContentTypeService], (contentTypeService) => {
+      expect(contentTypeService.getContentTypes).toBeDefined();
+    }));
+
+    it('should return something', async(inject([ContentTypeService], (contentTypeService) => {
+      contentTypeService.getContentTypes().subscribe( result => { 
+        expect(result).toBeDefined();
+      });
+    })));
+
+    it('returned value should match CONTENT_TYPES', async(inject([ContentTypeService], (contentTypeService) => {
+      contentTypeService.getContentTypes().subscribe( result => { 
+        expect(result).toEqual(CONTENT_TYPES);
+      });
+    })));
+  });
+
   describe('#listModels', () => {
     it('should exist', inject([ContentTypeService], (contentTypeService) => {
       expect(contentTypeService.listModels).toBeDefined();
     }));
   
     it('should return something', async(inject([ContentTypeService], (contentTypeService) => {
-      expect(contentTypeService).toBeDefined();
       contentTypeService.listModels().subscribe( result => { 
         expect(result).toBeDefined();
       });
     })));
   
     it('should return exactly eight (8) content types', async(inject([ContentTypeService], (contentTypeService) => {
-      expect(contentTypeService).toBeDefined();
       contentTypeService.listModels().subscribe( result => { 
         expect(result.length).toBe(8);
       });
@@ -47,21 +63,18 @@ describe('ContentTypeService', () => {
       describe('"' + contentType.name + '" content type', () => {
 
         it('should exist', async(inject([ContentTypeService], (contentTypeService) => {
-          expect(contentTypeService).toBeDefined();
           contentTypeService.listModels().subscribe( result => { 
             expect(_.find(result, function(o) { return o.name === contentType.name; })).toBeTruthy();
           });
         })));
   
         it('should be unique', async(inject([ContentTypeService], (contentTypeService) => {
-          expect(contentTypeService).toBeDefined();
           contentTypeService.listModels().subscribe( result => { 
             expect(_.filter(result, function(o) { return o.name === contentType.name; }).length).toBe(1);
           });
         })));
   
         it('should contain the appropriate description', async(inject([ContentTypeService], (contentTypeService) => {
-          expect(contentTypeService).toBeDefined();
           contentTypeService.listModels().subscribe( result => { 
             expect(_.find(result, function(o) { return o.name === contentType.name; }).description)
             .toBe(contentType.description);
@@ -71,21 +84,18 @@ describe('ContentTypeService', () => {
         describe('icon', () => {
   
           it('should exist', async(inject([ContentTypeService], (contentTypeService) => {
-            expect(contentTypeService).toBeDefined();
             contentTypeService.listModels().subscribe( result => { 
               expect(_.find(result, function(o) { return o.name === contentType.name; }).icon).toBeDefined();
             });
           })));
   
           it('should have the appropriate color', async(inject([ContentTypeService], (contentTypeService) => {
-            expect(contentTypeService).toBeDefined();
             contentTypeService.listModels().subscribe( result => { 
               expect(_.find(result, function(o) { return o.name === contentType.name; }).icon.color).toBe(contentType.icon.color);
             });
           })));
   
           it('should have the appropriate css class name (image)', async(inject([ContentTypeService], (contentTypeService) => {
-            expect(contentTypeService).toBeDefined();
             contentTypeService.listModels().subscribe( result => { 
               expect(_.find(result, function(o) { return o.name === contentType.name; }).icon.name).toBe(contentType.icon.name);
             });
