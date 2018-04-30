@@ -1,44 +1,21 @@
 {
-	"extends": "../tsconfig.json",
-  "compilerOptions": {
-    "sourceMap": true,
-    "declaration": false,
-    "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "lib": [
-      "es2017",
-      "dom"
-    ],
-    "outDir": "../out-tsc/app",
-    "target": "es5",
-    "module": "es2015",
-    "types": [],
-    "baseUrl": ".",
-    // "rootDir": "../",
-    "paths": {
-    	"@models/*": ["app/models/*"],
-    	"@reducers/*": ["app/reducers/*"]
-    //   "@ngrx/effects": [
-    //     "../node_modules/effects"
-    //   ],
-    //   "@ngrx/store": [
-    //     "../node_modules/store"
-    //   ],
-    //   "@ngrx/store-devtools": [
-    //     "../node_modules/store-devtools"
-    //   ],
-    //   "@ngrx/router-store": [
-    //     "../node_modules/router-store"
-    //   ],
-    //   "@ngrx/entity": [
-    //     "../node_modules/entity"
-    //   ]
-    }
-  },
-  "exclude": [
-    "../node_modules",
-    "test.ts",
-    "**/*.spec.ts"
-  ]
+	"compilerOptions": {
+		"sourceMap": true,
+		"declaration": false,
+		"moduleResolution": "node",
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"lib": ["es2017", "dom"],
+		"outDir": "../out-tsc/app",
+		"target": "es5",
+		"module": "es2015",
+		"types": [],
+		"baseUrl": ".",
+		"rootDir": "../",
+		"paths": {
+			"@models/*": [".app/models/*"],
+			"@reducers": ["app/reducers"]
+		}
+	},
+	"exclude": ["../node_modules", "test.ts", "**/*.spec.ts"]
 }

@@ -1,21 +1,21 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { ContentType } from '../../../models/content-type';
 
 import * as _ from 'lodash';
 
 @Component({
-  selector: 'med-content-type-button',
-  templateUrl: `./content-type-button.component.html`
+	selector: 'med-content-type-button',
+	templateUrl: `./content-type-button.component.html`
 })
 export class ContentTypeButtonComponent {
-  @Input() public contentType:ContentType;
-  @Output() goToSearch = new EventEmitter<ContentType>();
+	@Input() public contentType:ContentType;
+	@Output() goToSearch = new EventEmitter<ContentType>();
 
-  constructor () {}
+	constructor () {}
 
-  ngOnInit() {
-    if (_.isNil(this.contentType.count)) {
-      this.contentType.count = 0;
-    }
-  }
+	ngOnInit() {
+		if (_.isNil(this.contentType.count)) {
+			this.contentType.count = 0;
+		}
+	}
 }

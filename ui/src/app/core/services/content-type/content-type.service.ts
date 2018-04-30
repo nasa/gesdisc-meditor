@@ -7,7 +7,7 @@ import { map } from 'rxjs/operators';
 // import 'rxjs/add/operator/do';
 
 // model
-import { ContentType } from '@models/content-type';
+import { ContentType } from '../../../models/content-type';
 
 // mock data
 import { CONTENT_TYPES } from '../../mock-data/content-type.mock';
@@ -22,7 +22,7 @@ export class ContentTypeService {
   public listModels(): Observable<ContentType[]> {
     return this.httpClient
     	.get<{items: ContentType[]}>(this.URL+'/listModels')
-    	.pipe(map(models => models.items || []));							;
+    	.pipe(map(models => models.items || []))
   }
 
   public getContentTypes(): Observable<ContentType[]> {

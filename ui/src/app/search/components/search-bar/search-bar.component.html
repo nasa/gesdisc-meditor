@@ -1,20 +1,27 @@
-<div fxLayout="row wrap" fxLayoutAlign="center center">
-  <mat-form-field class="search-bar-select">
-	  <mat-select (selectionChange)="select($event)">
-	  	<mat-select-trigger>
-		  	<i class="icon-badge icon-badge-xs fa {{(selected$ | async)?.icon.name}} align-middle"
-		  		[style.background-color]="(selected$ | async)?.icon.color"></i>
-		    {{(selected$ | async)?.name}}
-      </mat-select-trigger>
-	    <mat-option *ngFor="let contentType of contentTypes$ | async" [value]="contentType">
-	    	<i class="icon-badge icon-badge-xs fa {{contentType.icon.name}} align-middle"
-	    		[style.background-color]="contentType.icon.color"></i>
-	    	{{contentType.name}}
-	    </mat-option>
-	  </mat-select>
-	</mat-form-field>
-	<mat-form-field class="search-bar-input">
-		<input matInput placeholder="Search..." type="text" name="search" >
-	</mat-form-field>
+<div fxLayout="row wrap" fxLayoutAlign="center start">
+	<div fxFlex="10">
+		<mat-form-field class="search-bar-select">
+			<mat-select (selectionChange)="selectionChanged.emit(contentTypeControl)" [formControl]="contentTypeControl">
+				<mat-select-trigger>
+					<i class="icon-badge icon-badge-inline fa {{contentTypeControl.value.icon.name}} align-middle"
+						 [style.background-color]="contentTypeControl.value.icon.color"></i>
+					{{contentTypeControl.value.name}}
+				</mat-select-trigger>
+				<mat-option *ngFor="let contentType of contentTypes" [value]="contentType">
+					<i class="icon-badge icon-badge-xs fa {{contentType.icon.name}} align-middle"
+						 [style.background-color]="contentType.icon.color"></i>
+					{{contentType.name}}
+				</mat-option>
+			</mat-select>
+		</mat-form-field>
+	</div>
+	<div fxFlex="70">
+		<mat-form-field class="search-bar-input" >
+			<input matInput placeholder="Search..." type="text" name="search" >
+		</mat-form-field>
+		<button mat-mini-fab>
+			<mat-icon aria-label="Example icon-button with a heart icon">search</mat-icon>
+		</button>
+	</div>
 </div>
 

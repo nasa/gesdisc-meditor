@@ -4,7 +4,7 @@ import { MainComponent } from './main';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import * as fromContentTypes from '../../reducers';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import * as ContentTypes from '../actions/content-types';
+import * as ContentTypes from '../actions/content-type.actions';
 
 describe('Main Page', () => {
 	let fixture: ComponentFixture<MainComponent>;

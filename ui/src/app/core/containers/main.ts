@@ -1,12 +1,8 @@
-import { Observable } from 'rxjs/Observable';
 import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { Store, select } from '@ngrx/store';
 
-import * as fromRoot from '@reducers/index';
-import * as fromAuth from '../../auth/reducers';
-import * as layout from '../actions/layout';
-import * as Auth from '../../auth/actions/auth';
-import * as ContentTypes from '../actions/content-types';
+import * as fromRoot from '../../reducers';
+import * as ContentTypes from '../actions/content-type.actions';
 
 @Component({
   selector: 'meditor-app',

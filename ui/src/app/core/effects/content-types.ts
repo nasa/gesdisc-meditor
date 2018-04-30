@@ -4,12 +4,8 @@ import { Action } from '@ngrx/store';
 import { Observable, of } from 'rxjs';
 import {
 	catchError,
-	debounceTime,
 	map,
-	skip,
-	switchMap,
-	toArray,
-	takeUntil
+	switchMap
 } from 'rxjs/operators';
 
 import { ContentTypeService } from '../services/content-type/content-type.service';
@@ -19,8 +15,8 @@ import {
 	LoadContentTypes,
 	LoadComplete,
 	LoadError
-} from '../actions/content-types';
-import { ContentType } from '@models/content-type';
+} from '../actions/content-type.actions';
+import { ContentType } from '../../models/content-type';
 
 /**
  * Effects offer a way to isolate and easily test side-effects within your

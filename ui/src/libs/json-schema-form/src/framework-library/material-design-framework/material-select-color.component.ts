@@ -9,7 +9,7 @@ import { buildTitleMap, isArray } from '../../shared';
   template: `
     <mat-form-field
       [class]="options?.htmlClass || ''"
-      [floatPlaceholder]="options?.floatPlaceholder || (options?.notitle ? 'never' : 'auto')"
+      [floatLabel]="options?.floatLabel || (options?.notitle ? 'never' : 'auto')"
       [style.width]="'100%'">
       <span matPrefix *ngIf="options?.prefix || options?.fieldAddonLeft"
         [innerHTML]="options?.prefix || options?.fieldAddonLeft"></span>
@@ -110,7 +110,7 @@ export class MaterialSelectColorComponent implements OnInit {
     // this.selectList = buildTitleMap(
     //   this.options.titleMap || this.options.enumNames,
     //   this.options.enum, !!this.options.required, !!this.options.flatList
-    // );    
+    // );
 
     console.log(this.selectList);
     this.jsf.initializeControl(this, !this.options.readonly);
