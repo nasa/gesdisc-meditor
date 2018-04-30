@@ -24,10 +24,10 @@ import { storeFreeze } from 'ngrx-store-freeze';
  */
 
 import * as fromLayout from '../core/reducers/layout';
-import * as fromContentTypes from '../core/reducers/content-types';
+import * as fromModel from '../core/reducers/model.reducer';
 
-export interface ContentTypesState {
-	contentTypes: fromContentTypes.State;
+export interface ModelState {
+	models: fromModel.State;
 }
 
 /**
@@ -36,7 +36,7 @@ export interface ContentTypesState {
  */
 export interface State {
 	layout: fromLayout.State;
-	contentTypes: fromContentTypes.State;
+	models: fromModel.State;
 	router: fromRouter.RouterReducerState<RouterStateUrl>;
 }
 
@@ -47,7 +47,7 @@ export interface State {
  */
 export const reducers: ActionReducerMap<State> = {
 	layout: fromLayout.reducer,
-	contentTypes: fromContentTypes.reducer,
+	models: fromModel.reducer,
 	router: fromRouter.routerReducer,
 };
 
@@ -84,30 +84,30 @@ export const getShowSidenav = createSelector(
  * Content Type Reducers
  */
 
-export const selectContentTypesState = createFeatureSelector<ContentTypesState>('contentTypes');
+export const selectModelState = createFeatureSelector<ModelState>('models');
 
 
-export const getContentTypesEntitiesState = createSelector(
-	selectContentTypesState,
-	state => state.contentTypes
+export const getModelEntitiesState = createSelector(
+	selectModelState,
+	state => state.models
 );
 
-export const getSelectedContentTypeId = createSelector(
-	selectContentTypesState,
-	state => state.contentTypes.selectedContentTypeId
+export const getSelectedModelId = createSelector(
+	selectModelState,
+	state => state.models.selectedModelId
 );
 
 export const {
-	selectIds: getContentTypeIds,
-	selectEntities: getContentTypeEntities,
-	selectAll: getAllContentTypes,
-	selectTotal: getTotalContentTypes,
-} = fromContentTypes.adapter.getSelectors(getContentTypesEntitiesState);
+	selectIds: getModelIds,
+	selectEntities: getModelEntities,
+	selectAll: getAllModels,
+	selectTotal: getModelTypes,
+} = fromModel.adapter.getSelectors(getModelEntitiesState);
 
-export const selectCurrentContentType = createSelector(
-	getContentTypeEntities,
-	getSelectedContentTypeId,
-	(ctEntities, ctId) => ctEntities[ctId]
+export const selectCurrentModel = createSelector(
+	getModelEntities,
+	getSelectedModelId,
+	(modelEntities, modelId) => modelEntities[modelId]
 );
 
 

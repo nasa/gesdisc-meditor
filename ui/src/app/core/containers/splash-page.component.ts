@@ -1,13 +1,11 @@
 import { Component, Input, Output } from '@angular/core';
-import { ContentTypeService } from '../services/content-type/content-type.service';
-import { ContentType } from '../../models/content-type';
-import { ChangeDetectorRef } from '@angular/core';
+import { Model } from '../../service/model/model';
 import { Observable } from 'rxjs/Observable';
 import { Router } from '@angular/router';
 
 import { Store, select } from '@ngrx/store';
 
-import * as fromContentTypes from '../../reducers';
+import * as fromModel from '../../reducers';
 
 
 @Component({
@@ -35,12 +33,12 @@ import * as fromContentTypes from '../../reducers';
 							Select a content type to edit
 						</mat-card-title>
 						<mat-card-content fxLayout="row wrap" fxLayoutAlign="center center">
-							<med-content-type-button
+							<med-model-button
 								style="margin:10px"
-								*ngFor="let contentType of contentTypes$ | async"
-								[contentType]="contentType"
+								*ngFor="let model of models$ | async"
+								[model]="model"
 								(goToSearch)="goToSearchPage($event)">
-							</med-content-type-button>
+							</med-model-button>
 						</mat-card-content>
 					</mat-card>
 					<div
@@ -57,13 +55,13 @@ import * as fromContentTypes from '../../reducers';
 })
 export class SplashPageComponent {
 
-	contentTypes$: Observable<ContentType[]>;
+	models$: Observable<Model[]>;
 
 	constructor(
-		private store: Store<fromContentTypes.State>,
+		private store: Store<fromModel.State>,
 		private router: Router
 	) {
-		this.contentTypes$ = store.pipe(select(fromContentTypes.getAllContentTypes));
+		this.models$ = store.pipe(select(fromModel.getAllModels));
 	}
 
 	goToSearchPage(event) {

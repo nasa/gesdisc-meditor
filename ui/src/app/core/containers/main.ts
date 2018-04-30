@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { Store, select } from '@ngrx/store';
 
 import * as fromRoot from '../../reducers';
-import * as ContentTypes from '../actions/content-type.actions';
+import * as Model from '../actions/model.actions';
 
 @Component({
   selector: 'meditor-app',
@@ -25,7 +25,7 @@ export class MainComponent implements OnInit {
   }
 
   ngOnInit() {
-  	this.store.dispatch(new ContentTypes.LoadContentTypes());
+  	this.store.dispatch(new Model.Load());
   }
 
 }

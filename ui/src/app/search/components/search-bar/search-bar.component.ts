@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
-import { ContentType } from '../../../models/content-type';
+import { Model } from '../../../service/model/model';
 import { FormControl} from '@angular/forms';
 
 @Component({
@@ -8,14 +8,16 @@ import { FormControl} from '@angular/forms';
 	styleUrls: ['./search-bar.component.scss']
 })
 export class SearchBarComponent implements OnInit {
-	@Input() contentTypes: ContentType[];
-	@Input() selectedContentType: ContentType;
+	@Input() models: Model[];
+	@Input() selectedModel: Model;
 	@Input() query: '';
-	@Output() selectionChanged = new EventEmitter<ContentType>();
+	@Output() selectionChanged = new EventEmitter<Model>();
 
-	contentTypeControl = new FormControl();
+	modelControl = new FormControl({
+		name: ''
+	});
 
 	ngOnInit() {
-		this.contentTypeControl.setValue(this.selectedContentType);
+		this.modelControl.setValue(this.selectedModel);
 	}
 }

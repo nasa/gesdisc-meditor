@@ -8,15 +8,15 @@ import {
 	switchMap
 } from 'rxjs/operators';
 
-import { ContentTypeService } from '../services/content-type/content-type.service';
+import { DefaultService } from '../../service/api/default.service';
 import {
-	ContentTypesActionTypes,
-	ContentTypesActions,
-	LoadContentTypes,
-	LoadComplete,
-	LoadError
-} from '../actions/content-type.actions';
-import { ContentType } from '../../models/content-type';
+	ResultActionTypes,
+	ResultActionsUnion,
+	Search,
+	SearchComplete,
+	SearchError
+} from '../actions/result.actions';
+import { Document } from '../../service/model/document';
 
 /**
  * Effects offer a way to isolate and easily test side-effects within your
@@ -30,17 +30,18 @@ import { ContentType } from '../../models/content-type';
  */
 
 @Injectable()
-export class ContentTypesEffects {
+export class SearchEffects {
 
 	@Effect()
-	load$: Observable<Action> = this.actions$.pipe(
-		ofType(ContentTypesActionTypes.LoadContentTypes),
-		switchMap(() =>
-			this.contentTypesService
-				.getContentTypes()
+	search$: Observable<Action> = this.actions$.pipe(
+		ofType<Search>(ResultActionTypes.Search),
+		map(action => action.payload),
+		switchMap(model =>
+			this.searchService
+				.listDocuments(model)
 				.pipe(
-					map((contentTypes: ContentType[]) =>  new LoadComplete(contentTypes)),
-					catchError(err => of(new LoadError(err)))
+					map((results: Document[]) =>  new SearchComplete(results)),
+					catchError(err => of(new SearchError(err)))
 				)
 		)
 	);
@@ -49,7 +50,7 @@ export class ContentTypesEffects {
 
 	constructor(
 		private actions$: Actions,
-		private contentTypesService: ContentTypeService) {}
+		private searchService: DefaultService) {}
 		/**
 		 * You inject an optional Scheduler that will be undefined
 		 * in normal application usage, but its injected here so that you can mock out

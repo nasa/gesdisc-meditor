@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Result } from '../../../models/result';
+import { Document } from '../../../service/model/document';
 
 @Component({
 	selector: 'med-search-result',
@@ -8,7 +8,7 @@ import { Result } from '../../../models/result';
 })
 export class SearchResultComponent implements OnInit {
 
-	@Input() result: Result;
+	@Input() result: Document;
 
 	constructor() { }
 

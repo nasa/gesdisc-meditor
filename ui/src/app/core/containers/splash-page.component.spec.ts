@@ -4,12 +4,12 @@ import { SplashPageComponent } from './splash-page.component';
 import { RouterTestingModule } from '@angular/router/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatCardModule, MatButtonModule } from '@angular/material';
-import { ContentTypeButtonComponent } from '../components/content-type-button/content-type-button.component';
-import * as fromContentTypes from '../../reducers';
+import { ModelButtonComponent } from '../components/model-button/model-button.component';
+import * as fromModel from '../../reducers';
 
 describe('Splash Page', () => {
   let fixture: ComponentFixture<SplashPageComponent>;
-  let store: Store<fromContentTypes.State>;
+  let store: Store<fromModel.State>;
   let instance: SplashPageComponent;
 
   beforeEach(() => {
@@ -17,7 +17,7 @@ describe('Splash Page', () => {
       imports: [
         NoopAnimationsModule,
         StoreModule.forRoot({
-          contentTypes: combineReducers(fromContentTypes.reducers),
+          models: combineReducers(fromModel.reducers),
         }),
         MatCardModule,
         MatButtonModule,
@@ -25,7 +25,7 @@ describe('Splash Page', () => {
       ],
       declarations: [
         SplashPageComponent,
-        ContentTypeButtonComponent
+        ModelButtonComponent
       ],
     });
 

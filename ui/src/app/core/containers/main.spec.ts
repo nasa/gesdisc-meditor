@@ -4,7 +4,7 @@ import { MainComponent } from './main';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import * as fromContentTypes from '../../reducers';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import * as ContentTypes from '../actions/content-type.actions';
+import * as Model from '../actions/model.actions';
 
 describe('Main Page', () => {
 	let fixture: ComponentFixture<MainComponent>;
@@ -38,8 +38,8 @@ describe('Main Page', () => {
 		expect(fixture).toMatchSnapshot();
 	});
 
-	it('should dispatch a ContentTypes.LoadContentTypes on init', () => {
-    const action = new ContentTypes.LoadContentTypes();
+	it('should dispatch a Model.Load on init', () => {
+    const action = new Model.Load();
 
     fixture.detectChanges();
 

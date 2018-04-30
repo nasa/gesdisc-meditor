@@ -1,11 +1,12 @@
 import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 
-import * as fromContentTypes from '../../reducers';
+import * as fromModel from '../../reducers';
 import { Store, select } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
-import { ContentType } from '../../models/content-type';
+import { Model } from '../../service/model/model';
+import { Document } from '../../service/model/document';
 import { Router, ActivatedRoute, Params } from '@angular/router';
-import * as ContentTypes from '../../core/actions/content-type.actions';
+import * as Models from '../../core/actions/model.actions';
 
 
 @Component({
@@ -14,8 +15,8 @@ import * as ContentTypes from '../../core/actions/content-type.actions';
 	template: `
 		<med-search-bar
 			[query]=""
-			[contentTypes]="contentTypes$ | async"
-			[selectedContentType]="selectedContentType$ | async"
+			[models]="models$ | async"
+			[selectedModel]="selectedModel$ | async"
 			(selectionChanged)="select($event)">
 		</med-search-bar>
 		<med-search-result-list [results]="results$ | async"></med-search-result-list>
@@ -29,28 +30,29 @@ import * as ContentTypes from '../../core/actions/content-type.actions';
 	],
 })
 export class SearchPageComponent implements OnInit {
-	contentTypes$: Observable<ContentType[]>;
-	selectedContentType$: Observable<ContentType>;
+	models$: Observable<Model[]>;
+	selectedModel$: Observable<Model>;
+	results$: Observable<Document[]>;
 
 	constructor(
-		private store: Store<fromContentTypes.State>,
+		private store: Store<fromModel.State>,
 		private router: Router,
 		private route: ActivatedRoute
 	) {
-		this.contentTypes$ = store.pipe(select(fromContentTypes.getAllContentTypes));
-		this.selectedContentType$ = store.pipe(select(fromContentTypes.selectCurrentContentType));
+		this.models$ = store.pipe(select(fromModel.getAllModels));
+		this.selectedModel$ = store.pipe(select(fromModel.selectCurrentModel));
 
 		// this.selected$.subscribe(p => {console.log(p)})
 	}
 
 	ngOnInit() {
 		this.route.queryParams.subscribe((params: Params) => {
-			this.store.dispatch(new ContentTypes.SelectContentType(params['byType']));
+			this.store.dispatch(new Models.SelectModel(params['byType']));
 		});
 	}
 
 	select(event) {
-		this.store.dispatch(new ContentTypes.SelectContentType(event.value.name));
+		this.store.dispatch(new Models.SelectModel(event.value.name));
 		this.changeQueryByType(event.value.name);
 	}
 
