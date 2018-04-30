@@ -46,7 +46,6 @@ export const COMPONENTS = [
 		AngularFontAwesomeModule,
 		AuthModule.forRoot(),
 		SearchModule.forRoot(),
-		StoreModule.forFeature('model', reducers),
 		EffectsModule.forFeature([ModelEffects]),
 	],
 	declarations: COMPONENTS,

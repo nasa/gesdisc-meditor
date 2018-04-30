@@ -81,7 +81,7 @@ export const getShowSidenav = createSelector(
 );
 
 /**
- * Content Type Reducers
+ * Model Reducers
  */
 
 export const selectModelState = createFeatureSelector<ModelState>('models');

@@ -13,9 +13,7 @@ export class SearchBarComponent implements OnInit {
 	@Input() query: '';
 	@Output() selectionChanged = new EventEmitter<Model>();
 
-	modelControl = new FormControl({
-		name: ''
-	});
+	modelControl = new FormControl();
 
 	ngOnInit() {
 		this.modelControl.setValue(this.selectedModel);
