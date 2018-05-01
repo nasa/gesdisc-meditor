@@ -1,4 +1,4 @@
-import { Component, Input, Output } from '@angular/core';
+import { Component } from '@angular/core';
 import { Model } from '../../service/model/model';
 import { Observable } from 'rxjs/Observable';
 import { Router } from '@angular/router';
