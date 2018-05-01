@@ -1,0 +1,76 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ModelsReducer Load Complete should add all models in the payload when none exist 1`] = `
+Object {
+  "entities": Object {
+    "222": Object {
+      "description": "testDescription",
+      "name": "222",
+    },
+    "testModel": Object {
+      "description": "testDescription",
+      "name": "testModel",
+    },
+  },
+  "ids": Array [
+    "testModel",
+    "222",
+  ],
+  "selectedModelId": "Alerts",
+}
+`;
+
+exports[`ModelsReducer Load Complete should add only new models when models already exist 1`] = `
+Object {
+  "entities": Object {
+    "222": Object {
+      "description": "testDescription",
+      "name": "222",
+    },
+    "333": Object {
+      "description": "testDescription",
+      "name": "333",
+    },
+    "testModel": Object {
+      "description": "testDescription",
+      "name": "testModel",
+    },
+  },
+  "ids": Array [
+    "testModel",
+    "222",
+    "333",
+  ],
+  "selectedModelId": "Alerts",
+}
+`;
+
+exports[`ModelsReducer Select Model should set the selected model id on the state 1`] = `
+Object {
+  "entities": Object {
+    "222": Object {
+      "description": "testDescription",
+      "name": "222",
+    },
+    "testModel": Object {
+      "description": "testDescription",
+      "name": "testModel",
+    },
+  },
+  "ids": Array [
+    "testModel",
+    "222",
+  ],
+  "selectedModelId": "testModel",
+}
+`;
+
+exports[`ModelsReducer Selectors getSelectedId should return the selected id 1`] = `"testModel"`;
+
+exports[`ModelsReducer undefined action should return the default state 1`] = `
+Object {
+  "entities": Object {},
+  "ids": Array [],
+  "selectedModelId": "Alerts",
+}
+`;
