@@ -30,7 +30,7 @@ import { Document } from '../../service/model/document';
  */
 
 @Injectable()
-export class SearchEffects {
+export class ResultEffects {
 
 	@Effect()
 	search$: Observable<Action> = this.actions$.pipe(

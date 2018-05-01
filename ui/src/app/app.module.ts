@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule, APP_BASE_HREF } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -20,7 +20,9 @@ import { ApiModule } from './service/api.module';
 import { CustomRouterStateSerializer } from './shared/utils';
 
 import { MainComponent } from './core/containers/main';
+import { BASE_PATH } from './service';
 import { environment } from '../environments/environment';
+
 
 import { routes } from './routes';
 import { reducers, metaReducers } from './reducers';
@@ -89,8 +91,8 @@ import { ContentTypeService } from './core/services/content-type/content-type.se
 		 * by `@ngrx/router-store` to include only the desired pieces of the snapshot.
 		 */
 		{ provide: RouterStateSerializer, useClass: CustomRouterStateSerializer },
-		// { provide: APP_BASE_HREF, useValue : 'meditor' },
-		ContentTypeService
+		{ provide: BASE_PATH, useValue: environment.API_BASE_PATH },
+		// ContentTypeService
 	],
 	bootstrap: [ MainComponent ]
 })

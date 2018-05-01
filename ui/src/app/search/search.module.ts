@@ -8,13 +8,22 @@ import { SearchPageComponent } from './containers/search-page.component';
 import { MaterialModule } from '../material';
 import { FlexLayoutModule } from '@angular/flex-layout';
 
+import { StoreModule } from '@ngrx/store';
+
+import { reducers } from './reducers';
+
+import { EffectsModule } from '@ngrx/effects';
+import { ResultEffects } from './effects/result.effects';
+
 @NgModule({
 	imports: [
 		CommonModule,
 		FormsModule,
 		ReactiveFormsModule,
 		MaterialModule,
-		FlexLayoutModule
+		FlexLayoutModule,
+		StoreModule.forFeature('results', reducers),
+		EffectsModule.forFeature([ResultEffects]),
 	],
 	declarations: [
 		SearchBarComponent,

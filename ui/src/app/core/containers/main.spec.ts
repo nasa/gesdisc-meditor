@@ -2,13 +2,13 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { combineReducers, Store, StoreModule } from '@ngrx/store';
 import { MainComponent } from './main';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import * as fromContentTypes from '../../reducers';
+import * as fromRoot from '../../reducers';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import * as Model from '../actions/model.actions';
 
 describe('Main Page', () => {
 	let fixture: ComponentFixture<MainComponent>;
-	let store: Store<fromContentTypes.State>;
+	let store: Store<fromRoot.State>;
 	let instance: MainComponent;
 
 	beforeEach(() => {
@@ -16,7 +16,7 @@ describe('Main Page', () => {
 			imports: [
 				NoopAnimationsModule,
 				StoreModule.forRoot({
-					contentTypes: combineReducers(fromContentTypes.reducers),
+					models: combineReducers(fromRoot.reducers),
 				})
 			],
 			declarations: [

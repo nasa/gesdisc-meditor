@@ -93,8 +93,8 @@ export const getModelEntitiesState = createSelector(
 );
 
 export const getSelectedModelId = createSelector(
-	selectModelState,
-	state => state.models.selectedModelId
+	getModelEntitiesState,
+	fromModel.getSelectedId
 );
 
 export const {

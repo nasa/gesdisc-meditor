@@ -1,4 +1,3 @@
-import { createSelector } from '@ngrx/store';
 import { createEntityAdapter, EntityAdapter, EntityState } from '@ngrx/entity';
 import { Document } from '../../service/model/document';
 import { ResultActionsUnion, ResultActionTypes } from '../actions/result.actions';
@@ -56,3 +55,10 @@ export function reducer(
 		}
 	}
 }
+
+export const {
+  selectIds: selectResultIds,
+  selectEntities: selectResultEntities,
+  selectAll: selectAllResults,
+  selectTotal: selectResultsTotal,
+} = adapter.getSelectors();

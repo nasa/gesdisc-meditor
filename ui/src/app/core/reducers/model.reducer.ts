@@ -34,3 +34,4 @@ export function reducer(
 	}
 }
 
+export const getSelectedId = (state: State) => state.selectedModelId;

@@ -1,12 +1,15 @@
 import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 
-import * as fromModel from '../../reducers';
+import * as fromRoot from '../../reducers';
+import * as fromSearch from '../reducers'
 import { Store, select } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
 import { Model } from '../../service/model/model';
 import { Document } from '../../service/model/document';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import * as Models from '../../core/actions/model.actions';
+import * as Results from '../actions/result.actions';
+
 
 
 @Component({
@@ -17,7 +20,7 @@ import * as Models from '../../core/actions/model.actions';
 			[query]=""
 			[models]="models$ | async"
 			[selectedModel]="selectedModel$ | async"
-			(selectionChanged)="select($event)">
+			(selectionChanged)="selectAndChange($event)">
 		</med-search-bar>
 		<med-search-result-list [results]="results$ | async"></med-search-result-list>
 	`,
@@ -35,24 +38,35 @@ export class SearchPageComponent implements OnInit {
 	results$: Observable<Document[]>;
 
 	constructor(
-		private store: Store<fromModel.State>,
+		private rootStore: Store<fromRoot.State>,
+		private searchStore: Store<fromSearch.State>,
 		private router: Router,
 		private route: ActivatedRoute
 	) {
-		this.models$ = store.pipe(select(fromModel.getAllModels));
-		this.selectedModel$ = store.pipe(select(fromModel.selectCurrentModel));
+		this.models$ = rootStore.pipe(select(fromRoot.getAllModels));
+		this.selectedModel$ = rootStore.pipe(select(fromRoot.selectCurrentModel));
+		this.results$ = searchStore.pipe(select(fromSearch.selectAllResults));
 
 		// this.selected$.subscribe(p => {console.log(p)})
 	}
 
 	ngOnInit() {
 		this.route.queryParams.subscribe((params: Params) => {
-			this.store.dispatch(new Models.SelectModel(params['byType']));
+			this.selectModel(params['byType']);
+			this.loadSearchResults(params['byType']);
 		});
 	}
 
-	select(event) {
-		this.store.dispatch(new Models.SelectModel(event.value.name));
+	selectModel(type) {
+		this.rootStore.dispatch(new Models.SelectModel(type));
+	}
+
+	loadSearchResults(type) {
+		this.searchStore.dispatch(new Results.Search(type));
+	}
+
+	selectAndChange(event) {
+		this.selectModel(event.value.name);
 		this.changeQueryByType(event.value.name);
 	}
 

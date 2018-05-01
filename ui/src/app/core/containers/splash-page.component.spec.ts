@@ -5,11 +5,12 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatCardModule, MatButtonModule } from '@angular/material';
 import { ModelButtonComponent } from '../components/model-button/model-button.component';
-import * as fromModel from '../../reducers';
+import * as Model from '../actions/model.actions';
+import * as fromRoot from '../../reducers';
 
 describe('Splash Page', () => {
   let fixture: ComponentFixture<SplashPageComponent>;
-  let store: Store<fromModel.State>;
+  let store: Store<fromRoot.State>;
   let instance: SplashPageComponent;
 
   beforeEach(() => {
@@ -17,7 +18,7 @@ describe('Splash Page', () => {
       imports: [
         NoopAnimationsModule,
         StoreModule.forRoot({
-          models: combineReducers(fromModel.reducers),
+          models: combineReducers(fromRoot.reducers),
         }),
         MatCardModule,
         MatButtonModule,
