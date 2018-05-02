@@ -32,5 +32,10 @@
 	},
 	"bazelOptions": {
 		"suppressTsconfigOverrideWarnings": true
-	}
+  },
+  "baseUrl": ".",
+  "paths": {
+    "@models/*": ["src/app/models/*"],
+    "@reducers/*": ["src/app/reducers/*"]
+  }
 }
