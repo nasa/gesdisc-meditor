@@ -15,10 +15,10 @@
       "es2016",
       "dom"
     ],
-    // "baseUrl": "src",
-    // "paths": {
-    //   "@models/*": ["app/models/*"],
-    //   "@reducers/*": ["app/reducers/*"]
-    // }
+    "baseUrl": ".",
+    "paths": {
+      "@models/*": ["src/app/models/*"],
+      "@reducers/*": ["src/app/reducers/*"]
+    }
   }
 }
