@@ -57,20 +57,20 @@ export class SearchPageComponent implements OnInit {
 		});
 	}
 
-	selectModel(type) {
+	selectModel(type: any) {
 		this.rootStore.dispatch(new Models.SelectModel(type));
 	}
 
-	loadSearchResults(type) {
+	loadSearchResults(type: any) {
 		this.searchStore.dispatch(new Results.Search(type));
 	}
 
-	selectAndChange(event) {
+	selectAndChange(event: any) {
 		this.selectModel(event.value.name);
 		this.changeQueryByType(event.value.name);
 	}
 
-	changeQueryByType(type) {
+	changeQueryByType(type: any) {
 		this.router.navigate(['.'], { relativeTo: this.route, queryParams: { byType: type }});
 	}
 

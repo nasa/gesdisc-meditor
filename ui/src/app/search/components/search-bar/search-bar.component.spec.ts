@@ -14,7 +14,7 @@ describe('SearchBarComponent', () => {
     TestBed.configureTestingModule({
       declarations: [ SearchBarComponent ],
       imports: [ MatSelectModule, 
-        //StoreModule.forRoot({}) 
+        StoreModule.forRoot({}) 
       ]
     })
     .compileComponents();
@@ -27,6 +27,6 @@ describe('SearchBarComponent', () => {
   });
 
   it('should create', () => {
-    //expect(component).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 });

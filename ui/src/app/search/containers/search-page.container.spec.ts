@@ -1,18 +1,18 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SearchPageContainer } from './search-page.container';
+import { SearchPageComponent } from './search-page.component';
 import { SearchBarComponent } from '../components/search-bar/search-bar.component'
 
 import { MaterialModule } from '../../material';
 import { HttpClientModule } from '@angular/common/http';
 
 describe('SearchPageContainer', () => {
-  let component: SearchPageContainer;
-  let fixture: ComponentFixture<SearchPageContainer>;
+  let component: SearchPageComponent;
+  let fixture: ComponentFixture<SearchPageComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ SearchPageContainer, SearchBarComponent ],
+      declarations: [ SearchPageComponent, SearchBarComponent ],
       imports: [ HttpClientModule, MaterialModule ],
       providers: [ ]
     })
@@ -20,7 +20,7 @@ describe('SearchPageContainer', () => {
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(SearchPageContainer);
+    fixture = TestBed.createComponent(SearchPageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
