@@ -10,49 +10,8 @@ import * as Auth from '../actions/auth';
 
 @Component({
 	selector: 'med-login',
-	template:
-	`
-		<a mat-raised-button (click)="login()" color="primary" *ngIf="!loginStatus$">Earthdata Login</a>
-		<div *ngIf="(user$ | async) as user" class="user-box">Hi, {{user.name}}</div>
-	`
-	,
-	styles: [
-	`
-		:host {
-			display: flex;
-			justify-content: center;
-			margin: 72px 0;
-		}
-
-		.mat-form-field {
-			width: 100%;
-			min-width: 300px;
-		}
-
-		mat-card-title,
-		mat-card-content {
-			display: flex;
-			justify-content: center;
-		}
-
-		.loginError {
-			padding: 16px;
-			width: 300px;
-			color: white;
-			background-color: red;
-		}
-
-		.loginButtons {
-			display: flex;
-			flex-direction: row;
-			justify-content: flex-end;
-		}
-
-		.user-box {
-			color: black;
-		}
-	`,
-	],
+	template:`<a mat-raised-button (click)="login()" color="primary" *ngIf="!loginStatus$">Earthdata Login</a>
+<div *ngIf="(user$ | async) as user" class="user-box">Hi, {{user.name}}</div>`
 })
 export class LoginComponent implements OnInit {
 

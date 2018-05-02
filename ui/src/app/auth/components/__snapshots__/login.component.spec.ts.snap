@@ -7,8 +7,6 @@ exports[`Login Component should compile 1`] = `
   user$={[Function Store]}
 >
   
-  		
-  		
-  	
+  
 </med-login>
 `;

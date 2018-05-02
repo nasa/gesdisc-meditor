@@ -24,10 +24,10 @@ import { storeFreeze } from 'ngrx-store-freeze';
  */
 
 import * as fromLayout from '../core/reducers/layout';
-import * as fromContentTypes from '../core/reducers/content-types';
+import * as fromModel from '../core/reducers/model.reducer';
 
-export interface ContentTypesState {
-  contentTypes: fromContentTypes.State;
+export interface ModelState {
+	models: fromModel.State;
 }
 
 /**
@@ -35,9 +35,9 @@ export interface ContentTypesState {
  * our top level state interface is just a map of keys to inner state types.
  */
 export interface State {
-  layout: fromLayout.State;
-  contentTypes: fromContentTypes.State;
-  router: fromRouter.RouterReducerState<RouterStateUrl>;
+	layout: fromLayout.State;
+	models: fromModel.State;
+	router: fromRouter.RouterReducerState<RouterStateUrl>;
 }
 
 /**
@@ -46,19 +46,19 @@ export interface State {
  * and the current or initial state and return a new immutable state.
  */
 export const reducers: ActionReducerMap<State> = {
-  layout: fromLayout.reducer,
-  contentTypes: fromContentTypes.reducer,
-  router: fromRouter.routerReducer,
+	layout: fromLayout.reducer,
+	models: fromModel.reducer,
+	router: fromRouter.routerReducer,
 };
 
 // console.log all actions
 export function logger(reducer: ActionReducer<State>): ActionReducer<State> {
-  return function(state: State, action: any): State {
-    console.log('state', state);
-    console.log('action', action);
+	return function(state: State, action: any): State {
+		console.log('state', state);
+		console.log('action', action);
 
-    return reducer(state, action);
-  };
+		return reducer(state, action);
+	};
 }
 
 /**
@@ -67,8 +67,8 @@ export function logger(reducer: ActionReducer<State>): ActionReducer<State> {
  * that will be composed to form the root meta-reducer.
  */
 export const metaReducers: MetaReducer<State>[] = !environment.production
-  ? [logger, storeFreeze]
-  : [];
+	? [logger, storeFreeze]
+	: [];
 
 /**
  * Layout Reducers
@@ -76,38 +76,38 @@ export const metaReducers: MetaReducer<State>[] = !environment.production
 export const getLayoutState = createFeatureSelector<fromLayout.State>('layout');
 
 export const getShowSidenav = createSelector(
-  getLayoutState,
-  fromLayout.getShowSidenav
+	getLayoutState,
+	fromLayout.getShowSidenav
 );
 
 /**
- * Content Type Reducers
+ * Model Reducers
  */
 
-export const selectContentTypesState = createFeatureSelector<ContentTypesState>('contentTypes');
+export const selectModelState = createFeatureSelector<ModelState>('models');
 
 
-export const getContentTypesEntitiesState = createSelector(
-  selectContentTypesState,
-  state => state.contentTypes
+export const getModelEntitiesState = createSelector(
+	selectModelState,
+	state => state.models
 );
 
-export const getSelectedContentTypeId = createSelector(
-  selectContentTypesState,
-  state => state.contentTypes.selectedContentTypeId
+export const getSelectedModelId = createSelector(
+	getModelEntitiesState,
+	fromModel.getSelectedId
 );
 
 export const {
-  selectIds: getContentTypeIds,
-  selectEntities: getContentTypeEntities,
-  selectAll: getAllContentTypes,
-  selectTotal: getTotalContentTypes,
-} = fromContentTypes.adapter.getSelectors(getContentTypesEntitiesState);
+	selectIds: getModelIds,
+	selectEntities: getModelEntities,
+	selectAll: getAllModels,
+	selectTotal: getModelTypes,
+} = fromModel.adapter.getSelectors(getModelEntitiesState);
 
-export const selectCurrentContentType = createSelector(
-  getContentTypeEntities,
-  getSelectedContentTypeId,
-  (ctEntities, ctId) => ctEntities[ctId]
+export const selectCurrentModel = createSelector(
+	getModelEntities,
+	getSelectedModelId,
+	(modelEntities, modelId) => modelEntities[modelId]
 );
 
 

@@ -2,28 +2,41 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SearchBarComponent } from './components/search-bar/search-bar.component';
-import { SearchResultsComponent } from './components/search-results/search-results.component';
-import { SearchPageContainer } from './containers/search-page.container';
+import { SearchResultListComponent } from './components/search-result-list/search-result-list.component';
+import { SearchResultComponent } from './components/search-result/search-result.component';
+import { SearchPageComponent } from './containers/search-page.component';
 import { MaterialModule } from '../material';
+import { FlexLayoutModule } from '@angular/flex-layout';
+
+import { StoreModule } from '@ngrx/store';
+
+import { reducers } from './reducers';
+
+import { EffectsModule } from '@ngrx/effects';
+import { ResultEffects } from './effects/result.effects';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    MaterialModule
-  ],
-  declarations: [
- 		SearchBarComponent,
- 		SearchResultsComponent,
- 		SearchPageContainer
- 	],
-  exports: [ SearchPageContainer ]
+	imports: [
+		CommonModule,
+		FormsModule,
+		ReactiveFormsModule,
+		MaterialModule,
+		FlexLayoutModule,
+		StoreModule.forFeature('results', reducers),
+		EffectsModule.forFeature([ResultEffects]),
+	],
+	declarations: [
+		SearchBarComponent,
+		SearchResultListComponent,
+		SearchPageComponent,
+		SearchResultComponent
+	],
+	exports: [ SearchPageComponent ]
 })
 export class SearchModule {
 	static forRoot() {
-    return {
-      ngModule: SearchModule
-    };
-  }
+		return {
+			ngModule: SearchModule
+		};
+	}
 }

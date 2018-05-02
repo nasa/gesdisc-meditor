@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Search Page should compile 1`] = `
+<med-splash-page
+  models$={[Function Store]}
+  router={[Function Router]}
+  store={[Function Store]}
+>
+  <div
+    fxfill=""
+    fxlayout="row"
+  />
+</med-splash-page>
+`;

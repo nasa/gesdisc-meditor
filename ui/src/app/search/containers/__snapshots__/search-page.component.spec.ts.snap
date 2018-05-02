@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Search Page should compile 1`] = `
+<med-search-page
+  models$={[Function Store]}
+  results$={[Function Store]}
+  rootStore={[Function Store]}
+  route={[Function ActivatedRoute]}
+  router={[Function Router]}
+  searchStore={[Function Store]}
+  selectedModel$={[Function Store]}
+>
+  <med-search-bar
+    _ngcontent-c0=""
+  /><med-search-result-list
+    _ngcontent-c0=""
+  />
+</med-search-page>
+`;

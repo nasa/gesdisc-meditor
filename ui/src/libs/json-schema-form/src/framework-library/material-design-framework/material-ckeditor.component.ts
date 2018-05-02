@@ -5,7 +5,7 @@ import { JsonSchemaFormService } from '../../json-schema-form.service';
 
 @Component({
   selector: 'material-ckeditor-widget',
-  template: 
+  template:
       // <textarea matInput *ngIf="boundControl"
       //   [formControl]="formControl"
       //   [attr.aria-describedby]="'control' + layoutNode?._id + 'Status'"
@@ -36,10 +36,10 @@ import { JsonSchemaFormService } from '../../json-schema-form.service';
       //   [value]="controlValue"
       //   (input)="updateValue($event)"
       //   (blur)="options.showErrors = true"></textarea>
-  
+
     // <mat-form-field
     //   [class]="options?.htmlClass || ''"
-    //   [floatPlaceholder]="options?.floatPlaceholder || (options?.notitle ? 'never' : 'auto')"
+    //   [floatLabel]="options?.floatLabel || (options?.notitle ? 'never' : 'auto')"
     //   [style.width]="'100%'">
     //   <span matPrefix *ngIf="options?.prefix || options?.fieldAddonLeft"
     //     [innerHTML]="options?.prefix || options?.fieldAddonLeft"></span>
@@ -54,7 +54,7 @@ import { JsonSchemaFormService } from '../../json-schema-form.service';
         </ck-editor> 
          <button mat-mini-fab *ngIf="options?.comments" color="primary" (click)="commentsClick()"><mat-icon>comment</mat-icon></button>
       </div>
-        `     
+        `
     //   <span matSuffix *ngIf="options?.suffix || options?.fieldAddonRight"
     //     [innerHTML]="options?.suffix || options?.fieldAddonRight"></span>
     //   <mat-hint *ngIf="options?.description && (!options?.showErrors || !options?.errorMessage)"

@@ -1,20 +1,25 @@
-<div fxLayout="row wrap" fxLayoutAlign="center center">
-  <mat-form-field class="search-bar-select">
-	  <mat-select (selectionChange)="select($event)">
-	  	<mat-select-trigger>
-		  	<i class="icon-badge icon-badge-xs fa {{(selected$ | async)?.icon.name}} align-middle"
-		  		[style.background-color]="(selected$ | async)?.icon.color"></i>
-		    {{(selected$ | async)?.name}}
-      </mat-select-trigger>
-	    <mat-option *ngFor="let contentType of contentTypes$ | async" [value]="contentType">
-	    	<i class="icon-badge icon-badge-xs fa {{contentType.icon.name}} align-middle"
-	    		[style.background-color]="contentType.icon.color"></i>
-	    	{{contentType.name}}
-	    </mat-option>
-	  </mat-select>
-	</mat-form-field>
-	<mat-form-field class="search-bar-input">
-		<input matInput placeholder="Search..." type="text" name="search" >
-	</mat-form-field>
+<div fxLayout="row wrap" fxLayoutAlign="center start">
+	<div fxFlex="10">
+		<mat-form-field class="search-bar-select">
+			<mat-select (selectionChange)="selectionChanged.emit(modelControl)" [formControl]="modelControl">
+				<mat-select-trigger>
+					<i class="icon-badge icon-badge-inline fa {{modelControl.value.icon.name}} align-middle"
+						 [style.background-color]="modelControl.value.icon.color"></i>
+					{{modelControl.value.name}}
+				</mat-select-trigger>
+				<mat-option *ngFor="let model of models" [value]="model">
+					<i class="icon-badge icon-badge-xs fa {{model.icon.name}} align-middle"
+						 [style.background-color]="model.icon.color"></i>
+					{{model.name}}
+				</mat-option>
+			</mat-select>
+		</mat-form-field>
+	</div>
+	<div fxFlex="50">
+		<mat-form-field class="search-bar-input" >
+			<input matInput placeholder="Search..." type="text" name="search">
+			<mat-icon matSuffix>search</mat-icon>
+		</mat-form-field>
+	</div>
 </div>
 
