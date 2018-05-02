@@ -3,6 +3,17 @@
   "id": "https://disc.gsfc.nasa.gov/schemas/model.json",
   "type": "object",
   "properties": {
+    "x-meditor": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "$comment": "JSON path to the field in the Model to be used as title in displays",
+          "type": "string",
+          "required": "true",
+          "default": "title"
+        }
+      }
+    },
     "name": {
       "$comment": "Name of the model (ex: FAQ, Alert, Collection etc.,): displayed to the user in UI",
       "type": "string",
@@ -34,12 +45,6 @@
     "schema": {
       "$comment": "JSON Schema of the model itself",
       "type": "string",
-      "required": true
-    },
-    "titleField": {
-      "$comment": "JSON path to the field in the Model to be used as title in displays",
-      "type": "string",
-      "default": "title",
       "required": true
     },
     "documentation": {
