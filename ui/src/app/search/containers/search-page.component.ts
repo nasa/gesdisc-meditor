@@ -66,8 +66,8 @@ export class SearchPageComponent implements OnInit {
 	}
 
 	selectAndChange(event) {
-		this.selectModel(event.value.name);
-		this.changeQueryByType(event.value.name);
+		this.selectModel(event);
+		this.changeQueryByType(event);
 	}
 
 	changeQueryByType(type) {

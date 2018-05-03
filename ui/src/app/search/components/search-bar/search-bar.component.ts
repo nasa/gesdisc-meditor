@@ -11,7 +11,7 @@ export class SearchBarComponent implements OnInit {
 	@Input() models: Model[];
 	@Input() selectedModel: Model;
 	@Input() query: '';
-	@Output() selectionChanged = new EventEmitter<Model>();
+	@Output() selectionChanged = new EventEmitter<string>();
 
 	modelControl = new FormControl();
 

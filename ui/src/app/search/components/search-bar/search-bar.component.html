@@ -1,7 +1,7 @@
 <div fxLayout="row wrap" fxLayoutAlign="center start">
 	<div fxFlex="10">
 		<mat-form-field class="search-bar-select">
-			<mat-select (selectionChange)="selectionChanged.emit(modelControl)" [formControl]="modelControl">
+			<mat-select (selectionChange)="selectionChanged.emit(modelControl.value.name)" [formControl]="modelControl">
 				<mat-select-trigger>
 					<i class="icon-badge icon-badge-inline fa {{modelControl.value.icon.name}} align-middle"
 						 [style.background-color]="modelControl.value.icon.color"></i>
@@ -16,7 +16,7 @@
 		</mat-form-field>
 	</div>
 	<div fxFlex="50">
-		<mat-form-field class="search-bar-input" >
+		<mat-form-field class="search-bar-input">
 			<input matInput placeholder="Search..." type="text" name="search">
 			<mat-icon matSuffix>search</mat-icon>
 		</mat-form-field>

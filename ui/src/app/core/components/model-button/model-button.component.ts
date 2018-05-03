@@ -6,9 +6,9 @@ import { Model } from '../../../service/model/model';
 	template: `
 		<button color="primary" (click)="goToSearch.emit(model)" fxFlex="100px"
 			mat-raised-button style="line-height: inherit; padding: 10px;" >
-		  <i class="icon-badge icon-badge-lg fa {{model.icon.name}} align-middle" style="margin-bottom: 5px;" [style.background-color]="model.icon.color"></i>
+		  <i class="icon-badge icon-badge-lg fa {{model.icon?.name}} align-middle" style="margin-bottom: 5px;" [style.background-color]="model.icon?.color"></i>
 		  <div style="font-weight: bold;">{{model.name}}</div>
-		  <div>({{model.count}})</div>
+		  <div>({{model.count ? model.count : 0}})</div>
 		</button>
 	`
 })
