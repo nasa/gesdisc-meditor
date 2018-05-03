@@ -11,12 +11,13 @@
 		"outDir": "../out-tsc/app",
 		"target": "es5",
 		"module": "commonjs",
-		"baseUrl": "",
 		"rootDir": "./",
 		"strict": true,
-		"paths": {
-
-		}
+		"baseUrl": ".",
+  	"paths": {
+			"@models/*": ["src/app/models/*"],
+			"@reducers/*": ["src/app/reducers/*"]
+  	}
 	},
 	"exclude": [
 		"bazel-out",
@@ -32,10 +33,5 @@
 	},
 	"bazelOptions": {
 		"suppressTsconfigOverrideWarnings": true
-  },
-  "baseUrl": ".",
-  "paths": {
-    "@models/*": ["src/app/models/*"],
-    "@reducers/*": ["src/app/reducers/*"]
   }
 }

@@ -10,8 +10,6 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import * as Models from '../../core/actions/model.actions';
 import * as Results from '../actions/result.actions';
 
-
-
 @Component({
 	selector: 'med-search-page',
 	changeDetection: ChangeDetectionStrategy.OnPush,
@@ -57,20 +55,26 @@ export class SearchPageComponent implements OnInit {
 		});
 	}
 
-	selectModel(type) {
+	selectModel(type: any) {
 		this.rootStore.dispatch(new Models.SelectModel(type));
 	}
 
-	loadSearchResults(type) {
+	loadSearchResults(type: any) {
 		this.searchStore.dispatch(new Results.Search(type));
 	}
 
+<<<<<<< HEAD
 	selectAndChange(event) {
 		this.selectModel(event);
 		this.changeQueryByType(event);
+=======
+	selectAndChange(event: any) {
+		this.selectModel(event.value.name);
+		this.changeQueryByType(event.value.name);
+>>>>>>> babd9da6a1637d1f95adc7bb560ad0730a99327e
 	}
 
-	changeQueryByType(type) {
+	changeQueryByType(type: any) {
 		this.router.navigate(['.'], { relativeTo: this.route, queryParams: { byType: type }});
 	}
 

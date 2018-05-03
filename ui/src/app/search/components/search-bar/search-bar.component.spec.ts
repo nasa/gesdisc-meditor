@@ -1,10 +1,13 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { SearchBarComponent } from './search-bar.component';
+import { Model } from '../../../service/model/model';
 
-import { MatSelectModule } from '@angular/material';
-import { StoreModule } from '@ngrx/store';
-import * as fromContentTypes from '@reducers/index';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatIconModule, MatInputModule, MatSelectModule } from '@angular/material';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { combineReducers, StoreModule } from '@ngrx/store';
+import * as fromRoot from '@reducers/index';
 
 describe('SearchBarComponent', () => {
   let component: SearchBarComponent;
@@ -13,8 +16,10 @@ describe('SearchBarComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [ SearchBarComponent ],
-      imports: [ MatSelectModule, 
-        //StoreModule.forRoot({}) 
+      imports: [ BrowserAnimationsModule, MatInputModule, MatIconModule, MatSelectModule, FormsModule, ReactiveFormsModule,
+        StoreModule.forRoot({
+          models: combineReducers(fromRoot.reducers),
+        }) 
       ]
     })
     .compileComponents();
@@ -22,11 +27,19 @@ describe('SearchBarComponent', () => {
 
   beforeEach(() => {
     fixture = TestBed.createComponent(SearchBarComponent);
-    // component = fixture.componentInstance;
-    // fixture.detectChanges();
+    component = fixture.componentInstance;
+    component.selectedModel = {
+      name: "Alerts",
+      description: "yeah... description",
+      icon: {
+        name: "fa-warning",
+        color: "#FFAABB"
+      }
+    };
+    fixture.detectChanges();
   });
 
   it('should create', () => {
-    //expect(component).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 });
