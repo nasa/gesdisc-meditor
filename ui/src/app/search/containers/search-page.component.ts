@@ -10,8 +10,6 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import * as Models from '../../core/actions/model.actions';
 import * as Results from '../actions/result.actions';
 
-
-
 @Component({
 	selector: 'med-search-page',
 	changeDetection: ChangeDetectionStrategy.OnPush,

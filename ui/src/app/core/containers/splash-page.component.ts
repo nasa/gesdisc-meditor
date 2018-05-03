@@ -64,7 +64,7 @@ export class SplashPageComponent {
 		this.models$ = store.pipe(select(fromModel.getAllModels));
 	}
 
-	goToSearchPage(event) {
+	goToSearchPage(event: any) {
 		this.router.navigate(['/search'], {queryParams: { byType: event.name }});
 	}
 

@@ -16,6 +16,9 @@ describe('SearchResultComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(SearchResultComponent);
     component = fixture.componentInstance;
+    component.result = {
+      title: "MSAQSO2L4: Multi-Satellite Air Quality Sulfur Dioxide (SO2) Database Long-Term L4 Global V1"
+    };
     fixture.detectChanges();
   });
 
