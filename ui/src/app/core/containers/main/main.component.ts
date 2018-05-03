@@ -1,8 +1,8 @@
 import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { Store, select } from '@ngrx/store';
 
-import * as fromModel from '../../reducers';
-import * as Model from '../actions/model.actions';
+import * as fromModel from '../../../reducers';
+import * as Model from '../../actions/model.actions';
 
 @Component({
   selector: 'meditor-app',

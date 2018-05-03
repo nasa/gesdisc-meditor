@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { Model } from '../../service/model/model';
+import { Model } from '../../../service/model/model';
 import { Observable } from 'rxjs/Observable';
 import { Router } from '@angular/router';
 
 import { Store, select } from '@ngrx/store';
 
-import * as fromModel from '../../reducers';
+import * as fromModel from '../../../reducers';
 
 
 @Component({

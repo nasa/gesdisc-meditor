@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Model Button Component should compile 1`] = `
+exports[`ModelButtonComponent with mock data should compile minimum input + icon 1`] = `
 <med-model-button
   goToSearch={[Function EventEmitter]}
   model={[Function Object]}
@@ -17,8 +17,8 @@ exports[`Model Button Component should compile 1`] = `
       class="mat-button-wrapper"
     >
       <i
-        class="icon-badge icon-badge-lg fa  align-middle"
-        style="margin-bottom: 5px;"
+        class="icon-badge icon-badge-lg fa fa-warning align-middle"
+        style="margin-bottom: 5px; background-color: rgb(175, 72, 115);"
       />
       <div
         style="font-weight: bold;"
@@ -43,7 +43,7 @@ exports[`Model Button Component should compile 1`] = `
 </med-model-button>
 `;
 
-exports[`Model Button Component should compile with icon 1`] = `
+exports[`ModelButtonComponent with mock data should compile with minimum input (model has "name" and "description") 1`] = `
 <med-model-button
   goToSearch={[Function EventEmitter]}
   model={[Function Object]}
@@ -60,8 +60,8 @@ exports[`Model Button Component should compile with icon 1`] = `
       class="mat-button-wrapper"
     >
       <i
-        class="icon-badge icon-badge-lg fa fa-warning align-middle"
-        style="margin-bottom: 5px; background-color: rgb(175, 72, 115);"
+        class="icon-badge icon-badge-lg fa  align-middle"
+        style="margin-bottom: 5px;"
       />
       <div
         style="font-weight: bold;"

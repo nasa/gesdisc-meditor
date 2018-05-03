@@ -4,33 +4,18 @@ exports[`Main Page should compile 1`] = `
 <meditor-app
   store={[Function Store]}
 >
-  
-      <div
+  <div
     fxfill=""
     fxlayout="column"
   >
-    
-        
     <med-toolbar
       fxflex="60px"
-    >
-      
-        
-    </med-toolbar>
-    
-        
+    />
     <div
       fxflex="100"
     >
-      
-          
       <router-outlet />
-      
-        
     </div>
-    
-      
   </div>
-    
 </meditor-app>
 `;

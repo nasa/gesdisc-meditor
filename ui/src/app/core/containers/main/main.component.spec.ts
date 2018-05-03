@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { combineReducers, Store, StoreModule } from '@ngrx/store';
-import { MainComponent } from './main';
+import { MainComponent } from './main.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import * as fromRoot from '../../reducers';
+import * as fromRoot from '../../../reducers';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import * as Model from '../actions/model.actions';
+import * as Model from '../../actions/model.actions';
 
 describe('Main Page', () => {
 	let fixture: ComponentFixture<MainComponent>;

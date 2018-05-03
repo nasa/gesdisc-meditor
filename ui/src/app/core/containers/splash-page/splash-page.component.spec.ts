@@ -4,10 +4,10 @@ import { combineReducers, Store, StoreModule } from '@ngrx/store';
 import { SplashPageComponent } from './splash-page.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatCardModule, MatButtonModule } from '@angular/material';
-import { ModelButtonComponent } from '../components/model-button/model-button.component';
+import { ModelButtonComponent } from '../../components/model-button/model-button.component';
 
-import * as fromRoot from '../../reducers';
-import * as Model from '../../core/actions/model.actions';
+import * as fromRoot from '../../../reducers';
+import * as Model from '../../../core/actions/model.actions';
 
 describe('Search Page', () => {
 	let fixture: ComponentFixture<SplashPageComponent>;
