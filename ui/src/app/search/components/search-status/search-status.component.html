@@ -1,0 +1,17 @@
+<div fxLayout="row wrap" fxLayoutAlign="center start" class="search-status-bar">
+	<div fxFlex="40">
+		Showing 1 - {{ filteredCount }} of {{ resultCount }} {{modelName}} documents
+	</div>
+	<div fxFlex="4"></div>
+
+	Sort by:
+	<div fxFlex="8" class="sortby-select">
+		<mat-select [(value)]="sortBy">
+			<mat-option value="oldest">Oldest</mat-option>
+    	<mat-option value="newest">Newest</mat-option>
+		</mat-select>
+	</div>
+	<button mat-raised-button class="add-new-button" fxFlex="5">
+		<mat-icon>add</mat-icon>Add new
+		</button>
+</div>

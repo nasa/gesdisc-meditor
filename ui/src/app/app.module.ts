@@ -19,15 +19,13 @@ import { ApiModule } from './service/api.module';
 
 import { CustomRouterStateSerializer } from './shared/utils';
 
-import { MainComponent } from './core/containers/main';
+import { MainComponent } from './core/containers/main/main.component';
 import { BASE_PATH } from './service';
 import { environment } from '../environments/environment';
 
 
 import { routes } from './routes';
 import { reducers, metaReducers } from './reducers';
-
-import { ContentTypeService } from './core/services/content-type/content-type.service';
 
 @NgModule({
 	imports: [

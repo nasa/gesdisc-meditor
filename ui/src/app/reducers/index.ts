@@ -84,29 +84,40 @@ export const getShowSidenav = createSelector(
  * Model Reducers
  */
 
-export const selectModelState = createFeatureSelector<ModelState>('models');
+export const selectModelState = createFeatureSelector<fromModel.State>('models');
 
 
-export const getModelEntitiesState = createSelector(
+export const getModelIds = createSelector(
 	selectModelState,
-	state => state.models
+	fromModel.selectModelIds
+);
+export const getModelEntities = createSelector(
+	selectModelState,
+	fromModel.selectModelEntities
+);
+export const getAllModels = createSelector(
+	selectModelState,
+	fromModel.selectAllModels
+);
+export const getResultsTotal = createSelector(
+	selectModelState,
+	fromModel.selectModelsTotal
+);
+export const getCurrentModelId = createSelector(
+  selectModelState,
+  fromModel.getSelectedId
 );
 
-export const getSelectedModelId = createSelector(
-	getModelEntitiesState,
-	fromModel.getSelectedId
-);
-
-export const {
-	selectIds: getModelIds,
-	selectEntities: getModelEntities,
-	selectAll: getAllModels,
-	selectTotal: getModelTypes,
-} = fromModel.adapter.getSelectors(getModelEntitiesState);
+// export const {
+// 	selectIds: getModelIds,
+// 	selectEntities: getModelEntities,
+// 	selectAll: getAllModels,
+// 	selectTotal: getModelTypes,
+// } = fromModel.adapter.getSelectors(getModelEntitiesState);
 
 export const selectCurrentModel = createSelector(
 	getModelEntities,
-	getSelectedModelId,
+	getCurrentModelId,
 	(modelEntities, modelId) => modelEntities[modelId]
 );
 

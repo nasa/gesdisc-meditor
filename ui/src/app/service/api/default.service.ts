@@ -29,7 +29,7 @@ import { Configuration }                                     from '../configurat
 @Injectable()
 export class DefaultService {
 
-    protected basePath = 'http://localhost/meditor';
+    protected basePath = 'http://localhost:8081/meditor/api';
     public defaultHeaders = new HttpHeaders();
     public configuration = new Configuration();
 

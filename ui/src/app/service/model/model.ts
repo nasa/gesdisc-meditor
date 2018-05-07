@@ -10,6 +10,7 @@
  * Do not edit the class manually.
  */
 import { ModelIcon } from './modelIcon';
+import { ModelXmeditor } from './modelXmeditor';
 
 
 export interface Model {
@@ -23,25 +24,10 @@ export interface Model {
     description: string;
     icon?: ModelIcon;
     /**
-     * Number of instances of the model
-     */
-    count?: number;
-    /**
      * JSON Schema of the model itself
      */
     schema?: string;
-    /**
-     * Version of the model represented by date-time of modification
-     */
-    version?: string;
-    /**
-     * Date-time of modification
-     */
-    modifiedOn?: string;
-    /**
-     * Modifier's user name
-     */
-    modifiedBy?: string;
+    xMeditor?: ModelXmeditor;
     /**
      * Link to model's documentation
      */

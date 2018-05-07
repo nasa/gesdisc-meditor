@@ -1,0 +1,58 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Search Page should compile 1`] = `
+<med-splash-page
+  models$={[Function Store]}
+  router={[Function Router]}
+  store={[Function Store]}
+>
+  <div
+    fxfill=""
+    fxlayout="row"
+  >
+    <div
+      fxflex="calc((100%/3)-1%)"
+      fxflex.gt-md="calc((100%-600px)/2)"
+      fxflex.xs="calc((100%-200px)/2)"
+    />
+    <div
+      fxflex="calc((100%/3)+2%)"
+      fxflex.gt-md="600px"
+      fxflex.xs="200px"
+      fxlayout="column"
+    >
+      <div
+        fxflex.gt-md="calc(30%-64px)"
+        fxflex.md="calc(15%-64px)"
+        fxflex.sm="calc((15%/2)-64px)"
+        fxflex.xs="calc((15%/4)-64px)"
+      />
+      <mat-card
+        class="mat-card"
+      >
+        <mat-card-title
+          class="mat-card-title"
+          style="text-align: left; color:gray;"
+        >
+           Select a content type to edit 
+        </mat-card-title>
+        <mat-card-content
+          class="mat-card-content"
+          fxlayout="row wrap"
+          fxlayoutalign="center center"
+        >
+          
+        </mat-card-content>
+      </mat-card>
+      <div
+        fxflex="calc(30%+64px)"
+      />
+    </div>
+    <div
+      fxflex="calc((100%/3)-1%)"
+      fxflex.gt-md="calc((100%-600px)/2)"
+      fxflex.xs="calc((100%-200px)/2)"
+    />
+  </div>
+</med-splash-page>
+`;

@@ -1,0 +1,87 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ModelButtonComponent with mock data should compile minimum input + icon 1`] = `
+<med-model-button
+  goToSearch={[Function EventEmitter]}
+  model={[Function Object]}
+>
+  <button
+    class="mat-raised-button mat-primary"
+    color="primary"
+    fxflex="100px"
+    mat-raised-button=""
+    ng-reflect-color="primary"
+    style="line-height: inherit; padding: 10px;"
+  >
+    <span
+      class="mat-button-wrapper"
+    >
+      <i
+        class="icon-badge icon-badge-lg fa fa-warning align-middle"
+        style="margin-bottom: 5px; background-color: rgb(175, 72, 115);"
+      />
+      <div
+        style="font-weight: bold;"
+      >
+        test
+      </div>
+      <div>
+        (0)
+      </div>
+    </span>
+    <div
+      class="mat-button-ripple mat-ripple"
+      matripple=""
+      ng-reflect-centered="false"
+      ng-reflect-disabled="false"
+      ng-reflect-trigger="[object HTMLButtonElement]"
+    />
+    <div
+      class="mat-button-focus-overlay"
+    />
+  </button>
+</med-model-button>
+`;
+
+exports[`ModelButtonComponent with mock data should compile with minimum input (model has "name" and "description") 1`] = `
+<med-model-button
+  goToSearch={[Function EventEmitter]}
+  model={[Function Object]}
+>
+  <button
+    class="mat-raised-button mat-primary"
+    color="primary"
+    fxflex="100px"
+    mat-raised-button=""
+    ng-reflect-color="primary"
+    style="line-height: inherit; padding: 10px;"
+  >
+    <span
+      class="mat-button-wrapper"
+    >
+      <i
+        class="icon-badge icon-badge-lg fa  align-middle"
+        style="margin-bottom: 5px;"
+      />
+      <div
+        style="font-weight: bold;"
+      >
+        test
+      </div>
+      <div>
+        (0)
+      </div>
+    </span>
+    <div
+      class="mat-button-ripple mat-ripple"
+      matripple=""
+      ng-reflect-centered="false"
+      ng-reflect-disabled="false"
+      ng-reflect-trigger="[object HTMLButtonElement]"
+    />
+    <div
+      class="mat-button-focus-overlay"
+    />
+  </button>
+</med-model-button>
+`;

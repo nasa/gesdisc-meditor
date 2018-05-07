@@ -14,7 +14,8 @@ import {
 	ResultActionsUnion,
 	Search,
 	SearchComplete,
-	SearchError
+	SearchError,
+	ClearResults
 } from '../actions/result.actions';
 import { Document } from '../../service/model/document';
 
@@ -40,7 +41,7 @@ export class ResultEffects {
 			this.searchService
 				.listDocuments(model)
 				.pipe(
-					map((results: Document[]) =>  new SearchComplete(results)),
+					switchMap((results: Document[]) =>  [new ClearResults(), new SearchComplete(results)]),
 					catchError(err => of(new SearchError(err)))
 				)
 		)

@@ -5,6 +5,7 @@ export enum ResultActionTypes {
 	Search = '[Result] Search',
 	SearchComplete = '[Result] Search Complete',
 	SearchError = '[Result] Search Error',
+	ClearResults ='[Result] Clear Results'
 }
 
 /**
@@ -32,6 +33,9 @@ export class SearchError implements Action {
 	constructor(public payload: string) {}
 }
 
+export class ClearResults implements Action {
+	readonly type = ResultActionTypes.ClearResults;
+}
 
 /**
  * Export a type alias of all actions in this action group
@@ -40,4 +44,5 @@ export class SearchError implements Action {
 export type ResultActionsUnion =
 	| Search
 	| SearchComplete
-	| SearchError;
+	| SearchError
+	| ClearResults;
