@@ -10,10 +10,11 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { StoreModule } from '@ngrx/store';
 
-import { reducers } from './reducers';
+import { reducer } from './reducers/results.reducer';
 
 import { EffectsModule } from '@ngrx/effects';
 import { ResultEffects } from './effects/result.effects';
+import { SearchStatusComponent } from './components/search-status/search-status.component';
 
 @NgModule({
 	imports: [
@@ -22,14 +23,15 @@ import { ResultEffects } from './effects/result.effects';
 		ReactiveFormsModule,
 		MaterialModule,
 		FlexLayoutModule,
-		StoreModule.forFeature('results', reducers),
+		StoreModule.forFeature('results', reducer),
 		EffectsModule.forFeature([ResultEffects]),
 	],
 	declarations: [
 		SearchBarComponent,
 		SearchResultListComponent,
 		SearchPageComponent,
-		SearchResultComponent
+		SearchResultComponent,
+		SearchStatusComponent
 	],
 	exports: [ SearchPageComponent ]
 })

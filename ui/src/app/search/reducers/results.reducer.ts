@@ -11,6 +11,7 @@ import { ResultActionsUnion, ResultActionTypes } from '../actions/result.actions
  * any additional interface properties.
  */
 export interface State extends EntityState<Document> {
+	selectedDocumentId: string
 }
 
 /**
@@ -22,6 +23,7 @@ export interface State extends EntityState<Document> {
  * function if the records are to be sorted.
  */
 export const adapter: EntityAdapter<Document> = createEntityAdapter<Document>({
+	selectId: (result: Document) => result.title,
 	sortComparer: false,
 });
 
@@ -31,7 +33,7 @@ export const adapter: EntityAdapter<Document> = createEntityAdapter<Document>({
  * additional properties can also be defined.
  */
 export const initialState: State = adapter.getInitialState({
-
+	selectedDocumentId: ''
 });
 
 export function reducer(
@@ -50,11 +52,17 @@ export function reducer(
 			return adapter.addMany(action.payload, state);
 		}
 
+		case ResultActionTypes.ClearResults: {
+			return adapter.removeAll({ ...state, selectedDocumentId: '' });
+		}
+
 		default: {
 			return state;
 		}
 	}
 }
+
+export const getSelectedId = (state: State) => state.selectedDocumentId;
 
 export const {
   selectIds: selectResultIds,

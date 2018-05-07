@@ -1,6 +1,6 @@
 <div>
-	<a>{{result.title}}</a>
+	<a href="http://www.google.com">{{result.title}}</a>
 </div>
-<div>
-	{{result.modifiedOn}} by {{result.modifiedBy}}
+<div class="author-status">
+	{{result['x-meditor'].modifiedOn | date:'short'}} by {{ result['x-meditor'].modifiedBy }}
 </div>

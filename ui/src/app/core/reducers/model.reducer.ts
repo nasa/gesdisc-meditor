@@ -35,3 +35,11 @@ export function reducer(
 }
 
 export const getSelectedId = (state: State) => state.selectedModelId;
+
+export const {
+  selectIds: selectModelIds,
+  selectEntities: selectModelEntities,
+  selectAll: selectAllModels,
+  selectTotal: selectModelsTotal,
+} = adapter.getSelectors();
+

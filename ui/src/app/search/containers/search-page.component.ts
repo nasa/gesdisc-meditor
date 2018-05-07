@@ -3,6 +3,7 @@ import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import * as fromRoot from '../../reducers';
 import * as fromSearch from '../reducers'
 import { Store, select } from '@ngrx/store';
+import { filter, map } from 'rxjs/operators';
 import { Observable } from 'rxjs/Observable';
 import { Model } from '../../service/model/model';
 import { Document } from '../../service/model/document';
@@ -15,18 +16,21 @@ import * as Results from '../actions/result.actions';
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
 		<med-search-bar
-			[query]=""
 			[models]="models$ | async"
 			[selectedModel]="selectedModel$ | async"
-			(selectionChanged)="selectAndChange($event)">
+			(selectionChanged)="selectAndChange($event)"
+			(searchChanged)="searchChanged($event)">
 		</med-search-bar>
-		<med-search-result-list [results]="results$ | async"></med-search-result-list>
+		<med-search-status
+			[resultCount] = "(results$ | async)?.length"
+			[filteredCount] = "(filteredResults$ | async)?.length"
+			[modelName] = "(selectedModel$ | async)?.name">
+		</med-search-status>
+		<med-search-result-list [results]="filteredResults$ | async"></med-search-result-list>
 	`,
 	styles: [
 		`
-		:host {
-			text-align: center;
-		}
+
 	`,
 	],
 })
@@ -34,6 +38,7 @@ export class SearchPageComponent implements OnInit {
 	models$: Observable<Model[]>;
 	selectedModel$: Observable<Model>;
 	results$: Observable<Document[]>;
+	filteredResults$: Observable<Document[]>;
 
 	constructor(
 		private rootStore: Store<fromRoot.State>,
@@ -42,10 +47,8 @@ export class SearchPageComponent implements OnInit {
 		private route: ActivatedRoute
 	) {
 		this.models$ = rootStore.pipe(select(fromRoot.getAllModels));
-		this.selectedModel$ = rootStore.pipe(select(fromRoot.selectCurrentModel));
 		this.results$ = searchStore.pipe(select(fromSearch.selectAllResults));
-
-		// this.selected$.subscribe(p => {console.log(p)})
+		this.selectedModel$ = rootStore.pipe(select(fromRoot.selectCurrentModel));
 	}
 
 	ngOnInit() {
@@ -53,6 +56,7 @@ export class SearchPageComponent implements OnInit {
 			this.selectModel(params['byType']);
 			this.loadSearchResults(params['byType']);
 		});
+		this.filteredResults$ = this.results$;
 	}
 
 	selectModel(type: any) {
@@ -64,12 +68,16 @@ export class SearchPageComponent implements OnInit {
 	}
 
 	selectAndChange(event: any) {
-		this.selectModel(event.value.name);
-		this.changeQueryByType(event.value.name);
+		this.selectModel(event);
+		this.changeQueryByType(event);
 	}
 
 	changeQueryByType(type: any) {
 		this.router.navigate(['.'], { relativeTo: this.route, queryParams: { byType: type }});
+	}
+
+	searchChanged(event) {
+		this.filteredResults$ = this.results$.pipe(map(document => document.filter(doc => doc.title.search(new RegExp(event, "i")) != -1)))
 	}
 
 }

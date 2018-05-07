@@ -6,14 +6,15 @@ import { Component, Output, EventEmitter } from '@angular/core';
     <mat-toolbar class="med-toolbar">
       <img src="assets/logo.png" class="logo"/>
       <span class="spacer"></span>
-      <button mat-raised-button color="primary" class="toolbar-btn">
-        <mat-icon>feedback</mat-icon>
+      <a href="" class="toolbar-btn-icon">
+      	<mat-icon>home</mat-icon>
+      </a>
+      <a href="" class="toolbar-btn">
         Feedback
-      </button>
-      <button mat-raised-button color="primary" class="toolbar-btn">
-        <mat-icon>help</mat-icon>
+      </a>
+      <a href="" class="toolbar-btn">
         Help
-      </button>
+      </a>
       <med-login></med-login>
     </mat-toolbar>
   `,
@@ -32,6 +33,11 @@ import { Component, Output, EventEmitter } from '@angular/core';
 
     .toolbar-btn {
     	margin-right: 15px;
+    }
+
+    .toolbar-btn-icon {
+    	margin-right: 15px;
+    	margin-top: 10px;
     }
   `]
 })
