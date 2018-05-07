@@ -6,7 +6,7 @@ import * as Auth from '../actions/auth';
 import * as fromRoot from '../../reducers';
 import * as fromAuth from '../reducers';
 
-describe('Auth Guard', () => {
+xdescribe('Auth Guard', () => {
   let guard: AuthGuard;
   let store: Store<any>;
 

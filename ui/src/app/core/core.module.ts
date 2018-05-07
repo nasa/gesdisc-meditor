@@ -9,10 +9,7 @@ import { NotFoundPageComponent } from './containers/not-found-page';
 import { SplashPageComponent } from './containers/splash-page/splash-page.component';
 // COMPONENTS
 import { ModelButtonComponent } from './components/model-button/model-button.component';
-import { LayoutComponent } from './components/layout/layout.component';
 import { MaterialModule } from '../material';
-import { NavItemComponent } from './components/nav-item/nav-item.component';
-import { SidenavComponent } from './components/sidenav/sidenav.component';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
 
 import { EffectsModule } from '@ngrx/effects';
@@ -28,12 +25,9 @@ import { SearchModule } from '../search/search.module';
 
 export const COMPONENTS = [
 	ModelButtonComponent,
-	LayoutComponent,
 	MainComponent,
 	NotFoundPageComponent,
 	SplashPageComponent,
-	NavItemComponent,
-	SidenavComponent,
 	ToolbarComponent,
 ];
 
