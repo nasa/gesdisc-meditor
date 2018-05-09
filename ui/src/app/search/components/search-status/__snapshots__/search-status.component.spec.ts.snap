@@ -1,0 +1,97 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SearchStatusComponent with mock data should compile with minimum input 1`] = `
+<med-search-status
+  filteredCount={[Function Number]}
+  modelName={[Function String]}
+  resultCount={[Function Number]}
+  sortBy={[Function String]}
+>
+  <div
+    class="search-status-bar"
+    fxlayout="row wrap"
+    fxlayoutalign="center start"
+  >
+    <div
+      fxflex="40"
+    >
+       Showing 1 - 10 of 15 test documents 
+    </div>
+    <div
+      fxflex="4"
+    />
+     Sort by: 
+    <div
+      class="sortby-select"
+      fxflex="8"
+    >
+      <mat-select
+        aria-disabled="false"
+        aria-invalid="false"
+        aria-multiselectable="false"
+        aria-required="false"
+        class="mat-select ng-tns-c5-0"
+        id="mat-select-1"
+        ng-reflect-value="oldest"
+        role="listbox"
+        tabindex="0"
+      >
+        <div
+          aria-hidden="true"
+          cdk-overlay-origin=""
+          class="mat-select-trigger"
+        >
+          <div
+            class="mat-select-value"
+            ng-reflect-ng-switch="true"
+          >
+            
+            <span
+              class="mat-select-placeholder ng-tns-c5-0 ng-star-inserted"
+            >
+               
+            </span>
+            
+          </div>
+          <div
+            class="mat-select-arrow-wrapper"
+          >
+            <div
+              class="mat-select-arrow"
+            />
+          </div>
+        </div>
+        
+      </mat-select>
+    </div>
+    <button
+      class="add-new-button mat-raised-button"
+      fxflex="5"
+      mat-raised-button=""
+    >
+      <span
+        class="mat-button-wrapper"
+      >
+        <mat-icon
+          aria-hidden="true"
+          class="mat-icon material-icons"
+          role="img"
+        >
+          add
+        </mat-icon>
+        Add new 
+      </span>
+      <div
+        class="mat-button-ripple mat-ripple"
+        matripple=""
+        ng-reflect-centered="false"
+        ng-reflect-disabled="false"
+        ng-reflect-trigger="[object HTMLButtonElement]"
+      />
+      <div
+        class="mat-button-focus-overlay"
+      />
+    </button>
+  </div>
+</med-search-status>
+`;

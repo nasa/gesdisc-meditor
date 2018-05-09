@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DocumentsReducer SearchComplete should add all documents in the payload when none exist 1`] = `
+Object {
+  "entities": Object {
+    "testDocument": Object {
+      "title": "testDocument",
+    },
+  },
+  "ids": Array [
+    "testDocument",
+  ],
+  "selectedDocumentId": "",
+}
+`;
+
+exports[`DocumentsReducer SearchComplete should add only new documents when documents already exist 1`] = `
+Object {
+  "entities": Object {
+    "testDocument": Object {
+      "name": "222",
+      "title": "testDocument",
+    },
+  },
+  "ids": Array [
+    "testDocument",
+    "222",
+  ],
+  "selectedDocumentId": "",
+}
+`;
+
+exports[`DocumentsReducer undefined action should return the default state 1`] = `
+Object {
+  "entities": Object {},
+  "ids": Array [],
+  "selectedDocumentId": "",
+}
+`;

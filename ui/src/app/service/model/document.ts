@@ -17,5 +17,5 @@ export interface Document {
      * Title for the document
      */
     title: string;
-    xMeditor?: DocumentXmeditor;
+    "x-meditor"?: DocumentXmeditor;
 }

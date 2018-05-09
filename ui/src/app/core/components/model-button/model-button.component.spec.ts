@@ -26,9 +26,6 @@ describe('ModelButtonComponent', () => {
 	});
 
 	describe('with no data', () => {
-
-		
-
 		it('should throw an error when when compiled', () => {
 			expect(function() { fixture.detectChanges() }).toThrow(new TypeError("Cannot read property 'icon' of undefined"));
 		});
@@ -48,7 +45,7 @@ describe('ModelButtonComponent', () => {
 			fixture.detectChanges();
 			expect(fixture).toMatchSnapshot();
 		});
-	
+
 		it('should compile minimum input + icon', () => {
 			instance.model = {
 				name: 'test',

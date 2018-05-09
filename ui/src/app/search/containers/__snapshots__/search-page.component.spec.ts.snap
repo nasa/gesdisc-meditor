@@ -2,6 +2,7 @@
 
 exports[`Search Page should compile 1`] = `
 <med-search-page
+  filteredResults$={[Function Store]}
   models$={[Function Store]}
   results$={[Function Store]}
   rootStore={[Function Store]}
@@ -11,6 +12,8 @@ exports[`Search Page should compile 1`] = `
   selectedModel$={[Function Store]}
 >
   <med-search-bar
+    _ngcontent-c0=""
+  /><med-search-status
     _ngcontent-c0=""
   /><med-search-result-list
     _ngcontent-c0=""

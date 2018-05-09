@@ -1,28 +1,44 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { ComponentFixture, TestBed  } from '@angular/core/testing';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { SearchResultComponent } from './search-result.component';
 
 describe('SearchResultComponent', () => {
-  let component: SearchResultComponent;
-  let fixture: ComponentFixture<SearchResultComponent>;
+	let fixture: ComponentFixture<SearchResultComponent>;
+	let instance: SearchResultComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ SearchResultComponent ]
-    })
-    .compileComponents();
-  }));
+	beforeEach(() => {
+		TestBed.configureTestingModule({
+			imports: [
+				NoopAnimationsModule,
+			],
+			declarations: [
+				SearchResultComponent
+			]
+		});
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(SearchResultComponent);
-    component = fixture.componentInstance;
-    component.result = {
-      title: "MSAQSO2L4: Multi-Satellite Air Quality Sulfur Dioxide (SO2) Database Long-Term L4 Global V1"
-    };
-    fixture.detectChanges();
-  });
+		fixture = TestBed.createComponent(SearchResultComponent);
+		instance = fixture.componentInstance;
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+	});
+
+	describe('with no data', () => {
+		it('should not have any initial input', () => {
+			expect(instance.result).toBeUndefined();
+		});
+	});
+
+	describe('with mock data', () => {
+
+		it('should compile with minimum input', () => {
+			instance.result = {
+				title: 'test title',
+				'x-meditor': {
+					modifiedOn: '2018-05-04T19:09:05.366Z',
+					modifiedBy: 'test author'
+				}
+			}
+			fixture.detectChanges();
+			expect(fixture).toMatchSnapshot();
+		});
+	});
 });

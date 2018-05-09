@@ -1,6 +1,6 @@
 <div fxLayout="row wrap" fxLayoutAlign="center start" class="search-status-bar">
 	<div fxFlex="40">
-		Showing 1 - {{ filteredCount }} of {{ resultCount }} {{modelName}} documents
+		Showing {{ filteredCount > 0 ? 1 : 0 }} - {{ filteredCount }} of {{ resultCount }} {{modelName}} documents
 	</div>
 	<div fxFlex="4"></div>
 
