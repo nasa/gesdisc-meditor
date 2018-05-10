@@ -1,5 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`DocumentsReducer ClearResults should clear results 1`] = `
+Object {
+  "entities": Object {},
+  "ids": Array [],
+  "selectedDocumentId": "",
+}
+`;
+
 exports[`DocumentsReducer SearchComplete should add all documents in the payload when none exist 1`] = `
 Object {
   "entities": Object {

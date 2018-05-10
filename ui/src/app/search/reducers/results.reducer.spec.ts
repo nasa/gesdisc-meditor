@@ -71,15 +71,15 @@ describe('DocumentsReducer', () => {
 		});
 	});
 
-	// describe('Select Model', () => {
-	// 	it('should set the selected model id on the state', () => {
-	// 		const action = new SelectModel(model1.name);
+	describe('ClearResults', () => {
+		it('should clear results', () => {
+			const action = new ClearResults();
 
-	// 		const result = reducer(initialState, action);
+			const result = reducer(initialState, action);
 
-	// 		expect(result).toMatchSnapshot();
-	// 	});
-	// });
+			expect(result).toMatchSnapshot();
+		});
+	});
 
 	// describe('Selectors', () => {
 	// 	describe('getSelectedId', () => {
