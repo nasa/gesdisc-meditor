@@ -9,7 +9,7 @@
 
 // specify theme class eg: <body class="my-theme"> ... </body>
 .main-theme {
-  
+
   // use our theme with angular-material-theme mixin
   @include angular-material-theme($main-theme);
 }
@@ -45,11 +45,11 @@ html {
 /* START - Content Type Icons   */
 /********************************/
 
-@mixin iconBadge($name, $diameter, $font-size) {
+@mixin iconBadge($name, $diameter, $font-size, $lineheight) {
   .icon-badge-#{$name} {
     width: $diameter;
     height: $diameter;
-    line-height: $diameter + 2px !important;
+    line-height: $lineheight !important;
     font-size: $font-size !important;
   }
   .icon-badge-title-#{$name} {
@@ -57,9 +57,11 @@ html {
   }
 }
 
-@include iconBadge("sm", 36px, 22px);
-@include iconBadge("md", 44px, 24px);
-@include iconBadge("lg", 64px, 36px);
+@include iconBadge("inline", 18px, 12px, 18px);
+@include iconBadge("xs", 20px, 10px, 20px);
+@include iconBadge("sm", 36px, 22px, 38px);
+@include iconBadge("md", 44px, 24px, 46px);
+@include iconBadge("lg", 64px, 36px, 66px);
 
 .icon-badge {
   border-radius: 50%;
@@ -71,7 +73,7 @@ html {
 
 .fa-warning:before {
   bottom: 1px;
-  position: relative; 
+  position: relative;
 }
 /*******************************/
 /* END - Content Type Icons    */

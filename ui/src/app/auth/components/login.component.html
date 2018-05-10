@@ -1,0 +1,2 @@
+<a mat-raised-button (click)="login()" color="primary" *ngIf="!loginStatus$">Earthdata Login</a>
+<div *ngIf="(user$ | async) as user" class="user-box">Hi, {{user.name}}</div>

@@ -3,7 +3,7 @@ import * as fromAuth from './auth';
 import { Login, LoginSuccess, Logout } from '../actions/auth';
 import { Authenticate, User } from '../models/user';
 
-describe('AuthReducer', () => {
+xdescribe('AuthReducer', () => {
   describe('undefined action', () => {
     it('should return the default state', () => {
       const action = {} as any;

@@ -24,17 +24,20 @@ import { storeFreeze } from 'ngrx-store-freeze';
  */
 
 import * as fromLayout from '../core/reducers/layout';
-import * as fromContentTypes from '../core/reducers/content-types';
+import * as fromModel from '../core/reducers/model.reducer';
 
+export interface ModelState {
+	models: fromModel.State;
+}
 
 /**
  * As mentioned, we treat each reducer like a table in a database. This means
  * our top level state interface is just a map of keys to inner state types.
  */
 export interface State {
-  layout: fromLayout.State;
-  contentTypes: fromContentTypes.State;
-  router: fromRouter.RouterReducerState<RouterStateUrl>;
+	layout: fromLayout.State;
+	models: fromModel.State;
+	router: fromRouter.RouterReducerState<RouterStateUrl>;
 }
 
 /**
@@ -43,19 +46,19 @@ export interface State {
  * and the current or initial state and return a new immutable state.
  */
 export const reducers: ActionReducerMap<State> = {
-  layout: fromLayout.reducer,
-  contentTypes: fromContentTypes.reducer,
-  router: fromRouter.routerReducer,
+	layout: fromLayout.reducer,
+	models: fromModel.reducer,
+	router: fromRouter.routerReducer,
 };
 
 // console.log all actions
 export function logger(reducer: ActionReducer<State>): ActionReducer<State> {
-  return function(state: State, action: any): State {
-    console.log('state', state);
-    console.log('action', action);
+	return function(state: State, action: any): State {
+		console.log('state', state);
+		console.log('action', action);
 
-    return reducer(state, action);
-  };
+		return reducer(state, action);
+	};
 }
 
 /**
@@ -64,8 +67,8 @@ export function logger(reducer: ActionReducer<State>): ActionReducer<State> {
  * that will be composed to form the root meta-reducer.
  */
 export const metaReducers: MetaReducer<State>[] = !environment.production
-  ? [logger, storeFreeze]
-  : [];
+	? [logger, storeFreeze]
+	: [];
 
 /**
  * Layout Reducers
@@ -73,6 +76,49 @@ export const metaReducers: MetaReducer<State>[] = !environment.production
 export const getLayoutState = createFeatureSelector<fromLayout.State>('layout');
 
 export const getShowSidenav = createSelector(
-  getLayoutState,
-  fromLayout.getShowSidenav
+	getLayoutState,
+	fromLayout.getShowSidenav
 );
+
+/**
+ * Model Reducers
+ */
+
+export const selectModelState = createFeatureSelector<fromModel.State>('models');
+
+
+export const getModelIds = createSelector(
+	selectModelState,
+	fromModel.selectModelIds
+);
+export const getModelEntities = createSelector(
+	selectModelState,
+	fromModel.selectModelEntities
+);
+export const getAllModels = createSelector(
+	selectModelState,
+	fromModel.selectAllModels
+);
+export const getResultsTotal = createSelector(
+	selectModelState,
+	fromModel.selectModelsTotal
+);
+export const getCurrentModelId = createSelector(
+  selectModelState,
+  fromModel.getSelectedId
+);
+
+// export const {
+// 	selectIds: getModelIds,
+// 	selectEntities: getModelEntities,
+// 	selectAll: getAllModels,
+// 	selectTotal: getModelTypes,
+// } = fromModel.adapter.getSelectors(getModelEntitiesState);
+
+export const selectCurrentModel = createSelector(
+	getModelEntities,
+	getCurrentModelId,
+	(modelEntities, modelId) => modelEntities[modelId]
+);
+
+

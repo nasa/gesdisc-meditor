@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SearchResultListComponent with mock data should compile with minimum input (have 2 med-search-result elements) 1`] = `
+<med-search-result-list
+  results={[Function Array]}
+>
+  <div
+    fxlayout="row"
+    fxlayoutalign="center start"
+  >
+    <div
+      fxflex="60"
+    >
+      
+      <med-search-result />
+      <med-search-result />
+    </div>
+  </div>
+</med-search-result-list>
+`;

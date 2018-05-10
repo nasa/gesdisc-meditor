@@ -47,6 +47,12 @@
       "type": "string",
       "required": true
     },
+    "titleField": {
+      "$comment": "The JSON path in the Model's schema to be used as the title field for display",
+      "type": "string",
+      "default": "title",
+      "required": "true"
+    },
     "documentation": {
       "$comment": "Link to model's documentation",
       "type": "string",

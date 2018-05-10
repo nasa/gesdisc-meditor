@@ -34,6 +34,7 @@
 /.sass-cache
 /connect.lock
 /coverage
+/ui/coverage
 /libpeerconnection.log
 npm-debug.log
 yarn-error.log
@@ -47,10 +48,3 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
-
-# Environment configuration file
-.env
-
-# environment.ts will not be included in the git repo
-# since it is automatically created on "npm start"
-/ui/src/environments/*

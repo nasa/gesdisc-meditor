@@ -15,16 +15,17 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
 import { CoreModule } from './core/core.module';
 import { AuthModule } from './auth/auth.module';
+import { ApiModule } from './service/api.module';
 
 import { CustomRouterStateSerializer } from './shared/utils';
 
-import { MainComponent } from './core/containers/main';
+import { MainComponent } from './core/containers/main/main.component';
+import { BASE_PATH } from './service';
 import { environment } from '../environments/environment';
+
 
 import { routes } from './routes';
 import { reducers, metaReducers } from './reducers';
-
-import { ContentTypeService } from './core/services/content-type/content-type.service';
 
 @NgModule({
 	imports: [
@@ -32,7 +33,7 @@ import { ContentTypeService } from './core/services/content-type/content-type.se
 		BrowserModule,
 		BrowserAnimationsModule,
 		HttpClientModule,
-		RouterModule.forRoot(routes, { }),
+		RouterModule.forRoot(routes),
 
 		/**
 		 * StoreModule.forRoot is imported once in the root module, accepting a reducer
@@ -77,14 +78,9 @@ import { ContentTypeService } from './core/services/content-type/content-type.se
 		 * See: https://github.com/ngrx/platform/blob/master/docs/effects/api.md#forroot
 		 */
 		EffectsModule.forRoot([]),
-
-		/**
-		 * `provideDB` sets up @ngrx/db with the provided schema and makes the Database
-		 * service available.
-		 */
-
 		CoreModule.forRoot(),
-		AuthModule.forRoot()
+		AuthModule.forRoot(),
+		ApiModule
 	],
 	providers: [
 		/**
@@ -93,7 +89,8 @@ import { ContentTypeService } from './core/services/content-type/content-type.se
 		 * by `@ngrx/router-store` to include only the desired pieces of the snapshot.
 		 */
 		{ provide: RouterStateSerializer, useClass: CustomRouterStateSerializer },
-		ContentTypeService
+		{ provide: BASE_PATH, useValue: environment.API_BASE_PATH },
+		// ContentTypeService
 	],
 	bootstrap: [ MainComponent ]
 })
