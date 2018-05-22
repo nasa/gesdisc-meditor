@@ -31,8 +31,7 @@ export class MaterialCkeditorComponent implements OnInit {
 	@Input() dataIndex: number[];
 
 	config = {
-		// mathjaxlib
-		mathJaxLib: '/assets/MathJax/MathJax.js?config=TeX-AMS_HTML',
+		mathJaxLib: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_HTML',
 		toolbarGroups: [
 			{ name: 'clipboard',   groups: [ 'clipboard', 'undo' ] },
 			{ name: 'editing',     groups: [ 'find', 'selection', 'spellchecker' ] },
