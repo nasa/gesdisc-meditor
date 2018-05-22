@@ -1,0 +1,14 @@
+<json-schema-form *ngIf="schema && customWidgets"
+	[schema] = "schema"
+	[layout] = "layout"
+	[data] = "data"
+	[options]="jsonFormOptions"
+	[framework]="selectedFramework"
+	[loadExternalAssets]="true"
+	[widgets]="customWidgets"
+	(onChanges)="onChanges($event)"
+	(onSubmit)="onSubmit($event)"
+	(isValid)="isValid($event)"
+	(validationErrors)="validationErrors($event)">
+</json-schema-form>
+

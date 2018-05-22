@@ -6,7 +6,7 @@ import { Store, select } from '@ngrx/store';
 import { filter, map } from 'rxjs/operators';
 import { Observable } from 'rxjs/Observable';
 import { Model } from '../../service/model/model';
-import { Document } from '../../service/model/document';
+import { Searchresult } from '../../service/model/searchresult';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import * as Models from '../../core/actions/model.actions';
 import * as Results from '../actions/result.actions';
@@ -26,7 +26,7 @@ import * as Results from '../actions/result.actions';
 			[filteredCount] = "(filteredResults$ | async)?.length"
 			[modelName] = "(selectedModel$ | async)?.name">
 		</med-search-status>
-		<med-search-result-list [results]="filteredResults$ | async"></med-search-result-list>
+		<med-search-result-list [results]="filteredResults$ | async" [model]="selectedModel$ | async"></med-search-result-list>
 	`,
 	styles: [
 		`
@@ -37,8 +37,8 @@ import * as Results from '../actions/result.actions';
 export class SearchPageComponent implements OnInit {
 	models$: Observable<Model[]>;
 	selectedModel$: Observable<Model>;
-	results$: Observable<Document[]>;
-	filteredResults$: Observable<Document[]>;
+	results$: Observable<Searchresult[]>;
+	filteredResults$: Observable<Searchresult[]>;
 
 	constructor(
 		private rootStore: Store<fromRoot.State>,

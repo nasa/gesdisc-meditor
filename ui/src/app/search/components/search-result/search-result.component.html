@@ -1,5 +1,5 @@
 <div>
-	<a href="http://www.google.com">{{result.title}}</a>
+	<a href="/edit?title={{result.title}}&model={{model.name}}">{{result.title}}</a>
 </div>
 <div class="author-status">
 	{{result['x-meditor'].modifiedOn | date:'short'}} by {{ result['x-meditor'].modifiedBy }}
