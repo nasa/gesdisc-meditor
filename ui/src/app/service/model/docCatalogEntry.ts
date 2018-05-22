@@ -9,15 +9,13 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
+import { DocCatalogEntryXmeditor } from './docCatalogEntryXmeditor';
 
 
-export interface SearchresultXmeditor {
+export interface DocCatalogEntry {
     /**
-     * Date-time of modification
+     * Title for the document
      */
-    modifiedOn?: string;
-    /**
-     * Modifier's user name
-     */
-    modifiedBy?: string;
+    title?: string;
+    xMeditor?: DocCatalogEntryXmeditor;
 }

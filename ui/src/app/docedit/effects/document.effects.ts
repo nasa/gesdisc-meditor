@@ -14,7 +14,10 @@ import {
 	DocumentActionsUnion,
 	Load,
 	LoadComplete,
-	LoadError
+	LoadError,
+	SubmitDocument,
+	SubmitDocumentComplete,
+	SubmitDocumentError
 } from '../actions/document.actions';
 import { Document } from '../../service/model/document';
 
@@ -33,7 +36,7 @@ import { Document } from '../../service/model/document';
 export class DocumentEffects {
 
 	@Effect()
-	search$: Observable<Action> = this.actions$.pipe(
+	load$: Observable<Action> = this.actions$.pipe(
 		ofType<Load>(DocumentActionTypes.Load),
 		map(action => action.payload),
 		switchMap(payload =>
@@ -42,6 +45,20 @@ export class DocumentEffects {
 				.pipe(
 					switchMap((document: Document[]) =>  of(new LoadComplete(document))),
 					catchError(err => of(new LoadError(err)))
+				)
+		)
+	);
+
+	@Effect()
+	submit$: Observable<Action> = this.actions$.pipe(
+		ofType<SubmitDocument>(DocumentActionTypes.SubmitDocument),
+		map(action => action.payload),
+		switchMap(payload =>
+			this.documentService
+				.putDocument(new Blob([JSON.stringify(payload)]))
+				.pipe(
+					map(res => new SubmitDocumentComplete()),
+					catchError(err => of(new SubmitDocumentError(err)))
 				)
 		)
 	);

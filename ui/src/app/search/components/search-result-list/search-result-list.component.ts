@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Searchresult } from '../../../service/model/searchresult';
+import { DocCatalogEntry } from '../../../service/model/docCatalogEntry';
 import { Model } from '../../../service/model/model';
 
 @Component({
@@ -9,7 +9,7 @@ import { Model } from '../../../service/model/model';
 })
 export class SearchResultListComponent implements OnInit {
 
-	@Input() results: Searchresult[];
+	@Input() results: DocCatalogEntry[];
 	@Input() model: Model;
 
 	constructor() { }

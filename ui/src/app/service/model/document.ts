@@ -9,11 +9,11 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { SearchresultXmeditor } from './searchresultXmeditor';
+import { DocCatalogEntryXmeditor } from './docCatalogEntryXmeditor';
 
 
 export interface Document {
-    xMeditor?: SearchresultXmeditor;
+    xMeditor?: DocCatalogEntryXmeditor;
     schema?: string;
     layout?: string;
     doc?: string;

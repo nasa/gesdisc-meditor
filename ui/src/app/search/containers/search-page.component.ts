@@ -6,7 +6,7 @@ import { Store, select } from '@ngrx/store';
 import { filter, map } from 'rxjs/operators';
 import { Observable } from 'rxjs/Observable';
 import { Model } from '../../service/model/model';
-import { Searchresult } from '../../service/model/searchresult';
+import { DocCatalogEntry } from '../../service/model/docCatalogEntry';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import * as Models from '../../core/actions/model.actions';
 import * as Results from '../actions/result.actions';
@@ -37,8 +37,8 @@ import * as Results from '../actions/result.actions';
 export class SearchPageComponent implements OnInit {
 	models$: Observable<Model[]>;
 	selectedModel$: Observable<Model>;
-	results$: Observable<Searchresult[]>;
-	filteredResults$: Observable<Searchresult[]>;
+	results$: Observable<DocCatalogEntry[]>;
+	filteredResults$: Observable<DocCatalogEntry[]>;
 
 	constructor(
 		private rootStore: Store<fromRoot.State>,

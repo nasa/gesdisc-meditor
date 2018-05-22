@@ -1,7 +1,5 @@
 import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 
-import { MaterialCkeditorComponent } from '../widgets/material-ckeditor.component';
-
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import * as fromDocument from '../reducers/document.reducer';
 import { Document } from '../../service/model/document';
@@ -19,7 +17,10 @@ import * as Documents from '../actions/document.actions';
 		<div fxFlex="5"></div>
 		<mat-card fxFlex="70">
 			<mat-card-content>
-				<med-document-edit [document]="document$ | async" [customWidgets] = "customWidgets"></med-document-edit>
+				<med-document-edit
+					[document]="document$ | async"
+					(submitDocument)="submitDocument($event)">
+				</med-document-edit>
 			</mat-card-content>
 		</mat-card>
 		<div fxFlex="5"></div>
@@ -38,12 +39,8 @@ import * as Documents from '../actions/document.actions';
 })
 export class DocEditPageComponent implements OnInit {
 
-
 	document$: Observable<Document>;
-
-	customWidgets = {
-	  ckeditor: MaterialCkeditorComponent,
-	}
+	routeParams: any;
 
 	constructor(
 		private documentStore: Store<fromDocument.State>,
@@ -55,12 +52,22 @@ export class DocEditPageComponent implements OnInit {
 
 	ngOnInit() {
 		this.route.queryParams.subscribe((params: Params) => {
+			this.routeParams = params;
 			this.loadDocument(params);
 		});
 	}
 
 	loadDocument(params) {
 		this.documentStore.dispatch(new Documents.Load(params));
+	}
+
+	submitDocument(data) {
+		let extendedData = JSON.parse(JSON.stringify(data))
+		extendedData['x-meditor'] = {
+			'model': this.routeParams['model'],
+			//'modifiedOn' : Date.now()
+		}
+		this.documentStore.dispatch(new Documents.SubmitDocument(extendedData));
 	}
 
 }

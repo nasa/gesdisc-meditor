@@ -3,8 +3,11 @@ import { Document } from '../../service/model/document';
 
 export enum DocumentActionTypes {
 	Load = '[Document] Load',
-	LoadComplete = '[Load] Load Complete',
-	LoadError = '[Load] Load Error',
+	LoadComplete = '[Document] Load Complete',
+	LoadError = '[Document] Load Error',
+	SubmitDocument = '[Document] Submit new document',
+	SubmitDocumentComplete = '[Document] Submit new document success ',
+	SubmitDocumentError = '[Document] Submit new document error'
 }
 
 /**
@@ -32,6 +35,25 @@ export class LoadError implements Action {
 	constructor(public payload: string) {}
 }
 
+export class SubmitDocument implements Action {
+	readonly type = DocumentActionTypes.SubmitDocument;
+
+	constructor(public payload: any) {}
+}
+
+export class SubmitDocumentComplete implements Action {
+	readonly type = DocumentActionTypes.SubmitDocumentComplete;
+
+	constructor() {}
+}
+
+export class SubmitDocumentError implements Action {
+	readonly type = DocumentActionTypes.SubmitDocumentError;
+
+	constructor(public payload: string) {}
+}
+
+
 
 /**
  * Export a type alias of all actions in this action group
@@ -40,4 +62,7 @@ export class LoadError implements Action {
 export type DocumentActionsUnion =
 	| Load
 	| LoadComplete
-	| LoadError;
+	| LoadError
+	| SubmitDocument
+	| SubmitDocumentComplete
+	| SubmitDocumentError;

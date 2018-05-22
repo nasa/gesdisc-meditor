@@ -11,7 +11,7 @@
  */
 
 
-export interface DocumentXmeditor {
+export interface DocCatalogEntryXmeditor {
     /**
      * Date-time of modification
      */

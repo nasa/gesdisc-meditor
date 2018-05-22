@@ -1,4 +1,5 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { MaterialCkeditorComponent } from '../../widgets/material-ckeditor.component';
 
 @Component({
   selector: 'med-document-edit',
@@ -7,7 +8,6 @@ import { Component, OnInit, Input } from '@angular/core';
 })
 
 export class DocumentEditComponent implements OnInit {
-
 
 	@Input()
   set document(document: any) {
@@ -18,7 +18,7 @@ export class DocumentEditComponent implements OnInit {
     }
   }
 
-	@Input() customWidgets: any;
+  @Output() submitDocument = new EventEmitter<object>();
 
 	selectedFramework = "material-design";
 	jsonFormOptions = {};
@@ -33,20 +33,23 @@ export class DocumentEditComponent implements OnInit {
 		{ "key": "body", "widget" : "ckeditor" }
 	];
 
+	customWidgets = {
+	  ckeditor: MaterialCkeditorComponent,
+	}
+
 
 	submittedFormData = {};
 	liveFormData = {};
 	formValidationErrors = {};
 	formIsValid: boolean;
 
-  constructor() {
-  }
 
   ngOnInit() {
+
   }
 
-  onSubmit(data: any) {
-    this.submittedFormData = data;
+  onSubmit() {
+    this.submitDocument.emit(this.data);
   }
 
   onChanges(data: any) {
