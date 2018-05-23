@@ -1,5 +1,4 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-// import { MaterialCkeditorComponent } from '../../widgets/material-ckeditor.component';
 
 @Component({
 	selector: 'med-document-edit',
@@ -32,11 +31,6 @@ export class DocumentEditComponent implements OnInit {
 		// "body"
 		{ "key": "body", "widget" : "ckeditor" }
 	];
-
-	// customWidgets = {
-	// 	ckeditor: MaterialCkeditorComponent,
-	// }
-
 
 	submittedFormData = {};
 	liveFormData = {};

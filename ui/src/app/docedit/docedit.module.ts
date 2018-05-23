@@ -2,9 +2,6 @@ import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { MaterialModule } from '../material';
-// import { CKEditorModule } from 'ngx-ckeditor';
-
-// import { MaterialCkeditorComponent } from './widgets/material-ckeditor.component';
 
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 
