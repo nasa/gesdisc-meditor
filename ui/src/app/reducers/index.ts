@@ -25,10 +25,11 @@ import { storeFreeze } from 'ngrx-store-freeze';
 
 import * as fromLayout from '../core/reducers/layout';
 import * as fromModel from '../core/reducers/model.reducer';
+import * as fromDocument from '../docedit/reducers/document.reducer';
 
-export interface ModelState {
-	models: fromModel.State;
-}
+// export interface ModelState {
+// 	models: fromModel.State;
+// }
 
 /**
  * As mentioned, we treat each reducer like a table in a database. This means
@@ -37,6 +38,7 @@ export interface ModelState {
 export interface State {
 	layout: fromLayout.State;
 	models: fromModel.State;
+	document: fromDocument.State;
 	router: fromRouter.RouterReducerState<RouterStateUrl>;
 }
 
@@ -48,6 +50,7 @@ export interface State {
 export const reducers: ActionReducerMap<State> = {
 	layout: fromLayout.reducer,
 	models: fromModel.reducer,
+	document: fromDocument.reducer,
 	router: fromRouter.routerReducer,
 };
 
@@ -78,6 +81,16 @@ export const getLayoutState = createFeatureSelector<fromLayout.State>('layout');
 export const getShowSidenav = createSelector(
 	getLayoutState,
 	fromLayout.getShowSidenav
+);
+
+/**
+ * Document Reducers
+ */
+export const getDocumentState = createFeatureSelector<fromDocument.State>('document');
+
+export const getDocument = createSelector(
+	getDocumentState,
+	fromDocument.getDocument
 );
 
 /**
@@ -112,12 +125,6 @@ export const getCurrentModel= createSelector(
   selectModelState,
   fromModel.getSelectedModel
 );
-// export const {
-// 	selectIds: getModelIds,
-// 	selectEntities: getModelEntities,
-// 	selectAll: getAllModels,
-// 	selectTotal: getModelTypes,
-// } = fromModel.adapter.getSelectors(getModelEntitiesState);
 
 export const selectCurrentModel = createSelector(
 	getModelEntities,

@@ -29,7 +29,7 @@ export class DocumentEditComponent implements OnInit {
 		"start",
 		"severity",
 		// "body"
-		{ "key": "body", "widget" : "ckeditor" }
+		{ "key": "body", "type" : "ckeditor" }
 	];
 
 	submittedFormData = {};

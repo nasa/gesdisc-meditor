@@ -2,12 +2,10 @@ import { Document } from '../../service/model/document';
 import { DocumentActionsUnion, DocumentActionTypes } from '../actions/document.actions';
 
 export interface State {
-	document: any;
   currentDocument: Document;
 }
 
 const initialState: State = {
-	document: '',
   currentDocument: {},
 };
 
@@ -19,7 +17,7 @@ export function reducer(
 	switch (action.type) {
 		case DocumentActionTypes.LoadComplete: {
 
-			return { currentDocument: action.payload, document: ''};
+			return { currentDocument: action.payload};
 		}
 
 		default: {
@@ -28,6 +26,6 @@ export function reducer(
 	}
 }
 
-export const getDocument = (state: State) => state.document.currentDocument;
+export const getDocument = (state: State) => state.currentDocument;
 
 

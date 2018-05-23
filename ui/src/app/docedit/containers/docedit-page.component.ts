@@ -1,7 +1,6 @@
 import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 
 import { Router, ActivatedRoute, Params } from '@angular/router';
-import * as fromDocument from '../reducers/document.reducer';
 import * as fromRoot from '../../reducers';
 import { Document } from '../../service/model/document';
 import { Model } from '../../service/model/model';
@@ -46,7 +45,6 @@ export class DocEditPageComponent implements OnInit {
 	routeParams: any;
 
 	constructor(
-		private documentStore: Store<fromDocument.State>,
 		private rootStore: Store<fromRoot.State>,
 		private router: Router,
 		private route: ActivatedRoute
@@ -67,8 +65,8 @@ export class DocEditPageComponent implements OnInit {
 	}
 
 	loadDocument(params) {
-		this.documentStore.dispatch(new Documents.Load(params));
-		this.document$ = this.documentStore.pipe(select(fromDocument.getDocument));
+		this.rootStore.dispatch(new Documents.Load(params));
+		this.document$ = this.rootStore.pipe(select(fromRoot.getDocument));
 	}
 
 	createNewDocument() {
@@ -80,7 +78,7 @@ export class DocEditPageComponent implements OnInit {
 		extendedData['x-meditor'] = {
 			'model': this.routeParams['model'],
 		}
-		this.documentStore.dispatch(new Documents.SubmitDocument(extendedData));
+		this.rootStore.dispatch(new Documents.SubmitDocument(extendedData));
 	}
 
 }
