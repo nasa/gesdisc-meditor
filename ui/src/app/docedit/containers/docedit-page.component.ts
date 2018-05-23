@@ -2,12 +2,15 @@ import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import * as fromDocument from '../reducers/document.reducer';
+import * as fromRoot from '../../reducers';
 import { Document } from '../../service/model/document';
+import { Model } from '../../service/model/model';
 
 import { Store, select } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
 
 import * as Documents from '../actions/document.actions';
+import * as Models from '../../core/actions/model.actions';
 
 @Component({
 	selector: 'med-docedit-page',
@@ -39,33 +42,44 @@ import * as Documents from '../actions/document.actions';
 })
 export class DocEditPageComponent implements OnInit {
 
-	document$: Observable<Document>;
+	document$: Observable<Document | Model>;
 	routeParams: any;
 
 	constructor(
 		private documentStore: Store<fromDocument.State>,
+		private rootStore: Store<fromRoot.State>,
 		private router: Router,
 		private route: ActivatedRoute
 	) {
-		this.document$ = documentStore.pipe(select(fromDocument.getDocument));
 	}
 
 	ngOnInit() {
 		this.route.queryParams.subscribe((params: Params) => {
 			this.routeParams = params;
-			this.loadDocument(params);
+			this.rootStore.dispatch(new Models.LoadSelectedModel(params.model));
+			if (!params.new) {
+				this.loadDocument(params);
+			} else {
+				this.createNewDocument();
+			}
+
 		});
 	}
 
 	loadDocument(params) {
 		this.documentStore.dispatch(new Documents.Load(params));
+		this.document$ = this.documentStore.pipe(select(fromDocument.getDocument));
+	}
+
+	createNewDocument() {
+		this.document$ = this.rootStore.pipe(select(fromRoot.getCurrentModel));
 	}
 
 	submitDocument(data) {
+		console.log(data);
 		let extendedData = JSON.parse(JSON.stringify(data))
 		extendedData['x-meditor'] = {
 			'model': this.routeParams['model'],
-			//'modifiedOn' : Date.now()
 		}
 		this.documentStore.dispatch(new Documents.SubmitDocument(extendedData));
 	}

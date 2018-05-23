@@ -108,6 +108,10 @@ export const getCurrentModelId = createSelector(
   fromModel.getSelectedId
 );
 
+export const getCurrentModel= createSelector(
+  selectModelState,
+  fromModel.getSelectedModel
+);
 // export const {
 // 	selectIds: getModelIds,
 // 	selectEntities: getModelEntities,

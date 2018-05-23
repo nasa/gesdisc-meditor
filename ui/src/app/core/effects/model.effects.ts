@@ -14,8 +14,12 @@ import {
 	ModelActionsUnion,
 	Load,
 	LoadComplete,
-	LoadError
+	LoadError,
+	LoadSelectedModel,
+	LoadSelectedModelComplete,
+	LoadSelectedModelError
 } from '../actions/model.actions';
+import { ModelCatalogEntry } from '../../service/model/modelCatalogEntry';
 import { Model } from '../../service/model/model';
 
 /**
@@ -39,8 +43,22 @@ export class ModelEffects {
 			this.modelService
 				.listModels()
 				.pipe(
-					map((models: Model[]) =>  new LoadComplete(models)),
+					map((models: ModelCatalogEntry[]) =>  new LoadComplete(models)),
 					catchError(err => of(new LoadError(err)))
+				)
+		)
+	);
+
+	@Effect()
+	loadSelected$: Observable<Action> = this.actions$.pipe(
+		ofType<LoadSelectedModel>(ModelActionTypes.LoadSelectedModel),
+		map(action => action.payload),
+		switchMap(payload =>
+			this.modelService
+				.getModel(payload)
+				.pipe(
+					switchMap((model: Model) =>  of(new LoadSelectedModelComplete(model))),
+					catchError(err => of(new LoadSelectedModelError(err)))
 				)
 		)
 	);

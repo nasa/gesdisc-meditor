@@ -11,7 +11,7 @@
     	<mat-option value="newest">Newest</mat-option>
 		</mat-select>
 	</div>
-	<button mat-raised-button class="add-new-button">
+	<button mat-raised-button class="add-new-button" (click)="addNew.emit()" >
 		<mat-icon>add</mat-icon>Add new
 	</button>
 </div>

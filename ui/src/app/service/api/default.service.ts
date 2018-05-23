@@ -20,6 +20,7 @@ import { Observable }                                        from 'rxjs/Observab
 
 import { DocCatalogEntry } from '../model/docCatalogEntry';
 import { Model } from '../model/model';
+import { ModelCatalogEntry } from '../model/modelCatalogEntry';
 import { Success } from '../model/success';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
@@ -115,6 +116,59 @@ export class DefaultService {
     }
 
     /**
+     * Gets a Model
+     * Gets a Model object
+     * @param name Name of the model
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public getModel(name: string, observe?: 'body', reportProgress?: boolean): Observable<Model>;
+    public getModel(name: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Model>>;
+    public getModel(name: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Model>>;
+    public getModel(name: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+        if (name === null || name === undefined) {
+            throw new Error('Required parameter name was null or undefined when calling getModel.');
+        }
+
+        let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
+        if (name !== undefined) {
+            queryParameters = queryParameters.set('name', <any>name);
+        }
+
+        let headers = this.defaultHeaders;
+
+        // authentication (URS4) required
+        if (this.configuration.accessToken) {
+            let accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+        ];
+        let httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set("Accept", httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        let consumes: string[] = [
+        ];
+
+        return this.httpClient.get<Model>(`${this.basePath}/getModel`,
+            {
+                params: queryParameters,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Lists documents of a given Model
      * Lists documents of a given Model
      * @param model Name of the Model
@@ -166,9 +220,9 @@ export class DefaultService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public listModels(properties?: Array<string>, observe?: 'body', reportProgress?: boolean): Observable<Array<Model>>;
-    public listModels(properties?: Array<string>, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<Model>>>;
-    public listModels(properties?: Array<string>, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<Model>>>;
+    public listModels(properties?: Array<string>, observe?: 'body', reportProgress?: boolean): Observable<Array<ModelCatalogEntry>>;
+    public listModels(properties?: Array<string>, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<ModelCatalogEntry>>>;
+    public listModels(properties?: Array<string>, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<ModelCatalogEntry>>>;
     public listModels(properties?: Array<string>, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
@@ -198,7 +252,7 @@ export class DefaultService {
         let consumes: string[] = [
         ];
 
-        return this.httpClient.get<Array<Model>>(`${this.basePath}/listModels`,
+        return this.httpClient.get<Array<ModelCatalogEntry>>(`${this.basePath}/listModels`,
             {
                 params: queryParameters,
                 withCredentials: this.configuration.withCredentials,
@@ -287,7 +341,6 @@ export class DefaultService {
     public putModel(file: Blob, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Success>>;
     public putModel(file: Blob, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Success>>;
     public putModel(file: Blob, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
-
         if (file === null || file === undefined) {
             throw new Error('Required parameter file was null or undefined when calling putModel.');
         }

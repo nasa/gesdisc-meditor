@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
-import { Model } from '../../../service/model/model';
+import { ModelCatalogEntry } from '../../../service/model/modelCatalogEntry';
 
 @Component({
 	selector: 'med-model-button',
@@ -15,8 +15,8 @@ import { Model } from '../../../service/model/model';
 
 export class ModelButtonComponent implements OnInit {
 
-	@Input() public model: Model;
-	@Output() goToSearch = new EventEmitter<Model>();
+	@Input() public model: ModelCatalogEntry;
+	@Output() goToSearch = new EventEmitter<ModelCatalogEntry>();
 
 	constructor () {}
 

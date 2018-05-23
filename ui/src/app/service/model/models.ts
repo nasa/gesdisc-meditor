@@ -3,6 +3,7 @@ export * from './docCatalogEntryXmeditor';
 export * from './document';
 export * from './error';
 export * from './model';
+export * from './modelCatalogEntry';
+export * from './modelCatalogEntryXmeditor';
 export * from './modelIcon';
-export * from './modelXmeditor';
 export * from './success';
