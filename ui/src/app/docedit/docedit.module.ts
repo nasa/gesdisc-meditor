@@ -2,9 +2,9 @@ import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { MaterialModule } from '../material';
-import { CKEditorModule } from 'ngx-ckeditor';
+// import { CKEditorModule } from 'ngx-ckeditor';
 
-import { MaterialCkeditorComponent } from './widgets/material-ckeditor.component';
+// import { MaterialCkeditorComponent } from './widgets/material-ckeditor.component';
 
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 
@@ -30,7 +30,6 @@ import { DocumentEditComponent } from './components/document-edit/document-edit.
     CommonModule,
     MaterialModule,
     FlexLayoutModule,
-    CKEditorModule,
     StoreModule.forFeature('document', reducer),
 		EffectsModule.forFeature([DocumentEffects]),
     MaterialDesignFrameworkModule,
@@ -46,11 +45,7 @@ import { DocumentEditComponent } from './components/document-edit/document-edit.
   ],
   declarations: [
   	DocEditPageComponent,
-  	MaterialCkeditorComponent,
   	DocumentEditComponent
-  ],
-  entryComponents: [
-  	MaterialCkeditorComponent
   ],
   schemas: [ NO_ERRORS_SCHEMA ]
 })

@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { MaterialCkeditorComponent } from '../../widgets/material-ckeditor.component';
+// import { MaterialCkeditorComponent } from '../../widgets/material-ckeditor.component';
 
 @Component({
 	selector: 'med-document-edit',
@@ -11,7 +11,6 @@ export class DocumentEditComponent implements OnInit {
 
 	@Input()
 	set document(document: any) {
-		console.log(document);
 		if(document.schema) {
 			let schemaString = document.schema.replace('\'', '');
 			this.schema = JSON.parse(schemaString).properties;
@@ -34,9 +33,9 @@ export class DocumentEditComponent implements OnInit {
 		{ "key": "body", "widget" : "ckeditor" }
 	];
 
-	customWidgets = {
-		ckeditor: MaterialCkeditorComponent,
-	}
+	// customWidgets = {
+	// 	ckeditor: MaterialCkeditorComponent,
+	// }
 
 
 	submittedFormData = {};

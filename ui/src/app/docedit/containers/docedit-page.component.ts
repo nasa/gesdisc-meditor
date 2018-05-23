@@ -76,7 +76,6 @@ export class DocEditPageComponent implements OnInit {
 	}
 
 	submitDocument(data) {
-		console.log(data);
 		let extendedData = JSON.parse(JSON.stringify(data))
 		extendedData['x-meditor'] = {
 			'model': this.routeParams['model'],
