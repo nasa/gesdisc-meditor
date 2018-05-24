@@ -42,6 +42,7 @@ export class SearchPageComponent implements OnInit {
 	selectedModel$: Observable<ModelCatalogEntry>;
 	results$: Observable<DocCatalogEntry[]>;
 	filteredResults$: Observable<DocCatalogEntry[]>;
+	params: any;
 
 	constructor(
 		private rootStore: Store<fromRoot.State>,
@@ -56,8 +57,9 @@ export class SearchPageComponent implements OnInit {
 
 	ngOnInit() {
 		this.route.queryParams.subscribe((params: Params) => {
-			this.selectModel(params['byType']);
-			this.loadSearchResults(params['byType']);
+			this.params = params;
+			this.selectModel(params['model']);
+			this.loadSearchResults(params['model']);
 		});
 		this.filteredResults$ = this.results$;
 	}
@@ -77,7 +79,7 @@ export class SearchPageComponent implements OnInit {
 	}
 
 	changeQueryByType(type: any) {
-		this.router.navigate(['.'], { relativeTo: this.route, queryParams: { byType: type }});
+		this.router.navigate(['.'], { relativeTo: this.route, queryParams: { model: type }});
 	}
 
 	searchChanged(event) {
@@ -85,7 +87,7 @@ export class SearchPageComponent implements OnInit {
 	}
 
 	addNewDocument() {
-		this.router.navigate(['/edit'], {queryParams: { new: true }});
+		this.router.navigate(['/edit'], {queryParams: { new: true, model: this.params['model'] }});
 	}
 
 }
