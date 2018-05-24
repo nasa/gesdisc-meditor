@@ -34,7 +34,7 @@ import { reducers, metaReducers } from './reducers';
 		BrowserModule,
 		BrowserAnimationsModule,
 		HttpClientModule,
-		RouterModule.forRoot(routes),
+		RouterModule.forRoot(routes, { useHash: true }),
 
 		/**
 		 * StoreModule.forRoot is imported once in the root module, accepting a reducer
