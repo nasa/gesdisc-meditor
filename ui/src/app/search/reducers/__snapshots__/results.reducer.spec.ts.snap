@@ -5,6 +5,7 @@ Object {
   "entities": Object {},
   "ids": Array [],
   "selectedDocumentId": "",
+  "selectedSearchresultId": "",
 }
 `;
 
@@ -18,7 +19,7 @@ Object {
   "ids": Array [
     "testDocument",
   ],
-  "selectedDocumentId": "",
+  "selectedSearchresultId": "",
 }
 `;
 
@@ -42,6 +43,6 @@ exports[`DocumentsReducer undefined action should return the default state 1`] =
 Object {
   "entities": Object {},
   "ids": Array [],
-  "selectedDocumentId": "",
+  "selectedSearchresultId": "",
 }
 `;

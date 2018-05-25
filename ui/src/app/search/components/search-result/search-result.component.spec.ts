@@ -1,6 +1,12 @@
 import { ComponentFixture, TestBed  } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { SearchResultComponent } from './search-result.component';
+import { RouterTestingModule,  } from '@angular/router/testing';
+
+let mockRouter:any;
+  class MockRouter {
+    navigate = jasmine.createSpy('navigate');
+  }
 
 describe('SearchResultComponent', () => {
 	let fixture: ComponentFixture<SearchResultComponent>;
@@ -10,6 +16,7 @@ describe('SearchResultComponent', () => {
 		TestBed.configureTestingModule({
 			imports: [
 				NoopAnimationsModule,
+				RouterTestingModule
 			],
 			declarations: [
 				SearchResultComponent
@@ -36,6 +43,10 @@ describe('SearchResultComponent', () => {
 					modifiedOn: '2018-05-04T19:09:05.366Z',
 					modifiedBy: 'test author'
 				}
+			}
+			instance.model = {
+				name: 'test name',
+				description: 'test description'
 			}
 			fixture.detectChanges();
 			expect(fixture).toMatchSnapshot();

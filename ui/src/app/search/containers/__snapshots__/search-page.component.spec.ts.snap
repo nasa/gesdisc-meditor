@@ -4,6 +4,7 @@ exports[`Search Page should compile 1`] = `
 <med-search-page
   filteredResults$={[Function Store]}
   models$={[Function Store]}
+  params={[Function Object]}
   results$={[Function Store]}
   rootStore={[Function Store]}
   route={[Function ActivatedRoute]}
