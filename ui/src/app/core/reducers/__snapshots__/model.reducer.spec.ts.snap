@@ -16,6 +16,13 @@ Object {
     "testModel",
     "222",
   ],
+  "selectedModel": Object {
+    "description": "",
+    "icon": Object {},
+    "layout": "",
+    "name": "",
+    "schema": "",
+  },
   "selectedModelId": "Alerts",
 }
 `;
@@ -71,6 +78,13 @@ exports[`ModelsReducer undefined action should return the default state 1`] = `
 Object {
   "entities": Object {},
   "ids": Array [],
+  "selectedModel": Object {
+    "description": "",
+    "icon": Object {},
+    "layout": "",
+    "name": "",
+    "schema": "",
+  },
   "selectedModelId": "Alerts",
 }
 `;

@@ -17,7 +17,7 @@ import {
 	SearchError,
 	ClearResults
 } from '../actions/result.actions';
-import { Document } from '../../service/model/document';
+import { DocCatalogEntry } from '../../service/model/docCatalogEntry';
 
 /**
  * Effects offer a way to isolate and easily test side-effects within your
@@ -41,7 +41,7 @@ export class ResultEffects {
 			this.searchService
 				.listDocuments(model)
 				.pipe(
-					switchMap((results: Document[]) =>  [new ClearResults(), new SearchComplete(results)]),
+					switchMap((results: DocCatalogEntry[]) =>  [new ClearResults(), new SearchComplete(results)]),
 					catchError(err => of(new SearchError(err)))
 				)
 		)

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Model } from '../../../service/model/model';
+import { ModelCatalogEntry } from '../../../service/model/modelCatalogEntry';
 import { Observable } from 'rxjs/Observable';
 import { Router } from '@angular/router';
 
@@ -55,7 +55,7 @@ import * as fromModel from '../../../reducers';
 })
 export class SplashPageComponent {
 
-	models$: Observable<Model[]>;
+	models$: Observable<ModelCatalogEntry[]>;
 
 	constructor(
 		private store: Store<fromModel.State>,
@@ -65,7 +65,7 @@ export class SplashPageComponent {
 	}
 
 	goToSearchPage(event: any) {
-		this.router.navigate(['/search'], {queryParams: { byType: event.name }});
+		this.router.navigate(['/search'], {queryParams: { model: event.name }});
 	}
 
 }

@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { SearchBarComponent } from './components/search-bar/search-bar.component';
 import { SearchResultListComponent } from './components/search-result-list/search-result-list.component';
@@ -23,6 +24,7 @@ import { SearchStatusComponent } from './components/search-status/search-status.
 		ReactiveFormsModule,
 		MaterialModule,
 		FlexLayoutModule,
+		RouterModule,
 		StoreModule.forFeature('results', reducer),
 		EffectsModule.forFeature([ResultEffects]),
 	],

@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Document } from '../../../service/model/document';
+import { DocCatalogEntry } from '../../../service/model/docCatalogEntry';
+import { ModelCatalogEntry } from '../../../service/model/modelCatalogEntry';
 
 @Component({
 	selector: 'med-search-result-list',
@@ -8,7 +9,8 @@ import { Document } from '../../../service/model/document';
 })
 export class SearchResultListComponent implements OnInit {
 
-	@Input() results: Document[];
+	@Input() results: DocCatalogEntry[];
+	@Input() model: ModelCatalogEntry;
 
 	constructor() { }
 

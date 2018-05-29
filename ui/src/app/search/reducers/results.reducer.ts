@@ -1,5 +1,5 @@
 import { createEntityAdapter, EntityAdapter, EntityState } from '@ngrx/entity';
-import { Document } from '../../service/model/document';
+import { DocCatalogEntry } from '../../service/model/docCatalogEntry';
 import { ResultActionsUnion, ResultActionTypes } from '../actions/result.actions';
 
 
@@ -10,8 +10,8 @@ import { ResultActionsUnion, ResultActionTypes } from '../actions/result.actions
  * model type by id. This interface is extended to include
  * any additional interface properties.
  */
-export interface State extends EntityState<Document> {
-	selectedDocumentId: string
+export interface State extends EntityState<DocCatalogEntry> {
+	selectedSearchresultId: string
 }
 
 /**
@@ -22,8 +22,8 @@ export interface State extends EntityState<Document> {
  * a sortComparer option which is set to a compare
  * function if the records are to be sorted.
  */
-export const adapter: EntityAdapter<Document> = createEntityAdapter<Document>({
-	selectId: (result: Document) => result.title,
+export const adapter: EntityAdapter<DocCatalogEntry> = createEntityAdapter<DocCatalogEntry>({
+	selectId: (result: DocCatalogEntry) => result.title,
 	sortComparer: false,
 });
 
@@ -33,7 +33,7 @@ export const adapter: EntityAdapter<Document> = createEntityAdapter<Document>({
  * additional properties can also be defined.
  */
 export const initialState: State = adapter.getInitialState({
-	selectedDocumentId: ''
+	selectedSearchresultId: ''
 });
 
 export function reducer(
@@ -53,7 +53,7 @@ export function reducer(
 		}
 
 		case ResultActionTypes.ClearResults: {
-			return adapter.removeAll({ ...state, selectedDocumentId: '' });
+			return adapter.removeAll({ ...state, selectedSearchresultId: '' });
 		}
 
 		default: {
@@ -62,7 +62,7 @@ export function reducer(
 	}
 }
 
-export const getSelectedId = (state: State) => state.selectedDocumentId;
+export const getSelectedId = (state: State) => state.selectedSearchresultId;
 
 export const {
   selectIds: selectResultIds,

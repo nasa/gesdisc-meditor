@@ -6,7 +6,8 @@ import { Store, select } from '@ngrx/store';
 import { filter, map } from 'rxjs/operators';
 import { Observable } from 'rxjs/Observable';
 import { Model } from '../../service/model/model';
-import { Document } from '../../service/model/document';
+import { ModelCatalogEntry } from '../../service/model/modelCatalogEntry';
+import { DocCatalogEntry } from '../../service/model/docCatalogEntry';
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import * as Models from '../../core/actions/model.actions';
 import * as Results from '../actions/result.actions';
@@ -24,9 +25,10 @@ import * as Results from '../actions/result.actions';
 		<med-search-status
 			[resultCount] = "(results$ | async)?.length"
 			[filteredCount] = "(filteredResults$ | async)?.length"
-			[modelName] = "(selectedModel$ | async)?.name">
+			[modelName] = "(selectedModel$ | async)?.name"
+			(addNew) = "addNewDocument()">
 		</med-search-status>
-		<med-search-result-list [results]="filteredResults$ | async"></med-search-result-list>
+		<med-search-result-list [results]="filteredResults$ | async" [model]="selectedModel$ | async"></med-search-result-list>
 	`,
 	styles: [
 		`
@@ -35,10 +37,12 @@ import * as Results from '../actions/result.actions';
 	],
 })
 export class SearchPageComponent implements OnInit {
-	models$: Observable<Model[]>;
-	selectedModel$: Observable<Model>;
-	results$: Observable<Document[]>;
-	filteredResults$: Observable<Document[]>;
+
+	models$: Observable<ModelCatalogEntry[]>;
+	selectedModel$: Observable<ModelCatalogEntry>;
+	results$: Observable<DocCatalogEntry[]>;
+	filteredResults$: Observable<DocCatalogEntry[]>;
+	params: any;
 
 	constructor(
 		private rootStore: Store<fromRoot.State>,
@@ -53,14 +57,16 @@ export class SearchPageComponent implements OnInit {
 
 	ngOnInit() {
 		this.route.queryParams.subscribe((params: Params) => {
-			this.selectModel(params['byType']);
-			this.loadSearchResults(params['byType']);
+			this.params = params;
+			this.selectModel(params['model']);
+			this.loadSearchResults(params['model']);
 		});
 		this.filteredResults$ = this.results$;
 	}
 
 	selectModel(type: any) {
 		this.rootStore.dispatch(new Models.SelectModel(type));
+		this.rootStore.dispatch(new Models.LoadSelectedModel(type));
 	}
 
 	loadSearchResults(type: any) {
@@ -73,11 +79,15 @@ export class SearchPageComponent implements OnInit {
 	}
 
 	changeQueryByType(type: any) {
-		this.router.navigate(['.'], { relativeTo: this.route, queryParams: { byType: type }});
+		this.router.navigate(['.'], { relativeTo: this.route, queryParams: { model: type }});
 	}
 
 	searchChanged(event) {
 		this.filteredResults$ = this.results$.pipe(map(document => document.filter(doc => doc.title.search(new RegExp(event, "i")) != -1)))
+	}
+
+	addNewDocument() {
+		this.router.navigate(['/edit'], {queryParams: { new: true, model: this.params['model'] }});
 	}
 
 }

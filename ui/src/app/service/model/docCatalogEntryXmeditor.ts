@@ -11,11 +11,7 @@
  */
 
 
-export interface DocumentXmeditor {
-    /**
-     * JSON path to the field in the Model to be used as title in displays
-     */
-    title?: string;
+export interface DocCatalogEntryXmeditor {
     /**
      * Date-time of modification
      */

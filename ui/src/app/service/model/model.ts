@@ -10,30 +10,33 @@
  * Do not edit the class manually.
  */
 import { ModelIcon } from './modelIcon';
-import { ModelXmeditor } from './modelXmeditor';
 
 
 export interface Model {
     /**
-     * Name of the model (ex: FAQ, Alert, Collection etc.,): displayed to the user in UI
+     * Name of the model
      */
     name: string;
     /**
-     * Description of the model (ex: FAQ, Alert, Collection etc.,): description of the model; might be shown to user as a tooltip
+     * Model's description
      */
     description: string;
-    icon?: ModelIcon;
+    icon: ModelIcon;
     /**
-     * JSON Schema of the model itself
+     * Model's schema
      */
-    schema?: string;
-    xMeditor?: ModelXmeditor;
+    schema: string;
     /**
-     * Link to model's documentation
+     * Model layout based on Angular JSON Schema form
+     */
+    layout: string;
+    /**
+     * Property name in the Model's schema for using as title of the document instance of the model
+     */
+    titleField?: string;
+    /**
+     * Any documentation (text) for the Model
      */
     documentation?: string;
-    /**
-     * An array of tags associated with the model: can be used for searching models
-     */
     tag?: Array<string>;
 }

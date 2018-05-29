@@ -1,5 +1,5 @@
 import { Action } from '@ngrx/store';
-import { Document } from '../../service/model/document';
+import { DocCatalogEntry } from '../../service/model/docCatalogEntry';
 
 export enum ResultActionTypes {
 	Search = '[Result] Search',
@@ -24,7 +24,7 @@ export class Search implements Action {
 export class SearchComplete implements Action {
 	readonly type = ResultActionTypes.SearchComplete;
 
-	constructor(public payload: Document[]) {}
+	constructor(public payload: DocCatalogEntry[]) {}
 }
 
 export class SearchError implements Action {

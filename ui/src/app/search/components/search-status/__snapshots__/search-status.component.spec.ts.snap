@@ -2,6 +2,7 @@
 
 exports[`SearchStatusComponent with mock data should compile with minimum input 1`] = `
 <med-search-status
+  addNew={[Function EventEmitter]}
   filteredCount={[Function Number]}
   modelName={[Function String]}
   resultCount={[Function Number]}
@@ -66,7 +67,6 @@ exports[`SearchStatusComponent with mock data should compile with minimum input 
     </div>
     <button
       class="add-new-button mat-raised-button"
-      fxflex="5"
       mat-raised-button=""
     >
       <span

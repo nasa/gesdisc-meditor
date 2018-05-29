@@ -2,11 +2,14 @@
 
 exports[`SearchResultComponent with mock data should compile with minimum input 1`] = `
 <med-search-result
+  model={[Function Object]}
   result={[Function Object]}
 >
   <div>
     <a
-      href="http://www.google.com"
+      href="/edit?title=test%20title&model=test%20name"
+      ng-reflect-query-params="[object Object]"
+      ng-reflect-router-link="/edit"
     >
       test title
     </a>

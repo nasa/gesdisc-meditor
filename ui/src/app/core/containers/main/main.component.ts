@@ -1,6 +1,7 @@
 import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { Store, select } from '@ngrx/store';
 
+
 import * as fromModel from '../../../reducers';
 import * as Model from '../../actions/model.actions';
 
@@ -9,7 +10,7 @@ import * as Model from '../../actions/model.actions';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div fxFill fxLayout="column">
-      <med-toolbar fxFlex="60px">
+      <med-toolbar>
       </med-toolbar>
       <div fxFlex="100">
         <router-outlet></router-outlet>
@@ -20,9 +21,8 @@ import * as Model from '../../actions/model.actions';
 })
 export class MainComponent implements OnInit {
 
-  constructor(private store: Store<fromModel.State>) {
-
-  }
+  constructor(
+  	private store: Store<fromModel.State>) {}
 
   ngOnInit() {
   	this.store.dispatch(new Model.Load());

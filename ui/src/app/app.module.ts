@@ -27,13 +27,14 @@ import { environment } from '../environments/environment';
 import { routes } from './routes';
 import { reducers, metaReducers } from './reducers';
 
+
 @NgModule({
 	imports: [
 		CommonModule,
 		BrowserModule,
 		BrowserAnimationsModule,
 		HttpClientModule,
-		RouterModule.forRoot(routes),
+		RouterModule.forRoot(routes, { useHash: true }),
 
 		/**
 		 * StoreModule.forRoot is imported once in the root module, accepting a reducer

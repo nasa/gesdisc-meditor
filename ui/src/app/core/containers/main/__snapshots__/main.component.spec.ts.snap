@@ -8,9 +8,7 @@ exports[`Main Page should compile 1`] = `
     fxfill=""
     fxlayout="column"
   >
-    <med-toolbar
-      fxflex="60px"
-    />
+    <med-toolbar />
     <div
       fxflex="100"
     >

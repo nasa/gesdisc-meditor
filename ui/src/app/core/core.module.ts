@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { StoreModule } from '@ngrx/store';
 import { FlexLayoutModule } from '@angular/flex-layout';
+
 // CONTAINERS
 import { MainComponent } from './containers/main/main.component';
 import { NotFoundPageComponent } from './containers/not-found-page';
@@ -21,6 +22,8 @@ import { AngularFontAwesomeModule } from 'angular-font-awesome';
 
 import { AuthModule } from '../auth/auth.module';
 import { SearchModule } from '../search/search.module';
+import { DocEditModule } from '../docedit/docedit.module';
+import { PipesModule } from '../shared/pipes';
 
 
 export const COMPONENTS = [
@@ -38,8 +41,10 @@ export const COMPONENTS = [
 		MaterialModule,
 		FlexLayoutModule,
 		AngularFontAwesomeModule,
+		PipesModule,
 		AuthModule.forRoot(),
 		SearchModule.forRoot(),
+		DocEditModule,
 		EffectsModule.forFeature([ModelEffects]),
 	],
 	declarations: COMPONENTS,
