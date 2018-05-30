@@ -10,16 +10,14 @@ import {
 
 import { DefaultService } from '../../service/api/default.service';
 import {
-	DocumentActionTypes,
-	DocumentActionsUnion,
+	HistoryActionTypes,
+	HistoryActionsUnion,
 	Load,
 	LoadComplete,
 	LoadError,
-	SubmitDocument,
-	SubmitDocumentComplete,
-	SubmitDocumentError
-} from '../actions/document.actions';
-import { Document } from '../../service/model/document';
+	ClearHistory
+} from '../actions/history.actions';
+import { DocHistory } from '../../service/model/docHistory';
 
 /**
  * Effects offer a way to isolate and easily test side-effects within your
@@ -33,32 +31,18 @@ import { Document } from '../../service/model/document';
  */
 
 @Injectable()
-export class DocumentEffects {
+export class HistoryEffects {
 
 	@Effect()
-	load$: Observable<Action> = this.actions$.pipe(
-		ofType<Load>(DocumentActionTypes.Load),
+	search$: Observable<Action> = this.actions$.pipe(
+		ofType<Load>(HistoryActionTypes.Load),
 		map(action => action.payload),
 		switchMap(payload =>
-			this.documentService
-				.getDocument(payload.model, payload.title, payload.version)
+			this.defaultService
+				.getDocumentHistory(payload.model, payload.title)
 				.pipe(
-					switchMap((document: Document[]) =>  of(new LoadComplete(document))),
+					switchMap((history: DocHistory[]) =>  [new ClearHistory(), new LoadComplete(history)]),
 					catchError(err => of(new LoadError(err)))
-				)
-		)
-	);
-
-	@Effect()
-	submit$: Observable<Action> = this.actions$.pipe(
-		ofType<SubmitDocument>(DocumentActionTypes.SubmitDocument),
-		map(action => action.payload),
-		switchMap(payload =>
-			this.documentService
-				.putDocument(new Blob([JSON.stringify(payload)]))
-				.pipe(
-					map(res => new SubmitDocumentComplete()),
-					catchError(err => of(new SubmitDocumentError(err)))
 				)
 		)
 	);
@@ -67,7 +51,7 @@ export class DocumentEffects {
 
 	constructor(
 		private actions$: Actions,
-		private documentService: DefaultService) {}
+		private defaultService: DefaultService) {}
 		/**
 		 * You inject an optional Scheduler that will be undefined
 		 * in normal application usage, but its injected here so that you can mock out

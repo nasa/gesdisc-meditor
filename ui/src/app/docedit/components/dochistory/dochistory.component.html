@@ -1,0 +1,10 @@
+<mat-card>
+	<h3>History</h3>
+	<mat-card-content>
+		<div *ngFor="let historyItem of dochistory" class="history-item" (click)="loadVersion.emit(historyItem.modifiedOn)">
+			<div>{{historyItem.modifiedOn | date:'short' }}</div>
+			<div>by {{historyItem.modifiedBy}}</div>
+		</div>
+		<div *ngIf="!dochistory">Nothing here yet...</div>
+	</mat-card-content>
+</mat-card>

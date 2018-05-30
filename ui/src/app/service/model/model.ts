@@ -10,9 +10,11 @@
  * Do not edit the class manually.
  */
 import { ModelIcon } from './modelIcon';
+import { ModelXmeditor } from './modelXmeditor';
 
 
 export interface Model {
+    xMeditor?: ModelXmeditor;
     /**
      * Name of the model
      */

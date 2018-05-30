@@ -26,6 +26,7 @@ import { storeFreeze } from 'ngrx-store-freeze';
 import * as fromLayout from '../core/reducers/layout';
 import * as fromModel from '../core/reducers/model.reducer';
 import * as fromDocument from '../docedit/reducers/document.reducer';
+import * as fromHistory from '../docedit/reducers/history.reducer';
 
 // export interface ModelState {
 // 	models: fromModel.State;
@@ -39,6 +40,7 @@ export interface State {
 	layout: fromLayout.State;
 	models: fromModel.State;
 	document: fromDocument.State;
+	history: fromHistory.State;
 	router: fromRouter.RouterReducerState<RouterStateUrl>;
 }
 
@@ -51,6 +53,7 @@ export const reducers: ActionReducerMap<State> = {
 	layout: fromLayout.reducer,
 	models: fromModel.reducer,
 	document: fromDocument.reducer,
+	history: fromHistory.reducer,
 	router: fromRouter.routerReducer,
 };
 
@@ -130,6 +133,26 @@ export const selectCurrentModel = createSelector(
 	getModelEntities,
 	getCurrentModelId,
 	(modelEntities, modelId) => modelEntities[modelId]
+);
+
+
+export const selectHistoryState = createFeatureSelector<fromHistory.State>('history');
+
+export const selectHistoryIds = createSelector(
+	selectHistoryState,
+	fromHistory.selectHistoryIds
+);
+export const selectHistoryEntities = createSelector(
+	selectHistoryState,
+	fromHistory.selectHistoryEntities
+);
+export const selectAllHistory = createSelector(
+	selectHistoryState,
+	fromHistory.selectAllHistory
+);
+export const selectHistoryTotal = createSelector(
+	selectHistoryState,
+	fromHistory.selectHistoryTotal
 );
 
 

@@ -13,23 +13,19 @@
 
 export interface ModelXmeditor {
     /**
-     * JSON path to the field in the Model to be used as title in displays
+     * Name of the field in the model to be used as a title
      */
     title?: string;
     /**
-     * Date-time of modification
+     * Date when a last document edit was made
      */
     modifiedOn?: string;
     /**
-     * Modifier's user name
+     * Author who last modified a document belonging to the model
      */
     modifiedBy?: string;
     /**
-     * Version of the model represented by date-time of modification
+     * Number of documents belonging to the model
      */
-    version?: string;
-    /**
-     * Number of instances of the model
-     */
-    count?: number;
+    count?: string;
 }

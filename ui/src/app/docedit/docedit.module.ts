@@ -1,5 +1,6 @@
 import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { MaterialModule } from '../material';
 
@@ -7,10 +8,11 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 import { StoreModule } from '@ngrx/store';
 
-import { reducer } from './reducers/document.reducer';
+// import { reducers } from './reducers/index';
 
 import { EffectsModule } from '@ngrx/effects';
 import { DocumentEffects } from './effects/document.effects';
+import { HistoryEffects } from './effects/history.effects';
 
 import {
   JsonSchemaFormModule, MaterialDesignFrameworkModule, MaterialDesignFramework,
@@ -19,6 +21,7 @@ import {
 
 import { DocEditPageComponent } from './containers/docedit-page.component';
 import { DocumentEditComponent } from './components/document-edit/document-edit.component';
+import { DochistoryComponent } from './components/dochistory/dochistory.component';
 
 
 
@@ -27,8 +30,9 @@ import { DocumentEditComponent } from './components/document-edit/document-edit.
     CommonModule,
     MaterialModule,
     FlexLayoutModule,
-    StoreModule.forFeature('document', reducer),
-		EffectsModule.forFeature([DocumentEffects]),
+    RouterModule,
+    // StoreModule.forFeature('document', reducers),
+		EffectsModule.forFeature([DocumentEffects, HistoryEffects]),
     MaterialDesignFrameworkModule,
     {
       ngModule: JsonSchemaFormModule,
@@ -42,7 +46,8 @@ import { DocumentEditComponent } from './components/document-edit/document-edit.
   ],
   declarations: [
   	DocEditPageComponent,
-  	DocumentEditComponent
+  	DocumentEditComponent,
+  	DochistoryComponent
   ],
   schemas: [ NO_ERRORS_SCHEMA ]
 })

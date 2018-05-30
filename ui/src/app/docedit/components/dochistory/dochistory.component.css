@@ -1,0 +1,8 @@
+.history-item {
+	margin-top: 5px;
+}
+
+.history-item:hover {
+	background-color: lightgreen;
+	cursor: pointer;
+}

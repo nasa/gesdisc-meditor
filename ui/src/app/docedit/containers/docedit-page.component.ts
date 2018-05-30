@@ -1,14 +1,17 @@
 import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 
 import { Router, ActivatedRoute, Params } from '@angular/router';
+import * as fromDocument from '../reducers';
 import * as fromRoot from '../../reducers';
 import { Document } from '../../service/model/document';
+import { DocHistory } from '../../service/model/docHistory';
 import { Model } from '../../service/model/model';
 
 import { Store, select } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
 
 import * as Documents from '../actions/document.actions';
+import * as History from '../actions/history.actions';
 import * as Models from '../../core/actions/model.actions';
 
 @Component({
@@ -25,12 +28,13 @@ import * as Models from '../../core/actions/model.actions';
 				</med-document-edit>
 			</mat-card-content>
 		</mat-card>
+		<div fxFlex="2"></div>
+		<div fxFlex="18">
+			<med-doc-history
+				[dochistory]="history$ | async"
+				(loadVersion)="loadVersion($event)"></med-doc-history>
+		</div>
 		<div fxFlex="5"></div>
-		<mat-card fxFlex="15">
-			<mat-card-content>
-				History
-			</mat-card-content>
-		</mat-card>
 	</div>
 	`,
 	styles: [
@@ -42,9 +46,11 @@ import * as Models from '../../core/actions/model.actions';
 export class DocEditPageComponent implements OnInit {
 
 	document$: Observable<Document | Model>;
+	history$: Observable<DocHistory[]>;
 	routeParams: any;
 
 	constructor(
+		// private Store: Store<fromRoot.State>,
 		private rootStore: Store<fromRoot.State>,
 		private router: Router,
 		private route: ActivatedRoute
@@ -66,7 +72,9 @@ export class DocEditPageComponent implements OnInit {
 
 	loadDocument(params) {
 		this.rootStore.dispatch(new Documents.Load(params));
+		this.rootStore.dispatch(new History.Load(params));
 		this.document$ = this.rootStore.pipe(select(fromRoot.getDocument));
+		this.history$ = this.rootStore.pipe(select(fromRoot.selectAllHistory));
 	}
 
 	createNewDocument() {
@@ -79,6 +87,13 @@ export class DocEditPageComponent implements OnInit {
 			'model': this.routeParams['model'],
 		}
 		this.rootStore.dispatch(new Documents.SubmitDocument(extendedData));
+		this.loadDocument(this.routeParams);
+	}
+
+	loadVersion(event) {
+		let newParams = Object.assign({}, this.routeParams);
+		newParams.version = event;
+		this.loadDocument(newParams);
 	}
 
 }
