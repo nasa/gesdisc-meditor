@@ -11,7 +11,7 @@ import { HistoryActionsUnion, HistoryActionTypes } from '../actions/history.acti
  * any additional interface properties.
  */
 export interface State extends EntityState<DocHistory> {
-	selectedHistoryStamp: Date
+	selectedHistoryStamp: string
 }
 
 /**
@@ -23,7 +23,7 @@ export interface State extends EntityState<DocHistory> {
  * function if the records are to be sorted.
  */
 export const adapter: EntityAdapter<DocHistory> = createEntityAdapter<DocHistory>({
-	selectId: (historyEntry: DocHistory) => historyEntry.modifiedOn,
+	selectId: (historyEntry: DocHistory) => historyEntry.modifiedOn.toString(),
 	sortComparer: false,
 });
 
@@ -33,7 +33,7 @@ export const adapter: EntityAdapter<DocHistory> = createEntityAdapter<DocHistory
  * additional properties can also be defined.
  */
 export const initialState: State = adapter.getInitialState({
-	selectedHistoryStamp: Date.now()
+	selectedHistoryStamp: Date.now().toString()
 });
 
 export function reducer(
@@ -53,7 +53,7 @@ export function reducer(
 		}
 
 		case HistoryActionTypes.ClearHistory: {
-			return adapter.removeAll({ ...state, selectedHistoryStamp: Date.now() });
+			return adapter.removeAll({ ...state, selectedHistoryStamp: Date.now().toString() });
 		}
 
 		default: {
