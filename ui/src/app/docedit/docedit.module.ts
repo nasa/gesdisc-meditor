@@ -8,7 +8,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 import { StoreModule } from '@ngrx/store';
 
-// import { reducers } from './reducers/index';
+import { reducers } from './reducers/index';
 
 import { EffectsModule } from '@ngrx/effects';
 import { DocumentEffects } from './effects/document.effects';
@@ -31,7 +31,7 @@ import { DochistoryComponent } from './components/dochistory/dochistory.componen
     MaterialModule,
     FlexLayoutModule,
     RouterModule,
-    // StoreModule.forFeature('document', reducers),
+    StoreModule.forFeature('documentData', reducers),
 		EffectsModule.forFeature([DocumentEffects, HistoryEffects]),
     MaterialDesignFrameworkModule,
     {

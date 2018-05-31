@@ -9,6 +9,8 @@ import { Model } from '../../service/model/model';
 
 import { Store, select } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
+import { MatSnackBar } from '@angular/material';
+
 
 import * as Documents from '../actions/document.actions';
 import * as History from '../actions/history.actions';
@@ -32,6 +34,7 @@ import * as Models from '../../core/actions/model.actions';
 		<div fxFlex="18">
 			<med-doc-history
 				[dochistory]="history$ | async"
+				[selectedHistory]= "selectedHistory$ | async"
 				(loadVersion)="loadVersion($event)"></med-doc-history>
 		</div>
 		<div fxFlex="5"></div>
@@ -47,17 +50,28 @@ export class DocEditPageComponent implements OnInit {
 
 	document$: Observable<Document | Model>;
 	history$: Observable<DocHistory[]>;
+	selectedHistory$: Observable<string>;
 	routeParams: any;
 
 	constructor(
-		// private Store: Store<fromRoot.State>,
+		private documentStore: Store<fromDocument.DocumentDataState>,
 		private rootStore: Store<fromRoot.State>,
 		private router: Router,
-		private route: ActivatedRoute
+		private route: ActivatedRoute,
+		public  snackBar: MatSnackBar
 	) {
 	}
 
+  openSnackBar(message: string, action: string) {
+  	console.log('snackbar');
+    this.snackBar.open(message, action, {
+      duration: 2000,
+    });
+  }
+
 	ngOnInit() {
+		this.history$ = this.documentStore.pipe(select(fromDocument.selectAllHistory));
+		this.selectedHistory$ = this.documentStore.pipe(select(fromDocument.getCurrentHistoryItem));
 		this.route.queryParams.subscribe((params: Params) => {
 			this.routeParams = params;
 			this.rootStore.dispatch(new Models.LoadSelectedModel(params.model));
@@ -71,10 +85,16 @@ export class DocEditPageComponent implements OnInit {
 	}
 
 	loadDocument(params) {
-		this.rootStore.dispatch(new Documents.Load(params));
-		this.rootStore.dispatch(new History.Load(params));
-		this.document$ = this.rootStore.pipe(select(fromRoot.getDocument));
-		this.history$ = this.rootStore.pipe(select(fromRoot.selectAllHistory));
+		this.documentStore.dispatch(new Documents.Load(params));
+		this.documentStore.dispatch(new History.Load(params));
+		this.document$ = this.documentStore.pipe(select(fromDocument.getDocument));
+	}
+
+	loadVersion(event) {
+		let newParams = Object.assign({}, this.routeParams);
+		newParams.version = event;
+		this.documentStore.dispatch(new History.SetSelectedHistoryItem(event));
+		this.documentStore.dispatch(new Documents.Load(newParams));
 	}
 
 	createNewDocument() {
@@ -86,14 +106,9 @@ export class DocEditPageComponent implements OnInit {
 		extendedData['x-meditor'] = {
 			'model': this.routeParams['model'],
 		}
-		this.rootStore.dispatch(new Documents.SubmitDocument(extendedData));
-		this.loadDocument(this.routeParams);
-	}
-
-	loadVersion(event) {
-		let newParams = Object.assign({}, this.routeParams);
-		newParams.version = event;
-		this.loadDocument(newParams);
+		this.documentStore.dispatch(new Documents.SubmitDocument(extendedData));
+		this.documentStore.dispatch(new History.Load(this.routeParams));
+		this.openSnackBar('Document added', 'OK!');
 	}
 
 }

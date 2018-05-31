@@ -33,7 +33,7 @@ export const adapter: EntityAdapter<DocHistory> = createEntityAdapter<DocHistory
  * additional properties can also be defined.
  */
 export const initialState: State = adapter.getInitialState({
-	selectedHistoryStamp: Date.now().toString()
+	selectedHistoryStamp: ''
 });
 
 export function reducer(
@@ -49,7 +49,17 @@ export function reducer(
 			 * the collection is to be sorted, the adapter will
 			 * sort each record upon entry into the sorted array.
 			 */
-			return adapter.addMany(action.payload, state);
+			return adapter.addMany(action.payload, {
+        ...state,
+        selectedHistoryStamp: action.payload[0].modifiedOn.toString(),
+      });
+		}
+
+		case HistoryActionTypes.SetSelectedHistoryItem: {
+			return {
+        ...state,
+        selectedHistoryStamp: action.payload,
+      };
 		}
 
 		case HistoryActionTypes.ClearHistory: {
@@ -62,7 +72,7 @@ export function reducer(
 	}
 }
 
-export const getSelectedId = (state: State) => state.selectedHistoryStamp;
+export const getSelectedHistoryItem = (state: State) => state.selectedHistoryStamp;
 
 export const {
   selectIds: selectHistoryIds,

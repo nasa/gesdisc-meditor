@@ -10,7 +10,6 @@ export class DocumentEditComponent implements OnInit {
 
 	@Input()
 	set document(document: any) {
-		console.log(document);
 		if(document.schema) {
 			let schemaString = document.schema.replace('\'', '');
 			this.schema = JSON.parse(schemaString);
@@ -29,13 +28,6 @@ export class DocumentEditComponent implements OnInit {
 	};
 	data = {};
 	layout = [];
-	// layout = [
-	// 	"abstract",
-	// 	"expiration",
-	// 	"start",
-	// 	"severity",
-	// 	{ "key": "body", "type" : "ckeditor" }
-	// ];
 
 	submittedFormData = {};
 	liveFormData = {};

@@ -15,6 +15,7 @@ import {
 	Load,
 	LoadComplete,
 	LoadError,
+	SetSelectedHistoryItem,
 	ClearHistory
 } from '../actions/history.actions';
 import { DocHistory } from '../../service/model/docHistory';
@@ -41,7 +42,11 @@ export class HistoryEffects {
 			this.defaultService
 				.getDocumentHistory(payload.model, payload.title)
 				.pipe(
-					switchMap((history: DocHistory[]) =>  [new ClearHistory(), new LoadComplete(history)]),
+					switchMap((history: DocHistory[]) => [
+						new ClearHistory(),
+						new LoadComplete(history),
+						// new SetSelectedHistoryItem(history[0].modifiedOn.toString())
+					]),
 					catchError(err => of(new LoadError(err)))
 				)
 		)

@@ -9,11 +9,13 @@ import { DocHistory } from '../../../service/model/docHistory';
 export class DochistoryComponent implements OnInit {
 
 	@Input() dochistory: DocHistory[];
+	@Input() selectedHistory: string;
 	@Output() loadVersion = new EventEmitter<string>();
 
   constructor() { }
 
   ngOnInit() {
+
   }
 
 }

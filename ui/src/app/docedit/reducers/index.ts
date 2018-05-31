@@ -6,17 +6,19 @@ import {
 import * as fromHistory from './history.reducer';
 import * as fromDocument from './document.reducer';
 
-export interface State {
+export interface DocumentDataState {
 	history: fromHistory.State;
 	document: fromDocument.State;
 }
 
-export const reducers: ActionReducerMap<State> = {
+export const reducers: ActionReducerMap<DocumentDataState> = {
 	history: fromHistory.reducer,
 	document: fromDocument.reducer,
 };
 
-export const selectHistoryState = createFeatureSelector<fromHistory.State>('history');
+export const selectDocumentDataState = createFeatureSelector<DocumentDataState>('documentData');
+
+export const selectHistoryState = createSelector(selectDocumentDataState, (state: DocumentDataState) => state.history);
 
 export const selectHistoryIds = createSelector(
 	selectHistoryState,
@@ -35,7 +37,15 @@ export const selectHistoryTotal = createSelector(
 	fromHistory.selectHistoryTotal
 );
 
+export const getCurrentHistoryItem= createSelector(
+  selectHistoryState,
+  fromHistory.getSelectedHistoryItem
+);
 
-export const selectDocumentState = createFeatureSelector<fromDocument.State>('currentDoc');
 
-export const getDocument = (state: State) => state.document.currentDocument;
+export const selectDocumentState = createSelector(selectDocumentDataState, (state: DocumentDataState) => state.document);
+
+export const getDocument = createSelector(
+	selectDocumentState,
+	fromDocument.getDocument
+);
