@@ -63,7 +63,6 @@ export class DocEditPageComponent implements OnInit {
 	}
 
   openSnackBar(message: string, action: string) {
-  	console.log('snackbar');
     this.snackBar.open(message, action, {
       duration: 2000,
     });

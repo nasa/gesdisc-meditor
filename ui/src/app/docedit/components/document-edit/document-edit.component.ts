@@ -12,11 +12,12 @@ export class DocumentEditComponent implements OnInit {
 	set document(document: any) {
 		if(document.schema) {
 			let schemaString = document.schema.replace('\'', '');
+			let layoutString = document.layout.replace('\'', '');
 			this.schema = JSON.parse(schemaString);
 			// this.schema.properties = JSON.parse(schemaString).properties;
 			// this.schema.definitions = JSON.parse(schemaString).properties;
 			this.data = document.doc;
-			this.layout = document.layout;
+			this.layout = JSON.parse(layoutString);
 		}
 	}
 
