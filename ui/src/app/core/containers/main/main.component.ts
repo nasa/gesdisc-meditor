@@ -10,9 +10,9 @@ import * as Model from '../../actions/model.actions';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div fxFill fxLayout="column" fxLayoutAlign="center none">
-      <med-toolbar fxFlex="5">
+      <med-toolbar fxFlex="70px">
       </med-toolbar>
-      <div fxFlex="85">
+      <div fxFlex="auto">
 	      <div fxFill fxLayout="row">
 					<div fxFlex="10"></div>
 					<div fxFlex="80">
@@ -21,7 +21,7 @@ import * as Model from '../../actions/model.actions';
 	        <div fxFlex="10"></div>
 	      </div>
      	</div>
-      <div fxFlex="10">
+      <div fxFlex="50px">
       </div>
     </div>
   `
