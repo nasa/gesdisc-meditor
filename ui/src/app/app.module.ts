@@ -4,6 +4,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
@@ -34,6 +35,7 @@ import { reducers, metaReducers } from './reducers';
 		BrowserModule,
 		BrowserAnimationsModule,
 		HttpClientModule,
+		FlexLayoutModule,
 		RouterModule.forRoot(routes, { useHash: true }),
 
 		/**

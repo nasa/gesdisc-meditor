@@ -14,10 +14,8 @@ export class DocumentEditComponent implements OnInit {
 			let schemaString = document.schema.replace('\'', '');
 			let layoutString = document.layout.replace('\'', '');
 			this.schema = JSON.parse(schemaString);
-			// this.schema.properties = JSON.parse(schemaString).properties;
-			// this.schema.definitions = JSON.parse(schemaString).properties;
-			this.data = document.doc;
 			this.layout = JSON.parse(layoutString);
+			this.data = document.doc;
 		}
 	}
 
@@ -25,8 +23,7 @@ export class DocumentEditComponent implements OnInit {
 
 	selectedFramework = "material-design";
 	jsonFormOptions = {};
-	schema =  {
-	};
+	schema =  {};
 	data = {};
 	layout = [];
 

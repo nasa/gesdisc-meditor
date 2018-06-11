@@ -1,5 +1,5 @@
 <div fxLayout="row wrap" fxLayoutAlign="center start">
-	<div fxFlex="10">
+	<div fxFlex="20">
 		<mat-form-field class="search-bar-select">
 			<mat-select (selectionChange)="selectionChanged.emit(modelControl.value.name)" [formControl]="modelControl">
 				<mat-select-trigger *ngIf="modelControl.value">
@@ -15,7 +15,7 @@
 			</mat-select>
 		</mat-form-field>
 	</div>
-	<div fxFlex="50">
+	<div fxFlex="80">
 		<mat-form-field class="search-bar-input">
 			<input matInput placeholder="Search..." type="text" name="search" [(ngModel)]="query" (input)="onSearchChange()">
 			<mat-icon matSuffix>search</mat-icon>

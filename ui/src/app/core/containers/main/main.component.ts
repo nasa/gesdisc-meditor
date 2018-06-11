@@ -9,11 +9,19 @@ import * as Model from '../../actions/model.actions';
   selector: 'meditor-app',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div fxFill fxLayout="column">
-      <med-toolbar>
+    <div fxFill fxLayout="column" fxLayoutAlign="center none">
+      <med-toolbar fxFlex="5">
       </med-toolbar>
-      <div fxFlex="100">
-        <router-outlet></router-outlet>
+      <div fxFlex="85">
+	      <div fxFill fxLayout="row">
+					<div fxFlex="10"></div>
+					<div fxFlex="80">
+	        	<router-outlet></router-outlet>
+	        </div>
+	        <div fxFlex="10"></div>
+	      </div>
+     	</div>
+      <div fxFlex="10">
       </div>
     </div>
   `

@@ -26,7 +26,7 @@ function addModel (model) {
     MongoClient.connect(MongoUrl, function(err, db) {
       if (err) throw err;
       var dbo = db.db(DbName);
-      dbo.collection("models").insertOne(model, function(err, res) {
+      dbo.collection("Models").insertOne(model, function(err, res) {
         if (err){
           console.log(err);
           throw err;
@@ -57,7 +57,7 @@ function getListOfModels (properties) {
           projection[element]=1;
         });
       }
-      dbo.collection("models").find({}).project(projection).toArray(function(err, res) {
+      dbo.collection("Models").find({}).project(projection).toArray(function(err, res) {
         if (err){
           console.log(err);
           throw err;
@@ -122,7 +122,7 @@ function addDocument (doc) {
           console.log(err);
           throw err;
         }
-        dbo.collection("models").update({name:doc["x-meditor"]["model"]}, {$inc:{"x-meditor.count":1}}, function(err, res) {
+        dbo.collection("Models").update({name:doc["x-meditor"]["model"]}, {$inc:{"x-meditor.count":1}}, function(err, res) {
           if (err){
             console.log(err);
             throw err;
@@ -174,7 +174,7 @@ function getListOfDocuments (model,properties) {
         throw err;
       }
       var dbo = db.db(DbName);
-      dbo.collection("models").find({name:model}).project({_id:0, "x-meditor.title":1}).toArray(function(err, res) {
+      dbo.collection("Models").find({name:model}).project({_id:0, "titleProperty":1}).toArray(function(err, res) {
         if (err){
           console.log(err);
           throw err;
@@ -184,14 +184,14 @@ function getListOfDocuments (model,properties) {
         var projection = {_id:0};
         var properties = ["x-meditor.modifiedOn","x-meditor.modifiedBy"];
         if (res.length > 0){
-          properties.push(res[0]["x-meditor"]["title"]);
+          properties.push(res[0]["titleProperty"]);
         }
         if (Array.isArray(properties)) {
           properties.forEach(function(element){
             projection[element]=1;
           });
         }
-        var titleField = res[0]["x-meditor"]["title"];
+        var titleField = res[0]["titleProperty"];
         dbo.collection(model).aggregate(
           [ {$sort:{"x-meditor.modifiedOn":1}},
             { $group : { _id : "$"+titleField, "x-meditor": {$first:"$x-meditor"}}}])
@@ -228,12 +228,12 @@ function getDocumentContent (params) {
         throw err;
       }
       var dbo = db.db(DbName);
-      dbo.collection("models").find({name:params.model}).project({_id:0}).toArray(function(err, res) {
+      dbo.collection("Models").find({name:params.model}).project({_id:0}).toArray(function(err, res) {
         if (err){
           console.log(err);
           throw err;
         }
-        var titleField = res[0]["x-meditor"]["title"];
+        var titleField = res[0]["titleProperty"];
         var schema = res[0].schema;
         var layout = res[0].layout;
         var projection = {_id:0};
@@ -285,7 +285,7 @@ function getModelContent (name) {
         throw err;
       }
       var dbo = db.db(DbName);
-      dbo.collection("models").find({name:name}).project({_id:0}).toArray(function(err, res) {
+      dbo.collection("Models").find({name:name}).project({_id:0}).toArray(function(err, res) {
         if (err){
           console.log(err);
           throw err;
@@ -316,12 +316,12 @@ function findDocHistory (params) {
         throw err;
       }
       var dbo = db.db(DbName);
-      dbo.collection("models").find({name:params.model}).project({_id:0}).toArray(function(err, res) {
+      dbo.collection("Models").find({name:params.model}).project({_id:0}).toArray(function(err, res) {
         if (err){
           console.log(err);
           throw err;
         }
-        var titleField = res[0]["x-meditor"]["title"];
+        var titleField = res[0]["titleProperty"];
         var projection = {_id:0};
         var query = {};
         if ( params.hasOwnProperty("version") && params.version !== 'latest' ) {

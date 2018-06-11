@@ -21,8 +21,14 @@ import * as Models from '../../core/actions/model.actions';
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template:
 	`<div fxLayout="row">
-		<div fxFlex="5"></div>
-		<mat-card fxFlex="70">
+		<mat-card fxFlex="75">
+			<mat-card-title>
+				<i class="icon-badge icon-badge-sm fa {{(model$ | async)?.icon?.name }}" [style.background-color]="(model$ | async)?.icon?.color"></i>
+				{{(model$ | async)?.name}}
+			</mat-card-title>
+			<mat-card-subtitle>
+				{{(model$ | async)?.description}}
+			</mat-card-subtitle>
 			<mat-card-content>
 				<med-document-edit
 					[document]="document$ | async"
@@ -31,24 +37,23 @@ import * as Models from '../../core/actions/model.actions';
 			</mat-card-content>
 		</mat-card>
 		<div fxFlex="2"></div>
-		<div fxFlex="18">
+		<div fxFlex="23">
 			<med-doc-history
 				[dochistory]="history$ | async"
 				[selectedHistory]= "selectedHistory$ | async"
 				(loadVersion)="loadVersion($event)"></med-doc-history>
 		</div>
-		<div fxFlex="5"></div>
 	</div>
 	`,
 	styles: [
-		`
-
+	`
 	`,
 	],
 })
 export class DocEditPageComponent implements OnInit {
 
 	document$: Observable<Document | Model>;
+	model$: Observable<Model>;
 	history$: Observable<DocHistory[]>;
 	selectedHistory$: Observable<string>;
 	routeParams: any;
@@ -74,6 +79,7 @@ export class DocEditPageComponent implements OnInit {
 		this.route.queryParams.subscribe((params: Params) => {
 			this.routeParams = params;
 			this.rootStore.dispatch(new Models.LoadSelectedModel(params.model));
+			this.model$ = this.rootStore.pipe(select(fromRoot.getCurrentModel));
 			if (!params.new) {
 				this.loadDocument(params);
 			} else {
@@ -97,7 +103,7 @@ export class DocEditPageComponent implements OnInit {
 	}
 
 	createNewDocument() {
-		this.document$ = this.rootStore.pipe(select(fromRoot.getCurrentModel));
+		this.document$ = this.model$;
 	}
 
 	submitDocument(data) {
