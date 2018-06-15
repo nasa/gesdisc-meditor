@@ -12,7 +12,7 @@ import * as Model from '../../actions/model.actions';
     <div fxFill fxLayout="column" fxLayoutAlign="center none">
       <med-toolbar fxFlex="70px">
       </med-toolbar>
-      <div fxFlex="auto">
+      <div fxFlex="100-70px" style="overflow: scroll;">
 	      <div fxFill fxLayout="row">
 					<div fxFlex="10"></div>
 					<div fxFlex="80">
@@ -21,8 +21,6 @@ import * as Model from '../../actions/model.actions';
 	        <div fxFlex="10"></div>
 	      </div>
      	</div>
-      <div fxFlex="50px">
-      </div>
     </div>
   `
   ,
