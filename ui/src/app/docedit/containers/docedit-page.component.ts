@@ -1,4 +1,5 @@
-import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit , ViewChild} from '@angular/core';
+import { MatSidenav } from '@angular/material/sidenav';
 
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import * as fromDocument from '../reducers';
@@ -19,34 +20,35 @@ import * as Models from '../../core/actions/model.actions';
 @Component({
 	selector: 'med-docedit-page',
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	template:
-	`<div fxLayout="row">
-		<mat-card fxFlex="75">
-			<mat-card-title>
-				<i class="icon-badge icon-badge-sm fa {{(model$ | async)?.icon?.name }}" [style.background-color]="(model$ | async)?.icon?.color"></i>
-				{{(model$ | async)?.name}}
-			</mat-card-title>
-			<mat-card-subtitle>
-				{{(model$ | async)?.description}}
-			</mat-card-subtitle>
-			<mat-card-content>
-				<med-document-edit
-					[document]="document$ | async"
-					(submitDocument)="submitDocument($event)">
-				</med-document-edit>
-			</mat-card-content>
-		</mat-card>
-		<div fxFlex="2"></div>
-		<div fxFlex="23">
-			<med-doc-history
-				[dochistory]="history$ | async"
-				[selectedHistory]= "selectedHistory$ | async"
-				(loadVersion)="loadVersion($event)"></med-doc-history>
-		</div>
-	</div>
-	`,
+	templateUrl: './docedit-page.component.html',
 	styles: [
 	`
+		.comment-btn {
+			background-color: blue;
+		}
+
+		.comment-sidenav-container {
+			background-color: white;
+		}
+
+		.comment-sidenav {
+			width: 30%;
+		}
+
+		.example-container {
+		  display: flex;
+		  flex-direction: column;
+		}
+
+		.reply-card {
+			margin-left: 20px;
+			margin-top: 10px;
+			width: 90%;
+		}
+
+		.reply-form-field {
+			width: 100%;
+		}
 	`,
 	],
 })
@@ -57,6 +59,16 @@ export class DocEditPageComponent implements OnInit {
 	history$: Observable<DocHistory[]>;
 	selectedHistory$: Observable<string>;
 	routeParams: any;
+	@ViewChild('sidenav') sidenav: MatSidenav;
+
+  reason = '';
+
+  comments = [];
+
+  close() {
+    this.sidenav.close();
+  }
+
 
 	constructor(
 		private documentStore: Store<fromDocument.DocumentDataState>,

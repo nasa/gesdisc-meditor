@@ -22,6 +22,7 @@ import {
 import { DocEditPageComponent } from './containers/docedit-page.component';
 import { DocumentEditComponent } from './components/document-edit/document-edit.component';
 import { DochistoryComponent } from './components/dochistory/dochistory.component';
+import { CommentsModule } from '../comments/comments.module';
 
 
 
@@ -34,6 +35,7 @@ import { DochistoryComponent } from './components/dochistory/dochistory.componen
     StoreModule.forFeature('documentData', reducers),
 		EffectsModule.forFeature([DocumentEffects, HistoryEffects]),
     MaterialDesignFrameworkModule,
+    CommentsModule,
     {
       ngModule: JsonSchemaFormModule,
       providers: [
