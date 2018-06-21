@@ -32,6 +32,7 @@
     "@ngrx/router-store": "^6.0.0-beta.1",
     "@ngrx/store": "^6.0.0-beta.1",
     "@ngrx/store-devtools": "^6.0.0-beta.1",
+    "@types/underscore": "^1.8.8",
     "angular-font-awesome": "^3.1.2",
     "angular-froala-wysiwyg": "^2.8.0",
     "angular2-json-schema-form": "git://github.com/Cosmocat/angular2-json-schema-form.git#angular-6-dist",
@@ -43,10 +44,10 @@
     "http-server": "^0.11.1",
     "ng5-breadcrumb": "0.0.6",
     "ngrx-store-freeze": "^0.2.1",
-    "ngx-ckeditor": "^0.3.1",
     "opencollective": "^1.0.3",
     "rxjs": "^6.0.0",
     "rxjs-compat": "^6.0.0",
+    "underscore": "^1.9.1",
     "zone.js": "^0.8.26"
   },
   "devDependencies": {

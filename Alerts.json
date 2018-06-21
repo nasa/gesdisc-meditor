@@ -1,0 +1,21 @@
+{
+  "x-meditor": {
+    "title": "abstract"
+  },
+  "name": "Alerts",
+  "description": "Message to notify visitors of important information regarding data availability, site availability and performance issues.",
+  "icon": {
+    "name": "fa-warning",
+    "color": "#FFC104"
+  },
+  "schema": "{\"$schema\":\"http://json-schema.org/schema#\",\"id\":\"https://disc.gsfc.nasa.gov/schemas/alert.json\",\"properties\":{\"abstract\":{\"type\":\"string\",\"required\":true},\"expiration\":{\"type\":\"string\",\"format\":\"date-time\",\"required\":true},\"start\":{\"type\":\"string\",\"format\":\"date-time\",\"required\":false},\"severity\":{\"type\":\"string\",\"default\":\"normal\",\"enum\":[\"normal\",\"emergency\"]},\"body\":{\"type\":\"string\",\"contentMediaType\":\"text/html\",\"required\":true}}}",
+  "layout": [
+    "abstract",
+    "expiration",
+    "start",
+    "severity",
+    { "key": "body", "type" : "ckeditor" }
+  ],
+  "documentation": "",
+  "tag": []
+}

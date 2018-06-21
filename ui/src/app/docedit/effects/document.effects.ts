@@ -41,7 +41,7 @@ export class DocumentEffects {
 		map(action => action.payload),
 		switchMap(payload =>
 			this.documentService
-				.getDocument(payload.model, payload.title)
+				.getDocument(payload.model, payload.title, payload.version)
 				.pipe(
 					switchMap((document: Document[]) =>  of(new LoadComplete(document))),
 					catchError(err => of(new LoadError(err)))

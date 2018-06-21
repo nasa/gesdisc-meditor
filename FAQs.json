@@ -1,0 +1,20 @@
+{
+  "x-meditor": {
+    "title": "question"
+  },
+  "name": "FAQs",
+  "description": "Answers to frequently asked questions.",
+  "icon": {
+    "name": "fa-question",
+    "color": "#868146"
+  },
+  "schema": "{\"$schema\":\"http://json-schema.org/schema#\",\"id\":\"https://disc.gsfc.nasa.gov/schemas/faq.json\",\"properties\":{\"question\":{\"type\":\"string\",\"required\":true},\"answer\":{\"type\":\"string\",\"required\":true},\"start\":{\"type\":\"string\",\"format\":\"date-time\",\"required\":false},\"severity\":{\"type\":\"string\",\"default\":\"normal\",\"enum\":[\"normal\",\"emergency\"]}}}",
+  "layout": [
+    "question",
+    {"key": "answer", "type": "ckeditor"},
+    "start",
+    "severity"
+  ],
+  "documentation": "",
+  "tag": []
+}
