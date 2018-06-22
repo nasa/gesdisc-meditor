@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, OnInit , ViewChild} from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit , ViewChild } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 
 import { Router, ActivatedRoute, Params } from '@angular/router';
@@ -16,6 +16,9 @@ import { MatSnackBar } from '@angular/material';
 import * as Documents from '../actions/document.actions';
 import * as History from '../actions/history.actions';
 import * as Models from '../../core/actions/model.actions';
+
+import { FormControl, FormGroup, FormBuilder, Validators, NgForm } from '@angular/forms';
+import { Comment } from '../../comments/models/comment';
 
 @Component({
 	selector: 'med-docedit-page',
@@ -64,6 +67,9 @@ export class DocEditPageComponent implements OnInit {
   reason = '';
 
   comments = [];
+  commentForm: FormGroup;
+  author:string='';
+  comment: Comment;
 
   close() {
     this.sidenav.close();
@@ -83,6 +89,15 @@ export class DocEditPageComponent implements OnInit {
     this.snackBar.open(message, action, {
       duration: 2000,
     });
+  }
+
+  onFormSubmit(form: any) {
+  	// let comment;
+  	// comment = {
+  	// 	'author': form.author,
+  	// 	'text': form.text,
+  	// 	'_parentId': null
+  	// }
   }
 
 	ngOnInit() {

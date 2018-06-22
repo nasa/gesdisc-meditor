@@ -5,6 +5,8 @@ export class Comment {
 	  public author: string,
 	  public text: string,
 	  public deleted: boolean,
+	  public visible: boolean,
+	  public replyTo: boolean,
 	  public children: [Comment]
 	) {};
 }
