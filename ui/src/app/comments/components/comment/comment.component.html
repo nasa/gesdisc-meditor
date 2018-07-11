@@ -1,61 +1,49 @@
-<div *ngFor="let comment of comments" class="comments-container">
-  <mat-card class="example-card">
-    <mat-card-header *ngIf="!comment.deleted">
-      <div mat-card-avatar class="example-header-image"></div>
-      <mat-card-title>Author: {{comment.author}}</mat-card-title>
-      <mat-card-subtitle>_id: {{comment._id}}</mat-card-subtitle>
-    </mat-card-header>
+<div *ngFor="let comment of extComments" class="comments-container">
+	<mat-card class="comment-card" *ngIf="_showResolved || !comment.resolved">
+		<mat-card-header>
+			<div mat-card-avatar class="comment-header-image"></div>
+			<mat-card-title>Author: {{comment.createdBy}}</mat-card-title>
+			<mat-card-subtitle>{{comment.createdOn | date: 'medium' }}</mat-card-subtitle>
+			<mat-card-subtitle>{{comment._id}}</mat-card-subtitle>
+		</mat-card-header>
 
-    <mat-card-content *ngIf="!comment.deleted">
-      {{comment.text}}
-    </mat-card-content>
+		<mat-card-content>
+			{{comment.text}}
+		</mat-card-content>
 
-    <mat-card-content *ngIf="comment.deleted" class="deleted-comment">
-      Comment has been deleted!
-    </mat-card-content>
-
-    <mat-card-actions >
-      <button mat-button color="primary" *ngIf="!comment.deleted"
-      	(click)="replyTo(comment._id, comment._parentId)">
-      	<mat-icon>reply</mat-icon>Reply
-      </button>
-
-      <button mat-button color="primary"
-      	(click)="showReplies(comment._id)"
-      	*ngIf="comment.children.length>0">
-      	{{comment.visible? 'Hide ' : 'Show '}}
-      	{{comment.children.length > 1 ? comment.children.length + ' replies' : '1 reply'}}
-      </button>
-
-      <button mat-button color="warn" *ngIf="!comment.deleted"
-      	(click)="delete(comment._id)">
-      	<mat-icon>delete</mat-icon>Delete
-      </button>
-    </mat-card-actions>
-      <form [formGroup]="commentForm" (ngSubmit)="onFormSubmit(commentForm.value)" *ngIf="comment.replyTo">
-        <mat-card class="reply-card">
-        	<mat-card-content>
-	          <mat-form-field class="reply-form-field">
-	            <input matInput placeholder="Author" formControlName="author">
-	          </mat-form-field>
-	          <mat-form-field class="reply-form-field">
-	            <textarea matInput placeholder="Comment" formControlName="text"></textarea>
-	          </mat-form-field>
-	          <input
-	            type="hidden" formControlName="_parentId" [ngModel]="comment._id">
-	         </mat-card-content>
-	      <mat-card-actions>
-	        <button type="submit" mat-button color="primary">
-	        	<mat-icon>send</mat-icon>
-      			Send
-	        </button>
-	        <button mat-button color="primary" (click)="comment.replyTo = false">
-	        	<mat-icon>close</mat-icon>
-	        	Close
-	        </button>
-	      </mat-card-actions>
-       </mat-card>
-      </form>
+		<mat-card-actions >
+			<button mat-raised-button class="reply-button"
+				(click)="replyTo(comment._id)">
+				<mat-icon>reply</mat-icon>Reply
+			</button>
+			<button mat-raised-button class="resolve-button" *ngIf="!comment.resolved"
+				(click)="resolve(comment._id)">
+				<mat-icon>done</mat-icon>Resolve
+			</button>
+		</mat-card-actions>
+	</mat-card>
+	<mat-card class="reply-card" *ngIf="comment.replyTo">
+    <mat-card-content>
+      <mat-form-field class="reply-form-field">
+        <textarea matInput placeholder="Comment" [(ngModel)]="commentText"></textarea>
+      </mat-form-field>
+     </mat-card-content>
+	  <mat-card-actions>
+	    <button mat-raised-button class="action-button" (click)="submitComment(comment._id, comment.parentId)">
+	      <mat-icon>send</mat-icon>
+	      Send
+	    </button>
+	    <button mat-raised-button class="action-button" color="warn" (click)="closeReply(comment._id)">
+	      <mat-icon>cancel</mat-icon>
+	      Cancel
+	    </button>
+	  </mat-card-actions>
   </mat-card>
-  <med-comment [comments]="comment.children" *ngIf="comment.children && comment.visible"></med-comment>
+	<med-comment *ngIf="comment.children"
+  	[comments]="comment.children"
+  	[tree]="false"
+  	[showResolved]="_showResolved"
+  	(resolveComment)="resolve($event)"
+		(replyComment)="submitChildComment($event)">
+  </med-comment>
 </div>

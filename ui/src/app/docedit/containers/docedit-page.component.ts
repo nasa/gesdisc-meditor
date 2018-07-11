@@ -7,6 +7,7 @@ import * as fromRoot from '../../reducers';
 import { Document } from '../../service/model/document';
 import { DocHistory } from '../../service/model/docHistory';
 import { Model } from '../../service/model/model';
+import { Comment } from '../../service/model/comment';
 
 import { Store, select } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
@@ -15,10 +16,10 @@ import { MatSnackBar } from '@angular/material';
 
 import * as Documents from '../actions/document.actions';
 import * as History from '../actions/history.actions';
+import * as Comments from '../../comments/actions/comments.actions';
 import * as Models from '../../core/actions/model.actions';
 
-import { FormControl, FormGroup, FormBuilder, Validators, NgForm } from '@angular/forms';
-import { Comment } from '../../comments/models/comment';
+import { FormControl } from '@angular/forms';
 
 @Component({
 	selector: 'med-docedit-page',
@@ -26,8 +27,9 @@ import { Comment } from '../../comments/models/comment';
 	templateUrl: './docedit-page.component.html',
 	styles: [
 	`
-		.comment-btn {
-			background-color: blue;
+		.doc-edit-container {
+			margin-top: 5px;
+			margin-bottom: 5px;
 		}
 
 		.comment-sidenav-container {
@@ -44,14 +46,39 @@ import { Comment } from '../../comments/models/comment';
 		}
 
 		.reply-card {
-			margin-left: 20px;
-			margin-top: 10px;
-			width: 90%;
+			margin: 10px 0 5px 5px;
+			width: calc(90% - 5px);
 		}
 
 		.reply-form-field {
 			width: 100%;
 		}
+
+		.action-button {
+			margin-left: 20px;
+			margin-top: 10px;
+			background-color: #03a9f4;
+		}
+
+		.new-comment-button,
+		.close-sidenav-button,
+		.resolved-sidenav-button {
+			margin-left: 5px;
+		}
+
+		.new-comment-button {
+			background-color: #03a9f4;
+		}
+
+		.resolved-sidenav-button {
+			width: 150px;
+			background-color: #3cb44b;
+		}
+
+		.mat-drawer {
+			padding-bottom: 30px;
+		}
+
 	`,
 	],
 })
@@ -61,18 +88,19 @@ export class DocEditPageComponent implements OnInit {
 	model$: Observable<Model>;
 	history$: Observable<DocHistory[]>;
 	selectedHistory$: Observable<string>;
+	comments$: Observable<any>;
 	routeParams: any;
+	showResolved: boolean = false;
 	@ViewChild('sidenav') sidenav: MatSidenav;
 
-  reason = '';
 
-  comments = [];
-  commentForm: FormGroup;
-  author:string='';
-  comment: Comment;
+
+	showForm: boolean = false;
+  commentText: string = '';
 
   close() {
     this.sidenav.close();
+    this.showForm = false;
   }
 
 
@@ -91,18 +119,10 @@ export class DocEditPageComponent implements OnInit {
     });
   }
 
-  onFormSubmit(form: any) {
-  	// let comment;
-  	// comment = {
-  	// 	'author': form.author,
-  	// 	'text': form.text,
-  	// 	'_parentId': null
-  	// }
-  }
-
 	ngOnInit() {
 		this.history$ = this.documentStore.pipe(select(fromDocument.selectAllHistory));
 		this.selectedHistory$ = this.documentStore.pipe(select(fromDocument.getCurrentHistoryItem));
+		this.comments$ = this.documentStore.pipe(select(fromDocument.selectAllComments));
 		this.route.queryParams.subscribe((params: Params) => {
 			this.routeParams = params;
 			this.rootStore.dispatch(new Models.LoadSelectedModel(params.model));
@@ -119,6 +139,7 @@ export class DocEditPageComponent implements OnInit {
 	loadDocument(params) {
 		this.documentStore.dispatch(new Documents.Load(params));
 		this.documentStore.dispatch(new History.Load(params));
+		this.documentStore.dispatch(new Comments.Load(params['title']));
 		this.document$ = this.documentStore.pipe(select(fromDocument.getDocument));
 	}
 
@@ -140,7 +161,33 @@ export class DocEditPageComponent implements OnInit {
 		}
 		this.documentStore.dispatch(new Documents.SubmitDocument(extendedData));
 		this.documentStore.dispatch(new History.Load(this.routeParams));
+		// this should be an action after submitdocumentcomplete
 		this.openSnackBar('Document added', 'OK!');
+	}
+
+	toggleForm() {
+		this.showForm = !this.showForm;
+		this.commentText = '';
+	}
+
+	resolveComment(_id) {
+		this.documentStore.dispatch(new Comments.ResolveComment(_id))
+	}
+
+	submitComment(text?: string, parentId?: string) {
+		let commentData = {
+			'text': text || this.commentText,
+			'documentId': this.routeParams['title'],
+			'resolved': false,
+			'parentId': parentId || 'root'
+		};
+		this.documentStore.dispatch(new Comments.SubmitComment(commentData));
+		if (!parentId) this.toggleForm();
+		this.documentStore.dispatch(new Comments.Load(this.routeParams['title']));
+	}
+
+	toggleResolvedComments() {
+		this.showResolved = !this.showResolved;
 	}
 
 }

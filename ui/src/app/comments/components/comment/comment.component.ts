@@ -1,8 +1,7 @@
-import { Component, OnInit, Input } from '@angular/core';
-// import { CommonService } from '../../common.service';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs/Rx';
 import { FormControl, FormGroup, FormBuilder, Validators, NgForm } from '@angular/forms';
-import { Comment } from '../../models/comment';
+import { Comment } from '../../../service/model/comment';
 
 import * as _ from 'underscore';
 
@@ -13,62 +12,86 @@ import * as _ from 'underscore';
 })
 export class CommentComponent implements OnInit {
 
-	@Input() comments: Comment[];
+	extComments: Array<any>;
+	_tree: boolean;
+	_showResolved: boolean;
+	commentText: string;
 
-  commentForm: FormGroup;
-  author:string='';
-  comment:string='';
+	@Input()
+	set comments(comments: Comment[]) {
+		this.extComments = comments.map(c => Object.assign({}, c));
+		console.log(this.extComments);
+		if(this._tree) this.extComments = this.treeify(this.extComments, '_id', 'parentId', 'children');
 
-  constructor(private fb: FormBuilder) {
-  	this.commentForm = fb.group({
-	  	'author': [null, Validators.required],
-	  	'text': [null, Validators.required],
-	  	'_parentId': [null, Validators.required]
-	  })
-  }
+	};
+
+	@Input()
+	set tree(tree: boolean) {
+		this._tree = tree;
+	}
+
+	@Input()
+	set showResolved(showResolved: boolean) {
+		this._showResolved = showResolved;
+	}
+
+	@Output() resolveComment = new EventEmitter<string>();
+	@Output() replyComment = new EventEmitter<Object>();
+
 
   ngOnInit() {
   }
 
-  onFormSubmit(form: any) {
-  	let comment;
-  	comment = {
-  		'author': form.author,
-  		'text': form.text,
-  		'_parentId': form._parentId
-  	}
-  	// this.commentService.create(comment).subscribe(
-   //    data => {
-   //    	let parentComment  = _.find(this.comments, function(comment) { return comment._id == form._parentId; });
-   //    	parentComment.replyTo = false;
-			// 	comment.children = [];
-			// 	parentComment.children.push(comment);
-   //    },
-   //    err => console.error(err),
-   //    () => { console.log('done creating new comment') }
-   //  );
-
+  resolve(_id) {
+  	this.resolveComment.emit(_id);
   }
 
-  replyTo(id, parentId) {
-  	_.find(this.comments, function(comment) { return comment._id == id }).replyTo = true;
+  replyTo(_id) {
+  	_.find(this.extComments, function(comment) { return comment._id == _id }).replyTo = true;
   }
 
-  delete(id) {
-  	// this.commentService.delete(id).subscribe(
-  	// 	data => { _.find(this.comments, function(comment) { return comment._id == id }).deleted = true; },
-   //    err => console.error(err),
-   //    () => { }
-   //  );
+  closeReply(_id) {
+  	_.find(this.extComments, function(comment) { return comment._id == _id }).replyTo = false;
   }
 
-  showReplies(id, parentId) {
-  	let comment = _.find(this.comments, function(comment) { return comment._id == id });
-  	if(comment.visible) {
-  		_.find(this.comments, function(comment) { return comment._id == id }).visible = false;
-  	} else {
-  		_.find(this.comments, function(comment) { return comment._id == id }).visible = true;
-  	}
-  }
+  treeify(list, idAttr, parentAttr, childrenAttr) {
+    if (!idAttr) idAttr = 'id';
+    if (!parentAttr) parentAttr = 'parent';
+    if (!childrenAttr) childrenAttr = 'children';
+
+    var treeList = [];
+    var lookup = {};
+    list.forEach(function(obj) {
+        lookup[obj[idAttr]] = obj;
+        obj[childrenAttr] = [];
+    });
+    list.forEach(function(obj) {
+        if (obj[parentAttr] != null && obj[parentAttr] != 'root') {
+            lookup[obj[parentAttr]][childrenAttr].push(obj);
+        } else {
+            treeList.push(obj);
+        }
+    });
+    return treeList;
+	};
+
+	submitComment(_id, parentId) {
+		if (parentId == 'root') parentId = _id
+		let commentData = {
+			'text': this.commentText,
+			'parentId': parentId
+		};
+		this.closeReply(_id);
+		this.replyComment.emit(commentData);
+		this.commentText = '';
+	}
+
+	submitChildComment(event) {
+		let commentData = {
+			'text': event.text,
+			'parentId': event.parentId
+		};
+		this.replyComment.emit(commentData);
+	}
 
 }
