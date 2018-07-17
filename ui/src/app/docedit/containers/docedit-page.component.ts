@@ -38,6 +38,7 @@ import { FormControl } from '@angular/forms';
 
 		.comment-sidenav {
 			width: 30%;
+			min-width: 430px;
 		}
 
 		.example-container {

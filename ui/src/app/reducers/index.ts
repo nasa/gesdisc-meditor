@@ -86,15 +86,6 @@ export const getShowSidenav = createSelector(
 	fromLayout.getShowSidenav
 );
 
-/**
- * Document Reducers
- */
-// export const getDocumentState = createFeatureSelector<fromDocument.State>('document');
-
-// export const getDocument = createSelector(
-// 	getDocumentState,
-// 	fromDocument.getDocument
-// );
 
 /**
  * Model Reducers
@@ -129,30 +120,19 @@ export const getCurrentModel= createSelector(
   fromModel.getSelectedModel
 );
 
+export const getAdminModels = createSelector(
+	getAllModels,
+	(allModels) => allModels.filter(m => { return m.category == 'Admin'})
+);
+
+export const getNonAdminModels = createSelector(
+	getAllModels,
+	(allModels) => allModels.filter(m => { return m.category != 'Admin'})
+);
+
 export const selectCurrentModel = createSelector(
 	getModelEntities,
 	getCurrentModelId,
 	(modelEntities, modelId) => modelEntities[modelId]
 );
-
-
-// export const selectHistoryState = createFeatureSelector<fromHistory.State>('history');
-
-// export const selectHistoryIds = createSelector(
-// 	selectHistoryState,
-// 	fromHistory.selectHistoryIds
-// );
-// export const selectHistoryEntities = createSelector(
-// 	selectHistoryState,
-// 	fromHistory.selectHistoryEntities
-// );
-// export const selectAllHistory = createSelector(
-// 	selectHistoryState,
-// 	fromHistory.selectAllHistory
-// );
-// export const selectHistoryTotal = createSelector(
-// 	selectHistoryState,
-// 	fromHistory.selectHistoryTotal
-// );
-
 

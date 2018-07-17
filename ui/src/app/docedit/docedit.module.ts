@@ -25,7 +25,7 @@ import { DocumentEditComponent } from './components/document-edit/document-edit.
 import { DochistoryComponent } from './components/dochistory/dochistory.component';
 import { CommentsModule } from '../comments/comments.module';
 
-
+import { routes } from './docedit.routing';
 
 @NgModule({
   imports: [
@@ -34,7 +34,7 @@ import { CommentsModule } from '../comments/comments.module';
     FlexLayoutModule,
     FormsModule,
 		ReactiveFormsModule,
-    RouterModule,
+    RouterModule.forChild(routes),
     StoreModule.forFeature('documentData', reducers),
 		EffectsModule.forFeature([DocumentEffects, HistoryEffects, CommentsEffects]),
     MaterialDesignFrameworkModule,
@@ -53,6 +53,9 @@ import { CommentsModule } from '../comments/comments.module';
   	DocEditPageComponent,
   	DocumentEditComponent,
   	DochistoryComponent
+  ],
+  entryComponents: [
+  	DocEditPageComponent
   ],
   schemas: [ NO_ERRORS_SCHEMA ]
 })

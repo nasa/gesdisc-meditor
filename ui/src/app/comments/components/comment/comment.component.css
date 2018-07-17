@@ -7,6 +7,10 @@
 	width: 90%;
 }
 
+.comment-resolved {
+	opacity: 0.2;
+}
+
 .reply-card {
 	width: 90%;
 	margin-top: 10px;

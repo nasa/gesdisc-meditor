@@ -1,5 +1,5 @@
 <div *ngFor="let comment of extComments" class="comments-container">
-	<mat-card class="comment-card" *ngIf="_showResolved || !comment.resolved">
+	<mat-card class="comment-card" *ngIf="_showResolved || !comment.resolved" [class.comment-resolved]="comment.resolved">
 		<mat-card-header>
 			<div mat-card-avatar class="comment-header-image"></div>
 			<mat-card-title>Author: {{comment.createdBy}}</mat-card-title>
@@ -11,12 +11,12 @@
 			{{comment.text}}
 		</mat-card-content>
 
-		<mat-card-actions >
+		<mat-card-actions *ngIf="!comment.resolved">
 			<button mat-raised-button class="reply-button"
 				(click)="replyTo(comment._id)">
 				<mat-icon>reply</mat-icon>Reply
 			</button>
-			<button mat-raised-button class="resolve-button" *ngIf="!comment.resolved"
+			<button mat-raised-button class="resolve-button"
 				(click)="resolve(comment._id)">
 				<mat-icon>done</mat-icon>Resolve
 			</button>

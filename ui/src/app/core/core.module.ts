@@ -22,7 +22,6 @@ import { AngularFontAwesomeModule } from 'angular-font-awesome';
 
 import { AuthModule } from '../auth/auth.module';
 import { SearchModule } from '../search/search.module';
-import { DocEditModule } from '../docedit/docedit.module';
 import { PipesModule } from '../shared/pipes';
 
 
@@ -43,8 +42,6 @@ export const COMPONENTS = [
 		AngularFontAwesomeModule,
 		PipesModule,
 		AuthModule.forRoot(),
-		SearchModule.forRoot(),
-		DocEditModule,
 		EffectsModule.forFeature([ModelEffects]),
 	],
 	declarations: COMPONENTS,

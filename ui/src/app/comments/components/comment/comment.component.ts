@@ -1,5 +1,4 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { Observable } from 'rxjs/Rx';
 import { FormControl, FormGroup, FormBuilder, Validators, NgForm } from '@angular/forms';
 import { Comment } from '../../../service/model/comment';
 
@@ -20,7 +19,6 @@ export class CommentComponent implements OnInit {
 	@Input()
 	set comments(comments: Comment[]) {
 		this.extComments = comments.map(c => Object.assign({}, c));
-		console.log(this.extComments);
 		if(this._tree) this.extComments = this.treeify(this.extComments, '_id', 'parentId', 'children');
 
 	};

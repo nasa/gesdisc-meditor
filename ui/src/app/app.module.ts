@@ -15,7 +15,7 @@ import {
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
 import { CoreModule } from './core/core.module';
-import { AuthModule } from './auth/auth.module';
+// import { AuthModule } from './auth/auth.module';
 import { ApiModule } from './service/api.module';
 
 import { CustomRouterStateSerializer } from './shared/utils';
@@ -82,7 +82,7 @@ import { reducers, metaReducers } from './reducers';
 		 */
 		EffectsModule.forRoot([]),
 		CoreModule.forRoot(),
-		AuthModule.forRoot(),
+		// AuthModule.forRoot(),
 		ApiModule
 	],
 	providers: [
