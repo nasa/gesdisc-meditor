@@ -4,10 +4,8 @@ import { Document } from '../../service/model/document';
 export enum DocumentActionTypes {
 	Load = '[Document] Load',
 	LoadComplete = '[Document] Load Complete',
-	LoadError = '[Document] Load Error',
 	SubmitDocument = '[Document] Submit new document',
-	SubmitDocumentComplete = '[Document] Submit new document success ',
-	SubmitDocumentError = '[Document] Submit new document error'
+	SubmitDocumentComplete = '[Document] Submit new document success '
 }
 
 /**
@@ -29,12 +27,6 @@ export class LoadComplete implements Action {
 	constructor(public payload: any) {}
 }
 
-export class LoadError implements Action {
-	readonly type = DocumentActionTypes.LoadError;
-
-	constructor(public payload: string) {}
-}
-
 export class SubmitDocument implements Action {
 	readonly type = DocumentActionTypes.SubmitDocument;
 
@@ -47,12 +39,6 @@ export class SubmitDocumentComplete implements Action {
 	constructor() {}
 }
 
-export class SubmitDocumentError implements Action {
-	readonly type = DocumentActionTypes.SubmitDocumentError;
-
-	constructor(public payload: string) {}
-}
-
 
 
 /**
@@ -62,7 +48,5 @@ export class SubmitDocumentError implements Action {
 export type DocumentActionsUnion =
 	| Load
 	| LoadComplete
-	| LoadError
 	| SubmitDocument
-	| SubmitDocumentComplete
-	| SubmitDocumentError;
+	| SubmitDocumentComplete;

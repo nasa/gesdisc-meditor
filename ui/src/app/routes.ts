@@ -14,7 +14,7 @@ export const routes: Routes = [
 		loadChildren: './search/search.module#SearchModule'
 	},
 	{
-		path: 'edit',
+		path: 'document',
 		loadChildren: './docedit/docedit.module#DocEditModule'
 	},
 		{ path: '**', component: NotFoundPageComponent },

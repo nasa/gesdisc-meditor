@@ -32,11 +32,11 @@ import { Component, Output, EventEmitter } from '@angular/core';
     }
 
     .toolbar-btn {
-    	margin-right: 15px;
+    	margin-left: 15px;
     }
 
     .toolbar-btn-icon {
-    	margin-right: 15px;
+    	margin-left: 15px;
     	margin-top: 10px;
     }
   `]

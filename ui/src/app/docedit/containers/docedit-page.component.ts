@@ -11,7 +11,7 @@ import { Comment } from '../../service/model/comment';
 
 import { Store, select } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
-import { MatSnackBar } from '@angular/material';
+// import { MatSnackBar } from '@angular/material';
 
 
 import * as Documents from '../actions/document.actions';
@@ -25,63 +25,7 @@ import { FormControl } from '@angular/forms';
 	selector: 'med-docedit-page',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './docedit-page.component.html',
-	styles: [
-	`
-		.doc-edit-container {
-			margin-top: 5px;
-			margin-bottom: 5px;
-		}
-
-		.comment-sidenav-container {
-			background-color: white;
-		}
-
-		.comment-sidenav {
-			width: 30%;
-			min-width: 430px;
-		}
-
-		.example-container {
-		  display: flex;
-		  flex-direction: column;
-		}
-
-		.reply-card {
-			margin: 10px 0 5px 5px;
-			width: calc(90% - 5px);
-		}
-
-		.reply-form-field {
-			width: 100%;
-		}
-
-		.action-button {
-			margin-left: 20px;
-			margin-top: 10px;
-			background-color: #03a9f4;
-		}
-
-		.new-comment-button,
-		.close-sidenav-button,
-		.resolved-sidenav-button {
-			margin-left: 5px;
-		}
-
-		.new-comment-button {
-			background-color: #03a9f4;
-		}
-
-		.resolved-sidenav-button {
-			width: 150px;
-			background-color: #3cb44b;
-		}
-
-		.mat-drawer {
-			padding-bottom: 30px;
-		}
-
-	`,
-	],
+	styleUrls: ['./docedit-page.component.css'],
 })
 export class DocEditPageComponent implements OnInit {
 
@@ -92,8 +36,8 @@ export class DocEditPageComponent implements OnInit {
 	comments$: Observable<any>;
 	routeParams: any;
 	showResolved: boolean = false;
+	showHistory: boolean = false;
 	@ViewChild('sidenav') sidenav: MatSidenav;
-
 
 
 	showForm: boolean = false;
@@ -109,16 +53,9 @@ export class DocEditPageComponent implements OnInit {
 		private documentStore: Store<fromDocument.DocumentDataState>,
 		private rootStore: Store<fromRoot.State>,
 		private router: Router,
-		private route: ActivatedRoute,
-		public  snackBar: MatSnackBar
+		private route: ActivatedRoute
 	) {
 	}
-
-  openSnackBar(message: string, action: string) {
-    this.snackBar.open(message, action, {
-      duration: 2000,
-    });
-  }
 
 	ngOnInit() {
 		this.history$ = this.documentStore.pipe(select(fromDocument.selectAllHistory));
@@ -162,13 +99,15 @@ export class DocEditPageComponent implements OnInit {
 		}
 		this.documentStore.dispatch(new Documents.SubmitDocument(extendedData));
 		this.documentStore.dispatch(new History.Load(this.routeParams));
-		// this should be an action after submitdocumentcomplete
-		this.openSnackBar('Document added', 'OK!');
 	}
 
 	toggleForm() {
 		this.showForm = !this.showForm;
 		this.commentText = '';
+	}
+
+	toggleHistory() {
+		this.showHistory = !this.showHistory;
 	}
 
 	resolveComment(_id) {

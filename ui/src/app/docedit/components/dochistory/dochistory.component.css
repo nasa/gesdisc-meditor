@@ -1,6 +1,16 @@
+.history-content-container {
+	max-height: 500px;
+	padding: 0 5px;
+	overflow-y: scroll;
+}
+
 .history-item {
 	margin-top: 5px;
 	padding: 15px;
+}
+
+.history-item:last-child {
+	margin-bottom: 10px;
 }
 
 .history-item:hover {

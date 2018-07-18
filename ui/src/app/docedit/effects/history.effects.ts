@@ -14,11 +14,12 @@ import {
 	HistoryActionsUnion,
 	Load,
 	LoadComplete,
-	LoadError,
 	SetSelectedHistoryItem,
 	ClearHistory
 } from '../actions/history.actions';
 import { DocHistory } from '../../service/model/docHistory';
+
+import { NotificationOpen } from '../../core/actions/notification.actions';
 
 /**
  * Effects offer a way to isolate and easily test side-effects within your
@@ -44,10 +45,9 @@ export class HistoryEffects {
 				.pipe(
 					switchMap((history: DocHistory[]) => [
 						new ClearHistory(),
-						new LoadComplete(history),
-						// new SetSelectedHistoryItem(history[0].modifiedOn.toString())
+						new LoadComplete(history)
 					]),
-					catchError(err => of(new LoadError(err)))
+					catchError(err => of(new NotificationOpen({message: err.statusText, action: 'Fail'})))
 				)
 		)
 	);

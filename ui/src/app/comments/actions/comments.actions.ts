@@ -4,13 +4,10 @@ import { Comment } from '../../service/model/comment';
 export enum CommentsActionTypes {
 	Load = '[Comments] Load',
 	LoadComplete = '[Comments] Load Complete',
-	LoadError = '[Comments] Load Error',
 	SubmitComment = '[Comment] Submit new comment',
 	SubmitCommentComplete = '[Comment] Submit new comment success ',
-	SubmitCommentError = '[Comment] Submit new comment error',
 	ResolveComment = '[Comment] Resolve comment',
 	ResolveCommentComplete = '[Comment] Resolve comment success ',
-	ResolveCommentError = '[Comment] Resolve comment error',
 	ClearComments = '[Comments] Clear Comments'
 }
 
@@ -33,12 +30,6 @@ export class LoadComplete implements Action {
 	constructor(public payload: Comment[]) {}
 }
 
-export class LoadError implements Action {
-	readonly type = CommentsActionTypes.LoadError;
-
-	constructor(public payload: string) {}
-}
-
 export class SubmitComment implements Action {
 	readonly type = CommentsActionTypes.SubmitComment;
 
@@ -51,12 +42,6 @@ export class SubmitCommentComplete implements Action {
 	constructor() {}
 }
 
-export class SubmitCommentError implements Action {
-	readonly type = CommentsActionTypes.SubmitCommentError;
-
-	constructor(public payload: string) {}
-}
-
 export class ResolveComment implements Action {
 	readonly type = CommentsActionTypes.ResolveComment;
 
@@ -65,12 +50,6 @@ export class ResolveComment implements Action {
 
 export class ResolveCommentComplete implements Action {
 	readonly type = CommentsActionTypes.ResolveCommentComplete;
-
-	constructor(public payload: string) {}
-}
-
-export class ResolveCommentError implements Action {
-	readonly type = CommentsActionTypes.ResolveCommentError;
 
 	constructor(public payload: string) {}
 }
@@ -86,11 +65,8 @@ export class ClearComments implements Action {
 export type CommentsActionsUnion =
 	| Load
 	| LoadComplete
-	| LoadError
 	| SubmitComment
 	| SubmitCommentComplete
-	| SubmitCommentError
 	| ResolveComment
 	| ResolveCommentComplete
-	| ResolveCommentError
 	| ClearComments;

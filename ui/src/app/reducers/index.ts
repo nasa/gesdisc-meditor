@@ -25,12 +25,8 @@ import { storeFreeze } from 'ngrx-store-freeze';
 
 import * as fromLayout from '../core/reducers/layout';
 import * as fromModel from '../core/reducers/model.reducer';
-// import * as fromDocument from '../docedit/reducers/document.reducer';
-// import * as fromHistory from '../docedit/reducers/history.reducer';
+import * as fromNotification from '../core/reducers/notification.reducer';
 
-// export interface ModelState {
-// 	models: fromModel.State;
-// }
 
 /**
  * As mentioned, we treat each reducer like a table in a database. This means
@@ -39,7 +35,7 @@ import * as fromModel from '../core/reducers/model.reducer';
 export interface State {
 	layout: fromLayout.State;
 	models: fromModel.State;
-	// document: fromDocument.State;
+	notification: fromNotification.State;
 	// history: fromHistory.State;
 	router: fromRouter.RouterReducerState<RouterStateUrl>;
 }
@@ -52,6 +48,7 @@ export interface State {
 export const reducers: ActionReducerMap<State> = {
 	layout: fromLayout.reducer,
 	models: fromModel.reducer,
+	notification: fromNotification.reducer,
 	// document: fromDocument.reducer,
 	// history: fromHistory.reducer,
 	router: fromRouter.routerReducer,

@@ -14,16 +14,15 @@ import {
 	CommentsActionsUnion,
 	Load,
 	LoadComplete,
-	LoadError,
 	SubmitComment,
 	SubmitCommentComplete,
-	SubmitCommentError,
 	ResolveComment,
 	ResolveCommentComplete,
-	ResolveCommentError,
 	ClearComments
 } from '../actions/comments.actions';
 import { Comment } from '../../service/model/comment';
+
+import { NotificationOpen } from '../../core/actions/notification.actions';
 
 /**
  * Effects offer a way to isolate and easily test side-effects within your
@@ -51,7 +50,7 @@ export class CommentsEffects {
 						new ClearComments(),
 						new LoadComplete(comments)
 					]),
-					catchError(err => of(new LoadError(err)))
+					catchError(err => of(new NotificationOpen({message: err.statusText, action: 'Fail'})))
 				)
 		)
 	);
@@ -65,7 +64,7 @@ export class CommentsEffects {
 				.postComment(new Blob([JSON.stringify(payload)]))
 				.pipe(
 					map(res => new SubmitCommentComplete()),
-					catchError(err => of(new SubmitCommentError(err)))
+					catchError(err => of(new NotificationOpen({message: err.statusText, action: 'Fail'})))
 				)
 		)
 	);
@@ -79,7 +78,7 @@ export class CommentsEffects {
 				.resolveComment(payload)
 				.pipe(
 					map(res => new ResolveCommentComplete(payload)),
-					catchError(err => of(new ResolveCommentError(err)))
+					catchError(err => of(new NotificationOpen({message: err.statusText, action: 'Fail'})))
 				)
 		)
 	);

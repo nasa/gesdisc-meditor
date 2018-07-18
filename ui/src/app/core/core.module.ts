@@ -15,6 +15,7 @@ import { ToolbarComponent } from './components/toolbar/toolbar.component';
 
 import { EffectsModule } from '@ngrx/effects';
 import { ModelEffects } from './effects/model.effects';
+import { NotificationEffects } from './effects/notification.effects';
 
 import { reducers } from '../reducers';
 
@@ -42,7 +43,7 @@ export const COMPONENTS = [
 		AngularFontAwesomeModule,
 		PipesModule,
 		AuthModule.forRoot(),
-		EffectsModule.forFeature([ModelEffects]),
+		EffectsModule.forFeature([ModelEffects, NotificationEffects]),
 	],
 	declarations: COMPONENTS,
 	exports: COMPONENTS

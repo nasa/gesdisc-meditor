@@ -14,11 +14,11 @@ import {
 	DocumentActionsUnion,
 	Load,
 	LoadComplete,
-	LoadError,
 	SubmitDocument,
-	SubmitDocumentComplete,
-	SubmitDocumentError
+	SubmitDocumentComplete
 } from '../actions/document.actions';
+import { NotificationOpen } from '../../core/actions/notification.actions';
+
 import { Document } from '../../service/model/document';
 
 /**
@@ -44,7 +44,7 @@ export class DocumentEffects {
 				.getDocument(payload.model, payload.title, payload.version)
 				.pipe(
 					switchMap((document: Document[]) =>  of(new LoadComplete(document))),
-					catchError(err => of(new LoadError(err)))
+					catchError(err => of(new NotificationOpen({message: err.statusText, action: 'Fail'})))
 				)
 		)
 	);
@@ -57,8 +57,11 @@ export class DocumentEffects {
 			this.documentService
 				.putDocument(new Blob([JSON.stringify(payload)]))
 				.pipe(
-					map(res => new SubmitDocumentComplete()),
-					catchError(err => of(new SubmitDocumentError(err)))
+					switchMap(res => [
+						new SubmitDocumentComplete(),
+						new NotificationOpen({message: "Document added", action: 'Success'})
+					]),
+					catchError(err => of(new NotificationOpen({message: err.statusText, action: 'Fail'})))
 				)
 		)
 	);
