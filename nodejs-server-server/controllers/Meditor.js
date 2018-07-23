@@ -3,6 +3,7 @@
 var utils = require('../utils/writer.js');
 var Default = require('../service/DefaultService');
 var MongoClient = require('mongodb').MongoClient;
+var ObjectID = require('mongodb').ObjectID;
 var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
 var DbName = "meditor";
 
@@ -50,14 +51,14 @@ function getListOfModels (properties) {
       var dbo = db.db(DbName);
       var projection = {_id:0};
       if (properties === undefined) {
-        properties = ["name","description","icon","x-meditor"];
+        properties = ["name","description","icon","x-meditor","category"];
       }
       if (Array.isArray(properties)) {
         properties.forEach(function(element){
           projection[element]=1;
         });
       }
-      dbo.collection("Models").find({}).project(projection).toArray(function(err, res) {
+      dbo.collection("Models").find({}).sort({"x-meditor.modifiedOn":-1}).project(projection).toArray(function(err, res) {
         if (err){
           console.log(err);
           throw err;
@@ -228,7 +229,7 @@ function getDocumentContent (params) {
         throw err;
       }
       var dbo = db.db(DbName);
-      dbo.collection("Models").find({name:params.model}).project({_id:0}).toArray(function(err, res) {
+      dbo.collection("Models").find({name:params.model}).sort({"x-meditor.modifiedOn":-1}).project({_id:0}).toArray(function(err, res) {
         if (err){
           console.log(err);
           throw err;
@@ -285,7 +286,7 @@ function getModelContent (name) {
         throw err;
       }
       var dbo = db.db(DbName);
-      dbo.collection("Models").find({name:name}).project({_id:0}).toArray(function(err, res) {
+      dbo.collection("Models").find({name:name}).sort({"x-meditor.modifiedOn":-1}).project({_id:0}).toArray(function(err, res) {
         if (err){
           console.log(err);
           throw err;
@@ -355,3 +356,118 @@ module.exports.getDocumentHistory = function getModel (req, res, next) {
     utils.writeJson(res, response);
   });;
 };
+
+
+//Add a Comment
+
+function addComment (comment) {
+  comment["createdOn"] = (new Date()).toISOString();
+  comment["createdBy"] = "anonymous";
+  return new Promise(function(resolve, reject) {
+    MongoClient.connect(MongoUrl, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db(DbName);
+      dbo.collection("Comments").insertOne(comment, function(err, res) {
+        if (err){
+          console.log(err);
+          throw err;
+        }
+        var userMsg = "Added comment";
+        db.close();
+        resolve(userMsg);
+      });
+    });
+  });
+}
+
+function resolveCommentWithId(id) {
+  return new Promise(function(resolve, reject) {
+    MongoClient.connect(MongoUrl, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db(DbName);
+      var objectId = new ObjectID(id);
+      dbo.collection("Comments").findOneAndUpdate({_id: objectId}, {$set: {resolved: true}}, function(err, res) {
+        if (err){
+          console.log(err);
+          throw err;
+        }
+        var userMsg = "Comment with id " + id + " resolved";
+        db.close();
+        resolve(userMsg);
+      });
+    });
+  });
+}
+
+
+//Exported method to get comments for document
+module.exports.getComments = function getComments (req, res, next) {
+  getCommentsforDoc(req.swagger.params['title'].value)
+  .then(function (response) {
+    utils.writeJson(res, response);
+  })
+  .catch(function (response) {
+    utils.writeJson(res, response);
+  });;
+};
+
+//Exported method to resolve comment
+module.exports.resolveComment = function resolveComment(req, res, next) {
+  resolveCommentWithId(req.swagger.params['id'].value)
+  .then(function (response) {
+    utils.writeJson(res, {code:200, message:response}, 200);
+  })
+  .catch(function (response) {
+    utils.writeJson(res, {code:500, message: response}, 500);
+  });;
+};
+
+//Exported method to add a comment
+module.exports.postComment = function postComment (req, res, next) {
+  // Parse uploaded file
+  var file = req.swagger.params['file'].value;
+  // Ensure it is well formed JSON
+  var comment;
+  try {
+    comment = safelyParseJSON(file.buffer.toString());
+  } catch(err) {
+    console.log(err);
+    var response = {
+      code:400,
+      message:"Failed to parse comment"
+    };
+    utils.writeJson(res, response, 400);
+    return;
+  }
+  // TODO: validate JSON based on schema
+
+  // Insert the new comment
+  addComment(comment)
+  .then(function (response){
+    utils.writeJson(res, {code:200, message:response}, 200);
+  })
+  .catch(function (response){
+    utils.writeJson(res, {code:500, message: response}, 500);
+  });
+};
+
+// Internal method to list comments
+function getCommentsforDoc (doc) {
+  return new Promise(function(resolve, reject) {
+    MongoClient.connect(MongoUrl, function(err, db) {
+      if (err) {
+        console.log(err);
+        throw err;
+      }
+      var dbo = db.db(DbName);
+      dbo.collection("Comments").find({documentId:doc}).toArray(function(err, res) {
+        if (err){
+          console.log(err);
+          throw err;
+        }
+        db.close();
+        resolve(res);
+      });
+    });
+  });
+}
