@@ -1,0 +1,22 @@
+{
+  "x-meditor": {
+    "title": "title"
+  },
+  "name": "News",
+  "description": "News about all things relating to GES DISC including data releases and featured science articles.",
+  "icon": {
+    "name": "fa-newspaper-o",
+    "color": "#679EF5"
+  },
+  "schema": {"$schema":"http://json-schema.org/schema#","id":"https://disc.gsfc.nasa.gov/schemas/news.json","properties":{"title":{"type":"string","required":true},"description":{"type":"string"},"body":{"type":"string","contentMediaType":"text/html","required":true},"articleType":{"type":"string","default":"News","enum":["News","Featured","Data Release"]},"image":{"type":"string"},"imageCaption":{"type":"string"}}},
+  "layout": [
+    "title",
+    "description",
+    { "key": "body", "type" : "ckeditor" },
+    "articleType",
+    "image",
+    "imageCaption"    
+  ],
+  "documentation": "",
+  "tag": []
+}

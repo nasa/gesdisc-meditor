@@ -1,0 +1,27 @@
+{
+  "x-meditor": {
+    "model": "Models"
+  },
+  "titleProperty": "name",
+  "category": "Admin",
+  "name": "Models",
+  "description": "Model for information models",
+  "icon": {
+    "name": "fa-code",
+    "color": "#0082c8"
+  },
+  "schema": {"$schema":"http://json-schema.org/schema#","id":"https://disc.gsfc.nasa.gov/schemas/model.json","type":"object","properties":{"titleProperty":{"$comment":"Name of the model (ex: FAQ, Alert, Collection etc.,): displayed to the user in UI","type":"string","required":true},"category": {"type": "string", "required": true, "enum": ["Admin", "User"] }, "name":{"$comment":"Name of the model (ex: FAQ, Alert, Collection etc.,): displayed to the user in UI","type":"string","minLength":3,"required":true},"description":{"$comment":"Description of the model (ex: FAQ, Alert, Collection etc.,): description of the model; might be shown to user as a tooltip","type":"string","minLength":10,"required":true},"icon":{"$comment":"Icon for the model: currently limited to Font Awesome","type":"object","properties":{"name":{"$comment":"Name of the Font Awesome icon (ex: )","type":"string","required":true},"color":{"$comment":"Background color to be used for the Font Awesome icon (ex: )","type":"string","required":false}}},"schema":{"$comment":"JSON Schema of the model itself","type":"string","required":true},"layout":{"$comment":"Layout of the model for user interface","type":"string","required":true},"documentation":{"$comment":"Link to model's documentation","type":"string","required":false},"tag":{"$comment":"An array of tags associated with the model: can be used for searching models","type":"array","items":{"type":"string"},"required":false}}},
+  "layout": [
+    {"key":"titleProperty","type":"text","title":"Name of the title property"},"category", "name","description",
+    {"type":"div","title":"Icon","display":"flex","flex-flow":"row",
+    "items":
+      [{"key": "icon.name", "type": "icon", "enum": ["fa-question", "fa-warning","fa-info", "fa-file-text","fa-newspaper-o", "i-howto", "i-datasets", "i-search"]},{"key": "icon.color", "type":"color", "enum": ["#868146","#005ac8","#679EF5"]}]
+    },
+    {"key":"schema","type":"textarea"},
+    {"key":"layout","type":"textarea"},
+    "documentation",
+    "tag"
+  ],
+  "documentation": "http://disc.gsfc.nasa.gov/meditor/docs/",
+  "tag": []
+}

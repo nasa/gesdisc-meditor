@@ -2,6 +2,26 @@
 
 
 /**
+ * Gets comments for document
+ * Gets comments for document
+ *
+ * title String Title of the document
+ * returns Object
+ **/
+exports.getComments = function(title) {
+  return new Promise(function(resolve, reject) {
+    var examples = {};
+    examples['application/json'] = "{}";
+    if (Object.keys(examples).length > 0) {
+      resolve(examples[Object.keys(examples)[0]]);
+    } else {
+      resolve();
+    }
+  });
+}
+
+
+/**
  * Gets a document
  * Gets a document
  *
@@ -169,6 +189,29 @@ exports.listModels = function(properties) {
 
 
 /**
+ * Puts comment for document
+ * Puts comment for document
+ *
+ * file File Uploaded document file (JSON)
+ * returns success
+ **/
+exports.postComment = function(file) {
+  return new Promise(function(resolve, reject) {
+    var examples = {};
+    examples['application/json'] = {
+  "code" : 0,
+  "description" : "description"
+};
+    if (Object.keys(examples).length > 0) {
+      resolve(examples[Object.keys(examples)[0]]);
+    } else {
+      resolve();
+    }
+  });
+}
+
+
+/**
  * Puts a document
  * Puts a document
  *
@@ -199,6 +242,29 @@ exports.putDocument = function(file) {
  * returns success
  **/
 exports.putModel = function(file) {
+  return new Promise(function(resolve, reject) {
+    var examples = {};
+    examples['application/json'] = {
+  "code" : 0,
+  "description" : "description"
+};
+    if (Object.keys(examples).length > 0) {
+      resolve(examples[Object.keys(examples)[0]]);
+    } else {
+      resolve();
+    }
+  });
+}
+
+
+/**
+ * Resolves comment
+ * Resolves comment
+ *
+ * id String Comment id
+ * returns success
+ **/
+exports.resolveComment = function(id) {
   return new Promise(function(resolve, reject) {
     var examples = {};
     examples['application/json'] = {
