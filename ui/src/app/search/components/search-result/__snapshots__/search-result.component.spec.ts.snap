@@ -7,9 +7,9 @@ exports[`SearchResultComponent with mock data should compile with minimum input 
 >
   <div>
     <a
-      href="/edit?title=test%20title&model=test%20name"
+      href="/document/edit?title=test%20title&model=test%20name"
       ng-reflect-query-params="[object Object]"
-      ng-reflect-router-link="/edit"
+      ng-reflect-router-link="/document/edit"
     >
       test title
     </a>

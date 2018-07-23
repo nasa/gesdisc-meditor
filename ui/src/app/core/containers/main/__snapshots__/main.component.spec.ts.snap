@@ -5,15 +5,47 @@ exports[`Main Page should compile 1`] = `
   store={[Function Store]}
 >
   <div
+    _ngcontent-c0=""
     fxfill=""
-    fxlayout="column"
+    fxlayout="row"
   >
-    <med-toolbar />
     <div
-      fxflex="100"
+      _ngcontent-c0=""
+      fxflex="5"
+    />
+    <div
+      _ngcontent-c0=""
+      fxflex="90"
     >
-      <router-outlet />
+      <div
+        _ngcontent-c0=""
+        fxfill=""
+        fxlayout="column"
+        fxlayoutalign="center none"
+      >
+        <med-toolbar
+          _ngcontent-c0=""
+          fxflex="70px"
+        />
+        <div
+          _ngcontent-c0=""
+          fxflex="90-70px"
+          style="overflow: scroll; padding: 0 16px;"
+        >
+          <router-outlet
+            _ngcontent-c0=""
+          />
+        </div>
+        <div
+          _ngcontent-c0=""
+          fxflex="10"
+        />
+      </div>
     </div>
+    <div
+      _ngcontent-c0=""
+      fxflex="5"
+    />
   </div>
 </meditor-app>
 `;

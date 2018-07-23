@@ -14,7 +14,9 @@ import {
 @Injectable()
 export class NotificationEffects {
 
-	defaultConfig: MatSnackBarConfig = {};
+	successConfig: MatSnackBarConfig;
+	failConfig: MatSnackBarConfig;
+	defaultConfig: MatSnackBarConfig;
 
 	@Effect({
 		dispatch: false
@@ -28,14 +30,42 @@ export class NotificationEffects {
 	showNotification: Observable<any> = this.actions.ofType<NotificationOpen>(NotificationActionTypes.NotificationOpen)
 		.pipe(
 			map((action: NotificationOpen) => action.payload),
-			tap(payload => this.matSnackBar.open(payload.message, payload.action, payload.config ? payload.config : this.defaultConfig)),
-			delay(2000),
+			tap(payload => {
+				let config;
+				switch(payload.config) {
+					case 'success':
+						config = this.successConfig;
+						break;
+					case 'failure':
+						config = this.failConfig;
+						break;
+					default:
+						config = this.defaultConfig;
+				}
+				this.matSnackBar.open(payload.message, payload.action, config)
+			}),
+			delay(5000),
 			map(() => new NotificationClose())
 		);
 
 	constructor(private actions: Actions,
 							private matSnackBar: MatSnackBar) {
-		this.defaultConfig.verticalPosition = 'top'
+		this.successConfig = {
+			verticalPosition: 'top',
+			panelClass: 'success-notification',
+			duration: 3000
+		}
+
+		this.failConfig = {
+			verticalPosition: 'top',
+			panelClass: 'fail-notification',
+			duration: 3000
+		}
+
+		this.defaultConfig = {
+			verticalPosition: 'top',
+			duration: 3000
+		}
 	}
 
 }

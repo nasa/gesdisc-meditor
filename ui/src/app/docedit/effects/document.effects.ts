@@ -32,6 +32,7 @@ import { Document } from '../../service/model/document';
  * RxJS 5 Operators By Example: https://gist.github.com/btroncone/d6cf141d6f2c00dc6b35
  */
 
+
 @Injectable()
 export class DocumentEffects {
 
@@ -44,7 +45,7 @@ export class DocumentEffects {
 				.getDocument(payload.model, payload.title, payload.version)
 				.pipe(
 					switchMap((document: Document[]) =>  of(new LoadComplete(document))),
-					catchError(err => of(new NotificationOpen({message: err.statusText, action: 'Fail'})))
+					catchError(err => of(new NotificationOpen({message: err.statusText, config: 'failure'})))
 				)
 		)
 	);
@@ -59,9 +60,9 @@ export class DocumentEffects {
 				.pipe(
 					switchMap(res => [
 						new SubmitDocumentComplete(),
-						new NotificationOpen({message: "Document added", action: 'Success'})
+						new NotificationOpen({message: "Document added", config: 'success'})
 					]),
-					catchError(err => of(new NotificationOpen({message: err.statusText, action: 'Fail'})))
+					catchError(err => of(new NotificationOpen({message: err.statusText, config: 'failure'})))
 				)
 		)
 	);
@@ -70,7 +71,8 @@ export class DocumentEffects {
 
 	constructor(
 		private actions$: Actions,
-		private documentService: DefaultService) {}
+		private documentService: DefaultService) {
+	}
 		/**
 		 * You inject an optional Scheduler that will be undefined
 		 * in normal application usage, but its injected here so that you can mock out

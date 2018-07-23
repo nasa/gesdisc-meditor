@@ -8,7 +8,7 @@ exports[`ModelButtonComponent with mock data should compile minimum input + icon
   <button
     class="mat-raised-button mat-primary"
     color="primary"
-    fxflex="100px"
+    fxflex="120px"
     mat-raised-button=""
     ng-reflect-color="primary"
     style="line-height: inherit; padding: 10px;"
@@ -51,7 +51,7 @@ exports[`ModelButtonComponent with mock data should compile with minimum input (
   <button
     class="mat-raised-button mat-primary"
     color="primary"
-    fxflex="100px"
+    fxflex="120px"
     mat-raised-button=""
     ng-reflect-color="primary"
     style="line-height: inherit; padding: 10px;"

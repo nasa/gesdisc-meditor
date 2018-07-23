@@ -12,7 +12,7 @@ export class NotificationOpen implements Action {
   constructor(public payload: {
     message: string,
     action?: string,
-    config?: MatSnackBarConfig
+    config?: string
   }) { }
 
 }

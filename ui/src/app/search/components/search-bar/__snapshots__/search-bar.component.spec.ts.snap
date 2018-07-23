@@ -14,7 +14,7 @@ exports[`SearchBarComponent with mock data should compile with minimum input 1`]
     fxlayoutalign="center start"
   >
     <div
-      fxflex="10"
+      fxflex="20"
     >
       <mat-form-field
         class="search-bar-select mat-form-field ng-tns-c4-0 mat-primary mat-form-field-type-mat-select mat-form-field-appearance-legacy mat-form-field-can-float mat-form-field-hide-placeholder ng-untouched ng-pristine ng-valid"
@@ -104,7 +104,7 @@ exports[`SearchBarComponent with mock data should compile with minimum input 1`]
       </mat-form-field>
     </div>
     <div
-      fxflex="50"
+      fxflex="80"
     >
       <mat-form-field
         class="search-bar-input mat-form-field ng-tns-c4-2 mat-primary mat-form-field-type-mat-input mat-form-field-appearance-legacy mat-form-field-can-float mat-form-field-hide-placeholder ng-untouched ng-pristine ng-valid"
