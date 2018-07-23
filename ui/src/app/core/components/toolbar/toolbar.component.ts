@@ -4,7 +4,7 @@ import { Component, Output, EventEmitter } from '@angular/core';
   selector: 'med-toolbar',
   template: `
     <mat-toolbar class="med-toolbar">
-      <img src="assets/logo.png" class="logo"/>
+      <img src="assets/logo.png" class="logo" routerLink="/" />
       <span class="spacer"></span>
       <a href="" class="toolbar-btn-icon">
       	<mat-icon>home</mat-icon>
@@ -32,11 +32,11 @@ import { Component, Output, EventEmitter } from '@angular/core';
     }
 
     .toolbar-btn {
-    	margin-right: 15px;
+    	margin-left: 15px;
     }
 
     .toolbar-btn-icon {
-    	margin-right: 15px;
+    	margin-left: 15px;
     	margin-top: 10px;
     }
   `]

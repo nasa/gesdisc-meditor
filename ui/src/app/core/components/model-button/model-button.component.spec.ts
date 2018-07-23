@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed  } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatCardModule, MatIconModule, MatButtonModule } from '@angular/material';
+import { PipesModule } from '../../../shared/pipes';
 import { ModelButtonComponent } from './model-button.component';
 
 describe('ModelButtonComponent', () => {
@@ -13,7 +14,8 @@ describe('ModelButtonComponent', () => {
 				NoopAnimationsModule,
 				MatCardModule,
 				MatButtonModule,
-				MatIconModule
+				MatIconModule,
+				PipesModule
 			],
 			declarations: [
 				ModelButtonComponent

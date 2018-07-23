@@ -1,3 +1,4 @@
+export * from './comment';
 export * from './docCatalogEntry';
 export * from './docCatalogEntryXmeditor';
 export * from './docHistory';

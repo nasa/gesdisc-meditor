@@ -87,7 +87,7 @@ export class SearchPageComponent implements OnInit {
 	}
 
 	addNewDocument() {
-		this.router.navigate(['/edit'], {queryParams: { new: true, model: this.params['model'] }});
+		this.router.navigate(['/document/edit'], {queryParams: { new: true, model: this.params['model'] }});
 	}
 
 }

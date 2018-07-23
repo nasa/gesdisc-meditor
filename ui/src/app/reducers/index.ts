@@ -25,12 +25,8 @@ import { storeFreeze } from 'ngrx-store-freeze';
 
 import * as fromLayout from '../core/reducers/layout';
 import * as fromModel from '../core/reducers/model.reducer';
-// import * as fromDocument from '../docedit/reducers/document.reducer';
-// import * as fromHistory from '../docedit/reducers/history.reducer';
+import * as fromNotification from '../core/reducers/notification.reducer';
 
-// export interface ModelState {
-// 	models: fromModel.State;
-// }
 
 /**
  * As mentioned, we treat each reducer like a table in a database. This means
@@ -39,7 +35,7 @@ import * as fromModel from '../core/reducers/model.reducer';
 export interface State {
 	layout: fromLayout.State;
 	models: fromModel.State;
-	// document: fromDocument.State;
+	notification: fromNotification.State;
 	// history: fromHistory.State;
 	router: fromRouter.RouterReducerState<RouterStateUrl>;
 }
@@ -52,6 +48,7 @@ export interface State {
 export const reducers: ActionReducerMap<State> = {
 	layout: fromLayout.reducer,
 	models: fromModel.reducer,
+	notification: fromNotification.reducer,
 	// document: fromDocument.reducer,
 	// history: fromHistory.reducer,
 	router: fromRouter.routerReducer,
@@ -86,15 +83,6 @@ export const getShowSidenav = createSelector(
 	fromLayout.getShowSidenav
 );
 
-/**
- * Document Reducers
- */
-// export const getDocumentState = createFeatureSelector<fromDocument.State>('document');
-
-// export const getDocument = createSelector(
-// 	getDocumentState,
-// 	fromDocument.getDocument
-// );
 
 /**
  * Model Reducers
@@ -129,30 +117,19 @@ export const getCurrentModel= createSelector(
   fromModel.getSelectedModel
 );
 
+export const getAdminModels = createSelector(
+	getAllModels,
+	(allModels) => allModels.filter(m => { return m.category == 'Admin'})
+);
+
+export const getNonAdminModels = createSelector(
+	getAllModels,
+	(allModels) => allModels.filter(m => { return m.category != 'Admin'})
+);
+
 export const selectCurrentModel = createSelector(
 	getModelEntities,
 	getCurrentModelId,
 	(modelEntities, modelId) => modelEntities[modelId]
 );
-
-
-// export const selectHistoryState = createFeatureSelector<fromHistory.State>('history');
-
-// export const selectHistoryIds = createSelector(
-// 	selectHistoryState,
-// 	fromHistory.selectHistoryIds
-// );
-// export const selectHistoryEntities = createSelector(
-// 	selectHistoryState,
-// 	fromHistory.selectHistoryEntities
-// );
-// export const selectAllHistory = createSelector(
-// 	selectHistoryState,
-// 	fromHistory.selectAllHistory
-// );
-// export const selectHistoryTotal = createSelector(
-// 	selectHistoryState,
-// 	fromHistory.selectHistoryTotal
-// );
-
 

@@ -10,3 +10,19 @@ $main-theme: mat-light-theme(
   $main-theme-accent,
   $main-theme-warn
 );
+
+.success-notification {
+	margin-top: 15px !important;
+	background-color: #C8E6C9 !important;
+	border: 2px solid;
+	border-color: #4CAF50;
+	color: #212121 !important;
+}
+
+.fail-notification {
+	margin-top: 15px !important;
+	background-color: #FFCDD2 !important;
+	border: 2px solid;
+	border-color: #F44336;
+	color: #212121 !important;
+}
