@@ -14,7 +14,6 @@ var GridStream = require('gridfs-stream');
 var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
 var DbName = "meditor";
 
-var titlePath = 'parent.title';
 // Wrapper to parse JSON giving v8 a chance to optimize code
 function safelyParseJSON (jsonStr) {
   var jsonObj;
@@ -155,12 +154,8 @@ function addImage (parentDoc, imageFormParam) {
         modifiedOn: (new Date()).toISOString(),
         modifiedBy: 'anonymous'
       },
-      parent: {
-        _id: parentDoc._id,
-        model: parentDoc.model,
-        title: parentDoc.title,
-        version: parentDoc.version
-      }
+      'x-meditor-parent': parentDoc['x-meditor'],
+      //'parent':
     },
     filename: imageFormParam.originalname,
     content_type: imageFormParam.mimetype,
@@ -178,30 +173,36 @@ function addImage (parentDoc, imageFormParam) {
     MongoClient.connect(MongoUrl, function(err, db) {
       if (err) throw err;
       var dbo = db.db(DbName);
-      var gfs = new GridStream(dbo, mongo);
-      var writeStream = gfs.createWriteStream(imageRecord);
-    
-      writeStream.on('close', function(data) {
-        db.close();
-        resolve("Inserted image");
-      });
-    
-      writeStream.on('error', function(err) {
-        db.close();
-        reject(err);
-      });
-
-      streamifier.createReadStream(imageFormParam.buffer).pipe(writeStream);
+      dbo.collection("Models").findOne({name: parentDoc['x-meditor'].model}, {_id:0, "titleProperty":1}, function(errModel, resModel) {
+        var gfs;
+        var writeStream;
+        if (errModel) reject(errModel);
+        imageRecord.metadata.filename = parentDoc[resModel.titleProperty];
+        gfs = new GridStream(dbo, mongo);
+        writeStream = gfs.createWriteStream(imageRecord);
+      
+        writeStream.on('close', function(data) {
+          db.close();
+          resolve("Inserted image");
+        });
+      
+        writeStream.on('error', function(err) {
+          db.close();
+          reject(err);
+        });
+  
+        streamifier.createReadStream(imageFormParam.buffer).pipe(writeStream);
+      })
     });
   });
 };
 
 
-function getFileName (file) {
+function getFileName (file, titlePath) {
   var filename = null;
   if (!!file && !_.isEmpty(file.filename)) filename = file.filename.replace(/\.\w+$/, '');
   // Credit: https://stackoverflow.com/questions/45239228/how-to-remove-invalid-characters-in-an-http-response-header-in-javascript-node-j
-  if (!!file.metadata && !_.isEmpty(_.get(file.metadata, titlePath))) filename = transliteration.slugify(_.get(file.metadata, titlePath));
+  if (!_.isEmpty(titlePath) && !_.isEmpty(_.get(file, titlePath))) filename = transliteration.slugify(_.get(file, titlePath));
   if (!!file && !_.isEmpty(file.contentType) && file.contentType.indexOf('image/') !== -1) filename += file.contentType.replace(/.*\//, '.');
   return filename;
 }
@@ -216,22 +217,16 @@ function getImage(model, title, version, res) {
       }
       var dbo = db.db(DbName);
       var gfs = new GridStream(dbo, mongo);
-      gfs.files.findOne({ filename: title }, function(metaErr, file) {
+      gfs.files.findOne({ 'metadata.filename': title, 'metadata.x-meditor-parent.model': model }, function(metaErr, file) {
         var readstream;
         var headers;
         var fileName;
 
-        if (metaErr) {
-          return resolve({
-            status: 500,
-            message: metaErr
-          });
-        }
-
-        if (!file) return resolve({ status: 404 });
+        if (metaErr) return reject({status: 500, message: metaErr});
+        if (!file) return reject({ status: 404, message: 'Image not found' });
 
         headers = {'Content-Type': file.contentType};
-        fileName = getFileName(file);
+        fileName = getFileName(file, 'metadata.filename');
         if (!!fileName) headers['Content-Disposition'] = 'inline; filename="' + fileName + '"';
 
         res.writeHead(200, headers);
@@ -253,22 +248,26 @@ function getImage(model, title, version, res) {
 
         readstream.on('error', function(fileErr) {
           // required to ensure end does not send 200 on error
-          resolve({
-            status: 500,
-            message: fileErr
-          });
+          reject({status: 500, message: fileErr});
         });
       });
     });
   });
 };
 
-module.exports.getDocumentImage = function putDocument (req, res, next) {
+module.exports.getDocumentImage = function getDocumentImage (req, res, next) {
   var params = {};
   for ( var property in req.swagger.params ) {
     params[property] = req.swagger.params[property].value;
   }
-  getImage(params.model, params.title, params.version, res);
+  getImage(params.model, params.title, params.version, res)
+  .then(function (response){
+    // Do nothing, response has been written already in getImage
+  })
+  .catch(function(response){
+    console.log(response);
+    utils.writeJson(res, {code: response.status || 500, message: response.message || 'Unknown error while retrieving the image'}, response.status || 500);
+  });
 };
 
 
