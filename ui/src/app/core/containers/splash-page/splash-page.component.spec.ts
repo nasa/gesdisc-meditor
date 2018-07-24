@@ -4,6 +4,7 @@ import { combineReducers, Store, StoreModule } from '@ngrx/store';
 import { SplashPageComponent } from './splash-page.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatCardModule, MatButtonModule } from '@angular/material';
+import { PipesModule } from '../../../shared/pipes';
 import { ModelButtonComponent } from '../../components/model-button/model-button.component';
 
 import * as fromRoot from '../../../reducers';
@@ -23,7 +24,8 @@ describe('Search Page', () => {
 					models: combineReducers(fromRoot.reducers),
 				}),
 				MatCardModule,
-				MatButtonModule
+				MatButtonModule,
+				PipesModule
 			],
 			declarations: [
 				SplashPageComponent,

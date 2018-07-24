@@ -10,18 +10,21 @@ exports[`SearchStatusComponent with mock data should compile with minimum input 
 >
   <div
     class="search-status-bar"
-    fxlayout="row wrap"
+    fxlayout="row"
     fxlayoutalign="center start"
   >
     <div
-      fxflex="40"
+      fxflex="20"
     >
        Showing 1 - 10 of 15 test documents 
     </div>
     <div
+      class="sortby-select"
       fxflex="4"
-    />
-     Sort by: 
+      fxflexoffset="60"
+    >
+       Sort by: 
+    </div>
     <div
       class="sortby-select"
       fxflex="8"
@@ -65,33 +68,39 @@ exports[`SearchStatusComponent with mock data should compile with minimum input 
         
       </mat-select>
     </div>
-    <button
-      class="add-new-button mat-raised-button"
-      mat-raised-button=""
+    <div
+      dir="rtl"
+      fxflex=""
+      ng-reflect-dir="rtl"
     >
-      <span
-        class="mat-button-wrapper"
+      <button
+        class="add-new-button mat-raised-button"
+        mat-raised-button=""
       >
-        <mat-icon
-          aria-hidden="true"
-          class="mat-icon material-icons"
-          role="img"
+        <span
+          class="mat-button-wrapper"
         >
-          add
-        </mat-icon>
-        Add new 
-      </span>
-      <div
-        class="mat-button-ripple mat-ripple"
-        matripple=""
-        ng-reflect-centered="false"
-        ng-reflect-disabled="false"
-        ng-reflect-trigger="[object HTMLButtonElement]"
-      />
-      <div
-        class="mat-button-focus-overlay"
-      />
-    </button>
+          <mat-icon
+            aria-hidden="true"
+            class="mat-icon material-icons"
+            role="img"
+          >
+            add
+          </mat-icon>
+          Add new 
+        </span>
+        <div
+          class="mat-button-ripple mat-ripple"
+          matripple=""
+          ng-reflect-centered="false"
+          ng-reflect-disabled="false"
+          ng-reflect-trigger="[object HTMLButtonElement]"
+        />
+        <div
+          class="mat-button-focus-overlay"
+        />
+      </button>
+    </div>
   </div>
 </med-search-status>
 `;

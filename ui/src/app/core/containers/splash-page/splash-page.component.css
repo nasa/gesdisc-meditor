@@ -1,0 +1,11 @@
+.content-types-card {
+	margin-top: 5px;
+}
+
+.admin-types-card {
+	margin-top: 20px;
+}
+
+.mat-card {
+	box-shadow: none !important;
+}

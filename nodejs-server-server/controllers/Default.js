@@ -3,6 +3,17 @@
 var utils = require('../utils/writer.js');
 var Default = require('../service/DefaultService');
 
+module.exports.getComments = function getComments (req, res, next) {
+  var title = req.swagger.params['title'].value;
+  Default.getComments(title)
+    .then(function (response) {
+      utils.writeJson(res, response);
+    })
+    .catch(function (response) {
+      utils.writeJson(res, response);
+    });
+};
+
 module.exports.getDocument = function getDocument (req, res, next) {
   var model = req.swagger.params['model'].value;
   var title = req.swagger.params['title'].value;
@@ -74,6 +85,17 @@ module.exports.listModels = function listModels (req, res, next) {
     });
 };
 
+module.exports.postComment = function postComment (req, res, next) {
+  var file = req.swagger.params['file'].value;
+  Default.postComment(file)
+    .then(function (response) {
+      utils.writeJson(res, response);
+    })
+    .catch(function (response) {
+      utils.writeJson(res, response);
+    });
+};
+
 module.exports.putDocument = function putDocument (req, res, next) {
   var file = req.swagger.params['file'].value;
   var image = req.swagger.params['image'].value;
@@ -89,6 +111,17 @@ module.exports.putDocument = function putDocument (req, res, next) {
 module.exports.putModel = function putModel (req, res, next) {
   var file = req.swagger.params['file'].value;
   Default.putModel(file)
+    .then(function (response) {
+      utils.writeJson(res, response);
+    })
+    .catch(function (response) {
+      utils.writeJson(res, response);
+    });
+};
+
+module.exports.resolveComment = function resolveComment (req, res, next) {
+  var id = req.swagger.params['id'].value;
+  Default.resolveComment(id)
     .then(function (response) {
       utils.writeJson(res, response);
     })

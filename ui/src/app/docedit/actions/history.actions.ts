@@ -4,7 +4,6 @@ import { DocHistory } from '../../service/model/docHistory';
 export enum HistoryActionTypes {
 	Load = '[History] Load',
 	LoadComplete = '[History] Load Complete',
-	LoadError = '[History] Load Error',
 	SetSelectedHistoryItem = '[History] Set Selected History Item',
 	ClearHistory = '[History] Clear History'
 }
@@ -28,12 +27,6 @@ export class LoadComplete implements Action {
 	constructor(public payload: DocHistory[]) {}
 }
 
-export class LoadError implements Action {
-	readonly type = HistoryActionTypes.LoadError;
-
-	constructor(public payload: string) {}
-}
-
 export class SetSelectedHistoryItem implements Action {
 	readonly type = HistoryActionTypes.SetSelectedHistoryItem;
 
@@ -52,6 +45,5 @@ export class ClearHistory implements Action {
 export type HistoryActionsUnion =
 	| Load
 	| LoadComplete
-	| LoadError
 	| SetSelectedHistoryItem
 	| ClearHistory;

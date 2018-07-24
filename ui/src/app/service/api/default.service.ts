@@ -60,6 +60,51 @@ export class DefaultService {
 
 
     /**
+     * Gets comments for document
+     * Gets comments for document
+     * @param title Title of the document
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public getComments(title: string, observe?: 'body', reportProgress?: boolean): Observable<any>;
+    public getComments(title: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+    public getComments(title: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+    public getComments(title: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+        if (title === null || title === undefined) {
+            throw new Error('Required parameter title was null or undefined when calling getComments.');
+        }
+
+        let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
+        if (title !== undefined) {
+            queryParameters = queryParameters.set('title', <any>title);
+        }
+
+        let headers = this.defaultHeaders;
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+        ];
+        let httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set("Accept", httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        let consumes: string[] = [
+        ];
+
+        return this.httpClient.get<any>(`${this.basePath}/getComments`,
+            {
+                params: queryParameters,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Gets a document
      * Gets a document
      * @param model Name of the Model
@@ -316,6 +361,65 @@ export class DefaultService {
     }
 
     /**
+     * Puts comment for document
+     * Puts comment for document
+     * @param file Uploaded document file (JSON)
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public postComment(file: Blob, observe?: 'body', reportProgress?: boolean): Observable<Success>;
+    public postComment(file: Blob, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Success>>;
+    public postComment(file: Blob, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Success>>;
+    public postComment(file: Blob, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+        if (file === null || file === undefined) {
+            throw new Error('Required parameter file was null or undefined when calling postComment.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+        ];
+        let httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set("Accept", httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        let consumes: string[] = [
+            'multipart/form-data'
+        ];
+
+        const canConsumeForm = this.canConsumeForm(consumes);
+
+        let formParams: { append(param: string, value: any): void; };
+        let useForm = false;
+        let convertFormParamsToString = false;
+        // use FormData to transmit files using content-type "multipart/form-data"
+        // see https://stackoverflow.com/questions/4007969/application-x-www-form-urlencoded-or-multipart-form-data
+        useForm = canConsumeForm;
+        if (useForm) {
+            formParams = new FormData();
+        } else {
+            formParams = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
+        }
+
+        if (file !== undefined) {
+            formParams = formParams.append('file', <any>file) || formParams;
+        }
+
+        return this.httpClient.post<Success>(`${this.basePath}/postComment`,
+            convertFormParamsToString ? formParams.toString() : formParams,
+            {
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Puts a document
      * Puts a document
      * @param file Uploaded document file (JSON)
@@ -441,6 +545,52 @@ export class DefaultService {
         return this.httpClient.post<Success>(`${this.basePath}/putModel`,
             convertFormParamsToString ? formParams.toString() : formParams,
             {
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Resolves comment
+     * Resolves comment
+     * @param id Comment id
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public resolveComment(id: string, observe?: 'body', reportProgress?: boolean): Observable<Success>;
+    public resolveComment(id: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Success>>;
+    public resolveComment(id: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Success>>;
+    public resolveComment(id: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling resolveComment.');
+        }
+
+        let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
+        if (id !== undefined) {
+            queryParameters = queryParameters.set('id', <any>id);
+        }
+
+        let headers = this.defaultHeaders;
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+        ];
+        let httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set("Accept", httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        let consumes: string[] = [
+        ];
+
+        return this.httpClient.post<Success>(`${this.basePath}/resolveComment`,
+            null,
+            {
+                params: queryParameters,
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
                 observe: observe,

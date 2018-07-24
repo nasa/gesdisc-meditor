@@ -1,32 +1,45 @@
-.example-container {
-  display: flex;
-  flex-direction: column;
-}
-
-.example-container > * {
-  width: 100%;
-}
-
-.example-card {
-	width: 500px;
-}
-
 .comments-container {
-	margin-left: 20px;
+	margin-left: 5px;
 	margin-top: 10px;
 }
 
-.deleted-comment {
-	color: grey;
-	font-style: italic;
+.comment-card {
+	width: 90%;
+}
+
+.comment-resolved {
+	opacity: 0.2;
+}
+
+.reply-card {
+	width: 90%;
+	margin-top: 10px;
+	margin-left: 10px;
+}
+
+med-comment > .comments-container {
+	margin-left: 25px;
+	margin-top: 10px;
+}
+
+med-comment > .comments-container > .comment-card {
+	width: 95%;
 }
 
 .reply-form-field {
 	width: 100%;
 }
 
-.example-header-image {
-	background-image: url('https://bugs.earthdata.nasa.gov/secure/useravatar?size=small&ownerId=mshegde&avatarId=11722');
+.reply-button {
+	background-color: #03a9f4;
+}
+
+.resolve-button {
+	background-color: #3cb44b;
+}
+
+.comment-header-image {
+	background-image: url('https://i.imgflip.com/cnudu.jpg');
   background-size: cover;
 }
 

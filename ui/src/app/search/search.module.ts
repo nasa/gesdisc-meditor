@@ -17,6 +17,8 @@ import { EffectsModule } from '@ngrx/effects';
 import { ResultEffects } from './effects/result.effects';
 import { SearchStatusComponent } from './components/search-status/search-status.component';
 
+import { routes } from './search.routing';
+
 @NgModule({
 	imports: [
 		CommonModule,
@@ -24,7 +26,7 @@ import { SearchStatusComponent } from './components/search-status/search-status.
 		ReactiveFormsModule,
 		MaterialModule,
 		FlexLayoutModule,
-		RouterModule,
+		RouterModule.forChild(routes),
 		StoreModule.forFeature('results', reducer),
 		EffectsModule.forFeature([ResultEffects]),
 	],
@@ -35,12 +37,7 @@ import { SearchStatusComponent } from './components/search-status/search-status.
 		SearchResultComponent,
 		SearchStatusComponent
 	],
-	exports: [ SearchPageComponent ]
+	entryComponents: [ SearchPageComponent ]
 })
 export class SearchModule {
-	static forRoot() {
-		return {
-			ngModule: SearchModule
-		};
-	}
 }

@@ -14,11 +14,11 @@ import {
 	DocumentActionsUnion,
 	Load,
 	LoadComplete,
-	LoadError,
 	SubmitDocument,
-	SubmitDocumentComplete,
-	SubmitDocumentError
+	SubmitDocumentComplete
 } from '../actions/document.actions';
+import { NotificationOpen } from '../../core/actions/notification.actions';
+
 import { Document } from '../../service/model/document';
 
 /**
@@ -32,6 +32,7 @@ import { Document } from '../../service/model/document';
  * RxJS 5 Operators By Example: https://gist.github.com/btroncone/d6cf141d6f2c00dc6b35
  */
 
+
 @Injectable()
 export class DocumentEffects {
 
@@ -44,7 +45,7 @@ export class DocumentEffects {
 				.getDocument(payload.model, payload.title, payload.version)
 				.pipe(
 					switchMap((document: Document[]) =>  of(new LoadComplete(document))),
-					catchError(err => of(new LoadError(err)))
+					catchError(err => of(new NotificationOpen({message: err.statusText, config: 'failure'})))
 				)
 		)
 	);
@@ -57,8 +58,11 @@ export class DocumentEffects {
 			this.documentService
 				.putDocument(new Blob([JSON.stringify(payload)]))
 				.pipe(
-					map(res => new SubmitDocumentComplete()),
-					catchError(err => of(new SubmitDocumentError(err)))
+					switchMap(res => [
+						new SubmitDocumentComplete(),
+						new NotificationOpen({message: "Document added", config: 'success'})
+					]),
+					catchError(err => of(new NotificationOpen({message: err.statusText, config: 'failure'})))
 				)
 		)
 	);
@@ -67,7 +71,8 @@ export class DocumentEffects {
 
 	constructor(
 		private actions$: Actions,
-		private documentService: DefaultService) {}
+		private documentService: DefaultService) {
+	}
 		/**
 		 * You inject an optional Scheduler that will be undefined
 		 * in normal application usage, but its injected here so that you can mock out

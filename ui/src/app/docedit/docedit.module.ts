@@ -3,16 +3,17 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { MaterialModule } from '../material';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 import { StoreModule } from '@ngrx/store';
-
 import { reducers } from './reducers/index';
 
 import { EffectsModule } from '@ngrx/effects';
 import { DocumentEffects } from './effects/document.effects';
 import { HistoryEffects } from './effects/history.effects';
+import { CommentsEffects } from '../comments/effects/comments.effects';
 
 import {
   JsonSchemaFormModule, MaterialDesignFrameworkModule, MaterialDesignFramework,
@@ -24,16 +25,18 @@ import { DocumentEditComponent } from './components/document-edit/document-edit.
 import { DochistoryComponent } from './components/dochistory/dochistory.component';
 import { CommentsModule } from '../comments/comments.module';
 
-
+import { routes } from './docedit.routing';
 
 @NgModule({
   imports: [
     CommonModule,
     MaterialModule,
     FlexLayoutModule,
-    RouterModule,
+    FormsModule,
+		ReactiveFormsModule,
+    RouterModule.forChild(routes),
     StoreModule.forFeature('documentData', reducers),
-		EffectsModule.forFeature([DocumentEffects, HistoryEffects]),
+		EffectsModule.forFeature([DocumentEffects, HistoryEffects, CommentsEffects]),
     MaterialDesignFrameworkModule,
     CommentsModule,
     {
@@ -50,6 +53,9 @@ import { CommentsModule } from '../comments/comments.module';
   	DocEditPageComponent,
   	DocumentEditComponent,
   	DochistoryComponent
+  ],
+  entryComponents: [
+  	DocEditPageComponent
   ],
   schemas: [ NO_ERRORS_SCHEMA ]
 })
