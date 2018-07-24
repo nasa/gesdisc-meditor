@@ -13,6 +13,8 @@
 # dependencies
 /node_modules
 /ui/node_modules
+nodejs-server-server/node_modules
+nodejs-server-server/package-lock.js
 
 # IDEs and editors
 /.idea
