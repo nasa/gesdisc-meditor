@@ -4,7 +4,6 @@ var fs = require('fs'),
     path = require('path'),
     http = require('http');
 
-var cors = require('cors');
 var app = require('connect')();
 var swaggerTools = require('swagger-tools');
 var jsyaml = require('js-yaml');
@@ -24,7 +23,6 @@ var swaggerDoc = jsyaml.safeLoad(spec);
 // Initialize the Swagger middleware
 swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
 
-  app.use(cors());
   // Interpret Swagger resources and attach metadata to request - must be first in swagger-tools middleware chain
   app.use(middleware.swaggerMetadata());
 

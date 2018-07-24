@@ -176,6 +176,11 @@ paths:
           description: Uploaded document file (JSON)
           required: true
           type: file
+        - name: "image"
+          in: "formData"
+          description: "Uploaded image file (binary)"
+          required: false
+          type: "file"
       responses:
         '200':
           description: Successful response
@@ -271,6 +276,57 @@ paths:
             title: Document
             items:
               $ref: '#/definitions/docHistory'
+        '400':
+          description: Bad request
+          schema:
+            $ref: '#/definitions/error'
+        '422':
+          description: Invalid syntax
+          schema:
+            $ref: '#/definitions/error'
+        '500':
+          description: Server error
+          schema:
+            $ref: '#/definitions/error'
+        '503':
+          description: Service not available
+          schema:
+            $ref: '#/definitions/error'
+      x-swagger-router-controller: Meditor
+  /getDocumentImage:
+    get:
+      summary: Gets an image associated with a document 
+      description: Gets an image associated with a document 
+      operationId: getDocumentImage
+      security: []
+      produces:
+        - "image/jpeg"
+        - "image/jpg"
+        - "image/png"
+        - "image/gif"
+        - "image/tiff"
+      parameters:
+        - name: model
+          in: query
+          description: Name of the Model
+          type: string
+          required: true
+        - name: title
+          in: query
+          description: Title of the document
+          type: string
+          required: true
+        - name: version
+          in: query
+          description: Version of the document
+          type: string
+          required: false
+          default: "latest"
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            type: file
         '400':
           description: Bad request
           schema:

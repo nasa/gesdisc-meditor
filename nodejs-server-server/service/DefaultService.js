@@ -45,6 +45,27 @@ exports.getDocumentHistory = function(model,title) {
 
 
 /**
+ * Gets an image associated with a document
+ * Gets an image associated with a document
+ *
+ * model String Name of the Model
+ * title String Title of the document
+ * version String Version of the document (optional)
+ * returns byte[]
+ **/
+exports.getDocumentImage = function(model,title,version) {
+  return new Promise(function(resolve, reject) {
+    var examples = {};
+    if (Object.keys(examples).length > 0) {
+      resolve(examples[Object.keys(examples)[0]]);
+    } else {
+      resolve();
+    }
+  });
+}
+
+
+/**
  * Gets a Model
  * Gets a Model object
  *
@@ -173,9 +194,10 @@ exports.listModels = function(properties) {
  * Puts a document
  *
  * file File Uploaded document file (JSON)
+ * image File Uploaded image file (binary) (optional)
  * returns success
  **/
-exports.putDocument = function(file) {
+exports.putDocument = function(file,image) {
   return new Promise(function(resolve, reject) {
     var examples = {};
     examples['application/json'] = {
