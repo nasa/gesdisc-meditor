@@ -3,7 +3,7 @@ import { createEntityAdapter, EntityAdapter, EntityState } from '@ngrx/entity';
 import { ModelCatalogEntry } from '../../service/model/modelCatalogEntry';
 import { Model } from '../../service/model/model';
 
-export interface State extends EntityState<ModelCatalogEntry> {
+export interface ModelState extends EntityState<ModelCatalogEntry> {
 	selectedModelId: string;
 	selectedModel: Model;
 }
@@ -13,7 +13,7 @@ export const adapter: EntityAdapter<ModelCatalogEntry> = createEntityAdapter<Mod
   sortComparer: false,
 });
 
-export const initialState: State = adapter.getInitialState({
+export const initialState: ModelState = adapter.getInitialState({
 	selectedModelId: 'Alerts',
 	selectedModel: {
 		name: '',
@@ -25,9 +25,9 @@ export const initialState: State = adapter.getInitialState({
 });
 
 export function reducer(
-	state: State = initialState,
+	state: ModelState = initialState,
 	action: ModelActionsUnion
-): State {
+): ModelState {
 	switch (action.type) {
 		case ModelActionTypes.LoadComplete:
 			return adapter.addMany(action.payload, state);
@@ -49,8 +49,8 @@ export function reducer(
 	}
 }
 
-export const getSelectedId = (state: State) => state.selectedModelId;
-export const getSelectedModel = (state: State) => state.selectedModel;
+export const getSelectedId = (state: ModelState) => state.selectedModelId;
+export const getSelectedModel = (state: ModelState) => state.selectedModel;
 
 export const {
   selectIds: selectModelIds,

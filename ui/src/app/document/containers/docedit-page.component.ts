@@ -1,25 +1,21 @@
 import { Component, ChangeDetectionStrategy, OnInit , ViewChild } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 
-import { Router, ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 import * as fromDocument from '../reducers';
-import * as fromRoot from '../../reducers';
+import * as fromRoot from '../../state/app.state';
 import { Document } from '../../service/model/document';
 import { DocHistory } from '../../service/model/docHistory';
 import { Model } from '../../service/model/model';
-import { Comment } from '../../service/model/comment';
 
 import { Store, select } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
-// import { MatSnackBar } from '@angular/material';
 
 
 import * as Documents from '../actions/document.actions';
 import * as History from '../actions/history.actions';
 import * as Comments from '../../comments/actions/comments.actions';
 import * as Models from '../../core/actions/model.actions';
-
-import { FormControl } from '@angular/forms';
 
 @Component({
 	selector: 'med-docedit-page',
@@ -52,7 +48,6 @@ export class DocEditPageComponent implements OnInit {
 	constructor(
 		private documentStore: Store<fromDocument.DocumentDataState>,
 		private rootStore: Store<fromRoot.State>,
-		private router: Router,
 		private route: ActivatedRoute
 	) {
 	}
@@ -74,14 +69,14 @@ export class DocEditPageComponent implements OnInit {
 		});
 	}
 
-	loadDocument(params) {
+	loadDocument(params: any) {
 		this.documentStore.dispatch(new Documents.Load(params));
 		this.documentStore.dispatch(new History.Load(params));
 		this.documentStore.dispatch(new Comments.Load(params['title']));
 		this.document$ = this.documentStore.pipe(select(fromDocument.getDocument));
 	}
 
-	loadVersion(event) {
+	loadVersion(event: string) {
 		let newParams = Object.assign({}, this.routeParams);
 		newParams.version = event;
 		this.documentStore.dispatch(new History.SetSelectedHistoryItem(event));
@@ -92,7 +87,7 @@ export class DocEditPageComponent implements OnInit {
 		this.document$ = this.model$;
 	}
 
-	submitDocument(data) {
+	submitDocument(data: any) {
 		let extendedData = JSON.parse(JSON.stringify(data))
 		extendedData['x-meditor'] = {
 			'model': this.routeParams['model'],
@@ -110,7 +105,7 @@ export class DocEditPageComponent implements OnInit {
 		this.showHistory = !this.showHistory;
 	}
 
-	resolveComment(_id) {
+	resolveComment(_id: string) {
 		this.documentStore.dispatch(new Comments.ResolveComment(_id))
 	}
 

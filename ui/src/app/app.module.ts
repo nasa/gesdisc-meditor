@@ -14,6 +14,7 @@ import {
 } from '@ngrx/router-store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
+import { reducers } from './state/app.state';
 import { CoreModule } from './core/core.module';
 // import { AuthModule } from './auth/auth.module';
 import { ApiModule } from './service/api.module';
@@ -24,10 +25,7 @@ import { MainComponent } from './core/containers/main/main.component';
 import { BASE_PATH } from './service';
 import { environment } from '../environments/environment';
 
-
 import { routes } from './routes';
-import { reducers, metaReducers } from './reducers';
-
 
 @NgModule({
 	imports: [
@@ -45,7 +43,7 @@ import { reducers, metaReducers } from './reducers';
 		 * meta-reducer. This returns all providers for an @ngrx/store
 		 * based application.
 		 */
-		StoreModule.forRoot(reducers, { metaReducers }),
+		StoreModule.forRoot(reducers),
 
 		/**
 		 * @ngrx/router-store keeps router state up-to-date in the store.
@@ -92,8 +90,7 @@ import { reducers, metaReducers } from './reducers';
 		 * by `@ngrx/router-store` to include only the desired pieces of the snapshot.
 		 */
 		{ provide: RouterStateSerializer, useClass: CustomRouterStateSerializer },
-		{ provide: BASE_PATH, useValue: environment.API_BASE_PATH },
-		// ContentTypeService
+		{ provide: BASE_PATH, useValue: environment.API_BASE_PATH }
 	],
 	bootstrap: [ MainComponent ]
 })

@@ -25,7 +25,7 @@ import { DocumentEditComponent } from './components/document-edit/document-edit.
 import { DochistoryComponent } from './components/dochistory/dochistory.component';
 import { CommentsModule } from '../comments/comments.module';
 
-import { routes } from './docedit.routing';
+import { routes } from './document.routing';
 
 @NgModule({
   imports: [
@@ -56,8 +56,7 @@ import { routes } from './docedit.routing';
   ],
   entryComponents: [
   	DocEditPageComponent
-  ],
-  schemas: [ NO_ERRORS_SCHEMA ]
+  ]
 })
-export class DocEditModule {
+export class DocumentModule {
 }

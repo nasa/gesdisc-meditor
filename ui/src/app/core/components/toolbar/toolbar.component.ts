@@ -15,7 +15,6 @@ import { Component, Output, EventEmitter } from '@angular/core';
       <a href="" class="toolbar-btn">
         Help
       </a>
-      <med-login></med-login>
     </mat-toolbar>
   `,
   styles: [`

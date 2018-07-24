@@ -15,7 +15,7 @@ export const routes: Routes = [
 	},
 	{
 		path: 'document',
-		loadChildren: './docedit/docedit.module#DocEditModule'
+		loadChildren: './document/document.module#DocumentModule'
 	},
 		{ path: '**', component: NotFoundPageComponent },
 	];

@@ -14,7 +14,6 @@ describe('Search Page', () => {
 	let fixture: ComponentFixture<SearchPageComponent>;
 	let store: Store<fromRoot.State>;
 	let instance: SearchPageComponent;
-	let activatedRoute: ActivatedRouteStub;
 
 	beforeEach(() => {
 		TestBed.configureTestingModule({
@@ -28,15 +27,10 @@ describe('Search Page', () => {
 			declarations: [
 				SearchPageComponent
 			],
-			schemas: [ NO_ERRORS_SCHEMA ],
-			// providers: [
-			// 	{ provide: ActivatedRoute, useClass: ActivatedRouteStub}
-			// ]
+			schemas: [ NO_ERRORS_SCHEMA ]
 		});
 
 		fixture = TestBed.createComponent(SearchPageComponent);
-		// activatedRoute = fixture.debugElement.injector.get(ActivatedRoute) as any;
-  	// activatedRoute.setParamMap({ byType: 'test'});
 		instance = fixture.componentInstance;
 		store = TestBed.get(Store);
 
@@ -48,13 +42,12 @@ describe('Search Page', () => {
 		expect(fixture).toMatchSnapshot();
 	});
 
-	// TO DO Finda a proper way to test ngOnInit with queryparams
+	// TO DO Find a a proper way to test ngOnInit with queryparams
 
   it('should dispatch a Model.SelectModel on init', () => {
     const selectAction = new Model.SelectModel('test');
 
     instance.selectModel('test');
-    // fixture.detectChanges();
 
     expect(store.dispatch).toHaveBeenCalledWith(selectAction);
   });
@@ -63,7 +56,6 @@ describe('Search Page', () => {
     const searchAction = new Results.Search('test');
 
     instance.loadSearchResults('test');
-    // fixture.detectChanges();
 
     expect(store.dispatch).toHaveBeenCalledWith(searchAction);
   });

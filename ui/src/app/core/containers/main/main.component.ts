@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { Store, select } from '@ngrx/store';
 
 
-import * as fromModel from '../../../reducers';
+import * as fromModel from '../../../state/app.state';
 import * as Model from '../../actions/model.actions';
 
 @Component({

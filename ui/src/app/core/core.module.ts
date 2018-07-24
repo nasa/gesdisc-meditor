@@ -17,12 +17,11 @@ import { EffectsModule } from '@ngrx/effects';
 import { ModelEffects } from './effects/model.effects';
 import { NotificationEffects } from './effects/notification.effects';
 
-import { reducers } from '../reducers';
+import { reducer } from './reducers/model.reducer';
 
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
 
-import { AuthModule } from '../auth/auth.module';
-import { SearchModule } from '../search/search.module';
+// import { AuthModule } from '../auth/auth.module';
 import { PipesModule } from '../shared/pipes';
 
 
@@ -42,7 +41,8 @@ export const COMPONENTS = [
 		FlexLayoutModule,
 		AngularFontAwesomeModule,
 		PipesModule,
-		AuthModule.forRoot(),
+		// AuthModule.forRoot(),
+		StoreModule.forFeature('models', reducer),
 		EffectsModule.forFeature([ModelEffects, NotificationEffects]),
 	],
 	declarations: COMPONENTS,

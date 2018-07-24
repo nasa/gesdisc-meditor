@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 
 import { Store, select } from '@ngrx/store';
 
-import * as fromModel from '../../../reducers';
+import * as fromModel from '../../../state/app.state';
 
 
 @Component({
