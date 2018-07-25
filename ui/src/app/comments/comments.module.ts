@@ -4,9 +4,13 @@ import { MaterialModule } from '../material';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxAutoScrollModule } from "ngx-auto-scroll";
 
+import { StoreModule } from '@ngrx/store';
+import { EffectsModule } from '@ngrx/effects';
+
+import { reducers, effects } from './store';
+
 import { CommentComponent } from './components/comment/comment.component';
-
-
+import { CommentsComponent } from './containers/comments.component';
 
 @NgModule({
   imports: [
@@ -14,11 +18,13 @@ import { CommentComponent } from './components/comment/comment.component';
     MaterialModule,
     FormsModule,
     ReactiveFormsModule,
-    NgxAutoScrollModule
+    NgxAutoScrollModule,
+    StoreModule.forFeature('comments', reducers),
+		EffectsModule.forFeature(effects),
   ],
   exports: [
-  	CommentComponent
+  	CommentsComponent
   ],
-  declarations: [ CommentComponent ]
+  declarations: [ CommentComponent, CommentsComponent ]
 })
 export class CommentsModule { }

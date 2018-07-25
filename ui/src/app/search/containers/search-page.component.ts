@@ -1,15 +1,13 @@
 import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 
-import * as fromSearch from '../reducers';
-import * as fromRoot from '../../state/app.state';
+import * as fromSearch from '../store';
+import * as fromApp from '../../store';
 import { Store, select } from '@ngrx/store';
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs/Observable';
 import { ModelCatalogEntry } from '../../service/model/modelCatalogEntry';
 import { DocCatalogEntry } from '../../service/model/docCatalogEntry';
 import { Router, ActivatedRoute, Params } from '@angular/router';
-import * as Models from '../../core/actions/model.actions';
-import * as Results from '../actions/result.actions';
 
 @Component({
 	selector: 'med-search-page',
@@ -44,14 +42,14 @@ export class SearchPageComponent implements OnInit {
 	params: any;
 
 	constructor(
-		private store: Store<fromSearch.SearchState>,
-		private rootStore: Store<fromRoot.State>,
+		private store: Store<fromSearch.State>,
+		private rootStore: Store<fromApp.AppState>,
 		private router: Router,
 		private route: ActivatedRoute
 	) {
-		this.models$ = rootStore.pipe(select(fromRoot.getNonAdminModels));
+		this.models$ = rootStore.pipe(select(fromApp.getNonAdminModels));
+		this.selectedModel$ = rootStore.pipe(select(fromApp.selectCurrentModel));
 		this.results$ = store.pipe(select(fromSearch.selectAllResults));
-		this.selectedModel$ = rootStore.pipe(select(fromRoot.selectCurrentModel));
 	}
 
 	ngOnInit() {
@@ -64,12 +62,12 @@ export class SearchPageComponent implements OnInit {
 	}
 
 	selectModel(type: any) {
-		this.store.dispatch(new Models.SelectModel(type));
-		this.store.dispatch(new Models.LoadSelectedModel(type));
+		this.store.dispatch(new fromApp.SelectModel(type));
+		this.store.dispatch(new fromApp.LoadSelectedModel(type));
 	}
 
 	loadSearchResults(type: any) {
-		this.store.dispatch(new Results.Search(type));
+		this.store.dispatch(new fromSearch.Search(type));
 	}
 
 	selectAndChange(event: any) {

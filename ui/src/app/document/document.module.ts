@@ -5,15 +5,10 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { MaterialModule } from '../material';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { NO_ERRORS_SCHEMA } from '@angular/core';
-
 import { StoreModule } from '@ngrx/store';
-import { reducers } from './reducers/index';
-
 import { EffectsModule } from '@ngrx/effects';
-import { DocumentEffects } from './effects/document.effects';
-import { HistoryEffects } from './effects/history.effects';
-import { CommentsEffects } from '../comments/effects/comments.effects';
+
+import { reducers, effects } from './store';
 
 import {
   JsonSchemaFormModule, MaterialDesignFrameworkModule, MaterialDesignFramework,
@@ -36,7 +31,7 @@ import { routes } from './document.routing';
 		ReactiveFormsModule,
     RouterModule.forChild(routes),
     StoreModule.forFeature('documentData', reducers),
-		EffectsModule.forFeature([DocumentEffects, HistoryEffects, CommentsEffects]),
+		EffectsModule.forFeature(effects),
     MaterialDesignFrameworkModule,
     CommentsModule,
     {

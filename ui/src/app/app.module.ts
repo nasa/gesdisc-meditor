@@ -14,7 +14,7 @@ import {
 } from '@ngrx/router-store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
-import { reducers } from './state/app.state';
+import { reducers, effects } from './store';
 import { CoreModule } from './core/core.module';
 // import { AuthModule } from './auth/auth.module';
 import { ApiModule } from './service/api.module';
@@ -44,7 +44,7 @@ import { routes } from './routes';
 		 * based application.
 		 */
 		StoreModule.forRoot(reducers),
-
+		EffectsModule.forRoot(effects),
 		/**
 		 * @ngrx/router-store keeps router state up-to-date in the store.
 		 */
@@ -78,7 +78,6 @@ import { routes } from './routes';
 		 *
 		 * See: https://github.com/ngrx/platform/blob/master/docs/effects/api.md#forroot
 		 */
-		EffectsModule.forRoot([]),
 		CoreModule.forRoot(),
 		// AuthModule.forRoot(),
 		ApiModule
