@@ -42,13 +42,13 @@ export class SearchPageComponent implements OnInit {
 	params: any;
 
 	constructor(
-		private store: Store<fromSearch.State>,
-		private rootStore: Store<fromApp.AppState>,
+		private store: Store<fromApp.AppState>,
+		//private rootStore: Store<fromApp.AppState>,
 		private router: Router,
 		private route: ActivatedRoute
 	) {
-		this.models$ = rootStore.pipe(select(fromApp.getNonAdminModels));
-		this.selectedModel$ = rootStore.pipe(select(fromApp.selectCurrentModel));
+		this.models$ = store.pipe(select(fromApp.getNonAdminModels));
+		this.selectedModel$ = store.pipe(select(fromApp.selectCurrentModel));
 		this.results$ = store.pipe(select(fromSearch.selectAllResults));
 	}
 
