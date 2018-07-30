@@ -4,6 +4,8 @@ import { ModelCatalogEntry } from '../../service/model/modelCatalogEntry';
 import { Model } from '../../service/model/model';
 
 export interface State extends EntityState<ModelCatalogEntry> {
+	loaded: boolean;
+  loading: boolean;
 	selectedModelId: string;
 	selectedModel: Model;
 }
@@ -14,6 +16,8 @@ export const adapter: EntityAdapter<ModelCatalogEntry> = createEntityAdapter<Mod
 });
 
 export const initialState: State = adapter.getInitialState({
+	loaded: false,
+  loading: false,
 	selectedModelId: 'Alerts',
 	selectedModel: {
 		name: '',
@@ -29,8 +33,18 @@ export function reducer(
 	action: ModelActionsUnion
 ): State {
 	switch (action.type) {
+		case ModelActionTypes.LoadModels:
+			return {
+				...state,
+				loading: true
+			};
+
 		case ModelActionTypes.LoadModelsComplete:
-			return adapter.addMany(action.payload, state);
+			return adapter.addMany(action.payload, {
+				...state,
+				loaded: true,
+				loading: false
+			});
 
 		case ModelActionTypes.SelectModel:
 			return {
@@ -51,6 +65,8 @@ export function reducer(
 
 export const getSelectedId = (state: State) => state.selectedModelId;
 export const getSelectedModel = (state: State) => state.selectedModel;
+export const getLoaded = (state: State) => state.loaded;
+export const getLoading = (state: State) => state.loading;
 
 export const {
   selectIds: selectModelIds,

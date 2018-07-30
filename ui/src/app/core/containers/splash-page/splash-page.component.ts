@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ModelCatalogEntry } from '../../../service/model/modelCatalogEntry';
 import { Observable } from 'rxjs/Observable';
-import { Router } from '@angular/router';
 
 import { Store, select } from '@ngrx/store';
 
@@ -18,8 +17,7 @@ export class SplashPageComponent implements OnInit{
 	adminModels$: Observable<ModelCatalogEntry[]>;
 
 	constructor(
-		private store: Store<fromApp.AppState>,
-		private router: Router
+		private store: Store<fromApp.AppState>
 	) {
 		this.models$ = store.pipe(select(fromApp.getNonAdminModels));
 		this.adminModels$ = store.pipe(select(fromApp.getAdminModels));
@@ -30,7 +28,9 @@ export class SplashPageComponent implements OnInit{
 	}
 
 	goToSearchPage(event: any) {
-		this.router.navigate(['/search'], {queryParams: { model: event.name }});
+		this.store.dispatch(new fromApp.SelectModel(event.name));
+		this.store.dispatch(new fromApp.LoadSelectedModel(event.name));
+		this.store.dispatch(new fromApp.Go({path: ['/search'], query: { model: event.name}}))
 	}
 
 }

@@ -15,12 +15,15 @@ import {
   WidgetLibraryService, FrameworkLibraryService, JsonSchemaFormService, Framework
 } from 'angular2-json-schema-form';
 
-import { DocEditPageComponent } from './containers/docedit-page.component';
+import { DocEditPageComponent } from './containers/docedit/docedit-page.component';
+import { DocNewPageComponent } from './containers/docnew/docnew-page.component';
+
 import { DocumentEditComponent } from './components/document-edit/document-edit.component';
 import { DochistoryComponent } from './components/dochistory/dochistory.component';
 import { CommentsModule } from '../comments/comments.module';
 
 import { routes } from './document.routing';
+import { DocumentExistsGuard } from './store/guards/document-exists.guard';
 
 @NgModule({
   imports: [
@@ -45,10 +48,12 @@ import { routes } from './document.routing';
     }
   ],
   declarations: [
-  	DocEditPageComponent,
+    DocEditPageComponent,
+    DocNewPageComponent,
   	DocumentEditComponent,
   	DochistoryComponent
   ],
+  providers: [ DocumentExistsGuard ],
   entryComponents: [
   	DocEditPageComponent
   ]

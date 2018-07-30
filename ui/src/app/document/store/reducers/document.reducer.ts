@@ -2,11 +2,11 @@ import { Document } from '../../../service/model/document';
 import { DocumentActionsUnion, DocumentActionTypes } from '../actions/document.actions';
 
 export interface State {
-  currentDocument: Document;
+	currentDocument: Document;
 }
 
 const initialState: State = {
-  currentDocument: {},
+	currentDocument: {}
 };
 
 
@@ -14,9 +14,9 @@ export function reducer(
 	state: State = initialState,
 	action: DocumentActionsUnion
 ): State {
-	switch (action.type) {
-		case DocumentActionTypes.LoadDocumentComplete: {
-
+	switch (action.type) {		
+		case DocumentActionTypes.LoadDocumentComplete:
+	  case DocumentActionTypes.LoadVersionComplete: {
 			return { currentDocument: action.payload};
 		}
 
@@ -27,5 +27,3 @@ export function reducer(
 }
 
 export const getDocument = (state: State) => state.currentDocument;
-
-

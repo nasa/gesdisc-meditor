@@ -30,6 +30,15 @@ export const getCurrentModel= createSelector(
   fromModel.getSelectedModel
 );
 
+export const getModelsLoaded = createSelector(
+  getModelState,
+  fromModel.getLoaded
+);
+export const getModelsLoading = createSelector(
+  getModelState,
+  fromModel.getLoading
+);
+
 export const getAdminModels = createSelector(
 	getAllModels,
 	(allModels) => allModels.filter(m => { return m.category == 'Admin'})

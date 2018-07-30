@@ -14,10 +14,15 @@ import {
 	DocumentActionsUnion,
 	LoadDocument,
 	LoadDocumentComplete,
+	LoadVersion,
+	LoadVersionComplete,
 	SubmitDocument,
 	SubmitDocumentComplete
 } from '../actions/document.actions';
-import { NotificationOpen } from '../../../store';
+import {
+	LoadHistory
+} from '../actions/history.actions';
+import { NotificationOpen, Go } from '../../../store';
 
 import { Document } from '../../../service/model/document';
 
@@ -37,18 +42,30 @@ import { Document } from '../../../service/model/document';
 export class DocumentEffects {
 
 	@Effect()
-	load$: Observable<Action> = this.actions$.pipe(
-		ofType<LoadDocument>(DocumentActionTypes.LoadDocument),
+	loadVersion$: Observable<Action> = this.actions$.pipe(
+		ofType<LoadVersion>(DocumentActionTypes.LoadVersion),
 		map(action => action.payload),
 		switchMap(payload =>
 			this.documentService
 				.getDocument(payload.model, payload.title, payload.version)
 				.pipe(
-					switchMap((document: Document) =>  of(new LoadDocumentComplete(document))),
+					switchMap((document: Document) =>[
+						new LoadVersionComplete(document),
+						new NotificationOpen({message: 'Document loaded', config: 'success'})
+					]), 
 					catchError(err => of(new NotificationOpen({message: err.statusText, config: 'failure'})))
 				)
 		)
 	);
+
+	// @Effect()
+	// loadComplete$: Observable<Action> = this.actions$.pipe(
+	// 	ofType<LoadDocumentComplete>(DocumentActionTypes.LoadDocumentComplete),
+	// 	map(action => action.payload),
+	// 	switchMap(payload => {console.log(payload);
+	// 		return of(new LoadHistory({model: payload['x-meditor'].model, title: payload.doc['abstract']}))}), 
+	// 	catchError(err => of(new NotificationOpen({message: err.statusText, config: 'failure'})))
+	// );
 
 	@Effect()
 	submit$: Observable<Action> = this.actions$.pipe(
@@ -60,6 +77,7 @@ export class DocumentEffects {
 				.pipe(
 					switchMap(res => [
 						new SubmitDocumentComplete(),
+						new Go({path: ['/document/edit'], query: { model: payload['x-meditor'].model, title: payload.title }}),						
 						new NotificationOpen({message: "Document added", config: 'success'})
 					]),
 					catchError(err => of(new NotificationOpen({message: err.statusText, config: 'failure'})))

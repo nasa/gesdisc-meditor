@@ -7,7 +7,6 @@ import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs/Observable';
 import { ModelCatalogEntry } from '../../service/model/modelCatalogEntry';
 import { DocCatalogEntry } from '../../service/model/docCatalogEntry';
-import { Router, ActivatedRoute, Params } from '@angular/router';
 
 @Component({
 	selector: 'med-search-page',
@@ -37,15 +36,12 @@ export class SearchPageComponent implements OnInit {
 
 	models$: Observable<ModelCatalogEntry[]>;
 	selectedModel$: Observable<ModelCatalogEntry>;
+	selectedModelName: string;
 	results$: Observable<DocCatalogEntry[]>;
 	filteredResults$: Observable<DocCatalogEntry[]>;
-	params: any;
 
 	constructor(
-		private store: Store<fromApp.AppState>,
-		//private rootStore: Store<fromApp.AppState>,
-		private router: Router,
-		private route: ActivatedRoute
+		private store: Store<fromApp.AppState>
 	) {
 		this.models$ = store.pipe(select(fromApp.getNonAdminModels));
 		this.selectedModel$ = store.pipe(select(fromApp.selectCurrentModel));
@@ -53,30 +49,17 @@ export class SearchPageComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this.route.queryParams.subscribe((params: Params) => {
-			this.params = params;
-			this.selectModel(params['model']);
-			this.loadSearchResults(params['model']);
-		});
+		this.selectedModel$.subscribe(model => {
+			this.selectedModelName = model.name;
+			this.store.dispatch(new fromSearch.Search(this.selectedModelName));
+		})
 		this.filteredResults$ = this.results$;
 	}
-
-	selectModel(type: any) {
-		this.store.dispatch(new fromApp.SelectModel(type));
-		this.store.dispatch(new fromApp.LoadSelectedModel(type));
-	}
-
-	loadSearchResults(type: any) {
-		this.store.dispatch(new fromSearch.Search(type));
-	}
-
+	
 	selectAndChange(event: any) {
-		this.selectModel(event);
-		this.changeQueryByType(event);
-	}
-
-	changeQueryByType(type: any) {
-		this.router.navigate(['.'], { relativeTo: this.route, queryParams: { model: type }});
+		this.store.dispatch(new fromApp.SelectModel(event));
+		this.store.dispatch(new fromApp.LoadSelectedModel(event));
+		this.store.dispatch(new fromApp.Go({path: ['/search'], query: { model: event}}));
 	}
 
 	searchChanged(event: string) {
@@ -84,7 +67,7 @@ export class SearchPageComponent implements OnInit {
 	}
 
 	addNewDocument() {
-		this.router.navigate(['/document/edit'], {queryParams: { new: true, model: this.params['model'] }});
+		this.store.dispatch(new fromApp.Go({path: ['/document/new'], query: { model: this.selectedModelName}}))
 	}
 
 }

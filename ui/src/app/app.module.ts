@@ -26,6 +26,7 @@ import { BASE_PATH } from './service';
 import { environment } from '../environments/environment';
 
 import { routes } from './routes';
+import { ModelsExistsGuard } from './store/guards/models-exists.guard';
 
 @NgModule({
 	imports: [
@@ -89,7 +90,8 @@ import { routes } from './routes';
 		 * by `@ngrx/router-store` to include only the desired pieces of the snapshot.
 		 */
 		{ provide: RouterStateSerializer, useClass: CustomRouterStateSerializer },
-		{ provide: BASE_PATH, useValue: environment.API_BASE_PATH }
+		{ provide: BASE_PATH, useValue: environment.API_BASE_PATH },
+		ModelsExistsGuard
 	],
 	bootstrap: [ MainComponent ]
 })
