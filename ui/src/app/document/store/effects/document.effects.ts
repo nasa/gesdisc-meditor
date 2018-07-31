@@ -42,6 +42,20 @@ import { Document } from '../../../service/model/document';
 export class DocumentEffects {
 
 	@Effect()
+	loadDocument$: Observable<Action> = this.actions$.pipe(
+		ofType<LoadDocument>(DocumentActionTypes.LoadDocument),
+		map(action => action.payload),
+		switchMap(payload =>
+			this.documentService
+				.getDocument(payload.model, payload.title)
+				.pipe(
+					switchMap((document: Document) => of(new LoadDocumentComplete(document))), 
+					catchError(err => of(new NotificationOpen({message: err.statusText, config: 'failure'})))
+				)
+		)
+	);
+
+	@Effect()
 	loadVersion$: Observable<Action> = this.actions$.pipe(
 		ofType<LoadVersion>(DocumentActionTypes.LoadVersion),
 		map(action => action.payload),

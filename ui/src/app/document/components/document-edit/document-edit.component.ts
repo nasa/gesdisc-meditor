@@ -12,11 +12,15 @@ export class DocumentEditComponent implements OnInit {
 	set document(document: any) {
 		if(document.schema) {
 			let schemaString = document.schema.replace('\'', '');
-			let layoutString = document.layout.replace('\'', '');
 			this.schema = JSON.parse(schemaString);
-			this.layout = JSON.parse(layoutString);
-			this.data = document.doc;
 		}
+
+		if(document.layout) {
+			let layoutString = document.layout.replace('\'', '');
+			this.layout = JSON.parse(layoutString);
+		}
+
+		this.data = document.doc;
 	}
 
 	@Output() submitDocument = new EventEmitter<object>();
@@ -25,7 +29,7 @@ export class DocumentEditComponent implements OnInit {
 	jsonFormOptions = {};
 	schema =  {};
 	data = {};
-	layout = [];
+	layout = undefined;
 
 	submittedFormData = {};
 	liveFormData = {};

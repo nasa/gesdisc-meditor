@@ -18,8 +18,6 @@ export class DocNewPageComponent implements OnInit {
 	titleProperty: string;
 	model$: Observable<Model>;
 
-  
-
 	constructor(		
 		private store: Store<fromApp.AppState>
 	) {

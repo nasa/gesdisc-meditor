@@ -2,13 +2,13 @@ import { Routes } from '@angular/router';
 
 import { DocEditPageComponent } from './containers/docedit/docedit-page.component';
 import { DocNewPageComponent } from './containers/docnew/docnew-page.component';
-import { DocumentExistsGuard } from './store/guards/document-exists.guard';
+import { DocumentResolver } from './store/guards/docedit.resolver';
 
 export const routes: Routes = [
 	{ path: 'new',component: DocNewPageComponent },
 	{ 
 		path: 'edit', 
-		canActivate: [ DocumentExistsGuard ],
+		resolve: [ DocumentResolver ],
 		component: DocEditPageComponent 
 	}
 ];

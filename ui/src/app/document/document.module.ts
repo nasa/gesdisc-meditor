@@ -20,10 +20,10 @@ import { DocNewPageComponent } from './containers/docnew/docnew-page.component';
 
 import { DocumentEditComponent } from './components/document-edit/document-edit.component';
 import { DochistoryComponent } from './components/dochistory/dochistory.component';
-import { CommentsModule } from '../comments/comments.module';
+// import { CommentsModule } from '../comments/comments.module';
 
 import { routes } from './document.routing';
-import { DocumentExistsGuard } from './store/guards/document-exists.guard';
+import { DocumentResolver } from './store/guards/docedit.resolver';
 
 @NgModule({
   imports: [
@@ -36,7 +36,7 @@ import { DocumentExistsGuard } from './store/guards/document-exists.guard';
     StoreModule.forFeature('documentData', reducers),
 		EffectsModule.forFeature(effects),
     MaterialDesignFrameworkModule,
-    CommentsModule,
+    // CommentsModule,
     {
       ngModule: JsonSchemaFormModule,
       providers: [
@@ -53,7 +53,7 @@ import { DocumentExistsGuard } from './store/guards/document-exists.guard';
   	DocumentEditComponent,
   	DochistoryComponent
   ],
-  providers: [ DocumentExistsGuard ],
+  providers: [ DocumentResolver ],
   entryComponents: [
   	DocEditPageComponent
   ]
