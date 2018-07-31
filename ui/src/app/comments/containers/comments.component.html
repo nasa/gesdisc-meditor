@@ -1,0 +1,36 @@
+<button type="submit" mat-raised-button (click)="toggleForm()" *ngIf="!showForm" class="new-comment-button">
+  <mat-icon>comment</mat-icon>
+  New comment
+</button>
+<button mat-raised-button (click)="close()" class="close-sidenav-button" color="warn">
+  <mat-icon>close</mat-icon>
+  Close
+</button>
+<button mat-raised-button (click)="toggleResolvedComments()" class="resolved-sidenav-button">
+  <mat-icon>{{ showResolved ? 'visibility_off' : 'visibility' }}</mat-icon>
+  {{ showResolved ? 'Hide resolved': 'Show all'}}
+</button>
+<mat-card class="reply-card" *ngIf="showForm">
+  <mat-card-content>
+    <mat-form-field class="reply-form-field">
+      <textarea matInput placeholder="Comment" [(ngModel)]="commentText"></textarea>
+    </mat-form-field>
+   </mat-card-content>
+  <mat-card-actions>
+    <button mat-raised-button class="action-button" (click)="submitComment()">
+      <mat-icon>send</mat-icon>
+      Send
+    </button>
+    <button mat-raised-button class="action-button" color="warn" (click)="toggleForm()">
+      <mat-icon>cancel</mat-icon>
+      Cancel
+    </button>
+  </mat-card-actions>
+</mat-card>
+<med-comment
+  [comments]="comments$ | async"
+  [tree]="true"
+  [showResolved]="showResolved"
+  (resolveComment)="resolveComment($event)"
+  (replyComment)="submitComment($event.text, $event.parentId)">
+</med-comment>

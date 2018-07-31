@@ -14,6 +14,7 @@ import {
 } from '@ngrx/router-store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
+import { reducers, effects } from './store';
 import { CoreModule } from './core/core.module';
 // import { AuthModule } from './auth/auth.module';
 import { ApiModule } from './service/api.module';
@@ -24,10 +25,8 @@ import { MainComponent } from './core/containers/main/main.component';
 import { BASE_PATH } from './service';
 import { environment } from '../environments/environment';
 
-
 import { routes } from './routes';
-import { reducers, metaReducers } from './reducers';
-
+import { ModelsExistsGuard } from './store/guards/models-exists.guard';
 
 @NgModule({
 	imports: [
@@ -45,8 +44,8 @@ import { reducers, metaReducers } from './reducers';
 		 * meta-reducer. This returns all providers for an @ngrx/store
 		 * based application.
 		 */
-		StoreModule.forRoot(reducers, { metaReducers }),
-
+		StoreModule.forRoot(reducers),
+		EffectsModule.forRoot(effects),
 		/**
 		 * @ngrx/router-store keeps router state up-to-date in the store.
 		 */
@@ -80,7 +79,6 @@ import { reducers, metaReducers } from './reducers';
 		 *
 		 * See: https://github.com/ngrx/platform/blob/master/docs/effects/api.md#forroot
 		 */
-		EffectsModule.forRoot([]),
 		CoreModule.forRoot(),
 		// AuthModule.forRoot(),
 		ApiModule
@@ -93,7 +91,7 @@ import { reducers, metaReducers } from './reducers';
 		 */
 		{ provide: RouterStateSerializer, useClass: CustomRouterStateSerializer },
 		{ provide: BASE_PATH, useValue: environment.API_BASE_PATH },
-		// ContentTypeService
+		ModelsExistsGuard
 	],
 	bootstrap: [ MainComponent ]
 })

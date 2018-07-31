@@ -35,7 +35,7 @@ export interface Model {
     /**
      * Property name in the Model's schema for using as title of the document instance of the model
      */
-    titleField?: string;
+    titleProperty?: string;
     /**
      * Any documentation (text) for the Model
      */
