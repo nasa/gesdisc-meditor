@@ -49,6 +49,19 @@ module.exports.getDocumentHistory = function getDocumentHistory (req, res, next)
     });
 };
 
+module.exports.getDocumentImage = function getDocumentImage (req, res, next) {
+  var model = req.swagger.params['model'].value;
+  var title = req.swagger.params['title'].value;
+  var version = req.swagger.params['version'].value;
+  Default.getDocumentImage(model,title,version)
+    .then(function (response) {
+      utils.writeJson(res, response);
+    })
+    .catch(function (response) {
+      utils.writeJson(res, response);
+    });
+};
+
 module.exports.getMe = function getMe (req, res, next) {
   Default.getMe()
     .then(function (response) {
@@ -126,7 +139,8 @@ module.exports.postComment = function postComment (req, res, next) {
 
 module.exports.putDocument = function putDocument (req, res, next) {
   var file = req.swagger.params['file'].value;
-  Default.putDocument(file)
+  var image = req.swagger.params['image'].value;
+  Default.putDocument(file,image)
     .then(function (response) {
       utils.writeJson(res, response);
     })

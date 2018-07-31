@@ -170,6 +170,11 @@ paths:
         description: "Uploaded document file (JSON)"
         required: true
         type: "file"
+      - name: "image"
+        in: "formData"
+        description: "Uploaded image file (binary)"
+        required: false
+        type: "file"
       responses:
         200:
           description: "Successful response"
@@ -386,6 +391,57 @@ paths:
             $ref: "#/definitions/error"
       security: []
       x-swagger-router-controller: "Meditor"
+  /getDocumentImage:
+    get:
+      summary: "Gets an image associated with a document"
+      description: "Gets an image associated with a document"
+      operationId: "getDocumentImage"
+      produces:
+      - "image/jpeg"
+      - "image/jpg"
+      - "image/png"
+      - "image/gif"
+      - "image/tiff"
+      parameters:
+      - name: "model"
+        in: "query"
+        description: "Name of the Model"
+        required: true
+        type: "string"
+      - name: "title"
+        in: "query"
+        description: "Title of the document"
+        required: true
+        type: "string"
+      - name: "version"
+        in: "query"
+        description: "Version of the document"
+        required: false
+        type: "string"
+        default: "latest"
+      responses:
+        200:
+          description: "Successful response"
+          schema:
+            type: "file"
+        400:
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/error"
+        422:
+          description: "Invalid syntax"
+          schema:
+            $ref: "#/definitions/error"
+        500:
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/error"
+        503:
+          description: "Service not available"
+          schema:
+            $ref: "#/definitions/error"
+      security: []
+      x-swagger-router-controller: "Meditor"
   /login:
     get:
       summary: "Login"
@@ -425,6 +481,7 @@ paths:
       summary: "Logout"
       description: "Logs out the user"
       operationId: "logout"
+      parameters: []
       responses:
         200:
           description: "Successful response"
@@ -453,6 +510,7 @@ paths:
       summary: "Gets user info"
       description: "Gets user info"
       operationId: "getMe"
+      parameters: []
       responses:
         200:
           description: "Successful response"
@@ -480,6 +538,7 @@ paths:
       summary: "Gets a new csrf token"
       description: "Gets a new csrf token"
       operationId: "getCsrfToken"
+      parameters: []
       responses:
         200:
           description: "Successful response"

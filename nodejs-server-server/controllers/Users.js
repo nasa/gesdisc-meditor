@@ -229,7 +229,6 @@ module.exports.getCsrfToken = function getCsrfToken(req, res, next) {
 };
 
 module.exports.init = function(app) {
-  console.log('init');
   app.use(helmet({noCache: true}));
   app.use(cookieParser());
   app.use(session({

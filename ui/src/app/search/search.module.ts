@@ -10,11 +10,10 @@ import { MaterialModule } from '../material';
 import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { StoreModule } from '@ngrx/store';
-
-import { reducer } from './reducers/results.reducer';
-
 import { EffectsModule } from '@ngrx/effects';
-import { ResultEffects } from './effects/result.effects';
+
+import { reducers, effects } from './store';
+
 import { SearchStatusComponent } from './components/search-status/search-status.component';
 
 import { routes } from './search.routing';
@@ -27,8 +26,8 @@ import { routes } from './search.routing';
 		MaterialModule,
 		FlexLayoutModule,
 		RouterModule.forChild(routes),
-		StoreModule.forFeature('results', reducer),
-		EffectsModule.forFeature([ResultEffects]),
+		StoreModule.forFeature('search', reducers),
+		EffectsModule.forFeature(effects),
 	],
 	declarations: [
 		SearchBarComponent,
