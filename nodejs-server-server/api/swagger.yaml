@@ -386,6 +386,122 @@ paths:
             $ref: "#/definitions/error"
       security: []
       x-swagger-router-controller: "Meditor"
+  /login:
+    get:
+      summary: "Login"
+      description: "Logs in a user  "
+      operationId: "login"
+      parameters:
+      - name: "code"
+        in: "query"
+        description: "URS authentication code"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "Successful response"
+          schema:
+            $ref: "#/definitions/success"
+        400:
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/error"
+        422:
+          description: "Invalid syntax"
+          schema:
+            $ref: "#/definitions/error"
+        500:
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/error"
+        503:
+          description: "Service not available"
+          schema:
+            $ref: "#/definitions/error"
+      security: []
+      x-swagger-router-controller: "Users"
+  /logout:
+    get:
+      summary: "Logout"
+      description: "Logs out the user"
+      operationId: "logout"
+      responses:
+        200:
+          description: "Successful response"
+          schema:
+            $ref: "#/definitions/success"
+        400:
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/error"
+        422:
+          description: "Invalid syntax"
+          schema:
+            $ref: "#/definitions/error"
+        500:
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/error"
+        503:
+          description: "Service not available"
+          schema:
+            $ref: "#/definitions/error"
+      security: []
+      x-swagger-router-controller: "Users"
+  /me:
+    get:
+      summary: "Gets user info"
+      description: "Gets user info"
+      operationId: "getMe"
+      responses:
+        200:
+          description: "Successful response"
+          schema:
+            $ref: "#/definitions/user"
+        400:
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/error"
+        422:
+          description: "Invalid syntax"
+          schema:
+            $ref: "#/definitions/error"
+        500:
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/error"
+        503:
+          description: "Service not available"
+          schema:
+            $ref: "#/definitions/error"
+      x-swagger-router-controller: "Users"
+  /getCsrfToken:
+    get:
+      summary: "Gets a new csrf token"
+      description: "Gets a new csrf token"
+      operationId: "getCsrfToken"
+      responses:
+        200:
+          description: "Successful response"
+          schema:
+            $ref: "#/definitions/csrf"
+        400:
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/error"
+        422:
+          description: "Invalid syntax"
+          schema:
+            $ref: "#/definitions/error"
+        500:
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/error"
+        503:
+          description: "Service not available"
+          schema:
+            $ref: "#/definitions/error"
+      x-swagger-router-controller: "Users"
 securityDefinitions:
   URS4:
     type: "oauth2"
@@ -640,3 +756,17 @@ definitions:
     example:
       modifiedOn: "modifiedOn"
       modifiedBy: "modifiedBy"
+  user:
+    properties:
+      name:
+        type: "string"
+        description: "Name of the user"
+    example:
+      name: "John Doe"
+  csrf:
+    properties:
+      csrfToken:
+        type: "string"
+        description: "CSRF token"
+    example:
+      csrfToken: "SFfkaSD-dksfjfjsSKJ33DN-fdS-fSf"

@@ -14,6 +14,16 @@ module.exports.getComments = function getComments (req, res, next) {
     });
 };
 
+module.exports.getCsrfToken = function getCsrfToken (req, res, next) {
+  Default.getCsrfToken()
+    .then(function (response) {
+      utils.writeJson(res, response);
+    })
+    .catch(function (response) {
+      utils.writeJson(res, response);
+    });
+};
+
 module.exports.getDocument = function getDocument (req, res, next) {
   var model = req.swagger.params['model'].value;
   var title = req.swagger.params['title'].value;
@@ -31,6 +41,16 @@ module.exports.getDocumentHistory = function getDocumentHistory (req, res, next)
   var model = req.swagger.params['model'].value;
   var title = req.swagger.params['title'].value;
   Default.getDocumentHistory(model,title)
+    .then(function (response) {
+      utils.writeJson(res, response);
+    })
+    .catch(function (response) {
+      utils.writeJson(res, response);
+    });
+};
+
+module.exports.getMe = function getMe (req, res, next) {
+  Default.getMe()
     .then(function (response) {
       utils.writeJson(res, response);
     })
@@ -64,6 +84,27 @@ module.exports.listDocuments = function listDocuments (req, res, next) {
 module.exports.listModels = function listModels (req, res, next) {
   var properties = req.swagger.params['properties'].value;
   Default.listModels(properties)
+    .then(function (response) {
+      utils.writeJson(res, response);
+    })
+    .catch(function (response) {
+      utils.writeJson(res, response);
+    });
+};
+
+module.exports.login = function login (req, res, next) {
+  var code = req.swagger.params['code'].value;
+  Default.login(code)
+    .then(function (response) {
+      utils.writeJson(res, response);
+    })
+    .catch(function (response) {
+      utils.writeJson(res, response);
+    });
+};
+
+module.exports.logout = function logout (req, res, next) {
+  Default.logout()
     .then(function (response) {
       utils.writeJson(res, response);
     })
