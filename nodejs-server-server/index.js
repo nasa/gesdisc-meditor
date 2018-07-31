@@ -24,6 +24,10 @@ var swaggerDoc = jsyaml.safeLoad(spec);
 // Initialize the Swagger middleware
 swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
   app.use(cors());
+
+  // Init authentication
+  require('./controllers/Users').init(app);
+
   // Interpret Swagger resources and attach metadata to request - must be first in swagger-tools middleware chain
   app.use(middleware.swaggerMetadata());
 

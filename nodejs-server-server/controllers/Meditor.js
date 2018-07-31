@@ -352,7 +352,7 @@ function getListOfDocuments (model,properties) {
   });
 }
 
-//Exported method to list Models
+// Exported method to list Models
 module.exports.listDocuments = function listDocuments (req, res, next) {
   getListOfDocuments (req.swagger.params['model'].value)
   .then(function (response) {

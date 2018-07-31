@@ -22,6 +22,27 @@ exports.getComments = function(title) {
 
 
 /**
+ * Gets a new csrf token
+ * Gets a new csrf token
+ *
+ * returns csrf
+ **/
+exports.getCsrfToken = function() {
+  return new Promise(function(resolve, reject) {
+    var examples = {};
+    examples['application/json'] = {
+  "csrfToken" : "SFfkaSD-dksfjfjsSKJ33DN-fdS-fSf"
+};
+    if (Object.keys(examples).length > 0) {
+      resolve(examples[Object.keys(examples)[0]]);
+    } else {
+      resolve();
+    }
+  });
+}
+
+
+/**
  * Gets a document
  * Gets a document
  *
@@ -71,11 +92,32 @@ exports.getDocumentHistory = function(model,title) {
  * model String Name of the Model
  * title String Title of the document
  * version String Version of the document (optional)
- * returns byte[]
+ * returns File
  **/
 exports.getDocumentImage = function(model,title,version) {
   return new Promise(function(resolve, reject) {
     var examples = {};
+    if (Object.keys(examples).length > 0) {
+      resolve(examples[Object.keys(examples)[0]]);
+    } else {
+      resolve();
+    }
+  });
+}
+
+
+/**
+ * Gets user info
+ * Gets user info
+ *
+ * returns user
+ **/
+exports.getMe = function() {
+  return new Promise(function(resolve, reject) {
+    var examples = {};
+    examples['application/json'] = {
+  "name" : "John Doe"
+};
     if (Object.keys(examples).length > 0) {
       resolve(examples[Object.keys(examples)[0]]);
     } else {
@@ -200,6 +242,51 @@ exports.listModels = function(properties) {
   },
   "tag" : [ "tag", "tag" ]
 } ];
+    if (Object.keys(examples).length > 0) {
+      resolve(examples[Object.keys(examples)[0]]);
+    } else {
+      resolve();
+    }
+  });
+}
+
+
+/**
+ * Login
+ * Logs in a user  
+ *
+ * code String URS authentication code (optional)
+ * returns success
+ **/
+exports.login = function(code) {
+  return new Promise(function(resolve, reject) {
+    var examples = {};
+    examples['application/json'] = {
+  "code" : 0,
+  "description" : "description"
+};
+    if (Object.keys(examples).length > 0) {
+      resolve(examples[Object.keys(examples)[0]]);
+    } else {
+      resolve();
+    }
+  });
+}
+
+
+/**
+ * Logout
+ * Logs out the user
+ *
+ * returns success
+ **/
+exports.logout = function() {
+  return new Promise(function(resolve, reject) {
+    var examples = {};
+    examples['application/json'] = {
+  "code" : 0,
+  "description" : "description"
+};
     if (Object.keys(examples).length > 0) {
       resolve(examples[Object.keys(examples)[0]]);
     } else {
