@@ -10,8 +10,9 @@ import * as Auth from '../actions/auth';
 
 @Component({
 	selector: 'med-login',
-	template:`<a mat-raised-button (click)="login()" color="primary" *ngIf="!loginStatus$">Earthdata Login</a>
-<div *ngIf="(user$ | async) as user" class="user-box">Hi, {{user.name}}</div>`
+	template:`
+	<a mat-raised-button (click)="login()" color="primary" *ngIf="!(loginStatus$ | async)">Earthdata Login</a>
+	<div *ngIf="(user$ | async) as user" class="user-box">Hi, {{user.name}}</div>`
 })
 export class LoginComponent implements OnInit {
 

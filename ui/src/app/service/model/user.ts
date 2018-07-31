@@ -11,12 +11,9 @@
  */
 
 
-export interface Comment {
-    id: string;
-    createdOn: string;
-    createdBy: string;
-    text: string;
-    resolved: boolean;
-    parentId: string;
-    documentId: string;
+export interface User {
+    /**
+     * Name of the user
+     */
+    name?: string;
 }

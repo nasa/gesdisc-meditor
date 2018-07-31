@@ -6,6 +6,7 @@ import { Component, Output, EventEmitter } from '@angular/core';
     <mat-toolbar class="med-toolbar">
       <img src="assets/logo.png" class="logo" routerLink="/" />
       <span class="spacer"></span>
+      <med-login></med-login>
       <a href="" class="toolbar-btn-icon">
       	<mat-icon>home</mat-icon>
       </a>

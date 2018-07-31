@@ -18,10 +18,12 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 
 import { Observable }                                        from 'rxjs/Observable';
 
+import { Csrf } from '../model/csrf';
 import { DocCatalogEntry } from '../model/docCatalogEntry';
 import { Model } from '../model/model';
 import { ModelCatalogEntry } from '../model/modelCatalogEntry';
 import { Success } from '../model/success';
+import { User } from '../model/user';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
@@ -96,6 +98,49 @@ export class DefaultService {
         return this.httpClient.get<any>(`${this.basePath}/getComments`,
             {
                 params: queryParameters,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Gets a new csrf token
+     * Gets a new csrf token
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public getCsrfToken(observe?: 'body', reportProgress?: boolean): Observable<Csrf>;
+    public getCsrfToken(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Csrf>>;
+    public getCsrfToken(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Csrf>>;
+    public getCsrfToken(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+        let headers = this.defaultHeaders;
+
+        // authentication (URS4) required
+        if (this.configuration.accessToken) {
+            let accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+        ];
+        let httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set("Accept", httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        let consumes: string[] = [
+        ];
+
+        return this.httpClient.get<Csrf>(`${this.basePath}/getCsrfToken`,
+            {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
                 observe: observe,
@@ -204,6 +249,111 @@ export class DefaultService {
         return this.httpClient.get<any>(`${this.basePath}/getDocumentHistory`,
             {
                 params: queryParameters,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Gets an image associated with a document
+     * Gets an image associated with a document
+     * @param model Name of the Model
+     * @param title Title of the document
+     * @param version Version of the document
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public getDocumentImage(model: string, title: string, version?: string, observe?: 'body', reportProgress?: boolean): Observable<Blob>;
+    public getDocumentImage(model: string, title: string, version?: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Blob>>;
+    public getDocumentImage(model: string, title: string, version?: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Blob>>;
+    public getDocumentImage(model: string, title: string, version?: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+        if (model === null || model === undefined) {
+            throw new Error('Required parameter model was null or undefined when calling getDocumentImage.');
+        }
+        if (title === null || title === undefined) {
+            throw new Error('Required parameter title was null or undefined when calling getDocumentImage.');
+        }
+
+        let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
+        if (model !== undefined) {
+            queryParameters = queryParameters.set('model', <any>model);
+        }
+        if (title !== undefined) {
+            queryParameters = queryParameters.set('title', <any>title);
+        }
+        if (version !== undefined) {
+            queryParameters = queryParameters.set('version', <any>version);
+        }
+
+        let headers = this.defaultHeaders;
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            'image/jpeg',
+            'image/jpg',
+            'image/png',
+            'image/gif',
+            'image/tiff'
+        ];
+        let httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set("Accept", httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        let consumes: string[] = [
+        ];
+
+        return this.httpClient.get(`${this.basePath}/getDocumentImage`,
+            {
+                params: queryParameters,
+                responseType: "blob",
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Gets user info
+     * Gets user info
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public getMe(observe?: 'body', reportProgress?: boolean): Observable<User>;
+    public getMe(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<User>>;
+    public getMe(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<User>>;
+    public getMe(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+        let headers = this.defaultHeaders;
+
+        // authentication (URS4) required
+        if (this.configuration.accessToken) {
+            let accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+        ];
+        let httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set("Accept", httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        let consumes: string[] = [
+        ];
+
+        return this.httpClient.get<User>(`${this.basePath}/me`,
+            {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
                 observe: observe,
@@ -361,6 +511,83 @@ export class DefaultService {
     }
 
     /**
+     * Login
+     * Logs in a user  
+     * @param code URS authentication code
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public login(code?: string, observe?: 'body', reportProgress?: boolean): Observable<Success>;
+    public login(code?: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Success>>;
+    public login(code?: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Success>>;
+    public login(code?: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+        let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
+        if (code !== undefined) {
+            queryParameters = queryParameters.set('code', <any>code);
+        }
+
+        let headers = this.defaultHeaders;
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+        ];
+        let httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set("Accept", httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        let consumes: string[] = [
+        ];
+
+        return this.httpClient.get<Success>(`${this.basePath}/login`,
+            {
+                params: queryParameters,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * Logout
+     * Logs out the user
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public logout(observe?: 'body', reportProgress?: boolean): Observable<Success>;
+    public logout(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Success>>;
+    public logout(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Success>>;
+    public logout(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+        let headers = this.defaultHeaders;
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+        ];
+        let httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set("Accept", httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        let consumes: string[] = [
+        ];
+
+        return this.httpClient.get<Success>(`${this.basePath}/logout`,
+            {
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
      * Puts comment for document
      * Puts comment for document
      * @param file Uploaded document file (JSON)
@@ -423,13 +650,14 @@ export class DefaultService {
      * Puts a document
      * Puts a document
      * @param file Uploaded document file (JSON)
+     * @param image Uploaded image file (binary)
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public putDocument(file: Blob, observe?: 'body', reportProgress?: boolean): Observable<Success>;
-    public putDocument(file: Blob, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Success>>;
-    public putDocument(file: Blob, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Success>>;
-    public putDocument(file: Blob, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public putDocument(file: Blob, image?: Blob, observe?: 'body', reportProgress?: boolean): Observable<Success>;
+    public putDocument(file: Blob, image?: Blob, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Success>>;
+    public putDocument(file: Blob, image?: Blob, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Success>>;
+    public putDocument(file: Blob, image?: Blob, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
         if (file === null || file === undefined) {
             throw new Error('Required parameter file was null or undefined when calling putDocument.');
         }
@@ -465,6 +693,9 @@ export class DefaultService {
         // use FormData to transmit files using content-type "multipart/form-data"
         // see https://stackoverflow.com/questions/4007969/application-x-www-form-urlencoded-or-multipart-form-data
         useForm = canConsumeForm;
+        // use FormData to transmit files using content-type "multipart/form-data"
+        // see https://stackoverflow.com/questions/4007969/application-x-www-form-urlencoded-or-multipart-form-data
+        useForm = canConsumeForm;
         if (useForm) {
             formParams = new FormData();
         } else {
@@ -473,6 +704,9 @@ export class DefaultService {
 
         if (file !== undefined) {
             formParams = formParams.append('file', <any>file) || formParams;
+        }
+        if (image !== undefined) {
+            formParams = formParams.append('image', <any>image) || formParams;
         }
 
         return this.httpClient.post<Success>(`${this.basePath}/putDocument`,
