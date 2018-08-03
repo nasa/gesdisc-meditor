@@ -33,6 +33,7 @@ export class CommentsComponent implements OnInit {
 	ngOnInit() {	
 	}
 	
+	close() {}
 
 	toggleForm() {
 		this.showForm = !this.showForm;

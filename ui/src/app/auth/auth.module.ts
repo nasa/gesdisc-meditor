@@ -6,6 +6,7 @@ import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { LoginPageComponent } from './containers/login-page.component';
 import { LoginComponent } from './components/login.component';
+import { CallbackComponent } from './components/callback/callback.component'
 import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { AuthService } from './services/auth.service';
@@ -14,7 +15,7 @@ import { AuthEffects } from './effects/auth.effects';
 import { reducers } from './reducers';
 import { MaterialModule } from '../material';
 
-export const COMPONENTS = [LoginComponent, LoginPageComponent];
+export const COMPONENTS = [LoginComponent, LoginPageComponent, CallbackComponent];
 
 @NgModule({
   imports: [CommonModule, ReactiveFormsModule, MaterialModule, FlexLayoutModule],

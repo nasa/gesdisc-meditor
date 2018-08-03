@@ -12,18 +12,18 @@ export interface AppState {
   router: fromRouter.RouterReducerState<RouterStateUrl>;
 }
 
-export const reducers: ActionReducerMap<AppState> = {
+export const reducers: ActionReducerMap<AppState, any> = {
   models: fromModel.reducer,
   notification: fromNotifications.reducer,
   router: fromRouter.routerReducer
 };
 
 // console.log all actions
-export function logger(reducer: ActionReducer<AppState>): ActionReducer<AppState> {
-	return function(state: AppState, action: any): AppState {
-		console.log('state', state);
-		console.log('action', action);
+// export function logger(reducer: ActionReducer<AppState>): ActionReducer<AppState> {
+// 	return function(state: AppState, action: any): AppState {
+// 		console.log('state', state);
+// 		console.log('action', action);
 
-		return reducer(state, action);
-	};
-}
+// 		return reducer(state, action);
+// 	};
+// }

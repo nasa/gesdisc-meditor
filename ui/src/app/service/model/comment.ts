@@ -12,7 +12,7 @@
 
 
 export interface Comment {
-    id: string;
+    _id: string;
     createdOn: string;
     createdBy: string;
     text: string;
