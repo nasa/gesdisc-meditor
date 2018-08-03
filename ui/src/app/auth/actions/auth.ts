@@ -5,6 +5,7 @@ export enum AuthActionTypes {
   GetUser = '[Auth] GetUser',
   Logout = '[Auth] Logout',
   LoginSuccess = '[Auth] Login Success',
+  LoginCallback = '[Auth] Login Callback',
   LoginFailure = '[Auth] Login Failure',
   LoginRedirect = '[Auth] Login Redirect',
 }
@@ -16,7 +17,13 @@ export class GetUser implements Action {
 export class LoginSuccess implements Action {
   readonly type = AuthActionTypes.LoginSuccess;
 
-  constructor(public payload: { user: User }) {}
+  constructor(public payload: User) {}
+}
+
+export class LoginCallback implements Action {
+  readonly type = AuthActionTypes.LoginCallback;
+
+  constructor(public payload: string) {}
 }
 
 export class LoginFailure implements Action {
@@ -36,6 +43,7 @@ export class Logout implements Action {
 export type AuthActions =
   | GetUser
   | LoginSuccess
+  | LoginCallback
   | LoginFailure
   | LoginRedirect
   | Logout;
