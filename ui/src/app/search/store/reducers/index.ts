@@ -6,11 +6,11 @@ import {
 import * as fromSearch from './results.reducer';
 import * as fromRoot from '../../../store';
 
-export interface State extends fromRoot.AppState {
+export interface State {
 	results: fromSearch.State;
 }
 
-export const reducers: ActionReducerMap<State> = {
+export const reducers: ActionReducerMap<State, any> = {
 	results: fromSearch.reducer
 };
 
