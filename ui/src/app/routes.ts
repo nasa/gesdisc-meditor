@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { NotFoundPageComponent } from './core/containers/not-found-page';
 import { SplashPageComponent } from './core/containers/splash-page/splash-page.component';
 import { ModelsExistsGuard } from './store/guards/models-exists.guard';
-import { LoginPageComponent } from './auth/containers/login-page.component';
+import { AuthGuard } from './auth/services/auth-guard.service';
 
 export const routes: Routes = [
 	{
@@ -16,12 +16,12 @@ export const routes: Routes = [
 	{
 		path: 'search',
 		loadChildren: './search/search.module#SearchModule',
-		canActivate: [ ModelsExistsGuard ]
+		canActivate: [ AuthGuard, ModelsExistsGuard ]
 	},	
 	{
 		path: 'document',
 		loadChildren: './document/document.module#DocumentModule',
-		canActivate: [ ModelsExistsGuard ]
+		canActivate: [ AuthGuard, ModelsExistsGuard ]
 	},
 		{ path: '**', component: NotFoundPageComponent },
 	];

@@ -249,5 +249,5 @@ module.exports.init = function(app) {
   app.use(passport.session());
 
   // Protect all PUT requests with cookie-based csrf
-  app.use('/meditor/api/', csrf({cookie: true}));
+  // app.use('/meditor/api/', csrf({cookie: true}));
 };

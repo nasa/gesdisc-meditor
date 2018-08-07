@@ -18,8 +18,7 @@ import { User } from '../models/user';
 export class AuthEffects {
   @Effect()
   getUser$ = this.actions$.pipe(
-    ofType(AuthActionTypes.GetUser),
-    //map((action: GetUser) => action.payload),
+    ofType<GetUser>(AuthActionTypes.GetUser),
     switchMap(() =>
       this.authService
         .getMe()
@@ -32,18 +31,17 @@ export class AuthEffects {
 
   @Effect({ dispatch: false })
   loginSuccess$ = this.actions$.pipe(
-    ofType(AuthActionTypes.LoginSuccess),
+    ofType<LoginSuccess>(AuthActionTypes.LoginSuccess),
     tap(() => this.router.navigate(['/']))
   );
 
-  // @Effect({ dispatch: false })
-  // loginRedirect$ = this.actions$.pipe(
-  //   ofType(AuthActionTypes.LoginRedirect, AuthActionTypes.Logout),
-  //   tap(authed => {
-  //     // this.router.navigate(['http://localhost:4201/login']);
-  //     window.location.href = 'http://localhost:4201/login';
-  //   })
-  // );
+  @Effect({ dispatch: false })
+  loginRedirect$ = this.actions$.pipe(
+    ofType<LoginRedirect>(AuthActionTypes.LoginRedirect),
+    tap(() => {
+      this.router.navigate(['/login'])
+    })
+  );
 
   constructor(
     private actions$: Actions,

@@ -32,6 +32,8 @@ import { Configuration }                                     from '../configurat
 @Injectable()
 export class DefaultService {
 
+	
+
     protected basePath = 'http://localhost:8081/meditor/api';
     public defaultHeaders = new HttpHeaders();
     public configuration = new Configuration();
@@ -43,7 +45,8 @@ export class DefaultService {
         if (configuration) {
             this.configuration = configuration;
             this.basePath = basePath || configuration.basePath || this.basePath;
-        }
+				}
+				this.configuration.withCredentials = true;
     }
 
     /**
@@ -356,7 +359,7 @@ export class DefaultService {
 
         return this.httpClient.get<User>(`${this.basePath}/me`,
             {
-                withCredentials: true,
+                withCredentials: this.configuration.withCredentials,
                 headers: headers,
                 observe: observe,
                 reportProgress: reportProgress

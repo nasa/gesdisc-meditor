@@ -293,7 +293,7 @@ module.exports.putDocument = function putDocument (req, res, next) {
   // Insert the new Model
   addDocument(doc)
   .then(function(savedDoc) {
-    if (!req.swagger.params.image) return Promise.resolve(savedDoc);
+    if (!req.swagger.params.image.value) return Promise.resolve(savedDoc);
     try {
       return addImage(savedDoc.document, req.swagger.params.image.value);
     } catch (e) {
