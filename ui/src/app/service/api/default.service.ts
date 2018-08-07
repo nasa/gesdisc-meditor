@@ -541,16 +541,18 @@ export class DefaultService {
 
         // to determine the Content-Type header
         let consumes: string[] = [
-        ];
+        ];        
+				
+				console.log(code);
 
         return this.httpClient.get<Success>(`${this.basePath}/login`,
-            {
-                params: queryParameters,
-                withCredentials: this.configuration.withCredentials,
-                headers: headers,
-                observe: observe,
-                reportProgress: reportProgress
-            }
+					{
+						params: queryParameters,
+						withCredentials: this.configuration.withCredentials,
+						headers: headers,
+						observe: observe,
+						reportProgress: reportProgress
+					}
         );
     }
 

@@ -19,27 +19,28 @@ import { routes } from './auth.routing';
 
 export const COMPONENTS = [LoginComponent, LoginPageComponent, CallbackComponent, GetUserComponent];
 
-@NgModule({
-  imports: [CommonModule, ReactiveFormsModule, MaterialModule, FlexLayoutModule],
-  declarations: COMPONENTS,
-  exports: COMPONENTS,
-})
-export class AuthModule {
-  static forRoot(): ModuleWithProviders {
-    return {
-      ngModule: RootAuthModule,
-      providers: [AuthService, AuthGuard],
-    };
-  }
-}
+// @NgModule({
+//   imports: [CommonModule, ReactiveFormsModule, MaterialModule, FlexLayoutModule],
+//   declarations: COMPONENTS,
+//   exports: COMPONENTS,
+// })
+// export class AuthModule {
+//   static forRoot(): ModuleWithProviders {
+//     return {
+//       ngModule: RootAuthModule,
+      
+//     };
+//   }
+// }
 
 @NgModule({
   imports: [
-    AuthModule,
     RouterModule.forChild(routes),
     StoreModule.forFeature('auth', reducers),
     EffectsModule.forFeature([AuthEffects])
   ],
-  exports: [ LoginComponent ]
+  declarations: COMPONENTS,
+  exports: COMPONENTS,
+  providers: [AuthService, AuthGuard],
 })
-export class RootAuthModule {}
+export class AuthModule {}

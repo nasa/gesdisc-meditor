@@ -79,6 +79,10 @@ import { ModelsExistsGuard } from './store/guards/models-exists.guard';
 		 * See: https://github.com/ngrx/platform/blob/master/docs/effects/api.md#forroot
 		 */
 		CoreModule.forRoot(),
+<<<<<<< HEAD
+=======
+		AuthModule,
+>>>>>>> 58c3fd25434c01efed8927bc8045b7a611cd1612
 		ApiModule
 	],
 	providers: [

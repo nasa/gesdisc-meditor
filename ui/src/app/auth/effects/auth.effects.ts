@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
 import { Effect, Actions, ofType } from '@ngrx/effects';
 import { of } from 'rxjs/observable/of';
 import { tap, map, exhaustMap, catchError, switchMap } from 'rxjs/operators';
@@ -7,6 +6,7 @@ import { tap, map, exhaustMap, catchError, switchMap } from 'rxjs/operators';
 import { DefaultService } from '../../service/api/default.service';
 import {
   GetUser,
+  LoginRedirect,
   LoginSuccess,
   LoginFailure,
   AuthActionTypes,
