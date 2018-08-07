@@ -2,11 +2,8 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { Store, select } from '@ngrx/store';
-<<<<<<< HEAD
 import { environment } from '../../../environments/environment';
 import { Authenticate } from '../models/user';
-=======
->>>>>>> 58c3fd25434c01efed8927bc8045b7a611cd1612
 import * as fromAuth from '../reducers';
 import * as Auth from '../actions/auth';
 
@@ -33,13 +30,8 @@ export class LoginComponent implements OnInit {
 	}
 
 	login() {
-<<<<<<< HEAD
 		// this.store.dispatch(new Auth.LoginRedirect());
 		window.location.href = environment.API_BASE_PATH+'/login';
-=======
-		//this.store.dispatch(new Auth.LoginRedirect());
-		window.location.href = 'http://localhost:8081/meditor/api/login';
->>>>>>> 58c3fd25434c01efed8927bc8045b7a611cd1612
 	}
 
 	// onSubmit($event: Authenticate) {

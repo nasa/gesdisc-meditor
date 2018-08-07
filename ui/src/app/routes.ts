@@ -10,13 +10,8 @@ export const routes: Routes = [
 		component: SplashPageComponent
 	},
 	{
-<<<<<<< HEAD
 		path: 'auth',
 		loadChildren: './auth/auth.module#AuthModule'
-=======
-		path: 'login',
-		component: LoginPageComponent
->>>>>>> 58c3fd25434c01efed8927bc8045b7a611cd1612
 	},
 	{
 		path: 'search',
