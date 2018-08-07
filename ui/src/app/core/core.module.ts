@@ -14,7 +14,7 @@ import { ToolbarComponent } from './components/toolbar/toolbar.component';
 
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
 import { PipesModule } from '../shared/pipes';
-// import { AuthModule } from '../auth/auth.module';
+import { AuthModule } from '../auth/auth.module';
 
 
 export const COMPONENTS = [
@@ -31,6 +31,7 @@ export const COMPONENTS = [
 		RouterModule,
 		MaterialModule,
 		FlexLayoutModule,
+		AuthModule,
 		AngularFontAwesomeModule,
 		PipesModule
 	],

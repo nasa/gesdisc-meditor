@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { Store, select } from '@ngrx/store';
@@ -12,7 +12,7 @@ import * as Auth from '../actions/auth';
 @Component({
 	selector: 'med-login',
 	template:`
-	<a mat-raised-button (click)="login()" color="primary" *ngIf="!(loginStatus$ | async)">Earthdata Login</a>
+	<button mat-raised-button (click)="login()" color="primary" *ngIf="!(loginStatus$ | async)">Earthdata Login</button>
 	<div *ngIf="(user$ | async) as user" class="user-box">Hi, {{user.uid}}</div>`
 })
 export class LoginComponent implements OnInit {
