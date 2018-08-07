@@ -350,11 +350,13 @@ export class DefaultService {
 
         // to determine the Content-Type header
         let consumes: string[] = [
-        ];
+				];
+				
+				//this.configuration.withCredentials = true;
 
         return this.httpClient.get<User>(`${this.basePath}/me`,
             {
-                withCredentials: this.configuration.withCredentials,
+                withCredentials: true,
                 headers: headers,
                 observe: observe,
                 reportProgress: reportProgress

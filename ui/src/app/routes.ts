@@ -7,8 +7,11 @@ import { ModelsExistsGuard } from './store/guards/models-exists.guard';
 export const routes: Routes = [
 	{
 		path: '',
-		component: SplashPageComponent,
-		// canActivate: [AuthGuard],
+		component: SplashPageComponent
+	},
+	{
+		path: 'auth',
+		loadChildren: './auth/auth.module#AuthModule'
 	},
 	{
 		path: 'search',

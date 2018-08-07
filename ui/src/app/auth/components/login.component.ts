@@ -2,6 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { Store, select } from '@ngrx/store';
+import { environment } from '../../../environments/environment';
 import { Authenticate } from '../models/user';
 import * as fromAuth from '../reducers';
 import * as Auth from '../actions/auth';
@@ -12,10 +13,10 @@ import * as Auth from '../actions/auth';
 	selector: 'med-login',
 	template:`
 	<a mat-raised-button (click)="login()" color="primary" *ngIf="!(loginStatus$ | async)">Earthdata Login</a>
-	<div *ngIf="(user$ | async) as user" class="user-box">Hi, {{user.name}}</div>`
+	<div *ngIf="(user$ | async) as user" class="user-box">Hi, {{user.uid}}</div>`
 })
 export class LoginComponent implements OnInit {
-
+	
 	loginStatus$: Observable<boolean>;
 	user$: Observable<any>;
 
@@ -25,12 +26,12 @@ export class LoginComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this.store.dispatch(new Auth.GetUser());
+		// this.store.dispatch(new Auth.GetUser());
 	}
 
 	login() {
-		this.store.dispatch(new Auth.LoginRedirect());
-		// window.location.href = 'http://localhost:4201/login';
+		// this.store.dispatch(new Auth.LoginRedirect());
+		window.location.href = environment.API_BASE_PATH+'/login';
 	}
 
 	// onSubmit($event: Authenticate) {

@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { Effect, Actions, ofType } from '@ngrx/effects';
 import { of } from 'rxjs/observable/of';
-import { tap, map, exhaustMap, catchError } from 'rxjs/operators';
+import { tap, map, exhaustMap, catchError, switchMap } from 'rxjs/operators';
 
-import { AuthService } from '../services/auth.service';
+import { DefaultService } from '../../service/api/default.service';
 import {
   GetUser,
   LoginSuccess,
@@ -16,14 +16,14 @@ import { User } from '../models/user';
 @Injectable()
 export class AuthEffects {
   @Effect()
-  login$ = this.actions$.pipe(
+  getUser$ = this.actions$.pipe(
     ofType(AuthActionTypes.GetUser),
     //map((action: GetUser) => action.payload),
-    exhaustMap(() =>
+    switchMap(() =>
       this.authService
-        .login()
+        .getMe()
         .pipe(
-          map(user => new LoginSuccess({ user })),
+          switchMap((user: Object) => of(new LoginSuccess(user))),
           catchError(error => of(new LoginFailure(error)))
         )
     )
@@ -35,18 +35,18 @@ export class AuthEffects {
     tap(() => this.router.navigate(['/']))
   );
 
-  @Effect({ dispatch: false })
-  loginRedirect$ = this.actions$.pipe(
-    ofType(AuthActionTypes.LoginRedirect, AuthActionTypes.Logout),
-    tap(authed => {
-      // this.router.navigate(['http://localhost:4201/login']);
-      window.location.href = 'http://localhost:4201/login';
-    })
-  );
+  // @Effect({ dispatch: false })
+  // loginRedirect$ = this.actions$.pipe(
+  //   ofType(AuthActionTypes.LoginRedirect, AuthActionTypes.Logout),
+  //   tap(authed => {
+  //     // this.router.navigate(['http://localhost:4201/login']);
+  //     window.location.href = 'http://localhost:4201/login';
+  //   })
+  // );
 
   constructor(
     private actions$: Actions,
-    private authService: AuthService,
+    private authService: DefaultService,
     private router: Router
   ) {}
 }

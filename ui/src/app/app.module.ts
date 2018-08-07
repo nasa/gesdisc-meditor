@@ -16,7 +16,6 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
 import { reducers, effects } from './store';
 import { CoreModule } from './core/core.module';
-import { AuthModule } from './auth/auth.module';
 import { ApiModule } from './service/api.module';
 
 import { CustomRouterStateSerializer } from './shared/utils';
@@ -80,7 +79,6 @@ import { ModelsExistsGuard } from './store/guards/models-exists.guard';
 		 * See: https://github.com/ngrx/platform/blob/master/docs/effects/api.md#forroot
 		 */
 		CoreModule.forRoot(),
-		AuthModule.forRoot(),
 		ApiModule
 	],
 	providers: [

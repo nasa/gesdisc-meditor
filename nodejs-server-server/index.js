@@ -23,7 +23,7 @@ var swaggerDoc = jsyaml.safeLoad(spec);
 
 // Initialize the Swagger middleware
 swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
-  app.use(cors());
+  app.use(cors({credentials: true, origin: 'http://localhost:4200'}));
 
   // Init authentication
   require('./controllers/Users').init(app);

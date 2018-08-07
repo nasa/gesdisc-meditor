@@ -3,7 +3,7 @@ import { User } from '../models/user';
 
 export interface State {
   loggedIn: boolean;
-  user: User | null;
+  user: Object | null;
 }
 
 export const initialState: State = {
@@ -17,7 +17,7 @@ export function reducer(state = initialState, action: AuthActions): State {
       return {
         ...state,
         loggedIn: true,
-        user: action.payload.user,
+        user: action.payload,
       };
     }
 
