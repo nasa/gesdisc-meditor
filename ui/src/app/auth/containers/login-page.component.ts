@@ -5,30 +5,21 @@ import { Component, OnInit } from '@angular/core';
 	selector: 'med-login-page',
 	template: `
 		<div fxLayout="row" fxLayout.lt-lg="column" fxLayoutAlign="center center" fxFill>
-      <mat-card>
-        <mat-card-content>
-         	Login please
-         	<med-login></med-login>
-        </mat-card-content>
-      </mat-card>
+      <h3>Sorry, you must be logged in in order to proceed. Click here <med-login></med-login> to login</h3>
     </div>
 	`,
 	styles: [
 		`
-	    mat-card {
-	      margin: 10px;
-	    }
-
-	    mat-card-content {
-	      text-align: center;
-	      font-size: 1.5em;
-	    }
+	    h3 {
+				font-family: Roboto, "Helvetica Neue", sans-serif;
+				font-size: 24px;
+				color: grey;
+				text-align: center;
+			}
   	`
 	],
 })
 export class LoginPageComponent implements OnInit {
 
-
 	ngOnInit() {}
-
 }

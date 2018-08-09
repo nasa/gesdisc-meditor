@@ -12,10 +12,10 @@ import {
   LoginFailure,
   AuthActionTypes,
 } from '../actions/auth';
-import { User } from '../models/user';
 
 @Injectable()
 export class AuthEffects {
+  
   @Effect()
   getUser$ = this.actions$.pipe(
     ofType<GetUser>(AuthActionTypes.GetUser),
@@ -32,7 +32,7 @@ export class AuthEffects {
   @Effect({ dispatch: false })
   loginSuccess$ = this.actions$.pipe(
     ofType<LoginSuccess>(AuthActionTypes.LoginSuccess),
-    tap(() => this.router.navigate(['/']))
+    tap(() => this.router.navigateByUrl(localStorage.getItem('returnUrl') || '/'))
   );
 
   @Effect({ dispatch: false })

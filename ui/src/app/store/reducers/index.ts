@@ -18,6 +18,8 @@ export const reducers: ActionReducerMap<AppState, any> = {
   router: fromRouter.routerReducer
 };
 
+
+
 // console.log all actions
 // export function logger(reducer: ActionReducer<AppState>): ActionReducer<AppState> {
 // 	return function(state: AppState, action: any): AppState {

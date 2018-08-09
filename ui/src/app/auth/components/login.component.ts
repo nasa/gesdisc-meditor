@@ -2,23 +2,30 @@ import { Component, OnInit} from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { Store, select } from '@ngrx/store';
-import { environment } from '../../../environments/environment';
-import { Authenticate } from '../models/user';
 import * as fromAuth from '../reducers';
 import * as Auth from '../actions/auth';
+import { environment } from '../../../environments/environment';
 
 
 
 @Component({
 	selector: 'med-login',
 	template:`
-	<button mat-raised-button (click)="login()" color="primary" *ngIf="!(loginStatus$ | async)">Earthdata Login</button>
-	<div *ngIf="(user$ | async) as user" class="user-box">Hi, {{user.uid}}</div>`
+	<button mat-button (click)="login()" color="accent" *ngIf="!(loginStatus$ | async)">
+		<mat-icon>person</mat-icon>
+		Login
+	</button>
+	<button mat-button (click)="logout()" color="accent" *ngIf="(user$ | async) as user" (mouseenter)="toggleButton()" (mouseleave)="toggleButton()">		
+			<mat-icon>{{ userBtn ? 'person' : 'exit_to_app' }}</mat-icon>
+			{{ userBtn ? user.uid : 'Logout' }}		
+	</button>
+	`
 })
 export class LoginComponent implements OnInit {
 	
 	loginStatus$: Observable<boolean>;
 	user$: Observable<any>;
+	userBtn: boolean = true;
 
 	constructor(private store: Store<fromAuth.State>) {
 		this.loginStatus$ = store.pipe(select(fromAuth.getLoggedIn));
@@ -26,17 +33,19 @@ export class LoginComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		// this.store.dispatch(new Auth.GetUser());
 	}
 
-	login() {
-		// this.store.dispatch(new Auth.LoginRedirect());
-		window.location.href = environment.API_BASE_PATH+'/login';
+	login() {	
+		window.location.href = environment.API_BASE_PATH + '/login';
 	}
 
-	// onSubmit($event: Authenticate) {
-	// 	this.store.dispatch(new Auth.Login($event));
-	// }
+	logout() {
+		this.store.dispatch(new Auth.Logout);	
+		window.location.href = environment.API_BASE_PATH + '/logout';
+	}
 
-
+	toggleButton() {
+		this.userBtn = !this.userBtn;
+	}
+	
 }
