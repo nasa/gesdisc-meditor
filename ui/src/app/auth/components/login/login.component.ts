@@ -2,9 +2,9 @@ import { Component, OnInit} from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { Store, select } from '@ngrx/store';
-import * as fromAuth from '../reducers';
-import * as Auth from '../actions/auth';
-import { environment } from '../../../environments/environment';
+import * as fromAuth from '../../reducers';
+import * as Auth from '../../actions/auth';
+import { environment } from '../../../../environments/environment';
 
 
 

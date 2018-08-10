@@ -4,14 +4,12 @@ import { RouterModule } from '@angular/router';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { LoginPageComponent } from './containers/login-page.component';
-import { LoginComponent } from './components/login.component';
+import { LoginComponent } from './components/login/login.component';
 import { CallbackComponent } from './components/callback/callback.component';
 import { GetUserComponent } from './components/get-user/get-user.component';
 
-import { AuthService } from './services/auth.service';
-import { AuthGuard } from './services/auth-guard.service';
-import { AuthEffects } from './effects/auth.effects';
-import { reducers } from './reducers';
+import { AuthGuard } from './store/guards/auth.guard';
+import { reducers, effects } from './store';
 import { MaterialModule } from '../material';
 import { routes } from './auth.routing';
 
@@ -37,10 +35,10 @@ export const COMPONENTS = [LoginComponent, LoginPageComponent, CallbackComponent
     MaterialModule,
     RouterModule.forChild(routes),
     StoreModule.forFeature('auth', reducers),
-    EffectsModule.forFeature([AuthEffects])
+    EffectsModule.forFeature(effects)
   ],
   declarations: COMPONENTS,
   exports: COMPONENTS,
-  providers: [AuthService, AuthGuard],
+  providers: [ AuthGuard ],
 })
 export class AuthModule {}

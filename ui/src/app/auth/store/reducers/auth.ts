@@ -1,5 +1,4 @@
-import { AuthActions, AuthActionTypes } from '../actions/auth';
-import { User } from '../models/user';
+import { AuthActions, AuthActionTypes } from '../actions/auth.actions';
 
 export interface State {
   loggedIn: boolean;

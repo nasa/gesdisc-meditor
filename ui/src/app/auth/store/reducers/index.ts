@@ -1,5 +1,4 @@
 import { createSelector, createFeatureSelector } from '@ngrx/store';
-import * as fromRoot from '../../store';
 import * as fromAuth from './auth';
 import * as fromLoginPage from './login-page';
 
@@ -8,7 +7,7 @@ export interface AuthState {
   loginPage: fromLoginPage.State;
 }
 
-export interface State extends fromRoot.AppState {
+export interface State {
   auth: AuthState;
 }
 

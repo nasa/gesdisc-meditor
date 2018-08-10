@@ -8,6 +8,7 @@ export const getModelIds = createSelector(
 	getModelState,
 	fromModel.selectModelIds
 );
+
 export const getModelEntities = createSelector(
 	getModelState,
 	fromModel.selectModelEntities
