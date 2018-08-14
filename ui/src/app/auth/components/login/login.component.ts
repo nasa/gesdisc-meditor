@@ -2,8 +2,7 @@ import { Component, OnInit} from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
 import { Store, select } from '@ngrx/store';
-import * as fromAuth from '../../reducers';
-import * as Auth from '../../actions/auth';
+import * as fromAuth from '../../store';
 import { environment } from '../../../../environments/environment';
 
 
@@ -40,7 +39,7 @@ export class LoginComponent implements OnInit {
 	}
 
 	logout() {
-		this.store.dispatch(new Auth.Logout);	
+		this.store.dispatch(new fromAuth.Logout);	
 		window.location.href = environment.API_BASE_PATH + '/logout';
 	}
 

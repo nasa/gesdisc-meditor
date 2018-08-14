@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { Store } from '@ngrx/store';
 import * as fromApp from '../../../store';
-import * as Auth from '../../actions/auth';
+import * as Auth from '../../store';
 
 @Component({
   selector: 'med-get-user',
