@@ -7,15 +7,15 @@ import { Component, Output, EventEmitter } from '@angular/core';
       <img src="assets/logo.png" class="logo" routerLink="/" />
       <span class="spacer"></span>
       <med-login></med-login>
-      <button mat-button color="warn">
+      <button mat-stroked-button color="warn" class="tb-button" routerLink="/">
         <mat-icon>home</mat-icon>
         Home
       </button>
-      <button mat-button color="warn">
+      <button mat-flat-button color="warn" class="tb-button">
         <mat-icon>feedback</mat-icon>
         Feedback
       </button>
-      <button mat-button color="warn">
+      <button mat-raised-button color="warn" class="tb-button">
         <mat-icon>help</mat-icon>
         Help
       </button>      
@@ -32,6 +32,10 @@ import { Component, Output, EventEmitter } from '@angular/core';
 
     .med-toolbar {
     	background: none;
+    }
+
+    .tb-button {
+      margin-left: 10px;
     }
   `]
 })

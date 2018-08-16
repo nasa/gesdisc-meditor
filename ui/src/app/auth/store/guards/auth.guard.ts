@@ -8,7 +8,7 @@ import * as fromAuth from '../reducers';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private store: Store<fromAuth.State>) {}
+  constructor(private store: Store<fromAuth.AuthState>) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
     return this.store.pipe(

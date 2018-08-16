@@ -196,11 +196,11 @@ module.exports.logout = function logout(req, res, next) {
   var outCookies = [];
   req.session.destroy();
   // Destroy all old cookies
-  for (var prop in cookie) {
-    if (!cookie.hasOwnProperty(prop)) continue;
-    outCookies.push(prop + '=;expires:' + (new Date(0)).toUTCString() + ';');
-  };
-  if (outCookies.length > 0) res.setHeader('Set-Cookie', outCookies);
+  // for (var prop in cookie) {
+  //   if (!cookie.hasOwnProperty(prop)) continue;
+  //   outCookies.push(prop + '=;expires:' + (new Date(0)).toUTCString() + ';');
+  // };
+  // if (outCookies.length > 0) res.setHeader('Set-Cookie', outCookies);
   res.writeHead(301, {
     Location: ENV_CONFIG.APP_URL + '/#/'
   });

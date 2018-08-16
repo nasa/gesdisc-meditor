@@ -24,6 +24,7 @@ import { DochistoryComponent } from './components/dochistory/dochistory.componen
 
 import { routes } from './document.routing';
 import { DocumentResolver } from './store/guards/docedit.resolver';
+import { DocumentExistsGuard } from './store/guards/document-exists.guard';
 
 @NgModule({
   imports: [
@@ -53,10 +54,11 @@ import { DocumentResolver } from './store/guards/docedit.resolver';
   	DocumentEditComponent,
   	DochistoryComponent
   ],
-  providers: [ DocumentResolver ],
+  providers: [ DocumentResolver, DocumentExistsGuard ],
   entryComponents: [
   	DocEditPageComponent
   ]
 })
+
 export class DocumentModule {
 }

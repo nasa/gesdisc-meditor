@@ -26,7 +26,7 @@ export class LoginComponent implements OnInit {
 	user$: Observable<any>;
 	userBtn: boolean = true;
 
-	constructor(private store: Store<fromAuth.State>) {
+	constructor(private store: Store<fromAuth.AuthState>) {
 		this.loginStatus$ = store.pipe(select(fromAuth.getLoggedIn));
 		this.user$ = store.pipe(select(fromAuth.getUser));
 	}

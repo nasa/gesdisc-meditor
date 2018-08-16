@@ -5,7 +5,7 @@ import { Component, OnInit } from '@angular/core';
 	selector: 'med-login-page',
 	template: `
 		<div fxLayout="row" fxLayout.lt-lg="column" fxLayoutAlign="center center" fxFill>
-      <h3>Sorry, you must be logged in in order to proceed. Click here <med-login></med-login> to login</h3>
+      <h3>Sorry, you must be logged in to proceed. Click here <med-login></med-login></h3>
     </div>
 	`,
 	styles: [
