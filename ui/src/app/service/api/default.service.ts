@@ -32,6 +32,8 @@ import { Configuration }                                     from '../configurat
 @Injectable()
 export class DefaultService {
 
+	
+
     protected basePath = 'http://localhost:8081/meditor/api';
     public defaultHeaders = new HttpHeaders();
     public configuration = new Configuration();
@@ -43,7 +45,8 @@ export class DefaultService {
         if (configuration) {
             this.configuration = configuration;
             this.basePath = basePath || configuration.basePath || this.basePath;
-        }
+				}
+				this.configuration.withCredentials = true;
     }
 
     /**
@@ -350,7 +353,9 @@ export class DefaultService {
 
         // to determine the Content-Type header
         let consumes: string[] = [
-        ];
+				];
+				
+				//this.configuration.withCredentials = true;
 
         return this.httpClient.get<User>(`${this.basePath}/me`,
             {
@@ -539,16 +544,18 @@ export class DefaultService {
 
         // to determine the Content-Type header
         let consumes: string[] = [
-        ];
+        ];        
+				
+				console.log(code);
 
         return this.httpClient.get<Success>(`${this.basePath}/login`,
-            {
-                params: queryParameters,
-                withCredentials: this.configuration.withCredentials,
-                headers: headers,
-                observe: observe,
-                reportProgress: reportProgress
-            }
+					{
+						params: queryParameters,
+						withCredentials: this.configuration.withCredentials,
+						headers: headers,
+						observe: observe,
+						reportProgress: reportProgress
+					}
         );
     }
 

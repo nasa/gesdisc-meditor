@@ -23,7 +23,8 @@ export class SplashPageComponent implements OnInit{
 		this.adminModels$ = store.pipe(select(fromApp.getAdminModels));
 	}
 
-	ngOnInit () {
+	ngOnInit () {			
+    localStorage.clear();
   	this.store.dispatch(new fromApp.LoadModels());
 	}
 

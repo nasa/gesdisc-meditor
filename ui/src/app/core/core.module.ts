@@ -31,9 +31,9 @@ export const COMPONENTS = [
 		RouterModule,
 		MaterialModule,
 		FlexLayoutModule,
+		AuthModule,
 		AngularFontAwesomeModule,
-		PipesModule,
-		AuthModule.forRoot(),
+		PipesModule
 	],
 	declarations: COMPONENTS,
 	exports: COMPONENTS

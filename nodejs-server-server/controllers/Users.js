@@ -17,7 +17,7 @@ var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
 var DbName = "meditor";
 
 var ENV_CONFIG = {
-  APP_URL: process.env.APP_UR || 'http://localhost:8081'
+  APP_URL: process.env.APP_URL || 'http://localhost:8081'
 };
 
 var AUTH_CONFIG = {
@@ -158,11 +158,10 @@ passport.use(new OAuth2Strategy({
             });
           }).then(function(model) {
             cb(null, model.value);
+            db.close();
           }).catch(function(e) {
             cb(e);
-          }).finally(function() {
-            db.close();
-          });
+          })
         });
       } catch (e) {
         cb(e);
@@ -182,11 +181,11 @@ module.exports.login = function login(req, res, next) {
           code: 500,
           message: err
         }, 500);
-      });
-      res.writeHead(301, {
-        Location: ENV_CONFIG.APP_URL + '/docs/'
-      });
-      res.end();
+        res.writeHead(301, {
+          Location: ENV_CONFIG.APP_URL + '/#/auth/getuser'
+        });
+        res.end();
+      });      
     }
   )(req, res, next);
 };
@@ -197,13 +196,13 @@ module.exports.logout = function logout(req, res, next) {
   var outCookies = [];
   req.session.destroy();
   // Destroy all old cookies
-  for (var prop in cookie) {
-    if (!cookie.hasOwnProperty(prop)) continue;
-    outCookies.push(prop + '=;expires:' + (new Date(0)).toUTCString() + ';');
-  };
-  if (outCookies.length > 0) res.setHeader('Set-Cookie', outCookies);
+  // for (var prop in cookie) {
+  //   if (!cookie.hasOwnProperty(prop)) continue;
+  //   outCookies.push(prop + '=;expires:' + (new Date(0)).toUTCString() + ';');
+  // };
+  // if (outCookies.length > 0) res.setHeader('Set-Cookie', outCookies);
   res.writeHead(301, {
-    Location: ENV_CONFIG.APP_URL + '/docs/'
+    Location: ENV_CONFIG.APP_URL + '/#/'
   });
   res.end();
 };
@@ -250,5 +249,5 @@ module.exports.init = function(app) {
   app.use(passport.session());
 
   // Protect all PUT requests with cookie-based csrf
-  app.use('/meditor/api/', csrf({cookie: true}));
+  // app.use('/meditor/api/', csrf({cookie: true}));
 };
