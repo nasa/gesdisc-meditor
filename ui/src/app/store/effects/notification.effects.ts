@@ -75,7 +75,7 @@ export class NotificationEffects {
 	template: `
 		<span class="message">{{ data }}</span>
 		<button mat-icon-button class="close-notif-btn" (click)="close()">
-			<mat-icon>close</mat-icon>
+			<mat-icon align="end">close</mat-icon>
 		</button>
 	`,
 	styles: [`	
