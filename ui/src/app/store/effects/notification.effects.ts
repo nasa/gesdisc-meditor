@@ -1,6 +1,5 @@
-import { Injectable } from "@angular/core";
-import { MatSnackBar } from "@angular/material";
-import { MatSnackBarConfig } from "@angular/material";
+import { Component, Injectable, Inject } from "@angular/core";
+import { MatSnackBar, MatSnackBarConfig, MAT_SNACK_BAR_DATA} from "@angular/material";
 import { Actions, Effect } from "@ngrx/effects";
 import { Observable } from "rxjs/Observable";
 import { delay, map, tap } from "rxjs/operators";
@@ -17,17 +16,18 @@ export class NotificationEffects {
 	successConfig: MatSnackBarConfig;
 	failConfig: MatSnackBarConfig;
 	defaultConfig: MatSnackBarConfig;
+	snackBarRef: any;
 
 	@Effect({
 		dispatch: false
 	})
-	closeNotification: Observable<any> = this.actions.ofType(NotificationActionTypes.NotificationClose)
+	closeNotification$: Observable<any> = this.actions.ofType(NotificationActionTypes.NotificationClose)
 		.pipe(
 			tap(() => this.matSnackBar.dismiss())
 		);
 
 	@Effect()
-	showNotification: Observable<any> = this.actions.ofType<NotificationOpen>(NotificationActionTypes.NotificationOpen)
+	showNotification$: Observable<any> = this.actions.ofType(NotificationActionTypes.NotificationOpen)
 		.pipe(
 			map((action: NotificationOpen) => action.payload),
 			tap(payload => {
@@ -42,30 +42,60 @@ export class NotificationEffects {
 					default:
 						config = this.defaultConfig;
 				}
-				this.matSnackBar.open(payload.message, payload.action, config)
+				config.data = payload.message;
+				this.snackBarRef = this.matSnackBar.openFromComponent(SnackBarComponent, config);
+				this.snackBarRef.instance.snackBarRefComponent = this.snackBarRef;
 			}),
-			delay(5000),
+			delay(3000),
 			map(() => new NotificationClose())
 		);
 
-	constructor(private actions: Actions,
-							private matSnackBar: MatSnackBar) {
-		this.successConfig = {
-			verticalPosition: 'top',
-			panelClass: 'success-notification',
-			duration: 3000
-		}
+	constructor(
+		private actions: Actions,
+		private matSnackBar: MatSnackBar) {
+			this.successConfig = {
+				verticalPosition: 'top',
+				panelClass: 'success-notification'
+			}
 
-		this.failConfig = {
-			verticalPosition: 'top',
-			panelClass: 'fail-notification',
-			duration: 3000
-		}
+			this.failConfig = {
+				verticalPosition: 'top',
+				panelClass: 'fail-notification'
+			}
 
-		this.defaultConfig = {
-			verticalPosition: 'top',
-			duration: 3000
-		}
+			this.defaultConfig = {
+				verticalPosition: 'top'
+			}
 	}
 
+}
+
+@Component({
+	selector: 'med-snack-bar',
+	template: `
+		<span class="message">{{ data }}</span>
+		<button mat-icon-button class="close-notif-btn" (click)="close()">
+			<mat-icon>close</mat-icon>
+		</button>
+	`,
+	styles: [`	
+		.message {
+			font-family: Roboto,"Helvetica Neue",sans-serif;
+    	font-size: 14px;
+		}
+
+		.close-notif-btn {
+			margin-left: 20px;
+		}
+	`],
+})
+export class SnackBarComponent {
+
+	public snackBarRefComponent: any;
+
+	constructor(@Inject(MAT_SNACK_BAR_DATA) public data: any) { }
+
+	close() {
+		this.snackBarRefComponent.dismiss();
+	}
 }

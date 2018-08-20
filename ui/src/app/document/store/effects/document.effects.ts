@@ -89,7 +89,7 @@ export class DocumentEffects {
 			this.documentService
 				.putDocument(new Blob([JSON.stringify(payload)]))
 				.pipe(
-					switchMap(res => [
+					switchMap(() => [
 						new SubmitDocumentComplete(),
 						new Go({path: ['/document/edit'], query: { model: payload['x-meditor'].model, title: payload.title }}),						
 						new NotificationOpen({message: "Document added", config: 'success'})

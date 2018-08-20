@@ -15,8 +15,10 @@ import {
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
 import { reducers, effects, metaReducers } from './store';
+import { SnackBarComponent } from './store/effects/notification.effects';
 import { CoreModule } from './core/core.module';
 import { ApiModule } from './service/api.module';
+import { MaterialModule } from './material';
 
 import { CustomRouterStateSerializer } from './shared/utils';
 
@@ -27,6 +29,7 @@ import { environment } from '../environments/environment';
 import { routes } from './routes';
 import { ModelsExistsGuard } from './store/guards/models-exists.guard';
 
+
 @NgModule({
 	imports: [
 		CommonModule,
@@ -34,6 +37,7 @@ import { ModelsExistsGuard } from './store/guards/models-exists.guard';
 		BrowserAnimationsModule,
 		HttpClientModule,
 		FlexLayoutModule,
+		MaterialModule,
 		RouterModule.forRoot(routes, { useHash: true }),
 
 		/**
@@ -91,6 +95,8 @@ import { ModelsExistsGuard } from './store/guards/models-exists.guard';
 		{ provide: BASE_PATH, useValue: environment.API_BASE_PATH },
 		ModelsExistsGuard
 	],
+	declarations: [ SnackBarComponent ],
+	entryComponents: [ SnackBarComponent ],
 	bootstrap: [ MainComponent ]
 })
 export class AppModule { }

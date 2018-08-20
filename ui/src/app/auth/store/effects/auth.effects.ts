@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Effect, Actions, ofType } from '@ngrx/effects';
 import { of } from 'rxjs/observable/of';
 import { Router } from '@angular/router';
-import { tap, map, exhaustMap, catchError, switchMap } from 'rxjs/operators';
+import { tap, catchError, switchMap } from 'rxjs/operators';
 
 import { DefaultService } from '../../../service/api/default.service';
 import {
@@ -12,6 +12,9 @@ import {
   LoginFailure,
   AuthActionTypes,
 } from '../actions/auth.actions';
+
+import { NotificationOpen } from '../../../store';
+
 
 @Injectable()
 export class AuthEffects {
@@ -23,10 +26,13 @@ export class AuthEffects {
       this.authService
         .getMe()
         .pipe(
-          switchMap((user: Object) => of(new LoginSuccess(user))),
-          catchError(error => of(new LoginFailure(error)))
+          switchMap((user: Object) => [ 
+            new LoginSuccess(user),
+            new NotificationOpen({message: 'You have sucessfully logged in', config: 'success'})]
+          ),
+          catchError(err => of(new NotificationOpen({message: err.statusText, config: 'failure'})))
         )
-    )
+      )
   );
 
   @Effect({ dispatch: false })

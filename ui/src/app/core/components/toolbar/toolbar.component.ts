@@ -6,16 +6,16 @@ import { Component, Output, EventEmitter } from '@angular/core';
     <mat-toolbar class="med-toolbar">
       <img src="assets/logo.png" class="logo" routerLink="/" />
       <span class="spacer"></span>
-      <med-login></med-login>
-      <button mat-stroked-button color="warn" class="tb-button" routerLink="/">
+      <med-login-status></med-login-status>
+      <button mat-button class="tb-button" routerLink="/">
         <mat-icon>home</mat-icon>
         Home
       </button>
-      <button mat-flat-button color="warn" class="tb-button">
+      <a mat-button class="tb-button" href="mailto:mahabaleshwa.s.hegde@nasa.gov">
         <mat-icon>feedback</mat-icon>
         Feedback
-      </button>
-      <button mat-raised-button color="warn" class="tb-button">
+      </a>
+      <button mat-button class="tb-button">
         <mat-icon>help</mat-icon>
         Help
       </button>      
@@ -36,6 +36,7 @@ import { Component, Output, EventEmitter } from '@angular/core';
 
     .tb-button {
       margin-left: 10px;
+      color: grey;
     }
   `]
 })

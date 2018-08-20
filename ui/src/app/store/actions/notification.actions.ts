@@ -1,9 +1,8 @@
-import { MatSnackBarConfig } from "@angular/material";
 import { Action } from '@ngrx/store';
 
 export enum NotificationActionTypes {
 	NotificationOpen = '[Notification] Open notificaton',
-	NotificationClose = '[Notification] Close notificaton'
+  NotificationClose = '[Notification] Close notificaton'
 }
 
 export class NotificationOpen implements Action {
@@ -24,4 +23,4 @@ export class NotificationClose implements Action {
 
 export type NotificationActionsUnion =
 	| NotificationOpen
-	| NotificationClose;
+  | NotificationClose;

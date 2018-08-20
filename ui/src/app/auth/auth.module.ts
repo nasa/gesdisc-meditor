@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { LoginPageComponent } from './containers/login-page.component';
+import { LoginStatusComponent } from './components/login-status/login-status.component';
 import { LoginComponent } from './components/login/login.component';
 import { CallbackComponent } from './components/callback/callback.component';
 import { GetUserComponent } from './components/get-user/get-user.component';
@@ -13,21 +14,7 @@ import { reducers, effects } from './store';
 import { MaterialModule } from '../material';
 import { routes } from './auth.routing';
 
-export const COMPONENTS = [LoginComponent, LoginPageComponent, CallbackComponent, GetUserComponent];
-
-// @NgModule({
-//   imports: [CommonModule, ReactiveFormsModule, MaterialModule, FlexLayoutModule],
-//   declarations: COMPONENTS,
-//   exports: COMPONENTS,
-// })
-// export class AuthModule {
-//   static forRoot(): ModuleWithProviders {
-//     return {
-//       ngModule: RootAuthModule,
-      
-//     };
-//   }
-// }
+export const COMPONENTS = [ LoginComponent, LoginStatusComponent, LoginPageComponent, CallbackComponent, GetUserComponent ];
 
 @NgModule({
   imports: [
