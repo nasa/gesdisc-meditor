@@ -11,11 +11,10 @@ import { Component, OnInit } from '@angular/core';
 	styles: [
 		`
 	    h3 {
-				font-family: Roboto, "Helvetica Neue", sans-serif;
-				font-size: 24px;
-				color: grey;
-				text-align: center;
-			}
+			font-size: 24px;
+			color: grey;
+			text-align: center;
+		}
   	`
 	],
 })
