@@ -1,19 +1,4 @@
-/* You can add global styles to this file, and also import other style files */
-@import '../node_modules/@angular/material/theming';
-// @import "~@angular/material/prebuilt-themes/deeppurple-amber.css";
-
-// always include only once per project
-@include mat-core();
-
-// import our custom theme
 @import 'main-theme';
-
-// specify theme class eg: <body class="my-theme"> ... </body>
-.main-theme {
-
-  // use our theme with angular-material-theme mixin
-  @include angular-material-theme($main-theme);
-}
 
 .mat-input-element {
 	caret-color: #000000 !important;
@@ -93,4 +78,18 @@ html {
 	margin: 20px 0;
 }
 
+.main-theme {
+  .mat-snack-bar-container.success-notification,
+  .mat-snack-bar-container.fail-notification {
+    background-color: #43A047;
+    border-radius: 3px;
+    line-height: 40px;
+    margin-top: 15px;
+    min-height: 52px;
+    padding: 6px 58px 6px 24px;
 
+    &.fail-notification {
+      background-color: #D32F2F;
+    }
+  }
+}
