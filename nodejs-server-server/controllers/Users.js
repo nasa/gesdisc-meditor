@@ -182,7 +182,7 @@ module.exports.login = function login(req, res, next) {
           message: err
         }, 500);
         res.writeHead(301, {
-          Location: ENV_CONFIG.APP_URL + '/meditor/#/auth/getuser'
+          Location: ENV_CONFIG.APP_URL + '/#/auth/getuser'
         });
         res.end();
       });      
