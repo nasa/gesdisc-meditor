@@ -84,7 +84,9 @@ export class NotificationEffects {
 		}
 
 		.close-notif-btn {
-			margin-left: 20px;
+			position: absolute;
+			top: 5px;
+			right: 11px;
 		}
 	`],
 })

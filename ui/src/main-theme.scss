@@ -1,0 +1,30 @@
+/* You can add global styles to this file, and also import other style files */
+@import '../node_modules/@angular/material/theming';
+
+// define 3 theme color
+// mat-palette accepts $palette-name, main, lighter and darker variants
+$main-theme-primary: mat-palette($mat-grey, 100, 50, 200);
+$main-theme-accent: mat-palette($mat-light-blue);
+$main-theme-warn: mat-palette($mat-deep-orange, A200);
+
+// create theme (use mat-dark-theme for themes with dark backgrounds)
+$main-theme: mat-light-theme(
+  $main-theme-primary,
+  $main-theme-accent,
+  $main-theme-warn
+);
+
+$general-typography: mat-typography-config(
+  $font-family: '"Roboto"',
+  $body-2:        mat-typography-level(14px, 24px, 400)  
+);
+
+// always include only once per project
+@include mat-core($general-typography);
+
+// specify theme class eg: <body class="my-theme"> ... </body>
+.main-theme {
+
+  // use our theme with angular-material-theme mixin
+  @include angular-material-theme($main-theme);
+}
