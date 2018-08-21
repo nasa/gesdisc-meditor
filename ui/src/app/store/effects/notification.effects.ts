@@ -80,7 +80,6 @@ export class NotificationEffects {
 	`,
 	styles: [`	
 		.message {
-			font-family: Roboto,"Helvetica Neue",sans-serif;
     		font-size: 14px;
 		}
 

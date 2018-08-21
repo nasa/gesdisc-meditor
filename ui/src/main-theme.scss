@@ -1,9 +1,5 @@
 /* You can add global styles to this file, and also import other style files */
 @import '../node_modules/@angular/material/theming';
-// @import "~@angular/material/prebuilt-themes/deeppurple-amber.css";
-
-// always include only once per project
-@include mat-core();
 
 // define 3 theme color
 // mat-palette accepts $palette-name, main, lighter and darker variants
@@ -17,6 +13,14 @@ $main-theme: mat-light-theme(
   $main-theme-accent,
   $main-theme-warn
 );
+
+$general-typography: mat-typography-config(
+  $font-family: '"Roboto"',
+  $body-2:        mat-typography-level(14px, 24px, 400)  
+);
+
+// always include only once per project
+@include mat-core($general-typography);
 
 // specify theme class eg: <body class="my-theme"> ... </body>
 .main-theme {
