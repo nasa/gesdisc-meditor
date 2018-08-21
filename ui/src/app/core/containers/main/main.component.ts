@@ -19,6 +19,9 @@ import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
     </div>
   `,
   styles: [`
+    med-toolbar {
+      margin-bottom: 5px;
+    }
 	`
   ]
   ,

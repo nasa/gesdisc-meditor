@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { FlexLayoutModule } from '@angular/flex-layout';
 import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { LoginPageComponent } from './containers/login-page.component';
@@ -20,6 +21,7 @@ export const COMPONENTS = [ LoginComponent, LoginStatusComponent, LoginPageCompo
   imports: [
     CommonModule,
     MaterialModule,
+    FlexLayoutModule,
     RouterModule.forChild(routes),
     StoreModule.forFeature('auth', reducers),
     EffectsModule.forFeature(effects)
