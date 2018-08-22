@@ -32,7 +32,7 @@ import { Component, OnInit } from '@angular/core';
 
 			.login-btn {
 				display: block;
-				margin-top: 10px;
+				margin: 10px 0;
 			}
   	`
 	],

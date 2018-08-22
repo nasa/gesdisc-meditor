@@ -83,7 +83,7 @@ export class SplashPageComponent implements OnInit{
 
 			.login-btn {
 				display: block;
-				margin-top: 10px;
+				margin: 10px 0;
 			}
 		`
 	]
