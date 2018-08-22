@@ -5,7 +5,7 @@ import { Component, OnInit } from '@angular/core';
 	selector: 'med-login-page',
 	template: `
 		<div fxLayout="row" fxLayout.lt-lg="column" fxLayoutAlign="center center" fxFill>
-			<mat-card class="login-card">
+			<mat-card class="login-card mat-elevation-z">
 				<mat-card-title>Welcome!</mat-card-title>
 				<mat-card-content>
 					<div>
