@@ -9,6 +9,8 @@ var MongoClient = mongo.MongoClient;
 var ObjectID = mongo.ObjectID;
 var streamifier = require('streamifier');
 var GridStream = require('gridfs-stream');
+var jsonpath = require('jsonpath');
+var macros = require('./Macros.js');
 
 
 var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
@@ -434,7 +436,45 @@ function getModelContent (name) {
           console.log(err);
           throw err;
         }
-        resolve(res[0]);
+        // Fill in templates if they exist
+
+        var promiseList = [];
+        if ( res[0].hasOwnProperty("templates")){
+          res[0].templates.forEach(element => {
+            var macroFields = element.macro.split(/\s+/);
+            var schema = JSON.parse(res[0].schema);
+            promiseList.push( new Promise(
+              function(resolve,reject){
+                if ( typeof macros[macroFields[0]] === "function" ) {
+                  macros[macroFields[0]](dbo,macroFields.slice(1,macroFields.length)).then(function(response){
+                      resolve(response);
+                  }).catch(function(err){
+                      console.log(err);
+                  });
+                } else {
+                  console.log("Macro, '" + macroName + "', not supported");
+                  throw("Macro, '" + macroName + "', not supported");
+                }
+              }
+            ));
+          });
+          Promise.all(promiseList).then(
+            function(response){
+              var schema = JSON.parse(res[0].schema);
+              var i=0;
+              res[0].templates.forEach(element=>{
+                jsonpath.value(schema,element.jsonpath,response[i++]);
+                res[0].schema = JSON.stringify(schema,null,2);
+              });
+              resolve(res[0]);
+            }
+          ).catch(
+            function(err){
+            }
+          );
+        } else {
+          resolve(res[0]);
+        }
       });
     });
   });

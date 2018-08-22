@@ -608,6 +608,12 @@ definitions:
       description:
         type: "string"
         description: "Model's description"
+      category:
+        type: "string"
+        description: "Display category"
+      workflow:
+        type: "string"
+        description: "Name of the workflow to use with the model's documents"     
       icon:
         $ref: "#/definitions/model_icon"
       schema:
@@ -651,6 +657,8 @@ definitions:
     - "description"
     - "name"
     properties:
+      x-meditor:
+        $ref: "#/definitions/modelCatalogEntry_xmeditor"
       name:
         type: "string"
         description: "Name of the model (ex: FAQ, Alert, Collection etc.,): displayed\
@@ -659,13 +667,17 @@ definitions:
         type: "string"
         description: "Description of the model (ex: FAQ, Alert, Collection etc.,):\
           \ description of the model; might be shown to user as a tooltip"
+      category:
+        type: "string"
+        description: "Category/group to which the model belongs; to be used for display purposes only"
+      workflow:
+        type: "string"
+        description: "Workflow to be used in processing documents belonging to the model"
       icon:
         $ref: "#/definitions/model_icon"
       schema:
         type: "string"
         description: "JSON Schema of the model itself"
-      x-meditor:
-        $ref: "#/definitions/modelCatalogEntry_xmeditor"
       documentation":
         type: "string"
         description: "Link to model's documentation"

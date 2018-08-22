@@ -1,8 +1,13 @@
-@import "~styles.scss";
+@import "~main-theme.scss";
+
+h3 {
+	padding: 24px 24px 0 24px;
+	font-size: 1.5em;
+	font-weight: bold;
+}
 
 .history-content-container {
-	max-height: 500px;
-	padding: 0 5px;
+	padding: 0 24px 24px 24px;
 	overflow-y: scroll;
 }
 
@@ -10,10 +15,6 @@
 	margin-top: 5px;
 	padding: 15px;
 	transition: background .15s ease;
-}
-
-.history-item:last-child {
-	margin-bottom: 10px;
 }
 
 .history-item:hover {

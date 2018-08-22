@@ -1,12 +1,10 @@
-<mat-card>
-	<h3>History</h3>
-	<mat-card-content class="history-content-container">
-		<div *ngFor="let historyItem of dochistory" (click)="loadVersion.emit(historyItem.modifiedOn)">
-			<mat-card class="history-item" [ngClass]="[historyItem.modifiedOn == selectedHistory ? 'history-item-selected' : '']">
-				<div class="modified-on-label">{{historyItem.modifiedOn | date:'medium' }}</div>
-				<div class="modified-by-label">by {{historyItem.modifiedBy}}</div>
-			</mat-card>
-		</div>
-		<div *ngIf="!dochistory.length">Nothing here yet...</div>
-	</mat-card-content>
-</mat-card>
+<h3>History</h3>
+<div class="history-content-container">
+	<div *ngFor="let historyItem of dochistory" (click)="loadVersion.emit(historyItem.modifiedOn)">
+		<mat-card class="history-item" [ngClass]="[historyItem.modifiedOn == selectedHistory ? 'history-item-selected' : '']">
+			<div class="modified-on-label">{{historyItem.modifiedOn | date:'medium' }}</div>
+			<div class="modified-by-label">by {{historyItem.modifiedBy}}</div>
+		</mat-card>
+	</div>
+	<div *ngIf="!dochistory.length">Nothing here yet...</div>
+</div>

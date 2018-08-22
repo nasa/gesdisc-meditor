@@ -21,24 +21,7 @@ import { Component, Output, EventEmitter } from '@angular/core';
       </button>      
     </mat-toolbar>
   `,
-  styles: [`
-    .spacer {
-      flex: 1 1 auto;
-    }
-
-    .logo {
-      max-height: 100%;
-    }
-
-    .med-toolbar {
-    	background: none;
-    }
-
-    .tb-button {
-      margin-left: 10px;
-      color: grey;
-    }
-  `]
+  styleUrls: ['toolbar.component.scss']
 })
 export class ToolbarComponent {
   @Output() openMenu = new EventEmitter();

@@ -52,12 +52,13 @@ export class DocEditPageComponent implements OnInit {
 				this.documentTitle = document.doc[this.titleProperty];				
 			}
 		});		
-		
+		this.store.dispatch(new fromDocument.LoadHistory({model: this.modelName, title: this.documentTitle}));
 	}
 
 	loadVersion(event: string) {
 		this.store.dispatch(new fromDocument.LoadVersion({model: this.modelName, title: this.documentTitle, version: event}));				
 		this.store.dispatch(new fromDocument.SetSelectedHistoryItem(event));
+		this.close();
 	}
 
 	submitDocument(data: any) {

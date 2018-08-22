@@ -28,7 +28,7 @@ export class AuthEffects {
         .pipe(
           switchMap((user: Object) => [ 
             new LoginSuccess(user),
-            new NotificationOpen({message: 'You have sucessfully logged in', config: 'success'})]
+            new NotificationOpen({message: 'You have successfully logged in', config: 'success'})]
           ),
           catchError(err => of(new NotificationOpen({message: err.statusText, config: 'failure'})))
         )
