@@ -4,7 +4,7 @@ import { DocHistory } from '../../../service/model/docHistory';
 @Component({
   selector: 'med-doc-history',
   templateUrl: './dochistory.component.html',
-  styleUrls: ['./dochistory.component.css']
+  styleUrls: ['./dochistory.component.scss']
 })
 export class DochistoryComponent implements OnInit {
 
