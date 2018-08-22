@@ -1,0 +1,23 @@
+.app-container {
+    background: #f0f0f0;
+}
+
+med-toolbar {
+    background: #fff;
+    margin-bottom: 20px;
+    padding: 0 40px;
+    -webkit-box-shadow: 0 3px 5px rgba(57, 63, 72, 0.1);
+    -moz-box-shadow: 0 3px 5px rgba(57, 63, 72, 0.1);
+    box-shadow: 0 3px 5px rgba(57, 63, 72, 0.1);
+
+    img {
+        height: 64px;
+    }
+}
+
+med-toolbar + div {
+    background: #fff;
+    margin: 0 auto;
+    width: 1200px;
+    padding: 15px !important;
+}
