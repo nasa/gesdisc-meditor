@@ -15,6 +15,8 @@ var swaggerTools = require('swagger-tools');
 var MongoClient = require('mongodb').MongoClient;
 var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
 var DbName = "meditor";
+var USERS_COLLECTION_URS = 'users-urs';
+var USERS_COLLECTION_MEDITOR = 'Users';
 
 var ENV_CONFIG = {
   APP_URL: process.env.APP_URL || 'http://localhost:8081'
@@ -32,7 +34,7 @@ var URS_FIELDS = ['uid', 'emailAddress', 'firstName', 'lastName', 'middleInitial
 // Earthdata's OAuth2 slightly deviates from what's supported in the current oauth module,
 // so let's overwrite it
 // Credit: most of code in this function belongs to https://github.com/ciaranj/node-oauth
-require('oauth').OAuth2.prototype.getOAuthAccessToken = function(code, params, callback) {
+require('oauth').OAuth2.prototype.getOAuthAccessToken = function (code, params, callback) {
   var codeParam;
   var postData;
   var postHeaders;
@@ -52,7 +54,7 @@ require('oauth').OAuth2.prototype.getOAuthAccessToken = function(code, params, c
   postHeaders = {
     'Content-Type': 'application/x-www-form-urlencoded'
   };
-  this._request('POST', this._getAccessTokenUrl(), postHeaders, postData, null, function(error, data, response) { // eslint-disable-line no-unused-vars
+  this._request('POST', this._getAccessTokenUrl(), postHeaders, postData, null, function (error, data, response) { // eslint-disable-line no-unused-vars
     if (error) {
       callback(error);
     } else {
@@ -69,36 +71,49 @@ require('oauth').OAuth2.prototype.getOAuthAccessToken = function(code, params, c
   });
 };
 
-passport.serializeUser(function(user, done) {
-  // Replace/map descriptive roles with resource-specific access rights consumed by UI and backend
-  user.roles = {}; // commons.getUserResourceRoles(user.roles);
-  done(null, JSON.stringify(user));
+passport.serializeUser(function (userId, done) {
+  done(null, userId);
 });
 
-passport.deserializeUser(function(user, done) {
-  user = JSON.parse(user);
-  user.lastAccessed = _.now();
-  MongoClient.connect(MongoUrl, function(err, db) {
+passport.deserializeUser(function (userId, done) {
+  var user = null;
+  MongoClient.connect(MongoUrl, function (err, db) {
     if (err) {
       console.log(err);
       throw err;
     }
     var dbo = db.db(DbName);
-    dbo.collection("Users").findOneAndUpdate({
-      _id: user._id
-    }, {
-      $set: {
-        lastAccessed: user.lastAccessed
-      }
-    }, function(err, res) {
-      if (err) {
+    dbo.collection(USERS_COLLECTION_URS).findOneAndUpdate({
+        _id: userId
+      }, {
+        $set: {
+          lastAccessed: _.now()
+        }
+      })
+      .then(function () {
+        return dbo.collection(USERS_COLLECTION_URS).findOne({
+          uid: userId
+        });
+      })
+      .then(function (res) {
+        user = res;
+        user.roles = {};
+        return dbo.collection(USERS_COLLECTION_MEDITOR).findOne({
+          id: userId
+        });
+      })
+      .then(function (res) {
+        // Attach Meditor roles if available
+        if (res) user.roles = res.roles;
+        done(null, user);
+        db.close();
+      })
+      .catch(function (err) {
         console.log(err);
-        throw err;
-      }
-      db.close();
-    });
+        done(err, null);
+        db.close();
+      });
   });
-  done(null, user);
 });
 
 passport.use(new OAuth2Strategy({
@@ -110,7 +125,7 @@ passport.use(new OAuth2Strategy({
   customHeaders: {
     Authorization: new Buffer(AUTH_CONFIG.CLIENT_ID + ':' + AUTH_CONFIG.CLIENT_SECRET).toString('base64')
   }
-}, function(accessToken, refreshToken, authResp, profile, cb) {
+}, function (accessToken, refreshToken, authResp, profile, cb) {
   https.get({
     protocol: AUTH_PROTOCOL,
     hostname: AUTH_CONFIG.HOST,
@@ -118,56 +133,55 @@ passport.use(new OAuth2Strategy({
     headers: {
       Authorization: 'Bearer ' + accessToken
     }
-  }, function(res) {
+  }, function (res) {
     var resp = '';
 
-    res.on('data', function(data) {
+    res.on('data', function (data) {
       resp += data;
     });
 
-    res.on('end', function() {
+    res.on('end', function () {
       var updatedModel = {
         lastAccessed: _.now()
       };
       try {
         resp = JSON.parse(resp);
-
-        _.forEach(URS_FIELDS, function(field) {
+        _.forEach(URS_FIELDS, function (field) {
           updatedModel[field] = resp[_.snakeCase(field)];
         });
-        MongoClient.connect(MongoUrl, function(err, db) {
+        MongoClient.connect(MongoUrl, function (err, db) {
           if (err) {
             cb(err);
             throw err;
           }
           var dbo = db.db(DbName);
-          dbo.collection("Users").findOne({
+          dbo.collection(USERS_COLLECTION_URS).findOne({
             uid: resp.uid
-          }).then(function(model) {
+          }).then(function (model) {
             if (_.isNil(model)) {
               updatedModel.created = _.now();
-              // model = new User(updatedModel);
               model = updatedModel;
             }
-            return dbo.collection("Users").findOneAndUpdate({
+            return dbo.collection(USERS_COLLECTION_URS).findOneAndUpdate({
               uid: resp.uid
             }, {
               $set: model
             }, {
               upsert: true
             });
-          }).then(function(model) {
-            cb(null, model.value);
+          }).then(function () {
+            cb(null, resp.uid);
             db.close();
-          }).catch(function(e) {
+          }).catch(function (e) {
             cb(e);
+            db.close();
           })
         });
       } catch (e) {
         cb(e);
       }
     });
-  }).on('error', function(err) {
+  }).on('error', function (err) {
     cb(err);
   });
 }));
@@ -175,17 +189,20 @@ passport.use(new OAuth2Strategy({
 // Exported method to login
 module.exports.login = function login(req, res, next) {
   passport.authenticate('oauth2',
-    function(req1, res1) {
-      req.logIn(res1, function(err) {
-        if (err) utils.writeJson(res, {
-          code: 500,
-          message: err
-        }, 500);
-        res.writeHead(301, {
-          Location: ENV_CONFIG.APP_URL + '/#/auth/getuser'
-        });
-        res.end();
-      });      
+    function (req1, res1) {
+      req.logIn(res1, function (err) {
+        if (err) {
+          utils.writeJson(res, {
+            code: 500,
+            message: err
+          }, 500);
+        } else {
+          res.writeHead(301, {
+            Location: ENV_CONFIG.APP_URL + '/#/auth/getuser'
+          });
+          res.end();
+        }
+      });
     }
   )(req, res, next);
 };
@@ -227,8 +244,10 @@ module.exports.getCsrfToken = function getCsrfToken(req, res, next) {
   }, 200);
 };
 
-module.exports.init = function(app) {
-  app.use(helmet({noCache: true}));
+module.exports.init = function (app) {
+  app.use(helmet({
+    noCache: true
+  }));
   app.use(cookieParser());
   app.use(session({
     name: _(20).range().shuffle().value().join(''),
