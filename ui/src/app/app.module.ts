@@ -14,6 +14,9 @@ import {
 } from '@ngrx/router-store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
+import { NgxsModule } from '@ngxs/store';
+import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
+
 import { reducers, effects, metaReducers } from './store';
 import { SnackBarComponent } from './store/effects/notification.effects';
 import { CoreModule } from './core/core.module';
@@ -83,6 +86,8 @@ import { ModelsExistsGuard } from './store/guards/models-exists.guard';
 		 * See: https://github.com/ngrx/platform/blob/master/docs/effects/api.md#forroot
 		 */
 		CoreModule.forRoot(),
+		NgxsModule,
+		NgxsReduxDevtoolsPluginModule,
 		ApiModule
 	],
 	providers: [
