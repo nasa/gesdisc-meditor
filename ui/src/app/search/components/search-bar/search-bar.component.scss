@@ -44,5 +44,7 @@
 }
 
 .search-bar-submit {
+	border: 0 solid mat-color($main-theme-primary, 500);
+	border-left-width: 1px;
 	border-radius: 0 6px 6px 0;
 }
