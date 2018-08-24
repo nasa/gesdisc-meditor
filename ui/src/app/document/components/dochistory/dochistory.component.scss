@@ -1,3 +1,5 @@
+@import "~main-theme.scss";
+
 h3 {
 	padding: 24px 24px 0 24px;
 	font-size: 1.5em;
@@ -12,19 +14,17 @@ h3 {
 .history-item {
 	margin-top: 5px;
 	padding: 15px;
+	transition: background .15s ease;
 }
 
 .history-item:hover {
-	background-color: #c0efb8;
+	background-color: mat-color($main-theme-primary);
 	cursor: pointer;
 }
 
-.history-item-selected {
-	background-color: #97b8ed;
-}
-
+.history-item-selected,
 .history-item-selected:hover {
-	background-color: #97b8ed;
+	background-color: mat-color($main-theme-accent, 200);
 }
 
 .modified-on-label {

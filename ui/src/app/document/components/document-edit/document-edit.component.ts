@@ -30,6 +30,9 @@ export class DocumentEditComponent implements OnInit {
 	schema =  {};
 	data = {};
 	layout = undefined;
+	defaultLayoutOptions = {
+		fxLayoutGap: '20px',
+	};
 
 	submittedFormData = {};
 	liveFormData = {};
