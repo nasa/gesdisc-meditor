@@ -40,15 +40,23 @@ export const getModelsLoading = createSelector(
   fromModel.getLoading
 );
 
-export const getAdminModels = createSelector(
-	getAllModels,
-	(allModels) => allModels.filter(m => { return m.category == 'Admin'})
-);
+// export const getAdminModels = createSelector(
+// 	getAllModels,
+// 	(allModels) => allModels.filter(m => { return m.category == 'Admin'})
+// );
 
-export const getNonAdminModels = createSelector(
+// export const getNonAdminModels = createSelector(
+// 	getAllModels,
+// 	(allModels) => allModels.filter(m => { return m.category != 'Admin'})
+// );
+
+export const getCategories = createSelector(
 	getAllModels,
-	(allModels) => allModels.filter(m => { return m.category != 'Admin'})
-);
+	(allModels) => {
+		let allCategories = allModels.map(m => m.category);
+		return [...Array.from(new Set(allCategories))]
+	}
+)
 
 export const selectCurrentModel = createSelector(
 	getModelEntities,

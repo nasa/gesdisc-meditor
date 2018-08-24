@@ -25,6 +25,10 @@ export interface Model {
     description: string;
     icon: ModelIcon;
     /**
+     * Model's workflow
+     */
+    workflow: string;
+    /**
      * Model's schema
      */
     schema: string;

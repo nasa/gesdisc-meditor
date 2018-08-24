@@ -24,7 +24,8 @@ export const initialState: State = adapter.getInitialState({
 		icon: {},
 		description: '',
 		schema: '',
-		layout: ''
+		layout: '',
+		workflow: 'Default'
 	 }
 });
 

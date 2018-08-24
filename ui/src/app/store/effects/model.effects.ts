@@ -21,6 +21,7 @@ import {
 } from '../actions/model.actions';
 import { ModelCatalogEntry } from '../../service/model/modelCatalogEntry';
 import { Model } from '../../service/model/model';
+import { pipe } from '../../../../node_modules/@angular/core/src/render3/pipe';
 
 /**
  * Effects offer a way to isolate and easily test side-effects within your
@@ -40,7 +41,7 @@ export class ModelEffects {
 	load$: Observable<Action> = this.actions$.pipe(
 		ofType(ModelActionTypes.LoadModels),
 		switchMap(() =>
-			this.modelService
+			this.defaultService
 				.listModels()
 				.pipe(
 					map((models: ModelCatalogEntry[]) =>  new LoadModelsComplete(models)),
@@ -49,16 +50,27 @@ export class ModelEffects {
 		)
 	);
 
+	//TODO: Maybe rewrite to not reload workflow if it hasn't changed?
+
 	@Effect()
 	loadSelected$: Observable<Action> = this.actions$.pipe(
 		ofType<LoadSelectedModel>(ModelActionTypes.LoadSelectedModel),
 		map(action => action.payload),
 		switchMap(payload =>
-			this.modelService
+			this.defaultService
 				.getModel(payload)
 				.pipe(
-					switchMap((model: Model) =>  of(new LoadSelectedModelComplete(model))),
-					catchError(err => of(new LoadSelectedModelError(err)))
+					switchMap((model: Model) =>
+						this.defaultService
+							.getDocument('Workflows', model.workflow)
+							.pipe(
+								switchMap((workflow) => {
+									model.workflow = workflow.doc;
+									return of(new LoadSelectedModelComplete(model))
+								}),
+								catchError(err => of(new LoadSelectedModelError(err)))
+							)
+					)
 				)
 		)
 	);
@@ -67,7 +79,7 @@ export class ModelEffects {
 
 	constructor(
 		private actions$: Actions,
-		private modelService: DefaultService) {}
+		private defaultService: DefaultService) {}
 		/**
 		 * You inject an optional Scheduler that will be undefined
 		 * in normal application usage, but its injected here so that you can mock out

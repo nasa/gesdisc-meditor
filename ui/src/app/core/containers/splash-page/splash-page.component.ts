@@ -17,15 +17,15 @@ import * as fromAuth from '../../../auth/store';
 export class SplashPageComponent implements OnInit{
 
 	models$: Observable<ModelCatalogEntry[]>;
-	adminModels$: Observable<ModelCatalogEntry[]>;
+	categories$: Observable<string[]>;
 	loggedIn$: Observable<boolean>;
 
 	constructor(
 		public dialog: MatDialog,
 		private store: Store<fromApp.AppState>
 	) {
-		this.models$ = store.pipe(select(fromApp.getNonAdminModels));
-		this.adminModels$ = store.pipe(select(fromApp.getAdminModels));
+		this.models$ = store.pipe(select(fromApp.getAllModels));
+		this.categories$ = store.pipe(select(fromApp.getCategories));
 		this.loggedIn$ = store.pipe(select(fromAuth.getLoggedIn));
 	}
 
@@ -58,6 +58,8 @@ export class SplashPageComponent implements OnInit{
 
 
 }
+
+//TODO: Move this to separate file.
 
 @Component({
   selector: 'med-login-dialog',

@@ -43,7 +43,7 @@ export class SearchPageComponent implements OnInit {
 	constructor(
 		private store: Store<fromApp.AppState>
 	) {
-		this.models$ = store.pipe(select(fromApp.getNonAdminModels));
+		this.models$ = store.pipe(select(fromApp.getAllModels));
 		this.selectedModel$ = store.pipe(select(fromApp.selectCurrentModel));
 		this.results$ = store.pipe(select(fromSearch.selectAllResults));
 	}

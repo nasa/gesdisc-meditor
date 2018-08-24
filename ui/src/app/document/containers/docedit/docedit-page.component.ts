@@ -65,6 +65,7 @@ export class DocEditPageComponent implements OnInit {
 		data['x-meditor'] = {
 			model: this.modelName
 		};
+		data.title = this.documentTitle;
 		this.store.dispatch(new fromDocument.SubmitDocument(data));
 		this.store.dispatch(new fromDocument.LoadHistory({model: this.modelName, title: this.documentTitle}));
 	}
