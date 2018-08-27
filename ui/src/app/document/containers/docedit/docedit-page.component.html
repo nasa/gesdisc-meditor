@@ -1,9 +1,14 @@
 <div fxLayout="row" class="doc-edit-container">
 	<mat-card fxFlex="100" class="mat-elevation-z0">
-		<mat-sidenav-container
-	    class="comment-sidenav-container" (backdropClick)="close()">
-			<mat-sidenav #sidenav (keydown.escape)="close()" class="comment-sidenav" [position]="'end'">
-				<!-- <med-comments></med-comments> -->
+		hellow
+	</mat-card>
+</div>
+
+
+<!--
+	<mat-sidenav-container
+	    class="comment-sidenav-container" (backdropClick)="closeSidenav()">
+			<mat-sidenav #sidenav (keydown.escape)="closeSidenav()" class="comment-sidenav" [position]="'end'">
 				<med-doc-history
 					[dochistory]="history$ | async"
 					[selectedHistory]= "selectedHistory$ | async"
@@ -20,11 +25,6 @@
 				</mat-card-subtitle>
 				<mat-card-content>
 					<div class="button-panel">
-						<!-- <button mat-mini-fab
-										matBadge="{{(comments$ | async)?.length}}"
-										matBadgeColor="warn" (click)="sidenav.open()">
-							<mat-icon>question_answer</mat-icon>
-						</button> -->
 						<button mat-mini-fab (click)="sidenav.open()">
 							<mat-icon>history</mat-icon>
 						</button>
@@ -38,3 +38,4 @@
 		</mat-sidenav-container>
 	</mat-card>
 </div>
+-->
