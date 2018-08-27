@@ -10,6 +10,10 @@
 	width: 120px;
 }
 
+.add-new-button mat-icon {
+	margin-right: 5px;
+}
+
 .sortby-select {
 	margin-left: 10px;
 	margin-right: 10px;
