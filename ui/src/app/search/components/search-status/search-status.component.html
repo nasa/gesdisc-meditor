@@ -2,18 +2,22 @@
 	<div fxFlex="60">
 		Showing {{ filteredCount > 0 ? 1 : 0 }} - {{ filteredCount }} of {{ resultCount }} {{modelName}} documents
 	</div>
+	
 	<div fxFlex="4" fxFlexOffset="20" class="sortby-select">
-		Sort by:
+		Sort&nbsp;by:
 	</div>
-	<div fxFlex="8" class="sortby-select">
+	
+	<div fxFlex="8" class="sortby-select mr-2">
 		<mat-select [(value)]="sortBy">
 			<mat-option value="oldest">Oldest</mat-option>
-    	<mat-option value="newest">Newest</mat-option>
+			<mat-option value="newest">Newest</mat-option>
 		</mat-select>
 	</div>
-	<div fxFlex dir="rtl">
-		<button mat-raised-button color="primary" class="add-new-button" (click)="addNew.emit()" >
-			<mat-icon>add</mat-icon>Add new
+
+	<div fxFlex>
+		<button mat-raised-button color="accent" class="add-new-button" (click)="addNew.emit()" >
+			<mat-icon>add</mat-icon>
+			Add new
 		</button>
 	</div>
 </div>
