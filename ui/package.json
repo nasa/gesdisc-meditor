@@ -8,7 +8,7 @@
     "test": "jest",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "client": "ng serve --proxy-config server.conf.json",
+    "client": "ng serve --proxy-config server.conf.json --host 0.0.0.0",
     "server": "nodemon ../nodejs-server-server/index.js",
     "start": "npm-run-all -p client server"
   },
