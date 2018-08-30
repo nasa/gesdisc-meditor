@@ -1,41 +1,42 @@
 <div fxLayout="row" class="doc-edit-container">
 	<mat-card fxFlex="100" class="mat-elevation-z0">
-		hellow
-	</mat-card>
-</div>
-
-
-<!--
-	<mat-sidenav-container
-	    class="comment-sidenav-container" (backdropClick)="closeSidenav()">
+		<mat-sidenav-container class="comment-sidenav-container" (backdropClick)="closeSidenav()">
 			<mat-sidenav #sidenav (keydown.escape)="closeSidenav()" class="comment-sidenav" [position]="'end'">
+				<!--
 				<med-doc-history
 					[dochistory]="history$ | async"
 					[selectedHistory]= "selectedHistory$ | async"
 					(loadVersion)="loadVersion($event)">
 				</med-doc-history>
-		  </mat-sidenav>
+				-->
+			</mat-sidenav>
+
 			<mat-sidenav-content class="editor-form">
-		    <mat-card-title>
+				<mat-card-title>
 					<i class="icon-badge icon-badge-sm fa {{(model$ | async)?.icon?.name }}" [style.background-color]="(model$ | async)?.icon?.color"></i>
 					{{(model$ | async)?.name}}
 				</mat-card-title>
+
 				<mat-card-subtitle>
 					{{(model$ | async)?.description}}
 				</mat-card-subtitle>
+
 				<mat-card-content>
 					<div class="button-panel">
 						<button mat-mini-fab (click)="sidenav.open()">
 							<mat-icon>history</mat-icon>
 						</button>
-						</div>
-					<med-document-edit
-						[document]="document$ | async"
-						(submitDocument)="submitDocument($event)">
-					</med-document-edit>
+					</div>
+					
+					<div *ngIf="document$ | async as document; else loading">
+						<med-document-edit
+							[document]="document"
+							(submitDocument)="submitDocument($event)"
+						>
+						</med-document-edit>
+					</div>
 				</mat-card-content>
-	  	</mat-sidenav-content>
+			</mat-sidenav-content>
 		</mat-sidenav-container>
 	</mat-card>
 </div>
--->
