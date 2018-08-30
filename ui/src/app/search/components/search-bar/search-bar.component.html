@@ -1,25 +1,29 @@
-<div fxLayout="row wrap" fxLayoutAlign="center start">
-	<div fxFlex="10">
-		<mat-form-field class="search-bar-select">
-			<mat-select (selectionChange)="selectionChanged.emit(modelControl.value.name)" [formControl]="modelControl">
-				<mat-select-trigger *ngIf="modelControl.value">
-					<i class="icon-badge icon-badge-inline fa {{modelControl.value.icon?.name}} align-middle"
-						 [style.background-color]="modelControl.value.icon?.color"></i>
-					{{modelControl.value.name}}
-				</mat-select-trigger>
-				<mat-option *ngFor="let model of models" [value]="model">
-					<i class="icon-badge icon-badge-xs fa {{model.icon?.name}} align-middle"
-						 [style.background-color]="model.icon?.color"></i>
-					{{model.name}}
-				</mat-option>
-			</mat-select>
-		</mat-form-field>
-	</div>
-	<div fxFlex="90">
-		<mat-form-field class="search-bar-input">
-			<input matInput placeholder="Search..." type="text" name="search" [(ngModel)]="query" (input)="onSearchChange()">
-			<mat-icon matSuffix>search</mat-icon>
-		</mat-form-field>
-	</div>
-</div>
+<div class="search-bar-container">
+	<mat-select class="search-bar-select" (selectionChange)="selectionChanged.emit(modelControl.value.name)" [formControl]="modelControl">	
+		<mat-select-trigger *ngIf="modelControl.value">
+			<i class="icon-badge icon-badge-xs icon-badge-inline fa {{modelControl.value.icon?.name}} align-middle mat-elevation-z0"
+				[style.background-color]="modelControl.value.icon?.color"></i>
+			{{modelControl.value.name}}
+		</mat-select-trigger>
+		
+		<mat-option *ngFor="let model of models" [value]="model">
+			<i class="icon-badge icon-badge-xs fa {{model.icon?.name}} align-middle mat-elevation-z0"
+				[style.background-color]="model.icon?.color"></i>
+			{{model.name}}
+		</mat-option>
+	</mat-select>
 
+	<input 
+		matInput
+		type="text" 
+		name="search"
+		class="search-bar-input"  
+		[placeholder]="'Search ' + modelControl.value.name + ' for...'" 
+		[(ngModel)]="query" 
+		(input)="onSearchChange()"
+	>
+
+	<button class="search-bar-submit" mat-flat-button color="primary">
+		<mat-icon matSuffix>search</mat-icon>
+	</button>
+</div>
