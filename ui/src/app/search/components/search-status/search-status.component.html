@@ -2,7 +2,7 @@
 	<div fxFlex="60">
 		Showing {{ filteredCount > 0 ? 1 : 0 }} - {{ filteredCount }} of {{ resultCount }} {{modelName}} documents
 	</div>
-	<div fxFlex="4" fxFlexOffset="20" class="sortby-select">
+	<div fxFlex="8" fxFlexOffset="20" class="sortby-select">
 		Sort by:
 	</div>
 	<div fxFlex="8" class="sortby-select">
@@ -11,9 +11,9 @@
     	<mat-option value="newest">Newest</mat-option>
 		</mat-select>
 	</div>
-	<div fxFlex dir="rtl">
+	<div fxFlex dir="ltr" *ngIf="canAddNew">
 		<button mat-raised-button color="primary" class="add-new-button" (click)="addNew.emit()" >
-			<mat-icon>add</mat-icon>Add new
+			<mat-icon>add</mat-icon>{{ addNewLabel }}
 		</button>
 	</div>
 </div>

@@ -1,13 +1,16 @@
 import { Inject, Injectable, InjectionToken, Optional } from '@angular/core';
 import { Actions, Effect, ofType } from '@ngrx/effects';
+import { Store, select } from '@ngrx/store';
 import { Action } from '@ngrx/store';
 import { Observable, of } from 'rxjs';
 import {
 	catchError,
 	map,
-	switchMap
+	switchMap,
+	take,
+	tap
 } from 'rxjs/operators';
-
+import * as _ from 'underscore';
 import { DefaultService } from '../../service/api/default.service';
 import {
 	ModelActionTypes,
@@ -19,9 +22,14 @@ import {
 	LoadSelectedModelComplete,
 	LoadSelectedModelError
 } from '../actions/model.actions';
+import { 
+	LoadWorkflowComplete,
+	SetInitialEdge
+} from '../actions/workflow.actions';
+import * as fromApp from '..';
 import { ModelCatalogEntry } from '../../service/model/modelCatalogEntry';
 import { Model } from '../../service/model/model';
-import { pipe } from '../../../../node_modules/@angular/core/src/render3/pipe';
+import { Edge } from '../../service/model/workflow';
 
 /**
  * Effects offer a way to isolate and easily test side-effects within your
@@ -50,13 +58,13 @@ export class ModelEffects {
 		)
 	);
 
-	//TODO: Maybe rewrite to not reload workflow if it hasn't changed?
+	//TODO: move workflow loading to it's own effects
 
 	@Effect()
 	loadSelected$: Observable<Action> = this.actions$.pipe(
 		ofType<LoadSelectedModel>(ModelActionTypes.LoadSelectedModel),
 		map(action => action.payload),
-		switchMap(payload =>
+		switchMap(payload =>			
 			this.defaultService
 				.getModel(payload)
 				.pipe(
@@ -64,9 +72,12 @@ export class ModelEffects {
 						this.defaultService
 							.getDocument('Workflows', model.workflow)
 							.pipe(
-								switchMap((workflow) => {
-									model.workflow = workflow.doc;
-									return of(new LoadSelectedModelComplete(model))
+								switchMap((workflow) => {									
+									return [
+										new LoadSelectedModelComplete(model), 
+										new SetInitialEdge(this.findInitialEdge(workflow.doc.edges)),
+										new LoadWorkflowComplete(workflow.doc)
+										]
 								}),
 								catchError(err => of(new LoadSelectedModelError(err)))
 							)
@@ -75,11 +86,17 @@ export class ModelEffects {
 		)
 	);
 
-
+	findInitialEdge(edges: any) {
+		let sources = _.pluck(edges, 'source');
+		let targets = _.pluck(edges, 'target');
+		let initEdge = sources.filter(e => !targets.includes(e))[0];
+		return _.findWhere(edges, { source: initEdge}) as Edge
+	}
 
 	constructor(
 		private actions$: Actions,
 		private defaultService: DefaultService) {}
+    private store: Store<fromApp.AppState>
 		/**
 		 * You inject an optional Scheduler that will be undefined
 		 * in normal application usage, but its injected here so that you can mock out

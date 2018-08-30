@@ -25,12 +25,12 @@ export class SearchBarComponent implements OnInit {
 	modelControl = new FormControl();
 
 	ngOnInit() {
-		this.modelControl.setValue(this.selectedModel);
+		this.modelControl.setValue({name: this.selectedModel.name, icon: this.selectedModel.icon});
 	}
 
 	ngOnChanges() {
 		if (this.selectedModel) {
-			this.modelControl.setValue(this.selectedModel);
+			this.modelControl.setValue({name: this.selectedModel.name, icon: this.selectedModel.icon});
 		}
 	}
 

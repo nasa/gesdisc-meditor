@@ -1,5 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { ModelCatalogEntry } from '../../../service/model/modelCatalogEntry';
+import { Model } from '../../../service/model/model';
 import { Observable } from 'rxjs/Observable';
 
 import { Store, select } from '@ngrx/store';
@@ -17,8 +18,10 @@ import * as fromAuth from '../../../auth/store';
 export class SplashPageComponent implements OnInit{
 
 	models$: Observable<ModelCatalogEntry[]>;
+	currentModel$: Observable<string>;
 	categories$: Observable<string[]>;
 	loggedIn$: Observable<boolean>;
+	modelName: string;
 
 	constructor(
 		public dialog: MatDialog,
@@ -27,20 +30,26 @@ export class SplashPageComponent implements OnInit{
 		this.models$ = store.pipe(select(fromApp.getAllModels));
 		this.categories$ = store.pipe(select(fromApp.getCategories));
 		this.loggedIn$ = store.pipe(select(fromAuth.getLoggedIn));
+		this.currentModel$ = store.pipe(select(fromApp.getCurrentModelId));
 	}
 
 	ngOnInit () {	
     localStorage.clear();
-		this.store.dispatch(new fromApp.LoadModels());		
+		// this.store.dispatch(new fromApp.LoadModels());		
 		// instead of just `this.openDialog()` this is a workaround to avoid ExpressionChangedAfterItHasBeenCheckedError
 		this.loggedIn$.subscribe(status => {
 			if (!status) { setTimeout(() => this.openDialog()) }
 		})		
+		this.currentModel$.subscribe(model => { 
+			this.modelName = model;
+		})
 	}
 
-	goToSearchPage(event: any) {
-		this.store.dispatch(new fromApp.SelectModel(event.name));
-		this.store.dispatch(new fromApp.LoadSelectedModel(event.name));
+	goToSearchPage(event: any) {		
+		if (this.modelName !== event.name) {
+			this.store.dispatch(new fromApp.SelectModel(event.name));
+			this.store.dispatch(new fromApp.LoadSelectedModel(event.name));
+		}
 		this.store.dispatch(new fromApp.Go({path: ['/search'], query: { model: event.name}}))
 	}
 

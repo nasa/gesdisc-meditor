@@ -13,6 +13,7 @@ import { ModelIcon } from './modelIcon';
 import { ModelXmeditor } from './modelXmeditor';
 
 
+
 export interface Model {
     xMeditor?: ModelXmeditor;
     /**
@@ -28,6 +29,7 @@ export interface Model {
      * Model's workflow
      */
     workflow: string;
+    initEdge: string;
     /**
      * Model's schema
      */

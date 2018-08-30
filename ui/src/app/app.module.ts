@@ -28,6 +28,7 @@ import { environment } from '../environments/environment';
 
 import { routes } from './routes';
 import { ModelsExistsGuard } from './store/guards/models-exists.guard';
+import { SelectedModelExistsGuard } from './store/guards/selected-model-exists.guard';
 
 
 @NgModule({
@@ -93,7 +94,8 @@ import { ModelsExistsGuard } from './store/guards/models-exists.guard';
 		 */
 		{ provide: RouterStateSerializer, useClass: CustomRouterStateSerializer },
 		{ provide: BASE_PATH, useValue: environment.API_BASE_PATH },
-		ModelsExistsGuard
+		ModelsExistsGuard,
+		SelectedModelExistsGuard
 	],
 	declarations: [ SnackBarComponent ],
 	entryComponents: [ SnackBarComponent ],

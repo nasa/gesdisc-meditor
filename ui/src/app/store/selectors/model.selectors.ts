@@ -13,6 +13,7 @@ export const getModelEntities = createSelector(
 	getModelState,
 	fromModel.selectModelEntities
 );
+
 export const getAllModels = createSelector(
 	getModelState,
 	fromModel.selectAllModels
@@ -33,22 +34,18 @@ export const getCurrentModel= createSelector(
 
 export const getModelsLoaded = createSelector(
   getModelState,
-  fromModel.getLoaded
+  fromModel.getLoadedModels
 );
+
 export const getModelsLoading = createSelector(
   getModelState,
-  fromModel.getLoading
+  fromModel.getLoadingModels
 );
 
-// export const getAdminModels = createSelector(
-// 	getAllModels,
-// 	(allModels) => allModels.filter(m => { return m.category == 'Admin'})
-// );
-
-// export const getNonAdminModels = createSelector(
-// 	getAllModels,
-// 	(allModels) => allModels.filter(m => { return m.category != 'Admin'})
-// );
+export const getSelectedModelLoaded = createSelector(
+  getModelState,
+  fromModel.getSelectedModelLoaded
+);
 
 export const getCategories = createSelector(
 	getAllModels,
