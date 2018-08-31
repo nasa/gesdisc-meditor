@@ -1,11 +1,10 @@
 <div class="search-bar-container">
 	<mat-select class="search-bar-select" (selectionChange)="selectionChanged.emit(modelControl.value.name)" [formControl]="modelControl">	
-		<mat-select-trigger *ngIf="modelControl.value">
+		<mat-select-trigger>
 			<i class="icon-badge icon-badge-xs icon-badge-inline fa {{modelControl.value.icon?.name}} align-middle mat-elevation-z0"
 				[style.background-color]="modelControl.value.icon?.color"></i>
-			{{modelControl.value.name}}
-		</mat-select-trigger>
-		
+			{{modelControl.value.name ? modelControl.value.name : ''}}
+		</mat-select-trigger>		
 		<mat-option *ngFor="let model of models" [value]="model">
 			<i class="icon-badge icon-badge-xs fa {{model.icon?.name}} align-middle mat-elevation-z0"
 				[style.background-color]="model.icon?.color"></i>
