@@ -8,7 +8,7 @@
 	</div>
 	
 	<div fxFlex="8" class="sortby-select mr-2">
-		<mat-select [(value)]="sortBy">
+		<mat-select [(value)]="sortBy" (selectionChange)="sortByChanged.emit(sortBy)">
 			<mat-option value="oldest">Oldest</mat-option>
 			<mat-option value="newest">Newest</mat-option>
 		</mat-select>

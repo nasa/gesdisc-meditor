@@ -29,7 +29,8 @@ import { Privilege, Edge } from '../../service/model/workflow';
 			[modelName] = "(selectedModel$ | async)?.name"
 			[addNewLabel] = "(edge$ | async)?.label"
 			[canAddNew] = "canAddNewShow"
-			(addNew) = "addNewDocument()">
+			(addNew) = "addNewDocument()"
+			(sortByChanged)="sortByChanged($event)">
 		</med-search-status>
 		<med-search-result-list [results]="filteredResults$ | async" [model]="selectedModel$ | async"></med-search-result-list>
 	`,
@@ -57,8 +58,7 @@ export class SearchPageComponent implements OnInit {
 	canAddNewShow: boolean = false;
 
 	constructor(
-		private store: Store<fromApp.AppState>
-	) {
+		private store: Store<fromApp.AppState>) {
 		this.models$ = store.pipe(select(fromApp.getAllModels));
 		this.selectedModel$ = store.pipe(select(fromApp.selectCurrentModel));
 		this.results$ = store.pipe(select(fromSearch.selectAllResults));
@@ -104,6 +104,24 @@ export class SearchPageComponent implements OnInit {
 
 	searchChanged(event: string) {
 		this.filteredResults$ = this.results$.pipe(map(document => document.filter(doc => doc.title.search(new RegExp(event, "i")) != -1)))
+	}
+
+	sortByChanged(event: string) {
+		if (event == 'oldest') {
+			this.filteredResults$ = this.results$.pipe(map(document => { 
+				document.sort((a, b) => { 
+					return a['x-meditor'].modifiedOn < b['x-meditor'].modifiedOn ? -1 : 1; 
+				});
+				return document;
+			}));
+		} else {
+			this.filteredResults$ = this.results$.pipe(map(document => { 
+				document.sort((a, b) => { 
+					return a['x-meditor'].modifiedOn > b['x-meditor'].modifiedOn ? -1 : 1; 
+				});
+				return document;
+			}));
+		}
 	}
 
 	addNewDocument() {

@@ -3,8 +3,7 @@ import {
 	Input,
 	Output,
 	EventEmitter,
-	OnInit,
-	OnChanges
+	OnInit
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ModelCatalogEntry } from '../../../service';
@@ -20,19 +19,12 @@ export class SearchBarComponent implements OnInit {
 	@Output() selectionChanged = new EventEmitter<string>();
 	@Output() searchChanged = new EventEmitter<string>();
 
-	query = '';
-
-	modelControl = new FormControl();
+	query: string = '';
+	modelControl: FormControl;
 
 	ngOnInit() {
-		this.modelControl.setValue({name: this.selectedModel.name, icon: this.selectedModel.icon});
+		this.modelControl = new FormControl(this.selectedModel);
 	}
-
-	// ngOnChanges() {
-	// 	if (this.selectedModel) {
-	// 		this.modelControl.setValue({name: this.selectedModel.name, icon: this.selectedModel.icon});
-	// 	}
-	// }
 
 	onSearchChange() {
 		this.searchChanged.emit(this.query);
