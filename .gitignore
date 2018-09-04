@@ -9,6 +9,7 @@
 /ui/dist-server
 /ui/tmp
 /ui/out-tsc
+/data/
 
 # dependencies
 /node_modules
@@ -43,6 +44,7 @@ npm-debug.log
 yarn-error.log
 testem.log
 /typings
+.env
 
 # e2e
 /e2e/*.js
