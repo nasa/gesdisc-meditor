@@ -1,0 +1,37 @@
+version: "3.3"
+
+services:
+
+  ui:
+    container_name: meditor_ui
+    build: ui
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "${UI_HOST_PORT}:4200"
+    volumes:
+      - ${UI_HOST_VOLUME}:/usr/src/app
+      - /usr/src/app/node_modules
+  
+  server:
+    container_name: meditor_server
+    build: nodejs-server-server
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "${SERVER_HOST_PORT}:8081"
+    volumes:
+      - ${SERVER_HOST_VOLUME}:/usr/src/app
+      - /usr/src/app/node_modules
+    links:
+      - database
+
+  database:
+    container_name: meditor_database
+    image: mongo
+    volumes:
+      - ${DATABASE_HOST_VOLUME}:/data/db
+    ports:
+      - "${DATABASE_HOST_PORT}:27017"
