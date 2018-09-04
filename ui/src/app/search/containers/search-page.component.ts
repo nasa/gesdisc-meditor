@@ -16,24 +16,7 @@ import { Privilege, Edge } from '../../service/model/workflow';
 @Component({
 	selector: 'med-search-page',
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	template: `
-		<med-search-bar
-			[models]="models$ | async"
-			[selectedModel]="selectedModel$ | async"
-			(selectionChanged)="selectAndChange($event)"
-			(searchChanged)="searchChanged($event)">
-		</med-search-bar>
-		<med-search-status
-			[resultCount] = "(results$ | async)?.length"
-			[filteredCount] = "(filteredResults$ | async)?.length"
-			[modelName] = "(selectedModel$ | async)?.name"
-			[addNewLabel] = "(edge$ | async)?.label"
-			[canAddNew] = "canAddNewShow"
-			(addNew) = "addNewDocument()"
-			(sortByChanged)="sortByChanged($event)">
-		</med-search-status>
-		<med-search-result-list [results]="filteredResults$ | async" [model]="selectedModel$ | async"></med-search-result-list>
-	`,
+	templateUrl: './search-page.component.html',
 	styles: [
 		`
 
