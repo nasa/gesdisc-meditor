@@ -5,7 +5,6 @@ services:
   ui:
     container_name: meditor_ui
     build: ui
-    restart: always
     env_file:
       - .env
     ports:
@@ -17,7 +16,6 @@ services:
   server:
     container_name: meditor_server
     build: nodejs-server-server
-    restart: always
     env_file:
       - .env
     ports:
@@ -30,8 +28,14 @@ services:
 
   database:
     container_name: meditor_database
-    image: mongo
+    image: mongo:4.1
     volumes:
       - ${DATABASE_HOST_VOLUME}:/data/db
     ports:
       - "${DATABASE_HOST_PORT}:27017"
+
+  database-seed:
+    container_name: meditor_database_seed
+    build: mongo-seed/.
+    links:
+      - database
