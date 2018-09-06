@@ -7,7 +7,9 @@ import { MaterialModule } from '../material';
 // CONTAINERS
 import { MainComponent } from './containers/main/main.component';
 import { NotFoundPageComponent } from './containers/not-found-page';
-import { SplashPageComponent, LoginDialog } from './containers/splash-page/splash-page.component';
+import { SplashPageComponent, 
+//	LoginDialog 
+} from './containers/splash-page/splash-page.component';
 // COMPONENTS
 import { ModelButtonComponent } from './components/model-button/model-button.component';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
@@ -23,7 +25,7 @@ export const COMPONENTS = [
 	NotFoundPageComponent,
 	SplashPageComponent,
 	ToolbarComponent,
-	LoginDialog
+	//LoginDialog
 ];
 
 @NgModule({
@@ -38,7 +40,7 @@ export const COMPONENTS = [
 	],
 	declarations: COMPONENTS,
 	exports: COMPONENTS,
-	entryComponents: [ LoginDialog ]
+	//entryComponents: [ LoginDialog ]
 	})
 
 export class CoreModule {
