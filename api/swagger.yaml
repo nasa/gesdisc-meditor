@@ -294,7 +294,7 @@ paths:
   /changeDocumentState:
     get:
       summary: "Change the state of a document"
-      description: "Change the state of a document"
+      description: "Change the state of a document; modifies the state of a document by a privileged user"
       operationId: "changeDocumentState"
       parameters:
       - name: "model"
