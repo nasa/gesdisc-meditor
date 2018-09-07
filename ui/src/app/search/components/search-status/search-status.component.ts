@@ -9,10 +9,13 @@ export class SearchStatusComponent implements OnInit {
 
 	@Input() filteredCount: number;
 	@Input() resultCount: number;
-	@Input() modelName: string;
-	@Output() addNew = new EventEmitter();
+  @Input() modelName: string;
+  @Input() canAddNew: boolean;
+  @Input() addNewLabel: string;
+  @Output() addNew = new EventEmitter();
+  @Output() sortByChanged = new EventEmitter();
 
-	sortBy = 'newest';
+	sortBy: string = 'newest';
 
   constructor() { }
 

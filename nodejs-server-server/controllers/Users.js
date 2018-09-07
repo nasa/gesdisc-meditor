@@ -19,7 +19,8 @@ var USERS_COLLECTION_URS = 'users-urs';
 var USERS_COLLECTION_MEDITOR = 'Users';
 
 var ENV_CONFIG = {
-  APP_URL: process.env.APP_URL || 'http://localhost:8081'
+  APP_URL: process.env.APP_URL || 'http://localhost:8081',
+  APP_UI_URL: process.env.APP_UI_URL || process.env.APP_URL || 'http://localhost:8081',
 };
 
 var AUTH_CONFIG = {
@@ -100,7 +101,7 @@ passport.deserializeUser(function (userId, done) {
         user.roles = {};
         return dbo.collection(USERS_COLLECTION_MEDITOR).findOne({
           id: userId
-        });
+        }, {sort : {"x-meditor.modifiedOn": -1}});
       })
       .then(function (res) {
         // Attach Meditor roles if available
@@ -198,7 +199,7 @@ module.exports.login = function login(req, res, next) {
           }, 500);
         } else {
           res.writeHead(301, {
-            Location: ENV_CONFIG.APP_URL + '/#/auth/getuser'
+            Location: ENV_CONFIG.APP_UI_URL + '/#/auth/getuser'
           });
           res.end();
         }
@@ -219,7 +220,7 @@ module.exports.logout = function logout(req, res, next) {
   // };
   // if (outCookies.length > 0) res.setHeader('Set-Cookie', outCookies);
   res.writeHead(301, {
-    Location: ENV_CONFIG.APP_URL + '/#/'
+    Location: ENV_CONFIG.APP_UI_URL + '/#/'
   });
   res.end();
 };

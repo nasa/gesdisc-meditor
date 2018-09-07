@@ -2,6 +2,29 @@
 
 
 /**
+ * Change the state of a document
+ * Change the state of a document; modifies the state of a document by a privileged user
+ *
+ * model String Name of the Model
+ * title String Title of the document
+ * state String Target state of the document
+ * version String Version of the document (optional)
+ * returns Object
+ **/
+exports.changeDocumentState = function(model,title,state,version) {
+  return new Promise(function(resolve, reject) {
+    var examples = {};
+    examples['application/json'] = "{}";
+    if (Object.keys(examples).length > 0) {
+      resolve(examples[Object.keys(examples)[0]]);
+    } else {
+      resolve();
+    }
+  });
+}
+
+
+/**
  * Gets comments for document
  * Gets comments for document
  *

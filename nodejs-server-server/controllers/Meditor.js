@@ -27,6 +27,15 @@ function safelyParseJSON (jsonStr) {
   return jsonObj;
 }
 
+// Converts Swagger parameter notation into a plain dictionary
+function getSwaggerParams(request) {
+  var params = {};
+  for ( var property in request.swagger.params ) {
+    params[property] = request.swagger.params[property].value;
+  }
+  return params;
+}
+
 // Add a Model
 function addModel (model) {
   model["x-meditor"]["modifiedOn"] = (new Date()).toISOString();
@@ -87,7 +96,7 @@ module.exports.listModels = function listModels (req, res, next) {
   })
   .catch(function (response) {
     utils.writeJson(res, response);
-  });;
+  });
 };
 
 //Exported method to add a Model
@@ -258,10 +267,7 @@ function getImage(model, title, version, res) {
 };
 
 module.exports.getDocumentImage = function getDocumentImage (req, res, next) {
-  var params = {};
-  for ( var property in req.swagger.params ) {
-    params[property] = req.swagger.params[property].value;
-  }
+  var params = getSwaggerParams(req);
   getImage(params.model, params.title, params.version, res)
   .then(function (response){
     // Do nothing, response has been written already in getImage
@@ -311,115 +317,194 @@ module.exports.putDocument = function putDocument (req, res, next) {
   });
 };
 
-// Internal method to list documents
-function getListOfDocuments (model,properties) {
-  return new Promise(function(resolve, reject) {
-    MongoClient.connect(MongoUrl, function(err, db) {
-      if (err) {
-        console.log(err);
-        throw err;
-      }
-      var dbo = db.db(DbName);
-      dbo.collection("Models").find({name:model}).project({_id:0, "titleProperty":1}).toArray(function(err, res) {
-        if (err){
-          console.log(err);
-          throw err;
-        }else if (res.length < 1){
-          return resolve(res);
-        }
-        var projection = {_id:0};
-        var properties = ["x-meditor.modifiedOn","x-meditor.modifiedBy"];
-        if (res.length > 0){
-          properties.push(res[0]["titleProperty"]);
-        }
-        if (Array.isArray(properties)) {
-          properties.forEach(function(element){
-            projection[element]=1;
-          });
-        }
-        var titleField = res[0]["titleProperty"];
-        dbo.collection(model).aggregate(
-          [ {$sort:{"x-meditor.modifiedOn":1}},
-            { $group : { _id : "$"+titleField, "x-meditor": {$first:"$x-meditor"}}}])
-          .map(doc=>({"title":doc["_id"], "x-meditor":doc["x-meditor"]}))
-          .toArray(function(err, res) {
-            if(err){
-              console.log(err);
-            }
-            db.close();
-            resolve(res);
-          });
-      });
-    });
-  });
-}
-
-// Exported method to list Models
-module.exports.listDocuments = function listDocuments (req, res, next) {
-  getListOfDocuments (req.swagger.params['model'].value)
-  .then(function (response) {
-    utils.writeJson(res, response);
-  })
-  .catch(function (response) {
-    utils.writeJson(res, response);
-  });;
+function handleError(response, err) {
+  console.log('Error: ', err);
+  utils.writeJson(response, {code: err.status || 500, message: err.message || 'Unknown error '}, err.status || 500);
 };
 
-// Internal method to list documents
-function getDocumentContent (params) {
-  return new Promise(function(resolve, reject) {
-    MongoClient.connect(MongoUrl, function(err, db) {
-      if (err) {
-        console.log(err);
-        throw err;
-      }
-      var dbo = db.db(DbName);
-      dbo.collection("Models").find({name:params.model}).sort({"x-meditor.modifiedOn":-1}).project({_id:0}).toArray(function(err, res) {
-        if (err){
-          console.log(err);
-          throw err;
-        }
-        var titleField = res[0]["titleProperty"];
-        var schema = res[0].schema;
-        var layout = res[0].layout;
-        var projection = {_id:0};
-        var query = {};
-        if ( params.hasOwnProperty("version") && params.version !== 'latest' ) {
-          query["x-meditor.modifiedOn"] = params.version;
-        }
-        query[titleField]=params.title;
-        dbo.collection(params.model).find(query).project({_id:0}).sort({"x-meditor.modifiedOn":-1}).limit(1).toArray(function(err, res) {
-          if (err){
-            console.log(err);
-            throw err;
-          }
-          db.close();
-          var out = {};
-          out["x-meditor"] = res[0]["x-meditor"];
-          delete res[0]["x-meditor"];
-          out["schema"] = schema;
-          out["layout"] = layout;
-          out["doc"] = res[0];
-          resolve(out);
-        });
-      });
-    });
-  });
+function handleSuccess(response, res) {
+  utils.writeJson(response, {code: 200, message: res}, 200);
 }
 
-//Exported method to get a document
-module.exports.getDocument = function listDocuments (req, res, next) {
-  var params = {};
-  for ( var property in req.swagger.params ) {
-    params[property] = req.swagger.params[property].value;
-  }
-  getDocumentContent (params)
-  .then(function (response) {
-    utils.writeJson(res, response);
-  })
-  .catch(function (response) {
-    utils.writeJson(res, response);
-  });
+function getDocumentAggregationQuery(meta) {
+  var searchQuery = {};
+  var query = [
+    {$addFields: {'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}}}, // Find last state
+    // TODO: Remove 'or' line once we cleaned up the DB to have a state on all documents 
+    //{$match: {'x-meditor.state': {$in: meta.sourceStates}}}, // Filter states based on the role's source states
+    {$match: {$or: [{'x-meditor.state': {$in: meta.sourceStates}}, {'x-meditor.state': null}]}}, // Filter states based on the role's source states
+    {$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
+  ];
+  if ('title' in meta.params) searchQuery[meta.titleProperty] =  meta.params.title;
+  if ('version' in  meta.params && meta.params.version !== 'latest') searchQuery['x-meditor.modifiedOn'] = meta.params.version;
+  if (!_.isEmpty(searchQuery)) query.unshift({$match: searchQuery});
+  return query;
+}
+
+function getDocumentModelMetadata(dbo, request) {
+  // This is a convenience function that returns a number of
+  // parameters needed to work with documents:
+  // - request parameters
+  // - all user roles
+  // - model-specific user roles
+  // - model
+  // - workflow
+  // - title property (retrieved from model)
+  // - source states available to the user
+  // - target states available to the user
+  var that = {
+    params: getSwaggerParams(request),
+    roles: _.get(request, 'user.roles', {}),
+    dbo: dbo
+  };
+  // TODO remove later
+  that.roles = [ 
+    { model: 'Alerts', role: 'Author' },
+    { model: 'Alerts', role: 'Reviewer' } ];
+  that.modelRoles = _(that.roles).filter({model: that.params.model}).map('role').value();
+  return Promise.resolve()
+    .then(function() {
+      return that.dbo
+      .db(DbName)
+      .collection('Models')
+      .find({name: that.params.model})
+      .sort({'x-meditor.modifiedOn': -1})
+      .limit(1)
+      .toArray()
+    })
+    .then(res => {
+      if (_.isEmpty(res)) throw {message: 'Model for ' + that.params.model + ' not found', status: 400};
+      that.model = res[0];
+      that.titleProperty = that.model['titleProperty'] || 'title';
+    })
+    .then(res => {
+      return that.dbo
+        .db(DbName)
+        .collection('Workflows')
+        .find({name: that.model.workflow})
+        .sort({'x-meditor.modifiedOn': -1})
+        .limit(1)
+        .toArray();
+    })
+    .then(res => {
+      if (_.isEmpty(res)) throw {message: 'Workflow for ' + that.params.model + ' not found', status: 400};
+      that.workflow = res[0];
+      that.sourceStates = _(that.workflow.edges)
+        .filter(function(e) {return that.modelRoles.indexOf(e.role) !== -1;})
+        .map('source').uniq().value();
+      that.targetStates = _(that.workflow.edges)
+        .filter(function(e) {return that.modelRoles.indexOf(e.role) !== -1;})
+        .map('target').uniq().value();
+      return that;
+    })
+};
+
+// Exported method to list documents
+module.exports.listDocuments = function listDocuments (request, response, next) {
+  // Function - wide variables are stored here
+  // 1. Get Model to learn about workflow and title field
+  // 2. Find workflow to learn about states
+  // 3. Find latest version of the documents according to roles
+  var that = {};
+  return MongoClient.connect(MongoUrl)
+    .then(res => {
+      that.dbo = res;
+      return getDocumentModelMetadata(that.dbo, request);
+    })
+    .then(meta => {_.assign(that, meta)})
+    .then(function() {
+      var xmeditorProperties = ["modifiedOn", "modifiedBy", "state"];
+      var query = getDocumentAggregationQuery(that);
+      query.push({$group: {_id: '$' + that.titleProperty, doc: {$first: '$$ROOT'}}}); // Caution - list is sorted descending, so need to grab first item
+      return that.dbo
+        .db(DbName)
+        .collection(that.params.model)
+        .aggregate(query)
+        .map(function(doc) {
+          var res = {"title": doc._id};
+          res["x-meditor"] = _.pickBy(doc.doc['x-meditor'], function(value, key) {return xmeditorProperties.indexOf(key) !== -1;});
+          return res;
+      })
+      .toArray();
+    })
+    .then(res => (that.dbo.close(), handleSuccess(response, res)))
+    .catch(err => {
+      handleError(response, err);
+    })
+};
+
+// Exported method to get a document
+module.exports.getDocument = function listDocuments (request, response, next) {
+  var that = {};
+  return MongoClient.connect(MongoUrl)
+    .then(res => {
+      that.dbo = res;
+      return getDocumentModelMetadata(that.dbo, request);
+    })
+    .then(meta => {_.assign(that, meta)})
+    .then(function() {
+      var query = getDocumentAggregationQuery(that);
+      query.push({$limit: 1});
+      return that.dbo
+        .db(DbName)
+        .collection(that.params.model)
+        .aggregate(query)
+        .map(res => {
+          var out = {};
+          out["x-meditor"] = res["x-meditor"];
+          delete res["x-meditor"];
+          out["schema"] = that.model.schema;
+          out["layout"] = that.model.layout;
+          out["doc"] = res;
+          return out;
+        })
+        .toArray();
+    })
+    .then(res => (that.dbo.close(), handleSuccess(response, res[0])))
+    .catch(err => {
+      handleError(response, err);
+    })
+};
+
+// Change workflow status of a document
+module.exports.changeDocumentState = function changeDocumentState (request, response, next) {
+  var that = {};
+  return MongoClient.connect(MongoUrl)
+    .then(res => {
+      that.dbo = res;
+      return getDocumentModelMetadata(that.dbo, request);
+    })
+    .then(meta => {_.assign(that, meta)})
+    .then(function() {
+      var query = getDocumentAggregationQuery(that);
+      query.push({$limit: 1});
+      return that.dbo
+      .db(DbName)
+      .collection(that.params.model)
+      .aggregate(query)
+      .toArray();
+    })
+    .then(res => res[0])
+    .then(function(res) {
+      var newStatesArray;
+      if (_.isEmpty(res)) throw {message: 'Document not found', satus: 400};
+      if (that.params.state === res['x-meditor']['state']) throw {message: 'Can not transition to state [' + that.params.state + '] since it is the current state already', satus: 400};
+      if (that.targetStates.indexOf(that.params.state) === -1) throw {message: 'Can not transition to state [' + that.params.state + '] - invalid state or insufficient rights', satus: 400};
+      newStatesArray = res['x-meditor'].states;
+      newStatesArray.push({
+        source: res['x-meditor'].state,
+        target: that.params.state,
+        modifiedOn: (new Date()).toISOString()
+      });
+      return that.dbo
+        .db(DbName)
+        .collection(that.params.model)
+        .update({_id: res._id}, {$set: {'x-meditor.states': newStatesArray}});
+    })
+    .then(res => (that.dbo.close(), handleSuccess(response, "Success")))
+    .catch(err => {
+      handleError(response, err);
+    })
 };
 
 // Internal method to list documents
@@ -527,17 +612,14 @@ function findDocHistory (params) {
 
 //Exported method to get a model
 module.exports.getDocumentHistory = function getModel (req, res, next) {
-  var params = {};
-  for ( var property in req.swagger.params ) {
-    params[property] = req.swagger.params[property].value;
-  }
+  var params = getSwaggerParams(req);
   findDocHistory (params)
   .then(function (response) {
     utils.writeJson(res, response);
   })
   .catch(function (response) {
     utils.writeJson(res, response);
-  });;
+  });
 };
 
 
@@ -591,7 +673,7 @@ module.exports.getComments = function getComments (req, res, next) {
   })
   .catch(function (response) {
     utils.writeJson(res, response);
-  });;
+  });
 };
 
 //Exported method to resolve comment
@@ -602,7 +684,7 @@ module.exports.resolveComment = function resolveComment(req, res, next) {
   })
   .catch(function (response) {
     utils.writeJson(res, {code:500, message: response}, 500);
-  });;
+  });
 };
 
 //Exported method to add a comment
