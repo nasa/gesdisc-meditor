@@ -27,7 +27,7 @@ export class DocumentExistsGuard implements CanActivate {
   ) { 
   }
 
-    /**
+  /**
    * This method checks if document fro route is already registered
    * in the Store
    */  
@@ -43,15 +43,15 @@ export class DocumentExistsGuard implements CanActivate {
     );
   }
 
-  // /**
-  //  * This method loads document from the API and caches
-  //  * it in the store, returning `true` or `false` if it was found.
-  //  */
+  /**
+  * This method loads document from the API and caches
+  * it in the store, returning `true` or `false` if it was found.
+  */
   hasDocumentInApi(modelName: string, title: string): Observable<boolean> {
     return this.defaultService.getDocument(modelName, title).pipe(
       map(document => new fromDocument.LoadDocumentComplete(document)),
       tap((action: fromDocument.LoadDocumentComplete) => { this.store.dispatch(action) }),
-      map(models => !!models),
+      map(document => !!document),
       catchError(() => {
         this.router.navigate(['/404']);
         return of(false);

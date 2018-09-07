@@ -24,6 +24,7 @@ export interface ModelCatalogEntry {
      */
     description: string;
     icon?: ModelIcon;
+    
     /**
      * JSON Schema of the model itself
      */

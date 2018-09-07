@@ -23,14 +23,14 @@ export class ModelsExistsGuard implements CanActivate {
     private router: Router
   ) { }
 
-    /**
+  /**
    * This method checks if models are already registered
    * in the Store
    */  
   hasModelsInStore(): Observable<boolean> {
     return this.store.pipe(
       select(fromApp.getModelsLoaded),
-      map(loaded => loaded),
+      map(loadedModels => loadedModels),
       take(1)
     );
   }
@@ -39,14 +39,10 @@ export class ModelsExistsGuard implements CanActivate {
    * This method loads models from the API and caches
    * it in the store, returning `true` or `false` if it was found.
    */
-  hasModelsInApi(modelName?: string): Observable<boolean> {
+  hasModelsInApi(): Observable<boolean> {
     return this.defaultService.listModels().pipe(
       map(models => new fromApp.LoadModelsComplete(models)),
       tap((action: fromApp.LoadModelsComplete) => { 
-        if (modelName) {
-          this.store.dispatch(new fromApp.SelectModel(modelName));
-          this.store.dispatch(new fromApp.LoadSelectedModel(modelName));
-        }
         this.store.dispatch(action) }),
       map(models => !!models),
       catchError(() => {
@@ -55,6 +51,10 @@ export class ModelsExistsGuard implements CanActivate {
       })
     );
   }  
+
+  
+
+  
 
   /**
    * This is the actual method the router will call when our guard is run.
@@ -69,18 +69,13 @@ export class ModelsExistsGuard implements CanActivate {
    * on to the next candidate route. In this case, it will move on
    * to the 404 page.
    */
-  canActivate(route: ActivatedRouteSnapshot): Observable<boolean> {
-    let modelName = route.queryParams['model'];
+  canActivate(): Observable<boolean> {
     return this.hasModelsInStore().pipe(
       switchMap(inStore => {
         if (inStore) {
-          if (modelName) {
-            this.store.dispatch(new fromApp.SelectModel(modelName));
-            this.store.dispatch(new fromApp.LoadSelectedModel(modelName));
-          }
           return of(inStore);
         }
-        return this.hasModelsInApi(modelName);
+        return this.hasModelsInApi();
       })
     );
   }

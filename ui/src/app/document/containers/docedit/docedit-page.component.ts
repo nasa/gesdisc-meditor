@@ -28,10 +28,15 @@ export class DocEditPageComponent implements OnInit {
 	showHistory: boolean = false;
 	historyLoaded: boolean = false;
 	@ViewChild('sidenav') sidenav: MatSidenav;
-
-  close() {
-    this.sidenav.close();
-  }
+	
+	open() {
+    this.sidenav.open();
+	}
+	
+	close() {
+		this.sidenav.close();
+		this.showHistory = false;
+	}
 
 	constructor(		
 		private store: Store<fromApp.AppState>
@@ -52,7 +57,7 @@ export class DocEditPageComponent implements OnInit {
 				this.documentTitle = document.doc[this.titleProperty];				
 			}
 		});		
-		this.store.dispatch(new fromDocument.LoadHistory({model: this.modelName, title: this.documentTitle}));
+		// this.store.dispatch(new fromDocument.LoadHistory({model: this.modelName, title: this.documentTitle}));
 	}
 
 	loadVersion(event: string) {
@@ -65,15 +70,16 @@ export class DocEditPageComponent implements OnInit {
 		data['x-meditor'] = {
 			model: this.modelName
 		};
+		data.title = this.documentTitle;
 		this.store.dispatch(new fromDocument.SubmitDocument(data));
 		this.store.dispatch(new fromDocument.LoadHistory({model: this.modelName, title: this.documentTitle}));
 	}
 
 	toggleHistory() {	
+		this.showHistory ? this.close() : this.open();
 		if(!this.historyLoaded) { 
 			this.store.dispatch(new fromDocument.LoadHistory({model: this.modelName, title: this.documentTitle}));
 			this.historyLoaded = true;
 		}	
-		this.showHistory = !this.showHistory;
 	}
 }

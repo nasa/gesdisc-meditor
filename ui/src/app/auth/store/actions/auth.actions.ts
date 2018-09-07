@@ -3,6 +3,8 @@ import { Action } from '@ngrx/store';
 export enum AuthActionTypes {
   GetUser = '[Auth] GetUser',
   Logout = '[Auth] Logout',
+  OpenLoginDialog = '[Auth] Open Login Dialog',
+  CloseLoginDialog = '[Auth] Close Login Dialog',
   LoginSuccess = '[Auth] Login Success',
   LoginFailure = '[Auth] Login Failure',
   LoginRedirect = '[Auth] Login Redirect',
@@ -26,7 +28,14 @@ export class LoginFailure implements Action {
 
 export class LoginRedirect implements Action {
   readonly type = AuthActionTypes.LoginRedirect;
+}
 
+export class OpenLoginDialog implements Action {
+  readonly type = AuthActionTypes.OpenLoginDialog;
+}
+
+export class CloseLoginDialog implements Action {
+  readonly type = AuthActionTypes.CloseLoginDialog;
 }
 
 export class Logout implements Action {
@@ -38,4 +47,6 @@ export type AuthActions =
   | LoginSuccess
   | LoginFailure
   | LoginRedirect
+  | OpenLoginDialog
+  | CloseLoginDialog
   | Logout;
