@@ -5,11 +5,6 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { MaterialModule } from '../material';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { StoreModule } from '@ngrx/store';
-import { EffectsModule } from '@ngrx/effects';
-
-import { reducers, effects } from './store';
-
 import {
   JsonSchemaFormModule, MaterialDesignFrameworkModule, MaterialDesignFramework,
   WidgetLibraryService, FrameworkLibraryService, JsonSchemaFormService, Framework
@@ -23,8 +18,6 @@ import { DochistoryComponent } from './components/dochistory/dochistory.componen
 // import { CommentsModule } from '../comments/comments.module';
 
 import { routes } from './document.routing';
-import { DocumentResolver } from './store/guards/docedit.resolver';
-import { DocumentExistsGuard } from './store/guards/document-exists.guard';
 
 @NgModule({
   imports: [
@@ -34,8 +27,6 @@ import { DocumentExistsGuard } from './store/guards/document-exists.guard';
     FormsModule,
 		ReactiveFormsModule,
     RouterModule.forChild(routes),
-    StoreModule.forFeature('documentData', reducers),
-		EffectsModule.forFeature(effects),
     MaterialDesignFrameworkModule,
     // CommentsModule,
     {
@@ -54,7 +45,6 @@ import { DocumentExistsGuard } from './store/guards/document-exists.guard';
   	DocumentEditComponent,
   	DochistoryComponent
   ],
-  providers: [ DocumentResolver, DocumentExistsGuard ],
   entryComponents: [
   	DocEditPageComponent
   ]

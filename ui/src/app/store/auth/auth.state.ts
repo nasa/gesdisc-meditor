@@ -1,13 +1,16 @@
 import { State, Action, StateContext, Selector, Store } from '@ngxs/store';
 import { MatDialog } from '@angular/material';
+import { Router } from '@angular/router';
 import { Document, DocHistory } from 'app/service/model/models';
 import { DefaultService } from 'app/service/api/default.service';
 import * as actions from './auth.actions';
+import * as notification from 'app/store/notification/notification.actions';
 import { tap } from 'rxjs/operators';
 
 import { LoginDialog } from 'app/auth/components/login-dialog/login-dialog.component';
 
 export * from './auth.actions';
+
 
 //TODO type User later
 
@@ -27,7 +30,12 @@ export class AuthState {
 
 		@Selector() static loggedIn(state: AuthStateModel): boolean { return state.loggedIn; }
 		@Selector() static user(state: AuthStateModel): any { return state.user; }
-		constructor(private store: Store, private service: DefaultService, private dialog: MatDialog) {}
+
+		constructor(
+			private store: Store, 
+			private service: DefaultService, 
+			private dialog: MatDialog,
+			private router: Router) {}
 
 		@Action(actions.GetUser)
 			getUser({ patchState, getState, dispatch }: StateContext<AuthStateModel>, action: actions.GetUser) {
@@ -41,13 +49,16 @@ export class AuthState {
 		}
 
 		@Action(actions.LoginSuccess)
-			loginSuccess({ patchState, getState }: StateContext<AuthStateModel>, { payload }: actions.LoginSuccess) {
+			loginSuccess({ patchState, getState, dispatch }: StateContext<AuthStateModel>, { payload }: actions.LoginSuccess) {
 				patchState({ user: payload, loggedIn: true });
+				this.router.navigateByUrl(localStorage.getItem('returnUrl') || '/');      
+      	return dispatch(new notification.SuccessNotificationOpen('You have successfully logged in'));
 		}
 
 		@Action(actions.Logout)
 			logout({ patchState, getState }: StateContext<AuthStateModel>, { }: actions.Logout) {
 				patchState({ user: null, loggedIn: false });
+				this.router.navigate(['/']);
 		}
 
 		@Action(actions.OpenLoginDialog)

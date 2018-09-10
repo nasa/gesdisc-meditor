@@ -4,6 +4,9 @@ import { Observable } from 'rxjs/Observable';
 
 import { Store, Select } from '@ngxs/store';
 import { ModelState } from 'app/store/model/model.state';
+import { Go } from 'app/store/router/router.state';
+import { GetUser } from 'app/store/auth/auth.state';
+
 
 @Component({
 	selector: 'med-splash-page',
@@ -16,11 +19,6 @@ export class SplashPageComponent implements OnInit{
 	@Select(ModelState.currentModel) model$: Observable<Model>;
 	@Select(ModelState.categories) categories$: Observable<string[]>;
 
-	// models$: Observable<ModelCatalogEntry[]>;
-	// currentModel$: Observable<string>;
-	// categories$: Observable<string[]>;
-	// modelName: string;
-
 	constructor(
 		private store: Store
 	) {		
@@ -28,6 +26,7 @@ export class SplashPageComponent implements OnInit{
 
 	ngOnInit () {	
 		localStorage.clear();		
+		this.store.dispatch(new GetUser());
 		// this.store.dispatch(new fromApp.LoadModels());		
 		// this.loggedIn$.subscribe(status => {
 		// 	if (!status) { 
@@ -44,6 +43,6 @@ export class SplashPageComponent implements OnInit{
 		// 	this.store.dispatch(new fromApp.SelectModel(event.name));
 		// 	this.store.dispatch(new fromApp.LoadSelectedModel(event.name));
 		// }
-		//this.store.dispatch(new Go({path: ['/search'], query: { model: event.name}}))
+		this.store.dispatch(new Go({path: '/search', query: { model: event.name}}))
 	}
 }

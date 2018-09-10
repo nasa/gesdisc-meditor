@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 
 import * as fromSearch from '../store';
 import * as fromApp from '../../store';
-import * as fromUser from '../../auth/store';
+//import * as fromUser from '../../auth/store';
 import { Store, select } from '@ngrx/store';
 import { map } from 'rxjs/operators';
 
@@ -30,7 +30,7 @@ export class SearchPageComponent implements OnInit {
 	workflowLoaded$: Observable<boolean>;
 	privileges$: Observable<Privilege[]>;
 	results$: Observable<DocCatalogEntry[]>;
-	user$: Observable<any>;
+	//user$: Observable<any>;
 	edge$: Observable<Edge>;
 	filteredResults$: Observable<DocCatalogEntry[]>;
 
@@ -45,7 +45,7 @@ export class SearchPageComponent implements OnInit {
 		this.models$ = store.pipe(select(fromApp.getAllModels));
 		this.selectedModel$ = store.pipe(select(fromApp.selectCurrentModel));
 		this.results$ = store.pipe(select(fromSearch.selectAllResults));
-		this.user$ = store.pipe(select(fromUser.getUser));
+		//this.user$ = store.pipe(select(fromUser.getUser));
 		this.edge$ = store.pipe(select(fromApp.selectInitialEdge));
 		this.privileges$ = store.pipe(select(fromApp.selectCurrentNode));
 		this.workflowLoaded$ = store.pipe(select(fromApp.selectWorkflowLoaded));
