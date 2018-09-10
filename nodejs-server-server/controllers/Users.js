@@ -101,7 +101,7 @@ passport.deserializeUser(function (userId, done) {
         user.roles = {};
         return dbo.collection(USERS_COLLECTION_MEDITOR).findOne({
           id: userId
-        });
+        }, {sort : {"x-meditor.modifiedOn": -1}});
       })
       .then(function (res) {
         // Attach Meditor roles if available

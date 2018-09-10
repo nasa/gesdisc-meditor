@@ -72,4 +72,3 @@ xdescribe('Login Component', () => {
 
   //   expect(instance.submitted.emit).toHaveBeenCalledWith(credentials);
   // });
-});

@@ -3,13 +3,13 @@ import { ModelCatalogEntry } from '../../service/model/modelCatalogEntry';
 import { Model } from '../../service/model/model';
 
 export enum ModelActionTypes {
-	SelectModel = '[Model] Select Content Type',
-	LoadModels = '[Model] Load content types',
+	SelectModel = '[Model] Select model',
+	LoadModels = '[Model] Load models',
 	LoadModelsComplete = '[Model] Load complete',
 	LoadModelsError = '[Model] Load error',
-	LoadSelectedModel = '[Model] Load extended version of selected content type',
-	LoadSelectedModelComplete = '[Model] Load extended version of selected content type complete',
-	LoadSelectedModelError = '[Model] Load extended version of selected content type error'
+	LoadSelectedModel = '[Model] Load extended version of selected model',
+	LoadSelectedModelComplete = '[Model] Load extended version of selected model complete',
+	LoadSelectedModelError = '[Model] Load extended version of selected model error'
 }
 
 export class SelectModel implements Action {

@@ -4,8 +4,9 @@ import { ModelCatalogEntry } from '../../service/model/modelCatalogEntry';
 import { Model } from '../../service/model/model';
 
 export interface State extends EntityState<ModelCatalogEntry> {
-	loaded: boolean;
-  loading: boolean;
+	loadedModels: boolean;
+	loadingModels: boolean;
+	loadedSelectedModel: boolean,
 	selectedModelId: string;
 	selectedModel: Model;
 }
@@ -16,15 +17,18 @@ export const adapter: EntityAdapter<ModelCatalogEntry> = createEntityAdapter<Mod
 });
 
 export const initialState: State = adapter.getInitialState({
-	loaded: false,
-  loading: false,
-	selectedModelId: 'Alerts',
+	loadedModels: false,
+	loadingModels: false,
+	loadedSelectedModel: false,
+	selectedModelId: '',
 	selectedModel: {
 		name: '',
 		icon: {},
 		description: '',
 		schema: '',
-		layout: ''
+		layout: '',
+		workflow: '',
+		initEdge: ''
 	 }
 });
 
@@ -36,14 +40,14 @@ export function reducer(
 		case ModelActionTypes.LoadModels:
 			return {
 				...state,
-				loading: true
+				loadingModels: true
 			};
 
 		case ModelActionTypes.LoadModelsComplete:
 			return adapter.addMany(action.payload, {
 				...state,
-				loaded: true,
-				loading: false
+				loadedModels: true,
+				loadingModels: false
 			});
 
 		case ModelActionTypes.SelectModel:
@@ -55,7 +59,8 @@ export function reducer(
 		case ModelActionTypes.LoadSelectedModelComplete:
 			return {
 				...state,
-				selectedModel: action.payload
+				selectedModel: action.payload,
+				loadedSelectedModel: true
 			}
 
 		default:
@@ -65,8 +70,9 @@ export function reducer(
 
 export const getSelectedId = (state: State) => state.selectedModelId;
 export const getSelectedModel = (state: State) => state.selectedModel;
-export const getLoaded = (state: State) => state.loaded;
-export const getLoading = (state: State) => state.loading;
+export const getLoadedModels = (state: State) => state.loadedModels;
+export const getLoadingModels = (state: State) => state.loadingModels;
+export const getSelectedModelLoaded = (state: State) => state.loadedSelectedModel;
 
 export const {
   selectIds: selectModelIds,

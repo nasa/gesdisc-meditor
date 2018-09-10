@@ -3,11 +3,10 @@ import {
 	Input,
 	Output,
 	EventEmitter,
-	OnInit,
-	OnChanges
+	OnInit
 } from '@angular/core';
-import { Model } from '../../../service/model/model';
 import { FormControl } from '@angular/forms';
+import { ModelCatalogEntry } from '../../../service';
 
 @Component({
 	selector: 'med-search-bar',
@@ -15,23 +14,16 @@ import { FormControl } from '@angular/forms';
 	styleUrls: ['./search-bar.component.scss']
 })
 export class SearchBarComponent implements OnInit {
-	@Input() models: Model[];
-	@Input() selectedModel: Model;
+	@Input() models: ModelCatalogEntry[];
+	@Input() selectedModel: ModelCatalogEntry;
 	@Output() selectionChanged = new EventEmitter<string>();
 	@Output() searchChanged = new EventEmitter<string>();
 
-	query = '';
-
-	modelControl = new FormControl();
+	query: string = '';
+	modelControl: FormControl;
 
 	ngOnInit() {
-		this.modelControl.setValue(this.selectedModel);
-	}
-
-	ngOnChanges() {
-		if (this.selectedModel) {
-			this.modelControl.setValue(this.selectedModel);
-		}
+		this.modelControl = new FormControl(this.selectedModel);
 	}
 
 	onSearchChange() {

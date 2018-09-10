@@ -23,7 +23,12 @@
 
 				<mat-card-content>
 					<div class="button-panel">
-						<button mat-mini-fab (click)="showDocumentHistory()">
+						<!-- <button mat-mini-fab
+										matBadge="{{(comments$ | async)?.length}}"
+										matBadgeColor="warn" (click)="sidenav.open()">
+							<mat-icon>question_answer</mat-icon>
+						</button> -->
+						<button mat-mini-fab (click)="toggleHistory()">
 							<mat-icon>history</mat-icon>
 						</button>
 					</div>
@@ -34,7 +39,7 @@
 							(submitDocument)="submitDocument($event)"
 						>
 					</med-document-edit>
-					</div>
+					<button mat-raised-button>Send for Review</button>
 				</mat-card-content>
 			</mat-sidenav-content>
 		</mat-sidenav-container>

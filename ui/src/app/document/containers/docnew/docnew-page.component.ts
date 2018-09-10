@@ -35,6 +35,7 @@ export class DocNewPageComponent implements OnInit {
 		data['x-meditor'] = {
 			model: this.modelName
 		};
+		data.title = data[this.titleProperty];
     this.store.dispatch(new fromDocument.SubmitDocument(data));
 	}	
 

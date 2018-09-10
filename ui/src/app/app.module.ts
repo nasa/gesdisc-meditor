@@ -33,6 +33,7 @@ import { environment } from '../environments/environment';
 
 import { routes } from './routes';
 import { ModelsExistsGuard } from './store/guards/models-exists.guard';
+import { SelectedModelExistsGuard } from './store/guards/selected-model-exists.guard';
 
 import * as resolvers from 'app/shared/resolvers/'
 
