@@ -328,16 +328,22 @@ function handleSuccess(response, res) {
 
 function getDocumentAggregationQuery(meta) {
   var searchQuery = {};
-  var query = [
+  var query;
+  var defaultStateName = "Unspecified";
+  var defaultState = {target: defaultStateName, source: defaultStateName, modifiedOn: (new Date()).toISOString()};
+  meta.sourceStates.push("Unspecified");
+  query = [
+    {$addFields: {'x-meditor.states': { $ifNull: [ "$x-meditor.states", [defaultState] ] }}}, // Add default state on docs with no state
     {$addFields: {'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}}}, // Find last state
-    // TODO: Remove 'or' line once we cleaned up the DB to have a state on all documents 
-    //{$match: {'x-meditor.state': {$in: meta.sourceStates}}}, // Filter states based on the role's source states
-    {$match: {$or: [{'x-meditor.state': {$in: meta.sourceStates}}, {'x-meditor.state': null}]}}, // Filter states based on the role's source states
     {$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
+    {$group: {_id: '$' + meta.titleProperty, doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version
+    {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
+    {$match: {'x-meditor.state': {$in: meta.sourceStates}}} // Filter states based on the role's source states
   ];
+  // Build up search query if search params are available
   if ('title' in meta.params) searchQuery[meta.titleProperty] =  meta.params.title;
   if ('version' in  meta.params && meta.params.version !== 'latest') searchQuery['x-meditor.modifiedOn'] = meta.params.version;
-  if (!_.isEmpty(searchQuery)) query.unshift({$match: searchQuery});
+  if (!_.isEmpty(searchQuery)) query.unshift({$match: searchQuery}); // Push search query into the top of the chain
   return query;
 }
 
@@ -415,15 +421,14 @@ module.exports.listDocuments = function listDocuments (request, response, next) 
     .then(function() {
       var xmeditorProperties = ["modifiedOn", "modifiedBy", "state"];
       var query = getDocumentAggregationQuery(that);
-      query.push({$group: {_id: '$' + that.titleProperty, doc: {$first: '$$ROOT'}}}); // Caution - list is sorted descending, so need to grab first item
       return that.dbo
         .db(DbName)
         .collection(that.params.model)
         .aggregate(query)
         .map(function(doc) {
-          var res = {"title": doc._id};
-          res["x-meditor"] = _.pickBy(doc.doc['x-meditor'], function(value, key) {return xmeditorProperties.indexOf(key) !== -1;});
-          if ('state' in res["x-meditor"] && !res["x-meditor"].state) res["x-meditor"].state = 'Unknown';
+          var res = {"title": doc[that.titleProperty]};
+          res["x-meditor"] = _.pickBy(doc['x-meditor'], function(value, key) {return xmeditorProperties.indexOf(key) !== -1;});
+          if ('state' in res["x-meditor"] && !res["x-meditor"].state) res["x-meditor"].state = 'Unspecified';
           return res;
       })
       .toArray();
