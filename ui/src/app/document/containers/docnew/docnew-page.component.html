@@ -4,13 +4,15 @@
 			<i class="icon-badge icon-badge-sm fa {{(model$ | async)?.icon?.name }}" [style.background-color]="(model$ | async)?.icon?.color"></i>
 			{{(model$ | async)?.name}}
 		</mat-card-title>
+
 		<mat-card-subtitle>
 			{{(model$ | async)?.description}}
 		</mat-card-subtitle>
+		
 		<mat-card-content>
 			<med-document-edit
 				[document]="model$ | async"
-				(submitDocument)="submitDocument($event)">
+				(submitDocument)="createDocument($event)">
 			</med-document-edit>
 		</mat-card-content>
 	</mat-card>

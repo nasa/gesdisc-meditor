@@ -16,9 +16,18 @@ export class UpdateCurrentDocument {
     }) {}
 };
 
+export class CreateDocument {
+    static readonly type = '[Document] Create Document';
+
+    constructor (public payload: { 
+        model: string,
+        document: any,
+    }) {}
+};
+
 export class GetCurrentDocumentHistory {
     static readonly type = '[Document] Get Current Document History'
-}
+};
 
 export class GetCurrentDocumentVersion {
     static readonly type = '[Document] Get Current Document Version'
@@ -26,4 +35,4 @@ export class GetCurrentDocumentVersion {
     constructor (public payload: { 
         version: string,
     }) {}
-}
+};

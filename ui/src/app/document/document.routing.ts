@@ -6,6 +6,9 @@ import { DocNewPageComponent } from './containers/docnew/docnew-page.component';
 export const routes: Routes = [
 	{ 
 		path: 'new', 
+		resolve: {
+			model: ModelResolver,
+		},
 		component: DocNewPageComponent,
 	}, { 
 		path: 'edit', 
