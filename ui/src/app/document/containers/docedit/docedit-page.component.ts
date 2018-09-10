@@ -3,12 +3,9 @@ import { MatSidenav } from '@angular/material/sidenav';
 
 import * as fromDocument from '../../store';
 import * as fromApp from '../../../store';
-import { Document } from '../../../service/model/document';
-import { DocHistory } from '../../../service/model/docHistory';
-import { Model } from '../../../service/model/model';
-
 import { Store, select } from '@ngrx/store';
 import { Observable } from 'rxjs/Observable';
+import { DocHistory, Model, Document } from 'src/app/service/model/models';
 
 @Component({
 	selector: 'med-docedit-page',
@@ -54,7 +51,7 @@ export class DocEditPageComponent implements OnInit {
 		});
 		this.document$.subscribe(document => {
 			if(document.doc) {
-				this.documentTitle = document.doc[this.titleProperty];				
+				this.documentTitle = document.doc[this.titleProperty as any];				
 			}
 		});		
 		// this.store.dispatch(new fromDocument.LoadHistory({model: this.modelName, title: this.documentTitle}));
