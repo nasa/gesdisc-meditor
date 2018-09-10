@@ -24,12 +24,12 @@ export interface Model {
      * Model's description
      */
     description: string;
-    icon: ModelIcon;
+    icon?: ModelIcon;
     /**
      * Model's workflow
      */
-    workflow: string;
-    initEdge: string;
+    workflow?: string;
+    initEdge?: string;
     /**
      * Model's schema
      */
@@ -37,7 +37,7 @@ export interface Model {
     /**
      * Model layout based on Angular JSON Schema form
      */
-    layout: string;
+    layout?: string;
     /**
      * Property name in the Model's schema for using as title of the document instance of the model
      */

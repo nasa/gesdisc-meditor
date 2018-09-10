@@ -36,10 +36,10 @@
 					<div *ngIf="document$ | async as document">
 						<med-document-edit
 							[document]="document"
-							(submitDocument)="submitDocument($event)"
-						>
-					</med-document-edit>
-					<button mat-raised-button>Send for Review</button>
+							(submitDocument)="submitDocument($event)">
+						</med-document-edit>
+						<button mat-raised-button>Send for Review</button>
+					</div>
 				</mat-card-content>
 			</mat-sidenav-content>
 		</mat-sidenav-container>

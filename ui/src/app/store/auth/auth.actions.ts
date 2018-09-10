@@ -1,5 +1,5 @@
-export class GetLoggedIn {
-  static readonly type = '[Auth] Get Logged in';
+export class OpenLoginDialog {
+  static readonly type = '[Auth] Open Login Dialog';
 };
 
 export class GetUser {
@@ -9,7 +9,7 @@ export class GetUser {
 export class LoginSuccess {
   static readonly type = '[Auth] Login Success';
 
-  constructor(public payload: Object) {}
+  constructor(public payload: any) {}
 }
 
 export class LoginFailure  {
@@ -18,6 +18,6 @@ export class LoginFailure  {
   constructor(public payload: any) {}
 }
 
-export class Logout implements Action {
-  rstatic readonly type = '[Auth] Logout';
+export class Logout {
+  static readonly type = '[Auth] Logout';
 }

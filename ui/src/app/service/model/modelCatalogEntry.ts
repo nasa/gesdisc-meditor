@@ -28,7 +28,7 @@ export interface ModelCatalogEntry {
     /**
      * JSON Schema of the model itself
      */
-    schema?: string;
+    schema: string;
     xMeditor?: ModelCatalogEntryXmeditor;
     /**
      * Link to model's documentation
