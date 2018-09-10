@@ -323,7 +323,7 @@ function handleError(response, err) {
 };
 
 function handleSuccess(response, res) {
-  utils.writeJson(response, {code: 200, message: res}, 200);
+  utils.writeJson(response, res && 'message' in res ? res.message : res, 200);
 }
 
 function getDocumentAggregationQuery(meta) {
@@ -357,10 +357,10 @@ function getDocumentModelMetadata(dbo, request) {
     roles: _.get(request, 'user.roles', {}),
     dbo: dbo
   };
-  // TODO remove later
-  that.roles = [ 
-    { model: 'Alerts', role: 'Author' },
-    { model: 'Alerts', role: 'Reviewer' } ];
+  // TODO Useful for dubugging
+  // that.roles = [ 
+  //   { model: 'Alerts', role: 'Author' },
+  //   { model: 'Alerts', role: 'Reviewer' } ];
   that.modelRoles = _(that.roles).filter({model: that.params.model}).map('role').value();
   return Promise.resolve()
     .then(function() {
@@ -423,6 +423,7 @@ module.exports.listDocuments = function listDocuments (request, response, next) 
         .map(function(doc) {
           var res = {"title": doc._id};
           res["x-meditor"] = _.pickBy(doc.doc['x-meditor'], function(value, key) {return xmeditorProperties.indexOf(key) !== -1;});
+          if ('state' in res["x-meditor"] && !res["x-meditor"].state) res["x-meditor"].state = 'Unknown';
           return res;
       })
       .toArray();
@@ -460,7 +461,7 @@ module.exports.getDocument = function listDocuments (request, response, next) {
         })
         .toArray();
     })
-    .then(res => (that.dbo.close(), handleSuccess(response, res[0])))
+    .then(res => (that.dbo.close(), handleSuccess(response, res.length > 0 ? res[0] : {})))
     .catch(err => {
       handleError(response, err);
     })
