@@ -17,7 +17,7 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { NgxsModule } from '@ngxs/store';
 import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
 
-import { DocumentState, ModelState } from './store/ngxs-index'
+import { DocumentState, ModelState, RouterState, NotificationState } from './store/ngxs-index'
 
 import { reducers, effects, metaReducers } from './store';
 import { SnackBarComponent } from './store/effects/notification.effects';
@@ -92,7 +92,7 @@ const routeResolvers = Object.keys(resolvers).map(key => resolvers[key])	// TODO
 		 * See: https://github.com/ngrx/platform/blob/master/docs/effects/api.md#forroot
 		 */
 		CoreModule.forRoot(),
-		NgxsModule.forRoot([ DocumentState, ModelState ]),
+		NgxsModule.forRoot([ DocumentState, ModelState, RouterState, NotificationState ]),
     	NgxsReduxDevtoolsPluginModule.forRoot(),
 		ApiModule
 	],

@@ -10,6 +10,7 @@ import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
         <router-outlet></router-outlet>
       </div>
       <med-loading></med-loading>
+      <med-notification></med-notification>
     </div>
   `,
   styleUrls: ['main.component.scss']
