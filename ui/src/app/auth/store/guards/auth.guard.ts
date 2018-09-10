@@ -11,15 +11,15 @@ export class AuthGuard implements CanActivate {
   constructor(private store: Store<fromAuth.AuthState>) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
+    
     return this.store.pipe(
       select(fromAuth.getLoggedIn),
       map(authed => {
         if (!authed) { 
           localStorage.setItem('returnUrl', state.url);
-          this.store.dispatch(new Auth.LoginRedirect());
+          this.store.dispatch(new Auth.GetUser());
           return false;
         }
-
         return true;
       }),
       take(1)

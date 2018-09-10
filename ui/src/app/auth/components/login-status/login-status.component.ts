@@ -34,7 +34,7 @@ export class LoginStatusComponent implements OnInit {
 	}
 
 	logout() {
-		this.store.dispatch(new fromAuth.Logout);	
+		// this.store.dispatch(new fromAuth.Logout);	
 		window.location.href = environment.API_BASE_PATH + '/logout';
 	}
 

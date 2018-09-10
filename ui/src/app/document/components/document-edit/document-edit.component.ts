@@ -31,7 +31,7 @@ export class DocumentEditComponent implements OnInit {
 	data = {};
 	layout = undefined;
 	defaultLayoutOptions = {
-		fxLayoutGap: '20px',
+		fxLayoutGap: '50px',
 	};
 
 	submittedFormData = {};
