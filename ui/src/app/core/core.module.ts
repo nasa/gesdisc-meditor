@@ -14,6 +14,7 @@ import { SplashPageComponent,
 import { ModelButtonComponent } from './components/model-button/model-button.component';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
 import { LoadingComponent } from './components/loading/loading.component';
+import { NotificationComponent } from './components/notification/notification.component';
 
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
 import { PipesModule } from '../shared/pipes';
@@ -27,7 +28,7 @@ export const COMPONENTS = [
 	SplashPageComponent,
 	ToolbarComponent,
 	LoadingComponent,
-	// LoginDialog
+	NotificationComponent,
 ];
 
 @NgModule({
@@ -42,11 +43,9 @@ export const COMPONENTS = [
 	],
 	declarations: COMPONENTS,
 	exports: COMPONENTS,
-	//entryComponents: [ LoginDialog ]
-	})
-
+})
 export class CoreModule {
-		static forRoot() {
+	static forRoot() {
 		return {
 			ngModule: CoreModule
 		};

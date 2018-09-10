@@ -1,7 +1,7 @@
 <div fxLayout="row" class="doc-edit-container">
 	<mat-card fxFlex="100" class="mat-elevation-z0">
-		<mat-sidenav-container class="comment-sidenav-container" (backdropClick)="closeSidenav()">
-			<mat-sidenav #sidenav (keydown.escape)="closeSidenav()" class="comment-sidenav" [position]="'end'">
+		<mat-sidenav-container class="comment-sidenav-container" (backdropClick)="sidenav.close()">
+			<mat-sidenav #sidenav (keydown.escape)="sidenav.close()" class="comment-sidenav" [position]="'end'">
 				<div *ngIf="history$ | async as history">
 					<med-doc-history
 						[dochistory]="history"
@@ -28,7 +28,7 @@
 										matBadgeColor="warn" (click)="sidenav.open()">
 							<mat-icon>question_answer</mat-icon>
 						</button> -->
-						<button mat-mini-fab (click)="toggleHistory()">
+						<button mat-mini-fab (click)="showDocumentHistory()">
 							<mat-icon>history</mat-icon>
 						</button>
 					</div>
@@ -38,6 +38,7 @@
 							[document]="document"
 							(submitDocument)="submitDocument($event)">
 						</med-document-edit>
+						
 						<button mat-raised-button>Send for Review</button>
 					</div>
 				</mat-card-content>

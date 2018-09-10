@@ -1,42 +1,56 @@
-import { Component, OnInit } from '@angular/core';
-
-import * as fromApp from '../../../store';
-import * as fromDocument from '../../store';
-import { Model } from '../../../service/model/model';
-
-import { Store, select } from '@ngrx/store';
+import { Component } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
+import { Store, Select } from '@ngxs/store';
+import { Model } from 'app/service/model/models';
+import { ModelState } from 'app/store/model/model.state';
+import { CreateDocument } from 'app/store/document/document.state';
+import { Go } from 'app/store/router/router.state';
+import { SuccessNotificationOpen, ErrorNotificationOpen } from 'app/store/notification/notification.state';
 
 @Component({
   selector: 'med-docnew-page',
   templateUrl: './docnew-page.component.html',
   styleUrls: ['./docnew-page.component.css']
 })
-export class DocNewPageComponent implements OnInit {
+export class DocNewPageComponent {
+
+	@Select(ModelState.currentModel) model$: Observable<Model>;
 
 	modelName: string;
 	titleProperty: string;
-	model$: Observable<Model>;
 
-	constructor(		
-		private store: Store<fromApp.AppState>
-	) {
-	}
+	constructor(private store: Store) {}
 
-	ngOnInit() {	
-		this.model$ = this.store.pipe(select(fromApp.getCurrentModel));		
-		this.model$.subscribe(model => {
+	ngOnInit() {
+		this.model$.subscribe((model: any) => {
 			this.modelName = model.name;
-			this.titleProperty = model.titleProperty || 'title';
-		});		
+			this.titleProperty = model.titleProperty;
+		})
 	}
 
-	submitDocument(data: any) {
-		data['x-meditor'] = {
-			model: this.modelName
-		};
-		data.title = data[this.titleProperty];
-    this.store.dispatch(new fromDocument.SubmitDocument(data));
-	}	
+	createDocument(document: any) {
+		this.store.dispatch(new CreateDocument({ model: this.modelName, document }))
+			.subscribe(
+				this.onCreateDocumentSuccess.bind(this, document), 
+				this.onCreateDocumentError.bind(this)
+			)
+	}
+
+	onCreateDocumentSuccess(document: any) {
+		let routeParams = {
+			path: '/document/edit', 
+			query: { 
+				model: this.modelName,
+				title: document[this.titleProperty],
+			},
+		}
+		
+		this.store.dispatch(new SuccessNotificationOpen('Successfully created document'))
+		this.store.dispatch(new Go(routeParams))
+	}
+
+	onCreateDocumentError() {
+		this.store.dispatch(new ErrorNotificationOpen('Failed to create document, please review and try again.'))
+	}
 
 }

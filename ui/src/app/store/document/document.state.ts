@@ -95,4 +95,18 @@ export class DocumentState {
         }))
     }
 
+    @Action(actions.CreateDocument)
+    createDocument({ patchState, getState }: StateContext<DocumentStateModel>, { payload }: actions.CreateDocument) {
+        patchState({ loading: true, });
+
+        payload.document['x-meditor'] = { model: payload.model };
+        
+        let documentBlob = new Blob([JSON.stringify(payload.document)]);
+
+        return this.service.putDocument(documentBlob)
+            .pipe(
+                tap(() => patchState({ loading: false, }))
+            );
+    }
+
 }
