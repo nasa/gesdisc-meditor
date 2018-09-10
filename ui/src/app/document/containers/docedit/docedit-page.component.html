@@ -1,23 +1,26 @@
 <div fxLayout="row" class="doc-edit-container">
 	<mat-card fxFlex="100" class="mat-elevation-z0">
-		<mat-sidenav-container
-	    class="comment-sidenav-container" (backdropClick)="close()">
-			<mat-sidenav #sidenav (keydown.escape)="close()" class="comment-sidenav" [position]="'end'">
-				<!-- <med-comments></med-comments> -->
-				<med-doc-history
-					[dochistory]="history$ | async"
-					[selectedHistory]= "selectedHistory$ | async"
-					(loadVersion)="loadVersion($event)">
-				</med-doc-history>
-		  </mat-sidenav>
+		<mat-sidenav-container class="comment-sidenav-container" (backdropClick)="closeSidenav()">
+			<mat-sidenav #sidenav (keydown.escape)="closeSidenav()" class="comment-sidenav" [position]="'end'">
+				<div *ngIf="history$ | async as history">
+					<med-doc-history
+						[dochistory]="history"
+						[selectedHistory]= "version$ | async"
+						(loadVersion)="loadVersion($event)">
+					</med-doc-history>
+				</div>
+			</mat-sidenav>
+
 			<mat-sidenav-content class="editor-form">
-		    <mat-card-title>
+				<mat-card-title>
 					<i class="icon-badge icon-badge-sm fa {{(model$ | async)?.icon?.name }}" [style.background-color]="(model$ | async)?.icon?.color"></i>
 					{{(model$ | async)?.name}}
 				</mat-card-title>
+
 				<mat-card-subtitle>
 					{{(model$ | async)?.description}}
 				</mat-card-subtitle>
+
 				<mat-card-content>
 					<div class="button-panel">
 						<!-- <button mat-mini-fab
@@ -28,14 +31,17 @@
 						<button mat-mini-fab (click)="toggleHistory()">
 							<mat-icon>history</mat-icon>
 						</button>
-						</div>
-					<med-document-edit
-						[document]="document$ | async"
-						(submitDocument)="submitDocument($event)">
+					</div>
+					
+					<div *ngIf="document$ | async as document">
+						<med-document-edit
+							[document]="document"
+							(submitDocument)="submitDocument($event)"
+						>
 					</med-document-edit>
 					<button mat-raised-button>Send for Review</button>
 				</mat-card-content>
-	  	</mat-sidenav-content>
+			</mat-sidenav-content>
 		</mat-sidenav-container>
 	</mat-card>
 </div>

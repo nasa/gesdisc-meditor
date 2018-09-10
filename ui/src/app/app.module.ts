@@ -14,6 +14,11 @@ import {
 } from '@ngrx/router-store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 
+import { NgxsModule } from '@ngxs/store';
+import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
+
+import { DocumentState, ModelState } from './store/ngxs-index'
+
 import { reducers, effects, metaReducers } from './store';
 import { SnackBarComponent } from './store/effects/notification.effects';
 import { CoreModule } from './core/core.module';
@@ -30,6 +35,9 @@ import { routes } from './routes';
 import { ModelsExistsGuard } from './store/guards/models-exists.guard';
 import { SelectedModelExistsGuard } from './store/guards/selected-model-exists.guard';
 
+import * as resolvers from 'app/shared/resolvers/'
+
+const routeResolvers = Object.keys(resolvers).map(key => resolvers[key])	// TODO: remove this and use Object.values (need typescript to support ES2017)
 
 @NgModule({
 	imports: [
@@ -84,6 +92,8 @@ import { SelectedModelExistsGuard } from './store/guards/selected-model-exists.g
 		 * See: https://github.com/ngrx/platform/blob/master/docs/effects/api.md#forroot
 		 */
 		CoreModule.forRoot(),
+		NgxsModule.forRoot([ DocumentState, ModelState ]),
+    	NgxsReduxDevtoolsPluginModule.forRoot(),
 		ApiModule
 	],
 	providers: [
@@ -95,10 +105,10 @@ import { SelectedModelExistsGuard } from './store/guards/selected-model-exists.g
 		{ provide: RouterStateSerializer, useClass: CustomRouterStateSerializer },
 		{ provide: BASE_PATH, useValue: environment.API_BASE_PATH },
 		ModelsExistsGuard,
-		SelectedModelExistsGuard
+		...routeResolvers,
 	],
 	declarations: [ SnackBarComponent ],
 	entryComponents: [ SnackBarComponent ],
-	bootstrap: [ MainComponent ]
+	bootstrap: [ MainComponent ],
 })
 export class AppModule { }

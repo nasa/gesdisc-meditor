@@ -1,82 +1,44 @@
-import { Component, ChangeDetectionStrategy, OnInit , ViewChild } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
-
-import * as fromDocument from '../../store';
-import * as fromApp from '../../../store';
-import { Store, select } from '@ngrx/store';
+import { Store, Select } from '@ngxs/store';
+import { ModelState } from 'app/store/model/model.state';
+import { Document, DocHistory, Model } from 'app/service/model/models';
 import { Observable } from 'rxjs/Observable';
-import { DocHistory, Model, Document } from 'src/app/service/model/models';
+import { 
+	UpdateCurrentDocument, 
+	GetCurrentDocumentHistory, 
+	GetCurrentDocumentVersion, 
+	DocumentState
+} from 'app/store/document/document.state';
 
 @Component({
 	selector: 'med-docedit-page',
-	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './docedit-page.component.html',
 	styleUrls: ['./docedit-page.component.css'],
 })
-export class DocEditPageComponent implements OnInit {
+export class DocEditPageComponent {
 
-	document$: Observable<Document>;
-	documentTitle: string;
-	modelName: string;
-	titleProperty: string;
-	model$: Observable<Model>;
-	history$: Observable<DocHistory[]>;
-	selectedHistory$: Observable<string>;
-	showHistory: boolean = false;
-	historyLoaded: boolean = false;
+	@Select(ModelState.currentModel) model$: Observable<Model>;
+	@Select(DocumentState.currentDocument) document$: Observable<Document>;
+	@Select(DocumentState.currentDocumentHistory) history$: Observable<DocHistory>;
+	@Select(DocumentState.currentDocumentVersion) version$: Observable<string>;
+
 	@ViewChild('sidenav') sidenav: MatSidenav;
-	
-	open() {
-    this.sidenav.open();
-	}
-	
-	close() {
-		this.sidenav.close();
-		this.showHistory = false;
+
+	constructor(private store: Store) {}
+
+	submitDocument(document: any) {
+		this.store.dispatch(new UpdateCurrentDocument({ document }))
 	}
 
-	constructor(		
-		private store: Store<fromApp.AppState>
-	) {
+	showDocumentHistory() {
+		this.store.dispatch(new GetCurrentDocumentHistory())
+		this.sidenav.open();
 	}
 
-	ngOnInit() {	
-		this.document$ = this.store.pipe(select(fromDocument.getDocument));
-		this.model$ = this.store.pipe(select(fromApp.getCurrentModel));
-		this.history$ = this.store.pipe(select(fromDocument.selectAllHistory));
-		this.selectedHistory$ = this.store.pipe(select(fromDocument.getCurrentHistoryItem));
-		this.model$.subscribe(model => {
-			this.modelName = model.name;
-			this.titleProperty = model.titleProperty || 'title';
-		});
-		this.document$.subscribe(document => {
-			if(document.doc) {
-				this.documentTitle = document.doc[this.titleProperty as any];				
-			}
-		});		
-		// this.store.dispatch(new fromDocument.LoadHistory({model: this.modelName, title: this.documentTitle}));
+	loadVersion(version: string) {
+		this.store.dispatch(new GetCurrentDocumentVersion({ version }))
+		this.sidenav.close()
 	}
 
-	loadVersion(event: string) {
-		this.store.dispatch(new fromDocument.LoadVersion({model: this.modelName, title: this.documentTitle, version: event}));				
-		this.store.dispatch(new fromDocument.SetSelectedHistoryItem(event));
-		this.close();
-	}
-
-	submitDocument(data: any) {
-		data['x-meditor'] = {
-			model: this.modelName
-		};
-		data.title = this.documentTitle;
-		this.store.dispatch(new fromDocument.SubmitDocument(data));
-		this.store.dispatch(new fromDocument.LoadHistory({model: this.modelName, title: this.documentTitle}));
-	}
-
-	toggleHistory() {	
-		this.showHistory ? this.close() : this.open();
-		if(!this.historyLoaded) { 
-			this.store.dispatch(new fromDocument.LoadHistory({model: this.modelName, title: this.documentTitle}));
-			this.historyLoaded = true;
-		}	
-	}
 }
