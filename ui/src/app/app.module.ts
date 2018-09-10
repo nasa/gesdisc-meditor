@@ -34,6 +34,9 @@ import { environment } from '../environments/environment';
 import { routes } from './routes';
 import { ModelsExistsGuard } from './store/guards/models-exists.guard';
 
+import * as resolvers from 'app/shared/resolvers/'
+
+const routeResolvers = Object.keys(resolvers).map(key => resolvers[key])	// TODO: remove this and use Object.values (need typescript to support ES2017)
 
 @NgModule({
 	imports: [
@@ -100,10 +103,11 @@ import { ModelsExistsGuard } from './store/guards/models-exists.guard';
 		 */
 		{ provide: RouterStateSerializer, useClass: CustomRouterStateSerializer },
 		{ provide: BASE_PATH, useValue: environment.API_BASE_PATH },
-		ModelsExistsGuard
+		ModelsExistsGuard,
+		...routeResolvers,
 	],
 	declarations: [ SnackBarComponent ],
 	entryComponents: [ SnackBarComponent ],
-	bootstrap: [ MainComponent ]
+	bootstrap: [ MainComponent ],
 })
 export class AppModule { }

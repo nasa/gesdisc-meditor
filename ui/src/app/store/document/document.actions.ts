@@ -4,26 +4,26 @@ export class GetDocument {
     constructor (public payload: { 
         model: string,
         title: string,
-        titleProperty: string,
-        reload?: boolean,
+        version?: string,
     }) {}
 };
 
-export class SaveDocument {
+export class UpdateCurrentDocument {
     static readonly type = '[Document] Save Document';
 
     constructor (public payload: { 
-        model: string,
         document: any,
     }) {}
 };
 
-export class GetDocumentHistory {
-    static readonly type = '[Document] Get Document History'
+export class GetCurrentDocumentHistory {
+    static readonly type = '[Document] Get Current Document History'
+}
 
-    constructor (public payload: {
-        model: string,
-        title: string,
-        titleProperty: string,
+export class GetCurrentDocumentVersion {
+    static readonly type = '[Document] Get Current Document Version'
+
+    constructor (public payload: { 
+        version: string,
     }) {}
 }

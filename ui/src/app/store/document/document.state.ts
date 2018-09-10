@@ -10,7 +10,10 @@ export interface DocumentStateModel {
     loading: boolean;
     documents: Document[];
     currentDocument: Document;
-    currentDocumentHistory: DocHistory[];
+    currentDocumentTitle: string;
+    currentDocumentModel: string;
+    currentDocumentHistory: DocHistory;
+    currentDocumentVersion: string;
 }
 
 @State<DocumentStateModel>({
@@ -19,89 +22,77 @@ export interface DocumentStateModel {
         loading: false,
         documents: [],
         currentDocument: undefined,
-        currentDocumentHistory: [],
+        currentDocumentTitle: undefined,
+        currentDocumentModel: undefined,
+        currentDocumentHistory: undefined,
+        currentDocumentVersion: undefined,
     },
 })
 export class DocumentState {
 
-    @Selector()
-    static loading(state: DocumentStateModel): boolean {
-        return state.loading;
-    }
-
-    @Selector()
-    static documents(state: DocumentStateModel): Document[] {
-        return state.documents;
-    }
-
-    @Selector()
-    static currentDocument(state: DocumentStateModel): Document {
-        return state.currentDocument;
-    }
-
-    @Selector()
-    static currentDocumentHistory(state: DocumentStateModel): DocHistory[] {
-        return state.currentDocumentHistory;
-    }
+    @Selector() static loading(state: DocumentStateModel): boolean { return state.loading; }
+    @Selector() static documents(state: DocumentStateModel): Document[] { return state.documents; }
+    @Selector() static currentDocument(state: DocumentStateModel): Document { return state.currentDocument; }
+    @Selector() static currentDocumentTitle(state: DocumentStateModel): string { return state.currentDocumentTitle; }
+    @Selector() static currentDocumentModel(state: DocumentStateModel): string { return state.currentDocumentModel; }
+    @Selector() static currentDocumentHistory(state: DocumentStateModel): DocHistory { return state.currentDocumentHistory; }
+    @Selector() static currentDocumentVersion(state: DocumentStateModel): string { return state.currentDocumentVersion; }
 
     constructor(private store: Store, private service: DefaultService) {}
 
     @Action(actions.GetDocument)
     getDocument({ patchState, getState }: StateContext<DocumentStateModel>, { payload }: actions.GetDocument) {
-        // find requested document in the state's cached array of documents
-        let document = getState().documents.find((document: Document) => {
-            let documentTitle = document.doc[payload.titleProperty];
-            let documentModel = document['x-meditor'].model;
-
-            return documentTitle === payload.title && documentModel === payload.model;
-        });
-
-        if (document && !payload.reload) {
-            patchState({ currentDocument: document, });   // use cached document
-            return
-        } 
-        
-        // fetch document from the API since either the document hasn't been fetched yet 
-        // or a reload has been requested
-        
         patchState({ loading: true, });
 
-        return this.service.getDocument(payload.model, payload.title)
+        return this.service.getDocument(payload.model, payload.title, payload.version)
             .pipe(
                 tap((document: Document) => patchState({ 
                     documents: [...getState().documents, document],
                     currentDocument: document,
+                    currentDocumentTitle: payload.title,
+                    currentDocumentModel: payload.model,
+                    currentDocumentVersion: document['x-meditor'].modifiedOn.toString(),
                     loading: false,
                 })),
             );
     }
 
-    @Action(actions.SaveDocument)
-    saveDocumentHistory({ patchState, getState }: StateContext<DocumentStateModel>, { payload }: actions.SaveDocument) {
+    @Action(actions.UpdateCurrentDocument)
+    updateCurrentDocument({ patchState, getState }: StateContext<DocumentStateModel>, { payload }: actions.UpdateCurrentDocument) {
         patchState({ loading: true, });
 
-        payload.document['x-meditor'] = { model: payload.model, };
+        payload.document['x-meditor'] = { model: getState().currentDocumentModel };
         
         let documentBlob = new Blob([JSON.stringify(payload.document)]);
 
         return this.service.putDocument(documentBlob);
     }
 
-    @Action(actions.GetDocumentHistory)
-    getDocumentHistory({ patchState, getState }: StateContext<DocumentStateModel>, { payload }: actions.GetDocumentHistory) {
+    @Action(actions.GetCurrentDocumentHistory)
+    getCurrentDocumentHistory({ patchState, getState }: StateContext<DocumentStateModel>) {
         patchState({ loading: true, });
 
-        console.log('get document history')
+        let document = getState().currentDocument;
+        let documentTitle = getState().currentDocumentTitle;
 
-        return this.service.getDocumentHistory(payload.model, payload.title)
-        /*
+        return this.service.getDocumentHistory(document['x-meditor'].model, documentTitle)
             .pipe(
-                tap((history: ) => patchState({ 
-                    documents: [...getState().documents, document],
-                    currentDocument: document,
+                tap((history: DocHistory) => patchState({ 
+                    currentDocumentHistory: history,
                     loading: false,
                 })),
-            );*/
+            );
+    }
+
+    @Action(actions.GetCurrentDocumentVersion)
+    getCurrentDocumentVersion({ patchState, getState }: StateContext<DocumentStateModel>, { payload }: actions.GetCurrentDocumentVersion) {
+        patchState({ currentDocumentVersion: payload.version })
+
+        return this.store.dispatch(new actions.GetDocument({
+            model: getState().currentDocumentModel,
+            title: getState().currentDocumentTitle,
+            version: payload.version,
+        }))
     }
 
 }

@@ -11,6 +11,7 @@ import { SplashPageComponent, LoginDialog } from './containers/splash-page/splas
 // COMPONENTS
 import { ModelButtonComponent } from './components/model-button/model-button.component';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
+import { LoadingComponent } from './components/loading/loading.component';
 
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
 import { PipesModule } from '../shared/pipes';
@@ -23,6 +24,7 @@ export const COMPONENTS = [
 	NotFoundPageComponent,
 	SplashPageComponent,
 	ToolbarComponent,
+	LoadingComponent,
 	LoginDialog
 ];
 

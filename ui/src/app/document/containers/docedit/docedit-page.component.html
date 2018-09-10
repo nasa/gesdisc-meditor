@@ -2,13 +2,13 @@
 	<mat-card fxFlex="100" class="mat-elevation-z0">
 		<mat-sidenav-container class="comment-sidenav-container" (backdropClick)="closeSidenav()">
 			<mat-sidenav #sidenav (keydown.escape)="closeSidenav()" class="comment-sidenav" [position]="'end'">
-				<!--
-				<med-doc-history
-					[dochistory]="history$ | async"
-					[selectedHistory]= "selectedHistory$ | async"
-					(loadVersion)="loadVersion($event)">
-				</med-doc-history>
-				-->
+				<div *ngIf="history$ | async as history">
+					<med-doc-history
+						[dochistory]="history"
+						[selectedHistory]= "version$ | async"
+						(loadVersion)="loadVersion($event)">
+					</med-doc-history>
+				</div>
 			</mat-sidenav>
 
 			<mat-sidenav-content class="editor-form">
@@ -23,17 +23,17 @@
 
 				<mat-card-content>
 					<div class="button-panel">
-						<button mat-mini-fab (click)="sidenav.open()">
+						<button mat-mini-fab (click)="showDocumentHistory()">
 							<mat-icon>history</mat-icon>
 						</button>
 					</div>
 					
-					<div *ngIf="document$ | async as document; else loading">
+					<div *ngIf="document$ | async as document">
 						<med-document-edit
 							[document]="document"
 							(submitDocument)="submitDocument($event)"
 						>
-						</med-document-edit>
+					</med-document-edit>
 					</div>
 				</mat-card-content>
 			</mat-sidenav-content>

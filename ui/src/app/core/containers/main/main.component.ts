@@ -9,6 +9,7 @@ import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
       <div fxFlex="90-100px" style="overflow: scroll; padding: 0 16px;">
         <router-outlet></router-outlet>
       </div>
+      <med-loading></med-loading>
     </div>
   `,
   styleUrls: ['main.component.scss']
