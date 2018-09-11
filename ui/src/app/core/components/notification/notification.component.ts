@@ -1,9 +1,8 @@
-import { Component } from '@angular/core'
-import { MatSnackBar, MatSnackBarConfig } from '@angular/material'
-import { SnackBarComponent } from 'app/store/effects/notification.effects'
-import { Observable } from 'rxjs/Observable'
-import { Store, Select } from '@ngxs/store'
-import { NotificationClose, NotificationState } from 'app/store/notification/notification.state'
+import { Component, Inject } from '@angular/core';
+import { MatSnackBar, MatSnackBarConfig, MAT_SNACK_BAR_DATA} from "@angular/material";
+import { Observable } from 'rxjs/Observable';
+import { Store, Select } from '@ngxs/store';
+import { NotificationClose, NotificationState } from 'app/store/notification/notification.state';
 
 const SNACKBAR_VERTICAL_POSITION = 'top'
 const SNACKBAR_CLOSE_AFTER_MILLIS = 3000
@@ -12,6 +11,7 @@ const SNACKBAR_CLOSE_AFTER_MILLIS = 3000
   selector: 'med-notification',
   template: ''
 })
+
 export class NotificationComponent {
 
     @Select(NotificationState) notification$: Observable<any>
@@ -55,4 +55,36 @@ export class NotificationComponent {
         this.matSnackBar.dismiss()
     }
 
+}
+
+@Component({
+	selector: 'med-snack-bar',
+	template: `
+		<span class="message">{{ data }}</span>
+		<button mat-icon-button class="close-notif-btn" (click)="close()">
+			<mat-icon align="end">close</mat-icon>
+		</button>
+	`,
+	styles: [`	
+		.message {
+    		font-size: 14px;
+		}
+
+		.close-notif-btn {
+			position: absolute;
+			top: 5px;
+			right: 11px;
+		}
+	`],
+})
+
+export class SnackBarComponent {
+
+	public snackBarRefComponent: any;
+
+	constructor(@Inject(MAT_SNACK_BAR_DATA) public data: any) { }
+
+	close() {
+		this.snackBarRefComponent.dismiss();
+	}
 }

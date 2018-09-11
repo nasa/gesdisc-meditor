@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { DocumentResolver, ModelResolver } from 'app/shared/resolvers/';
+import { DocumentResolver, ModelResolver } from 'app/store/resolvers/';
 import { DocEditPageComponent } from './containers/docedit/docedit-page.component';
 import { DocNewPageComponent } from './containers/docnew/docnew-page.component';
 

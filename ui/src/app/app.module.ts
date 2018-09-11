@@ -11,8 +11,7 @@ import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
 
 import { DocumentState, ModelState, RouterState, NotificationState, AuthState } from './store/ngxs-index'
 
-import { reducers, effects, metaReducers } from './store';
-import { SnackBarComponent } from './store/effects/notification.effects';
+import { SnackBarComponent } from './core/components/notification/notification.component';
 import { CoreModule } from './core/core.module';
 import { ApiModule } from './service/api.module';
 import { MaterialModule } from './material';
@@ -24,7 +23,7 @@ import { BASE_PATH } from './service';
 import { environment } from '../environments/environment';
 
 import { routes } from './routes';
-import * as resolvers from 'app/shared/resolvers/'
+import * as resolvers from 'app/store/resolvers/'
 
 const routeResolvers = Object.keys(resolvers).map(key => resolvers[key])	// TODO: remove this and use Object.values (need typescript to support ES2017)
 
