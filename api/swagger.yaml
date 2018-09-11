@@ -8,9 +8,7 @@ basePath: "/meditor/api"
 schemes:
 - "http"
 security:
-- URS4:
-  - "read"
-  - "write"
+  - URS4: [read, write]
 paths:
   /listModels:
     get:
@@ -78,6 +76,10 @@ paths:
           description: "Invalid syntax"
           schema:
             $ref: "#/definitions/error"
+        403:
+          description: "Access denied"
+          schema:
+            $ref: "#/definitions/error"        
         500:
           description: "Server error"
           schema:
@@ -184,6 +186,10 @@ paths:
           description: "Bad request"
           schema:
             $ref: "#/definitions/error"
+        403:
+          description: "Access denied"
+          schema:
+            $ref: "#/definitions/error"
         422:
           description: "Invalid syntax"
           schema:
@@ -269,6 +275,62 @@ paths:
             properties: {}
         400:
           description: "Bad request"
+          schema:
+            $ref: "#/definitions/error"
+        422:
+          description: "Invalid syntax"
+          schema:
+            $ref: "#/definitions/error"
+        500:
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/error"
+        503:
+          description: "Service not available"
+          schema:
+            $ref: "#/definitions/error"
+      security: []
+      x-swagger-router-controller: "Meditor"
+  /changeDocumentState:
+    get:
+      summary: "Change the state of a document"
+      description: "Change the state of a document; modifies the state of a document by a privileged user"
+      operationId: "changeDocumentState"
+      parameters:
+      - name: "model"
+        in: "query"
+        description: "Name of the Model"
+        required: true
+        type: "string"
+      - name: "title"
+        in: "query"
+        description: "Title of the document"
+        required: true
+        type: "string"
+      - name: "version"
+        in: "query"
+        description: "Version of the document"
+        required: false
+        type: "string"
+        default: "latest"
+      - name: "state"
+        in: "query"
+        description: "Target state of the document"
+        type: "string"
+        required: true
+      responses:
+        200:
+          description: "Successful response"
+          schema:
+            type: "object"
+            title: "Document"
+            properties: {}
+        400:
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/error"
+        403:
+          description: "Access denied"
           schema:
             $ref: "#/definitions/error"
         422:
@@ -622,7 +684,7 @@ definitions:
       layout:
         type: "string"
         description: "Model layout based on Angular JSON Schema form"
-      titleField:
+      titleProperty:
         type: "string"
         description: "Property name in the Model's schema for using as title of the\
           \ document instance of the model"
@@ -824,6 +886,9 @@ definitions:
       modifiedBy:
         type: "string"
         description: "Modifier's user name"
+      state:
+        type: "string"
+        description: "State of the document wrt document workflow"
     example:
       modifiedOn: "modifiedOn"
       modifiedBy: "modifiedBy"
@@ -841,3 +906,4 @@ definitions:
         description: "CSRF token"
     example:
       csrfToken: "SFfkaSD-dksfjfjsSKJ33DN-fdS-fSf"
+
