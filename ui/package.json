@@ -9,7 +9,7 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "client": "ng serve --proxy-config server.conf.json --host 0.0.0.0",
-    "server": "nodemon ../nodejs-server-server/index.js",
+    "server": "cd ../nodejs-server-server;nodemon index.js",
     "start": "npm-run-all -p client server"
   },
   "private": true,
