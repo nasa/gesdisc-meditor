@@ -5,7 +5,7 @@ import { Observable } from 'rxjs/Observable';
 import { Store, Select } from '@ngxs/store';
 import { ModelState } from 'app/store/model/model.state';
 import { Go } from 'app/store/router/router.state';
-import { GetUser } from 'app/store/auth/auth.state';
+import { AuthState, GetUser } from 'app/store/auth/auth.state';
 
 
 @Component({
@@ -18,6 +18,8 @@ export class SplashPageComponent implements OnInit{
 	@Select(ModelState.models) models$: Observable<ModelCatalogEntry[]>;
 	@Select(ModelState.currentModel) model$: Observable<Model>;
 	@Select(ModelState.categories) categories$: Observable<string[]>;
+	
+	@Select(AuthState.loggedIn) loggedIn$: Observable<boolean>;
 
 	constructor(
 		private store: Store
@@ -26,23 +28,12 @@ export class SplashPageComponent implements OnInit{
 
 	ngOnInit () {	
 		localStorage.clear();		
-		this.store.dispatch(new GetUser());
-		// this.store.dispatch(new fromApp.LoadModels());		
-		// this.loggedIn$.subscribe(status => {
-		// 	if (!status) { 
-		// 		this.store.dispatch(new fromAuth.GetUser());
-		// 	} 
-		// })		
-		// this.currentModel$.subscribe(model => { 
-		// 	this.modelName = model;
-		// })
+		this.loggedIn$.subscribe(loggedIn => {
+			if (!loggedIn) this.store.dispatch(new GetUser());
+		});		
 	}
 
 	goToSearchPage(event: any) {		
-		// if (this.modelName !== event.name) {
-		// 	this.store.dispatch(new fromApp.SelectModel(event.name));
-		// 	this.store.dispatch(new fromApp.LoadSelectedModel(event.name));
-		// }
 		this.store.dispatch(new Go({path: '/search', query: { model: event.name}}))
 	}
 }

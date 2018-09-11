@@ -13,11 +13,9 @@
 		"module": "commonjs",
 		"rootDir": "./",
 		"strict": true,
-		"baseUrl": ".",
-  	"paths": {
-			"@models/*": ["src/app/models/*"],
-			"@reducers/*": ["src/app/reducers/*"]
-  	}
+		// "baseUrl": ".",
+  	// "paths": {
+  	// }
 	},
 	"exclude": [
 		"bazel-out",

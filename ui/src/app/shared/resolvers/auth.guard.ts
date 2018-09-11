@@ -15,7 +15,6 @@ export class AuthGuard implements CanActivate {
     
     return this.loggedIn$.pipe(
       map(authed => {
-        console.log('here');
       if (!authed) { 
         localStorage.setItem('returnUrl', state.url);
         this.store.dispatch(new GetUser());
