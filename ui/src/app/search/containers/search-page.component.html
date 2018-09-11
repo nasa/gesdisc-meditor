@@ -1,16 +1,25 @@
-<med-search-bar
-  [models]="models$ | async"
-  [selectedModel]="selectedModel$ | async"
-  (selectionChanged)="selectAndChange($event)"
-  (searchChanged)="searchChanged($event)">
-</med-search-bar>
-<med-search-status
-  [resultCount] = "(results$ | async)?.length"
-  [filteredCount] = "(filteredResults$ | async)?.length"
-  [modelName] = "(selectedModel$ | async)?.name"
-  [addNewLabel] = "(edge$ | async)?.label"
-  [canAddNew] = "canAddNewShow"
-  (addNew) = "addNewDocument()"
-  (sortByChanged)="sortByChanged($event)">
-</med-search-status>
-<med-search-result-list [results]="filteredResults$ | async" [model]="selectedModel$ | async"></med-search-result-list>
+<div *ngIf="models$ | async as models">
+    <med-search-bar 
+        [models]="models" 
+        [selectedModel]="selectedModel$ | async" 
+        (selectionChanged)="selectAndChange($event)"
+        (searchChanged)="filterDocuments($event)">
+    </med-search-bar>
+</div>
+
+<div *ngIf="(filteredDocuments$ | async) as filteredDocuments">
+    <med-search-status
+        [resultCount] = "(selectedModelDocuments$ | async)?.length"
+        [filteredCount] = "filteredDocuments.length"
+        [modelName] = "(selectedModel$ | async)?.name"
+        addNewLabel = "Add New"
+        [canAddNew] = "canAddNew"
+        (addNew) = "addNewDocument()"
+        (sortByChanged)="sortByChanged($event)">
+    </med-search-status>
+
+    <med-search-result-list 
+        [results]="filteredDocuments" 
+        [model]="selectedModel$ | async">
+    </med-search-result-list>
+</div>

@@ -8,14 +8,7 @@ import { SearchResultComponent } from './components/search-result/search-result.
 import { SearchPageComponent } from './containers/search-page.component';
 import { MaterialModule } from '../material';
 import { FlexLayoutModule } from '@angular/flex-layout';
-
-// import { StoreModule } from '@ngrx/store';
-// import { EffectsModule } from '@ngrx/effects';
-
-// import { reducers, effects } from './store';
-
 import { SearchStatusComponent } from './components/search-status/search-status.component';
-
 import { routes } from './search.routing';
 
 @NgModule({
@@ -25,9 +18,7 @@ import { routes } from './search.routing';
 		ReactiveFormsModule,
 		MaterialModule,
 		FlexLayoutModule,
-		RouterModule.forChild(routes)
-		// StoreModule.forFeature('search', reducers),
-		// EffectsModule.forFeature(effects),
+		RouterModule.forChild(routes),
 	],
 	declarations: [
 		SearchBarComponent,
