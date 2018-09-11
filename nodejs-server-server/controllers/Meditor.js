@@ -73,17 +73,25 @@ function getListOfModels (properties) {
       }
       if (Array.isArray(properties)) {
         properties.forEach(function(element){
-          projection[element]=1;
+          projection[element]= '$'+element;
         });
       }
-      dbo.collection("Models").find({}).sort({"x-meditor.modifiedOn":-1}).project(projection).toArray(function(err, res) {
-        if (err){
-          console.log(err);
-          throw err;
-        }
-        db.close();
-        resolve(res);
-      });
+      dbo
+        .collection("Models")
+        .aggregate(
+          [{$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
+          {$group: {_id: '$name', doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version
+          {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
+          {$project: projection}
+        ])
+        .toArray(function(err, res) {
+          if (err){
+            console.log(err);
+            throw err;
+          }
+          db.close();
+          resolve(res);
+        });
     });
   });
 }
