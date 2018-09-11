@@ -1,5 +1,5 @@
 import { State, Action, StateContext, Selector, Store } from '@ngxs/store';
-import { Model, ModelCatalogEntry} from 'app/service/model/models';
+import { Model, ModelCatalogEntry, DocCatalogEntry} from 'app/service/model/models';
 import { DefaultService } from 'app/service/api/default.service';
 import * as actions from './model.actions';
 import { tap } from 'rxjs/operators';
@@ -10,6 +10,7 @@ export interface ModelStateModel {
 	loading: boolean;
 	models: ModelCatalogEntry[];
 	currentModel: Model;
+	currentModelDocuments: DocCatalogEntry[];
 }
 
 @State<ModelStateModel>({
@@ -18,6 +19,7 @@ export interface ModelStateModel {
 		loading: false,
 		models: [],
 		currentModel: undefined,
+		currentModelDocuments: undefined,
 	},
 })
 export class ModelState {
@@ -35,6 +37,11 @@ export class ModelState {
 	@Selector()
 	static currentModel(state: ModelStateModel): Model {
 		return state.currentModel;
+	}
+
+	@Selector()
+	static currentModelDocuments(state: ModelStateModel): DocCatalogEntry[] {
+		return state.currentModelDocuments;
 	}
 
 	@Selector()
@@ -79,6 +86,19 @@ export class ModelState {
 					loading: false,
 				})),
 			);
+	}
+
+	@Action(actions.GetModelDocuments)
+	getModelDocuments({ patchState, getState }: StateContext<ModelStateModel>) {
+		if (!getState().currentModel) throw new Error('No selected model')
+		
+		patchState({ loading: true, });
+
+		return this.service.listDocuments(getState().currentModel.name)
+			.pipe(tap((currentModelDocuments: DocCatalogEntry[]) => patchState({ 
+				currentModelDocuments,
+				loading: false,
+			})));
 	}
 
 }
