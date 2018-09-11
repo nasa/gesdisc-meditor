@@ -65,17 +65,6 @@ export class ModelState {
 
 	@Action(actions.GetModel)
 	getModel({ patchState, getState }: StateContext<ModelStateModel>, { payload }: actions.GetModel) {
-		// find requested model in the state's cached array of models
-		let model = getState().models.find((model: ModelCatalogEntry) => model.name === payload.name)
-
-		if (model && !payload.reload) {
-			patchState({ currentModel: model });   // use cached model
-			return
-		} 
-		
-		// fetch model from the API since either the model hasn't been fetched yet 
-		// or a reload has been requested
-		
 		patchState({ loading: true, });
 
 		return this.service.getModel(payload.name)
