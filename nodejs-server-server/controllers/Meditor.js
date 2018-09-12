@@ -198,23 +198,39 @@ module.exports.listModels = function listModels (request, response, next) {
       return Promise.all(defers);
     })
     .then(function(modelMetas) {
+      that.modelMetas = modelMetas;
       // Based on collected metadata, query each model for unique items
       // as appropriate for user's role and count the results
-      var defers = modelMetas.map(modelMeta => {
+      return Promise.all(modelMetas.map(modelMeta => {
         var query = getDocumentAggregationQuery(modelMeta);
         query.push({$group: {_id: null, "count": { "$sum": 1 }}});
         query.push({$addFields: {name: modelMeta.modelName}});
         return that.dbo.db(DbName).collection(modelMeta.modelName).aggregate(query).toArray();
-      });
-      return Promise.all(defers);
+      }));
     })
     .then(function(res) {
-      // Assign counts to each model (store in x-meditpr.count field)
-      var counts = res.reduce(function (accumulator, currentValue) {
+      that.countsRoleAware = res.reduce(function (accumulator, currentValue) {
         accumulator[currentValue[0].name] = currentValue[0].count;
         return accumulator;
       }, {});
-      that.models.forEach(m => {m['x-meditor'].count = counts[m.name] || 0});
+      // Count all items regardless of the model
+      return Promise.all(that.modelMetas.map(modelMeta => {
+        return that.dbo.db(DbName).collection(modelMeta.modelName).aggregate([
+          {$group: {_id: '$' + modelMeta.titleProperty}},
+          {$group: {_id: null, "count": { "$sum": 1 }}},
+          {$addFields: {name: modelMeta.modelName}}
+        ]).toArray();
+      }));
+    })
+    .then(function(res) {
+      that.countsTotal = res.reduce(function (accumulator, currentValue) {
+        accumulator[currentValue[0].name] = currentValue[0].count;
+        return accumulator;
+      }, {});
+    })
+    .then(function() {
+      that.models.forEach(m => {m['x-meditor'].count = that.countsRoleAware[m.name] || 0});
+      that.models.forEach(m => {m['x-meditor'].countAll = that.countsTotal[m.name] || 0});
       return that.models;
     })
     .then(res => (that.dbo.close(), handleSuccess(response, res)))
