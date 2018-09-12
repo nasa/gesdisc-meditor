@@ -9,14 +9,12 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { NgxsModule } from '@ngxs/store';
 import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
 
-import { DocumentState, ModelState, RouterState, NotificationState, AuthState } from './store/ngxs-index'
+import { DocumentState, ModelState, RouterState, NotificationState, AuthState } from './store/'
 
 import { SnackBarComponent } from './core/components/notification/notification.component';
 import { CoreModule } from './core/core.module';
 import { ApiModule } from './service/api.module';
 import { MaterialModule } from './material';
-
-import { CustomRouterStateSerializer } from './shared/utils';
 
 import { MainComponent } from './core/containers/main/main.component';
 import { BASE_PATH } from './service';
@@ -42,7 +40,7 @@ const routeResolvers = Object.keys(resolvers).map(key => resolvers[key])	// TODO
 		ApiModule
 	],
 	providers: [		
-		{ provide: BASE_PATH, useValue: environment.API_BASE_PATH },		
+		{ provide: BASE_PATH, useValue: environment.API_BASE_PATH },
 		...routeResolvers,
 	],
 	declarations: [ SnackBarComponent ],

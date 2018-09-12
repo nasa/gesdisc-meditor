@@ -1,6 +1,7 @@
 import { State, Action, StateContext, Selector, Store } from '@ngxs/store';
 import { Model, ModelCatalogEntry, DocCatalogEntry} from 'app/service/model/models';
 import { DefaultService } from 'app/service/api/default.service';
+import { Cache } from 'app/store/cache/cache.decorator';
 import * as actions from './model.actions';
 import { tap } from 'rxjs/operators';
 
@@ -52,6 +53,7 @@ export class ModelState {
 
 	constructor(private store: Store, private service: DefaultService) {}
 
+	@Cache()
 	@Action(actions.GetAllModels)
 	getAllModels({ patchState }: StateContext<ModelStateModel>) {
 		patchState({ loading: true, });
@@ -60,12 +62,13 @@ export class ModelState {
 			.pipe(tap((models: ModelCatalogEntry[]) => patchState({ 
 				models,
 				loading: false,
-			})));
+			})))
 	}
 
+	@Cache('payload.name')
 	@Action(actions.GetModel)
 	getModel({ patchState, getState }: StateContext<ModelStateModel>, { payload }: actions.GetModel) {
-		patchState({ loading: true, });
+		patchState({ loading: true, }); 
 
 		return this.service.getModel(payload.name)
 			.pipe(
