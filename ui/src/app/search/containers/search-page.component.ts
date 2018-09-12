@@ -5,7 +5,7 @@ import { Store, Select } from '@ngxs/store';
 import { GetModel, GetModelDocuments } from 'app/store/model/model.state';
 import { Go } from 'app/store/router/router.state';
 import { ModelCatalogEntry, DocCatalogEntry } from 'app/service/model/models';
-import { AuthState, ModelState } from 'app/store/ngxs-index';
+import { AuthState, ModelState } from 'app/store/';
 
 @Component({
 	selector: 'med-search-page',
