@@ -16,6 +16,8 @@ var macros = require('./Macros.js');
 var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
 var DbName = "meditor";
 
+// ======================== Common helper functions ================================
+
 // Wrapper to parse JSON giving v8 a chance to optimize code
 function safelyParseJSON (jsonStr) {
   var jsonObj;
@@ -30,17 +32,112 @@ function safelyParseJSON (jsonStr) {
 // Converts Swagger parameter notation into a plain dictionary
 function getSwaggerParams(request) {
   var params = {};
+  if (_.get(request, 'swagger.params', null) === null) return params; 
   for ( var property in request.swagger.params ) {
     params[property] = request.swagger.params[property].value;
   }
   return params;
 }
 
+function handleError(response, err) {
+  console.log('Error: ', err);
+  utils.writeJson(response, {code: err.status || 500, message: err.message || 'Unknown error '}, err.status || 500);
+};
+
+function handleSuccess(response, res) {
+  utils.writeJson(response, res && 'message' in res ? res.message : res, 200);
+}
+
+// Builds aggregation pipeline query for a given model (common starting point for most API functions)
+function getDocumentAggregationQuery(meta) {
+  var searchQuery = {};
+  var query;
+  var defaultStateName = "Unspecified";
+  var defaultState = {target: defaultStateName, source: defaultStateName, modifiedOn: (new Date()).toISOString()};
+  meta.sourceStates.push("Unspecified");
+  query = [
+    {$addFields: {'x-meditor.states': { $ifNull: [ "$x-meditor.states", [defaultState] ] }}}, // Add default state on docs with no state
+    {$addFields: {'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}}}, // Find last state
+    {$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
+    {$group: {_id: '$' + meta.titleProperty, doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version
+    {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
+    {$match: {'x-meditor.state': {$in: meta.sourceStates}}} // Filter states based on the role's source states
+  ];
+  // Build up search query if search params are available
+  if ('title' in meta.params) searchQuery[meta.titleProperty] =  meta.params.title;
+  if ('version' in  meta.params && meta.params.version !== 'latest') searchQuery['x-meditor.modifiedOn'] = meta.params.version;
+  if (!_.isEmpty(searchQuery)) query.unshift({$match: searchQuery}); // Push search query into the top of the chain
+  return query;
+}
+
+// Collects various metadata about request and model - to be
+// used in queries and what not
+function getDocumentModelMetadata(dbo, request, paramsExtra) {
+  // This is a convenience function that returns a number of
+  // parameters needed to work with documents:
+  // - request parameters
+  // - all user roles
+  // - model-specific user roles
+  // - model
+  // - workflow
+  // - title property (retrieved from model)
+  // - source states available to the user
+  // - target states available to the user
+  // Note: if set, paramsExtra are super-imposed on top of swagger params
+  var that = {
+    params: _.assign(getSwaggerParams(request), paramsExtra),
+    roles: _.get(request, 'user.roles', {}),
+    dbo: dbo
+  };
+  // TODO Useful for dubugging
+  // that.roles = [ 
+  //   { model: 'Alerts', role: 'Author' },
+  //   { model: 'Alerts', role: 'Reviewer' } ];
+  that.modelName = that.params.model;
+  that.modelRoles = _(that.roles).filter({model: that.params.model}).map('role').value();
+  return Promise.resolve()
+    .then(function() {
+      return that.dbo
+      .db(DbName)
+      .collection('Models')
+      .find({name: that.params.model})
+      .sort({'x-meditor.modifiedOn': -1})
+      .limit(1)
+      .toArray()
+    })
+    .then(res => {
+      if (_.isEmpty(res)) throw {message: 'Model for ' + that.params.model + ' not found', status: 400};
+      that.model = res[0];
+      that.titleProperty = that.model['titleProperty'] || 'title';
+    })
+    .then(res => {
+      return that.dbo
+        .db(DbName)
+        .collection('Workflows')
+        .find({name: that.model.workflow})
+        .sort({'x-meditor.modifiedOn': -1})
+        .limit(1)
+        .toArray();
+    })
+    .then(res => {
+      if (_.isEmpty(res)) throw {message: 'Workflow for ' + that.params.model + ' not found', status: 400};
+      that.workflow = res[0];
+      that.sourceStates = _(that.workflow.edges)
+        .filter(function(e) {return that.modelRoles.indexOf(e.role) !== -1;})
+        .map('source').uniq().value();
+      that.targetStates = _(that.workflow.edges)
+        .filter(function(e) {return that.modelRoles.indexOf(e.role) !== -1;})
+        .map('target').uniq().value();
+      return that;
+    });
+};
+
+// ================================= Exported API functions =========================
+
 // Add a Model
 function addModel (model) {
   model["x-meditor"]["modifiedOn"] = (new Date()).toISOString();
   model["x-meditor"]["modifiedBy"] = "anonymous";
-  model["x-meditor"]["count"] = 0;
   return new Promise(function(resolve, reject) {
     MongoClient.connect(MongoUrl, function(err, db) {
       if (err) throw err;
@@ -58,25 +155,30 @@ function addModel (model) {
   });
 }
 
-// Internal method to list models
-function getListOfModels (properties) {
-  return new Promise(function(resolve, reject) {
-    MongoClient.connect(MongoUrl, function(err, db) {
-      if (err) {
-        console.log(err);
-        throw err;
-      }
-      var dbo = db.db(DbName);
+// Exported method to list Models
+module.exports.listModels = function listModels (request, response, next) {
+  var that = {};
+  return MongoClient.connect(MongoUrl)
+    .then(res => {
+      that.dbo = res;
+      return getDocumentModelMetadata(that.dbo, request, {model: 'Models'});
+    })
+    .then(meta => {_.assign(that, meta)})
+    .then(function() {
+      // Start by getting a list of models
+      var properties = that.params.properties;
       var projection = {_id:0};
       if (properties === undefined) {
-        properties = ["name","description","icon","x-meditor","category"];
+        properties = ["name", "description", "icon", "x-meditor", "category"];
       }
+      if (!Array.isArray(properties)) properties = [properties];
       if (Array.isArray(properties)) {
         properties.forEach(function(element){
           projection[element]= '$'+element;
         });
       }
-      dbo
+      // Get list of models ...
+      return that.dbo.db(DbName)
         .collection("Models")
         .aggregate(
           [{$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
@@ -84,27 +186,57 @@ function getListOfModels (properties) {
           {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
           {$project: projection}
         ])
-        .toArray(function(err, res) {
-          if (err){
-            console.log(err);
-            throw err;
-          }
-          db.close();
-          resolve(res);
-        });
+        .toArray();
+    })
+    .then(function(res) {
+      // Collect roles, target states, and other metadata for each model
+      that.models = res;
+      var defers = _.map(that.models, function(model) {
+        var modelMeta = {};
+        return getDocumentModelMetadata(that.dbo, {user: request.user}, {model: model.name});
+      });
+      return Promise.all(defers);
+    })
+    .then(function(modelMetas) {
+      that.modelMetas = modelMetas;
+      // Based on collected metadata, query each model for unique items
+      // as appropriate for user's role and count the results
+      return Promise.all(modelMetas.map(modelMeta => {
+        var query = getDocumentAggregationQuery(modelMeta);
+        query.push({$group: {_id: null, "count": { "$sum": 1 }}});
+        query.push({$addFields: {name: modelMeta.modelName}});
+        return that.dbo.db(DbName).collection(modelMeta.modelName).aggregate(query).toArray();
+      }));
+    })
+    .then(function(res) {
+      that.countsRoleAware = res.reduce(function (accumulator, currentValue) {
+        accumulator[currentValue[0].name] = currentValue[0].count;
+        return accumulator;
+      }, {});
+      // Count all items regardless of the model
+      return Promise.all(that.modelMetas.map(modelMeta => {
+        return that.dbo.db(DbName).collection(modelMeta.modelName).aggregate([
+          {$group: {_id: '$' + modelMeta.titleProperty}},
+          {$group: {_id: null, "count": { "$sum": 1 }}},
+          {$addFields: {name: modelMeta.modelName}}
+        ]).toArray();
+      }));
+    })
+    .then(function(res) {
+      that.countsTotal = res.reduce(function (accumulator, currentValue) {
+        accumulator[currentValue[0].name] = currentValue[0].count;
+        return accumulator;
+      }, {});
+    })
+    .then(function() {
+      that.models.forEach(m => {m['x-meditor'].count = that.countsRoleAware[m.name] || 0});
+      that.models.forEach(m => {m['x-meditor'].countAll = that.countsTotal[m.name] || 0});
+      return that.models;
+    })
+    .then(res => (that.dbo.close(), handleSuccess(response, res)))
+    .catch(err => {
+      handleError(response, err);
     });
-  });
-}
-
-//Exported method to list Models
-module.exports.listModels = function listModels (req, res, next) {
-  getListOfModels (req.swagger.params['properties'].value)
-  .then(function (response) {
-    utils.writeJson(res, response);
-  })
-  .catch(function (response) {
-    utils.writeJson(res, response);
-  });
 };
 
 //Exported method to add a Model
@@ -149,7 +281,7 @@ function addDocument (doc) {
           console.log(err);
           throw err;
         }
-        dbo.collection("Models").update({name:doc["x-meditor"]["model"]}, {$inc:{"x-meditor.count":1}}, function(err, res) {
+        dbo.collection("Models").update({name:doc["x-meditor"]["model"]}, function(err, res) {
           if (err){
             console.log(err);
             throw err;
@@ -325,94 +457,6 @@ module.exports.putDocument = function putDocument (req, res, next) {
   });
 };
 
-function handleError(response, err) {
-  console.log('Error: ', err);
-  utils.writeJson(response, {code: err.status || 500, message: err.message || 'Unknown error '}, err.status || 500);
-};
-
-function handleSuccess(response, res) {
-  utils.writeJson(response, res && 'message' in res ? res.message : res, 200);
-}
-
-function getDocumentAggregationQuery(meta) {
-  var searchQuery = {};
-  var query;
-  var defaultStateName = "Unspecified";
-  var defaultState = {target: defaultStateName, source: defaultStateName, modifiedOn: (new Date()).toISOString()};
-  meta.sourceStates.push("Unspecified");
-  query = [
-    {$addFields: {'x-meditor.states': { $ifNull: [ "$x-meditor.states", [defaultState] ] }}}, // Add default state on docs with no state
-    {$addFields: {'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}}}, // Find last state
-    {$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
-    {$group: {_id: '$' + meta.titleProperty, doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version
-    {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
-    {$match: {'x-meditor.state': {$in: meta.sourceStates}}} // Filter states based on the role's source states
-  ];
-  // Build up search query if search params are available
-  if ('title' in meta.params) searchQuery[meta.titleProperty] =  meta.params.title;
-  if ('version' in  meta.params && meta.params.version !== 'latest') searchQuery['x-meditor.modifiedOn'] = meta.params.version;
-  if (!_.isEmpty(searchQuery)) query.unshift({$match: searchQuery}); // Push search query into the top of the chain
-  return query;
-}
-
-function getDocumentModelMetadata(dbo, request) {
-  // This is a convenience function that returns a number of
-  // parameters needed to work with documents:
-  // - request parameters
-  // - all user roles
-  // - model-specific user roles
-  // - model
-  // - workflow
-  // - title property (retrieved from model)
-  // - source states available to the user
-  // - target states available to the user
-  var that = {
-    params: getSwaggerParams(request),
-    roles: _.get(request, 'user.roles', {}),
-    dbo: dbo
-  };
-  // TODO Useful for dubugging
-  // that.roles = [ 
-  //   { model: 'Alerts', role: 'Author' },
-  //   { model: 'Alerts', role: 'Reviewer' } ];
-  that.modelRoles = _(that.roles).filter({model: that.params.model}).map('role').value();
-  return Promise.resolve()
-    .then(function() {
-      return that.dbo
-      .db(DbName)
-      .collection('Models')
-      .find({name: that.params.model})
-      .sort({'x-meditor.modifiedOn': -1})
-      .limit(1)
-      .toArray()
-    })
-    .then(res => {
-      if (_.isEmpty(res)) throw {message: 'Model for ' + that.params.model + ' not found', status: 400};
-      that.model = res[0];
-      that.titleProperty = that.model['titleProperty'] || 'title';
-    })
-    .then(res => {
-      return that.dbo
-        .db(DbName)
-        .collection('Workflows')
-        .find({name: that.model.workflow})
-        .sort({'x-meditor.modifiedOn': -1})
-        .limit(1)
-        .toArray();
-    })
-    .then(res => {
-      if (_.isEmpty(res)) throw {message: 'Workflow for ' + that.params.model + ' not found', status: 400};
-      that.workflow = res[0];
-      that.sourceStates = _(that.workflow.edges)
-        .filter(function(e) {return that.modelRoles.indexOf(e.role) !== -1;})
-        .map('source').uniq().value();
-      that.targetStates = _(that.workflow.edges)
-        .filter(function(e) {return that.modelRoles.indexOf(e.role) !== -1;})
-        .map('target').uniq().value();
-      return that;
-    })
-};
-
 // Exported method to list documents
 module.exports.listDocuments = function listDocuments (request, response, next) {
   // Function - wide variables are stored here
@@ -444,7 +488,7 @@ module.exports.listDocuments = function listDocuments (request, response, next) 
     .then(res => (that.dbo.close(), handleSuccess(response, res)))
     .catch(err => {
       handleError(response, err);
-    })
+    });
 };
 
 // Exported method to get a document
@@ -477,7 +521,7 @@ module.exports.getDocument = function listDocuments (request, response, next) {
     .then(res => (that.dbo.close(), handleSuccess(response, res.length > 0 ? res[0] : {})))
     .catch(err => {
       handleError(response, err);
-    })
+    });
 };
 
 // Change workflow status of a document
@@ -493,10 +537,10 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
       var query = getDocumentAggregationQuery(that);
       query.push({$limit: 1});
       return that.dbo
-      .db(DbName)
-      .collection(that.params.model)
-      .aggregate(query)
-      .toArray();
+        .db(DbName)
+        .collection(that.params.model)
+        .aggregate(query)
+        .toArray();
     })
     .then(res => res[0])
     .then(function(res) {
@@ -518,7 +562,7 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
     .then(res => (that.dbo.close(), handleSuccess(response, "Success")))
     .catch(err => {
       handleError(response, err);
-    })
+    });
 };
 
 // Internal method to list documents
