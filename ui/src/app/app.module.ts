@@ -9,7 +9,13 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { NgxsModule } from '@ngxs/store';
 import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
 
-import { DocumentState, ModelState, RouterState, NotificationState, AuthState } from './store/ngxs-index'
+import { 
+	DocumentState, 
+	ModelState, 
+	RouterState, 
+	NotificationState, 
+	AuthState, 
+	WorkflowState } from './store/ngxs-index'
 
 import { SnackBarComponent } from './core/components/notification/notification.component';
 import { CoreModule } from './core/core.module';
@@ -35,7 +41,13 @@ const routeResolvers = Object.keys(resolvers).map(key => resolvers[key])	// TODO
 		MaterialModule,
 		RouterModule.forRoot(routes, { useHash: true }),
 		CoreModule.forRoot(),
-		NgxsModule.forRoot([ DocumentState, ModelState, RouterState, NotificationState, AuthState ]),
+		NgxsModule.forRoot([ 
+			DocumentState, 
+			ModelState, 
+			RouterState, 
+			NotificationState, 
+			AuthState, 
+			WorkflowState ]),
     	NgxsReduxDevtoolsPluginModule.forRoot(),
 		ApiModule
 	],

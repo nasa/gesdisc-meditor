@@ -13,7 +13,7 @@
         [filteredCount] = "filteredDocuments.length"
         [modelName] = "(selectedModel$ | async)?.name"
         addNewLabel = "Add New"
-        [canAddNew] = "canAddNew"
+        [canAddNew] = "privileges.includes('create_new')"
         (addNew) = "addNewDocument()"
         (sortByChanged)="sortByChanged($event)">
     </med-search-status>

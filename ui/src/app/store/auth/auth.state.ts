@@ -1,7 +1,6 @@
 import { State, Action, StateContext, Selector, Store } from '@ngxs/store';
 import { MatDialog } from '@angular/material';
 import { Router } from '@angular/router';
-import { Document, DocHistory } from 'app/service/model/models';
 import { DefaultService } from 'app/service/api/default.service';
 import * as actions from './auth.actions';
 import * as notification from 'app/store/notification/notification.actions';
@@ -32,8 +31,8 @@ export class AuthState {
 		@Selector() static user(state: AuthStateModel): any { return state.user; }
 
 		constructor(
-			private store: Store, 
-			private service: DefaultService, 
+			private store: Store,
+			private service: DefaultService,
 			private dialog: MatDialog,
 			private router: Router) {}
 
@@ -42,7 +41,7 @@ export class AuthState {
 				return this.service.getMe()
 						.pipe(
 								tap((user: any) => {
-									return user.uid ? dispatch(new actions.LoginSuccess(user)) : dispatch(new actions.OpenLoginDialog())              
+									return user.uid ? dispatch(new actions.LoginSuccess(user)) : dispatch(new actions.OpenLoginDialog());
 								}
 							),
 						);
@@ -51,8 +50,8 @@ export class AuthState {
 		@Action(actions.LoginSuccess)
 			loginSuccess({ patchState, getState, dispatch }: StateContext<AuthStateModel>, { payload }: actions.LoginSuccess) {
 				patchState({ user: payload, loggedIn: true });
-				this.router.navigateByUrl(localStorage.getItem('returnUrl') || '/');      
-      	return dispatch(new notification.SuccessNotificationOpen('You have successfully logged in'));
+				this.router.navigateByUrl(localStorage.getItem('returnUrl') || '/');
+				return dispatch(new notification.SuccessNotificationOpen('You have successfully logged in'));
 		}
 
 		@Action(actions.Logout)
@@ -63,11 +62,11 @@ export class AuthState {
 
 		@Action(actions.OpenLoginDialog)
 			openLoginDialog({ patchState, getState }: StateContext<AuthStateModel>, { }: actions.OpenLoginDialog) {
-				let dialogRef = this.dialog.open(LoginDialog, {
-          width: '400px',
-          position: { top: '200px' },
-          disableClose: true
-        });
+				const dialogRef = this.dialog.open(LoginDialog, {
+					width: '400px',
+					position: { top: '200px' },
+					disableClose: true
+				});
 		}
 
 }

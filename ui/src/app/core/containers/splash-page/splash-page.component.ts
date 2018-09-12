@@ -18,22 +18,20 @@ export class SplashPageComponent implements OnInit{
 	@Select(ModelState.models) models$: Observable<ModelCatalogEntry[]>;
 	@Select(ModelState.currentModel) model$: Observable<Model>;
 	@Select(ModelState.categories) categories$: Observable<string[]>;
-	
 	@Select(AuthState.loggedIn) loggedIn$: Observable<boolean>;
 
 	constructor(
 		private store: Store
-	) {		
-	}
+	) {}
 
-	ngOnInit () {	
-		localStorage.clear();		
+	ngOnInit () {
+		localStorage.clear();
 		this.loggedIn$.subscribe(loggedIn => {
-			if (!loggedIn) this.store.dispatch(new GetUser());
-		});		
+			if (!loggedIn) { this.store.dispatch(new GetUser()); }
+		});
 	}
 
-	goToSearchPage(event: any) {		
-		this.store.dispatch(new Go({path: '/search', query: { model: event.name}}))
+	goToSearchPage(event: any) {
+		this.store.dispatch(new Go({path: '/search', query: { model: event.name}}));
 	}
 }
