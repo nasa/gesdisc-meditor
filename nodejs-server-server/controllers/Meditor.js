@@ -40,7 +40,6 @@ function getSwaggerParams(request) {
 function addModel (model) {
   model["x-meditor"]["modifiedOn"] = (new Date()).toISOString();
   model["x-meditor"]["modifiedBy"] = "anonymous";
-  model["x-meditor"]["count"] = 0;
   return new Promise(function(resolve, reject) {
     MongoClient.connect(MongoUrl, function(err, db) {
       if (err) throw err;
@@ -60,23 +59,24 @@ function addModel (model) {
 
 // Internal method to list models
 function getListOfModels (properties) {
-  return new Promise(function(resolve, reject) {
-    MongoClient.connect(MongoUrl, function(err, db) {
-      if (err) {
-        console.log(err);
-        throw err;
-      }
-      var dbo = db.db(DbName);
+  var that = {};
+  return MongoClient.connect(MongoUrl)
+    .then(res => {
+      that.dbo = res;
+    })
+    .then(function() {
       var projection = {_id:0};
       if (properties === undefined) {
         properties = ["name","description","icon","x-meditor","category"];
       }
+      properties.push("titleProperty");
+      if (!Array.isArray(properties)) properties = [properties];
       if (Array.isArray(properties)) {
         properties.forEach(function(element){
           projection[element]= '$'+element;
         });
       }
-      dbo
+      return that.dbo.db(DbName)
         .collection("Models")
         .aggregate(
           [{$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
@@ -84,16 +84,28 @@ function getListOfModels (properties) {
           {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
           {$project: projection}
         ])
-        .toArray(function(err, res) {
-          if (err){
-            console.log(err);
-            throw err;
-          }
-          db.close();
-          resolve(res);
-        });
+        .toArray();
+    })
+    .then(function(res) {
+      var defers = _.map(res, function(model) {
+        return that.dbo.db(DbName).collection(model.name).aggregate([
+          {$group: {_id: '$' + model.titleProperty}},
+          {$group: {_id: null, "count": { "$sum": 1 }}},
+          {$addFields: {name: model.name}}
+        ]).toArray();
+      });
+      that.models = res;
+      return Promise.all(defers);
+    })
+    .then(function(res) {
+      var counts = res.reduce(function (accumulator, currentValue) {
+        accumulator[currentValue[0].name] = currentValue[0].count;
+        return accumulator;
+      }, {});
+      that.models.forEach(m => {m['x-meditor'].count = counts[m.name] || 0});
+      that.dbo.close();
+      return that.models;
     });
-  });
 }
 
 //Exported method to list Models
@@ -149,7 +161,7 @@ function addDocument (doc) {
           console.log(err);
           throw err;
         }
-        dbo.collection("Models").update({name:doc["x-meditor"]["model"]}, {$inc:{"x-meditor.count":1}}, function(err, res) {
+        dbo.collection("Models").update({name:doc["x-meditor"]["model"]}, function(err, res) {
           if (err){
             console.log(err);
             throw err;
