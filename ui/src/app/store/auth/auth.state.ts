@@ -5,8 +5,11 @@ import { DefaultService } from 'app/service/api/default.service';
 import * as actions from './auth.actions';
 import * as notification from 'app/store/notification/notification.actions';
 import { tap } from 'rxjs/operators';
+import * as _ from 'underscore';
 
 import { LoginDialog } from 'app/auth/components/login-dialog/login-dialog.component';
+import { WorkflowStateModel } from 'app/store/workflow/workflow.state';
+import { ModelStateModel } from 'app/store/model/model.state';
 
 export * from './auth.actions';
 
@@ -29,7 +32,21 @@ export class AuthState {
 
 		@Selector() static loggedIn(state: AuthStateModel): boolean { return state.loggedIn; }
 		@Selector() static user(state: AuthStateModel): any { return state.user; }
-
+		@Selector() static userPrivileges(
+			authstate: AuthStateModel,
+			workflowstate: WorkflowStateModel,
+			modelstate: ModelStateModel): string[] {
+				let privileges: string[] = [];
+				const i = workflowstate.currentWorkflow.nodes.map(n =>  n.id).indexOf(workflowstate.currentEdge.source);
+				const nodeprivileges = workflowstate.currentWorkflow.nodes[i].privileges;
+				const modelname = modelstate.currentModel.name;
+				const userroles = authstate.user.roles;
+				const currentUserRoles = _.pluck(userroles.filter((role: any) => role.model === modelname), 'role');
+				_.each(currentUserRoles, function(role) {
+					privileges = _.union(privileges, _.findWhere(nodeprivileges, {'role': role}).privilege);
+				});
+				return privileges;
+		}
 		constructor(
 			private store: Store,
 			private service: DefaultService,
