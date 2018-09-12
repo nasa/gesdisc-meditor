@@ -1,23 +1,23 @@
 export class OpenLoginDialog {
-  static readonly type = '[Auth] Open Login Dialog';
-};
+	static readonly type = '[Auth] Open Login Dialog';
+}
 
 export class GetUser {
-  static readonly type = '[Auth] Get User';
+	static readonly type = '[Auth] Get User';
 }
 
 export class LoginSuccess {
-  static readonly type = '[Auth] Login Success';
+	static readonly type = '[Auth] Login Success';
 
-  constructor(public payload: any) {}
+	constructor(public payload: any) {}
 }
 
 export class LoginFailure  {
-  static readonly type = '[Auth] Login Failure';
+	static readonly type = '[Auth] Login Failure';
 
-  constructor(public payload: any) {}
+	constructor(public payload: any) {}
 }
 
 export class Logout {
-  static readonly type = '[Auth] Logout';
+	static readonly type = '[Auth] Logout';
 }

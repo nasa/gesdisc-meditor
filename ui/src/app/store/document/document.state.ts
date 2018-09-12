@@ -7,106 +7,106 @@ import { tap } from 'rxjs/operators';
 export * from './document.actions';
 
 export interface DocumentStateModel {
-    loading: boolean;
-    documents: Document[];
-    currentDocument: Document;
-    currentDocumentTitle: string;
-    currentDocumentModel: string;
-    currentDocumentHistory: DocHistory;
-    currentDocumentVersion: string;
+	loading: boolean;
+	documents: Document[];
+	currentDocument: Document;
+	currentDocumentTitle: string;
+	currentDocumentModel: string;
+	currentDocumentHistory: DocHistory;
+	currentDocumentVersion: string;
 }
 
 @State<DocumentStateModel>({
-    name: 'documents',
-    defaults: {
-        loading: false,
-        documents: [],
-        currentDocument: undefined,
-        currentDocumentTitle: undefined,
-        currentDocumentModel: undefined,
-        currentDocumentHistory: undefined,
-        currentDocumentVersion: undefined,
-    },
+	name: 'documents',
+	defaults: {
+		loading: false,
+		documents: [],
+		currentDocument: undefined,
+		currentDocumentTitle: undefined,
+		currentDocumentModel: undefined,
+		currentDocumentHistory: undefined,
+		currentDocumentVersion: undefined,
+	},
 })
 export class DocumentState {
 
-    @Selector() static loading(state: DocumentStateModel): boolean { return state.loading; }
-    @Selector() static documents(state: DocumentStateModel): Document[] { return state.documents; }
-    @Selector() static currentDocument(state: DocumentStateModel): Document { return state.currentDocument; }
-    @Selector() static currentDocumentTitle(state: DocumentStateModel): string { return state.currentDocumentTitle; }
-    @Selector() static currentDocumentModel(state: DocumentStateModel): string { return state.currentDocumentModel; }
-    @Selector() static currentDocumentHistory(state: DocumentStateModel): DocHistory { return state.currentDocumentHistory; }
-    @Selector() static currentDocumentVersion(state: DocumentStateModel): string { return state.currentDocumentVersion; }
+		@Selector() static loading(state: DocumentStateModel): boolean { return state.loading; }
+		@Selector() static documents(state: DocumentStateModel): Document[] { return state.documents; }
+		@Selector() static currentDocument(state: DocumentStateModel): Document { return state.currentDocument; }
+		@Selector() static currentDocumentTitle(state: DocumentStateModel): string { return state.currentDocumentTitle; }
+		@Selector() static currentDocumentModel(state: DocumentStateModel): string { return state.currentDocumentModel; }
+		@Selector() static currentDocumentHistory(state: DocumentStateModel): DocHistory { return state.currentDocumentHistory; }
+		@Selector() static currentDocumentVersion(state: DocumentStateModel): string { return state.currentDocumentVersion; }
 
-    constructor(private store: Store, private service: DefaultService) {}
+		constructor(private store: Store, private service: DefaultService) {}
 
-    @Action(actions.GetDocument)
-    getDocument({ patchState, getState }: StateContext<DocumentStateModel>, { payload }: actions.GetDocument) {
-        patchState({ loading: true, });
+		@Action(actions.GetDocument)
+		getDocument({ patchState, getState }: StateContext<DocumentStateModel>, { payload }: actions.GetDocument) {
+				patchState({ loading: true, });
 
-        return this.service.getDocument(payload.model, payload.title, payload.version)
-            .pipe(
-                tap((document: Document) => patchState({ 
-                    documents: [...getState().documents, document],
-                    currentDocument: document,
-                    currentDocumentTitle: payload.title,
-                    currentDocumentModel: payload.model,
-                    currentDocumentVersion: document['x-meditor'].modifiedOn.toString(),
-                    loading: false,
-                })),
-            );
-    }
+				return this.service.getDocument(payload.model, payload.title, payload.version)
+						.pipe(
+								tap((document: Document) => patchState({
+										documents: [...getState().documents, document],
+										currentDocument: document,
+										currentDocumentTitle: payload.title,
+										currentDocumentModel: payload.model,
+										currentDocumentVersion: document['x-meditor'].modifiedOn.toString(),
+										loading: false,
+								})),
+						);
+		}
 
-    @Action(actions.UpdateCurrentDocument)
-    updateCurrentDocument({ patchState, getState }: StateContext<DocumentStateModel>, { payload }: actions.UpdateCurrentDocument) {
-        patchState({ loading: true, });
+		@Action(actions.UpdateCurrentDocument)
+		updateCurrentDocument({ patchState, getState }: StateContext<DocumentStateModel>, { payload }: actions.UpdateCurrentDocument) {
+				patchState({ loading: true, });
 
-        payload.document['x-meditor'] = { model: getState().currentDocumentModel };
-        
-        let documentBlob = new Blob([JSON.stringify(payload.document)]);
+				payload.document['x-meditor'] = { model: getState().currentDocumentModel };
 
-        return this.service.putDocument(documentBlob);
-    }
+				const documentBlob = new Blob([JSON.stringify(payload.document)]);
 
-    @Action(actions.GetCurrentDocumentHistory)
-    getCurrentDocumentHistory({ patchState, getState }: StateContext<DocumentStateModel>) {
-        patchState({ loading: true, });
+				return this.service.putDocument(documentBlob);
+		}
 
-        let document = getState().currentDocument;
-        let documentTitle = getState().currentDocumentTitle;
+		@Action(actions.GetCurrentDocumentHistory)
+		getCurrentDocumentHistory({ patchState, getState }: StateContext<DocumentStateModel>) {
+				patchState({ loading: true, });
 
-        return this.service.getDocumentHistory(document['x-meditor'].model, documentTitle)
-            .pipe(
-                tap((history: DocHistory) => patchState({ 
-                    currentDocumentHistory: history,
-                    loading: false,
-                })),
-            );
-    }
+				const document = getState().currentDocument;
+				const documentTitle = getState().currentDocumentTitle;
 
-    @Action(actions.GetCurrentDocumentVersion)
-    getCurrentDocumentVersion({ patchState, getState }: StateContext<DocumentStateModel>, { payload }: actions.GetCurrentDocumentVersion) {
-        patchState({ currentDocumentVersion: payload.version })
+				return this.service.getDocumentHistory(document['x-meditor'].model, documentTitle)
+						.pipe(
+								tap((history: DocHistory) => patchState({
+										currentDocumentHistory: history,
+										loading: false,
+								})),
+						);
+		}
 
-        return this.store.dispatch(new actions.GetDocument({
-            model: getState().currentDocumentModel,
-            title: getState().currentDocumentTitle,
-            version: payload.version,
-        }))
-    }
+		@Action(actions.GetCurrentDocumentVersion)
+		getCurrentDocumentVersion({ patchState, getState }: StateContext<DocumentStateModel>, { payload }: actions.GetCurrentDocumentVersion) {
+				patchState({ currentDocumentVersion: payload.version })
 
-    @Action(actions.CreateDocument)
-    createDocument({ patchState, getState }: StateContext<DocumentStateModel>, { payload }: actions.CreateDocument) {
-        patchState({ loading: true, });
+				return this.store.dispatch(new actions.GetDocument({
+						model: getState().currentDocumentModel,
+						title: getState().currentDocumentTitle,
+						version: payload.version,
+				}));
+		}
 
-        payload.document['x-meditor'] = { model: payload.model };
-        
-        let documentBlob = new Blob([JSON.stringify(payload.document)]);
+		@Action(actions.CreateDocument)
+		createDocument({ patchState, getState }: StateContext<DocumentStateModel>, { payload }: actions.CreateDocument) {
+				patchState({ loading: true, });
 
-        return this.service.putDocument(documentBlob)
-            .pipe(
-                tap(() => patchState({ loading: false, }))
-            );
-    }
+				payload.document['x-meditor'] = { model: payload.model };
+
+				const documentBlob = new Blob([JSON.stringify(payload.document)]);
+
+				return this.service.putDocument(documentBlob)
+						.pipe(
+								tap(() => patchState({ loading: false, }))
+						);
+		}
 
 }

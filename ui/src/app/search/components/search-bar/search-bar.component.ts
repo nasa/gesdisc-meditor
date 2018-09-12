@@ -22,6 +22,7 @@ export class SearchBarComponent implements OnInit {
 	query: string = '';
 	modelControl: FormControl;
 
+	
 	ngOnInit() {
 		this.modelControl = new FormControl(this.selectedModel);
 	}

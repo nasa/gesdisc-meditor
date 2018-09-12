@@ -16,5 +16,5 @@ export interface Document {
     xMeditor?: DocCatalogEntryXmeditor;
     schema?: string;
     layout?: string;
-    doc?: string;
+    doc?: string | any;
 }

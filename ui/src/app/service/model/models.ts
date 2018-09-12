@@ -12,3 +12,4 @@ export * from './modelIcon';
 export * from './modelXmeditor';
 export * from './success';
 export * from './user';
+export * from './workflow';
