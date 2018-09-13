@@ -210,6 +210,7 @@ module.exports.listModels = function listModels (request, response, next) {
     })
     .then(function(res) {
       that.countsRoleAware = res.reduce(function (accumulator, currentValue) {
+        if (currentValue.length !== 1) return accumulator;
         accumulator[currentValue[0].name] = currentValue[0].count;
         return accumulator;
       }, {});
@@ -224,6 +225,7 @@ module.exports.listModels = function listModels (request, response, next) {
     })
     .then(function(res) {
       that.countsTotal = res.reduce(function (accumulator, currentValue) {
+        if (currentValue.length !== 1) return accumulator;
         accumulator[currentValue[0].name] = currentValue[0].count;
         return accumulator;
       }, {});
