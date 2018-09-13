@@ -4,12 +4,13 @@ import { Store, Select } from '@ngxs/store';
 import { ModelState } from 'app/store/model/model.state';
 import { Document, DocHistory, Model } from 'app/service/model/models';
 import { Observable } from 'rxjs/Observable';
-import { 
-	UpdateCurrentDocument, 
-	GetCurrentDocumentHistory, 
-	GetCurrentDocumentVersion, 
+import {
+	UpdateCurrentDocument,
+	GetCurrentDocumentHistory,
+	GetCurrentDocumentVersion,
 	DocumentState
 } from 'app/store/document/document.state';
+import { SuccessNotificationOpen, ErrorNotificationOpen } from 'app/store/notification/notification.state';
 
 @Component({
 	selector: 'med-docedit-page',
@@ -28,7 +29,19 @@ export class DocEditPageComponent {
 	constructor(private store: Store) {}
 
 	submitDocument(document: any) {
-		this.store.dispatch(new UpdateCurrentDocument({ document }));
+		this.store.dispatch(new UpdateCurrentDocument({ document }))
+			.subscribe(
+				this.onSubmitDocumentSuccess.bind(this, document),
+				this.onSubmitDocumentError.bind(this)
+			);
+	}
+
+	onSubmitDocumentSuccess(document: any) {
+		this.store.dispatch(new SuccessNotificationOpen('Successfully updated document'));
+	}
+
+	onSubmitDocumentError() {
+		this.store.dispatch(new ErrorNotificationOpen('Failed to update document, please review and try again.'));
 	}
 
 	showDocumentHistory() {

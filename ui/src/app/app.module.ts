@@ -15,7 +15,7 @@ import {
 	RouterState, 
 	NotificationState, 
 	AuthState, 
-	WorkflowState } from './store/ngxs-index'
+	WorkflowState } from './store/'
 
 import { SnackBarComponent } from './core/components/notification/notification.component';
 import { CoreModule } from './core/core.module';
@@ -52,7 +52,7 @@ const routeResolvers = Object.keys(resolvers).map(key => resolvers[key])	// TODO
 		ApiModule
 	],
 	providers: [		
-		{ provide: BASE_PATH, useValue: environment.API_BASE_PATH },		
+		{ provide: BASE_PATH, useValue: environment.API_BASE_PATH },
 		...routeResolvers,
 	],
 	declarations: [ SnackBarComponent ],

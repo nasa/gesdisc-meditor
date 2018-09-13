@@ -7,7 +7,6 @@ COPY package*.json /usr/src/app/
 RUN npm cache clean --force
 RUN npm install
 COPY ./ /usr/src/app/
-RUN npm run build -- --output-path=./dist/out
 
 EXPOSE 4200
 
