@@ -1,11 +1,13 @@
 import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
+import * as _ from 'underscore';
 import { Observable } from 'rxjs/Observable';
 import { Store, Select } from '@ngxs/store';
 import { GetModel, GetModelDocuments } from 'app/store/model/model.state';
 import { Go } from 'app/store/router/router.state';
 import { ModelCatalogEntry, DocCatalogEntry } from 'app/service/model/models';
 import { AuthState, ModelState } from 'app/store/ngxs-index';
+import { GetUserPrivileges } from 'app/store/auth/auth.state';
 
 @Component({
 	selector: 'med-search-page',
@@ -34,6 +36,7 @@ export class SearchPageComponent implements OnInit {
 		if (this.selectedModelName === model.name) { return; }
 
 		this.selectedModelName = model.name;
+		this.store.dispatch(new GetUserPrivileges());
 		this.store.dispatch(new GetModelDocuments());
 	}
 

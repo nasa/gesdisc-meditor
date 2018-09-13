@@ -39,17 +39,19 @@ export class WorkflowState {
 	constructor(private store: Store, private service: DefaultService) {}
 
 	@Action(actions.GetWorkflow)
-	getDocument({ patchState, getState }: StateContext<WorkflowStateModel>, { payload }: actions.GetWorkflow) {
+	getDocument({ patchState }: StateContext<WorkflowStateModel>, { payload }: actions.GetWorkflow) {
 		patchState({ loading: true });
 
 		return this.service.getDocument('Workflows', payload.title)
 			.pipe(
-				tap((document: Document) => patchState({
-					currentWorkflow: document.doc as Workflow,
-					currentEdge: this.findInitialEdge(document.doc.edges),
-					loading: false
-				}))
-			);
+				tap((document: Document) => {
+					patchState({
+						currentWorkflow: document.doc as Workflow,
+						currentEdge: this.findInitialEdge(document.doc.edges),
+						loading: false
+					});
+			})
+		);
 	}
 
 	findInitialEdge(edges: any) {

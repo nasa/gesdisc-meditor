@@ -1,38 +1,39 @@
 export class GetDocument {
-    static readonly type = '[Document] Get Document';
+	static readonly type = '[Document] Get Document';
 
-    constructor (public payload: { 
-        model: string,
-        title: string,
-        version?: string,
-    }) {}
-};
+	constructor (public payload: {
+		model: string,
+		title: string,
+		version?: string,
+	}) {}
+}
 
 export class UpdateCurrentDocument {
-    static readonly type = '[Document] Save Document';
+	static readonly type = '[Document] Save Document';
 
-    constructor (public payload: { 
-        document: any,
-    }) {}
-};
+	constructor (public payload: {
+		document: any,
+	}) {}
+}
 
 export class CreateDocument {
-    static readonly type = '[Document] Create Document';
+	static readonly type = '[Document] Create Document';
 
-    constructor (public payload: { 
-        model: string,
-        document: any,
-    }) {}
-};
+	constructor (public payload: {
+		model: string,
+		document: any,
+	}) {}
+}
 
 export class GetCurrentDocumentHistory {
-    static readonly type = '[Document] Get Current Document History'
-};
+	static readonly type = '[Document] Get Current Document History';
+}
 
 export class GetCurrentDocumentVersion {
-    static readonly type = '[Document] Get Current Document Version'
+	static readonly type = '[Document] Get Current Document Version';
 
-    constructor (public payload: { 
-        version: string,
-    }) {}
-};
+	constructor (public payload: {
+		version: string,
+	}) {}
+}
+

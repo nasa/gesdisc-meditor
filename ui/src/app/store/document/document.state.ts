@@ -86,7 +86,7 @@ export class DocumentState {
 
 		@Action(actions.GetCurrentDocumentVersion)
 		getCurrentDocumentVersion({ patchState, getState }: StateContext<DocumentStateModel>, { payload }: actions.GetCurrentDocumentVersion) {
-				patchState({ currentDocumentVersion: payload.version })
+				patchState({ currentDocumentVersion: payload.version });
 
 				return this.store.dispatch(new actions.GetDocument({
 						model: getState().currentDocumentModel,

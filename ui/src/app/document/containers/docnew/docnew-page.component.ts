@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Store, Select } from '@ngxs/store';
 import { Model } from 'app/service/model/models';
@@ -8,11 +8,11 @@ import { Go } from 'app/store/router/router.state';
 import { SuccessNotificationOpen, ErrorNotificationOpen } from 'app/store/notification/notification.state';
 
 @Component({
-  selector: 'med-docnew-page',
-  templateUrl: './docnew-page.component.html',
-  styleUrls: ['./docnew-page.component.css']
+	selector: 'med-docnew-page',
+	templateUrl: './docnew-page.component.html',
+	styleUrls: ['./docnew-page.component.css']
 })
-export class DocNewPageComponent {
+export class DocNewPageComponent implements OnInit {
 
 	@Select(ModelState.currentModel) model$: Observable<Model>;
 
@@ -25,32 +25,32 @@ export class DocNewPageComponent {
 		this.model$.subscribe((model: any) => {
 			this.modelName = model.name;
 			this.titleProperty = model.titleProperty;
-		})
+		});
 	}
 
 	createDocument(document: any) {
 		this.store.dispatch(new CreateDocument({ model: this.modelName, document }))
 			.subscribe(
-				this.onCreateDocumentSuccess.bind(this, document), 
+				this.onCreateDocumentSuccess.bind(this, document),
 				this.onCreateDocumentError.bind(this)
-			)
+			);
 	}
 
 	onCreateDocumentSuccess(document: any) {
 		let routeParams = {
-			path: '/document/edit', 
-			query: { 
+			path: '/document/edit',
+			query: {
 				model: this.modelName,
 				title: document[this.titleProperty],
 			},
-		}
-		
-		this.store.dispatch(new SuccessNotificationOpen('Successfully created document'))
-		this.store.dispatch(new Go(routeParams))
+		};
+
+		this.store.dispatch(new SuccessNotificationOpen('Successfully created document'));
+		this.store.dispatch(new Go(routeParams));
 	}
 
 	onCreateDocumentError() {
-		this.store.dispatch(new ErrorNotificationOpen('Failed to create document, please review and try again.'))
+		this.store.dispatch(new ErrorNotificationOpen('Failed to create document, please review and try again.'));
 	}
 
 }

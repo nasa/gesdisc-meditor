@@ -28,17 +28,17 @@ export class DocEditPageComponent {
 	constructor(private store: Store) {}
 
 	submitDocument(document: any) {
-		this.store.dispatch(new UpdateCurrentDocument({ document }))
+		this.store.dispatch(new UpdateCurrentDocument({ document }));
 	}
 
 	showDocumentHistory() {
-		this.store.dispatch(new GetCurrentDocumentHistory())
+		this.store.dispatch(new GetCurrentDocumentHistory());
 		this.sidenav.open();
 	}
 
 	loadVersion(version: string) {
-		this.store.dispatch(new GetCurrentDocumentVersion({ version }))
-		this.sidenav.close()
+		this.store.dispatch(new GetCurrentDocumentVersion({ version }));
+		this.sidenav.close();
 	}
 
 }

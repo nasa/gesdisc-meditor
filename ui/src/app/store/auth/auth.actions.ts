@@ -6,6 +6,10 @@ export class GetUser {
 	static readonly type = '[Auth] Get User';
 }
 
+export class GetUserPrivileges {
+	static readonly type = '[Auth] Get User Privileges';
+}
+
 export class LoginSuccess {
 	static readonly type = '[Auth] Login Success';
 
