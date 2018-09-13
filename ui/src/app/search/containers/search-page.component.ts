@@ -35,7 +35,6 @@ export class SearchPageComponent implements OnInit {
 		if (this.selectedModelName === model.name) { return; }
 
 		this.selectedModelName = model.name;
-		this.store.dispatch(new GetUserPrivileges());
 		this.store.dispatch(new GetModelDocuments());
 	}
 
