@@ -268,33 +268,6 @@ module.exports.putModel = function putModel (req, res, next) {
   });
 };
 
-// Add a Document
-function addDocument (doc) {
-  doc["x-meditor"]["modifiedOn"] = (new Date()).toISOString();
-  doc["x-meditor"]["modifiedBy"] = "anonymous";
-  return new Promise(function(resolve, reject) {
-    MongoClient.connect(MongoUrl, function(err, db) {
-      if (err) throw err;
-      var dbo = db.db(DbName);
-      dbo.collection(doc["x-meditor"]["model"]).insertOne(doc, function(err, res) {
-        if (err){
-          console.log(err);
-          throw err;
-        }
-        dbo.collection("Models").update({name:doc["x-meditor"]["model"]}, function(err, res) {
-          if (err){
-            console.log(err);
-            throw err;
-          }
-          db.close();
-          var userMsg = "Inserted document";
-          resolve({message: userMsg, document: doc});
-        });
-      });
-    });
-  });
-}
-
 // Add an Image
 function addImage (parentDoc, imageFormParam) {
   var validContentTypes = [ 'image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/tiff' ];
@@ -420,9 +393,10 @@ module.exports.getDocumentImage = function getDocumentImage (req, res, next) {
 
 
 //Exported method to add a Document
-module.exports.putDocument = function putDocument (req, res, next) {
+module.exports.putDocument = function putDocument (request, response, next) {
+  var that = {};
   // Parse uploaded file
-  var file = req.swagger.params['file'].value;
+  var file = request.swagger.params['file'].value;
   // Ensure it is well formed JSON
   var doc;
   try {
@@ -438,23 +412,32 @@ module.exports.putDocument = function putDocument (req, res, next) {
   };
   // TODO: validate JSON based on schema
 
-  // Insert the new Model
-  addDocument(doc)
-  .then(function(savedDoc) {
-    if (!req.swagger.params.image.value) return Promise.resolve(savedDoc);
-    try {
-      return addImage(savedDoc.document, req.swagger.params.image.value);
-    } catch (e) {
-      console.log('Error saving image', e);
-      return Promise.reject('Error saving image');
-    }
-  })
-  .then(function (response){
-    utils.writeJson(res, {code:200, message:"Inserted document"}, 200);
-  })
-  .catch(function (response){
-    utils.writeJson(res, {code:500, message: response}, 500);
-  });
+  return MongoClient.connect(MongoUrl)
+    .then(res => {
+      that.dbo = res;
+      return getDocumentModelMetadata(that.dbo, request, {model: doc["x-meditor"]["model"]});
+    })
+    .then(meta => {_.assign(that, meta)})
+    .then(function() {
+      doc["x-meditor"]["modifiedOn"] = (new Date()).toISOString();
+      doc["x-meditor"]["modifiedBy"] = request.user.uid;
+      // TODO: replace with actual model init state
+      doc["x-meditor"]["states"] = [{source: 'Init', target: 'Draft', modifiedOn: doc["x-meditor"]["modifiedOn"]}];
+      return that.dbo.db(DbName).collection(doc["x-meditor"]["model"]).insertOne(doc);
+    })
+    .then(function(savedDoc) {
+      if (!that.params.image) return Promise.resolve("Inserted document");
+      try {
+        return addImage(savedDoc, that.params.image);
+      } catch (e) {
+        console.log('Error saving image', e);
+        return Promise.reject('Error saving image');
+      }
+    })
+    .then(res => (that.dbo.close(), handleSuccess(response, {message: "Inserted document"})))
+    .catch(err => {
+      handleError(response, err);
+    });
 };
 
 // Exported method to list documents
