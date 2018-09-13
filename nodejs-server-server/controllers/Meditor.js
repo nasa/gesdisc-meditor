@@ -401,16 +401,14 @@ module.exports.putDocument = function putDocument (request, response, next) {
   var doc;
   try {
     doc = safelyParseJSON(file.buffer.toString());
+    // TODO: validate JSON based on schema
   } catch(err) {
     console.log(err);
-    var response = {
-      code:400,
-      message:"Failed to parse the Document"
-    };
-    utils.writeJson(res, response, 400);
-    return;
+    return handleError(response, {
+      status: 400,
+      message: "Failed to parse the Document"
+    });
   };
-  // TODO: validate JSON based on schema
 
   return MongoClient.connect(MongoUrl)
     .then(res => {
