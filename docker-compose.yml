@@ -16,6 +16,7 @@ services:
   server:
     container_name: meditor_server
     build: nodejs-server-server
+    restart: always
     env_file:
       - .env
     ports:
