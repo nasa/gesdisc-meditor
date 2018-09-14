@@ -1,6 +1,6 @@
 import { CacheService } from './cache.service'
 
-const DEFAULT_CACHE_TIMEOUT_MILLIS = 5000;
+const DEFAULT_CACHE_TIMEOUT_MILLIS = 50000;
 const cacheService = new CacheService()
 
 export function Cache(cacheKeyPath?: string, ttlMillis?: number) {

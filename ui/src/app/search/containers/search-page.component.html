@@ -12,7 +12,7 @@
         [resultCount] = "(selectedModelDocuments$ | async)?.length"
         [filteredCount] = "filteredDocuments.length"
         [modelName] = "(selectedModel$ | async)?.name"
-        addNewLabel = "Add New"
+        [addNewLabel] = "(currentEdge$ | async)?.label"
         [canAddNew] = "(userPrivileges$ | async)?.includes('create_new')"
         (addNew) = "addNewDocument()"
         (sortByChanged)="sortByChanged($event)">
@@ -20,6 +20,7 @@
 
     <med-search-result-list 
         [results]="filteredDocuments" 
-        [model]="selectedModel$ | async">
+        [model]="selectedModel$ | async"
+        (loadDocument)="loadDocument($event)">
     </med-search-result-list>
 </div>

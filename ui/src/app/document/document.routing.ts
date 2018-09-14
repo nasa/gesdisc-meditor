@@ -4,17 +4,19 @@ import { DocEditPageComponent } from './containers/docedit/docedit-page.componen
 import { DocNewPageComponent } from './containers/docnew/docnew-page.component';
 
 export const routes: Routes = [
-	{ 
-		path: 'new', 
+	{
+		path: 'new',
 		resolve: {
 			model: ModelResolver,
 		},
 		component: DocNewPageComponent,
-	}, { 
-		path: 'edit', 
+	},
+	{
+		path: 'edit',
 		resolve: {
-			document: DocumentResolver,
 			model: ModelResolver,
+			document: DocumentResolver
+			// docedit: DocEditResolver
 		},
 		component: DocEditPageComponent,
 	}

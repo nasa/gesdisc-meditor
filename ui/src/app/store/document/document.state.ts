@@ -2,6 +2,7 @@ import { State, Action, StateContext, Selector, Store } from '@ngxs/store';
 import { Document, DocHistory } from '../../service/model/models';
 import { DefaultService } from '../../service/api/default.service';
 import * as actions from './document.actions';
+import * as workflowactions from 'app/store/workflow/workflow.actions';
 import { tap } from 'rxjs/operators';
 
 export * from './document.actions';
@@ -41,19 +42,21 @@ export class DocumentState {
 		constructor(private store: Store, private service: DefaultService) {}
 
 		@Action(actions.GetDocument)
-		getDocument({ patchState, getState }: StateContext<DocumentStateModel>, { payload }: actions.GetDocument) {
+		getDocument({ patchState, getState, dispatch }: StateContext<DocumentStateModel>, { payload }: actions.GetDocument) {
 				patchState({ loading: true, });
 
 				return this.service.getDocument(payload.model, payload.title, payload.version)
 						.pipe(
-								tap((document: Document) => patchState({
+								tap((document: Document) => {
+									patchState({
 										documents: [...getState().documents, document],
 										currentDocument: document,
 										currentDocumentTitle: payload.title,
 										currentDocumentModel: payload.model,
 										currentDocumentVersion: document['x-meditor'].modifiedOn.toString(),
 										loading: false,
-								})),
+									});
+							}),
 						);
 		}
 
@@ -71,7 +74,6 @@ export class DocumentState {
 		@Action(actions.GetCurrentDocumentHistory)
 		getCurrentDocumentHistory({ patchState, getState }: StateContext<DocumentStateModel>) {
 				patchState({ loading: true, });
-
 				const document = getState().currentDocument;
 				const documentTitle = getState().currentDocumentTitle;
 
@@ -97,7 +99,7 @@ export class DocumentState {
 
 		@Action(actions.CreateDocument)
 		createDocument({ patchState, getState }: StateContext<DocumentStateModel>, { payload }: actions.CreateDocument) {
-				patchState({ loading: true, });
+				patchState({ loading: true });
 
 				payload.document['x-meditor'] = { model: payload.model };
 
@@ -105,7 +107,23 @@ export class DocumentState {
 
 				return this.service.putDocument(documentBlob)
 						.pipe(
-								tap(() => patchState({ loading: false, }))
+								tap(() => patchState({ loading: false }))
+						);
+		}
+
+		@Action(actions.UpdateDocumentState)
+		updateDocumentState({ patchState, getState }: StateContext<DocumentStateModel>, { payload }: actions.UpdateDocumentState) {
+			patchState({ loading: true, });
+
+			const currentDocumentTitle = getState().currentDocumentTitle;
+			const currentDocumentModel = getState().currentDocumentModel;
+			const currentDocumentVersion = getState().currentDocumentVersion;
+
+			const state =  payload.state;
+
+				return this.service.changeDocumentState(currentDocumentModel, currentDocumentTitle, state, currentDocumentVersion)
+						.pipe(
+							tap(() => patchState({ loading: false }))
 						);
 		}
 

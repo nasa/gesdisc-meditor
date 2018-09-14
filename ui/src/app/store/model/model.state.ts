@@ -63,7 +63,7 @@ export class ModelState {
 			.pipe(tap((models: ModelCatalogEntry[]) => patchState({
 				models,
 				loading: false,
-			})))
+			})));
 	}
 
 	@Cache('payload.name')

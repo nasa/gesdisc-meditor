@@ -4,9 +4,10 @@ import * as _ from 'underscore';
 import { Observable } from 'rxjs/Observable';
 import { Store, Select } from '@ngxs/store';
 import { GetModel, GetModelDocuments } from 'app/store/model/model.state';
+import { UpdateWorkflowState } from 'app/store/workflow/workflow.state';
 import { Go } from 'app/store/router/router.state';
-import { ModelCatalogEntry, DocCatalogEntry } from 'app/service/model/models';
-import { AuthState, ModelState } from 'app/store/';
+import { ModelCatalogEntry, DocCatalogEntry, Edge } from 'app/service/model/models';
+import { AuthState, ModelState, WorkflowState } from 'app/store';
 
 @Component({
 	selector: 'med-search-page',
@@ -20,6 +21,7 @@ export class SearchPageComponent implements OnInit {
 	@Select(ModelState.currentModel) selectedModel$: Observable<ModelCatalogEntry>;
 	@Select(ModelState.currentModelDocuments) selectedModelDocuments$: Observable<DocCatalogEntry[]>;
 	@Select(AuthState.userPrivileges) userPrivileges$: Observable<string[]>;
+	@Select(WorkflowState.currentEdge) currentEdge$: Observable<Edge>;
 
 	filteredDocuments$: Observable<DocCatalogEntry[]>;
 	selectedModelName: string;
@@ -78,6 +80,15 @@ export class SearchPageComponent implements OnInit {
 
 	addNewDocument() {
 		this.store.dispatch(new Go({ path: '/document/new', query: { model: this.selectedModelName }}));
+	}
+
+	loadDocument(event: string) {
+		this.filteredDocuments$.subscribe(documents => {
+			const mydoc = documents.find(doc => doc.title === event);
+			this.store.dispatch(new UpdateWorkflowState(mydoc['x-meditor'].state));
+			this.store.dispatch(new Go({ path: '/document/edit', query: { model: this.selectedModelName, title: event }}));
+			// console.log(mydoc['x-meditor'].state);
+		});
 	}
 }
 

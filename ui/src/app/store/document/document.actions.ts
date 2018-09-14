@@ -37,3 +37,11 @@ export class GetCurrentDocumentVersion {
 	}) {}
 }
 
+export class UpdateDocumentState {
+	static readonly type = '[Document] Send Document For Review';
+
+	constructor (public payload: {
+		state: string
+	}) {}
+}
+

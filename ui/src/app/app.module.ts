@@ -9,13 +9,13 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { NgxsModule } from '@ngxs/store';
 import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
 
-import { 
-	DocumentState, 
-	ModelState, 
-	RouterState, 
-	NotificationState, 
-	AuthState, 
-	WorkflowState } from './store/'
+import {
+	DocumentState,
+	ModelState,
+	RouterState,
+	NotificationState,
+	AuthState,
+	WorkflowState } from './store/';
 
 import { SnackBarComponent } from './core/components/notification/notification.component';
 import { CoreModule } from './core/core.module';
@@ -27,9 +27,10 @@ import { BASE_PATH } from './service';
 import { environment } from '../environments/environment';
 
 import { routes } from './routes';
-import * as resolvers from 'app/store/resolvers/'
+import { DocumentResolver, ModelResolver, ModelsResolver, AuthGuard } from 'app/store/resolvers/';
 
-const routeResolvers = Object.keys(resolvers).map(key => resolvers[key])	// TODO: remove this and use Object.values (need typescript to support ES2017)
+// const routeResolvers = Object.keys(resolvers).map(key => resolvers[key])	// TODO: remove this and use Object.values (need typescript to support ES2017)
+const routeResolvers = [ DocumentResolver, ModelResolver, ModelsResolver, AuthGuard ];
 
 @NgModule({
 	imports: [
@@ -41,17 +42,17 @@ const routeResolvers = Object.keys(resolvers).map(key => resolvers[key])	// TODO
 		MaterialModule,
 		RouterModule.forRoot(routes, { useHash: true }),
 		CoreModule.forRoot(),
-		NgxsModule.forRoot([ 
-			DocumentState, 
-			ModelState, 
-			RouterState, 
-			NotificationState, 
-			AuthState, 
+		NgxsModule.forRoot([
+			DocumentState,
+			ModelState,
+			RouterState,
+			NotificationState,
+			AuthState,
 			WorkflowState ]),
-    	NgxsReduxDevtoolsPluginModule.forRoot(),
+			NgxsReduxDevtoolsPluginModule.forRoot(),
 		ApiModule
 	],
-	providers: [		
+	providers: [
 		{ provide: BASE_PATH, useValue: environment.API_BASE_PATH },
 		...routeResolvers,
 	],

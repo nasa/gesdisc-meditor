@@ -6,7 +6,7 @@ export interface Workflow {
 
 export interface Node {
 	id: string;
-	privileges: Array<Privilege>;
+	privileges?: Array<Privilege>;
 }
 
 export interface Edge {

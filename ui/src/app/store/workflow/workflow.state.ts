@@ -1,9 +1,10 @@
 import { State, Action, StateContext, Selector, Store } from '@ngxs/store';
-import { Workflow, Document, Edge, Privilege } from 'app/service/model/models';
+import { Workflow, Document, Edge, Privilege, Node } from 'app/service/model/models';
 import { DefaultService } from '../../service/api/default.service';
 import * as actions from './workflow.actions';
 import * as _ from 'underscore';
 import { tap } from 'rxjs/operators';
+import { Cache } from 'app/store/cache/cache.decorator';
 
 export * from './workflow.actions';
 
@@ -11,6 +12,7 @@ export interface WorkflowStateModel {
 	loading: boolean;
 	currentWorkflow: Workflow;
 	currentEdge: Edge;
+	currentNode: Node;
 }
 
 @State<WorkflowStateModel>({
@@ -21,7 +23,11 @@ export interface WorkflowStateModel {
 		currentEdge: {
 			source: 'Init',
 			target: 'Draft',
-			label: 'Init'
+			label: 'Add New'
+		},
+		currentNode: {
+			id: 'Init',
+			privileges: []
 		}
 	}
 })
@@ -38,8 +44,9 @@ export class WorkflowState {
 
 	constructor(private store: Store, private service: DefaultService) {}
 
+	// @Cache('payload.title')
 	@Action(actions.GetWorkflow)
-	getDocument({ patchState }: StateContext<WorkflowStateModel>, { payload }: actions.GetWorkflow) {
+	getWorkflow({ patchState }: StateContext<WorkflowStateModel>, { payload }: actions.GetWorkflow) {
 		patchState({ loading: true });
 
 		return this.service.getDocument('Workflows', payload.title)
@@ -48,10 +55,22 @@ export class WorkflowState {
 					patchState({
 						currentWorkflow: document.doc as Workflow,
 						currentEdge: this.findInitialEdge(document.doc.edges),
+						currentNode: document.doc.nodes[0],
 						loading: false
 					});
 			})
 		);
+	}
+
+	@Action(actions.UpdateWorkflowState)
+	updateWorkflowState({ getState, patchState }: StateContext<WorkflowStateModel>, { payload }: actions.UpdateWorkflowState) {
+		console.log(getState().currentWorkflow);
+		const node = getState().currentWorkflow.nodes.find(n => n.id === payload);
+		const edge = getState().currentWorkflow.edges.find(e => e.source === payload);
+		patchState({
+			currentNode: node,
+			currentEdge: edge
+		});
 	}
 
 	findInitialEdge(edges: any) {

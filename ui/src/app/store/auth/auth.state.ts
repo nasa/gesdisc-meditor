@@ -44,7 +44,7 @@ export class AuthState {
 			private router: Router) {}
 
 		@Action(actions.GetUser)
-			getUser({ patchState, getState, dispatch }: StateContext<AuthStateModel>, action: actions.GetUser) {
+			getUser({ dispatch }: StateContext<AuthStateModel>, action: actions.GetUser) {
 				return this.service.getMe()
 					.pipe(
 						tap((user: any) => {
@@ -67,21 +67,21 @@ export class AuthState {
 		}
 
 		@Action(actions.LoginSuccess)
-			loginSuccess({ patchState, getState, dispatch }: StateContext<AuthStateModel>, { payload }: actions.LoginSuccess) {
+			loginSuccess({ patchState,  dispatch }: StateContext<AuthStateModel>, { payload }: actions.LoginSuccess) {
 				patchState({ user: payload, loggedIn: true });
 				this.router.navigateByUrl(localStorage.getItem('returnUrl') || '/');
 				return dispatch(new notification.SuccessNotificationOpen('You have successfully logged in'));
 		}
 
 		@Action(actions.Logout)
-			logout({ patchState, getState }: StateContext<AuthStateModel>, { }: actions.Logout) {
+			logout({ patchState }: StateContext<AuthStateModel>, { }: actions.Logout) {
 				patchState({ user: null, loggedIn: false });
 				this.router.navigate(['/']);
 		}
 
 		@Action(actions.OpenLoginDialog)
-			openLoginDialog({ patchState, getState }: StateContext<AuthStateModel>, { }: actions.OpenLoginDialog) {
-				const dialogRef = this.dialog.open(LoginDialog, {
+			openLoginDialog() {
+				this.dialog.open(LoginDialog, {
 					width: '400px',
 					position: { top: '200px' },
 					disableClose: true

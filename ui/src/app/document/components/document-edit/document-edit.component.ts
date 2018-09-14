@@ -10,13 +10,13 @@ export class DocumentEditComponent implements OnInit {
 
 	@Input()
 	set document(document: any) {
-		if(document.schema) {
-			let schemaString = document.schema.replace('\'', '');
+		if (document.schema) {
+			const schemaString = document.schema.replace('\'', '');
 			this.schema = JSON.parse(schemaString);
 		}
 
-		if(document.layout) {
-			let layoutString = document.layout.replace('\'', '');
+		if (document.layout) {
+			const layoutString = document.layout.replace('\'', '');
 			this.layout = JSON.parse(layoutString);
 		}
 

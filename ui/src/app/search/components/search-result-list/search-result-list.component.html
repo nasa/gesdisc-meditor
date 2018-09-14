@@ -1,1 +1,1 @@
-<med-search-result *ngFor="let result of results" [result]="result" [model]="model"></med-search-result>
+<med-search-result *ngFor="let result of results" [result]="result" [model]="model" (loadDocument)="loadDocument.emit($event)"></med-search-result>

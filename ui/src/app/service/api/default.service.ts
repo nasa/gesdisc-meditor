@@ -32,8 +32,6 @@ import { Configuration }                                     from '../configurat
 @Injectable()
 export class DefaultService {
 
-	
-
     protected basePath = 'http://localhost:8081/meditor/api';
     public defaultHeaders = new HttpHeaders();
     public configuration = new Configuration();
@@ -45,8 +43,8 @@ export class DefaultService {
         if (configuration) {
             this.configuration = configuration;
             this.basePath = basePath || configuration.basePath || this.basePath;
-				}
-				this.configuration.withCredentials = true;
+        }
+        this.configuration.withCredentials = true;
     }
 
     /**
@@ -63,6 +61,69 @@ export class DefaultService {
         return false;
     }
 
+
+    /**
+     * Change the state of a document
+     * Change the state of a document; modifies the state of a document by a privileged user
+     * @param model Name of the Model
+     * @param title Title of the document
+     * @param state Target state of the document
+     * @param version Version of the document
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public changeDocumentState(model: string, title: string, state: string, version?: string, observe?: 'body', reportProgress?: boolean): Observable<any>;
+    public changeDocumentState(model: string, title: string, state: string, version?: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+    public changeDocumentState(model: string, title: string, state: string, version?: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+    public changeDocumentState(model: string, title: string, state: string, version?: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+        if (model === null || model === undefined) {
+            throw new Error('Required parameter model was null or undefined when calling changeDocumentState.');
+        }
+        if (title === null || title === undefined) {
+            throw new Error('Required parameter title was null or undefined when calling changeDocumentState.');
+        }
+        if (state === null || state === undefined) {
+            throw new Error('Required parameter state was null or undefined when calling changeDocumentState.');
+        }
+
+        let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
+        if (model !== undefined) {
+            queryParameters = queryParameters.set('model', <any>model);
+        }
+        if (title !== undefined) {
+            queryParameters = queryParameters.set('title', <any>title);
+        }
+        if (version !== undefined) {
+            queryParameters = queryParameters.set('version', <any>version);
+        }
+        if (state !== undefined) {
+            queryParameters = queryParameters.set('state', <any>state);
+        }
+
+        let headers = this.defaultHeaders;
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+        ];
+        let httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set("Accept", httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        let consumes: string[] = [
+        ];
+
+        return this.httpClient.get<any>(`${this.basePath}/changeDocumentState`,
+            {
+                params: queryParameters,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
 
     /**
      * Gets comments for document
@@ -353,9 +414,7 @@ export class DefaultService {
 
         // to determine the Content-Type header
         let consumes: string[] = [
-				];
-				
-				//this.configuration.withCredentials = true;
+        ];
 
         return this.httpClient.get<User>(`${this.basePath}/me`,
             {
@@ -544,18 +603,16 @@ export class DefaultService {
 
         // to determine the Content-Type header
         let consumes: string[] = [
-        ];        
-				
-				console.log(code);
+        ];
 
         return this.httpClient.get<Success>(`${this.basePath}/login`,
-					{
-						params: queryParameters,
-						withCredentials: this.configuration.withCredentials,
-						headers: headers,
-						observe: observe,
-						reportProgress: reportProgress
-					}
+            {
+                params: queryParameters,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
         );
     }
 
