@@ -27,9 +27,7 @@ import { BASE_PATH } from './service';
 import { environment } from '../environments/environment';
 
 import { routes } from './routes';
-import * as resolvers from 'app/store/resolvers/'
-
-const routeResolvers = Object.keys(resolvers).map(key => resolvers[key])	// TODO: remove this and use Object.values (need typescript to support ES2017)
+import { DocumentResolver, ModelResolver, ModelsResolver, AuthGuard } from 'app/store/resolvers/';
 
 @NgModule({
 	imports: [
@@ -53,7 +51,10 @@ const routeResolvers = Object.keys(resolvers).map(key => resolvers[key])	// TODO
 	],
 	providers: [		
 		{ provide: BASE_PATH, useValue: environment.API_BASE_PATH },
-		...routeResolvers,
+		DocumentResolver,
+		ModelResolver,
+		ModelsResolver,
+		AuthGuard,
 	],
 	declarations: [ SnackBarComponent ],
 	entryComponents: [ SnackBarComponent ],
