@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js --hostname 0.0.0.0",
-    "dev": "nodemon --exec npm run start"
+    "dev": "sleep 5 && nodemon --exec npm run start"
   },
   "keywords": [
     "swagger"
