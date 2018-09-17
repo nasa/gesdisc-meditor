@@ -26,6 +26,8 @@ services:
       - /usr/src/app/node_modules
     links:
       - database
+    depends_on:
+      - database
 
   database:
     container_name: meditor_database
