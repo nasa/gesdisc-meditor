@@ -1,0 +1,3 @@
+<ng-container *ngFor="let action of actions">
+  <button mat-raised-button (click)="updateState(action.target)">{{ action.label }}</button>
+</ng-container>

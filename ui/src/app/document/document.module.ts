@@ -19,6 +19,7 @@ import { DochistoryComponent } from './components/dochistory/dochistory.componen
 // import { CommentsModule } from '../comments/comments.module';
 
 import { routes } from './document.routing';
+import { DocactionsComponent } from './components/docactions/docactions.component';
 
 @NgModule({
 	imports: [
@@ -45,7 +46,8 @@ import { routes } from './document.routing';
 		DocEditPageComponent,
 		DocNewPageComponent,
 		DocumentEditComponent,
-		DochistoryComponent
+		DochistoryComponent,
+		DocactionsComponent
 	],
 	entryComponents: [
 		DocEditPageComponent

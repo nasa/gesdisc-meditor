@@ -14,7 +14,7 @@ export class ModelResolver implements Resolve<void> {
 
 	// remove this after caching is in place
 
-	@Select(ModelState.currentModel) selectedModel$: Observable<ModelCatalogEntry>;
+	// @Select(ModelState.currentModel) selectedModel$: Observable<ModelCatalogEntry>;
 
 	resolve(route: ActivatedRouteSnapshot) {
 		const name = route.queryParams.model;
@@ -22,10 +22,10 @@ export class ModelResolver implements Resolve<void> {
 		return new Promise<void>((resolve: any) => {
 			// remove this after caching is in place
 
-			this.selectedModel$.subscribe(model => {
-				if (model && model.name === name) {
-					resolve();
-				} else {
+			// this.selectedModel$.subscribe(model => {
+			// 	if (model && model.name === name) {
+			// 		resolve();
+			// 	} else {
 
 			//
 
@@ -44,8 +44,8 @@ export class ModelResolver implements Resolve<void> {
 										}
 									});
 							}
-						});
-					}
+					// 	});
+					// }
 			});
 		});
 	}

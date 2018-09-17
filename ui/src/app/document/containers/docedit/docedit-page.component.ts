@@ -28,7 +28,7 @@ export class DocEditPageComponent implements OnInit {
 	@Select(DocumentState.currentDocument) document$: Observable<Document>;
 	@Select(DocumentState.currentDocumentHistory) history$: Observable<DocHistory>;
 	@Select(DocumentState.currentDocumentVersion) version$: Observable<string>;
-	@Select(WorkflowState.currentEdge) edge$: Observable<Edge>;
+	@Select(WorkflowState.currentEdges) edges$: Observable<Edge[]>;
 	@Select(WorkflowState.currentWorkflow) workflow$: Observable<Edge>;
 	@Select(AuthState.userPrivileges) userPrivileges$: Observable<string[]>;
 
@@ -72,8 +72,8 @@ export class DocEditPageComponent implements OnInit {
 		this.sidenav.close();
 	}
 
-	updateState() {
-		this.store.dispatch(new UpdateDocumentState({ state: 'Under Review' }));
+	updateState(target: string) {
+		this.store.dispatch(new UpdateDocumentState({ state: target }));
 	}
 
 }

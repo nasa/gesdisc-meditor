@@ -14,10 +14,12 @@
 		</mat-select>
 	</div>
 
-	<div fxFlex *ngIf="canAddNew">
-		<button mat-raised-button color="accent" class="add-new-button" (click)="addNew.emit()" >
-			<mat-icon>add</mat-icon>
-			{{ addNewLabel }}
-		</button>
+	<div fxFlex *ngIf="privileges.includes('create_new')">
+		<ng-container *ngFor="let action of actions">
+			<button mat-raised-button color="accent" class="add-new-button" (click)="addNew.emit()" >
+				<mat-icon>add</mat-icon>
+				{{ action.label }}
+			</button>
+		</ng-container>
 	</div>
 </div>

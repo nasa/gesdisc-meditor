@@ -21,7 +21,7 @@ export class SearchPageComponent implements OnInit {
 	@Select(ModelState.currentModel) selectedModel$: Observable<ModelCatalogEntry>;
 	@Select(ModelState.currentModelDocuments) selectedModelDocuments$: Observable<DocCatalogEntry[]>;
 	@Select(AuthState.userPrivileges) userPrivileges$: Observable<string[]>;
-	@Select(WorkflowState.currentEdge) currentEdge$: Observable<Edge>;
+	@Select(WorkflowState.currentEdges) currentEdges$: Observable<Edge[]>;
 
 	filteredDocuments$: Observable<DocCatalogEntry[]>;
 	selectedModelName: string;
