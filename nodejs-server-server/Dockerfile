@@ -11,7 +11,7 @@ RUN npm install
 
 CMD if [ "$NODE_ENV" = "production" ]; \
 	then \
-    npm run start; \
+    npm run prod; \
 	else \
     npm run dev; \
 	fi
