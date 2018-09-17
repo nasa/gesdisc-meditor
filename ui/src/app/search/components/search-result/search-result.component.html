@@ -1,5 +1,5 @@
 <div>
-	<a (click)="loadDocument.emit(result.title)" href="javascript:;">{{result.title}}</a>
+	<a (click)="loadDocument.emit({title: result.title, state: result['x-meditor'].state})" href="javascript:;">{{result.title}}</a>
 </div>
 <div class="author-status">
 	{{result['x-meditor'].modifiedOn | date:'short'}} by {{ result['x-meditor'].modifiedBy }}

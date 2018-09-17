@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
-import { map, tap } from 'rxjs/operators';
+import { map, tap, withLatestFrom } from 'rxjs/operators';
 import * as _ from 'underscore';
 import { Observable } from 'rxjs/Observable';
 import { Store, Select } from '@ngxs/store';
@@ -82,13 +82,9 @@ export class SearchPageComponent implements OnInit {
 		this.store.dispatch(new Go({ path: '/document/new', query: { model: this.selectedModelName }}));
 	}
 
-	loadDocument(event: string) {
-		this.filteredDocuments$.subscribe(documents => {
-			const mydoc = documents.find(doc => doc.title === event);
-			this.store.dispatch(new UpdateWorkflowState(mydoc['x-meditor'].state));
-			this.store.dispatch(new Go({ path: '/document/edit', query: { model: this.selectedModelName, title: event }}));
-			// console.log(mydoc['x-meditor'].state);
-		});
+	loadDocument(event: {title: string, state: string}) {
+		this.store.dispatch(new UpdateWorkflowState(event.state));
+		this.store.dispatch(new Go({ path: '/document/edit', query: { model: this.selectedModelName, title: event.title }}));
 	}
 }
 

@@ -21,7 +21,7 @@ export interface ModelStateModel {
 		loading: false,
 		models: [],
 		currentModel: undefined,
-		currentModelDocuments: undefined,
+		currentModelDocuments: [],
 	},
 })
 export class ModelState {
