@@ -27,10 +27,10 @@ import { BASE_PATH } from './service';
 import { environment } from '../environments/environment';
 
 import { routes } from './routes';
-import { DocumentResolver, ModelResolver, ModelsResolver, AuthGuard } from 'app/store/resolvers/';
+import { DocumentResolver, ModelResolver, DocEditResolver, ModelsResolver, AuthGuard } from 'app/store/resolvers/';
 
 // const routeResolvers = Object.keys(resolvers).map(key => resolvers[key])	// TODO: remove this and use Object.values (need typescript to support ES2017)
-const routeResolvers = [ DocumentResolver, ModelResolver, ModelsResolver, AuthGuard ];
+const routeResolvers = [ DocumentResolver, ModelResolver, DocEditResolver, ModelsResolver, AuthGuard ];
 
 @NgModule({
 	imports: [
