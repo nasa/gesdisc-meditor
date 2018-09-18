@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, Resolve } from '@angular/router';
+import { ActivatedRouteSnapshot, RouterStateSnapshot, Resolve } from '@angular/router';
 import { ModelResolver } from './model.resolver';
 import { DocumentResolver } from './document.resolver';
 
@@ -10,8 +10,8 @@ export class DocEditResolver implements Resolve<{model: void, document: void}> {
 		private documentResolver: DocumentResolver
 	) {}
 
-	async resolve(route: ActivatedRouteSnapshot): Promise<{model: void, document: void}> {
-		const model = await this.modelResolver.resolve(route);
+	async resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<{model: void, document: void}> {
+		const model = await this.modelResolver.resolve(route, state);
 		const document = await this.documentResolver.resolve(route);
 
 		return { model, document };
