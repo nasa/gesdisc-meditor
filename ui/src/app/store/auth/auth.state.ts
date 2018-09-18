@@ -61,7 +61,11 @@ export class AuthState {
 				const nodeprivileges = this.store.selectSnapshot(WorkflowState.currentNodePrivileges);
 				const currentUserRoles = _.pluck(userroles.filter((role: any) => role.model === modelname), 'role');
 				_.each(currentUserRoles, function(role) {
-					privileges = _.union(privileges, _.findWhere(nodeprivileges, {'role': role}).privilege);
+					let nodePrivilege = _.findWhere(nodeprivileges, {'role': role})
+
+					if (nodePrivilege) {
+						privileges = _.union(privileges, nodePrivilege.privilege);
+					}
 				});
 				patchState({privileges: privileges});
 		}
