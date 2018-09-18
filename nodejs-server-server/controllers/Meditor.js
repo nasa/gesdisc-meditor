@@ -45,7 +45,8 @@ function handleError(response, err) {
 };
 
 function handleSuccess(response, res) {
-  utils.writeJson(response, res && 'message' in res ? res.message : res, 200);
+  utils.writeJson(response, res && _.isObject(res) && 'message' in res ? res.message : res, 200);
+  // utils.writeJson(response, res, 200);
 }
 
 // Builds aggregation pipeline query for a given model (common starting point for most API functions)
@@ -542,7 +543,7 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
         .collection(that.params.model)
         .update({_id: res._id}, {$set: {'x-meditor.states': newStatesArray}});
     })
-    .then(res => (that.dbo.close(), handleSuccess(response, "Success")))
+    .then(res => (that.dbo.close(), handleSuccess(response, {message: {message:"Success"}})))
     .catch(err => {
       handleError(response, err);
     });
