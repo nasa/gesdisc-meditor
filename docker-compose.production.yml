@@ -1,0 +1,37 @@
+version: "3.3"
+
+services:
+
+  proxy:
+    container_name: meditor_proxy
+    image: nginx:stable-alpine
+    volumes:
+      - "./nginx.ui.conf:/etc/nginx/nginx.ui.conf:ro"
+      - "./nginx.conf:/etc/nginx/nginx.conf:ro"
+    links:
+      - ui
+      - server
+    depends_on:
+      - database
+
+  ui:
+    container_name: meditor_ui
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_ui
+ 
+  server:
+    container_name: meditor_server
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_server
+    links:
+      - database
+    depends_on:
+      - database
+    environment:
+      - AUTH_HOST=${AUTH_HOST}
+      - AUTH_CLIENT_ID=${AUTH_CLIENT_ID}
+      - AUTH_CLIENT_SECRET=${AUTH_CLIENT_SECRET}
+      - MONGOURL=mongodb://meditor_database:27017/
+
+  database:
+    container_name: meditor_database
+    image: mongo:4.1
+  
