@@ -9,7 +9,6 @@ import { tap } from 'rxjs/operators';
 export * from './workflow.actions';
 
 export interface WorkflowStateModel {
-	loading: boolean;
 	currentWorkflow: Workflow;
 	currentEdges: Edge[];
 	currentNode: Node;
@@ -18,8 +17,7 @@ export interface WorkflowStateModel {
 @State<WorkflowStateModel>({
 	name: 'workflow',
 	defaults: {
-		loading: false,
-		currentWorkflow: {},
+		currentWorkflow: undefined,
 		currentEdges: [{
 			source: 'Init',
 			target: 'Draft',
@@ -34,7 +32,6 @@ export interface WorkflowStateModel {
 
 export class WorkflowState {
 
-	@Selector() static loading(state: WorkflowStateModel): boolean { return state.loading; }
 	@Selector() static currentWorkflow(state: WorkflowStateModel): Workflow { return state.currentWorkflow; }
 	@Selector() static currentEdges(state: WorkflowStateModel): Edge[] { return state.currentEdges; }
 	@Selector() static currentNode(state: WorkflowStateModel): Node { return state.currentNode; }
@@ -45,20 +42,26 @@ export class WorkflowState {
 	constructor(private store: Store, private service: DefaultService) {}
 
 	@Action(actions.GetWorkflow)
-	getWorkflow({ patchState }: StateContext<WorkflowStateModel>, { payload }: actions.GetWorkflow) {
-		patchState({ loading: true });
+	getWorkflow({ patchState, getState, dispatch }: StateContext<WorkflowStateModel>, { payload }: actions.GetWorkflow) {
+		const workflow: any = getState().currentWorkflow;
+		const useCache: boolean = workflow && workflow.name === payload.title && !payload.reload;
+	
+		const getWorkflowCallback = (document: any) => {
+			patchState({
+				currentWorkflow: document as Workflow,
+				currentEdges: this.findInitialEdges(document.edges),
+				currentNode: document.nodes[0],
+			});
 
-		return this.service.getDocument('Workflows', payload.title)
-			.pipe(
-				tap((document: Document) => {
-					patchState({
-						currentWorkflow: document.doc as Workflow,
-						currentEdges: this.findInitialEdges(document.doc.edges),
-						currentNode: document.doc.nodes[0],
-						loading: false
-					});
-			})
-		);
+			dispatch(new user.GetUserPrivileges())
+		};
+
+		if (useCache) {
+			return getWorkflowCallback(workflow);
+		} else {
+			return this.service.getDocument('Workflows', payload.title)
+				.pipe(tap((workflow: any) => getWorkflowCallback(workflow.doc)));
+		}
 	}
 
 	@Action(actions.UpdateWorkflowState)

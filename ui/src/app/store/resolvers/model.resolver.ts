@@ -15,7 +15,7 @@ export class ModelResolver implements Resolve<void> {
 		return store.models.currentModel;
 	}
 
-	private async getWorkflow(title: string) {
+	private async getWorkflow(title: string, reload?: boolean) {
 		if (!title) return;
 
 		let store = await this.store.dispatch(new GetWorkflow({ title })).toPromise();
@@ -27,11 +27,9 @@ export class ModelResolver implements Resolve<void> {
 		const reload = state.url.indexOf('/search') > -1
 
 		const model = await this.getModel(name, reload);
-		const workflow = await this.getWorkflow(model.workflow);
+		const workflow = await this.getWorkflow(model.workflow, reload);
 
 		if (!workflow.nodes) throw new Error('Current workflow has no nodes');
-
-		this.store.dispatch(new GetUserPrivileges)
 
 		return model;
 	}

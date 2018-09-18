@@ -69,7 +69,6 @@ export class ModelState {
 		const useCache: boolean = model && model.name === payload.name && !payload.reload;
 
 		const getModelCallback = (model: any) => {
-			dispatch(new workflowactions.GetWorkflow({title: model.workflow}));
 			patchState({ currentModel: model });
 		};
 
