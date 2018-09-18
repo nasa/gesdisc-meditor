@@ -5,7 +5,6 @@ import * as actions from './workflow.actions';
 import * as user from 'app/store/auth/auth.actions';
 import * as _ from 'underscore';
 import { tap } from 'rxjs/operators';
-import { Cache } from 'app/store/cache/cache.decorator';
 
 export * from './workflow.actions';
 
@@ -50,7 +49,6 @@ export class WorkflowState {
 
 	constructor(private store: Store, private service: DefaultService) {}
 
-	// @Cache('payload.title')
 	@Action(actions.GetWorkflow)
 	getWorkflow({ patchState }: StateContext<WorkflowStateModel>, { payload }: actions.GetWorkflow) {
 		patchState({ loading: true });
