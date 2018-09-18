@@ -26,8 +26,6 @@ export class ModelResolver implements Resolve<void> {
 		const name = route.queryParams.model;
 		const reload = state.url.indexOf('/search') > -1
 
-		console.log('get model, reload? ', reload)
-
 		const model = await this.getModel(name, reload);
 		const workflow = await this.getWorkflow(model.workflow);
 
