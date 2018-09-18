@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, Resolve } from '@angular/router';
-import { Store, Select } from '@ngxs/store';
-import { Observable } from 'rxjs/Observable';
-import { ModelState, GetModel } from 'app/store/model/model.state';
-import { ModelCatalogEntry } from 'app/service';
+import { Store } from '@ngxs/store';
+import { GetModel } from 'app/store/model/model.state';
 import { GetWorkflow } from 'app/store/workflow/workflow.state';
 import { GetUserPrivileges } from 'app/store/auth/auth.state';
 
@@ -12,28 +10,28 @@ export class ModelResolver implements Resolve<void> {
 
 	constructor(private store: Store) {}
 
+	private async getModel(name: string) {
+		let store = await this.store.dispatch(new GetModel({ name })).toPromise();
+		return store.models.currentModel;
+	}
 
-	resolve(route: ActivatedRouteSnapshot) {
+	private async getWorkflow(workflow: string) {
+		if (!workflow) return;
+
+		let store = await this.store.dispatch(new GetWorkflow({ title: workflow })).toPromise();
+		return store.workflow.currentWorkflow;
+	}
+
+	async resolve(route: ActivatedRouteSnapshot) {
 		const name = route.queryParams.model;
 
-		return new Promise<void>((resolve: any) => {
+		const model = await this.getModel(name);
+		const workflow = await this.getWorkflow(model.workflow);
 
-			this.store
-				.dispatch(new GetModel({ name }))
-				.subscribe((store: any) => {
-					const workflow = store.models.currentModel.workflow as string;
-					if (workflow) {
-						this.store
-							.dispatch(new GetWorkflow({ title: workflow }))
-							.subscribe((updatedstore: any) => {
-								const workflownodes = updatedstore.workflow.currentWorkflow.nodes;
-								if (workflownodes) {
-									this.store.dispatch(new GetUserPrivileges);
-									resolve(store.models.currentModel);
-								}
-							});
-					}
-			});
-		});
+		if (!workflow.nodes) throw new Error('Current workflow has no nodes');
+
+		this.store.dispatch(new GetUserPrivileges)
+
+		return model;
 	}
 }
