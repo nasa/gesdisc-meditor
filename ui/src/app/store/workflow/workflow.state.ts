@@ -45,7 +45,7 @@ export class WorkflowState {
 	constructor(private store: Store, private service: DefaultService) {}
 
 	@Action(actions.GetWorkflow)
-	getWorkflow({ patchState }: StateContext<WorkflowStateModel>, { payload }: actions.GetWorkflow) {
+	getWorkflow({ patchState, dispatch }: StateContext<WorkflowStateModel>, { payload }: actions.GetWorkflow) {
 		patchState({ loading: true });
 
 		return this.service.getDocument('Workflows', payload.title)
@@ -57,6 +57,7 @@ export class WorkflowState {
 						currentNode: document.doc.nodes[0],
 						loading: false
 					});
+					dispatch(new user.GetUserPrivileges());
 			})
 		);
 	}

@@ -12,8 +12,8 @@
 		[resultCount] = "(selectedModelDocuments$ | async)?.length"
 		[filteredCount] = "filteredDocuments.length"
 		[modelName] = "(selectedModel$ | async)?.name"
-		[actions] = "(currentEdges$ | async)"
-		[privileges] = "(userPrivileges$ | async)"        
+		[actions] = "currentEdges$ | async"
+		[privileges] = "userPrivileges$ | async"        
 		(addNew) = "addNewDocument()"
 		(sortByChanged)="sortByChanged($event)">
 	</med-search-status>

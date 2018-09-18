@@ -15,6 +15,7 @@ import {
 } from 'app/store/workflow/workflow.state';
 import { Go } from 'app/store/router/router.state';
 import { WorkflowState, AuthState, DocumentState } from 'app/store';
+import { SetInitialState } from 'app/store/workflow/workflow.state';
 import { SuccessNotificationOpen, ErrorNotificationOpen } from 'app/store/notification/notification.state';
 import { Workflow, Edge } from 'app/service/model/models';
 
@@ -36,6 +37,9 @@ export class DocEditPageComponent implements OnInit {
 	@ViewChild('sidenav') sidenav: MatSidenav;
 
 	modelName: string;
+	readonlydoc = true;
+	liveFormData: Document;
+	isFormValid: boolean;
 
 	constructor(private store: Store) {}
 
@@ -95,11 +99,24 @@ export class DocEditPageComponent implements OnInit {
 		};
 
 		this.store.dispatch(new SuccessNotificationOpen('Document sent'));
+		this.store.dispatch(new SetInitialState());
 		this.store.dispatch(new Go(routeParams));
 	}
 
 	onUpdateStatusError() {
 		this.store.dispatch(new ErrorNotificationOpen('Failed to change document state document, please review and try again.'));
+	}
+
+	isValid(event: boolean) {
+		this.isFormValid = event;
+	}
+
+	liveData(event: Document) {
+		this.liveFormData = event;
+	}
+
+	saveDocument() {
+		this.submitDocument(this.liveFormData);
 	}
 
 }

@@ -1,3 +1,4 @@
+<button mat-raised-button *ngIf="canEdit" (click)="saveDocument.emit()" [disabled]="!canSave">Save</button>
 <ng-container *ngFor="let action of actions">
   <button mat-raised-button (click)="updateState.emit(action.target)">{{ action.label }}</button>
 </ng-container>

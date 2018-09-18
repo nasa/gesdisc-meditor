@@ -2,9 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Store, Select } from '@ngxs/store';
 import { Model } from 'app/service/model/models';
-import { ModelState } from 'app/store/model/model.state';
+import { ModelState, AuthState } from 'app/store';
 import { CreateDocument } from 'app/store/document/document.state';
-import { SetInitialState } from 'app/store/workflow/workflow.state';
 import { Go } from 'app/store/router/router.state';
 import { SuccessNotificationOpen, ErrorNotificationOpen } from 'app/store/notification/notification.state';
 
@@ -16,9 +15,12 @@ import { SuccessNotificationOpen, ErrorNotificationOpen } from 'app/store/notifi
 export class DocNewPageComponent implements OnInit {
 
 	@Select(ModelState.currentModel) model$: Observable<Model>;
+	@Select(AuthState.userPrivileges) userPrivileges$: Observable<string[]>;
 
 	modelName: string;
 	titleProperty: string;
+	liveFormData: Document;
+	isFormValid: boolean;
 
 	constructor(private store: Store) {}
 
@@ -48,11 +50,22 @@ export class DocNewPageComponent implements OnInit {
 
 		this.store.dispatch(new SuccessNotificationOpen('Successfully created document'));
 		this.store.dispatch(new Go(routeParams));
-		this.store.dispatch(new SetInitialState());
 	}
 
 	onCreateDocumentError() {
 		this.store.dispatch(new ErrorNotificationOpen('Failed to create document, please review and try again.'));
+	}
+
+	isValid(event: boolean) {
+		this.isFormValid = event;
+	}
+
+	liveData(event: Document) {
+		this.liveFormData = event;
+	}
+
+	saveDocument() {
+		this.createDocument(this.liveFormData);
 	}
 
 }

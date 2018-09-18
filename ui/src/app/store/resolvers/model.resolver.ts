@@ -30,7 +30,7 @@ export class ModelResolver implements Resolve<void> {
 
 		if (!workflow.nodes) throw new Error('Current workflow has no nodes');
 
-		this.store.dispatch(new GetUserPrivileges)
+		// this.store.dispatch(new GetUserPrivileges());
 
 		return model;
 	}

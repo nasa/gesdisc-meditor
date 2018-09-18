@@ -22,27 +22,27 @@
 				</mat-card-subtitle>
 
 				<mat-card-content>
-					<ng-container *ngIf="(userPrivileges$ | async).includes('edit')">
-						<div class="button-panel">
-							<!-- <button mat-mini-fab
-											matBadge="{{(comments$ | async)?.length}}"
-											matBadgeColor="warn" (click)="sidenav.open()">
-								<mat-icon>question_answer</mat-icon>
-							</button> -->
-							<button mat-mini-fab (click)="showDocumentHistory()">
-								<mat-icon>history</mat-icon>
-							</button>
-						</div>							
-						<med-document-edit
-							[document]="document$ | async"
-							(submitDocument)="submitDocument($event)">
-						</med-document-edit>		
-					</ng-container>
-					<ng-container *ngIf="!(userPrivileges$ | async).includes('edit')">
-						<ngx-json-viewer [json]="(document$ | async)?.doc"></ngx-json-viewer>
-					</ng-container>
+					<div class="button-panel">
+						<!-- <button mat-mini-fab
+										matBadge="{{(comments$ | async)?.length}}"
+										matBadgeColor="warn" (click)="sidenav.open()">
+							<mat-icon>question_answer</mat-icon>
+						</button> -->
+						<button mat-mini-fab (click)="showDocumentHistory()">
+							<mat-icon>history</mat-icon>
+						</button>
+					</div>							
+					<med-document-edit 
+						[class.readonly-doc]="!(userPrivileges$ | async).includes('edit')"
+						[document]="document$ | async"
+						(liveData)="liveData($event)"
+						(isValid)="isValid($event)">
+					</med-document-edit>
 					<med-document-actions
+						[canEdit]="(userPrivileges$ | async).includes('edit')"
+						[canSave]="isFormValid"
 						[actions]="edges$ | async" 
+						(saveDocument)="saveDocument()"
 						(updateState)="updateState($event)">
 					</med-document-actions>	
 				</mat-card-content>
