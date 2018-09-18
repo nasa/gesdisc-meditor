@@ -82,7 +82,7 @@ export class DocEditPageComponent implements OnInit {
 		this.store.dispatch(new UpdateDocumentState({ state: target }))
 			.subscribe(
 				this.onUpdateStatusSuccess.bind(this, document),
-				// this.onUpdateStatusError.bind(this)
+				this.onUpdateStatusError.bind(this)
 			);
 	}
 
