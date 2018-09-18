@@ -12,8 +12,14 @@
 		<mat-card-content>
 			<med-document-edit
 				[document]="model$ | async"
-				(submitDocument)="createDocument($event)">
+				(liveData)="liveData($event)"
+				(isValid)="isValid($event)">
 			</med-document-edit>
+			<med-document-actions
+				[canEdit]="(userPrivileges$ | async).includes('edit')"
+				[canSave]="isFormValid"
+				(saveDocument)="saveDocument()">
+			</med-document-actions>	
 		</mat-card-content>
 	</mat-card>
 </div>

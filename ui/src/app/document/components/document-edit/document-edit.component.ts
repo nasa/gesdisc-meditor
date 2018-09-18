@@ -23,10 +23,13 @@ export class DocumentEditComponent implements OnInit {
 		this.data = document.doc;
 	}
 
-	@Output() submitDocument = new EventEmitter<object>();
+	@Output() liveData = new EventEmitter<object>();
+	@Output() isValid = new EventEmitter<boolean>();
 
 	selectedFramework = "material-design";
-	jsonFormOptions = {};
+	jsonFormOptions = {
+		addSubmit: false
+	};
 	schema =  {};
 	data = {};
 	layout = undefined;
@@ -44,16 +47,18 @@ export class DocumentEditComponent implements OnInit {
 
 	}
 
-	onSubmit() {
-		this.submitDocument.emit(this.liveFormData);
-	}
+	// onSubmit() {
+	// 	this.submitDocument.emit(this.liveFormData);
+	// }
 
 	onChanges(data: any) {
-		this.liveFormData = data;
+		// this.liveFormData = data;
+		this.liveData.emit(data);
 	}
 
-	isValid(isValid: boolean): void {
-		this.formIsValid = isValid;
+	isFormValid(isvalid: boolean): void {
+		// this.formIsValid = isvalid;
+		this.isValid.emit(isvalid);
 	}
 
 	validationErrors(data: any): void {

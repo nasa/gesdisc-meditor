@@ -9,7 +9,10 @@ import { Edge } from 'app/service';
 export class DocactionsComponent implements OnInit {
 
 	@Input() actions: Edge[];
+	@Input() canEdit: boolean;
+	@Input() canSave: boolean;
 	@Output() updateState = new EventEmitter<string>();
+	@Output() saveDocument = new EventEmitter();
 
 	constructor() { }
 
