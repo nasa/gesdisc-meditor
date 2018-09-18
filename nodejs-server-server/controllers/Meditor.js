@@ -39,14 +39,25 @@ function getSwaggerParams(request) {
   return params;
 }
 
+function handleResponse(response, res, defaultStatus, defaultMessage) {
+  var status = res.status || defaultStatus;
+  var result = res;
+  if (_.isNil(res)) result = defaultMessage;
+  if (_.isObject(res) && _.get(res, 'message', null) !== null) result = res.message;
+  if (_.isString(result)) {
+    result = {code: status, description: result};
+  };
+  utils.writeJson(response, result, status);
+}
+
 function handleError(response, err) {
   console.log('Error: ', err);
-  utils.writeJson(response, {code: err.status || 500, message: err.message || 'Unknown error '}, err.status || 500);
+  handleResponse(response, err, 500, 'Unknown error');
 };
 
 function handleSuccess(response, res) {
-  utils.writeJson(response, res && 'message' in res ? res.message : res, 200);
-}
+  handleResponse(response, res, 200, 'Success');
+};
 
 // Builds aggregation pipeline query for a given model (common starting point for most API functions)
 function getDocumentAggregationQuery(meta) {
@@ -528,9 +539,9 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
     .then(res => res[0])
     .then(function(res) {
       var newStatesArray;
-      if (_.isEmpty(res)) throw {message: 'Document not found', satus: 400};
-      if (that.params.state === res['x-meditor']['state']) throw {message: 'Can not transition to state [' + that.params.state + '] since it is the current state already', satus: 400};
-      if (that.targetStates.indexOf(that.params.state) === -1) throw {message: 'Can not transition to state [' + that.params.state + '] - invalid state or insufficient rights', satus: 400};
+      if (_.isEmpty(res)) throw {message: 'Document not found', status: 400};
+      if (that.params.state === res['x-meditor']['state']) throw {message: 'Can not transition to state [' + that.params.state + '] since it is the current state already', status: 400};
+      if (that.targetStates.indexOf(that.params.state) === -1) throw {message: 'Can not transition to state [' + that.params.state + '] - invalid state or insufficient rights', status: 400};
       newStatesArray = res['x-meditor'].states;
       newStatesArray.push({
         source: res['x-meditor'].state,
@@ -542,7 +553,7 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
         .collection(that.params.model)
         .update({_id: res._id}, {$set: {'x-meditor.states': newStatesArray}});
     })
-    .then(res => (that.dbo.close(), handleSuccess(response, "Success")))
+    .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .catch(err => {
       handleError(response, err);
     });
