@@ -60,7 +60,7 @@ export class DocEditPageComponent implements OnInit {
 		this.store.dispatch(new UpdateCurrentDocument({ document }))
 			.subscribe(
 				this.onSubmitDocumentSuccess.bind(this, document),
-				// this.onSubmitDocumentError.bind(this)
+				this.onSubmitDocumentError.bind(this)
 			);
 	}
 

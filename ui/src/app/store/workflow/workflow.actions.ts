@@ -4,7 +4,8 @@ export class GetWorkflow {
 	static readonly type = '[Workflow] Get Workflow';
 
 	constructor (public payload: {
-			title: string
+			title: string,
+			reload?: boolean,
 	}) {}
 }
 
