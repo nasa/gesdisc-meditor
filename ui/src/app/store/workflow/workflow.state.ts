@@ -39,11 +39,6 @@ export class WorkflowState {
 	@Selector() static currentEdges(state: WorkflowStateModel): Edge[] { return state.currentEdges; }
 	@Selector() static currentNode(state: WorkflowStateModel): Node { return state.currentNode; }
 	@Selector() static currentNodePrivileges(state: WorkflowStateModel): Privilege[] {
-		// const privileges = [];
-		// _.each(state.currentEdges, edge =>  {
-		// 	const i = state.currentWorkflow.nodes.map(n =>  n.id).indexOf(edge.source);
-		// 	privileges.push(state.currentWorkflow.nodes[i].privileges);
-		// });
 		return state.currentNode.privileges;
 	}
 
@@ -58,7 +53,7 @@ export class WorkflowState {
 				tap((document: Document) => {
 					patchState({
 						currentWorkflow: document.doc as Workflow,
-						currentEdges: this.findInitialEdge(document.doc.edges),
+						currentEdges: this.findInitialEdges(document.doc.edges),
 						currentNode: document.doc.nodes[0],
 						loading: false
 					});
@@ -77,7 +72,18 @@ export class WorkflowState {
 		dispatch(new user.GetUserPrivileges());
 	}
 
-	findInitialEdge(edges: any) {
+	@Action(actions.SetInitialState)
+	setInitialState({ getState, patchState, dispatch }: StateContext<WorkflowStateModel>, { }: actions.SetInitialState) {
+		const node = getState().currentWorkflow.nodes[0];
+		const edges = this.findInitialEdges(getState().currentWorkflow.edges);
+		patchState({
+			currentNode: node,
+			currentEdges: edges
+		});
+		dispatch(new user.GetUserPrivileges());
+	}
+
+	findInitialEdges(edges: any) {
 		const sources = _.pluck(edges, 'source');
 		const targets = _.pluck(edges, 'target');
 		const initEdge = sources.filter(e => !targets.includes(e))[0];

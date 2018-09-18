@@ -4,6 +4,7 @@ import { Store, Select } from '@ngxs/store';
 import { Model } from 'app/service/model/models';
 import { ModelState } from 'app/store/model/model.state';
 import { CreateDocument } from 'app/store/document/document.state';
+import { SetInitialState } from 'app/store/workflow/workflow.state';
 import { Go } from 'app/store/router/router.state';
 import { SuccessNotificationOpen, ErrorNotificationOpen } from 'app/store/notification/notification.state';
 
@@ -47,6 +48,7 @@ export class DocNewPageComponent implements OnInit {
 
 		this.store.dispatch(new SuccessNotificationOpen('Successfully created document'));
 		this.store.dispatch(new Go(routeParams));
+		this.store.dispatch(new SetInitialState());
 	}
 
 	onCreateDocumentError() {

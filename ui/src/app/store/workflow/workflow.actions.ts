@@ -13,3 +13,9 @@ export class UpdateWorkflowState {
 
 	constructor (public payload: string) {}
 }
+
+export class SetInitialState {
+	static readonly type = '[Workflow] Set Initial State';
+
+	constructor () {}
+}

@@ -1,26 +1,26 @@
 <div *ngIf="models$ | async as models">
-    <med-search-bar 
-        [models]="models" 
-        [selectedModel]="selectedModel$ | async" 
-        (selectionChanged)="selectAndChange($event)"
-        (searchChanged)="filterDocuments($event)">
-    </med-search-bar>
+	<med-search-bar 
+		[models]="models" 
+		[selectedModel]="selectedModel$ | async" 
+		(selectionChanged)="selectAndChange($event)"
+		(searchChanged)="filterDocuments($event)">
+	</med-search-bar>
 </div>
 
 <div *ngIf="(filteredDocuments$ | async) as filteredDocuments">
-    <med-search-status
-        [resultCount] = "(selectedModelDocuments$ | async)?.length"
-        [filteredCount] = "filteredDocuments.length"
-        [modelName] = "(selectedModel$ | async)?.name"
-        [actions] = "(currentEdges$ | async)"
-        [privileges] = "(userPrivileges$ | async)"        
-        (addNew) = "addNewDocument()"
-        (sortByChanged)="sortByChanged($event)">
-    </med-search-status>
+	<med-search-status
+		[resultCount] = "(selectedModelDocuments$ | async)?.length"
+		[filteredCount] = "filteredDocuments.length"
+		[modelName] = "(selectedModel$ | async)?.name"
+		[actions] = "(currentEdges$ | async)"
+		[privileges] = "(userPrivileges$ | async)"        
+		(addNew) = "addNewDocument()"
+		(sortByChanged)="sortByChanged($event)">
+	</med-search-status>
 
-    <med-search-result-list 
-        [results]="filteredDocuments" 
-        [model]="selectedModel$ | async"
-        (loadDocument)="loadDocument($event)">
-    </med-search-result-list>
+	<med-search-result-list 
+		[results]="filteredDocuments" 
+		[model]="selectedModel$ | async"
+		(loadDocument)="loadDocument($event)">
+	</med-search-result-list>
 </div>
