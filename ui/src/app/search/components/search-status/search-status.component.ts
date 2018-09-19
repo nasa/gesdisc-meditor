@@ -13,7 +13,7 @@ export class SearchStatusComponent implements OnInit {
 	@Input() modelName: string;
 	@Input() actions: Edge[];
 	@Input() privileges: string[];
-	@Output() addNew = new EventEmitter();
+	@Output() addNew = new EventEmitter<string>();
 	@Output() sortByChanged = new EventEmitter();
 
 	sortBy = 'newest';

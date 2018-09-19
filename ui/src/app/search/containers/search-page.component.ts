@@ -78,7 +78,8 @@ export class SearchPageComponent implements OnInit {
 		this.store.dispatch(new Go({ path: '/search', query: { model: modelName}}));
 	}
 
-	addNewDocument() {
+	addNewDocument(event: string) {
+		this.store.dispatch(new UpdateWorkflowState(event));
 		this.store.dispatch(new Go({ path: '/document/new', query: { model: this.selectedModelName }}));
 	}
 

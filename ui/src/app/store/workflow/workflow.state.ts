@@ -45,22 +45,23 @@ export class WorkflowState {
 	getWorkflow({ patchState, getState, dispatch }: StateContext<WorkflowStateModel>, { payload }: actions.GetWorkflow) {
 		const workflow: any = getState().currentWorkflow;
 		const useCache: boolean = workflow && workflow.name === payload.title && !payload.reload;
-	
+
 		const getWorkflowCallback = (document: any) => {
 			patchState({
 				currentWorkflow: document as Workflow,
 				currentEdges: this.findInitialEdges(document.edges),
 				currentNode: document.nodes[0],
 			});
-
-			dispatch(new user.GetUserPrivileges())
 		};
 
 		if (useCache) {
 			return getWorkflowCallback(workflow);
 		} else {
 			return this.service.getDocument('Workflows', payload.title)
-				.pipe(tap((workflow: any) => getWorkflowCallback(workflow.doc)));
+				.pipe(tap((workflow: any) => {
+					getWorkflowCallback(workflow.doc);
+					dispatch(new user.GetUserPrivileges());
+				}));
 		}
 	}
 

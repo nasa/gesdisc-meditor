@@ -16,7 +16,7 @@
 
 	<div fxFlex *ngIf="privileges.includes('create_new')">
 		<ng-container *ngFor="let action of actions">
-			<button mat-raised-button color="accent" class="add-new-button" (click)="addNew.emit()" >
+			<button mat-raised-button color="accent" class="add-new-button" (click)="addNew.emit(action.target)" >
 				<mat-icon>add</mat-icon>
 				{{ action.label }}
 			</button>

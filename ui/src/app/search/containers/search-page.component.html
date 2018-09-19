@@ -14,7 +14,7 @@
 		[modelName] = "(selectedModel$ | async)?.name"
 		[actions] = "currentEdges$ | async"
 		[privileges] = "userPrivileges$ | async"        
-		(addNew) = "addNewDocument()"
+		(addNew) = "addNewDocument($event)"
 		(sortByChanged)="sortByChanged($event)">
 	</med-search-status>
 
