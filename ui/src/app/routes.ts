@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { NotFoundPageComponent } from './core/containers/not-found-page';
 import { SplashPageComponent } from './core/containers/splash-page/splash-page.component';
-import { ModelResolver, ModelsResolver, AuthGuard } from 'app/store/resolvers/';
+import { ModelsResolver, AuthGuard } from 'app/store/resolvers/';
 
 export const routes: Routes = [
 	{
