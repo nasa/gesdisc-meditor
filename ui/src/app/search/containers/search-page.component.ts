@@ -4,7 +4,8 @@ import * as _ from 'underscore';
 import { Observable } from 'rxjs/Observable';
 import { Store, Select } from '@ngxs/store';
 import { GetModel, GetModelDocuments } from 'app/store/model/model.state';
-import { UpdateWorkflowState } from 'app/store/workflow/workflow.state';
+import { UpdateWorkflowState, GetWorkflow } from 'app/store/workflow/workflow.state';
+import { GetUserPrivileges } from 'app/store/auth/auth.state';
 import { Go } from 'app/store/router/router.state';
 import { ModelCatalogEntry, DocCatalogEntry, Edge } from 'app/service/model/models';
 import { AuthState, ModelState, WorkflowState } from 'app/store';
@@ -38,6 +39,8 @@ export class SearchPageComponent implements OnInit {
 
 		this.selectedModelName = model.name;
 		this.store.dispatch(new GetModelDocuments());
+		this.store.dispatch(new GetWorkflow({title: model.workflow}));
+		this.store.dispatch(new GetUserPrivileges());
 	}
 
 	selectedModelDocumentsChanged() {
