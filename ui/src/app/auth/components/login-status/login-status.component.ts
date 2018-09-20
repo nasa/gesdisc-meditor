@@ -1,8 +1,9 @@
 import { Component, OnInit} from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 
-import { Store, select } from '@ngrx/store';
-import * as fromAuth from '../../store';
+import { Store, Select } from '@ngxs/store';
+import { AuthState, Logout } from 'app/store/auth/auth.state';
+
 import { environment } from '../../../../environments/environment';
 
 
@@ -23,18 +24,17 @@ import { environment } from '../../../../environments/environment';
 })
 export class LoginStatusComponent implements OnInit {
 	
-	user$: Observable<any>;
+	@Select(AuthState.user) user$: Observable<any>;
 	userBtn: boolean = true;
 
-	constructor(private store: Store<fromAuth.AuthState>) {
-		this.user$ = store.pipe(select(fromAuth.getUser));
+	constructor(private store: Store) {
 	}
 
 	ngOnInit() {
 	}
 
 	logout() {
-		// this.store.dispatch(new fromAuth.Logout);	
+		this.store.dispatch(new Logout);	
 		window.location.href = environment.API_BASE_PATH + '/logout';
 	}
 

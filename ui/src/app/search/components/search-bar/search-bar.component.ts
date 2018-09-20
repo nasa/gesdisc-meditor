@@ -3,10 +3,11 @@ import {
 	Input,
 	Output,
 	EventEmitter,
-	OnInit
+	OnInit,
+	OnChanges
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { ModelCatalogEntry } from '../../../service';
+import { ModelCatalogEntry } from 'app/service';
 
 @Component({
 	selector: 'med-search-bar',
@@ -19,11 +20,12 @@ export class SearchBarComponent implements OnInit {
 	@Output() selectionChanged = new EventEmitter<string>();
 	@Output() searchChanged = new EventEmitter<string>();
 
-	query: string = '';
-	modelControl: FormControl;
+	query: string;
+	modelcontrol = new FormControl();
 
 	ngOnInit() {
-		this.modelControl = new FormControl(this.selectedModel);
+		const i  = this.models.map(m => m.name).indexOf(this.selectedModel.name);
+		this.modelcontrol.setValue(this.models[i]);
 	}
 
 	onSearchChange() {

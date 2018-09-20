@@ -52,6 +52,10 @@
 	background-color: #3cb44b;
 }
 
+.readonly-doc {
+	pointer-events: none;
+}
+
 .mat-drawer {
 	padding-bottom: 30px;
 }

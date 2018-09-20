@@ -16,6 +16,8 @@ var macros = require('./Macros.js');
 var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
 var DbName = "meditor";
 
+// ======================== Common helper functions ================================
+
 // Wrapper to parse JSON giving v8 a chance to optimize code
 function safelyParseJSON (jsonStr) {
   var jsonObj;
@@ -27,11 +29,132 @@ function safelyParseJSON (jsonStr) {
   return jsonObj;
 }
 
+// Converts Swagger parameter notation into a plain dictionary
+function getSwaggerParams(request) {
+  var params = {};
+  if (_.get(request, 'swagger.params', null) === null) return params; 
+  for ( var property in request.swagger.params ) {
+    params[property] = request.swagger.params[property].value;
+  }
+  return params;
+}
+
+function handleResponse(response, res, defaultStatus, defaultMessage) {
+  var status = res.status || defaultStatus;
+  var result = res;
+  if (_.isNil(res)) result = defaultMessage;
+  if (_.isObject(res) && _.get(res, 'message', null) !== null) result = res.message;
+  if (_.isString(result)) {
+    result = {code: status, description: result};
+  };
+  utils.writeJson(response, result, status);
+}
+
+function handleError(response, err) {
+  console.log('Error: ', err);
+  handleResponse(response, err, 500, 'Unknown error');
+};
+
+function handleSuccess(response, res) {
+  handleResponse(response, res, 200, 'Success');
+};
+
+// Builds aggregation pipeline query for a given model (common starting point for most API functions)
+function getDocumentAggregationQuery(meta) {
+  var searchQuery = {};
+  var query;
+  var defaultStateName = "Unspecified";
+  var defaultState = {target: defaultStateName, source: defaultStateName, modifiedOn: (new Date()).toISOString()};
+  meta.sourceStates.push("Unspecified");
+  // need a second match
+  // $not: {$and: {'x-meditor.modifiedBy': meta.user.uid, 'x-meditor.state': {$in: exclusiveStates}}}
+  // if (!_.isEmpty(meta.user.uid)) filterQuery['x-meditor.modifiedBy'] = {$ne: meta.user.uid};
+  query = [
+    {$addFields: {'x-meditor.states': { $ifNull: [ "$x-meditor.states", [defaultState] ] }}}, // Add default state on docs with no state
+    {$addFields: {'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}}}, // Find last state
+    {$addFields: {'bannedTransition': {"$eq" : [{$cond: {if: {$in: ['$x-meditor.state', meta.exclusiveStates]}, then: meta.user.uid, else: '' }}, '$x-meditor.modifiedBy']}}}, // This computes whether a user can transition the edge if he is the modifiedBy of the current state 
+    {$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
+    {$group: {_id: '$' + meta.titleProperty, doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version
+    {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
+    {$match: {'x-meditor.state': {$in: meta.sourceStates}, 'bannedTransition': false}}, // Filter states based on the role's source states
+  ];
+  // Build up search query if search params are available
+  if ('title' in meta.params) searchQuery[meta.titleProperty] =  meta.params.title;
+  if ('version' in  meta.params && meta.params.version !== 'latest') searchQuery['x-meditor.modifiedOn'] = meta.params.version;
+  if (!_.isEmpty(searchQuery)) query.unshift({$match: searchQuery}); // Push search query into the top of the chain
+  return query;
+}
+
+// Collects various metadata about request and model - to be
+// used in queries and what not
+function getDocumentModelMetadata(dbo, request, paramsExtra) {
+  // This is a convenience function that returns a number of
+  // parameters needed to work with documents:
+  // - request parameters
+  // - all user roles
+  // - model-specific user roles
+  // - model
+  // - workflow
+  // - title property (retrieved from model)
+  // - source states available to the user
+  // - target states available to the user
+  // Note: if set, paramsExtra are super-imposed on top of swagger params
+  var that = {
+    params: _.assign(getSwaggerParams(request), paramsExtra),
+    roles: _.get(request, 'user.roles', {}),
+    dbo: dbo,
+    user: request.user || {},
+    exclusiveStates: ['Under Review']
+  };
+  // TODO Useful for dubugging
+  // that.roles = [ 
+  //   { model: 'Alerts', role: 'Author' },
+  //   { model: 'Alerts', role: 'Reviewer' } ];
+  that.modelName = that.params.model;
+  that.modelRoles = _(that.roles).filter({model: that.params.model}).map('role').value();
+  return Promise.resolve()
+    .then(function() {
+      return that.dbo
+      .db(DbName)
+      .collection('Models')
+      .find({name: that.params.model})
+      .sort({'x-meditor.modifiedOn': -1})
+      .limit(1)
+      .toArray()
+    })
+    .then(res => {
+      if (_.isEmpty(res)) throw {message: 'Model for ' + that.params.model + ' not found', status: 400};
+      that.model = res[0];
+      that.titleProperty = that.model['titleProperty'] || 'title';
+    })
+    .then(res => {
+      return that.dbo
+        .db(DbName)
+        .collection('Workflows')
+        .find({name: that.model.workflow})
+        .sort({'x-meditor.modifiedOn': -1})
+        .limit(1)
+        .toArray();
+    })
+    .then(res => {
+      if (_.isEmpty(res)) throw {message: 'Workflow for ' + that.params.model + ' not found', status: 400};
+      that.workflow = res[0];
+      that.sourceStates = _(that.workflow.edges)
+        .filter(function(e) {return that.modelRoles.indexOf(e.role) !== -1;})
+        .map('source').uniq().value();
+      that.targetStates = _(that.workflow.edges)
+        .filter(function(e) {return that.modelRoles.indexOf(e.role) !== -1;})
+        .map('target').uniq().value();
+      return that;
+    });
+};
+
+// ================================= Exported API functions =========================
+
 // Add a Model
 function addModel (model) {
   model["x-meditor"]["modifiedOn"] = (new Date()).toISOString();
   model["x-meditor"]["modifiedBy"] = "anonymous";
-  model["x-meditor"]["count"] = 0;
   return new Promise(function(resolve, reject) {
     MongoClient.connect(MongoUrl, function(err, db) {
       if (err) throw err;
@@ -49,45 +172,90 @@ function addModel (model) {
   });
 }
 
-// Internal method to list models
-function getListOfModels (properties) {
-  return new Promise(function(resolve, reject) {
-    MongoClient.connect(MongoUrl, function(err, db) {
-      if (err) {
-        console.log(err);
-        throw err;
-      }
-      var dbo = db.db(DbName);
+// Exported method to list Models
+module.exports.listModels = function listModels (request, response, next) {
+  var that = {};
+  return MongoClient.connect(MongoUrl)
+    .then(res => {
+      that.dbo = res;
+      return getDocumentModelMetadata(that.dbo, request, {model: 'Models'});
+    })
+    .then(meta => {_.assign(that, meta)})
+    .then(function() {
+      // Start by getting a list of models
+      var properties = that.params.properties;
       var projection = {_id:0};
       if (properties === undefined) {
-        properties = ["name","description","icon","x-meditor","category"];
+        properties = ["name", "description", "icon", "x-meditor", "category"];
       }
+      if (!Array.isArray(properties)) properties = [properties];
       if (Array.isArray(properties)) {
         properties.forEach(function(element){
-          projection[element]=1;
+          projection[element]= '$'+element;
         });
       }
-      dbo.collection("Models").find({}).sort({"x-meditor.modifiedOn":-1}).project(projection).toArray(function(err, res) {
-        if (err){
-          console.log(err);
-          throw err;
-        }
-        db.close();
-        resolve(res);
+      // Get list of models ...
+      return that.dbo.db(DbName)
+        .collection("Models")
+        .aggregate(
+          [{$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
+          {$group: {_id: '$name', doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version
+          {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
+          {$project: projection}
+        ])
+        .toArray();
+    })
+    .then(function(res) {
+      // Collect roles, target states, and other metadata for each model
+      that.models = res;
+      var defers = _.map(that.models, function(model) {
+        var modelMeta = {};
+        return getDocumentModelMetadata(that.dbo, {user: request.user}, {model: model.name});
       });
+      return Promise.all(defers);
+    })
+    .then(function(modelMetas) {
+      that.modelMetas = modelMetas;
+      // Based on collected metadata, query each model for unique items
+      // as appropriate for user's role and count the results
+      return Promise.all(modelMetas.map(modelMeta => {
+        var query = getDocumentAggregationQuery(modelMeta);
+        query.push({$group: {_id: null, "count": { "$sum": 1 }}});
+        query.push({$addFields: {name: modelMeta.modelName}});
+        return that.dbo.db(DbName).collection(modelMeta.modelName).aggregate(query).toArray();
+      }));
+    })
+    .then(function(res) {
+      that.countsRoleAware = res.reduce(function (accumulator, currentValue) {
+        if (currentValue.length !== 1) return accumulator;
+        accumulator[currentValue[0].name] = currentValue[0].count;
+        return accumulator;
+      }, {});
+      // Count all items regardless of the model
+      return Promise.all(that.modelMetas.map(modelMeta => {
+        return that.dbo.db(DbName).collection(modelMeta.modelName).aggregate([
+          {$group: {_id: '$' + modelMeta.titleProperty}},
+          {$group: {_id: null, "count": { "$sum": 1 }}},
+          {$addFields: {name: modelMeta.modelName}}
+        ]).toArray();
+      }));
+    })
+    .then(function(res) {
+      that.countsTotal = res.reduce(function (accumulator, currentValue) {
+        if (currentValue.length !== 1) return accumulator;
+        accumulator[currentValue[0].name] = currentValue[0].count;
+        return accumulator;
+      }, {});
+    })
+    .then(function() {
+      that.models.forEach(m => {m['x-meditor'].count = that.countsRoleAware[m.name] || 0});
+      that.models.forEach(m => {m['x-meditor'].countAll = that.countsTotal[m.name] || 0});
+      return that.models;
+    })
+    .then(res => (that.dbo.close(), handleSuccess(response, res)))
+    .catch(err => {
+      handleError(response, err);
     });
-  });
-}
-
-//Exported method to list Models
-module.exports.listModels = function listModels (req, res, next) {
-  getListOfModels (req.swagger.params['properties'].value)
-  .then(function (response) {
-    utils.writeJson(res, response);
-  })
-  .catch(function (response) {
-    utils.writeJson(res, response);
-  });;
 };
 
 //Exported method to add a Model
@@ -118,33 +286,6 @@ module.exports.putModel = function putModel (req, res, next) {
     utils.writeJson(res, {code:500, message: response}, 500);
   });
 };
-
-// Add a Document
-function addDocument (doc) {
-  doc["x-meditor"]["modifiedOn"] = (new Date()).toISOString();
-  doc["x-meditor"]["modifiedBy"] = "anonymous";
-  return new Promise(function(resolve, reject) {
-    MongoClient.connect(MongoUrl, function(err, db) {
-      if (err) throw err;
-      var dbo = db.db(DbName);
-      dbo.collection(doc["x-meditor"]["model"]).insertOne(doc, function(err, res) {
-        if (err){
-          console.log(err);
-          throw err;
-        }
-        dbo.collection("Models").update({name:doc["x-meditor"]["model"]}, {$inc:{"x-meditor.count":1}}, function(err, res) {
-          if (err){
-            console.log(err);
-            throw err;
-          }
-          db.close();
-          var userMsg = "Inserted document";
-          resolve({message: userMsg, document: doc});
-        });
-      });
-    });
-  });
-}
 
 // Add an Image
 function addImage (parentDoc, imageFormParam) {
@@ -258,10 +399,7 @@ function getImage(model, title, version, res) {
 };
 
 module.exports.getDocumentImage = function getDocumentImage (req, res, next) {
-  var params = {};
-  for ( var property in req.swagger.params ) {
-    params[property] = req.swagger.params[property].value;
-  }
+  var params = getSwaggerParams(req);
   getImage(params.model, params.title, params.version, res)
   .then(function (response){
     // Do nothing, response has been written already in getImage
@@ -274,152 +412,157 @@ module.exports.getDocumentImage = function getDocumentImage (req, res, next) {
 
 
 //Exported method to add a Document
-module.exports.putDocument = function putDocument (req, res, next) {
+module.exports.putDocument = function putDocument (request, response, next) {
+  var that = {};
   // Parse uploaded file
-  var file = req.swagger.params['file'].value;
+  var file = request.swagger.params['file'].value;
   // Ensure it is well formed JSON
   var doc;
   try {
     doc = safelyParseJSON(file.buffer.toString());
+    // TODO: validate JSON based on schema
   } catch(err) {
     console.log(err);
-    var response = {
-      code:400,
-      message:"Failed to parse the Document"
-    };
-    utils.writeJson(res, response, 400);
-    return;
+    return handleError(response, {
+      status: 400,
+      message: "Failed to parse the Document"
+    });
   };
-  // TODO: validate JSON based on schema
 
-  // Insert the new Model
-  addDocument(doc)
-  .then(function(savedDoc) {
-    if (!req.swagger.params.image.value) return Promise.resolve(savedDoc);
-    try {
-      return addImage(savedDoc.document, req.swagger.params.image.value);
-    } catch (e) {
-      console.log('Error saving image', e);
-      return Promise.reject('Error saving image');
-    }
-  })
-  .then(function (response){
-    utils.writeJson(res, {code:200, message:"Inserted document"}, 200);
-  })
-  .catch(function (response){
-    utils.writeJson(res, {code:500, message: response}, 500);
-  });
-};
-
-// Internal method to list documents
-function getListOfDocuments (model,properties) {
-  return new Promise(function(resolve, reject) {
-    MongoClient.connect(MongoUrl, function(err, db) {
-      if (err) {
-        console.log(err);
-        throw err;
+  return MongoClient.connect(MongoUrl)
+    .then(res => {
+      that.dbo = res;
+      return getDocumentModelMetadata(that.dbo, request, {model: doc["x-meditor"]["model"]});
+    })
+    .then(meta => {_.assign(that, meta)})
+    .then(function() {
+      doc["x-meditor"]["modifiedOn"] = (new Date()).toISOString();
+      doc["x-meditor"]["modifiedBy"] = request.user.uid;
+      // TODO: replace with actual model init state
+      doc["x-meditor"]["states"] = [{source: 'Init', target: 'Draft', modifiedOn: doc["x-meditor"]["modifiedOn"]}];
+      return that.dbo.db(DbName).collection(doc["x-meditor"]["model"]).insertOne(doc);
+    })
+    .then(function(savedDoc) {
+      if (!that.params.image) return Promise.resolve("Inserted document");
+      try {
+        return addImage(savedDoc, that.params.image);
+      } catch (e) {
+        console.log('Error saving image', e);
+        return Promise.reject('Error saving image');
       }
-      var dbo = db.db(DbName);
-      dbo.collection("Models").find({name:model}).project({_id:0, "titleProperty":1}).toArray(function(err, res) {
-        if (err){
-          console.log(err);
-          throw err;
-        }else if (res.length < 1){
-          return resolve(res);
-        }
-        var projection = {_id:0};
-        var properties = ["x-meditor.modifiedOn","x-meditor.modifiedBy"];
-        if (res.length > 0){
-          properties.push(res[0]["titleProperty"]);
-        }
-        if (Array.isArray(properties)) {
-          properties.forEach(function(element){
-            projection[element]=1;
-          });
-        }
-        var titleField = res[0]["titleProperty"];
-        dbo.collection(model).aggregate(
-          [ {$sort:{"x-meditor.modifiedOn":1}},
-            { $group : { _id : "$"+titleField, "x-meditor": {$first:"$x-meditor"}}}])
-          .map(doc=>({"title":doc["_id"], "x-meditor":doc["x-meditor"]}))
-          .toArray(function(err, res) {
-            if(err){
-              console.log(err);
-            }
-            db.close();
-            resolve(res);
-          });
-      });
+    })
+    .then(res => (that.dbo.close(), handleSuccess(response, {message: "Inserted document"})))
+    .catch(err => {
+      handleError(response, err);
     });
-  });
-}
-
-// Exported method to list Models
-module.exports.listDocuments = function listDocuments (req, res, next) {
-  getListOfDocuments (req.swagger.params['model'].value)
-  .then(function (response) {
-    utils.writeJson(res, response);
-  })
-  .catch(function (response) {
-    utils.writeJson(res, response);
-  });;
 };
 
-// Internal method to list documents
-function getDocumentContent (params) {
-  return new Promise(function(resolve, reject) {
-    MongoClient.connect(MongoUrl, function(err, db) {
-      if (err) {
-        console.log(err);
-        throw err;
-      }
-      var dbo = db.db(DbName);
-      dbo.collection("Models").find({name:params.model}).sort({"x-meditor.modifiedOn":-1}).project({_id:0}).toArray(function(err, res) {
-        if (err){
-          console.log(err);
-          throw err;
-        }
-        var titleField = res[0]["titleProperty"];
-        var schema = res[0].schema;
-        var layout = res[0].layout;
-        var projection = {_id:0};
-        var query = {};
-        if ( params.hasOwnProperty("version") && params.version !== 'latest' ) {
-          query["x-meditor.modifiedOn"] = params.version;
-        }
-        query[titleField]=params.title;
-        dbo.collection(params.model).find(query).project({_id:0}).sort({"x-meditor.modifiedOn":-1}).limit(1).toArray(function(err, res) {
-          if (err){
-            console.log(err);
-            throw err;
-          }
-          db.close();
+// Exported method to list documents
+module.exports.listDocuments = function listDocuments (request, response, next) {
+  // Function - wide variables are stored here
+  // 1. Get Model to learn about workflow and title field
+  // 2. Find workflow to learn about states
+  // 3. Find latest version of the documents according to roles
+  var that = {};
+  return MongoClient.connect(MongoUrl)
+    .then(res => {
+      that.dbo = res;
+      return getDocumentModelMetadata(that.dbo, request);
+    })
+    .then(meta => {_.assign(that, meta)})
+    .then(function() {
+      var xmeditorProperties = ["modifiedOn", "modifiedBy", "state"];
+      var query = getDocumentAggregationQuery(that);
+      return that.dbo
+        .db(DbName)
+        .collection(that.params.model)
+        .aggregate(query)
+        .map(function(doc) {
+          var res = {"title": doc[that.titleProperty]};
+          res["x-meditor"] = _.pickBy(doc['x-meditor'], function(value, key) {return xmeditorProperties.indexOf(key) !== -1;});
+          if ('state' in res["x-meditor"] && !res["x-meditor"].state) res["x-meditor"].state = 'Unspecified';
+          return res;
+      })
+      .toArray();
+    })
+    .then(res => (that.dbo.close(), handleSuccess(response, res)))
+    .catch(err => {
+      handleError(response, err);
+    });
+};
+
+// Exported method to get a document
+module.exports.getDocument = function listDocuments (request, response, next) {
+  var that = {};
+  return MongoClient.connect(MongoUrl)
+    .then(res => {
+      that.dbo = res;
+      return getDocumentModelMetadata(that.dbo, request);
+    })
+    .then(meta => {_.assign(that, meta)})
+    .then(function() {
+      var query = getDocumentAggregationQuery(that);
+      query.push({$limit: 1});
+      return that.dbo
+        .db(DbName)
+        .collection(that.params.model)
+        .aggregate(query)
+        .map(res => {
           var out = {};
-          out["x-meditor"] = res[0]["x-meditor"];
-          delete res[0]["x-meditor"];
-          out["schema"] = schema;
-          out["layout"] = layout;
-          out["doc"] = res[0];
-          resolve(out);
-        });
-      });
+          out["x-meditor"] = res["x-meditor"];
+          delete res["x-meditor"];
+          out["schema"] = that.model.schema;
+          out["layout"] = that.model.layout;
+          out["doc"] = res;
+          return out;
+        })
+        .toArray();
+    })
+    .then(res => (that.dbo.close(), handleSuccess(response, res.length > 0 ? res[0] : {})))
+    .catch(err => {
+      handleError(response, err);
     });
-  });
-}
+};
 
-//Exported method to get a document
-module.exports.getDocument = function listDocuments (req, res, next) {
-  var params = {};
-  for ( var property in req.swagger.params ) {
-    params[property] = req.swagger.params[property].value;
-  }
-  getDocumentContent (params)
-  .then(function (response) {
-    utils.writeJson(res, response);
-  })
-  .catch(function (response) {
-    utils.writeJson(res, response);
-  });
+// Change workflow status of a document
+module.exports.changeDocumentState = function changeDocumentState (request, response, next) {
+  var that = {};
+  return MongoClient.connect(MongoUrl)
+    .then(res => {
+      that.dbo = res;
+      return getDocumentModelMetadata(that.dbo, request);
+    })
+    .then(meta => {_.assign(that, meta)})
+    .then(function() {
+      var query = getDocumentAggregationQuery(that);
+      query.push({$limit: 1});
+      return that.dbo
+        .db(DbName)
+        .collection(that.params.model)
+        .aggregate(query)
+        .toArray();
+    })
+    .then(res => res[0])
+    .then(function(res) {
+      var newStatesArray;
+      if (_.isEmpty(res)) throw {message: 'Document not found', status: 400};
+      if (that.params.state === res['x-meditor']['state']) throw {message: 'Can not transition to state [' + that.params.state + '] since it is the current state already', status: 400};
+      if (that.targetStates.indexOf(that.params.state) === -1) throw {message: 'Can not transition to state [' + that.params.state + '] - invalid state or insufficient rights', status: 400};
+      newStatesArray = res['x-meditor'].states;
+      newStatesArray.push({
+        source: res['x-meditor'].state,
+        target: that.params.state,
+        modifiedOn: (new Date()).toISOString()
+      });
+      return that.dbo
+        .db(DbName)
+        .collection(that.params.model)
+        .update({_id: res._id}, {$set: {'x-meditor.states': newStatesArray}});
+    })
+    .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
+    .catch(err => {
+      handleError(response, err);
+    });
 };
 
 // Internal method to list documents
@@ -527,17 +670,14 @@ function findDocHistory (params) {
 
 //Exported method to get a model
 module.exports.getDocumentHistory = function getModel (req, res, next) {
-  var params = {};
-  for ( var property in req.swagger.params ) {
-    params[property] = req.swagger.params[property].value;
-  }
+  var params = getSwaggerParams(req);
   findDocHistory (params)
   .then(function (response) {
     utils.writeJson(res, response);
   })
   .catch(function (response) {
     utils.writeJson(res, response);
-  });;
+  });
 };
 
 
@@ -591,7 +731,7 @@ module.exports.getComments = function getComments (req, res, next) {
   })
   .catch(function (response) {
     utils.writeJson(res, response);
-  });;
+  });
 };
 
 //Exported method to resolve comment
@@ -602,7 +742,7 @@ module.exports.resolveComment = function resolveComment(req, res, next) {
   })
   .catch(function (response) {
     utils.writeJson(res, {code:500, message: response}, 500);
-  });;
+  });
 };
 
 //Exported method to add a comment

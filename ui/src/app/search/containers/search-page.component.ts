@@ -1,115 +1,91 @@
 import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
-
-import * as fromSearch from '../store';
-import * as fromApp from '../../store';
-import * as fromUser from '../../auth/store';
-import { Store, select } from '@ngrx/store';
-import { map } from 'rxjs/operators';
-
+import { map, tap, withLatestFrom } from 'rxjs/operators';
 import * as _ from 'underscore';
 import { Observable } from 'rxjs/Observable';
-import { ModelCatalogEntry } from '../../service/model/modelCatalogEntry';
-import { Model } from '../../service/model/model';
-import { DocCatalogEntry } from '../../service/model/docCatalogEntry';
-import { Privilege, Edge } from '../../service/model/workflow';
+import { Store, Select } from '@ngxs/store';
+import { GetModel, GetModelDocuments } from 'app/store/model/model.state';
+import { UpdateWorkflowState } from 'app/store/workflow/workflow.state';
+import { Go } from 'app/store/router/router.state';
+import { ModelCatalogEntry, DocCatalogEntry, Edge } from 'app/service/model/models';
+import { AuthState, ModelState, WorkflowState } from 'app/store';
 
 @Component({
 	selector: 'med-search-page',
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './search-page.component.html',
-	styles: [
-		`
-
-	`,
-	],
+	styles: [``],
 })
 export class SearchPageComponent implements OnInit {
 
-	models$: Observable<ModelCatalogEntry[]>;
-	selectedModel$: Observable<ModelCatalogEntry>;
-	workflowLoaded$: Observable<boolean>;
-	privileges$: Observable<Privilege[]>;
-	results$: Observable<DocCatalogEntry[]>;
-	user$: Observable<any>;
-	edge$: Observable<Edge>;
-	filteredResults$: Observable<DocCatalogEntry[]>;
+	@Select(ModelState.models) models$: Observable<ModelCatalogEntry[]>;
+	@Select(ModelState.currentModel) selectedModel$: Observable<ModelCatalogEntry>;
+	@Select(ModelState.currentModelDocuments) selectedModelDocuments$: Observable<DocCatalogEntry[]>;
+	@Select(AuthState.userPrivileges) userPrivileges$: Observable<string[]>;
+	@Select(WorkflowState.currentEdges) currentEdges$: Observable<Edge[]>;
 
+	filteredDocuments$: Observable<DocCatalogEntry[]>;
 	selectedModelName: string;
-	selectedModel: Model;
-	userRoles: Array<string>;
-	currentPrivileges: Array<Privilege>
-	canAddNewShow: boolean = false;
 
-	constructor(
-		private store: Store<fromApp.AppState>) {
-		this.models$ = store.pipe(select(fromApp.getAllModels));
-		this.selectedModel$ = store.pipe(select(fromApp.selectCurrentModel));
-		this.results$ = store.pipe(select(fromSearch.selectAllResults));
-		this.user$ = store.pipe(select(fromUser.getUser));
-		this.edge$ = store.pipe(select(fromApp.selectInitialEdge));
-		this.privileges$ = store.pipe(select(fromApp.selectCurrentNode));
-		this.workflowLoaded$ = store.pipe(select(fromApp.selectWorkflowLoaded));
-	}
+	constructor(private store: Store) {}
 
 	ngOnInit() {
-		this.selectedModel$.subscribe(model => {
-			this.selectedModelName = model.name;		
-			this.store.dispatch(new fromSearch.Search(this.selectedModelName));			
-		});			
-		this.workflowLoaded$.subscribe(isLoaded =>{
-			if(isLoaded) this.canAddNew()
-		});
-		this.filteredResults$ = this.results$;		
-	}
-	
-	selectAndChange(event: any) {
-		this.canAddNewShow = false;
-		this.store.dispatch(new fromApp.LoadWorkflow());
-		this.store.dispatch(new fromApp.SelectModel(event));
-		this.store.dispatch(new fromApp.LoadSelectedModel(event));
-		this.store.dispatch(new fromApp.Go({path: ['/search'], query: { model: event}}));
+		this.selectedModel$.subscribe(this.selectedModelChanged.bind(this));
+		this.selectedModelDocuments$.subscribe(this.selectedModelDocumentsChanged.bind(this));
 	}
 
-	canAddNew() {
-		let that = this;
-		this.user$.subscribe(user => {
-			this.userRoles = _.pluck(_.filter(user.roles, function(roles: any){ return roles.model == that.selectedModelName}), 'role');			
-		});
-		this.privileges$.subscribe(privileges => {
-			this.currentPrivileges = privileges
-		});
-		_.each(this.userRoles, function(role) { 
-			let userPrivileges =  _.findWhere(that.currentPrivileges, {"role": role});
-			if(userPrivileges) {
-				that.canAddNewShow = userPrivileges.privilege.includes('create_new')};
-			});
+	selectedModelChanged(model: ModelCatalogEntry) {
+		if (this.selectedModelName === model.name) { return; }
+
+		this.selectedModelName = model.name;
+		this.store.dispatch(new GetModelDocuments());
 	}
 
-	searchChanged(event: string) {
-		this.filteredResults$ = this.results$.pipe(map(document => document.filter(doc => doc.title.search(new RegExp(event, "i")) != -1)))
+	selectedModelDocumentsChanged() {
+		this.filteredDocuments$ = this.selectedModelDocuments$;
+	}
+
+	filterDocuments(event: string) {
+		this.filteredDocuments$ = this.selectedModelDocuments$
+			.pipe(map(this.filterDocumentsBySearchTerm.bind(this, event)));
+	}
+
+	filterDocumentsBySearchTerm(searchTerm: string, documents: DocCatalogEntry[]) {
+		return documents.filter(this.documentContainSearchTerm.bind(this, searchTerm));
+	}
+
+	documentContainSearchTerm(searchTerm: string, document: DocCatalogEntry) {
+		return document.title.search(new RegExp(searchTerm, 'i')) !== -1;
 	}
 
 	sortByChanged(event: string) {
-		if (event == 'oldest') {
-			this.filteredResults$ = this.results$.pipe(map(document => { 
-				document.sort((a, b) => { 
-					return a['x-meditor'].modifiedOn < b['x-meditor'].modifiedOn ? -1 : 1; 
-				});
-				return document;
-			}));
-		} else {
-			this.filteredResults$ = this.results$.pipe(map(document => { 
-				document.sort((a, b) => { 
-					return a['x-meditor'].modifiedOn > b['x-meditor'].modifiedOn ? -1 : 1; 
-				});
-				return document;
-			}));
-		}
+		this.filteredDocuments$ = this.selectedModelDocuments$.pipe(
+			map(this.sortDocumentsByDate.bind(this, event))
+		);
 	}
 
-	addNewDocument() {
-		this.store.dispatch(new fromApp.SetCurrentEdge({role: 'test', source: '1' ,target: '2', label: '1-2'}));
-		this.store.dispatch(new fromApp.Go({path: ['/document/new'], query: { model: this.selectedModelName}}))
+	sortDocumentsByDate(date: string, documents: DocCatalogEntry[]) {
+		return documents.sort((a, b) => {
+			if (date === 'oldest') {
+				return a['x-meditor'].modifiedOn < b['x-meditor'].modifiedOn ? -1 : 1;
+			} else {
+				return a['x-meditor'].modifiedOn > b['x-meditor'].modifiedOn ? -1 : 1;
+			}
+		});
 	}
 
+	selectAndChange(modelName: any) {
+		this.store.dispatch(new GetModel({ name: modelName }));
+		this.store.dispatch(new Go({ path: '/search', query: { model: modelName}}));
+	}
+
+	addNewDocument(event: string) {
+		this.store.dispatch(new UpdateWorkflowState(event));
+		this.store.dispatch(new Go({ path: '/document/new', query: { model: this.selectedModelName }}));
+	}
+
+	loadDocument(event: {title: string, state: string}) {
+		this.store.dispatch(new UpdateWorkflowState(event.state));
+		this.store.dispatch(new Go({ path: '/document/edit', query: { model: this.selectedModelName, title: event.title }}));
+	}
 }
+

@@ -27,5 +27,5 @@ export interface ModelXmeditor {
     /**
      * Number of documents belonging to the model
      */
-    count?: string;
+    count?: number;
 }
