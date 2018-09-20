@@ -1,7 +1,6 @@
 import { State, Action, StateContext, Selector, Store } from '@ngxs/store';
 import { Model, ModelCatalogEntry, DocCatalogEntry} from 'app/service/model/models';
 import { DefaultService } from 'app/service/api/default.service';
-import { Cache } from 'app/store/cache/cache.decorator';
 import * as actions from './model.actions';
 import * as workflowactions from 'app/store/workflow/workflow.actions';
 import { tap } from 'rxjs/operators';
@@ -9,7 +8,6 @@ import { tap } from 'rxjs/operators';
 export * from './model.actions';
 
 export interface ModelStateModel {
-	loading: boolean;
 	models: ModelCatalogEntry[];
 	currentModel: Model;
 	currentModelDocuments: DocCatalogEntry[];
@@ -18,18 +16,12 @@ export interface ModelStateModel {
 @State<ModelStateModel>({
 	name: 'models',
 	defaults: {
-		loading: false,
 		models: [],
 		currentModel: undefined,
-		currentModelDocuments: undefined,
+		currentModelDocuments: [],
 	},
 })
 export class ModelState {
-
-	@Selector()
-	static loading(state: ModelStateModel): boolean {
-		return state.loading;
-	}
 
 	@Selector()
 	static models(state: ModelStateModel): ModelCatalogEntry[] {
@@ -54,46 +46,47 @@ export class ModelState {
 
 	constructor(private store: Store, private service: DefaultService) {}
 
-	@Cache()
 	@Action(actions.GetAllModels)
-	getAllModels({ patchState }: StateContext<ModelStateModel>) {
-		patchState({ loading: true, });
+	getAllModels({ patchState, getState }: StateContext<ModelStateModel>, { payload }: actions.GetAllModels) {
+		const models: any = getState().models;
+		const useCache: boolean = models.length && !payload.reload;
+		
+		const getAllModelsCallback = (models: any) => {
+			patchState({ models });
+		};
 
-		return this.service.listModels()
-			.pipe(tap((models: ModelCatalogEntry[]) => patchState({
-				models,
-				loading: false,
-			})))
+		if (useCache) {
+			return getAllModelsCallback(models);
+		} else {
+			return this.service.listModels()
+				.pipe(tap(getAllModelsCallback));
+		}
 	}
 
-	@Cache('payload.name')
 	@Action(actions.GetModel)
 	getModel({ patchState, getState, dispatch }: StateContext<ModelStateModel>, { payload }: actions.GetModel) {
-		patchState({ loading: true, });
+		const model: any = getState().currentModel;
+		const useCache: boolean = model && model.name === payload.name && !payload.reload;
 
-		return this.service.getModel(payload.name)
-			.pipe(
-				tap((model: Model) => {
-					dispatch(new workflowactions.GetWorkflow({title: model.workflow}));
-					patchState({
-						//models: [...getState().models, model],
-						currentModel: model,
-						loading: false,
-					});
-				}),
-			);
+		const getModelCallback = (model: any) => {
+			patchState({ currentModel: model });
+		};
+
+		if (useCache) {
+			return getModelCallback(model);
+		} else {
+			return this.service.getModel(payload.name)
+				.pipe(tap(getModelCallback));
+		}
 	}
 
 	@Action(actions.GetModelDocuments)
 	getModelDocuments({ patchState, getState }: StateContext<ModelStateModel>) {
 		if (!getState().currentModel) { throw new Error('No selected model'); }
 
-		patchState({ loading: true, });
-
 		return this.service.listDocuments(getState().currentModel.name)
 			.pipe(tap((currentModelDocuments: DocCatalogEntry[]) => patchState({
 				currentModelDocuments,
-				loading: false,
 			})));
 	}
 

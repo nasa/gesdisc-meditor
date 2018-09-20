@@ -1,5 +1,8 @@
 <div>
-	<a [routerLink]="['/document/edit']" [queryParams]="{ title : result.title, model: model.name }">{{result.title}}</a>
+	<a (click)="loadDocument.emit({title: result.title, state: result['x-meditor'].state})" href="javascript:;">{{result.title}}</a>
+	<mat-chip-list class="state-chip">
+		<mat-chip [disabled]="true">{{result['x-meditor'].state}}</mat-chip>
+	</mat-chip-list>
 </div>
 <div class="author-status">
 	{{result['x-meditor'].modifiedOn | date:'short'}} by {{ result['x-meditor'].modifiedBy }}

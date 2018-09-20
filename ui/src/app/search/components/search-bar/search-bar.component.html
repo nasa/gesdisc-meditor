@@ -1,26 +1,34 @@
-<div class="search-bar-container">
-	<mat-select class="search-bar-select" (selectionChange)="selectionChanged.emit(modelControl.value.name)" [formControl]="modelControl">	
-		<mat-select-trigger>
-			<span *ngIf="modelControl.value">
-				<i class="icon-badge icon-badge-xs icon-badge-inline fa {{modelControl.value.icon?.name}} align-middle mat-elevation-z0"
-					[style.background-color]="modelControl.value.icon?.color"></i>
-				{{modelControl.value?.name}}
-			</span>
-		</mat-select-trigger>		
 
-		<mat-option *ngFor="let model of models" [value]="model">
-			<i class="icon-badge icon-badge-xs fa {{model.icon?.name}} align-middle mat-elevation-z0"
-				[style.background-color]="model.icon?.color"></i>
-			{{model.name}}
-		</mat-option>
-	</mat-select>
+<!-- <div class="search-bar-container">
+		<mat-select class="search-bar-select" [formControl]="topping">
+			<mat-select-trigger>
+					{{topping.value}}
+			</mat-select-trigger>
+			<mat-option *ngFor="let topping of toppingList" [value]="topping">{{topping}}</mat-option>
+		</mat-select>
+	</div> -->
+	
+<div class="search-bar-container">
+		<mat-select class="search-bar-select" (selectionChange)="selectionChanged.emit(modelcontrol.value.name)" [formControl]="modelcontrol">	
+			<mat-select-trigger>		
+				<i class="icon-badge icon-badge-xs icon-badge-inline fa {{modelcontrol.value.icon?.name}} align-middle mat-elevation-z0"
+					[style.background-color]="modelcontrol.value.icon?.color"></i>
+				{{modelcontrol.value?.name}}
+			</mat-select-trigger>		
+
+			<mat-option *ngFor="let model of models" [value]="model">
+				<i class="icon-badge icon-badge-xs fa {{model.icon?.name}} align-middle mat-elevation-z0"
+					[style.background-color]="model.icon?.color"></i>
+				{{model.name}}
+			</mat-option>
+		</mat-select>
 
 	<input 
 		matInput
 		type="text" 
 		name="search"
 		class="search-bar-input"  
-		[placeholder]="'Search ' + modelControl.value?.name + ' for...'" 
+		[placeholder]="'Search ' + modelcontrol.value?.name + ' for...'" 
 		[(ngModel)]="query" 
 		(input)="onSearchChange()"
 	>

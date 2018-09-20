@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { DocCatalogEntry } from '../../../service/model/docCatalogEntry';
 import { ModelCatalogEntry } from '../../../service/model/modelCatalogEntry';
 
@@ -11,6 +11,8 @@ export class SearchResultListComponent implements OnInit {
 
 	@Input() results: DocCatalogEntry[];
 	@Input() model: ModelCatalogEntry;
+
+	@Output() loadDocument = new EventEmitter<string>();
 
 	constructor() { }
 

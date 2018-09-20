@@ -1,12 +1,13 @@
 import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
-import { map, tap } from 'rxjs/operators';
+import { map, tap, withLatestFrom } from 'rxjs/operators';
 import * as _ from 'underscore';
 import { Observable } from 'rxjs/Observable';
 import { Store, Select } from '@ngxs/store';
 import { GetModel, GetModelDocuments } from 'app/store/model/model.state';
+import { UpdateWorkflowState } from 'app/store/workflow/workflow.state';
 import { Go } from 'app/store/router/router.state';
-import { ModelCatalogEntry, DocCatalogEntry } from 'app/service/model/models';
-import { AuthState, ModelState } from 'app/store/';
+import { ModelCatalogEntry, DocCatalogEntry, Edge } from 'app/service/model/models';
+import { AuthState, ModelState, WorkflowState } from 'app/store';
 
 @Component({
 	selector: 'med-search-page',
@@ -20,6 +21,7 @@ export class SearchPageComponent implements OnInit {
 	@Select(ModelState.currentModel) selectedModel$: Observable<ModelCatalogEntry>;
 	@Select(ModelState.currentModelDocuments) selectedModelDocuments$: Observable<DocCatalogEntry[]>;
 	@Select(AuthState.userPrivileges) userPrivileges$: Observable<string[]>;
+	@Select(WorkflowState.currentEdges) currentEdges$: Observable<Edge[]>;
 
 	filteredDocuments$: Observable<DocCatalogEntry[]>;
 	selectedModelName: string;
@@ -76,8 +78,14 @@ export class SearchPageComponent implements OnInit {
 		this.store.dispatch(new Go({ path: '/search', query: { model: modelName}}));
 	}
 
-	addNewDocument() {
+	addNewDocument(event: string) {
+		this.store.dispatch(new UpdateWorkflowState(event));
 		this.store.dispatch(new Go({ path: '/document/new', query: { model: this.selectedModelName }}));
+	}
+
+	loadDocument(event: {title: string, state: string}) {
+		this.store.dispatch(new UpdateWorkflowState(event.state));
+		this.store.dispatch(new Go({ path: '/document/edit', query: { model: this.selectedModelName, title: event.title }}));
 	}
 }
 

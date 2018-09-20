@@ -1,20 +1,20 @@
 import { Routes } from '@angular/router';
-import { DocumentResolver, ModelResolver } from 'app/store/resolvers/';
+import { ModelResolver, DocEditResolver, } from 'app/store/resolvers/';
 import { DocEditPageComponent } from './containers/docedit/docedit-page.component';
 import { DocNewPageComponent } from './containers/docnew/docnew-page.component';
 
 export const routes: Routes = [
-	{ 
-		path: 'new', 
+	{
+		path: 'new',
 		resolve: {
 			model: ModelResolver,
 		},
 		component: DocNewPageComponent,
-	}, { 
-		path: 'edit', 
+	},
+	{
+		path: 'edit',
 		resolve: {
-			document: DocumentResolver,
-			model: ModelResolver,
+			docedit: DocEditResolver
 		},
 		component: DocEditPageComponent,
 	}

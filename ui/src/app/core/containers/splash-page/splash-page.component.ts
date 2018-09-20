@@ -13,7 +13,7 @@ import { AuthState, GetUser } from 'app/store/auth/auth.state';
 	templateUrl: './splash-page.component.html',
 	styleUrls: ['./splash-page.component.css']
 })
-export class SplashPageComponent implements OnInit{
+export class SplashPageComponent implements OnInit {
 
 	@Select(ModelState.models) models$: Observable<ModelCatalogEntry[]>;
 	@Select(ModelState.currentModel) model$: Observable<Model>;

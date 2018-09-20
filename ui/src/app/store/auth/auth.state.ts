@@ -44,7 +44,7 @@ export class AuthState {
 			private router: Router) {}
 
 		@Action(actions.GetUser)
-			getUser({ patchState, getState, dispatch }: StateContext<AuthStateModel>, action: actions.GetUser) {
+			getUser({ dispatch }: StateContext<AuthStateModel>, action: actions.GetUser) {
 				return this.service.getMe()
 					.pipe(
 						tap((user: any) => {
@@ -61,27 +61,31 @@ export class AuthState {
 				const nodeprivileges = this.store.selectSnapshot(WorkflowState.currentNodePrivileges);
 				const currentUserRoles = _.pluck(userroles.filter((role: any) => role.model === modelname), 'role');
 				_.each(currentUserRoles, function(role) {
-					privileges = _.union(privileges, _.findWhere(nodeprivileges, {'role': role}).privilege);
+					let nodePrivilege = _.findWhere(nodeprivileges, {'role': role})
+
+					if (nodePrivilege) {
+						privileges = _.union(privileges, nodePrivilege.privilege);
+					}
 				});
 				patchState({privileges: privileges});
 		}
 
 		@Action(actions.LoginSuccess)
-			loginSuccess({ patchState, getState, dispatch }: StateContext<AuthStateModel>, { payload }: actions.LoginSuccess) {
+			loginSuccess({ patchState,  dispatch }: StateContext<AuthStateModel>, { payload }: actions.LoginSuccess) {
 				patchState({ user: payload, loggedIn: true });
 				this.router.navigateByUrl(localStorage.getItem('returnUrl') || '/');
 				return dispatch(new notification.SuccessNotificationOpen('You have successfully logged in'));
 		}
 
 		@Action(actions.Logout)
-			logout({ patchState, getState }: StateContext<AuthStateModel>, { }: actions.Logout) {
+			logout({ patchState }: StateContext<AuthStateModel>, { }: actions.Logout) {
 				patchState({ user: null, loggedIn: false });
 				this.router.navigate(['/']);
 		}
 
 		@Action(actions.OpenLoginDialog)
-			openLoginDialog({ patchState, getState }: StateContext<AuthStateModel>, { }: actions.OpenLoginDialog) {
-				const dialogRef = this.dialog.open(LoginDialog, {
+			openLoginDialog() {
+				this.dialog.open(LoginDialog, {
 					width: '400px',
 					position: { top: '200px' },
 					disableClose: true

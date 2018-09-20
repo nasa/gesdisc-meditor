@@ -1,25 +1,26 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Edge } from 'app/service';
 
 @Component({
-  selector: 'med-search-status',
-  templateUrl: './search-status.component.html',
-  styleUrls: ['./search-status.component.css']
+	selector: 'med-search-status',
+	templateUrl: './search-status.component.html',
+	styleUrls: ['./search-status.component.css']
 })
 export class SearchStatusComponent implements OnInit {
 
 	@Input() filteredCount: number;
 	@Input() resultCount: number;
-  @Input() modelName: string;
-  @Input() canAddNew: boolean;
-  @Input() addNewLabel: string;
-  @Output() addNew = new EventEmitter();
-  @Output() sortByChanged = new EventEmitter();
+	@Input() modelName: string;
+	@Input() actions: Edge[];
+	@Input() privileges: string[];
+	@Output() addNew = new EventEmitter<string>();
+	@Output() sortByChanged = new EventEmitter();
 
-	sortBy: string = 'newest';
+	sortBy = 'newest';
 
-  constructor() { }
+	constructor() { }
 
-  ngOnInit() {
-  }
+	ngOnInit() {
+	}
 
 }

@@ -31,16 +31,20 @@
 						<button mat-mini-fab (click)="showDocumentHistory()">
 							<mat-icon>history</mat-icon>
 						</button>
-					</div>
-					
-					<div *ngIf="document$ | async as document">
-						<med-document-edit
-							[document]="document"
-							(submitDocument)="submitDocument($event)">
-						</med-document-edit>
-						
-						<button mat-raised-button>Send for Review</button>
-					</div>
+					</div>							
+					<med-document-edit 
+						[class.readonly-doc]="!(userPrivileges$ | async).includes('edit')"
+						[document]="document$ | async"
+						(liveData)="liveData($event)"
+						(isValid)="isValid($event)">
+					</med-document-edit>
+					<med-document-actions
+						[canEdit]="(userPrivileges$ | async).includes('edit')"
+						[canSave]="isFormValid"
+						[actions]="edges$ | async" 
+						(saveDocument)="saveDocument()"
+						(updateState)="updateState($event)">
+					</med-document-actions>	
 				</mat-card-content>
 			</mat-sidenav-content>
 		</mat-sidenav-container>

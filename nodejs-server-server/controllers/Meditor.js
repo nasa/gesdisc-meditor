@@ -39,14 +39,25 @@ function getSwaggerParams(request) {
   return params;
 }
 
+function handleResponse(response, res, defaultStatus, defaultMessage) {
+  var status = res.status || defaultStatus;
+  var result = res;
+  if (_.isNil(res)) result = defaultMessage;
+  if (_.isObject(res) && _.get(res, 'message', null) !== null) result = res.message;
+  if (_.isString(result)) {
+    result = {code: status, description: result};
+  };
+  utils.writeJson(response, result, status);
+}
+
 function handleError(response, err) {
   console.log('Error: ', err);
-  utils.writeJson(response, {code: err.status || 500, message: err.message || 'Unknown error '}, err.status || 500);
+  handleResponse(response, err, 500, 'Unknown error');
 };
 
 function handleSuccess(response, res) {
-  utils.writeJson(response, res && 'message' in res ? res.message : res, 200);
-}
+  handleResponse(response, res, 200, 'Success');
+};
 
 // Builds aggregation pipeline query for a given model (common starting point for most API functions)
 function getDocumentAggregationQuery(meta) {
@@ -55,13 +66,17 @@ function getDocumentAggregationQuery(meta) {
   var defaultStateName = "Unspecified";
   var defaultState = {target: defaultStateName, source: defaultStateName, modifiedOn: (new Date()).toISOString()};
   meta.sourceStates.push("Unspecified");
+  // need a second match
+  // $not: {$and: {'x-meditor.modifiedBy': meta.user.uid, 'x-meditor.state': {$in: exclusiveStates}}}
+  // if (!_.isEmpty(meta.user.uid)) filterQuery['x-meditor.modifiedBy'] = {$ne: meta.user.uid};
   query = [
     {$addFields: {'x-meditor.states': { $ifNull: [ "$x-meditor.states", [defaultState] ] }}}, // Add default state on docs with no state
     {$addFields: {'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}}}, // Find last state
+    {$addFields: {'bannedTransition': {"$eq" : [{$cond: {if: {$in: ['$x-meditor.state', meta.exclusiveStates]}, then: meta.user.uid, else: '' }}, '$x-meditor.modifiedBy']}}}, // This computes whether a user can transition the edge if he is the modifiedBy of the current state 
     {$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
     {$group: {_id: '$' + meta.titleProperty, doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version
     {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
-    {$match: {'x-meditor.state': {$in: meta.sourceStates}}} // Filter states based on the role's source states
+    {$match: {'x-meditor.state': {$in: meta.sourceStates}, 'bannedTransition': false}}, // Filter states based on the role's source states
   ];
   // Build up search query if search params are available
   if ('title' in meta.params) searchQuery[meta.titleProperty] =  meta.params.title;
@@ -87,7 +102,9 @@ function getDocumentModelMetadata(dbo, request, paramsExtra) {
   var that = {
     params: _.assign(getSwaggerParams(request), paramsExtra),
     roles: _.get(request, 'user.roles', {}),
-    dbo: dbo
+    dbo: dbo,
+    user: request.user || {},
+    exclusiveStates: ['Under Review']
   };
   // TODO Useful for dubugging
   // that.roles = [ 
@@ -528,9 +545,9 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
     .then(res => res[0])
     .then(function(res) {
       var newStatesArray;
-      if (_.isEmpty(res)) throw {message: 'Document not found', satus: 400};
-      if (that.params.state === res['x-meditor']['state']) throw {message: 'Can not transition to state [' + that.params.state + '] since it is the current state already', satus: 400};
-      if (that.targetStates.indexOf(that.params.state) === -1) throw {message: 'Can not transition to state [' + that.params.state + '] - invalid state or insufficient rights', satus: 400};
+      if (_.isEmpty(res)) throw {message: 'Document not found', status: 400};
+      if (that.params.state === res['x-meditor']['state']) throw {message: 'Can not transition to state [' + that.params.state + '] since it is the current state already', status: 400};
+      if (that.targetStates.indexOf(that.params.state) === -1) throw {message: 'Can not transition to state [' + that.params.state + '] - invalid state or insufficient rights', status: 400};
       newStatesArray = res['x-meditor'].states;
       newStatesArray.push({
         source: res['x-meditor'].state,
@@ -542,7 +559,7 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
         .collection(that.params.model)
         .update({_id: res._id}, {$set: {'x-meditor.states': newStatesArray}});
     })
-    .then(res => (that.dbo.close(), handleSuccess(response, "Success")))
+    .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .catch(err => {
       handleError(response, err);
     });
