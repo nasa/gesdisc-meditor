@@ -12,7 +12,7 @@ export class SearchResultComponent implements OnInit {
 	@Input() result: DocCatalogEntry;
 	@Input() model: ModelCatalogEntry;
 
-	@Output() loadDocument = new EventEmitter<string>();
+	@Output() loadDocument = new EventEmitter<any>();
 
 	constructor() { }
 
