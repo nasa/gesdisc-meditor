@@ -7,7 +7,7 @@ import { GetModel, GetModelDocuments } from 'app/store/model/model.state';
 import { UpdateWorkflowState, GetWorkflow } from 'app/store/workflow/workflow.state';
 import { GetUserPrivileges } from 'app/store/auth/auth.state';
 import { Go } from 'app/store/router/router.state';
-import { ModelCatalogEntry, DocCatalogEntry, Edge } from 'app/service/model/models';
+import { ModelCatalogEntry, DocCatalogEntry, Edge, Model } from 'app/service/model/models';
 import { AuthState, ModelState, WorkflowState } from 'app/store';
 
 @Component({
@@ -19,7 +19,7 @@ import { AuthState, ModelState, WorkflowState } from 'app/store';
 export class SearchPageComponent implements OnInit {
 
 	@Select(ModelState.models) models$: Observable<ModelCatalogEntry[]>;
-	@Select(ModelState.currentModel) selectedModel$: Observable<ModelCatalogEntry>;
+	@Select(ModelState.currentModel) selectedModel$: Observable<Model>;
 	@Select(ModelState.currentModelDocuments) selectedModelDocuments$: Observable<DocCatalogEntry[]>;
 	@Select(AuthState.userPrivileges) userPrivileges$: Observable<string[]>;
 	@Select(WorkflowState.currentEdges) currentEdges$: Observable<Edge[]>;
@@ -34,7 +34,7 @@ export class SearchPageComponent implements OnInit {
 		this.selectedModelDocuments$.subscribe(this.selectedModelDocumentsChanged.bind(this));
 	}
 
-	selectedModelChanged(model: ModelCatalogEntry) {
+	selectedModelChanged(model: Model) {
 		if (this.selectedModelName === model.name) { return; }
 
 		this.selectedModelName = model.name;
