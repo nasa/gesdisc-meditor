@@ -65,7 +65,7 @@ function getDocumentAggregationQuery(meta) {
   var query;
   var defaultStateName = "Unspecified";
   var defaultState = {target: defaultStateName, source: defaultStateName, modifiedOn: (new Date()).toISOString()};
-  meta.sourceStates.push("Unspecified");
+  var returnableStates = _.concat(meta.sourceStates, meta.readyNodes, ["Unspecified"]);
   // need a second match
   // $not: {$and: {'x-meditor.modifiedBy': meta.user.uid, 'x-meditor.state': {$in: exclusiveStates}}}
   // if (!_.isEmpty(meta.user.uid)) filterQuery['x-meditor.modifiedBy'] = {$ne: meta.user.uid};
@@ -76,7 +76,7 @@ function getDocumentAggregationQuery(meta) {
     {$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
     {$group: {_id: '$' + meta.titleProperty, doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version
     {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
-    {$match: {'x-meditor.state': {$in: meta.sourceStates}, 'bannedTransition': false}}, // Filter states based on the role's source states
+    {$match: {'x-meditor.state': {$in: returnableStates}, 'bannedTransition': false}}, // Filter states based on the role's source states
   ];
   // Build up search query if search params are available
   if ('title' in meta.params) searchQuery[meta.titleProperty] =  meta.params.title;
@@ -139,6 +139,7 @@ function getDocumentModelMetadata(dbo, request, paramsExtra) {
     .then(res => {
       if (_.isEmpty(res)) throw {message: 'Workflow for ' + that.params.model + ' not found', status: 400};
       that.workflow = res[0];
+      that.readyNodes = _(that.workflow.nodes).pickBy({readyForUse: true}).map('id').value();
       that.sourceStates = _(that.workflow.edges)
         .filter(function(e) {return that.modelRoles.indexOf(e.role) !== -1;})
         .map('source').uniq().value();
