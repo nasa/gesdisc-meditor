@@ -16,7 +16,7 @@ import { AuthState, GetUser } from 'app/store/auth/auth.state';
 export class SplashPageComponent implements OnInit {
 
 	@Select(ModelState.models) models$: Observable<ModelCatalogEntry[]>;
-	@Select(ModelState.currentModel) model$: Observable<Model>;
+	// @Select(ModelState.currentModel) model$: Observable<Model>;
 	@Select(ModelState.categories) categories$: Observable<string[]>;
 	@Select(AuthState.loggedIn) loggedIn$: Observable<boolean>;
 
