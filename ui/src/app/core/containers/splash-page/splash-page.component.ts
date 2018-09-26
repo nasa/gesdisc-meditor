@@ -26,12 +26,16 @@ export class SplashPageComponent implements OnInit {
 
 	ngOnInit () {
 		localStorage.clear();
-		this.loggedIn$.subscribe(loggedIn => {
-			if (!loggedIn) { this.store.dispatch(new GetUser()); }
-		});
+		this.loggedIn();
 	}
 
 	goToSearchPage(event: any) {
 		this.store.dispatch(new Go({path: '/search', query: { model: event.name}}));
+	}
+
+	loggedIn() {
+		this.loggedIn$.subscribe(loggedIn => {
+			if (!loggedIn) { this.store.dispatch(new GetUser()); }
+		});
 	}
 }

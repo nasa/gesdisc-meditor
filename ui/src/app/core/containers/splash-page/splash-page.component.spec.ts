@@ -1,17 +1,20 @@
 import { ComponentFixture, TestBed, async, ComponentFixtureAutoDetect} from '@angular/core/testing';
-import { RouterTestingModule,  } from '@angular/router/testing';
-import { NgxsModule, Store } from '@ngxs/store';
-import { of } from 'rxjs';
+import { RouterTestingModule  } from '@angular/router/testing';
+import { NgxsModule, Store, Actions, ofActionDispatched } from '@ngxs/store';
+import { of, pipe } from 'rxjs';
 import { SplashPageComponent } from './splash-page.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatCardModule, MatButtonModule } from '@angular/material';
 import { PipesModule } from 'app/shared/pipes';
+import { GetUser, LoginSuccess, GetUserPrivileges } from 'app/store/auth/auth.actions';
 import { ModelButtonComponent } from '../../components/model-button/model-button.component';
+import { doesNotThrow } from 'assert';
 
 describe('Search Page', () => {
 	let fixture: ComponentFixture<SplashPageComponent>;
-	// let store: Store;
+	let store: Store;
 	let component: SplashPageComponent;
+	let actions$: Observable<any>;
 
 	beforeEach(() => {
 		TestBed.configureTestingModule({
@@ -118,16 +121,42 @@ describe('Search Page', () => {
 
 		fixture = TestBed.createComponent(SplashPageComponent);
 		component = fixture.componentInstance;
+
 		Object.defineProperty(component, 'categories$', { writable: true });
+		Object.defineProperty(component, 'models$', { writable: true });
+		Object.defineProperty(component, 'loggedIn$', { writable: true });
 		component.categories$ = of(['Admin', 'GESDISC']);
-		const store = TestBed.get(Store);
+		component.models$ = of(initialState.models);
+		component.loggedIn$ = of(initialState.auth.loggedIn);
+
+		store = TestBed.get(Store);
+		actions$ = TestBed.get(Actions);
 		store.reset(initialState);
+
+		// spyOn(component, 'loggedIn');
+
+		spyOn(store, 'dispatch').and.callThrough();
+
 		fixture.detectChanges();
 	});
 
-	it('should compile', () => {
-		expect(fixture).toMatchSnapshot();
+	// TODO find a proper way to spy on dispatched actions, code below doesn't seems to be working.
 
-		component.categories$.subscribe(t => { console.log(t); });
+	it('should compile and call loggedIn func on init', () => {
+		expect(fixture).toMatchSnapshot();
+		const getUser = new GetUserPrivileges();
+		console.log(getUser);
+    component.loggedIn();
+    expect(store.dispatch).toHaveBeenCalledWith([getUser]);
+		
+		// component.ngOnInit();
+		// expect(component.loggedIn).toHaveBeenCalled();
+		// component.loggedIn();
+		// actions$.pipe(ofActionDispatched(GetUser))
+		// 	.subscribe((actions) => {
+		// 		console.log(actions);
+		// 		expect(actions).toBeTruthy();
+		// 		done();
+		// 	});
 	});
 });
