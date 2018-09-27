@@ -32,6 +32,7 @@ export class SearchPageComponent implements OnInit {
 	ngOnInit() {
 		this.selectedModel$.subscribe(this.selectedModelChanged.bind(this));
 		this.selectedModelDocuments$.subscribe(this.selectedModelDocumentsChanged.bind(this));
+		this.sortByChanged('newest');
 	}
 
 	selectedModelChanged(model: Model) {
