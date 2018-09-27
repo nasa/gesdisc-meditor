@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CallbackComponent should create callback component 1`] = `
+<med-callback
+  code="undefined"
+  route={[Function ActivatedRoute]}
+>
+  <div
+    fxfill=""
+    fxlayout="row"
+    fxlayout.lt-lg="column"
+    fxlayoutalign="center center"
+  >
+    <h3>
+      Please wait
+    </h3>
+  </div>
+</med-callback>
+`;

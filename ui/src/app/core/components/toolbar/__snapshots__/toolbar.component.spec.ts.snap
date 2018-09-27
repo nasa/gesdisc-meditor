@@ -1,0 +1,60 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ToolbarComponent should compile toolbar 1`] = `
+<med-toolbar>
+  <mat-toolbar
+    class="med-toolbar mat-toolbar mat-toolbar-single-row"
+  >
+    <img
+      class="logo"
+      routerlink="/"
+      src="assets/logo.png"
+    />
+    <span
+      class="spacer"
+    />
+    <med-login-status />
+    <button
+      class="tb-button"
+      mat-button=""
+      routerlink="/"
+    >
+      <mat-icon
+        aria-hidden="true"
+        class="mat-icon material-icons"
+        role="img"
+      >
+        home
+      </mat-icon>
+       Home 
+    </button>
+    <a
+      class="tb-button"
+      href="mailto:mahabaleshwa.s.hegde@nasa.gov"
+      mat-button=""
+    >
+      <mat-icon
+        aria-hidden="true"
+        class="mat-icon material-icons"
+        role="img"
+      >
+        feedback
+      </mat-icon>
+       Feedback 
+    </a>
+    <button
+      class="tb-button"
+      mat-button=""
+    >
+      <mat-icon
+        aria-hidden="true"
+        class="mat-icon material-icons"
+        role="img"
+      >
+        help
+      </mat-icon>
+       Help 
+    </button>
+  </mat-toolbar>
+</med-toolbar>
+`;

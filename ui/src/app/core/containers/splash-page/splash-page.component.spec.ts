@@ -1,20 +1,17 @@
-import { ComponentFixture, TestBed, async, ComponentFixtureAutoDetect} from '@angular/core/testing';
+import { ComponentFixture, TestBed, ComponentFixtureAutoDetect} from '@angular/core/testing';
 import { RouterTestingModule  } from '@angular/router/testing';
-import { NgxsModule, Store, Actions, ofActionDispatched } from '@ngxs/store';
-import { of, pipe } from 'rxjs';
+import { NgxsModule, Store, } from '@ngxs/store';
+import { of } from 'rxjs';
 import { SplashPageComponent } from './splash-page.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatCardModule, MatButtonModule } from '@angular/material';
 import { PipesModule } from 'app/shared/pipes';
-import { GetUser, LoginSuccess, GetUserPrivileges } from 'app/store/auth/auth.actions';
 import { ModelButtonComponent } from '../../components/model-button/model-button.component';
-import { doesNotThrow } from 'assert';
 
 describe('Search Page', () => {
 	let fixture: ComponentFixture<SplashPageComponent>;
 	let store: Store;
 	let component: SplashPageComponent;
-	let actions$: Observable<any>;
 
 	beforeEach(() => {
 		TestBed.configureTestingModule({
@@ -130,12 +127,9 @@ describe('Search Page', () => {
 		component.loggedIn$ = of(initialState.auth.loggedIn);
 
 		store = TestBed.get(Store);
-		actions$ = TestBed.get(Actions);
 		store.reset(initialState);
 
-		// spyOn(component, 'loggedIn');
-
-		spyOn(store, 'dispatch').and.callThrough();
+		spyOn(component, 'loggedIn').and.callThrough();
 
 		fixture.detectChanges();
 	});
@@ -144,19 +138,7 @@ describe('Search Page', () => {
 
 	it('should compile and call loggedIn func on init', () => {
 		expect(fixture).toMatchSnapshot();
-		const getUser = new GetUserPrivileges();
-		console.log(getUser);
-    component.loggedIn();
-    expect(store.dispatch).toHaveBeenCalledWith([getUser]);
-		
-		// component.ngOnInit();
-		// expect(component.loggedIn).toHaveBeenCalled();
-		// component.loggedIn();
-		// actions$.pipe(ofActionDispatched(GetUser))
-		// 	.subscribe((actions) => {
-		// 		console.log(actions);
-		// 		expect(actions).toBeTruthy();
-		// 		done();
-		// 	});
+		component.ngOnInit();
+		expect(component.loggedIn).toHaveBeenCalled();
 	});
 });

@@ -4,6 +4,7 @@ exports[`Search Page should compile and call loggedIn func on init 1`] = `
 <med-splash-page
   __categories$__selector={[Function Observable]}
   __loggedIn$__selector={[Function Observable]}
+  loggedIn={[Function Function]}
   store={[Function Store]}
 >
   <mat-card

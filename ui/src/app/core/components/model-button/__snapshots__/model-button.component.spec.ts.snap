@@ -6,7 +6,7 @@ exports[`ModelButtonComponent with mock data should compile minimum input + icon
   model={[Function Object]}
 >
   <button
-    class="mat-raised-button mat-primary"
+    class="mat-raised-button mat-primary _mat-animation-noopable"
     color="primary"
     fxflex="120px"
     mat-raised-button=""
@@ -49,7 +49,7 @@ exports[`ModelButtonComponent with mock data should compile with minimum input (
   model={[Function Object]}
 >
   <button
-    class="mat-raised-button mat-primary"
+    class="mat-raised-button mat-primary _mat-animation-noopable"
     color="primary"
     fxflex="120px"
     mat-raised-button=""
