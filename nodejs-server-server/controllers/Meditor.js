@@ -12,7 +12,6 @@ var GridStream = require('gridfs-stream');
 var jsonpath = require('jsonpath');
 var macros = require('./Macros.js');
 
-
 var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
 var DbName = "meditor";
 
@@ -37,6 +36,13 @@ function getSwaggerParams(request) {
     params[property] = request.swagger.params[property].value;
   }
   return params;
+}
+
+// Converts dictionary params back into URL params
+function serializeParams(params, keys) {
+  return _(params)
+  .pickBy(function(val,key) {return (!!keys ? keys.indexOf(key) !== -1 : true) && !_.isNil(val);})
+  .map(function(val, key) {return key + "=" + encodeURIComponent(val);}).value().join('&')
 }
 
 function handleResponse(response, res, defaultStatus, defaultMessage) {
@@ -399,6 +405,14 @@ function getImage(model, title, version, res) {
   });
 };
 
+function scheduleNotification(dbo, notification) {
+  var notificationFinal = _.cloneDeep(notification);
+  _.assign(notificationFinal, {"x-meditor": {
+    "createdOn": (new Date()).toISOString()
+  }});
+  return dbo.db(DbName).collection('notifications').insertOne(notification);
+};
+
 module.exports.getDocumentImage = function getDocumentImage (req, res, next) {
   var params = getSwaggerParams(req);
   getImage(params.model, params.title, params.version, res)
@@ -549,17 +563,28 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
       if (_.isEmpty(res)) throw {message: 'Document not found', status: 400};
       if (that.params.state === res['x-meditor']['state']) throw {message: 'Can not transition to state [' + that.params.state + '] since it is the current state already', status: 400};
       if (that.targetStates.indexOf(that.params.state) === -1) throw {message: 'Can not transition to state [' + that.params.state + '] - invalid state or insufficient rights', status: 400};
+      that.document = res;
       newStatesArray = res['x-meditor'].states;
       newStatesArray.push({
         source: res['x-meditor'].state,
         target: that.params.state,
         modifiedOn: (new Date()).toISOString()
       });
+      console.log(that.user);
       return that.dbo
         .db(DbName)
         .collection(that.params.model)
         .update({_id: res._id}, {$set: {'x-meditor.states': newStatesArray}});
     })
+    .then(res => {scheduleNotification(that.dbo, {
+      "to": [ "maha.hegde@nasa.gov", "maksym.petrenko@nasa.gov" ],
+      "subject": "New " + that.params.model + " has been created and ready for review",
+      "body": "New " + that.params.model + " has been created by " + that.user.firstName + ' ' + that.user.lastName + ". Review requested.",
+      "link": {
+          label: that.params.title,
+          "url": process.env.APP_URL + "/api/getDocument?" + serializeParams(that.params, ['title', 'model', 'version'])
+      }
+    })})
     .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .catch(err => {
       handleError(response, err);
