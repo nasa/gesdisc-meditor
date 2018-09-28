@@ -405,14 +405,6 @@ function getImage(model, title, version, res) {
   });
 };
 
-function scheduleNotification(dbo, notification) {
-  var notificationFinal = _.cloneDeep(notification);
-  _.assign(notificationFinal, {"x-meditor": {
-    "createdOn": (new Date()).toISOString()
-  }});
-  return dbo.db(DbName).collection('notifications').insertOne(notification);
-};
-
 module.exports.getDocumentImage = function getDocumentImage (req, res, next) {
   var params = getSwaggerParams(req);
   getImage(params.model, params.title, params.version, res)
@@ -539,6 +531,52 @@ module.exports.getDocument = function listDocuments (request, response, next) {
     });
 };
 
+function notifyOfStateChange(meta) {
+  var that = {};
+  var targetEdges = _(meta.workflow.edges).filter(function(e) {return e.source === meta.params.state;}).uniq().value();
+  var targetNodes = _(targetEdges).map('target').uniq().value();
+  var targetRoles = _(targetEdges).map('role').uniq().value();
+  var notification = {
+    "to": [ "maha.hegde@nasa.gov", "maksym.petrenko@nasa.gov" ],
+    "subject": meta.params.model + " document is now " + meta.params.state,
+    "body":
+      "An " + meta.params.model + " document has been marked by " + meta.user.firstName + ' ' + meta.user.lastName +
+      " as [" + meta.params.state + "]. An action is required to transition the document to [" + targetNodes.join(', ') + "].",
+    "link": {
+        label: meta.params.title,
+        "url": process.env.APP_URL + "/api/getDocument?" + serializeParams(meta.params, ['title', 'model', 'version'])
+    },
+    "createdOn": (new Date()).toISOString()
+  };
+  return Promise.resolve()
+    .then(function() {
+      return meta.dbo
+        .db(DbName)
+        .collection('Users')
+        .aggregate(
+          [{$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
+          {$group: {_id: '$id', doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version
+          {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
+          {$unwind: '$roles'},
+          {$match: {'roles.model': meta.params.model, 'roles.role': {$in: targetRoles}}},
+          {$group: {_id: null, ids: {$addToSet: "$id"}}}
+        ])
+        .toArray();
+    })
+    .then(function(users) {
+      return meta.dbo
+        .db(DbName)
+        .collection('users-urs')
+        .find({uid: {$in: users[0].ids}})
+        .project({_id:0, emailAddress: 1, firstName: 1, lastName: 1})
+        .toArray();
+    })
+    .then(users => {
+      notification.to = users.map(u => '"'+ u.firstName + ' ' + u.lastName + '" <' + u.emailAddress + '>');
+      return meta.dbo.db(DbName).collection('notifications').insertOne(notification);
+    });
+};
+
 // Change workflow status of a document
 module.exports.changeDocumentState = function changeDocumentState (request, response, next) {
   var that = {};
@@ -570,21 +608,12 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
         target: that.params.state,
         modifiedOn: (new Date()).toISOString()
       });
-      console.log(that.user);
       return that.dbo
         .db(DbName)
         .collection(that.params.model)
         .update({_id: res._id}, {$set: {'x-meditor.states': newStatesArray}});
     })
-    .then(res => {scheduleNotification(that.dbo, {
-      "to": [ "maha.hegde@nasa.gov", "maksym.petrenko@nasa.gov" ],
-      "subject": "New " + that.params.model + " has been created and ready for review",
-      "body": "New " + that.params.model + " has been created by " + that.user.firstName + ' ' + that.user.lastName + ". Review requested.",
-      "link": {
-          label: that.params.title,
-          "url": process.env.APP_URL + "/api/getDocument?" + serializeParams(that.params, ['title', 'model', 'version'])
-      }
-    })})
+    .then(res => {return notifyOfStateChange(that)})
     .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .catch(err => {
       handleError(response, err);
