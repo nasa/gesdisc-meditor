@@ -533,7 +533,7 @@ module.exports.getDocument = function listDocuments (request, response, next) {
 
 function notifyOfStateChange(meta) {
   var that = {};
-  var targetEdges = _(meta.workflow.edges).filter(function(e) {return e.source === meta.params.state;}).uniq().value();
+  var targetEdges = _(meta.workflow.edges).filter(function(e) {return e.source === meta.params.state && _.get(e, 'notify', true);}).uniq().value();
   var targetNodes = _(targetEdges).map('target').uniq().value();
   var targetRoles = _(targetEdges).map('role').uniq().value();
   var notification = {
