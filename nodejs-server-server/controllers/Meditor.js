@@ -261,6 +261,7 @@ module.exports.listModels = function listModels (request, response, next) {
     })
     .then(res => (that.dbo.close(), handleSuccess(response, res)))
     .catch(err => {
+      try {that.dbo.close()} catch (e) {};
       handleError(response, err);
     });
 };
@@ -460,6 +461,7 @@ module.exports.putDocument = function putDocument (request, response, next) {
     })
     .then(res => (that.dbo.close(), handleSuccess(response, {message: "Inserted document"})))
     .catch(err => {
+      try {that.dbo.close()} catch (e) {};
       handleError(response, err);
     });
 };
@@ -494,6 +496,7 @@ module.exports.listDocuments = function listDocuments (request, response, next) 
     })
     .then(res => (that.dbo.close(), handleSuccess(response, res)))
     .catch(err => {
+      try {that.dbo.close()} catch (e) {};
       handleError(response, err);
     });
 };
@@ -527,6 +530,7 @@ module.exports.getDocument = function listDocuments (request, response, next) {
     })
     .then(res => (that.dbo.close(), handleSuccess(response, res.length > 0 ? res[0] : {})))
     .catch(err => {
+      try {that.dbo.close()} catch (e) {};
       handleError(response, err);
     });
 };
@@ -614,11 +618,12 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
       return that.dbo
         .db(DbName)
         .collection(that.params.model)
-        .update({_id: res._id}, {$set: {'x-meditor.states': newStatesArray}});
+        .updateOne({_id: res._id}, {$set: {'x-meditor.states': newStatesArray}});
     })
     .then(res => {return _.get(that.currentEdge, 'notify', true) ? notifyOfStateChange(that) : Promise.resolve();})
     .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .catch(err => {
+      try {that.dbo.close()} catch (e) {};
       handleError(response, err);
     });
 };
