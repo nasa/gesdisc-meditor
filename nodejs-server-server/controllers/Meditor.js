@@ -533,7 +533,7 @@ module.exports.getDocument = function listDocuments (request, response, next) {
 
 function notifyOfStateChange(meta) {
   var that = {};
-  var targetEdges = _(meta.workflow.edges).filter(function(e) {return e.source === meta.params.state && _.get(e, 'notify', true);}).uniq().value();
+  var targetEdges = _(meta.workflow.edges).filter(function(e) {return e.source === meta.params.state;}).uniq().value();
   var targetNodes = _(targetEdges).map('target').uniq().value();
   var targetRoles = _(targetEdges).map('role').uniq().value();
   var notification = {
@@ -598,10 +598,13 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
     .then(res => res[0])
     .then(function(res) {
       var newStatesArray;
+      var currentEdge = _(that.workflow.edges).filter(function(e) {return e.source === res['x-meditor'].state && e.target === that.params.state;}).uniq().value();
       if (_.isEmpty(res)) throw {message: 'Document not found', status: 400};
       if (that.params.state === res['x-meditor']['state']) throw {message: 'Can not transition to state [' + that.params.state + '] since it is the current state already', status: 400};
       if (that.targetStates.indexOf(that.params.state) === -1) throw {message: 'Can not transition to state [' + that.params.state + '] - invalid state or insufficient rights', status: 400};
+      if (currentEdge.length !== 1) throw {message: 'Workflow appears to have duplicate edges', status: 400};
       that.document = res;
+      that.currentEdge = currentEdge[0];
       newStatesArray = res['x-meditor'].states;
       newStatesArray.push({
         source: res['x-meditor'].state,
@@ -613,7 +616,7 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
         .collection(that.params.model)
         .update({_id: res._id}, {$set: {'x-meditor.states': newStatesArray}});
     })
-    .then(res => {return notifyOfStateChange(that)})
+    .then(res => {return _.get(that.currentEdge, 'notify', true) ? notifyOfStateChange(that) : Promise.resolve();})
     .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .catch(err => {
       handleError(response, err);
