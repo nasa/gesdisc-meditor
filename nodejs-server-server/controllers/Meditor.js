@@ -541,7 +541,7 @@ function notifyOfStateChange(meta) {
   var targetNodes = _(targetEdges).map('target').uniq().value();
   var targetRoles = _(targetEdges).map('role').uniq().value();
   var notification = {
-    "to": [ "maha.hegde@nasa.gov", "maksym.petrenko@nasa.gov" ],
+    "to": [ ], // This is set later
     "subject": meta.params.model + " document is now " + meta.params.state,
     "body":
       "An " + meta.params.model + " document has been marked by " + meta.user.firstName + ' ' + meta.user.lastName +
@@ -577,6 +577,7 @@ function notifyOfStateChange(meta) {
     })
     .then(users => {
       notification.to = users.map(u => '"'+ u.firstName + ' ' + u.lastName + '" <' + u.emailAddress + '>');
+      if (notification.to.length === 0) throw {message: 'Could not find addressees to notify of the status change', status: 400};
       return meta.dbo.db(DbName).collection('notifications').insertOne(notification);
     });
 };
