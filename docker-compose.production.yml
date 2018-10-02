@@ -4,19 +4,32 @@ services:
 
   proxy:
     container_name: meditor_proxy
-    image: nginx:stable-alpine
-    volumes:
-      - "./nginx.ui.conf:/etc/nginx/nginx.ui.conf:ro"
-      - "./nginx.conf:/etc/nginx/nginx.conf:ro"
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_proxy
+    ports:
+      - "80:8080"
     links:
       - ui
       - server
     depends_on:
       - database
 
+  notifier:
+    container_name: meditor_notifier
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_notifier
+    links:
+      - database
+    depends_on:
+      - database
+    environment:
+      - MONGOURL=mongodb://meditor_database:27017/
+
   ui:
     container_name: meditor_ui
     image: dev.gesdisc.eosdis.nasa.gov:443/meditor_ui
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - APP_URL=${APP_URL}
+      - APP_UI_URL=${APP_UI_URL}
  
   server:
     container_name: meditor_server
@@ -26,6 +39,8 @@ services:
     depends_on:
       - database
     environment:
+      - APP_URL=${APP_URL}
+      - APP_UI_URL=${APP_UI_URL}
       - AUTH_HOST=${AUTH_HOST}
       - AUTH_CLIENT_ID=${AUTH_CLIENT_ID}
       - AUTH_CLIENT_SECRET=${AUTH_CLIENT_SECRET}
@@ -34,4 +49,6 @@ services:
   database:
     container_name: meditor_database
     image: mongo:4.1
+    ports:
+      - "27017:27017"
   

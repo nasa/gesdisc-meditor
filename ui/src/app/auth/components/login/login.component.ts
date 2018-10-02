@@ -36,12 +36,17 @@ export class LoginComponent implements OnInit {
 	}
 
 	login() {
-		window.location.href = environment.API_BASE_PATH + '/login';
+		window.location.href = this.getApiUrl() + '/login'
 	}
 
 	logout() {
 		this.store.dispatch(new Logout());
-		window.location.href = environment.API_BASE_PATH + '/logout';
+		window.location.href = this.getApiUrl() + '/logout';
+	}
+
+	getApiUrl() {
+		const basePath = environment.API_BASE_PATH
+		return basePath.indexOf('http') !== 0 ? window.location.origin + basePath : basePath
 	}
 
 	toggleButton() {
