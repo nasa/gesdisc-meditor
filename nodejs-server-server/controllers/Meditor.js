@@ -12,7 +12,6 @@ var GridStream = require('gridfs-stream');
 var jsonpath = require('jsonpath');
 var macros = require('./Macros.js');
 
-
 var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
 var DbName = "meditor";
 
@@ -37,6 +36,13 @@ function getSwaggerParams(request) {
     params[property] = request.swagger.params[property].value;
   }
   return params;
+}
+
+// Converts dictionary params back into URL params
+function serializeParams(params, keys) {
+  return _(params)
+  .pickBy(function(val,key) {return (!!keys ? keys.indexOf(key) !== -1 : true) && !_.isNil(val);})
+  .map(function(val, key) {return key + "=" + encodeURIComponent(val);}).value().join('&')
 }
 
 function handleResponse(response, res, defaultStatus, defaultMessage) {
@@ -255,6 +261,7 @@ module.exports.listModels = function listModels (request, response, next) {
     })
     .then(res => (that.dbo.close(), handleSuccess(response, res)))
     .catch(err => {
+      try {that.dbo.close()} catch (e) {};
       handleError(response, err);
     });
 };
@@ -454,6 +461,7 @@ module.exports.putDocument = function putDocument (request, response, next) {
     })
     .then(res => (that.dbo.close(), handleSuccess(response, {message: "Inserted document"})))
     .catch(err => {
+      try {that.dbo.close()} catch (e) {};
       handleError(response, err);
     });
 };
@@ -488,6 +496,7 @@ module.exports.listDocuments = function listDocuments (request, response, next) 
     })
     .then(res => (that.dbo.close(), handleSuccess(response, res)))
     .catch(err => {
+      try {that.dbo.close()} catch (e) {};
       handleError(response, err);
     });
 };
@@ -521,7 +530,55 @@ module.exports.getDocument = function listDocuments (request, response, next) {
     })
     .then(res => (that.dbo.close(), handleSuccess(response, res.length > 0 ? res[0] : {})))
     .catch(err => {
+      try {that.dbo.close()} catch (e) {};
       handleError(response, err);
+    });
+};
+
+function notifyOfStateChange(meta) {
+  var that = {};
+  var targetEdges = _(meta.workflow.edges).filter(function(e) {return e.source === meta.params.state;}).uniq().value();
+  var targetNodes = _(targetEdges).map('target').uniq().value();
+  var targetRoles = _(targetEdges).map('role').uniq().value();
+  var notification = {
+    "to": [ ], // This is set later
+    "subject": meta.params.model + " document is now " + meta.params.state,
+    "body":
+      "An " + meta.params.model + " document has been marked by " + meta.user.firstName + ' ' + meta.user.lastName +
+      " as [" + meta.params.state + "]. An action is required to transition the document to [" + targetNodes.join(', ') + "].",
+    "link": {
+        label: meta.params.title,
+        "url": process.env.APP_URL + "/api/getDocument?" + serializeParams(meta.params, ['title', 'model', 'version'])
+    },
+    "createdOn": (new Date()).toISOString()
+  };
+  return Promise.resolve()
+    .then(function() {
+      return meta.dbo
+        .db(DbName)
+        .collection('Users')
+        .aggregate(
+          [{$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
+          {$group: {_id: '$id', doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version
+          {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
+          {$unwind: '$roles'},
+          {$match: {'roles.model': meta.params.model, 'roles.role': {$in: targetRoles}}},
+          {$group: {_id: null, ids: {$addToSet: "$id"}}}
+        ])
+        .toArray();
+    })
+    .then(function(users) {
+      return meta.dbo
+        .db(DbName)
+        .collection('users-urs')
+        .find({uid: {$in: users[0].ids}})
+        .project({_id:0, emailAddress: 1, firstName: 1, lastName: 1})
+        .toArray();
+    })
+    .then(users => {
+      notification.to = users.map(u => '"'+ u.firstName + ' ' + u.lastName + '" <' + u.emailAddress + '>');
+      if (notification.to.length === 0) throw {message: 'Could not find addressees to notify of the status change', status: 400};
+      return meta.dbo.db(DbName).collection('notifications').insertOne(notification);
     });
 };
 
@@ -546,9 +603,13 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
     .then(res => res[0])
     .then(function(res) {
       var newStatesArray;
+      var currentEdge = _(that.workflow.edges).filter(function(e) {return e.source === res['x-meditor'].state && e.target === that.params.state;}).uniq().value();
       if (_.isEmpty(res)) throw {message: 'Document not found', status: 400};
       if (that.params.state === res['x-meditor']['state']) throw {message: 'Can not transition to state [' + that.params.state + '] since it is the current state already', status: 400};
       if (that.targetStates.indexOf(that.params.state) === -1) throw {message: 'Can not transition to state [' + that.params.state + '] - invalid state or insufficient rights', status: 400};
+      if (currentEdge.length !== 1) throw {message: 'Workflow appears to have duplicate edges', status: 400};
+      that.document = res;
+      that.currentEdge = currentEdge[0];
       newStatesArray = res['x-meditor'].states;
       newStatesArray.push({
         source: res['x-meditor'].state,
@@ -558,10 +619,12 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
       return that.dbo
         .db(DbName)
         .collection(that.params.model)
-        .update({_id: res._id}, {$set: {'x-meditor.states': newStatesArray}});
+        .updateOne({_id: res._id}, {$set: {'x-meditor.states': newStatesArray}});
     })
+    .then(res => {return _.get(that.currentEdge, 'notify', true) ? notifyOfStateChange(that) : Promise.resolve();})
     .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .catch(err => {
+      try {that.dbo.close()} catch (e) {};
       handleError(response, err);
     });
 };
