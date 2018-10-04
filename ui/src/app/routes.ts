@@ -20,7 +20,7 @@ export const routes: Routes = [
 		path: 'search',
 		loadChildren: './search/search.module#SearchModule',
 		canActivate: [ AuthGuard ]
-	},	
+	},
 	{
 		path: 'document',
 		loadChildren: './document/document.module#DocumentModule',
