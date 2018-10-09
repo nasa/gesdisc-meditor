@@ -24,7 +24,7 @@ if (!!process.env.MEDITOR_ENV_FILE_PATH) {
 }
 
 var UUI_CLIENT_ID = 'C_kKX7TXHiCUqzt352ZwTQ';
-var UUI_LOCATION='https://dev.gesdisc.eosdis.nasa.gov/~mpetrenk/uui'
+var UUI_LOCATION='https://dev.gesdisc.eosdis.nasa.gov/uui';
 var UUI_HOST='dev.gesdisc.eosdis.nasa.gov'
 
 UUI_LOCATION = UUI_LOCATION.replace(/\/+$/, '');
@@ -92,20 +92,34 @@ if (DEBUG_URS_LOGIN) {
     });
 }
 
-module.exports.test = function test () {
-  var that = {};
+module.exports.syncItems = function test () {
+  var that = {params: {model: 'Alerts'}, titleProperty: 'abstract'};
   var cookiejar = requests.jar();
+  var xmeditorProperties = ["modifiedOn", "modifiedBy", "state"];
+  var query = [
+    {$addFields: {'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}}}, // Find last state
+    {$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
+    {$group: {_id: '$' + that.titleProperty, doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version
+    {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
+    {$match: {'x-meditor.state': {$in: ['Published']}}}, // Filter states based on the role's source states
+  ];
   return MongoClient.connect(MongoUrl)
     .then(res => {
       that.dbo = res;
       return that.dbo
         .db(DbName)
-        .collection('Alerts')
-        .find({})
-        .limit(1)
-        .toArray();
+        .collection(that.params.model)
+        .aggregate(query)
+    //     .map(function(doc) {
+    //       var res = {"title": doc[that.titleProperty]};
+    //       res["x-meditor"] = _.pickBy(doc['x-meditor'], function(value, key) {return xmeditorProperties.indexOf(key) !== -1;});
+    //       if ('state' in res["x-meditor"] && !res["x-meditor"].state) res["x-meditor"].state = 'Unspecified';
+    //       return res;
+    //   })
+      .toArray();
     })
     .then(res => {
+        that.meditorDocs = res;
         // Acquire URS CSRF token
         return requests({url: URS_OAUTH_URL, jar: cookiejar});
     })
@@ -136,31 +150,60 @@ module.exports.test = function test () {
         return requests({url: UUI_LOCATION + '/api/users/me', headers: UUI_HEADERS, json: true, jar: cookiejar, gzip: true});
     })
     .then(res => {
-        console.log(res);
+        console.log('Logged in into UUI as', res.uid, 'with roles for ' + that.params.model + ': ', _.get(res, 'roles.' + that.params.model.toLowerCase(), []));
         // Acquire UUI CSRF token
         return requests({url: UUI_LOCATION + '/api/csrf-token', headers: UUI_HEADERS, json: true, jar: cookiejar, gzip: true});
     })
     .then(res => {
         UUI_HEADERS['x-csrf-token'] = res.csrfToken;
-        return requests.post({
-            url: UUI_LOCATION + '/api/alerts',
-            headers: UUI_HEADERS,
-            jar: cookiejar, 
-            followAllRedirects: true,
-            json: true,
-            gzip: true,
-            body: {"severity":"normal","title":"AAAAAAAAAAAAAAA","body":"<p>sss</p>\n","start":"2018-05-08T04:00:00.000Z","expiration":"2018-11-07T04:00:00.000Z","published":false}
-        });
+        return requests({url: UUI_LOCATION + '/api/alerts?published=[$eq][true]', headers: UUI_HEADERS, json: true, jar: cookiejar, gzip: true});
     })
+    .then(res => res.data)
     .then(res => {
-        console.log(res);
+        var postDefers = [];
+        that.uuiDocs = res.reduce(function (accumulator, currentValue) {
+            accumulator[currentValue.title] = _.pickBy(currentValue, function(value, key) {return ['title', 'lastPublished'].indexOf(key) !==  -1;});
+            return accumulator;
+        }, {});
+
+        // console.log(that.uuiDocs);
+        // console.log(that.meditorDocs);
+        that.meditorDocs.forEach(function(meditorDoc) {
+            if (!(meditorDoc[that.titleProperty] in that.uuiDocs)) {
+                console.log('Pushing [' + meditorDoc[that.titleProperty] + '] of type [' + that.params.model + '] to UUI');
+                postDefers.push(
+                    requests.post({
+                        url: UUI_LOCATION + '/api/alerts',
+                        headers: UUI_HEADERS,
+                        jar: cookiejar, 
+                        followAllRedirects: true,
+                        json: true,
+                        gzip: true,
+                        body: {
+                            "severity":meditorDoc.severity,
+                            "title":meditorDoc[that.titleProperty],
+                            "body":meditorDoc.body,
+                            "start":meditorDoc.start,
+                            "expiration":meditorDoc.expiration,
+                            "lastPublished": meditorDoc['x-meditor'].modifiedOn,
+                            "published":true,
+                            "author": meditorDoc['x-meditor'].modifiedBy
+                        }
+                    })
+                );
+            }
+        });
+        
+        return Promise.all(postDefers);
     })
+    .then(res => {})
     .then(res => (that.dbo.close()))
     .catch(err => {
       try {that.dbo.close()} catch (e) {};
       console.log(err.status || err.statusCode, err.message || 'Unknown error');
+      return Promise.reject({status: err.status || err.statusCode, message: err.message || 'Unknown error'});
     });
 };
 
 
-module.exports.test();
+//module.exports.test();

@@ -11,6 +11,7 @@ var streamifier = require('streamifier');
 var GridStream = require('gridfs-stream');
 var jsonpath = require('jsonpath');
 var macros = require('./Macros.js');
+var connectorUui = require('./Connector-uui');
 
 var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
 var DbName = "meditor";
@@ -568,6 +569,7 @@ function notifyOfStateChange(meta) {
         .toArray();
     })
     .then(function(users) {
+      if (users.length === 0) throw {message: 'Could not find addressees to notify of the status change', status: 400};
       return meta.dbo
         .db(DbName)
         .collection('users-urs')
@@ -603,6 +605,8 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
     .then(res => res[0])
     .then(function(res) {
       var newStatesArray;
+      var currentEdge;
+      if (!res) throw {message: 'Document not found or is not accessible to the current user', status: 400};
       var currentEdge = _(that.workflow.edges).filter(function(e) {return e.source === res['x-meditor'].state && e.target === that.params.state;}).uniq().value();
       if (_.isEmpty(res)) throw {message: 'Document not found', status: 400};
       if (that.params.state === res['x-meditor']['state']) throw {message: 'Can not transition to state [' + that.params.state + '] since it is the current state already', status: 400};
@@ -621,7 +625,11 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
         .collection(that.params.model)
         .updateOne({_id: res._id}, {$set: {'x-meditor.states': newStatesArray}});
     })
-    .then(res => {return _.get(that.currentEdge, 'notify', true) ? notifyOfStateChange(that) : Promise.resolve();})
+    .then(res => {
+      const shouldNotify =  _.get(that.currentEdge, 'notify', true) && that.readyNodes.indexOf(that.params.state) === -1;
+      return shouldNotify ? notifyOfStateChange(that) : Promise.resolve();
+    })
+    .then(res => {return connectorUui.syncItems();})
     .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .catch(err => {
       try {that.dbo.close()} catch (e) {};
