@@ -48,7 +48,32 @@ services:
 
   database:
     container_name: meditor_database
-    image: mongo:4.1
+    image: mongo:latest
+    restart: always
     ports:
-      - "27017:27017"
-  
+      - "47017:27017"
+    command: --smallfiles --replSet meditor
+
+  database-sec-1:
+    container_name: meditor_database_sec_1
+    image: mongo:latest
+    restart: always
+    ports:
+      - "47018:27017"
+    command: --smallfiles --replSet meditor
+
+  database-sec-2:
+    container_name: meditor_database_sec_2
+    image: mongo:latest
+    restart: always
+    ports:
+      - "47019:27017"
+    command: --smallfiles --replSet meditor
+
+  database-replicaset:
+    container_name: meditor_replicaset
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_replicaset
+    links:
+      - database
+      - database-sec-1
+      - database-sec-2
