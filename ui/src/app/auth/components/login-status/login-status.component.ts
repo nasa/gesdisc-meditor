@@ -10,20 +10,20 @@ import { environment } from '../../../../environments/environment';
 
 @Component({
 	selector: 'med-login-status',
-	template:`	
-		<button mat-button 
-			(click)="logout()" 
-			color="accent" 
-			*ngIf="(user$ | async) as user" 
-			(mouseenter)="toggleButton()" 
-			(mouseleave)="toggleButton()">		
+	template: `
+		<button mat-button
+			(click)="logout()"
+			color="accent"
+			*ngIf="(user$ | async) as user"
+			(mouseenter)="toggleButton()"
+			(mouseleave)="toggleButton()">
 				<mat-icon>{{ userBtn ? 'person' : 'exit_to_app' }}</mat-icon>
-				{{ userBtn ? 'Hi, ' + user.firstName : 'Logout' }}		
+				{{ userBtn ? 'Hi, ' + user.firstName : 'Logout' }}
 		</button>
 	`
 })
 export class LoginStatusComponent implements OnInit {
-	
+
 	@Select(AuthState.user) user$: Observable<any>;
 	userBtn: boolean = true;
 
@@ -34,12 +34,17 @@ export class LoginStatusComponent implements OnInit {
 	}
 
 	logout() {
-		this.store.dispatch(new Logout);	
-		window.location.href = environment.API_BASE_PATH + '/logout';
+		this.store.dispatch(new Logout());
+		window.location.href = this.getApiUrl() + '/logout';
+	}
+
+	getApiUrl() {
+		const basePath = environment.API_BASE_PATH;
+		return basePath.indexOf('http') !== 0 ? window.location.origin + basePath : basePath;
 	}
 
 	toggleButton() {
 		this.userBtn = !this.userBtn;
 	}
-	
+
 }
