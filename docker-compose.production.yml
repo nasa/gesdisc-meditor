@@ -21,7 +21,7 @@ services:
     depends_on:
       - database
     environment:
-      - MONGOURL=mongodb://meditor_database:27017/
+      - MONGOURL=mongodb://meditor_database:27017,meditor_database_sec_1:27017,meditor_database_sec_2:27017
 
   ui:
     container_name: meditor_ui
@@ -44,7 +44,7 @@ services:
       - AUTH_HOST=${AUTH_HOST}
       - AUTH_CLIENT_ID=${AUTH_CLIENT_ID}
       - AUTH_CLIENT_SECRET=${AUTH_CLIENT_SECRET}
-      - MONGOURL=mongodb://meditor_database:27017/
+      - MONGOURL=mongodb://meditor_database:27017,meditor_database_sec_1:27017,meditor_database_sec_2:27017
 
   database:
     container_name: meditor_database
