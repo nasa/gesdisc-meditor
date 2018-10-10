@@ -29,6 +29,7 @@
     "@angular/platform-server": "^6.1.7",
     "@angular/router": "^6.1.7",
     "@ngxs/devtools-plugin": "^3.2.0",
+    "@ngxs/router-plugin": "^3.2.0",
     "@ngxs/store": "^3.2.0",
     "@types/underscore": "^1.8.8",
     "angular-font-awesome": "^3.1.2",
