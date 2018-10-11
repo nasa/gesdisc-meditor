@@ -13,11 +13,11 @@ import {
 import {
 	UpdateWorkflowState
 } from 'app/store/workflow/workflow.state';
-import { Go } from 'app/store/router/router.state';
+import { Navigate } from '@ngxs/router-plugin';
 import { WorkflowState, AuthState, DocumentState } from 'app/store';
 import { SetInitialState } from 'app/store/workflow/workflow.state';
 import { SuccessNotificationOpen, ErrorNotificationOpen } from 'app/store/notification/notification.state';
-import { Workflow, Edge } from 'app/service/model/models';
+import { Edge } from 'app/service/model/models';
 
 @Component({
 	selector: 'med-docedit-page',
@@ -91,16 +91,10 @@ export class DocEditPageComponent implements OnInit {
 	}
 
 	onUpdateStatusSuccess(document: any) {
-		let routeParams = {
-			path: '/search/',
-			query: {
-				model: this.modelName
-			},
-		};
 
 		this.store.dispatch(new SuccessNotificationOpen('Document sent'));
 		this.store.dispatch(new SetInitialState());
-		this.store.dispatch(new Go(routeParams));
+		this.store.dispatch(new Navigate(['/search'], { model: this.modelName }));
 	}
 
 	onUpdateStatusError() {

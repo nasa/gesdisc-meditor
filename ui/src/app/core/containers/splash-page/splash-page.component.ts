@@ -4,7 +4,7 @@ import { Observable } from 'rxjs/Observable';
 
 import { Store, Select } from '@ngxs/store';
 import { ModelState } from 'app/store/model/model.state';
-import { Go } from 'app/store/router/router.state';
+import { Navigate } from '@ngxs/router-plugin';
 import { AuthState, GetUser } from 'app/store/auth/auth.state';
 
 
@@ -32,6 +32,6 @@ export class SplashPageComponent implements OnInit {
 	}
 
 	goToSearchPage(event: any) {
-		this.store.dispatch(new Go({path: '/search', query: { model: event.name}}));
+		this.store.dispatch(new Navigate(['/search'], { model: event.name}));
 	}
 }
