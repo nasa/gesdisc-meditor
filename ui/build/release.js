@@ -1,12 +1,13 @@
 const fs = require('fs')
-const package = require('../package.json')
 const { bump, git } = require('../node_modules/version-bump-prompt/lib/index')
 
-function init() {
-    let info = bump('package.json', 'minor', {
+function bumpVersionNumber() {
+    bump('package.json', 'minor', {
         preid: 'beta',
     })
+}
 
+function commitAndTagNewVersion() {
     git(['package.json'], {
         commit: true,
         tag: true,
@@ -14,4 +15,10 @@ function init() {
     })
 }
 
-init()
+function addVersionToUi() {
+    console.log('adding')
+}
+
+//bumpVersionNumber()
+//commitAndTagNewVersion()
+addVersionToUi()

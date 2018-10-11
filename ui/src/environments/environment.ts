@@ -5,5 +5,6 @@
 
 export const environment = {
   production: false,
-  API_BASE_PATH: 'http://localhost:8081/meditor/api'
+  API_BASE_PATH: 'http://localhost:8081/meditor/api',
+  VERSION: '0.1.0',
 };
