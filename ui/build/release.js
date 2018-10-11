@@ -1,4 +1,3 @@
-const fs = require('fs')
 const { bump, git } = require('../node_modules/version-bump-prompt/lib/index')
 
 function bumpVersionNumber() {
@@ -15,10 +14,5 @@ function commitAndTagNewVersion() {
     })
 }
 
-function addVersionToUi() {
-    console.log('adding')
-}
-
-//bumpVersionNumber()
-//commitAndTagNewVersion()
-addVersionToUi()
+bumpVersionNumber()
+commitAndTagNewVersion()
