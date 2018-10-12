@@ -7,9 +7,13 @@ IMAGES=( "meditor_ui" "meditor_server" "meditor_proxy" "meditor_notifier" )
 git pull
 
 # bump version
+oldversion=`cat VERSION`
 docker run --rm -v "$PWD":/app treeder/bump minor
 version=`cat VERSION`
 echo "version: $version"
+
+# modify docker-compose to use version
+sed "s/$oldversion/$version/g" docker-compose.production.yml
 
 # run build
 ./build.sh
