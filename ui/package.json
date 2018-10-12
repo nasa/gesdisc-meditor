@@ -1,6 +1,6 @@
 {
   "name": "meditor",
-  "version": "0.3.0",
+  "version": "0.0.0",
   "license": "MIT",
   "scripts": {
     "ng": "ng",
@@ -34,7 +34,7 @@
     "@types/underscore": "^1.8.8",
     "angular-font-awesome": "^3.1.2",
     "angular-froala-wysiwyg": "^2.8.0",
-    "angular2-json-schema-form": "git://github.com/Cosmocat/angular2-json-schema-form.git#angular-6-dist",
+    "angular2-json-schema-form": "git+https://git.earthdata.nasa.gov/scm/meditor/ngx-jsonsfe.git#angular-6-dist",
     "classlist.js": "^1.1.20150312",
     "core-js": "^2.5.5",
     "dotenv": "^5.0.1",
