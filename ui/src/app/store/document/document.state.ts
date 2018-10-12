@@ -53,7 +53,7 @@ export class DocumentState {
 										currentDocument: document,
 										currentDocumentTitle: payload.title,
 										currentDocumentModel: payload.model,
-										currentDocumentVersion: document['x-meditor'].modifiedOn.toString(),
+										currentDocumentVersion: payload.version || document['x-meditor'].modifiedOn.toString(),
 										loading: false,
 									});
 							}),

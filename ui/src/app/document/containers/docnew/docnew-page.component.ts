@@ -4,7 +4,7 @@ import { Store, Select } from '@ngxs/store';
 import { Model } from 'app/service/model/models';
 import { ModelState, AuthState } from 'app/store';
 import { CreateDocument } from 'app/store/document/document.state';
-import { Go } from 'app/store/router/router.state';
+import { Navigate } from '@ngxs/router-plugin';
 import { SuccessNotificationOpen, ErrorNotificationOpen } from 'app/store/notification/notification.state';
 
 @Component({
@@ -40,16 +40,11 @@ export class DocNewPageComponent implements OnInit {
 	}
 
 	onCreateDocumentSuccess(document: any) {
-		let routeParams = {
-			path: '/document/edit',
-			query: {
-				model: this.modelName,
-				title: document[this.titleProperty],
-			},
-		};
-
 		this.store.dispatch(new SuccessNotificationOpen('Successfully created document'));
-		this.store.dispatch(new Go(routeParams));
+		this.store.dispatch(new Navigate(['/document/edit'], {
+			model: this.modelName,
+			title: document[this.titleProperty],
+		}));
 	}
 
 	onCreateDocumentError() {

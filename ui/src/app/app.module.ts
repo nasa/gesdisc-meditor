@@ -8,11 +8,13 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { NgxsModule } from '@ngxs/store';
 import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
+import { NgxsRouterPluginModule, RouterStateSerializer } from '@ngxs/router-plugin';
+import { NgxsStoragePluginModule, StorageOption } from '@ngxs/storage-plugin';
+
 
 import {
 	DocumentState,
 	ModelState,
-	RouterState,
 	NotificationState,
 	AuthState,
 	WorkflowState } from './store/';
@@ -45,11 +47,12 @@ const routeResolvers = [ DocumentResolver, ModelResolver, DocEditResolver, Model
 		NgxsModule.forRoot([
 			DocumentState,
 			ModelState,
-			RouterState,
 			NotificationState,
 			AuthState,
 			WorkflowState ]),
-			NgxsReduxDevtoolsPluginModule.forRoot(),
+		NgxsRouterPluginModule.forRoot(),
+    NgxsStoragePluginModule.forRoot({storage: StorageOption.SessionStorage, key: ['auth']}),
+		NgxsReduxDevtoolsPluginModule.forRoot(),
 		ApiModule
 	],
 	providers: [
