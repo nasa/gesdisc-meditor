@@ -13,7 +13,7 @@ version=`cat VERSION`
 echo "version: $version"
 
 # modify docker-compose to use version
-sed "s/$oldversion/$version/g" docker-compose.production.yml
+sed "s/$oldversion/$version/g" docker-compose.production.yml > docker-compose.production.yml
 
 # run build
 ./build.sh
