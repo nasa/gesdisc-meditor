@@ -1,1 +1,1 @@
-export const version = '0.2.0' ui/src/environments/version.ts
+export const version = '0.3.0' ui/src/environments/version.ts
