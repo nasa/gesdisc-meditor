@@ -11,6 +11,7 @@ import { LoginDialog } from 'app/auth/components/login-dialog/login-dialog.compo
 import { WorkflowState } from 'app/store/workflow/workflow.state';
 import { ModelState } from 'app/store/model/model.state';
 import { Navigate } from '@ngxs/router-plugin';
+import { Params, Router } from '@angular/router';
 
 
 export * from './auth.actions';
@@ -40,6 +41,7 @@ export class AuthState {
 
 		constructor(
 			private store: Store,
+      private router: Router,
 			private service: DefaultService,
 			private dialog: MatDialog,
 			private ngZone: NgZone ) {}
@@ -74,7 +76,7 @@ export class AuthState {
 		@Action(actions.LoginSuccess)
 			loginSuccess({ patchState,  dispatch }: StateContext<AuthStateModel>, { payload }: actions.LoginSuccess) {
 				patchState({ user: payload, loggedIn: true });
-				dispatch(new Navigate([localStorage.getItem('returnUrl') || '/']));
+        this.router.navigateByUrl(localStorage.getItem('returnUrl') || '/');
 				return dispatch(new notification.SuccessNotificationOpen('You have successfully logged in'));
 		}
 

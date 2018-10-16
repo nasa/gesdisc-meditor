@@ -42,8 +42,8 @@ const routeResolvers = [ DocumentResolver, ModelResolver, DocEditResolver, Model
 		HttpClientModule,
 		FlexLayoutModule,
 		MaterialModule,
-		RouterModule.forRoot(routes, { useHash: true }),
 		CoreModule.forRoot(),
+		RouterModule.forRoot(routes, { useHash: true }),
 		NgxsModule.forRoot([
 			DocumentState,
 			ModelState,
