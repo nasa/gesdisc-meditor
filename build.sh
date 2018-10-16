@@ -1,6 +1,12 @@
 set -ex
 
 REGISTRY=dev.gesdisc.eosdis.nasa.gov:443
+BASEDIR=$(dirname "$0")
+
+# temporary hack to get this private repo installing correctly
+cd ./ui
+npm install
+cd ..
 
 # update visible UI version
 version=`cat VERSION`
