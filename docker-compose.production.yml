@@ -4,7 +4,7 @@ services:
 
   proxy:
     container_name: meditor_proxy
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_proxy:0.9.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_proxy:0.10.0
     ports:
       - "80:8080"
     links:
@@ -15,7 +15,7 @@ services:
 
   notifier:
     container_name: meditor_notifier
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_notifier:0.9.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_notifier:0.10.0
     links:
       - database
     depends_on:
@@ -25,7 +25,7 @@ services:
 
   ui:
     container_name: meditor_ui
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_ui:0.9.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_ui:0.10.0
     environment:
       - NODE_ENV=${NODE_ENV}
       - APP_URL=${APP_URL}
@@ -33,7 +33,7 @@ services:
  
   server:
     container_name: meditor_server
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_server:0.9.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_server:0.10.0
     links:
       - database
     depends_on:
@@ -72,7 +72,7 @@ services:
 
   database-replicaset:
     container_name: meditor_replicaset
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_replicaset:0.9.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_replicaset:0.10.0
     links:
       - database
       - database-sec-1
