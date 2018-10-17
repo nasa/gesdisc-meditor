@@ -4,7 +4,7 @@ services:
 
   proxy:
     container_name: meditor_proxy
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_proxy:0.10.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_proxy:0.11.0
     ports:
       - "80:8080"
     links:
@@ -15,17 +15,19 @@ services:
 
   notifier:
     container_name: meditor_notifier
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_notifier:0.10.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_notifier:0.11.0
     links:
       - database
+      - database-sec-1
+      - database-sec-2
     depends_on:
       - database
     environment:
-      - MONGOURL=mongodb://meditor_database:27017,meditor_database_sec_1:27017,meditor_database_sec_2:27017
+      - MONGOURL=mongodb://meditor_database:27017,meditor_database_sec_1:27017,meditor_database_sec_2:27017/?replicaSet=meditor
 
   ui:
     container_name: meditor_ui
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_ui:0.10.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_ui:0.11.0
     environment:
       - NODE_ENV=${NODE_ENV}
       - APP_URL=${APP_URL}
@@ -33,7 +35,7 @@ services:
  
   server:
     container_name: meditor_server
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_server:0.10.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_server:0.11.0
     links:
       - database
     depends_on:
@@ -44,11 +46,11 @@ services:
       - AUTH_HOST=${AUTH_HOST}
       - AUTH_CLIENT_ID=${AUTH_CLIENT_ID}
       - AUTH_CLIENT_SECRET=${AUTH_CLIENT_SECRET}
-      - MONGOURL=mongodb://meditor_database:27017,meditor_database_sec_1:27017,meditor_database_sec_2:27017
+      - MONGOURL=mongodb://meditor_database:27017,meditor_database_sec_1:27017,meditor_database_sec_2:27017/?replicaSet=meditor
 
   database:
     container_name: meditor_database
-    image: mongo:latest
+    image: mongo:4.0
     restart: always
     ports:
       - "47017:27017"
@@ -56,7 +58,7 @@ services:
 
   database-sec-1:
     container_name: meditor_database_sec_1
-    image: mongo:latest
+    image: mongo:4.0
     restart: always
     ports:
       - "47018:27017"
@@ -64,7 +66,7 @@ services:
 
   database-sec-2:
     container_name: meditor_database_sec_2
-    image: mongo:latest
+    image: mongo:4.0
     restart: always
     ports:
       - "47019:27017"
@@ -72,7 +74,7 @@ services:
 
   database-replicaset:
     container_name: meditor_replicaset
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_replicaset:0.10.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_replicaset:0.11.0
     links:
       - database
       - database-sec-1
