@@ -16,6 +16,8 @@ var connectorUui = require('./Connector-uui');
 var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
 var DbName = "meditor";
 
+var SHARED_MODELS = ['Workflows', 'Users', 'Models'];
+
 // ======================== Common helper functions ================================
 
 // Wrapper to parse JSON giving v8 a chance to optimize code
@@ -72,19 +74,22 @@ function getDocumentAggregationQuery(meta) {
   var query;
   var defaultStateName = "Unspecified";
   var defaultState = {target: defaultStateName, source: defaultStateName, modifiedOn: (new Date()).toISOString()};
-  var returnableStates = _.concat(meta.sourceStates, meta.readyNodes, ["Unspecified"]);
-  // need a second match
-  // $not: {$and: {'x-meditor.modifiedBy': meta.user.uid, 'x-meditor.state': {$in: exclusiveStates}}}
-  // if (!_.isEmpty(meta.user.uid)) filterQuery['x-meditor.modifiedBy'] = {$ne: meta.user.uid};
-  query = [
-    {$addFields: {'x-meditor.states': { $ifNull: [ "$x-meditor.states", [defaultState] ] }}}, // Add default state on docs with no state
-    {$addFields: {'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}}}, // Find last state
-    {$addFields: {'bannedTransition': {"$eq" : [{$cond: {if: {$in: ['$x-meditor.state', meta.exclusiveStates]}, then: meta.user.uid, else: '' }}, '$x-meditor.modifiedBy']}}}, // This computes whether a user can transition the edge if he is the modifiedBy of the current state 
-    {$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
-    {$group: {_id: '$' + meta.titleProperty, doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version
-    {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
-    {$match: {'x-meditor.state': {$in: returnableStates}, 'bannedTransition': false}}, // Filter states based on the role's source states
-  ];
+  var returnableStates = _.concat(meta.sourceStates, ["Unspecified"]);
+  if (meta.params.model) {
+    if (SHARED_MODELS.indexOf(meta.params.model) !== -1) returnableStates = _.concat(returnableStates, meta.readyNodes); // Return ready nodes for shared models
+    // need a second match
+    // $not: {$and: {'x-meditor.modifiedBy': meta.user.uid, 'x-meditor.state': {$in: exclusiveStates}}}
+    // if (!_.isEmpty(meta.user.uid)) filterQuery['x-meditor.modifiedBy'] = {$ne: meta.user.uid};
+    query = [
+      {$addFields: {'x-meditor.states': { $ifNull: [ "$x-meditor.states", [defaultState] ] }}}, // Add default state on docs with no state
+      {$addFields: {'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}}}, // Find last state
+      {$addFields: {'bannedTransition': {"$eq" : [{$cond: {if: {$in: ['$x-meditor.state', meta.exclusiveStates]}, then: meta.user.uid, else: '' }}, '$x-meditor.modifiedBy']}}}, // This computes whether a user can transition the edge if he is the modifiedBy of the current state 
+      {$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
+      {$group: {_id: '$' + meta.titleProperty, doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version
+      {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
+      {$match: {'x-meditor.state': {$in: returnableStates}, 'bannedTransition': false}}, // Filter states based on the role's source states
+    ];
+  }
   // Build up search query if search params are available
   if ('title' in meta.params) searchQuery[meta.titleProperty] =  meta.params.title;
   if ('version' in  meta.params && meta.params.version !== 'latest') searchQuery['x-meditor.modifiedOn'] = meta.params.version;
@@ -329,7 +334,7 @@ function addImage (parentDoc, imageFormParam) {
         var gfs;
         var writeStream;
         if (errModel) reject(errModel);
-        imageRecord.metadata.filename = parentDoc[resModel.titleProperty];
+        imageRecord.metadata.filename = _.get(parentDoc, resModel.titleProperty);
         gfs = new GridStream(dbo, mongo);
         writeStream = gfs.createWriteStream(imageRecord);
       
@@ -488,7 +493,7 @@ module.exports.listDocuments = function listDocuments (request, response, next) 
         .collection(that.params.model)
         .aggregate(query)
         .map(function(doc) {
-          var res = {"title": doc[that.titleProperty]};
+          var res = {"title": _.get(doc, that.titleProperty)};
           res["x-meditor"] = _.pickBy(doc['x-meditor'], function(value, key) {return xmeditorProperties.indexOf(key) !== -1;});
           if ('state' in res["x-meditor"] && !res["x-meditor"].state) res["x-meditor"].state = 'Unspecified';
           return res;
@@ -629,7 +634,7 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
       const shouldNotify =  _.get(that.currentEdge, 'notify', true) && that.readyNodes.indexOf(that.params.state) === -1;
       return shouldNotify ? notifyOfStateChange(that) : Promise.resolve();
     })
-    .then(res => {return connectorUui.syncItems();})
+    .then(res => {return connectorUui.syncItems({model: that.params.model});}) // Take an opportunity to sync with UUI
     .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .catch(err => {
       try {that.dbo.close()} catch (e) {};
@@ -715,7 +720,7 @@ function findDocHistory (params) {
         throw err;
       }
       var dbo = db.db(DbName);
-      dbo.collection("Models").find({name:params.model}).project({_id:0}).toArray(function(err, res) {
+      dbo.collection("Models").find({name:params.model}).project({_id:0}).sort({"x-meditor.modifiedOn":-1}).toArray(function(err, res) {
         if (err){
           console.log(err);
           throw err;
