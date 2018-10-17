@@ -634,7 +634,7 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
       const shouldNotify =  _.get(that.currentEdge, 'notify', true) && that.readyNodes.indexOf(that.params.state) === -1;
       return shouldNotify ? notifyOfStateChange(that) : Promise.resolve();
     })
-    .then(res => {return connectorUui.syncItems({model: that.params.model});}) // Take an opportunity to sync with UUI
+    .then(res => {return !!process.env.PUBLISH_TO_UUI ? connectorUui.syncItems({model: that.params.model}) : Promise.resolve();}) // Take an opportunity to sync with UUI
     .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .catch(err => {
       try {that.dbo.close()} catch (e) {};
