@@ -54,6 +54,8 @@ services:
     restart: always
     ports:
       - "47017:27017"
+    volumes:
+      - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
     command: --smallfiles --replSet meditor
 
   database-sec-1:
@@ -62,6 +64,8 @@ services:
     restart: always
     ports:
       - "47018:27017"
+    volumes:
+      - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
     command: --smallfiles --replSet meditor
 
   database-sec-2:
@@ -70,6 +74,8 @@ services:
     restart: always
     ports:
       - "47019:27017"
+    volumes:
+      - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
     command: --smallfiles --replSet meditor
 
   database-replicaset:
