@@ -12,7 +12,6 @@
 }
 
 .reply-card {
-  background-color: #F0F0F0;
 	margin: 0 24px;
 }
 
@@ -29,11 +28,10 @@ mat-card-content {
   overflow-wrap: break-word;
 }
 
-med-comment > .comments-container > mat-card {
-	background-color: #F0F0F0;
-}
+
 
 med-comment > .comments-container > .comment-card {
+	background-color: #F0F0F0;
 	width: 100%;
   margin-top: 0;
 }

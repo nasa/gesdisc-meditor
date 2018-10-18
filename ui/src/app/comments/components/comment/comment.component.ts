@@ -60,7 +60,7 @@ export class CommentComponent implements OnInit {
       if (commentThread) { commentThread.openReplyForm(_id); }
     } else {
       this.extComments[this.extComments.length - 1].replyTo = true;
-      setTimeout(() => { this.commentForm.nativeElement.scrollIntoView({behavior: "smooth"})}, 100)
+      setTimeout(() => { this.commentForm.nativeElement.scrollIntoView({behavior: "smooth"});}, 100)
     }
   }
 

@@ -4,7 +4,6 @@ import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { MaterialModule } from '../material';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgxJsonViewerModule } from 'ngx-json-viewer';
 
 import {
 	JsonSchemaFormModule, MaterialDesignFrameworkModule, MaterialDesignFramework,
@@ -30,7 +29,6 @@ import { DocactionsComponent } from './components/docactions/docactions.componen
 		ReactiveFormsModule,
 		RouterModule.forChild(routes),
 		MaterialDesignFrameworkModule,
-		NgxJsonViewerModule,
 		CommentsModule,
 		{
 			ngModule: JsonSchemaFormModule,
