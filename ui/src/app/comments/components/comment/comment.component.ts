@@ -11,8 +11,8 @@ import * as _ from 'underscore';
 })
 export class CommentComponent implements OnInit {
 
-  @ViewChildren('commentThread')
-  commentThreads: QueryList<CommentComponent>;
+  @ViewChildren('commentThread') commentThreads: QueryList<CommentComponent>;
+  @ViewChild('commentForm') commentForm: ElementRef;
 	extComments: Array<any>;
   _parentId: string;
 	_tree: boolean;
@@ -60,6 +60,7 @@ export class CommentComponent implements OnInit {
       if (commentThread) { commentThread.openReplyForm(_id); }
     } else {
       this.extComments[this.extComments.length - 1].replyTo = true;
+      setTimeout(() => { this.commentForm.nativeElement.focus()}, 100)
     }
   }
 
