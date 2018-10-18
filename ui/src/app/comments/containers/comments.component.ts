@@ -1,63 +1,67 @@
-// import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, Input, EventEmitter, Output } from '@angular/core';
 
-// import { ActivatedRoute, Params } from '@angular/router';
-// import * as fromComments from '../store';
-
-// import { Store, select } from '@ngrx/store';
+// import { Store } from '@ngxs/store';
 // import { Observable } from 'rxjs/Observable';
 
-// @Component({
-// 	selector: 'med-comments',
-// 	changeDetection: ChangeDetectionStrategy.OnPush,
-// 	templateUrl: './comments.component.html',
-// 	styleUrls: ['./comments.component.css'],
-// })
-// export class CommentsComponent implements OnInit {
+@Component({
+	selector: 'med-comments',
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	templateUrl: './comments.component.html',
+	styleUrls: ['./comments.component.css'],
+})
+export class CommentsComponent implements OnInit {
 
-// 	comments$: Observable<any>;
-// 	routeParams: any;
-// 	showResolved: boolean = false;
+  @Input() comments: Comment[];
+  @Output() closeSidenav: EventEmitter<any> = new EventEmitter();
+  @Output() resolveComment: EventEmitter<string> = new EventEmitter();
+  @Output() submitComment: EventEmitter<any> = new EventEmitter();
+	// comments$: Observable<any>;
+	showResolved: boolean = false;
 
 
-// 	showForm: boolean = false;
-//   commentText: string = '';
+	showForm: boolean = false;
+  commentText: string = '';
 
-// 	constructor(
-// 		private commentsStore: Store<fromComments.CommentsState>,
-// 		private route: ActivatedRoute
-// 	) {
-//     this.commentsStore.dispatch(new fromComments.LoadComments(''));
-//     this.comments$ = this.commentsStore.pipe(select(fromComments.selectAllComments));
-// 	}
+	// constructor(
+	// 	private commentsStore: Store<fromComments.CommentsState>
+	// ) {
+  //   this.commentsStore.dispatch(new fromComments.LoadComments(''));
+  //   this.comments$ = this.commentsStore.pipe(select(fromComments.selectAllComments));
+	// }
 
-// 	ngOnInit() {	
-// 	}
+	ngOnInit() {	
+	}
 	
-// 	close() {}
+	close() {
+    this.closeSidenav.emit();
+  }
 
-// 	toggleForm() {
-// 		this.showForm = !this.showForm;
-// 		this.commentText = '';
-// 	}
+	toggleForm() {
+		this.showForm = !this.showForm;
+		this.commentText = '';
+	}
 
-// 	resolveComment(_id: string) {
-// 		this.commentsStore.dispatch(new fromComments.ResolveComment(_id))
-// 	}
+  toggleResolvedComments() {
+		this.showResolved = !this.showResolved;
+	}
 
-// 	submitComment(text?: string, parentId?: string) {
-// 		let commentData = {
-// 			'text': text || this.commentText,
-// 			'CommentsId': this.routeParams['title'],
-// 			'resolved': false,
-// 			'parentId': parentId || 'root'
-// 		};
-// 		this.commentsStore.dispatch(new fromComments.SubmitComment(commentData));
-// 		if (!parentId) this.toggleForm();
-// 		this.commentsStore.dispatch(new fromComments.LoadComments(this.routeParams['title']));
-// 	}
+	// resolveCommentEmit(_id: string) {
 
-// 	toggleResolvedComments() {
-// 		this.showResolved = !this.showResolved;
-// 	}
+		// this.commentsStore.dispatch(new fromComments.ResolveComment(_id))
+	  // }
 
-// }
+	submitNewComment(text?: string, parentId?: string) {
+		let commentData = {
+			'text': text || this.commentText,
+			// 'CommentsId': this.routeParams['title'],
+			'resolved': false,
+			'parentId': parentId || 'root'
+		};
+		// this.commentsStore.dispatch(new fromComments.SubmitComment(commentData));
+    this.submitComment.emit(commentData);
+		if (!parentId) this.toggleForm();
+		// this.commentsStore.dispatch(new fromComments.LoadComments(this.routeParams['title']));
+	}
+
+}
+

@@ -749,7 +749,6 @@ module.exports.getDocumentHistory = function getModel (req, res, next) {
 
 function addComment (comment) {
   comment["createdOn"] = (new Date()).toISOString();
-  comment["createdBy"] = "anonymous";
   return new Promise(function(resolve, reject) {
     MongoClient.connect(MongoUrl, function(err, db) {
       if (err) throw err;
@@ -773,12 +772,12 @@ function resolveCommentWithId(id) {
       if (err) throw err;
       var dbo = db.db(DbName);
       var objectId = new ObjectID(id);
-      dbo.collection("Comments").findOneAndUpdate({_id: objectId}, {$set: {resolved: true}}, function(err, res) {
+      dbo.collection("Comments").updateMany({ $or: [{_id: objectId}, {parentId: id}]}, {$set: {resolved: true}}, function(err, res) {
         if (err){
           console.log(err);
           throw err;
         }
-        var userMsg = "Comment with id " + id + " resolved";
+        var userMsg = "Comment and replies with id " + id + " resolved";
         db.close();
         resolve(userMsg);
       });

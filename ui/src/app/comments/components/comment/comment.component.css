@@ -1,41 +1,45 @@
 .comments-container {
-	margin-left: 5px;
-	margin-top: 10px;
+	margin: 0 24px;
 }
 
 .comment-card {
-	width: 90%;
+	width: 100%;
+  margin-top: 1em;
 }
 
 .comment-resolved {
-	opacity: 0.2;
+	opacity: 0.7;
 }
 
 .reply-card {
-	width: 90%;
-	margin-top: 10px;
-	margin-left: 10px;
+  background-color: #F0F0F0;
+	margin: 0 24px;
 }
 
 med-comment > .comments-container {
-	margin-left: 25px;
-	margin-top: 10px;
+	margin: 0;
+}
+
+med-comment > .reply-card,
+.comments-container > .reply-card {
+	margin: 0;
+}
+
+mat-card-content {
+  overflow-wrap: break-word;
+}
+
+med-comment > .comments-container > mat-card {
+	background-color: #F0F0F0;
 }
 
 med-comment > .comments-container > .comment-card {
-	width: 95%;
+	width: 100%;
+  margin-top: 0;
 }
 
 .reply-form-field {
 	width: 100%;
-}
-
-.reply-button {
-	background-color: #03a9f4;
-}
-
-.resolve-button {
-	background-color: #3cb44b;
 }
 
 .comment-header-image {
@@ -43,5 +47,15 @@ med-comment > .comments-container > .comment-card {
   background-size: cover;
 }
 
+.comment-created-by {
+  margin-bottom: 5px;
+}
 
+.comment-created-on {
+  font-size: 10px;
+}
+
+.comment-text {
+  margin-bottom: 0;
+}
 

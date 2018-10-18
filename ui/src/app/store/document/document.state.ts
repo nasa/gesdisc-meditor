@@ -1,11 +1,13 @@
 import { State, Action, StateContext, Selector, Store } from '@ngxs/store';
-import { Document, DocHistory } from '../../service/model/models';
+import { Document, DocHistory, Comment } from '../../service/model/models';
 import { DefaultService } from '../../service/api/default.service';
 import * as actions from './document.actions';
 import * as workflowactions from 'app/store/workflow/workflow.actions';
 import { tap } from 'rxjs/operators';
 
 export * from './document.actions';
+import * as _ from 'underscore';
+import { AuthState } from 'app/store/auth/auth.state';
 
 export interface DocumentStateModel {
 	loading: boolean;
@@ -15,6 +17,7 @@ export interface DocumentStateModel {
 	currentDocumentModel: string;
 	currentDocumentHistory: DocHistory;
 	currentDocumentVersion: string;
+  currentDocumentComments: Comment[];
 }
 
 @State<DocumentStateModel>({
@@ -27,6 +30,7 @@ export interface DocumentStateModel {
 		currentDocumentModel: undefined,
 		currentDocumentHistory: undefined,
 		currentDocumentVersion: undefined,
+    currentDocumentComments: undefined
 	},
 })
 export class DocumentState {
@@ -38,6 +42,7 @@ export class DocumentState {
 		@Selector() static currentDocumentModel(state: DocumentStateModel): string { return state.currentDocumentModel; }
 		@Selector() static currentDocumentHistory(state: DocumentStateModel): DocHistory { return state.currentDocumentHistory; }
 		@Selector() static currentDocumentVersion(state: DocumentStateModel): string { return state.currentDocumentVersion; }
+    @Selector() static currentDocumentComments(state: DocumentStateModel): Comment[] { return state.currentDocumentComments; }
 
 		constructor(private store: Store, private service: DefaultService) {}
 
@@ -84,6 +89,57 @@ export class DocumentState {
 										loading: false,
 								})),
 						);
+		}
+
+    @Action(actions.GetCurrentDocumentComments)
+		getCurrentDocumentComments({ patchState, getState }: StateContext<DocumentStateModel>) {
+				patchState({ loading: true, });
+				const documentTitle = getState().currentDocumentTitle;
+
+				return this.service.getComments(documentTitle)
+						.pipe(
+								tap((comments: Comment[]) => patchState({
+										currentDocumentComments: comments,
+										loading: false,
+								})),
+						);
+		}
+
+    @Action(actions.ResolveComment)
+		resolveComment({ patchState, getState, dispatch }: StateContext<DocumentStateModel>, { payload }: actions.ResolveComment) {
+				// patchState({ loading: true, });
+				// const documentTitle = getState().currentDocumentTitle;
+
+				return this.service.resolveComment(payload)
+          .pipe(
+            tap(() => { 
+              // let resolvedComment = _.findWhere(getState().currentDocumentComments, {_id: payload});
+              // resolvedComment!.resolved = true;
+              // patchState({
+              //   currentDocumentComments: [...getState().currentDocumentComments, resolvedComment!]
+              // })
+              dispatch(new actions.GetCurrentDocumentComments())
+            }),
+          );
+		}
+
+    @Action(actions.SubmitComment)
+		submitComment({ patchState, getState, dispatch }: StateContext<DocumentStateModel>, { payload }: actions.SubmitComment) {
+				patchState({ loading: true, });
+
+				payload.documentId = getState().currentDocumentTitle;
+        let user = this.store.selectSnapshot(AuthState.user);
+        payload.createdBy = user.firstName + ' '  + user.lastName;
+        const commentBlob = new Blob([JSON.stringify(payload)]);
+
+				return this.service.postComment(commentBlob)
+          .pipe(
+            tap(() => {
+              // patchState({ currentDocumentComments: [...getState().currentDocumentComments, payload]})
+              dispatch(new actions.GetCurrentDocumentComments())
+            })
+          );
+
 		}
 
 		@Action(actions.GetCurrentDocumentVersion)
