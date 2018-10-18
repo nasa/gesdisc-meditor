@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../material';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgxAutoScrollModule } from "ngx-auto-scroll";
 
 import { CommentComponent } from './components/comment/comment.component';
 import { CommentsComponent } from './containers/comments.component';
@@ -14,8 +13,7 @@ import { CommentsComponent } from './containers/comments.component';
     MaterialModule,
     FlexLayoutModule,
     FormsModule,
-    ReactiveFormsModule,
-    NgxAutoScrollModule
+    ReactiveFormsModule
   ],
   exports: [
   	CommentsComponent
