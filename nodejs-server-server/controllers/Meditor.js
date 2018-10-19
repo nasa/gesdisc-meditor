@@ -73,7 +73,7 @@ function getDocumentAggregationQuery(meta) {
   var searchQuery = {};
   var query;
   var defaultStateName = "Unspecified";
-  var defaultState = {target: defaultStateName, source: defaultStateName, modifiedOn: (new Date()).toISOString()};
+  var defaultState = {target: defaultStateName, source: defaultStateName, modifiedBy: 'Unknown', modifiedOn: (new Date()).toISOString()};
   var returnableStates = _.concat(meta.sourceStates, ["Unspecified"]);
   if (meta.params.model) {
     if (SHARED_MODELS.indexOf(meta.params.model) !== -1) returnableStates = _.concat(returnableStates, meta.readyNodes); // Return ready nodes for shared models
@@ -81,13 +81,15 @@ function getDocumentAggregationQuery(meta) {
     // $not: {$and: {'x-meditor.modifiedBy': meta.user.uid, 'x-meditor.state': {$in: exclusiveStates}}}
     // if (!_.isEmpty(meta.user.uid)) filterQuery['x-meditor.modifiedBy'] = {$ne: meta.user.uid};
     query = [
-      {$addFields: {'x-meditor.states': { $ifNull: [ "$x-meditor.states", [defaultState] ] }}}, // Add default state on docs with no state
-      {$addFields: {'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}}}, // Find last state
-      {$addFields: {'bannedTransition': {"$eq" : [{$cond: {if: {$in: ['$x-meditor.state', meta.exclusiveStates]}, then: meta.user.uid, else: '' }}, '$x-meditor.modifiedBy']}}}, // This computes whether a user can transition the edge if he is the modifiedBy of the current state 
       {$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
       {$group: {_id: '$' + meta.titleProperty, doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version
       {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
-      {$match: {'x-meditor.state': {$in: returnableStates}, 'bannedTransition': false}}, // Filter states based on the role's source states
+      {$addFields: {'x-meditor.states': { $ifNull: [ "$x-meditor.states", [defaultState] ] }}}, // Add default state on docs with no states
+      {$addFields: {'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}}}, // Find last state
+      {$addFields: {'banTransitions': {"$eq" : [{$cond: {if: {$in: ['$x-meditor.state', meta.exclusiveStates]}, then: meta.user.uid, else: '' }}, {$arrayElemAt: [ "$x-meditor.states.modifiedBy", -1 ]}  ]}}}, // This computes whether a user can transition the edge if he is the modifiedBy of the current state 
+     
+      //{$match: {'x-meditor.state': {$in: returnableStates}, 'bannedTransition': false}}, // Filter states based on the role's source states
+      //{$match: {'banTransitions': false}}, // Filter states based on the role's source states
     ];
   }
   // Build up search query if search params are available
@@ -158,10 +160,27 @@ function getDocumentModelMetadata(dbo, request, paramsExtra) {
       that.targetStates = _(that.workflow.edges)
         .filter(function(e) {return that.modelRoles.indexOf(e.role) !== -1;})
         .map('target').uniq().value();
+        res.reduce(function (accumulator, currentValue) {
+        if (currentValue.length !== 1) return accumulator;
+        accumulator[currentValue[0].name] = currentValue[0].count;
+        return accumulator;
+      }, {});
+      that.sourceToTargetStateMap = that.workflow.edges.reduce(function(collector, e) {
+        if (that.modelRoles.indexOf(e.role) !== -1) {
+          if (!collector[e.source]) collector[e.source] = [];
+          collector[e.source].push(e.target);
+        }
+        return collector;
+      }, {});
       return that;
     });
 };
-
+function getExtraDocumentMetadata (meta, doc) {
+  var extraMeta = {'x-meditor':
+    {targetStates: doc.banTransitions ? [] : _.get(meta.sourceToTargetStateMap, _.get(doc, "x-meditor.state", "Unknown"), [])}
+  };
+  return extraMeta;
+}
 // ================================= Exported API functions =========================
 
 // Add a Model
@@ -486,7 +505,7 @@ module.exports.listDocuments = function listDocuments (request, response, next) 
     })
     .then(meta => {_.assign(that, meta)})
     .then(function() {
-      var xmeditorProperties = ["modifiedOn", "modifiedBy", "state"];
+      var xmeditorProperties = ["modifiedOn", "modifiedBy", "state", "targetStates"];
       var query = getDocumentAggregationQuery(that);
       return that.dbo
         .db(DbName)
@@ -496,6 +515,7 @@ module.exports.listDocuments = function listDocuments (request, response, next) 
           var res = {"title": _.get(doc, that.titleProperty)};
           res["x-meditor"] = _.pickBy(doc['x-meditor'], function(value, key) {return xmeditorProperties.indexOf(key) !== -1;});
           if ('state' in res["x-meditor"] && !res["x-meditor"].state) res["x-meditor"].state = 'Unspecified';
+          _.merge(res, getExtraDocumentMetadata(that, doc));
           return res;
       })
       .toArray();
@@ -530,6 +550,7 @@ module.exports.getDocument = function listDocuments (request, response, next) {
           out["schema"] = that.model.schema;
           out["layout"] = that.model.layout;
           out["doc"] = res;
+          _.merge(out, getExtraDocumentMetadata(that, res));
           return out;
         })
         .toArray();
@@ -615,6 +636,7 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
       var currentEdge = _(that.workflow.edges).filter(function(e) {return e.source === res['x-meditor'].state && e.target === that.params.state;}).uniq().value();
       if (_.isEmpty(res)) throw {message: 'Document not found', status: 400};
       if (that.params.state === res['x-meditor']['state']) throw {message: 'Can not transition to state [' + that.params.state + '] since it is the current state already', status: 400};
+      if (res.banTransitions) throw {message: 'Transition to state [' + that.params.state + '] from [' + res['x-meditor']['state'] + '] by the same user is not allowed', status: 400};
       if (that.targetStates.indexOf(that.params.state) === -1) throw {message: 'Can not transition to state [' + that.params.state + '] - invalid state or insufficient rights', status: 400};
       if (currentEdge.length !== 1) throw {message: 'Workflow appears to have duplicate edges', status: 400};
       that.document = res;
@@ -623,7 +645,8 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
       newStatesArray.push({
         source: res['x-meditor'].state,
         target: that.params.state,
-        modifiedOn: (new Date()).toISOString()
+        modifiedOn: (new Date()).toISOString(),
+        modifiedBy: that.user.uid
       });
       return that.dbo
         .db(DbName)
