@@ -95,8 +95,9 @@ export class DocumentState {
 		getCurrentDocumentComments({ patchState, getState }: StateContext<DocumentStateModel>) {
 				patchState({ loading: true, });
 				const documentTitle = getState().currentDocumentTitle;
+        const documentModel = getState().currentDocumentModel;
 
-				return this.service.getComments(documentTitle)
+				return this.service.getComments(documentTitle, documentModel)
 						.pipe(
 								tap((comments: Comment[]) => patchState({
 										currentDocumentComments: comments,
@@ -128,6 +129,7 @@ export class DocumentState {
 				patchState({ loading: true, });
 
 				payload.documentId = getState().currentDocumentTitle;
+        payload.model = getState().currentDocumentModel;
         let user = this.store.selectSnapshot(AuthState.user);
         payload.createdBy = user.firstName + ' '  + user.lastName;
         const commentBlob = new Blob([JSON.stringify(payload)]);

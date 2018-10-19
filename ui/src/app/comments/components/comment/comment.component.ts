@@ -55,9 +55,11 @@ export class CommentComponent implements OnInit {
 
   openReplyForm(_id: string) {
     let comment = _.find(this.extComments, function(comment) { return comment._id == _id });
-    if(comment && comment.children.length > 0) {
+    if(comment && comment.parentId == 'root') {
       let commentThread = this.commentThreads.find((i => {return i._parentId == _id}));
-      if (commentThread) { commentThread.openReplyForm(_id); }
+      if (commentThread && commentThread.extComments.length > 0) { 
+        commentThread.openReplyForm(_id); 
+        } else { comment.replyTo = true; }
     } else {
       this.extComments[this.extComments.length - 1].replyTo = true;
       setTimeout(() => { this.commentForm.nativeElement.scrollIntoView({behavior: "smooth"});}, 100)

@@ -8,9 +8,7 @@ basePath: "/meditor/api"
 schemes:
 - "http"
 security:
-- URS4:
-  - "read"
-  - "write"
+  - URS4: [read, write]
 paths:
   /listModels:
     get:
@@ -74,14 +72,14 @@ paths:
           description: "Bad request"
           schema:
             $ref: "#/definitions/error"
-        403:
-          description: "Access denied"
-          schema:
-            $ref: "#/definitions/error"
         422:
           description: "Invalid syntax"
           schema:
             $ref: "#/definitions/error"
+        403:
+          description: "Access denied"
+          schema:
+            $ref: "#/definitions/error"        
         500:
           description: "Server error"
           schema:
@@ -296,8 +294,7 @@ paths:
   /changeDocumentState:
     get:
       summary: "Change the state of a document"
-      description: "Change the state of a document; modifies the state of a document\
-        \ by a privileged user"
+      description: "Change the state of a document; modifies the state of a document by a privileged user"
       operationId: "changeDocumentState"
       parameters:
       - name: "model"
@@ -319,8 +316,8 @@ paths:
       - name: "state"
         in: "query"
         description: "Target state of the document"
-        required: true
         type: "string"
+        required: true
       responses:
         200:
           description: "Successful response"
@@ -359,6 +356,11 @@ paths:
       - name: "title"
         in: "query"
         description: "Title of the document"
+        required: true
+        type: "string"
+      - name: "model"
+        in: "query"
+        description: "Model of the document"
         required: true
         type: "string"
       responses:
@@ -678,7 +680,7 @@ definitions:
         description: "Display category"
       workflow:
         type: "string"
-        description: "Name of the workflow to use with the model's documents"
+        description: "Name of the workflow to use with the model's documents"     
       icon:
         $ref: "#/definitions/model_icon"
       schema:
@@ -734,12 +736,10 @@ definitions:
           \ description of the model; might be shown to user as a tooltip"
       category:
         type: "string"
-        description: "Category/group to which the model belongs; to be used for display\
-          \ purposes only"
+        description: "Category/group to which the model belongs; to be used for display purposes only"
       workflow:
         type: "string"
-        description: "Workflow to be used in processing documents belonging to the\
-          \ model"
+        description: "Workflow to be used in processing documents belonging to the model"
       icon:
         $ref: "#/definitions/model_icon"
       schema:
@@ -820,6 +820,7 @@ definitions:
     - "createdBy"
     - "createdOn"
     - "documentId"
+    - "model"
     - "id"
     - "parentId"
     - "resolved"
@@ -838,6 +839,8 @@ definitions:
       parentId:
         type: "string"
       documentId:
+        type: "string"
+      model:
         type: "string"
   model_xmeditor:
     properties:
@@ -911,3 +914,4 @@ definitions:
         description: "CSRF token"
     example:
       csrfToken: "SFfkaSD-dksfjfjsSKJ33DN-fdS-fSf"
+

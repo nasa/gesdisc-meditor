@@ -824,7 +824,8 @@ function resolveCommentWithId(id) {
 
 //Exported method to get comments for document
 module.exports.getComments = function getComments (req, res, next) {
-  getCommentsforDoc(req.swagger.params['title'].value)
+  var params = getSwaggerParams(req);
+  getCommentsforDoc(params)
   .then(function (response) {
     utils.writeJson(res, response);
   })
@@ -874,7 +875,7 @@ module.exports.postComment = function postComment (req, res, next) {
 };
 
 // Internal method to list comments
-function getCommentsforDoc (doc) {
+function getCommentsforDoc (params) {
   return new Promise(function(resolve, reject) {
     MongoClient.connect(MongoUrl, function(err, db) {
       if (err) {
@@ -882,7 +883,7 @@ function getCommentsforDoc (doc) {
         throw err;
       }
       var dbo = db.db(DbName);
-      dbo.collection("Comments").find({documentId:doc}).toArray(function(err, res) {
+      dbo.collection("Comments").find({$and: [ {documentId: params.title}, {model: params.model} ]}).toArray(function(err, res) {
         if (err){
           console.log(err);
           throw err;

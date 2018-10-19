@@ -358,6 +358,11 @@ paths:
         description: "Title of the document"
         required: true
         type: "string"
+      - name: "model"
+        in: "query"
+        description: "Model of the document"
+        required: true
+        type: "string"
       responses:
         200:
           description: "Successful response"
@@ -815,6 +820,7 @@ definitions:
     - "createdBy"
     - "createdOn"
     - "documentId"
+    - "model"
     - "id"
     - "parentId"
     - "resolved"
@@ -833,6 +839,8 @@ definitions:
       parentId:
         type: "string"
       documentId:
+        type: "string"
+      model:
         type: "string"
   model_xmeditor:
     properties:
