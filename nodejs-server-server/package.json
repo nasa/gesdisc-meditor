@@ -19,18 +19,21 @@
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.4",
     "csurf": "^1.9.0",
+    "dotenv": "^6.0.0",
     "express-session": "^1.15.6",
-    "helmet": "^3.13.0",
     "gridfs-stream": "^1.1.1",
+    "helmet": "^3.13.0",
     "js-yaml": "^3.3.0",
+    "jsonpath": "1.0.0",
     "lodash": "^4.17.10",
     "mongodb": "^3.1.1",
     "passport": "^0.4.0",
     "passport-oauth2": "^1.4.0",
-    "streamifier": "^0.1.1",
+    "request": "^2.88.0",
+    "request-debug": "^0.2.0",
+    "request-promise-native": "^1.0.5",
     "swagger-tools": "0.10.1",
-    "transliteration": "^1.6.5",
-    "jsonpath": "1.0.0"
+    "transliteration": "^1.6.5"
   },
   "devDependencies": {
     "nodemon": "^1.18.4"
