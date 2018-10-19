@@ -545,12 +545,12 @@ module.exports.getDocument = function listDocuments (request, response, next) {
         .aggregate(query)
         .map(res => {
           var out = {};
+          _.merge(res, getExtraDocumentMetadata(that, res));
           out["x-meditor"] = res["x-meditor"];
           delete res["x-meditor"];
           out["schema"] = that.model.schema;
           out["layout"] = that.model.layout;
           out["doc"] = res;
-          _.merge(out, getExtraDocumentMetadata(that, res));
           return out;
         })
         .toArray();
