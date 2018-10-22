@@ -4,7 +4,7 @@ services:
 
   proxy:
     container_name: meditor_proxy
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_proxy:0.11.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_proxy:0.13.0
     ports:
       - "80:8080"
     links:
@@ -15,7 +15,7 @@ services:
 
   notifier:
     container_name: meditor_notifier
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_notifier:0.11.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_notifier:0.13.0
     links:
       - database
       - database-sec-1
@@ -27,7 +27,7 @@ services:
 
   ui:
     container_name: meditor_ui
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_ui:0.11.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_ui:0.13.0
     environment:
       - NODE_ENV=${NODE_ENV}
       - APP_URL=${APP_URL}
@@ -35,7 +35,7 @@ services:
  
   server:
     container_name: meditor_server
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_server:0.11.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_server:0.13.0
     links:
       - database
     depends_on:
@@ -50,37 +50,37 @@ services:
 
   database:
     container_name: meditor_database
-    image: dev.gesdisc.eosdis.nasa.gov:443/mongo/4.1.4
+    image: dev.gesdisc.eosdis.nasa.gov:443/mongo:4.1.4
     restart: always
     ports:
       - "47017:27017"
     volumes:
       - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
-    command: --smallfiles --replSet meditor
+    command: --replSet meditor
 
   database-sec-1:
     container_name: meditor_database_sec_1
-    image: dev.gesdisc.eosdis.nasa.gov:443/mongo/4.1.4
+    image: dev.gesdisc.eosdis.nasa.gov:443/mongo:4.1.4
     restart: always
     ports:
       - "47018:27017"
     volumes:
       - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
-    command: --smallfiles --replSet meditor
+    command: --replSet meditor
 
   database-sec-2:
     container_name: meditor_database_sec_2
-    image: dev.gesdisc.eosdis.nasa.gov:443/mongo/4.1.4
+    image: dev.gesdisc.eosdis.nasa.gov:443/mongo:4.1.4
     restart: always
     ports:
       - "47019:27017"
     volumes:
       - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
-    command: --smallfiles --replSet meditor
+    command: --replSet meditor
 
   database-replicaset:
     container_name: meditor_replicaset
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_replicaset:0.11.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_replicaset:0.13.0
     links:
       - database
       - database-sec-1
