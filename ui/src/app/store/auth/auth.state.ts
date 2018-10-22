@@ -76,7 +76,7 @@ export class AuthState {
 		@Action(actions.LoginSuccess)
 			loginSuccess({ patchState,  dispatch }: StateContext<AuthStateModel>, { payload }: actions.LoginSuccess) {
 				patchState({ user: payload, loggedIn: true });
-        this.router.navigateByUrl(localStorage.getItem('returnUrl') || '/');
+        this.ngZone.run(() => { this.router.navigateByUrl(localStorage.getItem('returnUrl') || '/'); });
 				return dispatch(new notification.SuccessNotificationOpen('You have successfully logged in'));
 		}
 
