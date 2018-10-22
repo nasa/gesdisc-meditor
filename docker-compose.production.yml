@@ -50,7 +50,7 @@ services:
 
   database:
     container_name: meditor_database
-    image: dev.gesdisc.eosdis.nasa.gov:443/mongo:4.1.4
+    image: dev.gesdisc.eosdis.nasa.gov:443/mongo/4.1.4
     restart: always
     ports:
       - "47017:27017"
@@ -60,8 +60,10 @@ services:
 
   database-sec-1:
     container_name: meditor_database_sec_1
-    image: dev.gesdisc.eosdis.nasa.gov:443/mongo:4.1.4
+    image: dev.gesdisc.eosdis.nasa.gov:443/mongo/4.1.4
     restart: always
+    depends_on:
+      - database
     ports:
       - "47018:27017"
     volumes:
@@ -70,8 +72,10 @@ services:
 
   database-sec-2:
     container_name: meditor_database_sec_2
-    image: dev.gesdisc.eosdis.nasa.gov:443/mongo:4.1.4
+    image: dev.gesdisc.eosdis.nasa.gov:443/mongo/4.1.4
     restart: always
+    depends_on:
+      - database
     ports:
       - "47019:27017"
     volumes:
