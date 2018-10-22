@@ -42,8 +42,8 @@ const routeResolvers = [ DocumentResolver, ModelResolver, DocEditResolver, Model
 		HttpClientModule,
 		FlexLayoutModule,
 		MaterialModule,
-		RouterModule.forRoot(routes, { useHash: true }),
 		CoreModule.forRoot(),
+		RouterModule.forRoot(routes, { useHash: true }),
 		NgxsModule.forRoot([
 			DocumentState,
 			ModelState,
@@ -51,7 +51,8 @@ const routeResolvers = [ DocumentResolver, ModelResolver, DocEditResolver, Model
 			AuthState,
 			WorkflowState ]),
 		NgxsRouterPluginModule.forRoot(),
-    NgxsStoragePluginModule.forRoot({storage: StorageOption.SessionStorage, key: ['auth']}),
+    NgxsStoragePluginModule.forRoot({storage: StorageOption.LocalStorage, key: ['auth'], deserialize: JSON.parse,
+      serialize: JSON.stringify}),
 		NgxsReduxDevtoolsPluginModule.forRoot(),
 		ApiModule
 	],
