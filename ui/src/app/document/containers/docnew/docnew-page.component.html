@@ -15,11 +15,11 @@
 				(liveData)="liveData($event)"
 				(isValid)="isValid($event)">
 			</med-document-edit>
-			<med-document-actions
-				[canEdit]="(userPrivileges$ | async).includes('edit')"
-				[canSave]="isFormValid"
-				(saveDocument)="saveDocument()">
-			</med-document-actions>	
+			<button mat-raised-button 
+        *ngIf="(userPrivileges$ | async).includes('edit')" 
+        (click)="saveDocument()" 
+        [disabled]="!isFormValid">Save
+      </button>
 		</mat-card-content>
 	</mat-card>
 </div>
