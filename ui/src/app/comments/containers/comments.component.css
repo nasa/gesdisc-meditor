@@ -1,6 +1,17 @@
+.control-panel {
+  margin: 1em 0;
+  padding: 0 24px;
+}
+
+h3 {
+	padding: 24px 24px 0 24px;
+	font-size: 1.5em;
+	font-weight: bold;
+}
+
 .reply-card {
-	margin: 10px 0 5px 5px;
-	width: calc(90% - 5px);
+	margin: 0 24px 24px 24px;
+	width: calc(90%-5px);
 }
 
 .reply-form-field {
@@ -10,27 +21,12 @@
 .action-button {
 	margin-left: 20px;
 	margin-top: 10px;
-	background-color: #03a9f4;
 }
 
 .new-comment-button,
 .close-sidenav-button,
 .resolved-sidenav-button {
-	margin-left: 5px;
-}
-
-.new-comment-button {
-	background-color: #03a9f4;
-}
-
-.button-panel {
-	display: flex;
-  justify-content: flex-start;
-}
-
-.resolved-sidenav-button {
-	width: 150px;
-	background-color: #3cb44b;
+	margin-right: 5px;
 }
 
 .mat-drawer {

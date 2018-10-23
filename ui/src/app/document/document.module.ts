@@ -4,7 +4,6 @@ import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { MaterialModule } from '../material';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgxJsonViewerModule } from 'ngx-json-viewer';
 
 import {
 	JsonSchemaFormModule, MaterialDesignFrameworkModule, MaterialDesignFramework,
@@ -16,7 +15,7 @@ import { DocNewPageComponent } from './containers/docnew/docnew-page.component';
 
 import { DocumentEditComponent } from './components/document-edit/document-edit.component';
 import { DochistoryComponent } from './components/dochistory/dochistory.component';
-// import { CommentsModule } from '../comments/comments.module';
+import { CommentsModule } from '../comments/comments.module';
 
 import { routes } from './document.routing';
 import { DocactionsComponent } from './components/docactions/docactions.component';
@@ -30,8 +29,7 @@ import { DocactionsComponent } from './components/docactions/docactions.componen
 		ReactiveFormsModule,
 		RouterModule.forChild(routes),
 		MaterialDesignFrameworkModule,
-		NgxJsonViewerModule,
-		// CommentsModule,
+		CommentsModule,
 		{
 			ngModule: JsonSchemaFormModule,
 			providers: [

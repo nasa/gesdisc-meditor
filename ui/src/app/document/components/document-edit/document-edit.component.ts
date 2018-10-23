@@ -47,17 +47,11 @@ export class DocumentEditComponent implements OnInit {
 
 	}
 
-	// onSubmit() {
-	// 	this.submitDocument.emit(this.liveFormData);
-	// }
-
 	onChanges(data: any) {
-		// this.liveFormData = data;
 		this.liveData.emit(data);
 	}
 
 	isFormValid(isvalid: boolean): void {
-		// this.formIsValid = isvalid;
 		this.isValid.emit(isvalid);
 	}
 
