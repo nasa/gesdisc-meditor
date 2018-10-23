@@ -1,3 +1,5 @@
+import { Comment } from '../../service/model/models';
+
 export class GetDocument {
 	static readonly type = '[Document] Get Document';
 
@@ -35,6 +37,22 @@ export class GetCurrentDocumentVersion {
 	constructor (public payload: {
 		version: string,
 	}) {}
+}
+
+export class GetCurrentDocumentComments {
+	static readonly type = '[Document] Get Current Document Comments';
+}
+
+export class ResolveComment {
+	static readonly type = '[Document] Resolve Comment by ID';
+
+  constructor (public payload: string) {}
+}
+
+export class SubmitComment {
+	static readonly type = '[Document] Submit Comment';
+
+  constructor (public payload: Comment) {}
 }
 
 export class UpdateDocumentState {

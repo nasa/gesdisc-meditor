@@ -19,4 +19,5 @@ export interface Comment {
     resolved: boolean;
     parentId: string;
     documentId: string;
+    model: string;
 }
