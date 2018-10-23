@@ -575,7 +575,7 @@ function notifyOfStateChange(meta) {
       " as [" + meta.params.state + "]. An action is required to transition the document to [" + targetNodes.join(', ') + "].",
     "link": {
         label: meta.params.title,
-        "url": process.env.APP_URL + "/api/getDocument?" + serializeParams(meta.params, ['title', 'model', 'version'])
+        url: process.env.APP_URL + "/#/document/edit?" + serializeParams(meta.params, ['title', 'model', 'version'])
     },
     "createdOn": (new Date()).toISOString()
   };
