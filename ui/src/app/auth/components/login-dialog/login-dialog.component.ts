@@ -39,12 +39,6 @@ export class LoginDialog {
 	constructor(
 		public dialogRef: MatDialogRef<LoginDialog>
 	) {}
-<<<<<<< HEAD
-
-	login() {
-		window.location.href = environment.API_BASE_PATH + '/login';
-	}
-=======
 
 
 	login() {
@@ -56,5 +50,4 @@ export class LoginDialog {
 		return basePath.indexOf('http') !== 0 ? window.location.origin + basePath : basePath;
 	}
 
->>>>>>> 29393eb064f79f639a665661898f60136303ed9c
 }

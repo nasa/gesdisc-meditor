@@ -34,10 +34,6 @@ export class LoginStatusComponent implements OnInit {
 	}
 
 	logout() {
-<<<<<<< HEAD
-		this.store.dispatch(new Logout);
-		window.location.href = environment.API_BASE_PATH + '/logout';
-=======
 		this.store.dispatch(new Logout());
 		window.location.href = this.getApiUrl() + '/logout';
 	}
@@ -45,7 +41,6 @@ export class LoginStatusComponent implements OnInit {
 	getApiUrl() {
 		const basePath = environment.API_BASE_PATH;
 		return basePath.indexOf('http') !== 0 ? window.location.origin + basePath : basePath;
->>>>>>> 29393eb064f79f639a665661898f60136303ed9c
 	}
 
 	toggleButton() {
