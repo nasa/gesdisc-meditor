@@ -19,8 +19,8 @@ var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
 var DbName = "meditor";
 var UUI_AUTH_CLIENT_ID = process.env.UUI_AUTH_CLIENT_ID;
 var UUI_APP_URL =  (process.env.UUI_APP_URL || 'http://localhost:9000').replace(/\/+$/, '');
-var CMR_USER = process.env.CMR_USER;
-var CMR_PASSWORD = process.env.CMR_PASSWORD;
+var URS_USER = process.env.URS_USER;
+var URS_PASSWORD = process.env.URS_PASSWORD;
 
 var URS_BASE_URL = 'https://urs.earthdata.nasa.gov';
 var URS_HEADERS = {
@@ -55,7 +55,7 @@ var UUI_HEADERS = {
 // Steps:
 
 // A. Authentication into UUI using URS
-// 0. Load up CMR credentials from a file into environment.
+// 0. Load up URS credentials from a file into environment.
 // 1. Load up urs.earthdata.nasa.gov/oath/authorize and accept a cookie.
 // 2. Extract CSRF authenticity_token from the form on the oath/authorize page.
 // 3. POST user name, password, authenticity_token, and a few other static form fields (along the cookie) to https://urs.earthdata.nasa.gov/login.
@@ -159,8 +159,8 @@ module.exports.syncItems = function syncItems (params) {
     .then(res => {
         that.meditorDocs = res;
         return loginIntoUrs({
-            user: CMR_USER,
-            password: CMR_PASSWORD,
+            user: URS_USER,
+            password: URS_PASSWORD,
             redirectUri:UUI_APP_URL + '/login/callback',
             clientId: UUI_AUTH_CLIENT_ID
         });
