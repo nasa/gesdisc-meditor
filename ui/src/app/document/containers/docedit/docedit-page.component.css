@@ -12,44 +12,13 @@
 	min-width: 430px;
 }
 
-.example-container {
-  display: flex;
-  flex-direction: column;
-}
-
-.reply-card {
-	margin: 10px 0 5px 5px;
-	width: calc(90% - 5px);
-}
-
-.reply-form-field {
-	width: 100%;
-}
-
-.action-button {
-	margin-left: 20px;
-	margin-top: 10px;
-	background-color: #03a9f4;
-}
-
-.new-comment-button,
-.close-sidenav-button,
-.resolved-sidenav-button {
-	margin-left: 5px;
-}
-
-.new-comment-button {
-	background-color: #03a9f4;
-}
-
 .button-panel {
 	display: flex;
   justify-content: flex-start;
 }
 
-.resolved-sidenav-button {
-	width: 150px;
-	background-color: #3cb44b;
+.button-panel > button {
+  margin-right: 0.5em;
 }
 
 .readonly-doc {

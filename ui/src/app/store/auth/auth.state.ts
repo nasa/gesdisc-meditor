@@ -1,6 +1,6 @@
+import { NgZone } from '@angular/core';
 import { State, Action, StateContext, Selector, Store } from '@ngxs/store';
 import { MatDialog } from '@angular/material';
-import { Router } from '@angular/router';
 import { DefaultService } from 'app/service/api/default.service';
 import * as actions from './auth.actions';
 import * as notification from 'app/store/notification/notification.actions';
@@ -10,6 +10,8 @@ import * as _ from 'underscore';
 import { LoginDialog } from 'app/auth/components/login-dialog/login-dialog.component';
 import { WorkflowState } from 'app/store/workflow/workflow.state';
 import { ModelState } from 'app/store/model/model.state';
+import { Navigate } from '@ngxs/router-plugin';
+import { Params, Router } from '@angular/router';
 
 
 export * from './auth.actions';
@@ -39,9 +41,10 @@ export class AuthState {
 
 		constructor(
 			private store: Store,
+      private router: Router,
 			private service: DefaultService,
 			private dialog: MatDialog,
-			private router: Router) {}
+			private ngZone: NgZone ) {}
 
 		@Action(actions.GetUser)
 			getUser({ dispatch }: StateContext<AuthStateModel>, action: actions.GetUser) {
@@ -61,7 +64,7 @@ export class AuthState {
 				const nodeprivileges = this.store.selectSnapshot(WorkflowState.currentNodePrivileges);
 				const currentUserRoles = _.pluck(userroles.filter((role: any) => role.model === modelname), 'role');
 				_.each(currentUserRoles, function(role) {
-					let nodePrivilege = _.findWhere(nodeprivileges, {'role': role})
+					let nodePrivilege = _.findWhere(nodeprivileges, {'role': role});
 
 					if (nodePrivilege) {
 						privileges = _.union(privileges, nodePrivilege.privilege);
@@ -73,23 +76,25 @@ export class AuthState {
 		@Action(actions.LoginSuccess)
 			loginSuccess({ patchState,  dispatch }: StateContext<AuthStateModel>, { payload }: actions.LoginSuccess) {
 				patchState({ user: payload, loggedIn: true });
-				this.router.navigateByUrl(localStorage.getItem('returnUrl') || '/');
+        this.ngZone.run(() => { this.router.navigateByUrl(localStorage.getItem('returnUrl') || '/'); });
 				return dispatch(new notification.SuccessNotificationOpen('You have successfully logged in'));
 		}
 
 		@Action(actions.Logout)
-			logout({ patchState }: StateContext<AuthStateModel>, { }: actions.Logout) {
+			logout({ patchState, dispatch }: StateContext<AuthStateModel>, { }: actions.Logout) {
 				patchState({ user: null, loggedIn: false });
-				this.router.navigate(['/']);
+				return dispatch(new Navigate(['/']));
 		}
 
 		@Action(actions.OpenLoginDialog)
 			openLoginDialog() {
-				this.dialog.open(LoginDialog, {
-					width: '400px',
-					position: { top: '200px' },
-					disableClose: true
+				this.ngZone.run(() => {
+					this.dialog.open(LoginDialog, {
+						width: '400px',
+						position: { top: '200px' },
+						disableClose: true
+					});
 				});
-		}
+			}
 
 }

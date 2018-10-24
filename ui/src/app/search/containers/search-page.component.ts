@@ -6,7 +6,7 @@ import { Store, Select } from '@ngxs/store';
 import { GetModel, GetModelDocuments } from 'app/store/model/model.state';
 import { UpdateWorkflowState, GetWorkflow } from 'app/store/workflow/workflow.state';
 import { GetUserPrivileges } from 'app/store/auth/auth.state';
-import { Go } from 'app/store/router/router.state';
+import { Navigate } from '@ngxs/router-plugin';
 import { ModelCatalogEntry, DocCatalogEntry, Edge, Model } from 'app/service/model/models';
 import { AuthState, ModelState, WorkflowState } from 'app/store';
 
@@ -32,6 +32,7 @@ export class SearchPageComponent implements OnInit {
 	ngOnInit() {
 		this.selectedModel$.subscribe(this.selectedModelChanged.bind(this));
 		this.selectedModelDocuments$.subscribe(this.selectedModelDocumentsChanged.bind(this));
+		this.sortByChanged('newest');
 	}
 
 	selectedModelChanged(model: Model) {
@@ -78,17 +79,17 @@ export class SearchPageComponent implements OnInit {
 
 	selectAndChange(modelName: any) {
 		this.store.dispatch(new GetModel({ name: modelName }));
-		this.store.dispatch(new Go({ path: '/search', query: { model: modelName}}));
+		this.store.dispatch(new Navigate(['/search'], { model: modelName}));
 	}
 
 	addNewDocument(event: string) {
 		this.store.dispatch(new UpdateWorkflowState(event));
-		this.store.dispatch(new Go({ path: '/document/new', query: { model: this.selectedModelName }}));
+		this.store.dispatch(new Navigate(['/document/new'], { model: this.selectedModelName}));
 	}
 
 	loadDocument(event: {title: string, state: string}) {
 		this.store.dispatch(new UpdateWorkflowState(event.state));
-		this.store.dispatch(new Go({ path: '/document/edit', query: { model: this.selectedModelName, title: event.title }}));
+		this.store.dispatch(new Navigate(['/document/edit'], { model: this.selectedModelName, title: event.title}));
 	}
 }
 

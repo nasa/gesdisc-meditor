@@ -19,7 +19,8 @@ module.exports.changeDocumentState = function changeDocumentState (req, res, nex
 
 module.exports.getComments = function getComments (req, res, next) {
   var title = req.swagger.params['title'].value;
-  Default.getComments(title)
+  var model = req.swagger.params['model'].value;
+  Default.getComments(title,model)
     .then(function (response) {
       utils.writeJson(res, response);
     })

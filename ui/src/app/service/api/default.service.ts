@@ -129,20 +129,27 @@ export class DefaultService {
      * Gets comments for document
      * Gets comments for document
      * @param title Title of the document
+     * @param model Model of the document
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getComments(title: string, observe?: 'body', reportProgress?: boolean): Observable<any>;
-    public getComments(title: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
-    public getComments(title: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
-    public getComments(title: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public getComments(title: string, model: string, observe?: 'body', reportProgress?: boolean): Observable<any>;
+    public getComments(title: string, model: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+    public getComments(title: string, model: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+    public getComments(title: string, model: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
         if (title === null || title === undefined) {
             throw new Error('Required parameter title was null or undefined when calling getComments.');
+        }
+        if (model === null || model === undefined) {
+            throw new Error('Required parameter model was null or undefined when calling getComments.');
         }
 
         let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
         if (title !== undefined) {
             queryParameters = queryParameters.set('title', <any>title);
+        }
+        if (model !== undefined) {
+            queryParameters = queryParameters.set('model', <any>model);
         }
 
         let headers = this.defaultHeaders;
