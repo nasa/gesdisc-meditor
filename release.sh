@@ -1,7 +1,7 @@
 set -ex
 
 REGISTRY=dev.gesdisc.eosdis.nasa.gov:443
-IMAGES=( "meditor_ui" "meditor_server" "meditor_proxy" "meditor_notifier" )
+IMAGES=( "meditor_ui" "meditor_server" "meditor_proxy" "meditor_notifier" "meditor_replicaset" )
 
 # ensure we're up to date
 git pull

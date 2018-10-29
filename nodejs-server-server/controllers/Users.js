@@ -261,7 +261,7 @@ module.exports.init = function (app) {
      *  https://www.npmjs.com/package/express-session
      */
     store: new SessionStore({
-      uri: _.trimEnd(MongoUrl, '/') + '/' + DbName,
+      uri: getMongoUrlWithDatabase(DbName),
       collection: 'Sessions'
     })
   }));
@@ -271,3 +271,9 @@ module.exports.init = function (app) {
   // Protect all PUT requests with cookie-based csrf
   // app.use('/meditor/api/', csrf({cookie: true}));
 };
+
+function getMongoUrlWithDatabase(db) {
+  let parts = MongoUrl.split('?')
+  parts[0] = _.trimEnd(parts[0], '/') + '/' + DbName
+  return parts.join('?')
+}

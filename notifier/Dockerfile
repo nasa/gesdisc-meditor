@@ -1,4 +1,4 @@
-FROM centos:latest
+FROM dev.gesdisc.eosdis.nasa.gov:443/centos
 
 # install crontabs RUN yum -y update
 RUN yum -y install crontabs

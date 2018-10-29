@@ -31,7 +31,7 @@ services:
 
   database:
     container_name: meditor_database
-    image: mongo:4.1
+    image: dev.gesdisc.eosdis.nasa.gov:443/mongo/4.1.4
     volumes:
       - ${DATABASE_HOST_VOLUME}:/data/db
     ports:
