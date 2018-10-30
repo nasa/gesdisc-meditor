@@ -21,6 +21,8 @@ import { SetInitialState } from 'app/store/workflow/workflow.state';
 import { SuccessNotificationOpen, ErrorNotificationOpen } from 'app/store/notification/notification.state';
 import { SubmitComment } from '../../../store/document/document.state';
 
+import * as _ from 'underscore';
+
 @Component({
 	selector: 'med-docedit-page',
 	templateUrl: './docedit-page.component.html',
@@ -30,10 +32,11 @@ export class DocEditPageComponent implements OnInit {
 
 	@Select(ModelState.currentModel) model$: Observable<Model>;
 	@Select(DocumentState.currentDocument) document$: Observable<Document>;
-	@Select(DocumentState.currentDocumentHistory) history$: Observable<DocHistory>;
+	@Select(DocumentState.currentDocumentHistory) history$: Observable<DocHistory[]>;
 	@Select(DocumentState.currentDocumentVersion) version$: Observable<string>;
   @Select(DocumentState.currentDocumentComments) comments$: Observable<Comment[]>;
   @Select(DocumentState.currentCommentsCount) commentsCount$: Observable<number>;
+  @Select(DocumentState.currentVersionsCount) versionsCount$: Observable<number>;
 	@Select(WorkflowState.currentEdges) edges$: Observable<Edge[]>;
 	@Select(WorkflowState.currentWorkflow) workflow$: Observable<Edge>;
 	@Select(AuthState.userPrivileges) userPrivileges$: Observable<string[]>;
@@ -41,6 +44,8 @@ export class DocEditPageComponent implements OnInit {
 	@ViewChild('sidenav') sidenav: MatSidenav;
 
 	modelName: string;
+  history: DocHistory[];
+  versionFilter: Date = new Date();
 	readonlydoc = true;
 	liveFormData: Document;
 	isFormValid: boolean;
@@ -53,6 +58,9 @@ export class DocEditPageComponent implements OnInit {
 		this.model$.subscribe(model => {
 			this.modelName = model.name;
 		});
+    this.history$.subscribe(history => {
+      this.history = history; 
+    })
 		this.workflow$.subscribe(workflow => {
 			if (workflow) {
 				this.document$.subscribe(document => {
@@ -98,6 +106,12 @@ export class DocEditPageComponent implements OnInit {
 
 	loadVersion(version: string) {
 		this.store.dispatch(new GetCurrentDocumentVersion({ version }));
+    let versionIdx = this.history.findIndex(i => i.modifiedOn.toString() == version);
+    if (versionIdx - 1 > -1) { 
+      this.versionFilter = this.history[versionIdx - 1].modifiedOn 
+    } else {
+      this.versionFilter = new Date();
+    }
 		this.sidenav.close();
 	}
 

@@ -15,7 +15,7 @@ export interface DocumentStateModel {
 	currentDocument: Document;
 	currentDocumentTitle: string;
 	currentDocumentModel: string;
-	currentDocumentHistory: DocHistory;
+	currentDocumentHistory: DocHistory[];
 	currentDocumentVersion: string;
   currentDocumentComments: Comment[];
 }
@@ -40,13 +40,15 @@ export class DocumentState {
 		@Selector() static currentDocument(state: DocumentStateModel): Document { return state.currentDocument; }
 		@Selector() static currentDocumentTitle(state: DocumentStateModel): string { return state.currentDocumentTitle; }
 		@Selector() static currentDocumentModel(state: DocumentStateModel): string { return state.currentDocumentModel; }
-		@Selector() static currentDocumentHistory(state: DocumentStateModel): DocHistory { return state.currentDocumentHistory; }
+		@Selector() static currentDocumentHistory(state: DocumentStateModel): DocHistory[] { return state.currentDocumentHistory; }
 		@Selector() static currentDocumentVersion(state: DocumentStateModel): string { return state.currentDocumentVersion; }
     @Selector() static currentDocumentComments(state: DocumentStateModel): Comment[] { return state.currentDocumentComments; }
     @Selector() static currentCommentsCount(state: DocumentStateModel): number { 
       return _.filter(state.currentDocumentComments, function (c) {
         return c.parentId == 'root' && !c.resolved
-      }).length }
+      }).length; 
+    }
+    @Selector() static currentVersionsCount(state: DocumentStateModel): number { return state.currentDocumentHistory.length}
 
 
 		constructor(private store: Store, private service: DefaultService) {}
@@ -66,6 +68,7 @@ export class DocumentState {
 										currentDocumentVersion: payload.version || document['x-meditor'].modifiedOn.toString(),
 										loading: false,
 									});
+                  dispatch(new actions.GetCurrentDocumentHistory());
 							}),
 						);
 		}
@@ -89,7 +92,7 @@ export class DocumentState {
 
 				return this.service.getDocumentHistory(document['x-meditor'].model, documentTitle)
 						.pipe(
-								tap((history: DocHistory) => patchState({
+								tap((history: DocHistory[]) => patchState({
 										currentDocumentHistory: history,
 										loading: false,
 								})),
@@ -131,6 +134,7 @@ export class DocumentState {
 
 				payload.documentId = getState().currentDocumentTitle;
         payload.model = getState().currentDocumentModel;
+        payload.version = getState().currentDocumentVersion;
         let user = this.store.selectSnapshot(AuthState.user);
         payload.createdBy = user.firstName + ' '  + user.lastName;
         const commentBlob = new Blob([JSON.stringify(payload)]);

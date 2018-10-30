@@ -1,0 +1,72 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DochistoryComponent should create version list with mock data 1`] = `
+<med-doc-history
+  dochistory={[Function Array]}
+  loadVersion={[Function EventEmitter]}
+  selectedHistory={[Function String]}
+>
+  <h3>
+    History
+  </h3><div
+    class="history-content-container"
+  >
+    
+    <div>
+      <mat-card
+        class="history-item mat-card"
+        ng-reflect-klass="history-item"
+        ng-reflect-ng-class=""
+      >
+        <div
+          class="modified-on-label"
+        >
+          Oct 29, 2018, 2:00:09 PM
+        </div>
+        <div
+          class="modified-by-label"
+        >
+          by azasorin
+        </div>
+      </mat-card>
+    </div>
+    <div>
+      <mat-card
+        class="history-item mat-card"
+        ng-reflect-klass="history-item"
+        ng-reflect-ng-class=""
+      >
+        <div
+          class="modified-on-label"
+        >
+          Oct 29, 2018, 2:00:04 PM
+        </div>
+        <div
+          class="modified-by-label"
+        >
+          by azasorin
+        </div>
+      </mat-card>
+    </div>
+    <div>
+      <mat-card
+        class="history-item mat-card"
+        ng-reflect-klass="history-item"
+        ng-reflect-ng-class=""
+      >
+        <div
+          class="modified-on-label"
+        >
+          Oct 29, 2018, 2:00:01 PM
+        </div>
+        <div
+          class="modified-by-label"
+        >
+          by azasorin
+        </div>
+      </mat-card>
+    </div>
+    
+  </div>
+</med-doc-history>
+`;
