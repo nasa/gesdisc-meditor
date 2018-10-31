@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Login Component should compile login status component 1`] = `
+<med-login-status
+  store={[Function Store]}
+  userBtn={[Function Boolean]}
+>
+  <button
+    color="accent"
+    mat-button=""
+  >
+    <mat-icon
+      aria-hidden="true"
+      class="mat-icon material-icons"
+      role="img"
+    >
+      person
+    </mat-icon>
+     Hi, testName 
+  </button>
+</med-login-status>
+`;

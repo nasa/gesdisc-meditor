@@ -50,7 +50,7 @@ export class ModelState {
 	getAllModels({ patchState, getState }: StateContext<ModelStateModel>, { payload }: actions.GetAllModels) {
 		const models: any = getState().models;
 		const useCache: boolean = models.length && !payload.reload;
-		
+
 		const getAllModelsCallback = (models: any) => {
 			patchState({ models });
 		};

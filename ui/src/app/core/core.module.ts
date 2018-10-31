@@ -7,9 +7,8 @@ import { MaterialModule } from '../material';
 // CONTAINERS
 import { MainComponent } from './containers/main/main.component';
 import { NotFoundPageComponent } from './containers/not-found-page';
-import { SplashPageComponent, 
-//	LoginDialog 
-} from './containers/splash-page/splash-page.component';
+import { SplashPageComponent } from './containers/splash-page/splash-page.component';
+
 // COMPONENTS
 import { ModelButtonComponent } from './components/model-button/model-button.component';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';

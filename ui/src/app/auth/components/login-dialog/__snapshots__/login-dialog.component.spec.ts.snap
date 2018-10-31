@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Login Component should compile login dialog 1`] = `
+<med-login-dialog
+  dialogRef={[Function Object]}
+>
+  <h1
+    _ngcontent-c0=""
+    class="mat-dialog-title"
+    id="mat-dialog-title-0"
+    mat-dialog-title=""
+  >
+    Welcome!
+  </h1><mat-dialog-content
+    _ngcontent-c0=""
+    class="mat-dialog-content"
+  >
+     The Model Editor requires that you be an authorized user to add models or edit documents, so please... 
+    <button
+      _ngcontent-c0=""
+      class="login-btn"
+      color="accent"
+      mat-button=""
+    >
+      <mat-icon
+        _ngcontent-c0=""
+        aria-hidden="true"
+        class="mat-icon material-icons"
+        role="img"
+      >
+        person
+      </mat-icon>
+       Login 
+    </button>
+  </mat-dialog-content><h5
+    _ngcontent-c0=""
+  >
+     No account? Please 
+    <a
+      _ngcontent-c0=""
+      href="https://urs.earthdata.nasa.gov"
+    >
+      register
+    </a>
+  </h5>
+</med-login-dialog>
+`;

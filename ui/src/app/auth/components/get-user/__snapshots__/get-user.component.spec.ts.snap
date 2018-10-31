@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`GetUserComponent should create 1`] = `
+<med-get-user
+  store={[Function Store]}
+>
+  <div
+    fxfill=""
+    fxlayout="row"
+    fxlayout.lt-lg="column"
+    fxlayoutalign="center center"
+  >
+    <h3>
+      Please wait while we redirecting you back to requested page!
+    </h3>
+  </div>
+</med-get-user>
+`;

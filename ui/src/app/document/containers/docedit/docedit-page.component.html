@@ -19,6 +19,7 @@
           <div *ngIf="comments$ | async as comments">
             <med-comments
               [comments]="comments"
+              [versionFilter]="versionFilter"
               (closeSidenav)="sidenav.close()"
               (resolveComment)="resolveComment($event)"
               (submitComment)="submitComment($event)">
@@ -40,11 +41,15 @@
 				<mat-card-content>
 					<div class="button-panel">
 						<button mat-mini-fab
-										matBadge="{{(comments$ | async)?.length}}"
-										matBadgeColor="warn" (click)="showDocumentComments()">
+							matBadge="{{commentsCount$ | async}}"
+							matBadgeColor="warn" 
+              (click)="showDocumentComments()">
 							<mat-icon>question_answer</mat-icon>
 						</button>
-						<button mat-mini-fab (click)="showDocumentHistory()">
+						<button mat-mini-fab 
+              matBadge="{{versionsCount$ | async}}"
+							matBadgeColor="warn"
+              (click)="showDocumentHistory()">
 							<mat-icon>history</mat-icon>
 						</button>
 					</div>							
