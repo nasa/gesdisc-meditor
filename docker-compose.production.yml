@@ -7,19 +7,12 @@ services:
     image: dev.gesdisc.eosdis.nasa.gov:443/meditor_proxy:0.13.0
     ports:
       - "80:8080"
-    links:
-      - ui
-      - server
     depends_on:
       - database
 
   notifier:
     container_name: meditor_notifier
     image: dev.gesdisc.eosdis.nasa.gov:443/meditor_notifier:0.13.0
-    links:
-      - database
-      - database-sec-1
-      - database-sec-2
     depends_on:
       - database
     environment:
@@ -36,8 +29,6 @@ services:
   server:
     container_name: meditor_server
     image: dev.gesdisc.eosdis.nasa.gov:443/meditor_server:0.13.0
-    links:
-      - database
     depends_on:
       - database
     environment:
@@ -58,7 +49,7 @@ services:
       - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
     command: --replSet meditor
 
-  database-sec-1:
+  database_sec_1:
     container_name: meditor_database_sec_1
     image: dev.gesdisc.eosdis.nasa.gov:443/mongo/4.1.4
     restart: always
@@ -70,7 +61,7 @@ services:
       - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
     command: --replSet meditor
 
-  database-sec-2:
+  database_sec_2:
     container_name: meditor_database_sec_2
     image: dev.gesdisc.eosdis.nasa.gov:443/mongo/4.1.4
     restart: always
@@ -81,11 +72,12 @@ services:
     volumes:
       - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
     command: --replSet meditor
+    
 
   database-replicaset:
     container_name: meditor_replicaset
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_replicaset:0.13.0
-    links:
+    image: meditor_replicaset
+    depends_on:
       - database
-      - database-sec-1
-      - database-sec-2
+      - database_sec_1
+      - database_sec_2
