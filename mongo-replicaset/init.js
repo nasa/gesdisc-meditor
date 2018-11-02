@@ -1,14 +1,14 @@
-const MongoClient = require('mongodb').MongoClient
+const mongoose = require('mongoose')
 const replicaSetConfig = require('./rs-config')
 
-const MONGO_URL = process.env.MONGOURL || "mongodb://meditor_database:27017"
+const MONGO_URL = "mongodb://meditor_database:27017"
 const RECONNECT_TIMEOUT_MILLIS = 2000
 const MAX_RECONNECT_ATTEMPTS = 5
 
 async function connectToMongoDb(attempt = 1) {
-    console.log(`attempting to connect to mongo (attempt #${attempt}) `)
+    console.log(`attempting to connect to mongo (attempt #${attempt}): ${MONGO_URL} `)
     try {
-        return await MongoClient.connect(MONGO_URL)
+        return await mongoose.connect(MONGO_URL)
     } catch (err) {
         if (attempt >= MAX_RECONNECT_ATTEMPTS) throw err
 
@@ -19,8 +19,8 @@ async function connectToMongoDb(attempt = 1) {
 
 async function getReplicaSetFromDb(db) {
     try {
-        let adminDb = db.db('meditor').admin()
-        let info = await adminDb.replSetGetStatus()
+        let adminDb = db.useDb('admin')
+        let info = await adminDb.command({ replSetGetStatus: 1 })
         console.log(`Replica set ${info.set} is running`)
         return info
     } catch (err) {
@@ -31,7 +31,7 @@ async function getReplicaSetFromDb(db) {
 
 async function initializeReplicaSetInDb(db) {
     try {
-        let adminDb = db.db('meditor').admin()
+        let adminDb = db.useDb('admin')
         let info = await adminDb.command({ replSetInitiate: replicaSetConfig })
         console.log(info)
     } catch (err) {

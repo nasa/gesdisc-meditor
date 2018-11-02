@@ -17,6 +17,8 @@
 /ui/package-lock.json
 /nodejs-server-server/node_modules
 /nodejs-server-server/package-lock.json
+/mongo-replicaset/node_modules
+/mongo-replicaset/package-lock.json
 
 # IDEs and editors
 /.idea

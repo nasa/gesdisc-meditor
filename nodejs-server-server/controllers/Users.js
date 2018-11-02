@@ -11,6 +11,7 @@ var OAuth2Strategy = require('passport-oauth2').Strategy;
 var csrf = require('csurf');
 var utils = require('../utils/writer.js');
 var swaggerTools = require('swagger-tools');
+var fs = require('fs');
 
 var MongoClient = require('mongodb').MongoClient;
 var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
@@ -23,10 +24,20 @@ var ENV_CONFIG = {
   APP_UI_URL: process.env.APP_UI_URL || process.env.APP_URL || 'http://localhost:8081',
 };
 
+function fromSecretOrEnv(key) {
+  var SECRETS_DIR = '/run/secrets/';
+
+  if (fs.existsSync(SECRETS_DIR + key)) {
+    return fs.readFileSync(SECRETS_DIR + key).toString();
+  } else {
+    return process.env[key];
+  }
+}
+
 var AUTH_CONFIG = {
-  HOST: process.env.AUTH_HOST,
-  CLIENT_ID: process.env.AUTH_CLIENT_ID,
-  CLIENT_SECRET: process.env.AUTH_CLIENT_SECRET
+  HOST: fromSecretOrEnv('auth_host'),
+  CLIENT_ID: fromSecretOrEnv('auth_client_id'),
+  CLIENT_SECRET: fromSecretOrEnv('auth_client_secret'),
 };
 
 var AUTH_PROTOCOL = 'https:';
@@ -116,6 +127,9 @@ passport.deserializeUser(function (userId, done) {
       });
   });
 });
+
+console.log('Using auth config ', AUTH_CONFIG)
+console.log('With env config ', ENV_CONFIG)
 
 passport.use(new OAuth2Strategy({
   authorizationURL: AUTH_PROTOCOL + '//' + AUTH_CONFIG.HOST + '/oauth/authorize',
