@@ -59,11 +59,13 @@
 						(liveData)="liveData($event)"
 						(isValid)="isValid($event)">
 					</med-document-edit>
+          <button mat-raised-button 
+            *ngIf="(userPrivileges$ | async).includes('edit')" 
+            (click)="saveDocument()" 
+            [disabled]="!isFormValid">Save
+          </button>
 					<med-document-actions *ngIf="(document$ | async)['x-meditor'].targetStates.length > 0"
-						[canEdit]="(userPrivileges$ | async).includes('edit')"
-						[canSave]="isFormValid"
-						[actions]="edges$ | async" 
-						(saveDocument)="saveDocument()"
+						[actions]="edges$ | async"
 						(updateState)="updateState($event)">
 					</med-document-actions>	
 				</mat-card-content>
