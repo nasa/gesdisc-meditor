@@ -703,7 +703,7 @@ export class DefaultService {
         }
 
         if (file !== undefined) {
-            formParams = formParams.append('file', <any>file) || formParams;
+          formParams.append('file', <any>file);
         }
 
         return this.httpClient.post<Success>(`${this.basePath}/postComment`,
@@ -774,10 +774,10 @@ export class DefaultService {
         }
 
         if (file !== undefined) {
-            formParams = formParams.append('file', <any>file) || formParams;
+            formParams.append('file', <any>file);
         }
         if (image !== undefined) {
-            formParams = formParams.append('image', <any>image) || formParams;
+          formParams.append('image', <any>image);
         }
 
         return this.httpClient.post<Success>(`${this.basePath}/putDocument`,
@@ -844,7 +844,7 @@ export class DefaultService {
         }
 
         if (file !== undefined) {
-            formParams = formParams.append('file', <any>file) || formParams;
+          formParams.append('file', <any>file);
         }
 
         return this.httpClient.post<Success>(`${this.basePath}/putModel`,
