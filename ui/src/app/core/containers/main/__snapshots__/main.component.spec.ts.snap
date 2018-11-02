@@ -1,51 +1,31 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Main Page should compile 1`] = `
+exports[`Main Page should compile main container 1`] = `
 <meditor-app
-  store={[Function Store]}
+  version={[Function String]}
 >
   <div
-    _ngcontent-c0=""
+    class="app-container"
     fxfill=""
-    fxlayout="row"
+    fxlayout="column"
+    fxlayoutalign="center none"
   >
-    <div
-      _ngcontent-c0=""
-      fxflex="5"
+    <med-toolbar
+      fxflex="82px"
     />
     <div
-      _ngcontent-c0=""
-      fxflex="90"
+      fxflex="90-100px"
+      style="overflow: scroll; padding: 0 16px;"
     >
-      <div
-        _ngcontent-c0=""
-        fxfill=""
-        fxlayout="column"
-        fxlayoutalign="center none"
-      >
-        <med-toolbar
-          _ngcontent-c0=""
-          fxflex="70px"
-        />
-        <div
-          _ngcontent-c0=""
-          fxflex="90-70px"
-          style="overflow: scroll; padding: 0 16px;"
-        >
-          <router-outlet
-            _ngcontent-c0=""
-          />
-        </div>
-        <div
-          _ngcontent-c0=""
-          fxflex="10"
-        />
-      </div>
+      <router-outlet />
     </div>
     <div
-      _ngcontent-c0=""
-      fxflex="5"
-    />
+      class="app-version"
+    >
+      v0.9.0
+    </div>
+    <med-loading />
+    <med-notification />
   </div>
 </meditor-app>
 `;

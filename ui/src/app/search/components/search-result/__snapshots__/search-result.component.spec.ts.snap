@@ -2,17 +2,42 @@
 
 exports[`SearchResultComponent with mock data should compile with minimum input 1`] = `
 <med-search-result
+  loadDocument={[Function EventEmitter]}
   model={[Function Object]}
   result={[Function Object]}
 >
   <div>
     <a
-      href="/document/edit?title=test%20title&model=test%20name"
-      ng-reflect-query-params="[object Object]"
-      ng-reflect-router-link="/document/edit"
+      href="javascript:;"
     >
       test title
     </a>
+    <mat-chip-list
+      aria-disabled="false"
+      aria-invalid="false"
+      aria-multiselectable="false"
+      aria-orientation="horizontal"
+      aria-required="false"
+      class="state-chip mat-chip-list"
+      id="mat-chip-list-1"
+      role="listbox"
+      tabindex="0"
+    >
+      <div
+        class="mat-chip-list-wrapper"
+      >
+        <mat-chip
+          aria-disabled="true"
+          aria-selected="false"
+          class="mat-chip mat-primary mat-standard-chip mat-chip-disabled"
+          disabled="true"
+          ng-reflect-disabled="true"
+          role="option"
+        >
+          Draft
+        </mat-chip>
+      </div>
+    </mat-chip-list>
   </div><div
     class="author-status"
   >

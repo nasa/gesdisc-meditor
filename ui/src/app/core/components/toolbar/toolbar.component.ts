@@ -1,28 +1,27 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
-  selector: 'med-toolbar',
-  template: `
-    <mat-toolbar class="med-toolbar">
-      <img src="assets/logo.png" class="logo" routerLink="/" />
-      <span class="spacer"></span>
-      <med-login-status></med-login-status>
-      <button mat-button class="tb-button" routerLink="/">
-        <mat-icon>home</mat-icon>
-        Home
-      </button>
-      <a mat-button class="tb-button" href="mailto:mahabaleshwa.s.hegde@nasa.gov">
-        <mat-icon>feedback</mat-icon>
-        Feedback
-      </a>
-      <button mat-button class="tb-button">
-        <mat-icon>help</mat-icon>
-        Help
-      </button>      
-    </mat-toolbar>
-  `,
-  styleUrls: ['toolbar.component.scss']
+	selector: 'med-toolbar',
+	template: `
+		<mat-toolbar class="med-toolbar">
+			<img src="assets/logo.png" class="logo" routerLink="/" />
+			<span class="spacer"></span>
+			<med-login-status></med-login-status>
+			<button mat-button class="tb-button" routerLink="/">
+				<mat-icon>home</mat-icon>
+				Home
+			</button>
+			<a mat-button class="tb-button" href="mailto:mahabaleshwa.s.hegde@nasa.gov">
+				<mat-icon>feedback</mat-icon>
+				Feedback
+			</a>
+			<button mat-button class="tb-button">
+				<mat-icon>help</mat-icon>
+				Help
+			</button>
+		</mat-toolbar>
+	`,
+	styleUrls: ['toolbar.component.scss']
 })
 export class ToolbarComponent {
-  @Output() openMenu = new EventEmitter();
 }

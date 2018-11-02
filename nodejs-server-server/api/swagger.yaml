@@ -398,7 +398,7 @@ paths:
       parameters:
       - name: "file"
         in: "formData"
-        description: "Uploaded document file (JSON)"
+        description: "Uploaded comment (JSON)"
         required: true
         type: "file"
       responses:
@@ -433,6 +433,11 @@ paths:
       - name: "id"
         in: "query"
         description: "Comment id"
+        required: true
+        type: "string"
+      - name: "resolvedBy"
+        in: "query"
+        description: "Resolved by"
         required: true
         type: "string"
       responses:
@@ -824,6 +829,7 @@ definitions:
     - "id"
     - "parentId"
     - "resolved"
+    - "resolvedBy"
     - "text"
     properties:
       id:
@@ -836,6 +842,8 @@ definitions:
         type: "string"
       resolved:
         type: "boolean"
+      resolvedBy:
+        type: "string"
       parentId:
         type: "string"
       documentId:

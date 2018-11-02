@@ -1,4 +1,4 @@
-FROM node:latest
+FROM dev.gesdisc.eosdis.nasa.gov:443/node/10.12.0
 
 ENV NPM_CONFIG_LOGLEVEL warn
 ARG node_env
@@ -6,8 +6,9 @@ ARG node_env
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 COPY ./ ./
+COPY ./node_modules/angular2-json-schema-form ./node_modules/angular2-json-schema-form
 
-RUN npm install --force
+RUN npm install
 RUN npm rebuild node-sass --force
 
 CMD if [ "$NODE_ENV" = "production" ]; \

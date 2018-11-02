@@ -2,11 +2,14 @@
 
 exports[`SearchStatusComponent with mock data should compile with minimum input 1`] = `
 <med-search-status
+  actions={[Function Array]}
   addNew={[Function EventEmitter]}
   filteredCount={[Function Number]}
   modelName={[Function String]}
+  privileges={[Function Array]}
   resultCount={[Function Number]}
   sortBy={[Function String]}
+  sortByChanged={[Function EventEmitter]}
 >
   <div
     class="search-status-bar"
@@ -14,19 +17,19 @@ exports[`SearchStatusComponent with mock data should compile with minimum input 
     fxlayoutalign="center start"
   >
     <div
-      fxflex="20"
+      fxflex="60"
     >
        Showing 1 - 10 of 15 test documents 
     </div>
     <div
       class="sortby-select"
       fxflex="4"
-      fxflexoffset="60"
+      fxflexoffset="20"
     >
-       Sort by: 
+       Sort by: 
     </div>
     <div
-      class="sortby-select"
+      class="sortby-select mr-2"
       fxflex="8"
     >
       <mat-select
@@ -68,14 +71,18 @@ exports[`SearchStatusComponent with mock data should compile with minimum input 
         
       </mat-select>
     </div>
+    
     <div
-      dir="rtl"
+      class="ng-star-inserted"
       fxflex=""
-      ng-reflect-dir="rtl"
     >
+      
+      
       <button
-        class="add-new-button mat-raised-button"
+        class="add-new-button mat-raised-button mat-accent _mat-animation-noopable ng-star-inserted"
+        color="accent"
         mat-raised-button=""
+        ng-reflect-color="accent"
       >
         <span
           class="mat-button-wrapper"
@@ -87,7 +94,7 @@ exports[`SearchStatusComponent with mock data should compile with minimum input 
           >
             add
           </mat-icon>
-          Add new 
+           Add new 
         </span>
         <div
           class="mat-button-ripple mat-ripple"
@@ -101,6 +108,82 @@ exports[`SearchStatusComponent with mock data should compile with minimum input 
         />
       </button>
     </div>
+  </div>
+</med-search-status>
+`;
+
+exports[`SearchStatusComponent with mock data should compile with minimum input 2`] = `
+<med-search-status
+  actions={[Function Array]}
+  addNew={[Function EventEmitter]}
+  filteredCount={[Function Number]}
+  modelName={[Function String]}
+  privileges={[Function Array]}
+  resultCount={[Function Number]}
+  sortBy={[Function String]}
+  sortByChanged={[Function EventEmitter]}
+>
+  <div
+    class="search-status-bar"
+    fxlayout="row"
+    fxlayoutalign="center start"
+  >
+    <div
+      fxflex="60"
+    >
+       Showing 1 - 10 of 15 test documents 
+    </div>
+    <div
+      class="sortby-select"
+      fxflex="4"
+      fxflexoffset="20"
+    >
+       Sort by: 
+    </div>
+    <div
+      class="sortby-select mr-2"
+      fxflex="8"
+    >
+      <mat-select
+        aria-disabled="false"
+        aria-invalid="false"
+        aria-multiselectable="false"
+        aria-required="false"
+        class="mat-select ng-tns-c5-0"
+        id="mat-select-1"
+        ng-reflect-value="oldest"
+        role="listbox"
+        tabindex="0"
+      >
+        <div
+          aria-hidden="true"
+          cdk-overlay-origin=""
+          class="mat-select-trigger"
+        >
+          <div
+            class="mat-select-value"
+            ng-reflect-ng-switch="true"
+          >
+            
+            <span
+              class="mat-select-placeholder ng-tns-c5-0 ng-star-inserted"
+            >
+               
+            </span>
+            
+          </div>
+          <div
+            class="mat-select-arrow-wrapper"
+          >
+            <div
+              class="mat-select-arrow"
+            />
+          </div>
+        </div>
+        
+      </mat-select>
+    </div>
+    
   </div>
 </med-search-status>
 `;

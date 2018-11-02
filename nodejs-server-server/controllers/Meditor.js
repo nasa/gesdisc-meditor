@@ -575,7 +575,7 @@ function notifyOfStateChange(meta) {
       " as [" + meta.params.state + "]. An action is required to transition the document to [" + targetNodes.join(', ') + "].",
     "link": {
         label: meta.params.title,
-        "url": process.env.APP_URL + "/api/getDocument?" + serializeParams(meta.params, ['title', 'model', 'version'])
+        url: process.env.APP_URL + "/#/document/edit?" + serializeParams(meta.params, ['title', 'model', 'version'])
     },
     "createdOn": (new Date()).toISOString()
   };
@@ -802,18 +802,18 @@ function addComment (comment) {
   });
 }
 
-function resolveCommentWithId(id) {
+function resolveCommentWithId(params) {
   return new Promise(function(resolve, reject) {
     MongoClient.connect(MongoUrl, function(err, db) {
       if (err) throw err;
       var dbo = db.db(DbName);
-      var objectId = new ObjectID(id);
-      dbo.collection("Comments").updateMany({ $or: [{_id: objectId}, {parentId: id}]}, {$set: {resolved: true}}, function(err, res) {
+      var objectId = new ObjectID(params.id);
+      dbo.collection("Comments").updateMany({ $or: [{_id: objectId}, {parentId: params.id}]}, {$set: {resolved: true, resolvedBy: params.resolvedBy}}, function(err, res) {
         if (err){
           console.log(err);
           throw err;
         }
-        var userMsg = "Comment and replies with id " + id + " resolved";
+        var userMsg = "Comment and replies with id " + params.id + " resolved by " + params.resolvedBy;
         db.close();
         resolve(userMsg);
       });
@@ -836,7 +836,8 @@ module.exports.getComments = function getComments (req, res, next) {
 
 //Exported method to resolve comment
 module.exports.resolveComment = function resolveComment(req, res, next) {
-  resolveCommentWithId(req.swagger.params['id'].value)
+  var params = getSwaggerParams(req);
+  resolveCommentWithId(params)
   .then(function (response) {
     utils.writeJson(res, {code:200, message:response}, 200);
   })

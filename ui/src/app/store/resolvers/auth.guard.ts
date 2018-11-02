@@ -7,22 +7,22 @@ import { map, take } from 'rxjs/operators';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private store: Store) {}
+	constructor(private store: Store) {}
 
-  @Select(AuthState.loggedIn) loggedIn$: Observable<boolean>;
+	@Select(AuthState.loggedIn) loggedIn$: Observable<boolean>;
 
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {  
-    
-    return this.loggedIn$.pipe(
-      map(authed => {
-      if (!authed) { 
-        localStorage.setItem('returnUrl', state.url);
-        this.store.dispatch(new GetUser());
-        return false;
-      }
-      return true;
-      }),
-      take(1)  
-    );
-  }
+	canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
+
+		return this.loggedIn$.pipe(
+			map(authed => {
+			if (!authed) {
+				localStorage.setItem('returnUrl', state.url);
+				this.store.dispatch(new GetUser());
+				return false;
+			}
+			return true;
+			}),
+			take(1)
+		);
+	}
 }
