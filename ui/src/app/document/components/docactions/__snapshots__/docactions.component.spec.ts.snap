@@ -1,0 +1,248 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DochistoryComponent should render document actions with mock data 1`] = `
+<med-document-actions
+  actions={[Function Array]}
+  canEdit="false"
+  saveDocument={[Function EventEmitter]}
+  updateState={[Function EventEmitter]}
+>
+  <button
+    class="mat-raised-button _mat-animation-noopable"
+    mat-raised-button=""
+  >
+    <span
+      class="mat-button-wrapper"
+    >
+      Test 1
+    </span>
+    <div
+      class="mat-button-ripple mat-ripple"
+      matripple=""
+      ng-reflect-centered="false"
+      ng-reflect-disabled="false"
+      ng-reflect-trigger="[object HTMLButtonElement]"
+    />
+    <div
+      class="mat-button-focus-overlay"
+    />
+  </button><button
+    class="mat-raised-button _mat-animation-noopable"
+    mat-raised-button=""
+  >
+    <span
+      class="mat-button-wrapper"
+    >
+      Test 2
+    </span>
+    <div
+      class="mat-button-ripple mat-ripple"
+      matripple=""
+      ng-reflect-centered="false"
+      ng-reflect-disabled="false"
+      ng-reflect-trigger="[object HTMLButtonElement]"
+    />
+    <div
+      class="mat-button-focus-overlay"
+    />
+  </button><button
+    class="mat-raised-button _mat-animation-noopable"
+    mat-raised-button=""
+  >
+    <span
+      class="mat-button-wrapper"
+    >
+      Test 3
+    </span>
+    <div
+      class="mat-button-ripple mat-ripple"
+      matripple=""
+      ng-reflect-centered="false"
+      ng-reflect-disabled="false"
+      ng-reflect-trigger="[object HTMLButtonElement]"
+    />
+    <div
+      class="mat-button-focus-overlay"
+    />
+  </button>
+</med-document-actions>
+`;
+
+exports[`DochistoryComponent should render document actions with mock data 2`] = `
+<med-document-actions
+  actions={[Function Array]}
+  canEdit={[Function Boolean]}
+  canSave="false"
+  saveDocument={[Function EventEmitter]}
+  updateState={[Function EventEmitter]}
+>
+  <button
+    class="mat-raised-button _mat-animation-noopable"
+    disabled=""
+    mat-raised-button=""
+    ng-reflect-disabled="true"
+  >
+    <span
+      class="mat-button-wrapper"
+    >
+      Save
+    </span>
+    <div
+      class="mat-button-ripple mat-ripple"
+      matripple=""
+      ng-reflect-centered="false"
+      ng-reflect-disabled="true"
+      ng-reflect-trigger="[object HTMLButtonElement]"
+    />
+    <div
+      class="mat-button-focus-overlay"
+    />
+  </button><button
+    class="mat-raised-button _mat-animation-noopable"
+    mat-raised-button=""
+  >
+    <span
+      class="mat-button-wrapper"
+    >
+      Test 1
+    </span>
+    <div
+      class="mat-button-ripple mat-ripple"
+      matripple=""
+      ng-reflect-centered="false"
+      ng-reflect-disabled="false"
+      ng-reflect-trigger="[object HTMLButtonElement]"
+    />
+    <div
+      class="mat-button-focus-overlay"
+    />
+  </button><button
+    class="mat-raised-button _mat-animation-noopable"
+    mat-raised-button=""
+  >
+    <span
+      class="mat-button-wrapper"
+    >
+      Test 2
+    </span>
+    <div
+      class="mat-button-ripple mat-ripple"
+      matripple=""
+      ng-reflect-centered="false"
+      ng-reflect-disabled="false"
+      ng-reflect-trigger="[object HTMLButtonElement]"
+    />
+    <div
+      class="mat-button-focus-overlay"
+    />
+  </button><button
+    class="mat-raised-button _mat-animation-noopable"
+    mat-raised-button=""
+  >
+    <span
+      class="mat-button-wrapper"
+    >
+      Test 3
+    </span>
+    <div
+      class="mat-button-ripple mat-ripple"
+      matripple=""
+      ng-reflect-centered="false"
+      ng-reflect-disabled="false"
+      ng-reflect-trigger="[object HTMLButtonElement]"
+    />
+    <div
+      class="mat-button-focus-overlay"
+    />
+  </button>
+</med-document-actions>
+`;
+
+exports[`DochistoryComponent should render document actions with mock data 3`] = `
+<med-document-actions
+  actions={[Function Array]}
+  canEdit={[Function Boolean]}
+  canSave={[Function Boolean]}
+  saveDocument={[Function EventEmitter]}
+  updateState={[Function EventEmitter]}
+>
+  <button
+    class="mat-raised-button _mat-animation-noopable"
+    mat-raised-button=""
+    ng-reflect-disabled="false"
+  >
+    <span
+      class="mat-button-wrapper"
+    >
+      Save
+    </span>
+    <div
+      class="mat-button-ripple mat-ripple"
+      matripple=""
+      ng-reflect-centered="false"
+      ng-reflect-disabled="false"
+      ng-reflect-trigger="[object HTMLButtonElement]"
+    />
+    <div
+      class="mat-button-focus-overlay"
+    />
+  </button><button
+    class="mat-raised-button _mat-animation-noopable"
+    mat-raised-button=""
+  >
+    <span
+      class="mat-button-wrapper"
+    >
+      Test 1
+    </span>
+    <div
+      class="mat-button-ripple mat-ripple"
+      matripple=""
+      ng-reflect-centered="false"
+      ng-reflect-disabled="false"
+      ng-reflect-trigger="[object HTMLButtonElement]"
+    />
+    <div
+      class="mat-button-focus-overlay"
+    />
+  </button><button
+    class="mat-raised-button _mat-animation-noopable"
+    mat-raised-button=""
+  >
+    <span
+      class="mat-button-wrapper"
+    >
+      Test 2
+    </span>
+    <div
+      class="mat-button-ripple mat-ripple"
+      matripple=""
+      ng-reflect-centered="false"
+      ng-reflect-disabled="false"
+      ng-reflect-trigger="[object HTMLButtonElement]"
+    />
+    <div
+      class="mat-button-focus-overlay"
+    />
+  </button><button
+    class="mat-raised-button _mat-animation-noopable"
+    mat-raised-button=""
+  >
+    <span
+      class="mat-button-wrapper"
+    >
+      Test 3
+    </span>
+    <div
+      class="mat-button-ripple mat-ripple"
+      matripple=""
+      ng-reflect-centered="false"
+      ng-reflect-disabled="false"
+      ng-reflect-trigger="[object HTMLButtonElement]"
+    />
+    <div
+      class="mat-button-focus-overlay"
+    />
+  </button>
+</med-document-actions>
+`;
