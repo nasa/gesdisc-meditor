@@ -6,8 +6,8 @@
       (closedStart)="resetSidenav()" 
       class="comment-sidenav" 
       [position]="'end'">
-        <ng-container *ngIf="showHistory">
-          <div *ngIf="history$ | async as history">
+        <ng-container *ngIf="showHistory"> 
+          <div *ngIf="history$ | async as history" style="height: 100%;">
             <med-doc-history
               [dochistory]="history"
               [selectedHistory]= "version$ | async"

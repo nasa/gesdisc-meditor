@@ -7,7 +7,7 @@ import { environment } from 'environments/environment';
   template: `
     <div class="app-container" fxFill fxLayout="column" fxLayoutAlign="center none">
       <med-toolbar fxFlex="82px"></med-toolbar>
-      <div fxFlex="90-100px" style="overflow: scroll; padding: 0 16px;">
+      <div fxFlex="80" style="overflow: scroll; padding: 0 16px;">
         <router-outlet></router-outlet>
       </div>
       <div class="app-version">v{{version}}</div>

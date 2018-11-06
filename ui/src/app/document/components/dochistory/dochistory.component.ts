@@ -15,7 +15,6 @@ export class DochistoryComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-
   }
 
 }

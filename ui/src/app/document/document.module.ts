@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { MaterialModule } from '../material';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import {
 	JsonSchemaFormModule, MaterialDesignFrameworkModule, MaterialDesignFramework,
@@ -27,6 +28,7 @@ import { DocactionsComponent } from './components/docactions/docactions.componen
 		FlexLayoutModule,
 		FormsModule,
 		ReactiveFormsModule,
+    ScrollingModule,
 		RouterModule.forChild(routes),
 		MaterialDesignFrameworkModule,
 		CommentsModule,
