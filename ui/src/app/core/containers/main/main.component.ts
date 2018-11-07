@@ -5,7 +5,7 @@ import { environment } from 'environments/environment';
   selector: 'meditor-app',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="app-container" fxFill fxLayout="column" fxLayoutAlign="center none">
+    <div class="app-container" fxFill fxLayout="column" fxLayoutAlign="start none">
       <med-toolbar fxFlex="82px"></med-toolbar>
       <div fxFlex="80" style="overflow: scroll; padding: 0 16px;">
         <router-outlet></router-outlet>

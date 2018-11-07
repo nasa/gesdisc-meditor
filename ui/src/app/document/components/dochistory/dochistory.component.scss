@@ -1,12 +1,15 @@
 @import "~main-theme.scss";
 
 h3 {
+  margin: 1.5em 0 0 20px;
 	font-size: 1.5em;
 	font-weight: bold;
 }
 
 .history-item {
 	margin-top: 5px;
+  margin-left: 20px;
+  margin-right: 20px;
 	padding: 15px;
 	transition: background .15s ease;
 }

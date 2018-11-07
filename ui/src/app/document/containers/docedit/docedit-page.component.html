@@ -1,13 +1,13 @@
 <div fxLayout="row" class="doc-edit-container">
 	<mat-card fxFlex="100" class="mat-elevation-z0">
-		<mat-sidenav-container class="comment-sidenav-container" (backdropClick)="sidenav.close()">
-			<mat-sidenav #sidenav 
+		<mat-drawer-container class="comment-sidenav-container" (backdropClick)="sidenav.close()">
+			<mat-drawer #sidenav 
       (keydown.escape)="sidenav.close()" 
       (closedStart)="resetSidenav()" 
       class="comment-sidenav" 
       [position]="'end'">
         <ng-container *ngIf="showHistory"> 
-          <div *ngIf="history$ | async as history" style="height: 100%;">
+          <div *ngIf="history$ | async as history" style="height: 600px;">
             <med-doc-history
               [dochistory]="history"
               [selectedHistory]= "version$ | async"
@@ -26,9 +26,9 @@
             </med-comments>
           </div>
         </ng-container>
-			</mat-sidenav>
+			</mat-drawer>
 
-			<mat-sidenav-content class="editor-form">
+			<mat-drawer-content class="editor-form">
 				<mat-card-title>
 					<i class="icon-badge icon-badge-sm fa {{(model$ | async)?.icon?.name }}" [style.background-color]="(model$ | async)?.icon?.color"></i>
 					{{(model$ | async)?.name}}
@@ -69,7 +69,7 @@
 						(updateState)="updateState($event)">
 					</med-document-actions>	
 				</mat-card-content>
-			</mat-sidenav-content>
-		</mat-sidenav-container>
+			</mat-drawer-content>
+		</mat-drawer-container>
 	</mat-card>
 </div>

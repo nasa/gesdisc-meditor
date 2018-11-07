@@ -31,3 +31,14 @@
 }
 
 
+.mat-drawer:not(.mat-drawer-side) {
+  position: fixed;
+  margin-top: 102px;
+  height: 80%;
+}
+
+.mat-drawer-backdrop {
+  position: fixed !important;
+}
+
+
