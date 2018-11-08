@@ -1,0 +1,19 @@
+{
+  "name": "uui-import-export",
+  "version": "1.0.0",
+  "description": "Tools for importing and exporting data from and to UUI",
+  "main": "uui-to-meditor.js",
+  "dependencies": {
+    "gridfs-stream": "^1.1.1",
+    "lodash": "^4.17.11",
+    "mongoose": "^5.3.9",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.5"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

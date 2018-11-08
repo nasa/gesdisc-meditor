@@ -3,6 +3,7 @@ var _ = require('lodash');
 var mongo = require('mongodb');
 var requests = require('request-promise-native');
 var MongoClient = mongo.MongoClient;
+var mUtils = require('./lib/meditor-utils.js');
 
 const DEBUG_URS_LOGIN = false;
 
@@ -201,57 +202,58 @@ module.exports.syncItems = function syncItems (params) {
         });
 
         // Compute and schedule items to publish
-        that.meditorDocs.forEach(function(meditorDoc) {
-            var docId = getDocumentUid(that, meditorDoc);
-            var postedModel = {};
-            var image;
-            var imageType;
-            var postRequest;
-            var uui_headers = _.cloneDeep(UUI_HEADERS);
-            if (uuiIds.indexOf(docId) === -1) {
-                console.log('Pushing [' + _.get(meditorDoc, that.titleProperty) + '] of type [' + that.params.model + '] to UUI');
-                postedModel = _.cloneDeep(meditorDoc);
-                _.assign(postedModel, {
-                    'title': _.get(meditorDoc, that.titleProperty),
-                    'published': true,
-                    'originName': 'meditor',
-                    'originData': getDocumentUid(that, meditorDoc)
-                });
-                postRequest = {
-                    url: UUI_APP_URL + '/api/' + getUuiModelName(that.params.model),
-                    headers: uui_headers,
-                    jar: that.cookiejar, 
-                    followAllRedirects: true,
-                    gzip: true
-                }
-                if ('image' in postedModel) {
-                    uui_headers['Content-Type'] = 'multipart/form-data';
-                    // Image is stored in Base64 like this "image" : "data:image/png;base64,iVBORw0KGgoAA..."
-                    image = postedModel.image.split(',');
-                    image[0] = image[0].replace(/[:;]/g, ',').split(',');
-                    delete postedModel.image; // Remove image from request body (we will add it later)
-                    // Convert all keys to string as required by the form-encoded transport
-                    Object.keys(postedModel).forEach(function(key) {postedModel[key] = _.trim(JSON.stringify(postedModel[key]), '"') ;});
-                    // Add image binary
-                    postedModel.fileRef = {
-                        value: new Buffer(image[1], 'base64'),
-                        options: {
-                            filename: _.get(meditorDoc, that.titleProperty),
-                            contentType: image[0][1]
-                        }
+        that.meditorDocs.forEach(function(mDoc) {
+            postDefers.push(mUtils.assembleDocument(that.dbo.db(DbName), mDoc).then(function(meditorDoc) {
+                var docId = getDocumentUid(that, meditorDoc);
+                var postedModel = {};
+                var image;
+                var imageType;
+                var postRequest;
+                var uui_headers = _.cloneDeep(UUI_HEADERS);
+                if (uuiIds.indexOf(docId) === -1) {
+                    console.log('Pushing [' + _.get(meditorDoc, that.titleProperty) + '] of type [' + that.params.model + '] to UUI');
+                    postedModel = _.cloneDeep(meditorDoc);
+                    _.assign(postedModel, {
+                        'title': _.get(meditorDoc, that.titleProperty),
+                        'published': true,
+                        'originName': 'meditor',
+                        'originData': getDocumentUid(that, meditorDoc)
+                    });
+                    postRequest = {
+                        url: UUI_APP_URL + '/api/' + getUuiModelName(that.params.model),
+                        headers: uui_headers,
+                        jar: that.cookiejar, 
+                        followAllRedirects: true,
+                        gzip: true
                     }
-                    postedModel.abstract = postedModel.abstract || postedModel.description; // Hack until we fix the images model
-                    
-                    postRequest.formData = postedModel;
-                    postRequest.preambleCRLF = true;
-                    postRequest.postambleCRLF = true;
-                    postDefers.push(requests.post(postRequest));
-                } else {
-                    postRequest.json = true;
-                    postRequest.body = postedModel;
+                    if ('image' in postedModel) {
+                        uui_headers['Content-Type'] = 'multipart/form-data';
+                        // Image is stored in Base64 like this "image" : "data:image/png;base64,iVBORw0KGgoAA..."
+                        image = postedModel.image.split(',');
+                        image[0] = image[0].replace(/[:;]/g, ',').split(',');
+                        delete postedModel.image; // Remove image from request body (we will add it later)
+                        // Convert all keys to string as required by the form-encoded transport
+                        Object.keys(postedModel).forEach(function(key) {postedModel[key] = _.trim(JSON.stringify(postedModel[key]), '"') ;});
+                        // Add image binary
+                        postedModel.fileRef = {
+                            value: new Buffer(image[1], 'base64'),
+                            options: {
+                                filename: _.get(meditorDoc, that.titleProperty),
+                                contentType: image[0][1]
+                            }
+                        }
+                        postedModel.abstract = postedModel.abstract || postedModel.description; // Hack until we fix the images model
+                        
+                        postRequest.formData = postedModel;
+                        postRequest.preambleCRLF = true;
+                        postRequest.postambleCRLF = true;
+                    } else {
+                        postRequest.json = true;
+                        postRequest.body = postedModel;
+                    }
+                    return requests.post(postRequest);
                 }
-                postDefers.push(requests.post(postRequest));
-            }
+            }));
         });
         return Promise.all(postDefers);
     })

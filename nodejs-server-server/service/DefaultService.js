@@ -110,27 +110,6 @@ exports.getDocumentHistory = function(model,title) {
 
 
 /**
- * Gets an image associated with a document
- * Gets an image associated with a document
- *
- * model String Name of the Model
- * title String Title of the document
- * version String Version of the document (optional)
- * returns File
- **/
-exports.getDocumentImage = function(model,title,version) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
-}
-
-
-/**
  * Gets user info
  * Gets user info
  *
@@ -348,10 +327,9 @@ exports.postComment = function(file) {
  * Puts a document
  *
  * file File Uploaded document file (JSON)
- * image File Uploaded image file (binary) (optional)
  * returns success
  **/
-exports.putDocument = function(file,image) {
+exports.putDocument = function(file) {
   return new Promise(function(resolve, reject) {
     var examples = {};
     examples['application/json'] = {
