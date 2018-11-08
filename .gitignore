@@ -17,6 +17,8 @@
 /ui/package-lock.json
 /nodejs-server-server/node_modules
 /nodejs-server-server/package-lock.json
+/import-export/uui/node_modules
+*.node_modules
 
 # IDEs and editors
 /.idea
