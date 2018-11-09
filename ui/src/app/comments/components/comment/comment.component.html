@@ -3,7 +3,7 @@
     *ngIf="_showResolved || !comment.resolved" 
     [class.comment-resolved]="comment.resolved">
 		<mat-card-header>
-			<div mat-card-avatar class="comment-header-image"></div>
+			<img mat-card-avatar src="https://bugs.earthdata.nasa.gov/secure/useravatar?size=large&ownerId={{comment.userUid || 'undefined'}}">
 			<mat-card-title class="comment-created-by">{{comment.createdBy}}</mat-card-title>
 			<mat-card-subtitle class="comment-created-on">{{comment.createdOn | date: 'short' }}</mat-card-subtitle>
 		</mat-card-header>

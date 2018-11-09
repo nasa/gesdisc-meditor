@@ -1,18 +1,17 @@
 @import "~main-theme.scss";
 
 h3 {
-	padding: 24px 24px 0 24px;
+  margin: 1.5em 0 0 20px;
 	font-size: 1.5em;
 	font-weight: bold;
 }
 
 .history-content-container {
-	padding: 0 24px 24px 24px;
-	overflow-y: scroll;
+  height: 70vh;
 }
 
 .history-item {
-	margin-top: 5px;
+	margin: 5px 20px;
 	padding: 15px;
 	transition: background .15s ease;
 }
