@@ -1,12 +1,12 @@
 {
     "titleProperty": "title",
-    "name": "Documents",
-    "description": "Documents description.",
+    "name": "Tools",
+    "description": "Tools",
     "category": "GESDISC",
     "workflow": "Edit-Review-Publish",
     "icon": {
-        "name": "fa-file-text",
-        "color": "#46f0f0"
+        "name": "fa-wrench-o",
+        "color": "#5f8168"
     },
     "schema": {
         "$schema": "http://json-schema.org/schema#",
@@ -16,6 +16,28 @@
             "title": {
                 "type": "string",
                 "required": true
+            },
+            "abstract": {
+                "type": "string",
+                "title": "Description",
+                "description": "Description for the news article",
+                "required": true,
+                "minLength": 10,
+                "maxLength": 500
+            },
+            "image": {
+                "$id": "/properties/media",
+                "title": "Media",
+                "description": "Media (Images and Videos)",
+                "$comment": "Media (Images and Videos)",
+                "type": "string",
+                "contentMediaType": "image/png",
+                "contentEncoding": "base64",
+                "required": false
+            },
+            "imageCaption": {
+                "type": "string",
+                "required": false
             },
             "body": {
                 "type": "string",
@@ -42,12 +64,18 @@
         }
     },
     "layout": [
-        "title", {
+        "title",
+        "abstract", {
             "key": "body",
             "type": "ckeditor"
         },
+        "type",
         "datasets",
-        "tags",
+        "tags", {
+            "key": "image",
+            "type": "image-upload"
+        },
+        "imageCaption",
         "notes"
     ],
     "x-meditor": {

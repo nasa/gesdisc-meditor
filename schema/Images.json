@@ -1,12 +1,12 @@
 {
     "titleProperty": "title",
-    "name": "News",
-    "description": "News about all things relating to GES DISC including data releases and featured science articles.",
+    "name": "Image",
+    "description": "Image model",
     "category": "GESDISC",
     "workflow": "Edit-Review-Publish",
     "icon": {
-        "name": "fa-newspaper-o",
-        "color": "#679EF5"
+        "name": "fa-camera-retro",
+        "color": "#f58231"
     },
     "schema": {
         "$schema": "http://json-schema.org/schema#",
@@ -14,21 +14,23 @@
         "type": "object",
         "properties": {
             "title": {
+                "$id": "/properties/title",
+                "title": "Image Title",
+                "description": "Title for the image",
+                "$comment": "Title for the image; may be used as text representation of the image",
                 "type": "string",
+                "examples": ["Daily Global Precipitation for 2018/01/01"],
                 "required": true
             },
             "abstract": {
+                "$id": "/properties/abstract",
+                "title": "Image Description",
+                "description": "Description for the image",
+                "$comment": "Description of the image; might be used as a tooltip for the image in user interfaces.",
                 "type": "string",
-                "title": "Description",
-                "description": "Description for the news article",
-                "required": true,
                 "minLength": 10,
-                "maxLength": 500
-            },
-            "type": {
-                "type": "string",
-                "default": "News",
-                "enum": ["News", "Featured Article", "Data Release"],
+                "maxLength": 500,
+                "examples": ["Daily Global Precipitation for 2018/01/01 using GPM data"],
                 "required": true
             },
             "image": {
@@ -41,17 +43,19 @@
                 "contentEncoding": "base64",
                 "required": true
             },
-            "imageCaption": {
-                "type": "string",
+            "carousel": {
+                "type": "boolean",
+                "default": false,
                 "required": true
             },
-            "body": {
-                "type": "string",
-                "contentMediaType": "text/html",
+            "gallery": {
+                "type": "boolean",
+                "default": false,
                 "required": true
             },
-            "additionalAuthors": {
+            "groups": {
                 "type": "string",
+                "enum": [""],
                 "required": false
             },
             "tags": {
@@ -71,24 +75,21 @@
                 "title": "Revision Comments",
                 "required": false
             }
-        }
+        },
+        "required": ["title", "description", "image"],
+        "additionalProperties": false
     },
     "layout": [
         "title",
-        "abstract",
-        "type",
-        "additionalAuthors", {
-            "key": "body",
-            "type": "ckeditor"
-        },
-        "type",
-        "datasets",
-        "tags", {
+        "abstract", {
             "key": "image",
             "type": "image-upload"
-        },
-        "imageCaption",
-        "notes"
+         },
+         "carousel",
+         "gallery",
+         "datasets",
+         "tags",
+         "notes"
     ],
     "x-meditor": {
         "model": "Models",

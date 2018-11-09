@@ -1,18 +1,63 @@
 {
-  "x-meditor": {
-    "title": "title"
-  },
-  "name": "Glossary",
-  "description": "Glossary description.",
-  "icon": {
-    "name": "fa-info",
-    "color": "#005ac8"
-  },
-  "schema": {"$schema":"http://json-schema.org/schema#","id":"https://disc.gsfc.nasa.gov/schemas/glossary.json","properties":{"title":{"type":"string","required":true},"body":{"type":"string","required":true}}},
-  "layout": [
-    "title",
-    {"key": "body", "type": "ckeditor"}
-  ],
-  "documentation": "",
-  "tag": []
+    "titleProperty": "title",
+    "name": "Glossary",
+    "description": "Glossary description.",
+    "category": "GESDISC",
+    "workflow": "Edit-Review-Publish",
+    "icon": {
+        "name": "fa-info",
+        "color": "#005ac8"
+    },
+    "schema": {
+        "$schema": "http://json-schema.org/schema#",
+        "$id": "https://disc.gsfc.nasa.gov/schemas/model.json",
+        "type": "object",
+        "properties": {
+            "title": {
+                "type": "string",
+                "required": true
+            },
+            "body": {
+                "type": "string",
+                "contentMediaType": "text/html",
+                "required": true
+            },
+            "tags": {
+                "type": "string",
+                "title": "Tags",
+                "enum": ["ref"],
+                "required": false
+            },
+            "datasets": {
+                "type": "string",
+                "title": "Related Datasets",
+                "enum": ["ref"],
+                "required": false
+            },
+            "notes": {
+                "type": "string",
+                "title": "Revision Comments",
+                "required": false
+            }
+        }
+    },
+    "layout": [
+        "title", {
+            "key": "body",
+            "type": "ckeditor"
+        },
+        "datasets",
+        "tags",
+        "notes"
+    ],
+    "x-meditor": {
+        "model": "Models",
+        "modifiedOn": "$TODAY",
+        "modifiedBy": "nobody",
+        "states": [{
+            "source": "Init",
+            "target": "Draft",
+            "modifiedOn": "$TODAY"
+        }]
+    }
 }

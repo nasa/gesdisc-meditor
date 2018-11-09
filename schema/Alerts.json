@@ -1,21 +1,90 @@
 {
-  "x-meditor": {
-    "title": "abstract"
-  },
-  "name": "Alerts",
-  "description": "Message to notify visitors of important information regarding data availability, site availability and performance issues.",
-  "icon": {
-    "name": "fa-warning",
-    "color": "#FFE119"
-  },
-  "schema": {"$schema":"http://json-schema.org/schema#","id":"https://disc.gsfc.nasa.gov/schemas/alert.json","properties":{"abstract":{"type":"string","required":true},"expiration":{"type":"string","format":"date-time","required":true},"start":{"type":"string","format":"date-time","required":false},"severity":{"type":"string","default":"normal","enum":["normal","emergency"]},"body":{"type":"string","contentMediaType":"text/html","required":true}}},
-  "layout": [
-    "abstract",
-    { "key": "expiration", "type": "datetime", "format": "YYYY-MM-DD HH:mm:ssZ", "mode": "daytime" },
-    { "key": "start", "type": "datetime", "format": "YYYY-MM-DD HH:mm:ssZ", "mode": "daytime" },
-    "severity",
-    { "key": "body", "type" : "ckeditor" }
-  ],
-  "documentation": "",
-  "tag": []
+    "titleProperty": "title",
+    "name": "Alerts",
+    "description": "Message to notify visitors of important information regarding data availability, site availability and performance issues.",
+    "category": "GESDISC",
+    "workflow": "Edit-Review-Publish",
+    "icon": {
+        "name": "fa-warning",
+        "color": "#ffe119"
+    },
+    "schema": {
+        "$schema": "http://json-schema.org/schema#",
+        "$id": "https://disc.gsfc.nasa.gov/schemas/model.json",
+        "type": "object",
+        "properties": {
+            "title": {
+                "type": "string",
+                "required": true
+            },
+            "expiration": {
+                "type": "string",
+                "format": "date-time",
+                "required": true
+            },
+            "start": {
+                "type": "string",
+                "format": "date-time",
+                "required": true
+            },
+            "severity": {
+                "type": "string",
+                "default": "normal",
+                "enum": ["normal", "emergency"],
+                "required": true
+            },
+            "body": {
+                "type": "string",
+                "contentMediaType": "text/html",
+                "required": true
+            },
+            "tags": {
+                "type": "string",
+                "title": "Tags",
+                "enum": ["ref"],
+                "required": false
+            },
+            "datasets": {
+                "type": "string",
+                "title": "Related Datasets",
+                "enum": ["ref"],
+                "required": false
+            },
+            "notes": {
+                "type": "string",
+                "title": "Revision Comments",
+                "required": false
+            }
+        }
+    },
+    "layout": [
+        "title", {
+            "key": "start",
+            "type": "datetime",
+            "format": "YYYY-MM-DD HH:mm:ssZ",
+            "mode": "daytime"
+        }, {
+            "key": "expiration",
+            "type": "datetime",
+            "format": "YYYY-MM-DD HH:mm:ssZ",
+            "mode": "daytime"
+        },
+        "severity", {
+            "key": "body",
+            "type": "ckeditor"
+        },
+        "datasets",
+        "tags",
+        "notes"
+    ],
+    "x-meditor": {
+        "model": "Models",
+        "modifiedOn": "$TODAY",
+        "modifiedBy": "nobody",
+        "states": [{
+            "source": "Init",
+            "target": "Draft",
+            "modifiedOn": "$TODAY"
+        }]
+    }
 }

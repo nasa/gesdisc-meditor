@@ -1,3 +1,93 @@
+// Base
+//      tags: [ String ],
+//      datasets: [ String ],
+//      author: { type: String, required: true },
+//      notes: { type: String },
+//
+//      created: { type: Date, default: Date.now, required: true },
+//      updated: { type: Date, default: Date.now, required: true },
+//      lastPublished: Date,
+//      published: { type: Boolean, default: false, required: true },
+//      seqNum: { type: Number, required: true },
+//      originName: String,
+//      originData: String,
+//      removed: Boolean,
+//      removedOn: Date
+
+// BaseCTFile
+//      title: { type: String, required: true },
+//      abstract: { type: String, maxlength: 500, required: true },
+
+// Images
+//          -- from base ct --
+//      title: { type: String, required: true },
+//      abstract: { type: String, maxlength: 500, required: true },
+//
+//      groups: [ String ],
+//      carousel: Boolean,
+//      gallery: Boolean,
+//      link: String
+
+// Alerts
+//      title: { type: String, required: true },
+//      expiration: { type: Date, required: true },
+//      start: { type: Date, default: Date.now, required: true },
+//      severity: { type: String, default: 'normal', enum: [ 'normal', 'emergency' ], required: true }
+//      body: { type: String, required: true } });
+
+// News
+//          -- from base ct --
+//      title: { type: String, required: true },
+//      abstract: { type: String, maxlength: 500, required: true },
+//
+//      type: { type: String, enum: [ 'News', 'Featured Article', 'Data Release' ], required: true },
+//      imageCaption: { type: String, required: true }
+//      body: { type: String, required: true } });
+//      additionalAuthors: { type: String, required: false } });
+
+// Documents
+//      title: { type: String, required: true }
+//      body: HTML
+
+// FAQS:
+//      title: { type: String, required: true },
+//      groups: [enum ....
+//      answer: HTML
+
+// Glossary
+//      title: { type: String, required: true }
+//      body: HTML
+
+// Howto
+//      title: { type: String, required: true },
+//      abstract: { type: String, required: true },
+//      groups: [ {
+//      relatedHowto: [{ type: String, ref: 'howto' }]
+//      example: { type: String },
+//      prereq: { type: String },
+//      procedure: { type: String, required: true },
+//      additionalInfo: { type: String }
+
+// Publications
+//      title: { type: String, required: false },
+//      pubAuthors: { type: String, required: true },
+//      year: { type: Number, min: 2005, max: new Date().getFullYear() },
+//      type: { type: String, enum: [ 'Publication', 'Conference', 'Presentation' ], required: true },
+//      conferenceName: { type: String, required: false },
+//      journalName: { type: String, required: false },
+//      pages: { type: String, required: false },
+//      doi: { type: String, required: false },
+//      link: { type: String, required: true }
+
+// Tools -> Has Image
+//          -- from base ct --
+//      title: { type: String, required: true },
+//      abstract: { type: String, maxlength: 500, required: true },
+//
+//      imageCaption
+//      fileOptional
+//      body HTML
+
 'use strict';
 var _ = require('lodash');
 var mongo = require('mongodb');
@@ -118,6 +208,7 @@ var UUI_HEADERS = {
 }
 
 var modelMapping = [
+    // Alerts
     {
         from: {
             model: 'alerts',
@@ -137,7 +228,8 @@ var modelMapping = [
             'start': 'start',
             'severity': 'severity'
         }
-    }, 
+    },
+    // News -> Has Image
     // {
     //     from: {
     //         model: 'news',
@@ -159,6 +251,7 @@ var modelMapping = [
     //         'additionalAuthors': 'additionalAuthors',
     //     }
     // },
+    // Images -> Has Image
     {
         from: {
             model: 'images',

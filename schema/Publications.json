@@ -1,12 +1,12 @@
 {
     "titleProperty": "title",
-    "name": "Documents",
-    "description": "Documents description.",
+    "name": "Publications",
+    "description": "Publications",
     "category": "GESDISC",
     "workflow": "Edit-Review-Publish",
     "icon": {
-        "name": "fa-file-text",
-        "color": "#46f0f0"
+        "name": "fa-flask-o",
+        "color": "#000000"
     },
     "schema": {
         "$schema": "http://json-schema.org/schema#",
@@ -17,9 +17,40 @@
                 "type": "string",
                 "required": true
             },
-            "body": {
+            "pubAuthors": {
                 "type": "string",
-                "contentMediaType": "text/html",
+                "required": true
+            },
+            "year": {
+                "type": "number",
+                "required": true,
+                "minLength": 4,
+                "maxLength": 4
+            },
+            "type": {
+                "type": "string",
+                "default": "Publication",
+                "enum": ["Publication", "Conference", "Presentation"],
+                "required": true
+            },
+            "conferenceName": {
+                "type": "string",
+                "required": false
+            },
+            "journalName": {
+                "type": "string",
+                "required": false
+            },
+            "pages": {
+                "type": "string",
+                "required": false
+            },
+            "doi": {
+                "type": "string",
+                "required": false
+            },
+            "link": {
+                "type": "string",
                 "required": true
             },
             "tags": {
@@ -42,10 +73,15 @@
         }
     },
     "layout": [
-        "title", {
-            "key": "body",
-            "type": "ckeditor"
-        },
+        "title",
+        "pubAuthors",
+        "year",
+        "type",
+        "conferenceName",
+        "journalName",
+        "pages",
+        "doi",
+        "link",
         "datasets",
         "tags",
         "notes"
