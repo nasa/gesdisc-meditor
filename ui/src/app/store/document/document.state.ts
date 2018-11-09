@@ -137,6 +137,7 @@ export class DocumentState {
         payload.version = getState().currentDocumentVersion;
         let user = this.store.selectSnapshot(AuthState.user);
         payload.createdBy = user.firstName + ' '  + user.lastName;
+        payload.userUid = user.uid;
         const commentBlob = new Blob([JSON.stringify(payload)]);
 
 				return this.service.postComment(commentBlob)

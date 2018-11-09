@@ -40,11 +40,6 @@ med-comment > .comments-container > .comment-card {
 	width: 100%;
 }
 
-.comment-header-image {
-	background-image: url('https://i.imgflip.com/cnudu.jpg');
-  background-size: cover;
-}
-
 .comment-created-by {
   margin-bottom: 5px;
 }

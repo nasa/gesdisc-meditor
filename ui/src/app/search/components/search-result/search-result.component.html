@@ -1,5 +1,5 @@
 <div>
-	<a (click)="loadDocument.emit({title: result.title, state: result['x-meditor'].state})" href="javascript:;">{{result.title}}</a>
+	<a (click)="loadDocument.emit({title: result.title, state: result['x-meditor'].state})" href="javascript:;">{{result.title | bcEllipsis: 100}}</a>
 	<mat-chip-list class="state-chip">
 		<mat-chip [disabled]="true">{{result['x-meditor'].state}}</mat-chip>
 	</mat-chip-list>

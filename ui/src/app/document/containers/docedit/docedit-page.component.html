@@ -7,7 +7,7 @@
       class="comment-sidenav" 
       [position]="'end'">
         <ng-container *ngIf="showHistory"> 
-          <div *ngIf="history$ | async as history" style="height: 600px;">
+          <div *ngIf="history$ | async as history">
             <med-doc-history
               [dochistory]="history"
               [selectedHistory]= "version$ | async"

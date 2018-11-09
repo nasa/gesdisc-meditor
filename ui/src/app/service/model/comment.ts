@@ -21,4 +21,5 @@ export interface Comment {
     documentId: string;
     model: string;
     version: string;
+    userUid: string;
 }

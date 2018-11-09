@@ -41,7 +41,7 @@ describe('SearchStatusComponent', () => {
 			instance.resultCount = 15;
 			instance.modelName = 'test';
 			instance.sortBy = 'oldest';
-      instance.privileges = ['create_new'];
+      instance.privileges = ['create'];
       instance.actions = [{
         label: 'Add new'
       }];
