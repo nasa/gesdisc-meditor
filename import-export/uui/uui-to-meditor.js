@@ -1,106 +1,274 @@
-// Base
-//      tags: [ String ],
-//      datasets: [ String ],
-//      author: { type: String, required: true },
-//      notes: { type: String },
-//
-//      created: { type: Date, default: Date.now, required: true },
-//      updated: { type: Date, default: Date.now, required: true },
-//      lastPublished: Date,
-//      published: { type: Boolean, default: false, required: true },
-//      seqNum: { type: Number, required: true },
-//      originName: String,
-//      originData: String,
-//      removed: Boolean,
-//      removedOn: Date
-
-// BaseCTFile
-//      title: { type: String, required: true },
-//      abstract: { type: String, maxlength: 500, required: true },
-
-// Images
-//          -- from base ct --
-//      title: { type: String, required: true },
-//      abstract: { type: String, maxlength: 500, required: true },
-//
-//      groups: [ String ],
-//      carousel: Boolean,
-//      gallery: Boolean,
-//      link: String
-
-// Alerts
-//      title: { type: String, required: true },
-//      expiration: { type: Date, required: true },
-//      start: { type: Date, default: Date.now, required: true },
-//      severity: { type: String, default: 'normal', enum: [ 'normal', 'emergency' ], required: true }
-//      body: { type: String, required: true } });
-
-// News
-//          -- from base ct --
-//      title: { type: String, required: true },
-//      abstract: { type: String, maxlength: 500, required: true },
-//
-//      type: { type: String, enum: [ 'News', 'Featured Article', 'Data Release' ], required: true },
-//      imageCaption: { type: String, required: true }
-//      body: { type: String, required: true } });
-//      additionalAuthors: { type: String, required: false } });
-
-// Documents
-//      title: { type: String, required: true }
-//      body: HTML
-
-// FAQS:
-//      title: { type: String, required: true },
-//      groups: [enum ....
-//      answer: HTML
-
-// Glossary
-//      title: { type: String, required: true }
-//      body: HTML
-
-// Howto
-//      title: { type: String, required: true },
-//      abstract: { type: String, required: true },
-//      groups: [ {
-//      relatedHowto: [{ type: String, ref: 'howto' }]
-//      example: { type: String },
-//      prereq: { type: String },
-//      procedure: { type: String, required: true },
-//      additionalInfo: { type: String }
-
-// Publications
-//      title: { type: String, required: false },
-//      pubAuthors: { type: String, required: true },
-//      year: { type: Number, min: 2005, max: new Date().getFullYear() },
-//      type: { type: String, enum: [ 'Publication', 'Conference', 'Presentation' ], required: true },
-//      conferenceName: { type: String, required: false },
-//      journalName: { type: String, required: false },
-//      pages: { type: String, required: false },
-//      doi: { type: String, required: false },
-//      link: { type: String, required: true }
-
-// Tools -> Has Image
-//          -- from base ct --
-//      title: { type: String, required: true },
-//      abstract: { type: String, maxlength: 500, required: true },
-//
-//      imageCaption
-//      fileOptional
-//      body HTML
-
 'use strict';
 var _ = require('lodash');
 var mongo = require('mongodb');
-var requests = require('request-promise-native');
 var MongoClient = mongo.MongoClient;
 var ObjectID = mongo.ObjectID;
 var Grid = require('gridfs-stream');
 var stream = require('stream');
 
-var n_items = {
-    'images': 0,
-    'alerts': 0
+var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
+
+var dbMeditor = 'meditor';
+var dbUui = 'uui-db';
+
+// UUI model attributes to import
+var mappableFields = [
+    '_id', 'title', 'abstract', 'body', 'type', 'imageCaption', 'additionalAuthors', // Common fields
+    'expiration', 'start', 'severity', // Alerts
+    'carousel', 'gallery', 'link', // Images
+    'answer', // FAQs
+    'relatedHowto', 'example', 'prereq', 'procedure', 'additionalInfo', // Howto
+    'pubAuthors', 'year', 'conferenceName', 'journalName', 'pages', 'doi', // Publications
+    'tags', 'datasets', 'groups', 'notes' // Common block
+];
+
+// Mappinng of DB names
+var modelMapping = [
+    {from: 'alerts', to: 'Alerts'},
+    {from: 'documents', to: 'Documents'},
+    {from: 'faqs', to: 'FAQs'},
+    {from: 'glossary', to:'Glossary'},
+    {from: 'howto', to: 'Howto'},
+    {from: 'images', to: 'Images'},
+    {from: 'news', to: 'News'},
+    {from: 'publications', to: 'Publications'},
+    {from: 'tools', to: 'Tools'}
+];
+
+// Cloned from Meditor.js
+function putFileSystemItem(dbo, filename, data, meta) {
+    var options = meta ? {metadata: meta} : null;
+    var putItemHelper = function(bucket, resolve, reject) {
+        var writeStream = bucket.openUploadStreamWithId(filename, filename, options);
+        var s = new stream.Readable();
+        s.push(data);
+        s.push(null); // Push null to end stream
+        s.pipe(writeStream);
+        writeStream.on('finish', resolve);
+        writeStream.on('error', reject);
+    };
+    return new Promise(function(resolve, reject) {
+        var bucket = new mongo.GridFSBucket(dbo);
+        bucket.find({_id: filename}).count(function(err, count) {
+        if (err) return reject(err);
+        if (count > 0) {
+            bucket.delete(filename, function() {
+            putItemHelper(bucket, resolve, reject);
+            }, reject)
+        } else {
+            putItemHelper(bucket, resolve, reject);
+        }
+        }, reject);
+    });
+}
+
+// https://stackoverflow.com/questions/10623798/writing-node-js-stream-into-a-string-variable
+function streamToString(stream, cb) {
+    var image_buf = new Buffer('');
+    stream.on('data', (chunk) => {
+        image_buf = Buffer.concat([image_buf, chunk]);
+    });
+    stream.on('error', (err) => {
+        cb(null);
+    });
+    stream.on('end', () => {
+        var res = image_buf.toString('base64');
+        image_buf = null; // Clean up memory
+        cb(res);
+       
+    });
+}
+
+function getDocImage(meta, modelConfig, document) {
+    if (!document.fileRef) return Promise.resolve(null);
+    return new Promise(function(resolve, reject) {
+        meta.gfs.files.findOne({ _id: document.fileRef._id }, function(metaErr, metaInfo) {
+            if (metaErr) reject(metaErr);
+            var readstream = meta.gfs.createReadStream({ _id: document.fileRef._id});
+            streamToString(readstream, (data) => {
+                readstream.destroy(); // Clean up memory
+                if (data !== null) {
+                    resolve('data:' + metaInfo.contentType + ';base64,' + data);
+                } else {
+                    console.log('Could not read ', metaInfo);
+                }
+            });
+        });
+    });
 };
+
+function importDocument(meta, modelConfig, document) {
+    //if (n_items[modelConfig.from.model]++ > 100 && modelConfig.from.model==='images') return Promise.resolve();
+
+    var newDocument = {
+        "x-meditor" : {
+            model : modelConfig.to.model,
+            modifiedOn : document.updated.toISOString(),
+            modifiedBy : modelConfig.from.users[document.author.toString()] || document.author,
+            states : [
+                {
+                    source : "Init",
+                    target : "Draft",
+                    modifiedOn : document.updated.toISOString()
+                }
+            ]
+        }
+    };
+    _.forEach(mappableFields, function(field) {
+        if (field in document) newDocument[field] = document[field];
+    });
+    if (document.published) {
+        newDocument["x-meditor"].states.push({
+            "source" : "Approved",
+            "target" : "Published",
+            "modifiedOn" : document.lastPublished.toISOString()
+        })
+    }
+    return getDocImage(meta, modelConfig, document)
+        .then(function(img) {
+            if (img !== null) {
+                newDocument.image = (new ObjectID()).toString();
+                return putFileSystemItem(meta.dbo.db(dbMeditor), newDocument.image, img, {
+                    model: newDocument["x-meditor"]["model"],
+                    version: newDocument["x-meditor"]["modifiedOn"],
+                    originalTitle: newDocument[modelConfig.to.modelMeta.titleProperty]
+                })
+            }
+            return Promise.resolve(null);
+        })
+        .then(function() {
+            return meta.dbo
+                .db(dbMeditor)
+                .collection(modelConfig.to.model)
+                .insertOne(newDocument);
+        })
+        .then(function() {
+            // Clean up memory
+            newDocument.image = null;
+            newDocument = null;
+            return Promise.resolve('Success');
+        })
+        .catch(function(err) {
+            console.log('Could not write ', newDocument.title, err);
+            return Promise.resolve('Failed');
+        })
+};
+
+function importModel(meta, cfg) {
+    var that = {};
+    var modelConfig = {
+        from: {model: cfg.from},
+        to: {model: cfg.to}
+    };
+    return Promise.resolve()
+        .then(function() {
+            return meta.dbo
+                .db(dbMeditor)
+                .collection("Models")
+                .find({
+                    name: modelConfig.to.model
+                })
+                .project({
+                    _id: 0
+                })
+                .sort({
+                    "x-meditor.modifiedOn": -1
+                })
+                .limit(1)
+                .toArray();
+        })
+        .then(function(res) {
+            modelConfig.to.modelMeta = res[0];
+            //console.log(JSON.stringify(JSON.parse(modelConfig.to.modelMeta[0].schema), null,2));
+            // Get all mEditor titles
+            return meta.dbo
+                .db(dbMeditor)
+                .collection(modelConfig.to.model)
+                .aggregate([{
+                    $group: {_id: null, titles: {$addToSet: "$" + modelConfig.to.modelMeta.titleProperty}}
+                }])
+                .toArray();
+        })
+        .then(function(res) {
+            
+            modelConfig.to.titles = res.length > 0 ? res[0].titles : [];
+            // Get UUI users
+            return meta.dbo
+                .db(dbUui)
+                .collection('users')
+                .find()
+                .toArray();
+        })
+        .then(function(users) {
+            modelConfig.from.users = users.reduce(function (accumulator, currentValue) {
+                accumulator[currentValue._id.toString()] = currentValue.uid;
+                return accumulator;
+              }, {});
+            // Get all UUI documents that do not originate from mEditor
+            return meta.dbo
+                .db(dbUui)
+                .collection(modelConfig.from.model)
+                .find({originName: {$ne: 'meditor'}})
+                .toArray();
+        })
+        .then(function(docs) {
+            var titleDelta;
+            var deleteQuery = {};
+            that.docs = docs;
+            modelConfig.from.titles = _(docs).map('title').uniq().value();
+            // Find all mEditor docs that came from UUI and remove them
+            titleDelta = _.intersection(modelConfig.to.titles, modelConfig.from.titles);
+            deleteQuery[modelConfig.to.modelMeta.titleProperty] = {$in: titleDelta};
+            console.log('UUI ' + modelConfig.from.model + ' to remove from mEditor:', titleDelta.length);
+            return meta.dbo
+                .db(dbMeditor)
+                .collection(modelConfig.to.model)
+                .deleteMany(deleteQuery);
+        })
+        .then(function() {
+            // Iterate over documents
+            return Promise.all(that.docs.map(doc => (importDocument(meta, modelConfig, doc))));
+        })
+        .then(function(res) {
+            // All done
+            console.log('All done, imported', res.length, 'documents of type', modelConfig.to.model);
+            return "Done with " + modelConfig.to.model;
+        });
+};
+
+module.exports.syncItems = function syncItems() {
+    var that = {};
+    var xmeditorProperties = ["modifiedOn", "modifiedBy", "state"];
+
+    return MongoClient.connect(MongoUrl)
+        .then(res => {
+            that.dbo = res;
+            that.gfs = new Grid(that.dbo.db(dbUui), mongo);
+            return Promise.all(modelMapping.map(modelConfig => (importModel(that, modelConfig))));
+        })
+        .then(res => {
+            console.log(res);
+        })
+        .then(res => {})
+        .then(function() {
+            console.log('Closing DB');
+            that.dbo.close();
+        })
+        .catch(err => {
+            console.log('Found errors. Closing DB');
+            try {
+                that.dbo.close()
+            } catch (e) {};
+            console.log(err.status || err.statusCode, err.message || 'Unknown error');
+            return Promise.reject({
+                status: err.status || err.statusCode,
+                message: err.message || 'Unknown error'
+            });
+        });
+};
+
+exports.syncItems();
+
 
 /*
 {
@@ -168,335 +336,3 @@ var n_items = {
 // 	"uploadDate" : ISODate("2016-12-12T22:50:13.054Z"),
 // 	"md5" : "41dc869cf4b866ed865d1f42366654cd"
 // }
-
-var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
-var MeditorDbName = "meditor";
-var UUIDbName = "meditor";
-var UUI_AUTH_CLIENT_ID = process.env.UUI_AUTH_CLIENT_ID;
-var UUI_APP_URL = (process.env.UUI_APP_URL || 'http://localhost:9000').replace(/\/+$/, '');
-var URS_USER = process.env.URS_USER;
-var URS_PASSWORD = process.env.URS_PASSWORD;
-
-var URS_BASE_URL = 'https://urs.earthdata.nasa.gov';
-var URS_HEADERS = {
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-    'Accept-Encoding': 'gzip, deflate, br',
-    'Content-Type': 'application/x-www-form-urlencoded'
-    // 'Host': 'urs.earthdata.nasa.gov',
-    //'Connection': 'keep-alive',
-    // 'Content-Length': 336,
-    // 'Pragma': 'no-cache',
-    // 'Cache-Control': 'no-cache',
-    // 'Origin': 'https://urs.earthdata.nasa.gov',
-    // 'Upgrade-Insecure-Requests': 1,
-    // 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36',
-    // 'Referer': 'https://urs.earthdata.nasa.gov/oauth/authorize?response_type=code&redirect_uri=' + encodeURIComponent(UUI_APP_URL) + '%2Flogin%2Fcallback&client_id=' + UUI_AUTH_CLIENT_ID,
-    // 'Accept-Language': 'en-US,en;q=0.9'
-}
-
-var UUI_HEADERS = {
-    'Accept-Encoding': 'gzip, deflate, br',
-    'Accept': 'application/json, text/plain, */*',
-    'Content-Type': 'application/json;charset=utf-8'
-    //'Pragma': 'no-cache',
-    // 'Accept-Language': 'en-US,en;q=0.9',
-    // 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.170 Safari/537.36',
-    //'Referer': UUI_APP_URL + '/',
-    //'DNT': '1',
-    // 'Connection': 'keep-alive',
-    // 'Cache-Control': 'no-cache'
-}
-
-var modelMapping = [
-    // Alerts
-    {
-        from: {
-            model: 'alerts',
-            dbName: 'uui-db'
-        },
-        to: {
-            model: 'Alerts',
-            dbName: 'meditor'
-        },
-        fieldMapping: {
-            '_id': '_id',
-            'title': 'abstract',
-            'tags': 'tags',
-            'datasets': 'datasets',
-            'body': 'body',
-            'expiration': 'expiration',
-            'start': 'start',
-            'severity': 'severity'
-        }
-    },
-    // News -> Has Image
-    // {
-    //     from: {
-    //         model: 'news',
-    //         dbName: 'uui-db'
-    //     },
-    //     to: {
-    //         model: 'News',
-    //         dbName: 'meditor'
-    //     },
-    //     fieldMapping: {
-    //         '_id': '_id',
-    //         'title': 'title',
-    //         'tags': 'tags',
-    //         'datasets': 'datasets',
-    //         'body': 'body',
-    //         'type': 'type',
-    //         'imageCaption': 'imageCaption',
-    //         'abstract': 'abstract',
-    //         'additionalAuthors': 'additionalAuthors',
-    //     }
-    // },
-    // Images -> Has Image
-    {
-        from: {
-            model: 'images',
-            dbName: 'uui-db'
-        },
-        to: {
-            model: 'Image',
-            dbName: 'meditor'
-        },
-        fieldMapping: {
-            '_id': '_id',
-            'title': 'title',
-            'abstract': 'description'
-        }
-    }
-];
-
-// Cloned from Meditor.js
-function putFileSystemItem(dbo, filename, data, meta) {
-    var options = meta ? {metadata: meta} : null;
-    var putItemHelper = function(bucket, resolve, reject) {
-        var writeStream = bucket.openUploadStreamWithId(filename, filename, options);
-        var s = new stream.Readable();
-        s.push(data);
-        s.push(null); // Push null to end stream
-        s.pipe(writeStream);
-        writeStream.on('finish', resolve);
-        writeStream.on('error', reject);
-    };
-    return new Promise(function(resolve, reject) {
-        var bucket = new mongo.GridFSBucket(dbo);
-        bucket.find({_id: filename}).count(function(err, count) {
-        if (err) return reject(err);
-        if (count > 0) {
-            bucket.delete(filename, function() {
-            putItemHelper(bucket, resolve, reject);
-            }, reject)
-        } else {
-            putItemHelper(bucket, resolve, reject);
-        }
-        }, reject);
-    });
-}
-
-// https://stackoverflow.com/questions/10623798/writing-node-js-stream-into-a-string-variable
-function streamToString(stream, cb) {
-    var image_buf = new Buffer('');
-    stream.on('data', (chunk) => {
-        image_buf = Buffer.concat([image_buf, chunk]);
-    });
-    stream.on('error', (err) => {
-        cb(null);
-    });
-    stream.on('end', () => {
-        var res = image_buf.toString('base64');
-        image_buf = null; // Clean up memory
-        cb(res);
-       
-    });
-}
-
-function getDocImage(meta, modelConfig, document) {
-    if (!document.fileRef) return Promise.resolve(null);
-    return new Promise(function(resolve, reject) {
-        modelConfig.gfs.files.findOne({ _id: document.fileRef._id }, function(metaErr, metaInfo) {
-            if (metaErr) reject(metaErr);
-            var readstream = modelConfig.gfs.createReadStream({ _id: document.fileRef._id});
-            streamToString(readstream, (data) => {
-                readstream.destroy(); // Clean up memory
-                if (data !== null) {
-                    resolve('data:' + metaInfo.contentType + ';base64,' + data);
-                } else {
-                    console.log('Could not read ', metaInfo);
-                }
-            });
-        });
-    });
-};
-
-function importDocument(meta, modelConfig, document) {
-    //if (n_items[modelConfig.from.model]++ > 100 && modelConfig.from.model==='images') return Promise.resolve();
-
-    var newDocument = {
-        "x-meditor" : {
-            model : modelConfig.to.model,
-            modifiedOn : document.updated.toISOString(),
-            modifiedBy : modelConfig.from.users[document.author.toString()] || document.author,
-            states : [
-                {
-                    source : "Init",
-                    target : "Draft",
-                    modifiedOn : document.updated.toISOString()
-                }
-            ]
-        }
-    };
-    _.forEach(modelConfig.fieldMapping, function(to, from) {
-        if (from in document) newDocument[to] = document[from];
-    });
-    if (document.published) {
-        newDocument["x-meditor"].states.push({
-            "source" : "Approved",
-            "target" : "Published",
-            "modifiedOn" : document.lastPublished.toISOString()
-        })
-    }
-    return getDocImage(meta, modelConfig, document)
-        .then(function(img) {
-            if (img !== null) {
-                newDocument.image = (new ObjectID()).toString();
-                return putFileSystemItem(meta.dbo.db(modelConfig.to.dbName), newDocument.image, img, {
-                    model: newDocument["x-meditor"]["model"],
-                    version: newDocument["x-meditor"]["modifiedOn"],
-                    originalTitle: newDocument[modelConfig.to.modelMeta.titleProperty]
-                })
-            }
-            return Promise.resolve(null);
-        })
-        .then(function() {
-            return meta.dbo
-                .db(modelConfig.to.dbName)
-                .collection(modelConfig.to.model)
-                .insertOne(newDocument);
-        })
-        .then(function() {
-            // Clean up memory
-            newDocument.image = null;
-            newDocument = null;
-            return Promise.resolve('Success');
-        })
-        .catch(function(err) {
-            console.log('Could not write ', newDocument.title, err);
-            return Promise.resolve('Failed');
-        })
-};
-
-function importModel(meta, modelConfig) {
-    var that = {};
-    modelConfig.gfs = new Grid(meta.dbo.db(modelConfig.from.dbName), mongo);
-    return Promise.resolve()
-        .then(function() {
-            return meta.dbo
-                .db(modelConfig.to.dbName)
-                .collection("Models")
-                .find({
-                    name: modelConfig.to.model
-                })
-                .project({
-                    _id: 0
-                })
-                .sort({
-                    "x-meditor.modifiedOn": -1
-                })
-                .limit(1)
-                .toArray();
-        })
-        .then(function(res) {
-            modelConfig.to.modelMeta = res[0];
-            //console.log(JSON.stringify(JSON.parse(modelConfig.to.modelMeta[0].schema), null,2));
-            // Get all mEditor titles
-            return meta.dbo
-                .db(modelConfig.to.dbName)
-                .collection(modelConfig.to.model)
-                .aggregate([{
-                    $group: {_id: null, titles: {$addToSet: "$" + modelConfig.to.modelMeta.titleProperty}}
-                }])
-                .toArray();
-        })
-        .then(function(res) {
-            
-            modelConfig.to.titles = res.length > 0 ? res[0].titles : [];
-            // Get UUI users
-            return meta.dbo
-                .db(modelConfig.from.dbName)
-                .collection('users')
-                .find()
-                .toArray();
-        })
-        .then(function(users) {
-            modelConfig.from.users = users.reduce(function (accumulator, currentValue) {
-                accumulator[currentValue._id.toString()] = currentValue.uid;
-                return accumulator;
-              }, {});
-            // Get all UUI documents that do not originate from mEditor
-            return meta.dbo
-                .db(modelConfig.from.dbName)
-                .collection(modelConfig.from.model)
-                .find({originName: {$ne: 'meditor'}})
-                .toArray();
-        })
-        .then(function(docs) {
-            var titleDelta;
-            var deleteQuery = {};
-            that.docs = docs;
-            modelConfig.from.titles = _(docs).map('title').uniq().value();
-            // Find all mEditor docs that came from UUI and remove them
-            titleDelta = _.intersection(modelConfig.to.titles, modelConfig.from.titles);
-            deleteQuery[modelConfig.to.modelMeta.titleProperty] = {$in: titleDelta};
-            console.log('UUI ' + modelConfig.from.model + ' to remove from mEditor:', titleDelta.length);
-            return meta.dbo
-                .db(modelConfig.to.dbName)
-                .collection(modelConfig.to.model)
-                .deleteMany(deleteQuery);
-        })
-        .then(function() {
-            // Iterate over documents
-            return Promise.all(that.docs.map(doc => (importDocument(meta, modelConfig, doc))));
-        })
-        .then(function(res) {
-            // All done
-            console.log('All done, imported', res.length, 'documents of type', modelConfig.to.model);
-            return "Done with " + modelConfig.to.model;
-        });
-};
-
-module.exports.syncItems = function syncItems(params) {
-    var that = {
-        params: params
-    };
-    var xmeditorProperties = ["modifiedOn", "modifiedBy", "state"];
-
-    return MongoClient.connect(MongoUrl)
-        .then(res => {
-            that.dbo = res;
-            return Promise.all(modelMapping.map(modelConfig => (importModel(that, modelConfig))));
-        })
-        .then(res => {
-            console.log(res);
-        })
-        .then(res => {})
-        .then(function() {
-            console.log('Closing DB');
-            that.dbo.close();
-        })
-        .catch(err => {
-            console.log('Found errors. Closing DB');
-            try {
-                that.dbo.close()
-            } catch (e) {};
-            console.log(err.status || err.statusCode, err.message || 'Unknown error');
-            return Promise.reject({
-                status: err.status || err.statusCode,
-                message: err.message || 'Unknown error'
-            });
-        });
-};
-
-exports.syncItems({model: 'Alerts'});

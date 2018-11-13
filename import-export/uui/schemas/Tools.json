@@ -1,12 +1,12 @@
 {
     "titleProperty": "title",
-    "name": "Publications",
-    "description": "Publications",
+    "name": "Tools",
+    "description": "Tools",
     "category": "GESDISC",
     "workflow": "Edit-Review-Publish",
     "icon": {
-        "name": "fa-flask-o",
-        "color": "#000000"
+        "name": "fa-wrench",
+        "color": "#5f8168"
     },
     "schema": {
         "$schema": "http://json-schema.org/schema#",
@@ -17,52 +17,49 @@
                 "type": "string",
                 "required": true
             },
-            "pubAuthors": {
+            "abstract": {
                 "type": "string",
-                "required": true
-            },
-            "year": {
-                "type": "number",
+                "title": "Description",
+                "description": "Description for the news article",
                 "required": true,
-                "minLength": 4,
-                "maxLength": 4
+                "minLength": 10,
+                "maxLength": 500
             },
-            "type": {
+            "image": {
+                "$id": "/properties/media",
+                "title": "Media",
+                "description": "Media (Images and Videos)",
+                "$comment": "Media (Images and Videos)",
                 "type": "string",
-                "default": "Publication",
-                "enum": ["Publication", "Conference", "Presentation"],
-                "required": true
+                "contentMediaType": "image/png",
+                "contentEncoding": "base64",
+                "required": false
             },
-            "conferenceName": {
+            "imageCaption": {
                 "type": "string",
                 "required": false
             },
-            "journalName": {
+            "body": {
                 "type": "string",
-                "required": false
-            },
-            "pages": {
-                "type": "string",
-                "required": false
-            },
-            "doi": {
-                "type": "string",
-                "required": false
-            },
-            "link": {
-                "type": "string",
+                "contentMediaType": "text/html",
                 "required": true
             },
             "tags": {
-                "type": "string",
+                "type": "array",
                 "title": "Tags",
-                "enum": ["ref"],
+                "items": {
+                    "type": "string",
+                    "enum": ["ref"]
+                },
                 "required": false
             },
             "datasets": {
-                "type": "string",
+                "type": "array",
                 "title": "Related Datasets",
-                "enum": ["ref"],
+                "items": {
+                    "type": "string",
+                    "enum": ["ref"]
+                },
                 "required": false
             },
             "notes": {
@@ -74,22 +71,22 @@
     },
     "layout": [
         "title",
-        "pubAuthors",
-        "year",
-        "type",
-        "conferenceName",
-        "journalName",
-        "pages",
-        "doi",
-        "link",
+        "abstract", {
+            "key": "body",
+            "type": "ckeditor"
+        },
         "datasets",
-        "tags",
+        "tags", {
+            "key": "image",
+            "type": "image-upload"
+        },
+        "imageCaption",
         "notes"
     ],
     "x-meditor": {
         "model": "Models",
         "modifiedOn": "$TODAY",
-        "modifiedBy": "nobody",
+        "modifiedBy": "$AUTHOR",
         "states": [{
             "source": "Init",
             "target": "Draft",

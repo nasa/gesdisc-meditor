@@ -1,11 +1,11 @@
 {
     "titleProperty": "title",
-    "name": "How-To's",
-    "description": "How-to description.",
+    "name": "Howto",
+    "description": "How-to",
     "category": "GESDISC",
     "workflow": "Edit-Review-Publish",
     "icon": {
-        "name": "fa-bullhorn",
+        "name": "i-howto",
         "color": "#911eb4"
     },
     "schema": {
@@ -24,14 +24,17 @@
                 "maxLength": 500
             },
             "groups": {
-                "type": "string",
-                "enum": [
-                    "Worldview", "Giovanni", "ArcGIS", "R", "GrADS", "HDFView", "Panoply", "IDV",
-                    "McIDAS-V", "Matlab", "IDL", "ENVI", "Python", "NCO", "CHANGE Viewer", "Excel",
-                    "ncBrowse", "grid", "swath", "point", "shapefile", "vector", "read data", "visualization",
-                    "format", "conversion", "spatial subsetting", "HDF4", "HDF5", "netCDF", "netCDF4", "HDF-EOS",
-                    "HDF-EOS5", "GRIB", "Binary", "ASCII", "CVS", "GeoTiff"
-                ],
+                "type": "array",
+                "items": {
+                    "type": "string",
+                    "enum": [
+                        "Worldview", "Giovanni", "ArcGIS", "R", "GrADS", "HDFView", "Panoply", "IDV",
+                        "McIDAS-V", "Matlab", "IDL", "ENVI", "Python", "NCO", "CHANGE Viewer", "Excel",
+                        "ncBrowse", "grid", "swath", "point", "shapefile", "vector", "read data", "visualization",
+                        "format", "conversion", "spatial subsetting", "HDF4", "HDF5", "netCDF", "netCDF4", "HDF-EOS",
+                        "HDF-EOS5", "GRIB", "Binary", "ASCII", "CVS", "GeoTiff"
+                    ]
+                },
                 "required": false
             },
             "relatedHowto": {
@@ -42,34 +45,44 @@
             },
             "example": {
                 "type": "string",
+                "title": "Example",
                 "contentMediaType": "text/html",
                 "required": false
             },
             "prereq": {
                 "type": "string",
+                "title": "Prerequisites",
                 "contentMediaType": "text/html",
                 "required": false
             },
             "procedure": {
                 "type": "string",
+                "title": "Procedure",
                 "contentMediaType": "text/html",
                 "required": true
             },
             "additionalInfo": {
                 "type": "string",
+                "title": "Additional Info",
                 "contentMediaType": "text/html",
                 "required": false
             },
             "tags": {
-                "type": "string",
+                "type": "array",
                 "title": "Tags",
-                "enum": ["ref"],
+                "items": {
+                    "type": "string",
+                    "enum": ["ref"]
+                },
                 "required": false
             },
             "datasets": {
-                "type": "string",
+                "type": "array",
                 "title": "Related Datasets",
-                "enum": ["ref"],
+                "items": {
+                    "type": "string",
+                    "enum": ["ref"]
+                },
                 "required": false
             },
             "notes": {
@@ -95,16 +108,15 @@
             "type": "ckeditor"
         },
         "relatedHowto",
-        "type",
         "datasets",
-        "imageCaption",
+        "tags",
         "groups",
         "notes"
     ],
     "x-meditor": {
         "model": "Models",
         "modifiedOn": "$TODAY",
-        "modifiedBy": "nobody",
+        "modifiedBy": "$AUTHOR",
         "states": [{
             "source": "Init",
             "target": "Draft",

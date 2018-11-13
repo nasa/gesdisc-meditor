@@ -1,12 +1,12 @@
 {
     "titleProperty": "title",
-    "name": "Tools",
-    "description": "Tools",
+    "name": "News",
+    "description": "News about all things relating to GES DISC including data releases and featured science articles.",
     "category": "GESDISC",
     "workflow": "Edit-Review-Publish",
     "icon": {
-        "name": "fa-wrench-o",
-        "color": "#5f8168"
+        "name": "fa-newspaper-o",
+        "color": "#679EF5"
     },
     "schema": {
         "$schema": "http://json-schema.org/schema#",
@@ -25,6 +25,12 @@
                 "minLength": 10,
                 "maxLength": 500
             },
+            "type": {
+                "type": "string",
+                "default": "News",
+                "enum": ["News", "Featured Article", "Data Release"],
+                "required": true
+            },
             "image": {
                 "$id": "/properties/media",
                 "title": "Media",
@@ -33,27 +39,37 @@
                 "type": "string",
                 "contentMediaType": "image/png",
                 "contentEncoding": "base64",
-                "required": false
+                "required": true
             },
             "imageCaption": {
                 "type": "string",
-                "required": false
+                "required": true
             },
             "body": {
                 "type": "string",
                 "contentMediaType": "text/html",
                 "required": true
             },
-            "tags": {
+            "additionalAuthors": {
                 "type": "string",
+                "required": false
+            },
+            "tags": {
+                "type": "array",
                 "title": "Tags",
-                "enum": ["ref"],
+                "items": {
+                    "type": "string",
+                    "enum": ["ref"]
+                },
                 "required": false
             },
             "datasets": {
-                "type": "string",
+                "type": "array",
                 "title": "Related Datasets",
-                "enum": ["ref"],
+                "items": {
+                    "type": "string",
+                    "enum": ["ref"]
+                },
                 "required": false
             },
             "notes": {
@@ -65,7 +81,8 @@
     },
     "layout": [
         "title",
-        "abstract", {
+        "abstract",
+        "additionalAuthors", {
             "key": "body",
             "type": "ckeditor"
         },
@@ -81,7 +98,7 @@
     "x-meditor": {
         "model": "Models",
         "modifiedOn": "$TODAY",
-        "modifiedBy": "nobody",
+        "modifiedBy": "$AUTHOR",
         "states": [{
             "source": "Init",
             "target": "Draft",

@@ -39,15 +39,21 @@
                 "required": true
             },
             "tags": {
-                "type": "string",
+                "type": "array",
                 "title": "Tags",
-                "enum": ["ref"],
+                "items": {
+                    "type": "string",
+                    "enum": ["ref"]
+                },
                 "required": false
             },
             "datasets": {
-                "type": "string",
+                "type": "array",
                 "title": "Related Datasets",
-                "enum": ["ref"],
+                "items": {
+                    "type": "string",
+                    "enum": ["ref"]
+                },
                 "required": false
             },
             "notes": {
@@ -80,7 +86,7 @@
     "x-meditor": {
         "model": "Models",
         "modifiedOn": "$TODAY",
-        "modifiedBy": "nobody",
+        "modifiedBy": "$AUTHOR",
         "states": [{
             "source": "Init",
             "target": "Draft",

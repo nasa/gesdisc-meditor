@@ -1,7 +1,7 @@
 {
     "titleProperty": "title",
     "name": "Documents",
-    "description": "Documents description.",
+    "description": "Documents",
     "category": "GESDISC",
     "workflow": "Edit-Review-Publish",
     "icon": {
@@ -23,15 +23,21 @@
                 "required": true
             },
             "tags": {
-                "type": "string",
+                "type": "array",
                 "title": "Tags",
-                "enum": ["ref"],
+                "items": {
+                    "type": "string",
+                    "enum": ["ref"]
+                },
                 "required": false
             },
             "datasets": {
-                "type": "string",
+                "type": "array",
                 "title": "Related Datasets",
-                "enum": ["ref"],
+                "items": {
+                    "type": "string",
+                    "enum": ["ref"]
+                },
                 "required": false
             },
             "notes": {
@@ -53,7 +59,7 @@
     "x-meditor": {
         "model": "Models",
         "modifiedOn": "$TODAY",
-        "modifiedBy": "nobody",
+        "modifiedBy": "$AUTHOR",
         "states": [{
             "source": "Init",
             "target": "Draft",

@@ -1,12 +1,12 @@
 {
     "titleProperty": "title",
-    "name": "News",
-    "description": "News about all things relating to GES DISC including data releases and featured science articles.",
+    "name": "Publications",
+    "description": "Publications",
     "category": "GESDISC",
     "workflow": "Edit-Review-Publish",
     "icon": {
-        "name": "fa-newspaper-o",
-        "color": "#679EF5"
+        "name": "fa-book",
+        "color": "#000000"
     },
     "schema": {
         "$schema": "http://json-schema.org/schema#",
@@ -17,53 +17,60 @@
                 "type": "string",
                 "required": true
             },
-            "abstract": {
+            "pubAuthors": {
                 "type": "string",
-                "title": "Description",
-                "description": "Description for the news article",
+                "required": true
+            },
+            "year": {
+                "type": "number",
                 "required": true,
-                "minLength": 10,
-                "maxLength": 500
+                "minimum": 1900,
+                "maximum": 2050,
+                "minLength": 4,
+                "maxLength": 4
             },
             "type": {
                 "type": "string",
-                "default": "News",
-                "enum": ["News", "Featured Article", "Data Release"],
+                "default": "Publication",
+                "enum": ["Publication", "Conference", "Presentation"],
                 "required": true
             },
-            "image": {
-                "$id": "/properties/media",
-                "title": "Media",
-                "description": "Media (Images and Videos)",
-                "$comment": "Media (Images and Videos)",
-                "type": "string",
-                "contentMediaType": "image/png",
-                "contentEncoding": "base64",
-                "required": true
-            },
-            "imageCaption": {
-                "type": "string",
-                "required": true
-            },
-            "body": {
-                "type": "string",
-                "contentMediaType": "text/html",
-                "required": true
-            },
-            "additionalAuthors": {
+            "conferenceName": {
                 "type": "string",
                 "required": false
             },
-            "tags": {
+            "journalName": {
                 "type": "string",
+                "required": false
+            },
+            "pages": {
+                "type": "string",
+                "required": false
+            },
+            "doi": {
+                "type": "string",
+                "required": false
+            },
+            "link": {
+                "type": "string",
+                "required": true
+            },
+            "tags": {
+                "type": "array",
                 "title": "Tags",
-                "enum": ["ref"],
+                "items": {
+                    "type": "string",
+                    "enum": ["ref"]
+                },
                 "required": false
             },
             "datasets": {
-                "type": "string",
+                "type": "array",
                 "title": "Related Datasets",
-                "enum": ["ref"],
+                "items": {
+                    "type": "string",
+                    "enum": ["ref"]
+                },
                 "required": false
             },
             "notes": {
@@ -75,25 +82,22 @@
     },
     "layout": [
         "title",
-        "abstract",
+        "pubAuthors",
+        "year",
         "type",
-        "additionalAuthors", {
-            "key": "body",
-            "type": "ckeditor"
-        },
-        "type",
+        "conferenceName",
+        "journalName",
+        "pages",
+        "doi",
+        "link",
         "datasets",
-        "tags", {
-            "key": "image",
-            "type": "image-upload"
-        },
-        "imageCaption",
+        "tags",
         "notes"
     ],
     "x-meditor": {
         "model": "Models",
         "modifiedOn": "$TODAY",
-        "modifiedBy": "nobody",
+        "modifiedBy": "$AUTHOR",
         "states": [{
             "source": "Init",
             "target": "Draft",

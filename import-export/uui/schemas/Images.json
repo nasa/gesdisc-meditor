@@ -1,7 +1,7 @@
 {
     "titleProperty": "title",
-    "name": "Image",
-    "description": "Image model",
+    "name": "Images",
+    "description": "Images",
     "category": "GESDISC",
     "workflow": "Edit-Review-Publish",
     "icon": {
@@ -54,20 +54,29 @@
                 "required": true
             },
             "groups": {
-                "type": "string",
-                "enum": [""],
-                "required": false
+                "type": "array",
+                "items": {
+                    "type": "string",
+                    "enum": [""],
+                    "required": false
+                }
             },
             "tags": {
-                "type": "string",
+                "type": "array",
                 "title": "Tags",
-                "enum": ["ref"],
+                "items": {
+                    "type": "string",
+                    "enum": ["ref"]
+                },
                 "required": false
             },
             "datasets": {
-                "type": "string",
+                "type": "array",
                 "title": "Related Datasets",
-                "enum": ["ref"],
+                "items": {
+                    "type": "string",
+                    "enum": ["ref"]
+                },
                 "required": false
             },
             "notes": {
@@ -76,7 +85,6 @@
                 "required": false
             }
         },
-        "required": ["title", "description", "image"],
         "additionalProperties": false
     },
     "layout": [
@@ -94,7 +102,7 @@
     "x-meditor": {
         "model": "Models",
         "modifiedOn": "$TODAY",
-        "modifiedBy": "nobody",
+        "modifiedBy": "$AUTHOR",
         "states": [{
             "source": "Init",
             "target": "Draft",
