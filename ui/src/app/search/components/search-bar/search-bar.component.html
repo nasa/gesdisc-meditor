@@ -1,13 +1,3 @@
-
-<!-- <div class="search-bar-container">
-		<mat-select class="search-bar-select" [formControl]="topping">
-			<mat-select-trigger>
-					{{topping.value}}
-			</mat-select-trigger>
-			<mat-option *ngFor="let topping of toppingList" [value]="topping">{{topping}}</mat-option>
-		</mat-select>
-	</div> -->
-	
 <div class="search-bar-container">
 		<mat-select class="search-bar-select" (selectionChange)="selectionChanged.emit(modelcontrol.value.name)" [formControl]="modelcontrol">	
 			<mat-select-trigger>		

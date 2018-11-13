@@ -14,6 +14,8 @@ export class SearchResultListComponent implements OnInit {
 
 	@Output() loadDocument = new EventEmitter<string>();
 
+  p: number = 1;
+
 	constructor() { }
 
 	ngOnInit() {
