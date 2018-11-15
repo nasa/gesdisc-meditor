@@ -79,11 +79,10 @@ services:
       - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
     command: --replSet meditor
     
-
   database-replicaset:
     container_name: meditor_replicaset
     image: meditor_replicaset
-    restart: on-failure
+    restart: always
     depends_on:
       - database
       - database_sec_1
