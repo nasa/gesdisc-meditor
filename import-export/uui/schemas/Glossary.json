@@ -27,7 +27,7 @@
                 "title": "Tags",
                 "items": {
                     "type": "string",
-                    "enum": ["ref"]
+                    "enum": ["placeholder"]
                 },
                 "required": false
             },
@@ -36,7 +36,7 @@
                 "title": "Related Datasets",
                 "items": {
                     "type": "string",
-                    "enum": ["ref"]
+                    "enum": ["placeholder"]
                 },
                 "required": false
             },
@@ -56,6 +56,16 @@
         "tags",
         "notes"
     ],
+    "templates" : [
+		{
+			"jsonpath" : "$.properties.tags.items.enum",
+			"macro" : "fetch tags"
+        },
+        {
+			"jsonpath" : "$.properties.datasets.items.enum",
+			"macro" : "fetch datasets"
+		}
+	],
     "x-meditor": {
         "model": "Models",
         "modifiedOn": "$TODAY",

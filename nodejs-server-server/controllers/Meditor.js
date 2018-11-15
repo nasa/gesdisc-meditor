@@ -1,14 +1,11 @@
 'use strict';
 
 var _ = require('lodash');
-var transliteration = require('transliteration');
 var utils = require('../utils/writer.js');
 var Default = require('../service/DefaultService');
 var mongo = require('mongodb');
-var stream = require('stream');
 var MongoClient = mongo.MongoClient;
 var ObjectID = mongo.ObjectID;
-var streamifier = require('streamifier');
 var jsonpath = require('jsonpath');
 var macros = require('./Macros.js');
 var mUtils = require('./lib/meditor-utils.js');
@@ -18,7 +15,10 @@ var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
 var DbName = "meditor";
 
 var SHARED_MODELS = ['Workflows', 'Users', 'Models'];
-var FS_STORED_ATTERIBUTES = ['image'];
+
+
+// ======================== Register fetch functions with Macro.fetch ==============
+macros.registerFetchers(connectorUui.getFetchers());
 
 // ======================== Common helper functions ================================
 
@@ -128,19 +128,10 @@ function getDocumentModelMetadata(dbo, request, paramsExtra) {
   //   { model: 'Alerts', role: 'Reviewer' } ];
   that.modelName = that.params.model;
   that.modelRoles = _(that.roles).filter({model: that.params.model}).map('role').value();
-  return Promise.resolve()
-    .then(function() {
-      return that.dbo
-      .db(DbName)
-      .collection('Models')
-      .find({name: that.params.model})
-      .sort({'x-meditor.modifiedOn': -1})
-      .limit(1)
-      .toArray()
-    })
+  return getModelContent(that.params.model) // The model should be pre-filled with Macro subs
     .then(res => {
       if (_.isEmpty(res)) throw {message: 'Model for ' + that.params.model + ' not found', status: 400};
-      that.model = res[0];
+      that.model = res;
       that.titleProperty = that.model['titleProperty'] || 'title';
     })
     .then(res => {

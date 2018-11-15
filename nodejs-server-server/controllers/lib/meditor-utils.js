@@ -6,6 +6,7 @@ var ObjectID = mongo.ObjectID;
 
 module.exports.getFSFileName = function getFileName(modelMeta, doc) {
   var fileName = [modelMeta.titleProperty, doc[modelMeta.titleProperty], _.get(doc, "x-meditor.modifiedOn", (new ObjectID()).toString())].join('_');
+  fileName == transliteration.slugify(fileName); // Unused for now
   return (new ObjectID).toString();
 };
 
@@ -44,9 +45,7 @@ module.exports.putFileSystemItem = function putFileSystemItem(dbo, filename, dat
   };
   return new Promise(function (resolve, reject) {
     var bucket = new mongo.GridFSBucket(dbo);
-    bucket.find({
-      _id: filename
-    }).count(function (err, count) {
+    bucket.find(filename).count(function (err, count) {
       if (err) return reject(err);
       if (count > 0) {
         bucket.delete(filename, function () {
@@ -72,8 +71,9 @@ module.exports.assembleDocument = function (dbo, document) {
 
 // Test driver for FS storage functions
 function testFs() {
+  var MongoClient = mongo.MongoClient;
   var MongoUrl = 'mongodb://localhost:27017';
-  var dbName = 'test';
+  var DbName = 'test';
   MongoClient.connect(MongoUrl, function(err, db) {
     if (err) throw err;
     var dbo = db.db(DbName);

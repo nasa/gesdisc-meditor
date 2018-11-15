@@ -265,3 +265,39 @@ module.exports.syncItems = function syncItems (params) {
       return Promise.reject({status: err.status || err.statusCode, message: err.message || 'Unknown error'});
     });
 };
+
+function fetchDatasets() {
+    // Note: can also fetch/transform from here https://cmr.earthdata.nasa.gov/search/collections.umm-json?provider=ges_disc&pretty=true&page_size=2000
+    return requests.post({
+        url: UUI_APP_URL + '/service/datasets/jsonwsp',
+        headers: UUI_HEADERS,
+        followAllRedirects: true,
+        gzip: true,
+        json: true,
+        body: {"methodname":"search","args":{"role":"subset","fields":["dataset.id"]},"type":"jsonwsp/request","version":"1.0"}
+    })
+    .then(function(res) {
+        return res.result.items.map(item => item.dataset.id);
+    });
+};
+
+function fetchKeywords() {
+    return requests.post({
+        url: UUI_APP_URL + '/service/keywords/jsonwsp',
+        headers: UUI_HEADERS,
+        followAllRedirects: true,
+        gzip: true,
+        json: true,
+        body: {"methodname": "getKeywords", "args":{"role":"subset"},"type":"jsonwsp/request","version":"1.0"}
+    })
+    .then(function(res) {
+        return res.result.items;
+    });
+};
+
+module.exports.getFetchers = function() {
+    return {
+        tags: fetchKeywords,
+        datasets: fetchDatasets
+    };
+};

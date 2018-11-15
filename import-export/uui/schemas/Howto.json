@@ -38,10 +38,13 @@
                 "required": false
             },
             "relatedHowto": {
-                "type": "string",
+                "type": "array",
                 "title": "Related HowTos",
-                "enum": ["ref"],
-                "required": false
+                "required": false,
+                "items": {
+                    "type": "string",
+                    "enum": "placeholder"
+                }
             },
             "example": {
                 "type": "string",
@@ -72,7 +75,7 @@
                 "title": "Tags",
                 "items": {
                     "type": "string",
-                    "enum": ["ref"]
+                    "enum": ["placeholder"]
                 },
                 "required": false
             },
@@ -81,7 +84,7 @@
                 "title": "Related Datasets",
                 "items": {
                     "type": "string",
-                    "enum": ["ref"]
+                    "enum": ["placeholder"]
                 },
                 "required": false
             },
@@ -113,6 +116,20 @@
         "groups",
         "notes"
     ],
+    "templates" : [
+		{
+			"jsonpath" : "$.properties.relatedHowto.items.enum",
+			"macro" : "list Howto.title"
+		},
+		{
+			"jsonpath" : "$.properties.tags.items.enum",
+			"macro" : "fetch tags"
+        },
+        {
+			"jsonpath" : "$.properties.datasets.items.enum",
+			"macro" : "fetch datasets"
+		}
+	],
     "x-meditor": {
         "model": "Models",
         "modifiedOn": "$TODAY",

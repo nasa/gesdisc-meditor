@@ -35,6 +35,8 @@ var modelMapping = [
     {from: 'tools', to: 'Tools'}
 ];
 
+var insertedImageIds = [];
+
 // Cloned from Meditor.js
 function putFileSystemItem(dbo, filename, data, meta) {
     var options = meta ? {metadata: meta} : null;
@@ -49,11 +51,11 @@ function putFileSystemItem(dbo, filename, data, meta) {
     };
     return new Promise(function(resolve, reject) {
         var bucket = new mongo.GridFSBucket(dbo);
-        bucket.find({_id: filename}).count(function(err, count) {
+        bucket.find(filename).count(function(err, count) {
         if (err) return reject(err);
         if (count > 0) {
             bucket.delete(filename, function() {
-            putItemHelper(bucket, resolve, reject);
+                putItemHelper(bucket, resolve, reject);
             }, reject)
         } else {
             putItemHelper(bucket, resolve, reject);
@@ -127,12 +129,15 @@ function importDocument(meta, modelConfig, document) {
     return getDocImage(meta, modelConfig, document)
         .then(function(img) {
             if (img !== null) {
-                newDocument.image = (new ObjectID()).toString();
-                return putFileSystemItem(meta.dbo.db(dbMeditor), newDocument.image, img, {
-                    model: newDocument["x-meditor"]["model"],
-                    version: newDocument["x-meditor"]["modifiedOn"],
-                    originalTitle: newDocument[modelConfig.to.modelMeta.titleProperty]
-                })
+                newDocument.image = document.fileRef._id.toString();
+                if (insertedImageIds.indexOf(newDocument.image) === -1) {
+                    insertedImageIds.push(newDocument.image);
+                    return putFileSystemItem(meta.dbo.db(dbMeditor), newDocument.image, img, {
+                        model: newDocument["x-meditor"]["model"],
+                        version: newDocument["x-meditor"]["modifiedOn"],
+                        originalTitle: newDocument[modelConfig.to.modelMeta.titleProperty]
+                    })
+                }
             }
             return Promise.resolve(null);
         })
@@ -185,6 +190,7 @@ function importModel(meta, cfg) {
                 .db(dbMeditor)
                 .collection(modelConfig.to.model)
                 .aggregate([{
+                    $match: {removed: {$in: [null, false]}},
                     $group: {_id: null, titles: {$addToSet: "$" + modelConfig.to.modelMeta.titleProperty}}
                 }])
                 .toArray();
