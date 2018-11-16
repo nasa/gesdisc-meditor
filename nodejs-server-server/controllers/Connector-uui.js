@@ -132,6 +132,70 @@ function loginIntoUrs (params) {
         .then(res => {return cookiejar;});
 }
 
+function pushDocument(meta, mDoc) {
+    return new Promise(function(resolve, reject) {
+        mUtils.assembleDocument(meta.dbo.db(DbName), mDoc).then(function(meditorDoc) {
+            var postedModel = {};
+            var image;
+            var postRequest;
+            var uui_headers = _.cloneDeep(UUI_HEADERS);
+            console.log('Pushing [' + _.get(meditorDoc, meta.titleProperty) + '] of type [' + meta.params.model + '] to UUI');
+            postedModel = _.cloneDeep(meditorDoc);
+            _.assign(postedModel, {
+                'title': _.get(meditorDoc, meta.titleProperty),
+                'published': true,
+                'originName': 'meditor',
+                'originData': getDocumentUid(meta, meditorDoc)
+            });
+            postRequest = {
+                url: UUI_APP_URL + '/api/' + getUuiModelName(meta.params.model),
+                headers: uui_headers,
+                jar: meta.cookiejar, 
+                followAllRedirects: true,
+                gzip: true
+            }
+            if ('image' in postedModel) {
+                uui_headers['Content-Type'] = 'multipart/form-data';
+                // Image is stored in Base64 like this "image" : "data:image/png;base64,iVBORw0KGgoAA..."
+                image = postedModel.image.split(',');
+                image[0] = image[0].replace(/[:;]/g, ',').split(',');
+                delete postedModel.image; // Remove image from request body (we will add it later)
+                // Convert all keys to string as required by the form-encoded transport
+                Object.keys(postedModel).forEach(function(key) {postedModel[key] = _.trim(JSON.stringify(postedModel[key]), '"') ;});
+                // Add image binary
+                postedModel.fileRef = {
+                    value: new Buffer(image[1], 'base64'),
+                    options: {
+                        filename: _.get(meditorDoc, meta.titleProperty),
+                        contentType: image[0][1]
+                    }
+                }
+                // postedModel.title = postedModel.abstract || postedModel.description; // Hack until we fix the images model
+                
+                postRequest.formData = postedModel;
+                postRequest.preambleCRLF = true;
+                postRequest.postambleCRLF = true;
+            } else {
+                postRequest.json = true;
+                postRequest.body = postedModel;
+            }
+            requests.post(postRequest).then(resolve, reject);
+        })
+    });
+}
+
+function removeDocument(meta, uuiDoc) {
+    return new Promise(function(resolve, reject) {
+        console.log('Removing [' + uuiDoc.title + '] of type [' + meta.params.model + '] from UUI');
+        requests.delete({
+            url: UUI_APP_URL + '/api/' + getUuiModelName(meta.params.model) + '/' + encodeURIComponent(uuiDoc.title),
+            headers: UUI_HEADERS,
+            jar: meta.cookiejar, 
+            followAllRedirects: true
+        }).then(resolve, reject)
+    });
+}
+
 // Pushes all items from a mEditor model specified in params
 // into UUI and purges from UUI items that are no longer
 // present in mEditor. Every item pushed into UUI is marked
@@ -196,81 +260,25 @@ module.exports.syncItems = function syncItems (params) {
     })
     .then(res => res.data)
     .then(res => {
-        var postDefers = [];
         var meditorIds = that.meditorDocs.map(doc => {return getDocumentUid(that, doc)});
-        var uuiIds = res.map(doc => {return doc.originData});
+        that.uuiIds = res.map(doc => {return doc.originData});
 
         // Compute and schedule items to unpublish
-        res.forEach(function(uuiDoc) {
-            if (meditorIds.indexOf(uuiDoc.originData) === -1) {
-                console.log('Removing [' + uuiDoc.title + '] of type [' + that.params.model + '] from UUI');
-                postDefers.push(
-                    requests.delete({
-                        url: UUI_APP_URL + '/api/' + getUuiModelName(that.params.model) + '/' + encodeURIComponent(uuiDoc.title),
-                        headers: UUI_HEADERS,
-                        jar: that.cookiejar, 
-                        followAllRedirects: true
-                    })
-                );
-            }
-        });
-
-        // Compute and schedule items to publish
-        that.meditorDocs.forEach(function(mDoc) {
-            postDefers.push(mUtils.assembleDocument(that.dbo.db(DbName), mDoc).then(function(meditorDoc) {
-                var docId = getDocumentUid(that, meditorDoc);
-                var postedModel = {};
-                var image;
-                var imageType;
-                var postRequest;
-                var uui_headers = _.cloneDeep(UUI_HEADERS);
-                if (uuiIds.indexOf(docId) === -1) {
-                    console.log('Pushing [' + _.get(meditorDoc, that.titleProperty) + '] of type [' + that.params.model + '] to UUI');
-                    postedModel = _.cloneDeep(meditorDoc);
-                    _.assign(postedModel, {
-                        'title': _.get(meditorDoc, that.titleProperty),
-                        'published': true,
-                        'originName': 'meditor',
-                        'originData': getDocumentUid(that, meditorDoc)
-                    });
-                    postRequest = {
-                        url: UUI_APP_URL + '/api/' + getUuiModelName(that.params.model),
-                        headers: uui_headers,
-                        jar: that.cookiejar, 
-                        followAllRedirects: true,
-                        gzip: true
-                    }
-                    if ('image' in postedModel) {
-                        uui_headers['Content-Type'] = 'multipart/form-data';
-                        // Image is stored in Base64 like this "image" : "data:image/png;base64,iVBORw0KGgoAA..."
-                        // TODO
-                        image = postedModel.image.split(',');
-                        image[0] = image[0].replace(/[:;]/g, ',').split(',');
-                        delete postedModel.image; // Remove image from request body (we will add it later)
-                        // Convert all keys to string as required by the form-encoded transport
-                        Object.keys(postedModel).forEach(function(key) {postedModel[key] = _.trim(JSON.stringify(postedModel[key]), '"') ;});
-                        // Add image binary
-                        postedModel.fileRef = {
-                            value: new Buffer(image[1], 'base64'),
-                            options: {
-                                filename: _.get(meditorDoc, that.titleProperty),
-                                contentType: image[0][1]
-                            }
-                        }
-                        // postedModel.title = postedModel.abstract || postedModel.description; // Hack until we fix the images model
-                        
-                        postRequest.formData = postedModel;
-                        postRequest.preambleCRLF = true;
-                        postRequest.postambleCRLF = true;
-                    } else {
-                        postRequest.json = true;
-                        postRequest.body = postedModel;
-                    }
-                    return requests.post(postRequest);
-                }
-            }));
-        });
-        return Promise.all(postDefers);
+        return res.reduce((promiseChain, uuiDoc) => {
+            return promiseChain.then(chainResults => 
+                ((meditorIds.indexOf(uuiDoc.originData) === -1) ? removeDocument(that, uuiDoc) : Promise.resolve())
+                    .then(currentResult => [ ...chainResults, currentResult ] )
+            );
+        }, Promise.resolve([]));
+    })
+    .then(res => {
+         // Compute and schedule items to publish
+        return that.meditorDocs.reduce((promiseChain, mDoc) => {
+            return promiseChain.then(chainResults => 
+                (that.uuiIds.indexOf(getDocumentUid(that, mDoc)) === -1) ? pushDocument(that, mDoc): Promise.resolve()
+                    .then(currentResult => [ ...chainResults, currentResult ])
+            );
+        }, Promise.resolve([]));
     })
     .then(res => {})
     .then(res => (that.dbo.close()))

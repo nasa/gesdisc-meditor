@@ -300,7 +300,6 @@ function importModel(meta, cfg) {
             return Promise.all(defers);
         })
         .then(function() {
-            //return that.docs.reduce((acc, doc) => {return acc.then(() => {return importDocument(meta, modelConfig, doc)})}, Promise.resolve());
             return that.docs.reduce((promiseChain, doc) => {
                 return promiseChain.then(chainResults => 
                     importDocument(meta, modelConfig, doc).then(currentResult => 
