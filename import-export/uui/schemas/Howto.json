@@ -40,11 +40,11 @@
             "relatedHowto": {
                 "type": "array",
                 "title": "Related HowTos",
-                "required": false,
                 "items": {
                     "type": "string",
-                    "enum": "placeholder"
-                }
+                    "enum":["placeholder"]
+                },
+                "required": false
             },
             "example": {
                 "type": "string",
@@ -75,7 +75,7 @@
                 "title": "Tags",
                 "items": {
                     "type": "string",
-                    "enum": ["placeholder"]
+                    "enum":["placeholder"]
                 },
                 "required": false
             },
@@ -84,7 +84,7 @@
                 "title": "Related Datasets",
                 "items": {
                     "type": "string",
-                    "enum": ["placeholder"]
+                    "enum":["placeholder"]
                 },
                 "required": false
             },
@@ -97,23 +97,15 @@
     },
     "layout": [
         "title",
-        "abstract", {
-            "key": "example",
-            "type": "ckeditor"
-        }, {
-            "key": "prereq",
-            "type": "ckeditor"
-        }, {
-            "key": "procedure",
-            "type": "ckeditor"
-        }, {
-            "key": "additionalInfo",
-            "type": "ckeditor"
-        },
-        "relatedHowto",
-        "datasets",
-        "tags",
-        "groups",
+        "abstract",
+        {"key": "example", "type": "ckeditor"},
+        {"key": "prereq", "type": "ckeditor"},
+        {"key": "procedure", "type": "ckeditor"},
+        {"key": "additionalInfo", "type": "ckeditor"},
+        {"key": "relatedHowto", "type": "multi-select"},
+        {"key": "datasets", "type": "multi-select"},
+        {"key": "tags", "type": "multi-select"},
+        {"key": "groups", "type": "multi-select"},
         "notes"
     ],
     "templates" : [

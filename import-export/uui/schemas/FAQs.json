@@ -103,9 +103,9 @@
             "key": "answer",
             "type": "ckeditor"
         },
-        "datasets",
-        "tags",
-        "groups",
+        {"key": "datasets", "type": "multi-select"},
+        {"key": "tags", "type": "multi-select"},
+        {"key": "groups", "type": "multi-select"},
         "notes"
     ],
     "templates" : [

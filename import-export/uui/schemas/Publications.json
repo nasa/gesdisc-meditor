@@ -90,8 +90,8 @@
         "pages",
         "doi",
         "link",
-        "datasets",
-        "tags",
+        {"key": "datasets", "type": "multi-select"},
+        {"key": "tags", "type": "multi-select"},
         "notes"
     ],
     "templates" : [

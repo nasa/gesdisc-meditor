@@ -9,6 +9,17 @@ var dbName = 'meditor';
 var MODELS_PATH = './schemas';
 var AUTHOR = 'nobody';
 
+
+// ==========================================================================
+
+// This code reads all schemas from the 'schemas' folder and puts them into
+// mEditor database. The code also fills in some placeholders in the schemas
+// and stringifies 'schema' and 'layout' fields.
+
+// To run, simply do [node import-uui-schemas.js]
+
+// ==========================================================================
+
 function fillPlaceholders(schemaStr) {
     schemaStr = schemaStr.replace(/\$TODAY/g, (new Date()).toISOString());
     schemaStr = schemaStr.replace(/\$AUTHOR/g, AUTHOR);

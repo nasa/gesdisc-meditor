@@ -82,16 +82,12 @@
     "layout": [
         "title",
         "abstract",
-        "additionalAuthors", {
-            "key": "body",
-            "type": "ckeditor"
-        },
+        "additionalAuthors",
+        {"key": "body", "type": "ckeditor"},
         "type",
-        "datasets",
-        "tags", {
-            "key": "image",
-            "type": "image-upload"
-        },
+        {"key": "datasets", "type": "multi-select"},
+        {"key": "tags", "type": "multi-select"},
+        {"key": "image", "type": "image-upload"},
         "imageCaption",
         "notes"
     ],

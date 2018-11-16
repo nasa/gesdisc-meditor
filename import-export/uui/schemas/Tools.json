@@ -71,15 +71,11 @@
     },
     "layout": [
         "title",
-        "abstract", {
-            "key": "body",
-            "type": "ckeditor"
-        },
-        "datasets",
-        "tags", {
-            "key": "image",
-            "type": "image-upload"
-        },
+        "abstract",
+        {"key": "body", "type": "ckeditor"},
+        {"key": "datasets", "type": "multi-select"},
+        {"key": "tags", "type": "multi-select"},
+        {"key": "image", "type": "image-upload"},
         "imageCaption",
         "notes"
     ],

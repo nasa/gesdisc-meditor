@@ -89,15 +89,13 @@
     },
     "layout": [
         "title",
-        "abstract", {
-            "key": "image",
-            "type": "image-upload"
-         },
-         "carousel",
-         "gallery",
-         "datasets",
-         "tags",
-         "notes"
+        "abstract",
+        {"key": "image", "type": "image-upload"},
+        "carousel",
+        "gallery",
+        {"key": "datasets", "type": "multi-select"},
+        {"key": "tags", "type": "multi-select"},
+        "notes"
     ],
     "templates" : [
 		{

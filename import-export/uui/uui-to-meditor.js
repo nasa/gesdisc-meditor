@@ -2,16 +2,34 @@
 var _ = require('lodash');
 var mongo = require('mongodb');
 var MongoClient = mongo.MongoClient;
-var ObjectID = mongo.ObjectID;
 var Grid = require('gridfs-stream');
 var stream = require('stream');
 
 var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
 
+var SYNC_MEDITOR_DOCS_ONLY = process.env.SYNC_MEDITOR_DOCS_ONLY || false; // Import only those items from UUI that did not come from mEditor
+
 var dbMeditor = 'meditor';
 var dbUui = 'uui-db';
 
-// UUI model attributes to import
+// ==========================================================================
+
+// This code imports documents from a UUI database into mEditor database
+// This is done by iterating over models in modelMapping. For each model,
+// the code first determine all titles in UUI and removes documents with
+// these titles from mEditor. Then, the code iterates over each document
+// in UUI and inserts it into mEditor. If this document has an image - the
+// image is stored into GridFS (replacing any existing copies). The name
+// the image file is stored on GridFS is controlled by getFileName (
+// generally, simply document.fileRef._id - in this way, multiple docs
+// may refer to the same image).
+
+// To run, simply do [node uui-to-meditor.js] (assuming access to UUI DB)
+
+// ==========================================================================
+
+
+// UUI model attributes to import into mEditor
 var mappableFields = [
     '_id', 'title', 'abstract', 'body', 'type', 'imageCaption', 'additionalAuthors', // Common fields
     'expiration', 'start', 'severity', // Alerts
@@ -35,9 +53,7 @@ var modelMapping = [
     {from: 'tools', to: 'Tools'}
 ];
 
-var insertedImageIds = [];
-
-// Cloned from Meditor.js
+// Stores a file on GridFS. Cloned from meditor-utils.js.
 function putFileSystemItem(dbo, filename, data, meta) {
     var options = meta ? {metadata: meta} : null;
     var putItemHelper = function(bucket, resolve, reject) {
@@ -51,18 +67,48 @@ function putFileSystemItem(dbo, filename, data, meta) {
     };
     return new Promise(function(resolve, reject) {
         var bucket = new mongo.GridFSBucket(dbo);
-        bucket.find(filename).count(function(err, count) {
+        bucket.find({_id: filename}).count(function(err, count) {
         if (err) return reject(err);
         if (count > 0) {
-            bucket.delete(filename, function() {
-                putItemHelper(bucket, resolve, reject);
-            }, reject)
+            bucket.delete(filename, function(err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    putItemHelper(bucket, resolve, reject);
+                }
+            })
         } else {
             putItemHelper(bucket, resolve, reject);
         }
         }, reject);
     });
 }
+
+// Removes a file from GridFS. Cloned from meditor-utils.js.
+function removeFileSystemItem(dbo, filename) {
+    return new Promise(function(resolve, reject) {
+        var bucket = new mongo.GridFSBucket(dbo);
+        bucket.find({_id: filename}).count(function(err, count) {
+            if (err) return reject(err);
+            if (count > 0) {
+                bucket.delete(filename, function(err) {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve();
+                    }
+                })
+            } else {
+                resolve();
+            }
+        }, reject);
+    });
+};
+
+// Return an ID that a file will be stored under on GridFS
+function getFileName(document) {
+    return document.fileRef._id.toString();
+};
 
 // https://stackoverflow.com/questions/10623798/writing-node-js-stream-into-a-string-variable
 function streamToString(stream, cb) {
@@ -99,9 +145,12 @@ function getDocImage(meta, modelConfig, document) {
     });
 };
 
+// Import a document.Source and target are specified in modelConfig.
 function importDocument(meta, modelConfig, document) {
-    //if (n_items[modelConfig.from.model]++ > 100 && modelConfig.from.model==='images') return Promise.resolve();
+    // Can limit a number of items to import for testing purposes
+    // if (n_items[modelConfig.from.model]++ > 100 && modelConfig.from.model==='images') return Promise.resolve();
 
+    // Build a basic template of a mEditor document
     var newDocument = {
         "x-meditor" : {
             model : modelConfig.to.model,
@@ -116,9 +165,11 @@ function importDocument(meta, modelConfig, document) {
             ]
         }
     };
+    // Copy over UUI document fields into the mEditor document
     _.forEach(mappableFields, function(field) {
         if (field in document) newDocument[field] = document[field];
     });
+    // Build up a fake state info to indicate the document is published
     if (document.published) {
         newDocument["x-meditor"].states.push({
             "source" : "Approved",
@@ -126,22 +177,22 @@ function importDocument(meta, modelConfig, document) {
             "modifiedOn" : document.lastPublished.toISOString()
         })
     }
+    // See if the document has an image and import it if so
     return getDocImage(meta, modelConfig, document)
         .then(function(img) {
             if (img !== null) {
-                newDocument.image = document.fileRef._id.toString();
-                if (insertedImageIds.indexOf(newDocument.image) === -1) {
-                    insertedImageIds.push(newDocument.image);
-                    return putFileSystemItem(meta.dbo.db(dbMeditor), newDocument.image, img, {
-                        model: newDocument["x-meditor"]["model"],
-                        version: newDocument["x-meditor"]["modifiedOn"],
-                        originalTitle: newDocument[modelConfig.to.modelMeta.titleProperty]
-                    })
-                }
+                newDocument.image = getFileName(document);
+                // Save the image to mEditor GridFS
+                return putFileSystemItem(meta.dbo.db(dbMeditor), newDocument.image, img, {
+                    model: newDocument["x-meditor"]["model"],
+                    version: newDocument["x-meditor"]["modifiedOn"],
+                    originalTitle: newDocument[modelConfig.to.modelMeta.titleProperty]
+                })
             }
             return Promise.resolve(null);
         })
         .then(function() {
+            // Finally, insert the document into DB
             return meta.dbo
                 .db(dbMeditor)
                 .collection(modelConfig.to.model)
@@ -159,12 +210,16 @@ function importDocument(meta, modelConfig, document) {
         })
 };
 
+// Import model. Cfg is {from: 'model_name', to: 'model_name'} pair
 function importModel(meta, cfg) {
     var that = {};
     var modelConfig = {
         from: {model: cfg.from},
         to: {model: cfg.to}
     };
+    var uuiDocsQUery = {removed: {$in: [null, false]}};
+    if (SYNC_MEDITOR_DOCS_ONLY) uuiDocsQUery.originName = {$ne: 'meditor'};
+
     return Promise.resolve()
         .then(function() {
             return meta.dbo
@@ -184,19 +239,17 @@ function importModel(meta, cfg) {
         })
         .then(function(res) {
             modelConfig.to.modelMeta = res[0];
-            //console.log(JSON.stringify(JSON.parse(modelConfig.to.modelMeta[0].schema), null,2));
             // Get all mEditor titles
             return meta.dbo
                 .db(dbMeditor)
                 .collection(modelConfig.to.model)
-                .aggregate([{
-                    $match: {removed: {$in: [null, false]}},
-                    $group: {_id: null, titles: {$addToSet: "$" + modelConfig.to.modelMeta.titleProperty}}
-                }])
+                .aggregate([
+                    {$match: {removed: {$in: [null, false]}}},
+                    {$group: {_id: null, titles: {$addToSet: "$" + modelConfig.to.modelMeta.titleProperty}}}
+                ])
                 .toArray();
         })
         .then(function(res) {
-            
             modelConfig.to.titles = res.length > 0 ? res[0].titles : [];
             // Get UUI users
             return meta.dbo
@@ -214,26 +267,47 @@ function importModel(meta, cfg) {
             return meta.dbo
                 .db(dbUui)
                 .collection(modelConfig.from.model)
-                .find({originName: {$ne: 'meditor'}})
+                .find(uuiDocsQUery)
                 .toArray();
         })
         .then(function(docs) {
             var titleDelta;
             var deleteQuery = {};
+            var deleteImages = [];
+            var defers = [];
             that.docs = docs;
             modelConfig.from.titles = _(docs).map('title').uniq().value();
+            // deleteImages = _(docs).map('fileRef._id').map(function(o) {return _.isNil(o)? '' : o.toString();}).uniq().value();
+            // defers = _.map(deleteImages, function(img) {return removeFileSystemItem(meta.dbo.db(dbMeditor), img);});
+       
             // Find all mEditor docs that came from UUI and remove them
             titleDelta = _.intersection(modelConfig.to.titles, modelConfig.from.titles);
             deleteQuery[modelConfig.to.modelMeta.titleProperty] = {$in: titleDelta};
             console.log('UUI ' + modelConfig.from.model + ' to remove from mEditor:', titleDelta.length);
-            return meta.dbo
+            
+            defers.push(new Promise(function(resolve, reject) {
+                meta.dbo
                 .db(dbMeditor)
                 .collection(modelConfig.to.model)
-                .deleteMany(deleteQuery);
+                .deleteMany(deleteQuery, function(err) {
+                    if(err) {
+                        reject(err)
+                    } else {
+                        resolve();
+                    }
+                })
+            }));
+            return Promise.all(defers);
         })
         .then(function() {
-            // Iterate over documents
-            return Promise.all(that.docs.map(doc => (importDocument(meta, modelConfig, doc))));
+            //return that.docs.reduce((acc, doc) => {return acc.then(() => {return importDocument(meta, modelConfig, doc)})}, Promise.resolve());
+            return that.docs.reduce((promiseChain, doc) => {
+                return promiseChain.then(chainResults => 
+                    importDocument(meta, modelConfig, doc).then(currentResult => 
+                        [ ...chainResults, currentResult ]        
+                    )
+                );
+            }, Promise.resolve([]));
         })
         .then(function(res) {
             // All done
@@ -242,7 +316,7 @@ function importModel(meta, cfg) {
         });
 };
 
-module.exports.syncItems = function syncItems() {
+module.exports.importUui = function syncItems() {
     var that = {};
     var xmeditorProperties = ["modifiedOn", "modifiedBy", "state"];
 
@@ -273,49 +347,46 @@ module.exports.syncItems = function syncItems() {
         });
 };
 
-exports.syncItems();
+exports.importUui();
 
+//Sample mEditor document
+// {
+// "_id" : ObjectId("5bc0af3d43cb7c0e0aedd0bf"),
+// "abstract" : "test",
+// "expiration" : "2018-10-12 10:26:16-04:00",
+// "start" : "2018-10-12 10:26:16-04:00",
+// "severity" : "normal",
+// "body" : "<p>test</p>\n",
+// "x-meditor" : {
+//     "model" : "Alerts",
+//     "modifiedOn" : "2018-10-12T14:27:09.066Z",
+//     "modifiedBy" : "azasorin",
+//     "states" : [
+//         {
+//             "source" : "Init",
+//             "target" : "Draft",
+//             "modifiedOn" : "2018-10-12T14:27:09.066Z"
+//         }
+//     ]
+// }
 
-/*
-{
-"_id" : ObjectId("5bc0af3d43cb7c0e0aedd0bf"),
-"abstract" : "test",
-"expiration" : "2018-10-12 10:26:16-04:00",
-"start" : "2018-10-12 10:26:16-04:00",
-"severity" : "normal",
-"body" : "<p>test</p>\n",
-"x-meditor" : {
-    "model" : "Alerts",
-    "modifiedOn" : "2018-10-12T14:27:09.066Z",
-    "modifiedBy" : "azasorin",
-    "states" : [
-        {
-            "source" : "Init",
-            "target" : "Draft",
-            "modifiedOn" : "2018-10-12T14:27:09.066Z"
-        }
-    ]
-}
-
-{
-	"_id" : ObjectId("584f299be01b045f7d3429ee"), --> can preserve, but not required
-	"body" : "<p>Due to a18:59:24.</p>\n", --> body
-	"updated" : ISODate("2011-12-05T21:26:51Z"), --> changes from version to version
-	"author" : "sbudala", --> need to merge with users first to resolve '58066d97698c14087bab4c52' etc
-	"seqNum" : 0, --> can ignore??
-	"tags" : ["nrt"], --> tags?
-	"created" : ISODate("2011-12-05T21:26:51Z"), --> unchanged across versions
-	"start" : ISODate("2011-12-05T21:00:00Z"), --> start
-	"lastPublished" : ISODate("2011-12-05T21:26:51Z"),
-	"expiration" : ISODate("2011-12-09T21:00:00Z"), --> expiration
-	"published" : true, --> goes into states, all imported are 'approved' by default
-	"notes" : "Imported from Plone http://disc.gsfc.nasa.gov/alerts/airs-nrt-data-gaps-for-12-05-2011.......", --> What to do?
-	"refId" : ObjectId("584f299be01b045f7d3429ec"), --> can be thrown away
-	"title" : "AIRS NRT data gaps for 12/05/2011" --> title
-}
-
-*/
-
+// Sample UUI document
+// {
+// 	"_id" : ObjectId("584f299be01b045f7d3429ee"), --> can preserve, but not required
+// 	"body" : "<p>Due to a18:59:24.</p>\n", --> body
+// 	"updated" : ISODate("2011-12-05T21:26:51Z"), --> changes from version to version
+// 	"author" : "sbudala", --> need to merge with users first to resolve '58066d97698c14087bab4c52' etc
+// 	"seqNum" : 0, --> can ignore??
+// 	"tags" : ["nrt"], --> tags?
+// 	"created" : ISODate("2011-12-05T21:26:51Z"), --> unchanged across versions
+// 	"start" : ISODate("2011-12-05T21:00:00Z"), --> start
+// 	"lastPublished" : ISODate("2011-12-05T21:26:51Z"),
+// 	"expiration" : ISODate("2011-12-09T21:00:00Z"), --> expiration
+// 	"published" : true, --> goes into states, all imported are 'approved' by default
+// 	"notes" : "Imported from Plone http://disc.gsfc.nasa.gov/alerts/airs-nrt-data-gaps-for-12-05-2011.......", --> What to do?
+// 	"refId" : ObjectId("584f299be01b045f7d3429ec"), --> can be thrown away
+// 	"title" : "AIRS NRT data gaps for 12/05/2011" --> title
+// }
 
 // mEditor image is stored in Base64 like this "image" : "data:image/png;base64,iVBORw0KGgoAA..."
 // { "_id" : ObjectId("5bc778dd4534fb252fe4ecaf"),

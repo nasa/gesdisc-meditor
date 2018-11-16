@@ -4,12 +4,15 @@ var mongo = require('mongodb');
 var stream = require('stream');
 var ObjectID = mongo.ObjectID;
 
+// For a given document and metadata, returns a unique file name,
+// to be used when storing the file on the file system
 module.exports.getFSFileName = function getFileName(modelMeta, doc) {
   var fileName = [modelMeta.titleProperty, doc[modelMeta.titleProperty], _.get(doc, "x-meditor.modifiedOn", (new ObjectID()).toString())].join('_');
   fileName == transliteration.slugify(fileName); // Unused for now
   return (new ObjectID).toString();
 };
 
+// Retrieves a file from GridFS and returns it as a string
 module.exports.getFileSystemItem = function getFileSystemItem(dbo, filename) {
   var buf = new Buffer('');
   return new Promise(function (resolve, reject) {
@@ -30,6 +33,9 @@ module.exports.getFileSystemItem = function getFileSystemItem(dbo, filename) {
   });
 };
 
+// Stores a string 'data' attribute witha a given 'metadata' object on GridFS
+// If a file with a given 'filename' already exists on FS - the original file
+// is removed and replaced with the new one
 module.exports.putFileSystemItem = function putFileSystemItem(dbo, filename, data, meta) {
   var options = meta ? {
     metadata: meta
@@ -45,12 +51,16 @@ module.exports.putFileSystemItem = function putFileSystemItem(dbo, filename, dat
   };
   return new Promise(function (resolve, reject) {
     var bucket = new mongo.GridFSBucket(dbo);
-    bucket.find(filename).count(function (err, count) {
+    bucket.find({_id: filename}).count(function (err, count) {
       if (err) return reject(err);
       if (count > 0) {
-        bucket.delete(filename, function () {
-          putItemHelper(bucket, resolve, reject);
-        }, reject)
+        bucket.delete(filename, function (err) {
+          if (err) {
+            reject(err);
+          } else {
+              putItemHelper(bucket, resolve, reject);
+          }
+        })
       } else {
         putItemHelper(bucket, resolve, reject);
       }
@@ -58,6 +68,8 @@ module.exports.putFileSystemItem = function putFileSystemItem(dbo, filename, dat
   });
 };
 
+// Fetches image from GridFS (if any) and stores it in
+// document.image attribite
 module.exports.assembleDocument = function (dbo, document) {
   if (_.isNil(document.image)) return Promise.resolve(document);
   return new Promise(function (resolve, reject) {
@@ -69,7 +81,7 @@ module.exports.assembleDocument = function (dbo, document) {
   })
 };
 
-// Test driver for FS storage functions
+// A test driver for FS storage functions
 function testFs() {
   var MongoClient = mongo.MongoClient;
   var MongoUrl = 'mongodb://localhost:27017';

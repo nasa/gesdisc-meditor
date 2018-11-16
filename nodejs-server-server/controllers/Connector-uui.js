@@ -18,18 +18,21 @@ if (!!process.env.MEDITOR_ENV_FILE_PATH) {
 
 var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
 var DbName = "meditor";
+
+var SYNC_MEDITOR_DOCS_ONLY = process.env.SYNC_MEDITOR_DOCS_ONLY || false; // Update only those items in UUI that originated from mEditor
+
 var UUI_AUTH_CLIENT_ID = process.env.UUI_AUTH_CLIENT_ID;
 var UUI_APP_URL =  (process.env.UUI_APP_URL || 'http://localhost:9000').replace(/\/+$/, '');
 var URS_USER = process.env.URS_USER;
 var URS_PASSWORD = process.env.URS_PASSWORD;
 
 var URS_BASE_URL = 'https://urs.earthdata.nasa.gov';
-var URS_HEADERS = {
+var URS_HEADERS = { // A minimal viable set of URS headeres
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',  
     'Accept-Encoding': 'gzip, deflate, br',
     'Content-Type': 'application/x-www-form-urlencoded'
     // 'Host': 'urs.earthdata.nasa.gov',
-    //'Connection': 'keep-alive',
+    // 'Connection': 'keep-alive',
     // 'Content-Length': 336,
     // 'Pragma': 'no-cache',
     // 'Cache-Control': 'no-cache',
@@ -40,7 +43,7 @@ var URS_HEADERS = {
     // 'Accept-Language': 'en-US,en;q=0.9'
 }
 
-var UUI_HEADERS = {
+var UUI_HEADERS = { // A minimal viable set of UUI headeres
     'Accept-Encoding': 'gzip, deflate, br',
     'Accept': 'application/json, text/plain, */*',
     'Content-Type': 'application/json;charset=utf-8'
@@ -83,15 +86,19 @@ if (DEBUG_URS_LOGIN) {
         console.log('\n\n\n\n--------------------------------\n\n\n\n');
     });
 }
+
+// Returns a unique identifier for a given mEdiotor document
+// Used for provenance when writing a document to UUI
 function getDocumentUid (metadata, meditorDoc) {
     return encodeURIComponent(_.get(meditorDoc, metadata.titleProperty)) + '_' + meditorDoc['x-meditor'].modifiedOn;
 }
 
+// Converts mEditor model name into UUI model name
 function getUuiModelName (model) {
-    if (model == 'Image') return 'images'; // Hack until we fix the name of the images model
     return model.toLowerCase();
 }
 
+// Imitates a browser - based login into URS
 function loginIntoUrs (params) {
     var cookiejar = requests.jar();
     var URS_OAUTH_URL = URS_BASE_URL.replace(/\/+$/, '') + '/oauth/authorize?response_type=code&redirect_uri=' + encodeURIComponent(params.redirectUri) +'&client_id=' + params.clientId;
@@ -125,10 +132,17 @@ function loginIntoUrs (params) {
         .then(res => {return cookiejar;});
 }
 
+// Pushes all items from a mEditor model specified in params
+// into UUI and purges from UUI items that are no longer
+// present in mEditor. Every item pushed into UUI is marked
+// as 'source=meditor'. Consequently, sync removes and updates
+// only those items in UUI that are markes as 'source=meditor'.
+// All other items in UUI are essentially invisible to this code.
 module.exports.syncItems = function syncItems (params) {
   var that = {params: params};
   var xmeditorProperties = ["modifiedOn", "modifiedBy", "state"];
-  
+  var contentSelectorQuery = SYNC_MEDITOR_DOCS_ONLY ? '?originName=[$eq][meditor]' : '';
+
   return MongoClient.connect(MongoUrl)
     .then(res => {
         that.dbo = res;
@@ -178,7 +192,7 @@ module.exports.syncItems = function syncItems (params) {
     })
     .then(res => {
         UUI_HEADERS['x-csrf-token'] = res.csrfToken;
-        return requests({url: UUI_APP_URL + '/api/' + getUuiModelName(that.params.model) + '?originName=[$eq][meditor]', headers: UUI_HEADERS, json: true, jar: that.cookiejar, gzip: true});
+        return requests({url: UUI_APP_URL + '/api/' + getUuiModelName(that.params.model) + contentSelectorQuery, headers: UUI_HEADERS, json: true, jar: that.cookiejar, gzip: true});
     })
     .then(res => res.data)
     .then(res => {
@@ -229,6 +243,7 @@ module.exports.syncItems = function syncItems (params) {
                     if ('image' in postedModel) {
                         uui_headers['Content-Type'] = 'multipart/form-data';
                         // Image is stored in Base64 like this "image" : "data:image/png;base64,iVBORw0KGgoAA..."
+                        // TODO
                         image = postedModel.image.split(',');
                         image[0] = image[0].replace(/[:;]/g, ',').split(',');
                         delete postedModel.image; // Remove image from request body (we will add it later)
@@ -242,7 +257,7 @@ module.exports.syncItems = function syncItems (params) {
                                 contentType: image[0][1]
                             }
                         }
-                        postedModel.abstract = postedModel.abstract || postedModel.description; // Hack until we fix the images model
+                        // postedModel.title = postedModel.abstract || postedModel.description; // Hack until we fix the images model
                         
                         postRequest.formData = postedModel;
                         postRequest.preambleCRLF = true;
@@ -266,6 +281,7 @@ module.exports.syncItems = function syncItems (params) {
     });
 };
 
+// Retrieves a list of dataset IDs from UUI
 function fetchDatasets() {
     // Note: can also fetch/transform from here https://cmr.earthdata.nasa.gov/search/collections.umm-json?provider=ges_disc&pretty=true&page_size=2000
     return requests.post({
@@ -281,6 +297,7 @@ function fetchDatasets() {
     });
 };
 
+// Retrieves a list of keywords from UUI
 function fetchKeywords() {
     return requests.post({
         url: UUI_APP_URL + '/service/keywords/jsonwsp',

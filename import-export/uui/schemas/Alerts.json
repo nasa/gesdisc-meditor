@@ -79,8 +79,8 @@
             "key": "body",
             "type": "ckeditor"
         },
-        "datasets",
-        "tags",
+        {"key": "datasets", "type": "multi-select"},
+        {"key": "tags", "type": "multi-select"},
         "notes"
     ],
     "templates" : [
