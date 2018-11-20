@@ -7,20 +7,22 @@ const MAX_RECONNECT_ATTEMPTS = 5
 
 async function connectToMongoDb(attempt = 1) {
     console.log(`attempting to connect to mongo (attempt #${attempt}): ${MONGO_URL} `)
+
     try {
-        return await mongoose.connect(MONGO_URL)
+        await mongoose.connect(MONGO_URL)
+        return await mongoose.connection.useDb('meditor')
     } catch (err) {
         if (attempt >= MAX_RECONNECT_ATTEMPTS) throw err
 
         console.log('waiting for mongo to startup...')
+
         setTimeout(() => connectToMongoDb(++attempt), RECONNECT_TIMEOUT_MILLIS)
     }
 }
 
-async function getReplicaSetFromDb(db) {
+async function getReplicaSetFromDb() {
     try {
-        let adminDb = db.useDb('admin')
-        let info = await adminDb.command({ replSetGetStatus: 1 })
+        let info = await mongoose.connection.db.admin().command({ replSetGetStatus: 1 })
         console.log(`Replica set ${info.set} is running`)
         return info
     } catch (err) {
@@ -29,10 +31,9 @@ async function getReplicaSetFromDb(db) {
     }
 }
 
-async function initializeReplicaSetInDb(db) {
+async function initializeReplicaSetInDb() {
     try {
-        let adminDb = db.useDb('admin')
-        let info = await adminDb.command({ replSetInitiate: replicaSetConfig })
+        let info = await mongoose.connection.db.admin().command({ replSetInitiate: replicaSetConfig })
         console.log(info)
     } catch (err) {
         console.log(err)
@@ -41,14 +42,14 @@ async function initializeReplicaSetInDb(db) {
 
 async function init() {
     try {
-        let db = await connectToMongoDb()
-        let rs = await getReplicaSetFromDb(db)
+        await connectToMongoDb()
+        let rs = await getReplicaSetFromDb()
 
         if (!rs) {
-            await initializeReplicaSetInDb(db)
+            await initializeReplicaSetInDb()
         }
 
-        db.close()
+        mongoose.connection.close()
     } catch (err) {
         console.log(err)
     }
