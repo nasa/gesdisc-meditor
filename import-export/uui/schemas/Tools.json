@@ -1,0 +1,102 @@
+{
+    "titleProperty": "title",
+    "name": "Tools",
+    "description": "Tools",
+    "category": "GESDISC",
+    "workflow": "Edit-Review-Publish",
+    "icon": {
+        "name": "fa-wrench",
+        "color": "#5f8168"
+    },
+    "schema": {
+        "$schema": "http://json-schema.org/schema#",
+        "$id": "https://disc.gsfc.nasa.gov/schemas/model.json",
+        "type": "object",
+        "properties": {
+            "title": {
+                "type": "string",
+                "required": true
+            },
+            "abstract": {
+                "type": "string",
+                "title": "Description",
+                "description": "Description for the news article",
+                "required": true,
+                "minLength": 10,
+                "maxLength": 500
+            },
+            "image": {
+                "$id": "/properties/media",
+                "title": "Media",
+                "description": "Media (Images and Videos)",
+                "$comment": "Media (Images and Videos)",
+                "type": "string",
+                "contentMediaType": "image/png",
+                "contentEncoding": "base64",
+                "required": false
+            },
+            "imageCaption": {
+                "type": "string",
+                "required": false
+            },
+            "body": {
+                "type": "string",
+                "contentMediaType": "text/html",
+                "required": true
+            },
+            "tags": {
+                "type": "array",
+                "title": "Tags",
+                "items": {
+                    "type": "string",
+                    "enum": ["placeholder"]
+                },
+                "required": false
+            },
+            "datasets": {
+                "type": "array",
+                "title": "Related Datasets",
+                "items": {
+                    "type": "string",
+                    "enum": ["placeholder"]
+                },
+                "required": false
+            },
+            "notes": {
+                "type": "string",
+                "title": "Revision Comments",
+                "required": false
+            }
+        }
+    },
+    "layout": [
+        "title",
+        "abstract",
+        {"key": "body", "type": "ckeditor"},
+        {"key": "datasets", "type": "multi-select"},
+        {"key": "tags", "type": "multi-select"},
+        {"key": "image", "type": "image-upload"},
+        "imageCaption",
+        "notes"
+    ],
+    "templates" : [
+		{
+			"jsonpath" : "$.properties.tags.items.enum",
+			"macro" : "fetch tags zzz"
+        },
+        {
+			"jsonpath" : "$.properties.datasets.items.enum",
+			"macro" : "fetch datasets zzz"
+		}
+	],
+    "x-meditor": {
+        "model": "Models",
+        "modifiedOn": "$TODAY",
+        "modifiedBy": "$AUTHOR",
+        "states": [{
+            "source": "Init",
+            "target": "Draft",
+            "modifiedOn": "$TODAY"
+        }]
+    }
+}
