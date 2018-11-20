@@ -1,7 +1,12 @@
 // mongo < uui-content-cleanup.js 
 var host = "localhost:27017";
-var conn = new Mongo(host);	
-var db = conn.getDB('uui-db');
+var conn = new Mongo(host);
+var dbName = "uui-db";
+var use_auth = false;
+var db = conn.getDB('admin');
+if (use_auth) db.auth("admin", "");
+db = conn.getDB(dbName);
+
 var contentTypes = ['alerts', 'documents', 'faqs', 'glossary', 'howto', 'images', 'news', 'publications', 'tools'];
 var fileBasedTypes = ['images', 'news', 'tools'];
 var contentRequiresImage = ['news'];
@@ -21,8 +26,9 @@ var groups = {
     ]
 };
 var arrFields = ['tags', 'datasets'];
-var PLACEHOLDER_IMG_TITLE = 'Placeholder image';
 
+var PLACEHOLDER_IMG_TITLE = 'Placeholder image';
+var PLACEHOLDER_IMG_CAPTION = 'No image available for the document';
 var placeholderImgDoc = db.images.findOne({title: PLACEHOLDER_IMG_TITLE});
 
 contentTypes.forEach(function(contentType) {
