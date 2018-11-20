@@ -68,19 +68,6 @@ module.exports.putFileSystemItem = function putFileSystemItem(dbo, filename, dat
   });
 };
 
-// Fetches image from GridFS (if any) and stores it in
-// document.image attribite
-module.exports.assembleDocument = function (dbo, document) {
-  if (_.isNil(document.image)) return Promise.resolve(document);
-  return new Promise(function (resolve, reject) {
-    module.exports.getFileSystemItem(dbo, document.image)
-      .then(function (img) {
-        document.image = img;
-        resolve(document);
-      }, reject);
-  })
-};
-
 // A test driver for FS storage functions
 function testFs() {
   var MongoClient = mongo.MongoClient;

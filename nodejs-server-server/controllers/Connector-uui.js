@@ -132,11 +132,11 @@ function loginIntoUrs (params) {
         .then(res => {return cookiejar;});
 }
 
-function pushDocument(meta, mDoc) {
+function pushDocument(meta, meditorDoc) {
     return new Promise(function(resolve, reject) {
-        mUtils.assembleDocument(meta.dbo.db(DbName), mDoc).then(function(meditorDoc) {
+        // Fetch image from GridFS if necessary
+        ((_.isNil(meditorDoc.image)) ? Promise.resolve() : mUtils.getFileSystemItem(meta.dbo.db(DbName), meditorDoc.image)).then(function(image) {
             var postedModel = {};
-            var image;
             var postRequest;
             var uui_headers = _.cloneDeep(UUI_HEADERS);
             console.log('Pushing [' + _.get(meditorDoc, meta.titleProperty) + '] of type [' + meta.params.model + '] to UUI');
@@ -154,14 +154,12 @@ function pushDocument(meta, mDoc) {
                 followAllRedirects: true,
                 gzip: true
             }
-            if ('image' in postedModel) {
-                uui_headers['Content-Type'] = 'multipart/form-data';
+            if (image) {
                 // Image is stored in Base64 like this "image" : "data:image/png;base64,iVBORw0KGgoAA..."
-                image = postedModel.image.split(',');
+                image = image.split(',');
                 image[0] = image[0].replace(/[:;]/g, ',').split(',');
+                postedModel.image = null;
                 delete postedModel.image; // Remove image from request body (we will add it later)
-                // Convert all keys to string as required by the form-encoded transport
-                Object.keys(postedModel).forEach(function(key) {postedModel[key] = _.trim(JSON.stringify(postedModel[key]), '"') ;});
                 // Add image binary
                 postedModel.fileRef = {
                     value: new Buffer(image[1], 'base64'),
@@ -170,12 +168,20 @@ function pushDocument(meta, mDoc) {
                         contentType: image[0][1]
                     }
                 }
-                // postedModel.title = postedModel.abstract || postedModel.description; // Hack until we fix the images model
-                
+            }
+            if (!!meta.schema.properties.image) {
+                // File-based documents are submitted as a form
+                // Convert all keys to string as required by the form-encoded transport
+                uui_headers['Content-Type'] = 'multipart/form-data';
+                Object.keys(postedModel).forEach(function(key) {
+                    if (key === 'fileRef') return;
+                    postedModel[key] = _.trim(JSON.stringify(postedModel[key]), '"') + "" ;
+                });
                 postRequest.formData = postedModel;
                 postRequest.preambleCRLF = true;
                 postRequest.postambleCRLF = true;
             } else {
+                //Documents without image are submitted as JSON
                 postRequest.json = true;
                 postRequest.body = postedModel;
             }
@@ -221,7 +227,9 @@ module.exports.syncItems = function syncItems (params) {
     })
     .then(res => {
         var meditorContentQuery; 
-        that.titleProperty = res[0].titleProperty || 'title';
+        _.assign(that, res[0]);
+        if (!that.titleProperty) that.titleProperty = 'title';
+        if (that.schema) that.schema = JSON.parse(that.schema);
         meditorContentQuery = [
             {$addFields: {'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}}}, // Find last state
             {$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
@@ -302,7 +310,11 @@ function fetchDatasets() {
     })
     .then(function(res) {
         return res.result.items.map(item => item.dataset.id);
-    });
+    })
+    .catch(function(e) {
+        console.log('Error while trying to fetch UUI datasets: ', e.message);
+        return ['Failed to fetch the list'];
+    });;
 };
 
 // Retrieves a list of keywords from UUI
@@ -317,6 +329,10 @@ function fetchKeywords() {
     })
     .then(function(res) {
         return res.result.items;
+    })
+    .catch(function(e) {
+        console.log('Error while trying to fetch UUI keywords: ', e.message);
+        return ['Failed to fetch the list'];
     });
 };
 
