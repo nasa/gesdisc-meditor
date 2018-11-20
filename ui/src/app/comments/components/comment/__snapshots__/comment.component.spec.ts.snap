@@ -1,0 +1,351 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CommentComponent should create comment thread with mock data 1`] = `
+<med-comment
+  _tree={[Function Boolean]}
+  commentForm="undefined"
+  commentThreads={[Function QueryList]}
+  extComments={[Function Array]}
+  replyComment={[Function EventEmitter]}
+  resolveComment={[Function EventEmitter]}
+>
+  <div
+    class="comments-container"
+  >
+    
+    <mat-card
+      class="comment-card mat-card"
+    >
+      <mat-card-header
+        class="mat-card-header"
+      >
+        <div
+          class="comment-header-image mat-card-avatar"
+          mat-card-avatar=""
+        />
+        <div
+          class="mat-card-header-text"
+        >
+          <mat-card-title
+            class="comment-created-by mat-card-title"
+          >
+            Test
+          </mat-card-title>
+          <mat-card-subtitle
+            class="comment-created-on mat-card-subtitle"
+          >
+            10/19/18, 11:57 AM
+          </mat-card-subtitle>
+        </div>
+      </mat-card-header>
+      <mat-card-content
+        class="comment-text mat-card-content"
+      >
+         test 
+      </mat-card-content>
+      
+      <mat-card-actions
+        class="mat-card-actions"
+      >
+        <button
+          class="reply-button"
+          mat-icon-button=""
+        >
+          <mat-icon
+            aria-hidden="true"
+            class="mat-icon material-icons"
+            role="img"
+          >
+            reply
+          </mat-icon>
+        </button>
+        
+        <button
+          class="resolve-button"
+          mat-icon-button=""
+        >
+          <mat-icon
+            aria-hidden="true"
+            class="mat-icon material-icons"
+            role="img"
+          >
+            done
+          </mat-icon>
+        </button>
+      </mat-card-actions>
+    </mat-card>
+    
+    
+    <med-comment
+      ng-reflect-comments="[object Object],[object Object"
+      ng-reflect-parent-id="5bc9fed4e7cd1d776e763685"
+      ng-reflect-tree="false"
+    >
+      
+      <div
+        class="comments-container"
+      >
+        
+        <mat-card
+          class="comment-card mat-card"
+        >
+          <mat-card-header
+            class="mat-card-header"
+          >
+            <div
+              class="comment-header-image mat-card-avatar"
+              mat-card-avatar=""
+            />
+            <div
+              class="mat-card-header-text"
+            >
+              <mat-card-title
+                class="comment-created-by mat-card-title"
+              >
+                Test
+              </mat-card-title>
+              <mat-card-subtitle
+                class="comment-created-on mat-card-subtitle"
+              >
+                10/23/18, 11:44 AM
+              </mat-card-subtitle>
+            </div>
+          </mat-card-header>
+          <mat-card-content
+            class="comment-text mat-card-content"
+          >
+             wow another reply here 
+          </mat-card-content>
+          
+          <mat-card-actions
+            class="mat-card-actions"
+          >
+            <button
+              class="reply-button"
+              mat-icon-button=""
+            >
+              <mat-icon
+                aria-hidden="true"
+                class="mat-icon material-icons"
+                role="img"
+              >
+                reply
+              </mat-icon>
+            </button>
+            
+          </mat-card-actions>
+        </mat-card>
+        
+        
+        <med-comment
+          ng-reflect-comments=""
+          ng-reflect-parent-id="5bcf41e2e59cd2e18508b1e7"
+          ng-reflect-tree="false"
+        >
+          
+        </med-comment>
+      </div>
+      <div
+        class="comments-container"
+      >
+        
+        <mat-card
+          class="comment-card mat-card"
+        >
+          <mat-card-header
+            class="mat-card-header"
+          >
+            <div
+              class="comment-header-image mat-card-avatar"
+              mat-card-avatar=""
+            />
+            <div
+              class="mat-card-header-text"
+            >
+              <mat-card-title
+                class="comment-created-by mat-card-title"
+              >
+                Test
+              </mat-card-title>
+              <mat-card-subtitle
+                class="comment-created-on mat-card-subtitle"
+              >
+                10/23/18, 11:45 AM
+              </mat-card-subtitle>
+            </div>
+          </mat-card-header>
+          <mat-card-content
+            class="comment-text mat-card-content"
+          >
+             another important reply 
+          </mat-card-content>
+          
+          <mat-card-actions
+            class="mat-card-actions"
+          >
+            <button
+              class="reply-button"
+              mat-icon-button=""
+            >
+              <mat-icon
+                aria-hidden="true"
+                class="mat-icon material-icons"
+                role="img"
+              >
+                reply
+              </mat-icon>
+            </button>
+            
+          </mat-card-actions>
+        </mat-card>
+        
+        
+        <med-comment
+          ng-reflect-comments=""
+          ng-reflect-parent-id="5bcf4208e59cd2e18508b1e8"
+          ng-reflect-tree="false"
+        >
+          
+        </med-comment>
+      </div>
+      <div
+        class="comments-container"
+      >
+        
+        <mat-card
+          class="comment-card mat-card"
+        >
+          <mat-card-header
+            class="mat-card-header"
+          >
+            <div
+              class="comment-header-image mat-card-avatar"
+              mat-card-avatar=""
+            />
+            <div
+              class="mat-card-header-text"
+            >
+              <mat-card-title
+                class="comment-created-by mat-card-title"
+              >
+                Test
+              </mat-card-title>
+              <mat-card-subtitle
+                class="comment-created-on mat-card-subtitle"
+              >
+                10/23/18, 11:45 AM
+              </mat-card-subtitle>
+            </div>
+          </mat-card-header>
+          <mat-card-content
+            class="comment-text mat-card-content"
+          >
+             hey topic starter, pay attention to this please 
+          </mat-card-content>
+          
+          <mat-card-actions
+            class="mat-card-actions"
+          >
+            <button
+              class="reply-button"
+              mat-icon-button=""
+            >
+              <mat-icon
+                aria-hidden="true"
+                class="mat-icon material-icons"
+                role="img"
+              >
+                reply
+              </mat-icon>
+            </button>
+            
+          </mat-card-actions>
+        </mat-card>
+        
+        
+        <med-comment
+          ng-reflect-comments=""
+          ng-reflect-parent-id="5bcf421be59cd2e18508b1e9"
+          ng-reflect-tree="false"
+        >
+          
+        </med-comment>
+      </div>
+    </med-comment>
+  </div><div
+    class="comments-container"
+  >
+    
+    <mat-card
+      class="comment-card mat-card"
+    >
+      <mat-card-header
+        class="mat-card-header"
+      >
+        <div
+          class="comment-header-image mat-card-avatar"
+          mat-card-avatar=""
+        />
+        <div
+          class="mat-card-header-text"
+        >
+          <mat-card-title
+            class="comment-created-by mat-card-title"
+          >
+            Test
+          </mat-card-title>
+          <mat-card-subtitle
+            class="comment-created-on mat-card-subtitle"
+          >
+            10/19/18, 12:22 PM
+          </mat-card-subtitle>
+        </div>
+      </mat-card-header>
+      <mat-card-content
+        class="comment-text mat-card-content"
+      >
+         image comment 
+      </mat-card-content>
+      
+      <mat-card-actions
+        class="mat-card-actions"
+      >
+        <button
+          class="reply-button"
+          mat-icon-button=""
+        >
+          <mat-icon
+            aria-hidden="true"
+            class="mat-icon material-icons"
+            role="img"
+          >
+            reply
+          </mat-icon>
+        </button>
+        
+        <button
+          class="resolve-button"
+          mat-icon-button=""
+        >
+          <mat-icon
+            aria-hidden="true"
+            class="mat-icon material-icons"
+            role="img"
+          >
+            done
+          </mat-icon>
+        </button>
+      </mat-card-actions>
+    </mat-card>
+    
+    
+    <med-comment
+      ng-reflect-comments=""
+      ng-reflect-parent-id="5bca04bace5e5478ac9c985f"
+      ng-reflect-tree="false"
+    >
+      
+    </med-comment>
+  </div>
+</med-comment>
+`;

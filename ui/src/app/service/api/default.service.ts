@@ -703,7 +703,7 @@ export class DefaultService {
         }
 
         if (file !== undefined) {
-            formParams = formParams.append('file', <any>file) || formParams;
+          formParams.append('file', <any>file);
         }
 
         return this.httpClient.post<Success>(`${this.basePath}/postComment`,
@@ -774,10 +774,10 @@ export class DefaultService {
         }
 
         if (file !== undefined) {
-            formParams = formParams.append('file', <any>file) || formParams;
+            formParams.append('file', <any>file);
         }
         if (image !== undefined) {
-            formParams = formParams.append('image', <any>image) || formParams;
+          formParams.append('image', <any>image);
         }
 
         return this.httpClient.post<Success>(`${this.basePath}/putDocument`,
@@ -844,7 +844,7 @@ export class DefaultService {
         }
 
         if (file !== undefined) {
-            formParams = formParams.append('file', <any>file) || formParams;
+          formParams.append('file', <any>file);
         }
 
         return this.httpClient.post<Success>(`${this.basePath}/putModel`,
@@ -862,20 +862,27 @@ export class DefaultService {
      * Resolves comment
      * Resolves comment
      * @param id Comment id
+     * @param resolvedBy Resolved by
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public resolveComment(id: string, observe?: 'body', reportProgress?: boolean): Observable<Success>;
-    public resolveComment(id: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Success>>;
-    public resolveComment(id: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Success>>;
-    public resolveComment(id: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public resolveComment(id: string, resolvedBy: string, observe?: 'body', reportProgress?: boolean): Observable<Success>;
+    public resolveComment(id: string, resolvedBy: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Success>>;
+    public resolveComment(id: string, resolvedBy: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Success>>;
+    public resolveComment(id: string, resolvedBy: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
         if (id === null || id === undefined) {
             throw new Error('Required parameter id was null or undefined when calling resolveComment.');
+        }
+        if (resolvedBy === null || resolvedBy === undefined) {
+            throw new Error('Required parameter resolvedBy was null or undefined when calling resolveComment.');
         }
 
         let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
         if (id !== undefined) {
             queryParameters = queryParameters.set('id', <any>id);
+        }
+        if (resolvedBy !== undefined) {
+            queryParameters = queryParameters.set('resolvedBy', <any>resolvedBy);
         }
 
         let headers = this.defaultHeaders;

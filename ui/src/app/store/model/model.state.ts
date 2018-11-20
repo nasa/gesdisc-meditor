@@ -50,8 +50,13 @@ export class ModelState {
 	getAllModels({ patchState, getState }: StateContext<ModelStateModel>, { payload }: actions.GetAllModels) {
 		const models: any = getState().models;
 		const useCache: boolean = models.length && !payload.reload;
-		
+
 		const getAllModelsCallback = (models: any) => {
+      models.sort(function (a, b) {
+        if(a.name < b.name) { return -1; }
+        if(a.name > b.name) { return 1; }
+        return 0;
+      })
 			patchState({ models });
 		};
 
@@ -85,9 +90,16 @@ export class ModelState {
 		if (!getState().currentModel) { throw new Error('No selected model'); }
 
 		return this.service.listDocuments(getState().currentModel.name)
-			.pipe(tap((currentModelDocuments: DocCatalogEntry[]) => patchState({
-				currentModelDocuments,
-			})));
+			.pipe(
+        tap((currentModelDocuments: DocCatalogEntry[]) => {
+            currentModelDocuments.sort(function (a, b) {
+              if(a['x-meditor'].modifiedOn > b['x-meditor'].modifiedOn) { return -1; }
+              if(a['x-meditor'].modifiedOn < b['x-meditor'].modifiedOn) { return 1; }
+              return 0;
+            })
+            patchState({currentModelDocuments})
+          }
+        ));
 	}
 
 }

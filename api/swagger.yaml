@@ -825,6 +825,7 @@ definitions:
     - "parentId"
     - "resolved"
     - "text"
+    - "version"
     properties:
       id:
         type: "string"
@@ -841,6 +842,8 @@ definitions:
       documentId:
         type: "string"
       model:
+        type: "string"
+      version:
         type: "string"
   model_xmeditor:
     properties:

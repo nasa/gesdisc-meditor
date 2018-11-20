@@ -14,7 +14,7 @@
 		</mat-select>
 	</div>
 
-	<div fxFlex *ngIf="privileges.includes('create_new')">
+	<div fxFlex *ngIf="privileges.includes('create')">
 		<ng-container *ngFor="let action of actions">
 			<button mat-raised-button color="accent" class="add-new-button" (click)="addNew.emit(action.target)" >
 				<mat-icon>add</mat-icon>

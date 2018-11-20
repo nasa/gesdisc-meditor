@@ -1,6 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, QueryList, ViewChildren } from '@angular/core';
-import { FormControl, FormGroup, FormBuilder, Validators, NgForm } from '@angular/forms';
-import { Comment } from '../../../service/model/comment';
+import { Comment } from 'app/service/model/comment';
 
 import * as _ from 'underscore';
 
@@ -18,13 +17,21 @@ export class CommentComponent implements OnInit {
 	_tree: boolean;
 	_showResolved: boolean;
   _replyTo: boolean;
+  _versionFilter: Date;
 	commentText: string;
 
 	@Input()
 	set comments(comments: Comment[]) {
 		this.extComments = comments.map(c => Object.assign({}, c));
 		if(this._tree) this.extComments = this.treeify(this.extComments, '_id', 'parentId', 'children');
+    if(this._versionFilter) this.extComments = this.extComments.filter(c => {
+      return new Date(c.version).getTime() < this._versionFilter.getTime()
+    });
+	};
 
+  @Input()
+	set versionFilter(versionFilter: Date) {
+    if (versionFilter) this._versionFilter = new Date(versionFilter);
 	};
 
 	@Input()
@@ -91,7 +98,7 @@ export class CommentComponent implements OnInit {
     return treeList;
 	};
 
-	submitComment(_id, parentId) {
+	submitComment(_id: string, parentId: string) {
 		if (parentId == 'root') parentId = _id
 		let commentData = {
 			'text': this.commentText,
@@ -102,7 +109,7 @@ export class CommentComponent implements OnInit {
 		this.commentText = '';
 	}
 
-	submitChildComment(event) {
+	submitChildComment(event: any) {
 		let commentData = {
 			'text': event.text,
 			'parentId': event.parentId

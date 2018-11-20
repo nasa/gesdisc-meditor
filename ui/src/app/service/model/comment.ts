@@ -20,4 +20,6 @@ export interface Comment {
     parentId: string;
     documentId: string;
     model: string;
+    version: string;
+    userUid: string;
 }

@@ -41,8 +41,15 @@ describe('SearchStatusComponent', () => {
 			instance.resultCount = 15;
 			instance.modelName = 'test';
 			instance.sortBy = 'oldest';
+      instance.privileges = ['create'];
+      instance.actions = [{
+        label: 'Add new'
+      }];
 			fixture.detectChanges();
 			expect(fixture).toMatchSnapshot();
+      instance.privileges = [];
+			fixture.detectChanges();
+      expect(fixture).toMatchSnapshot();
 		});
 	});
 });

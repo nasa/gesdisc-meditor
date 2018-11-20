@@ -30,8 +30,9 @@
 </mat-card>
 <med-comment
   [comments]="comments"
+  [versionFilter]="versionFilter"
   [tree]="true"
-  [parentId]="root"
+  parentId="root"
   [showResolved]="showResolved"
   (resolveComment)="resolveComment.emit($event)"
   (replyComment)="submitNewComment($event.text, $event.parentId)">

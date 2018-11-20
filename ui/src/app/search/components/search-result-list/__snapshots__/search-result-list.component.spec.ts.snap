@@ -2,8 +2,9 @@
 
 exports[`SearchResultListComponent with mock data should compile with minimum input (have 2 med-search-result elements) 1`] = `
 <med-search-result-list
+  loadDocument={[Function EventEmitter]}
   results={[Function Array]}
 >
-  <med-search-result /><med-search-result />
+  <med-search-result /><med-search-result /><med-search-result />
 </med-search-result-list>
 `;

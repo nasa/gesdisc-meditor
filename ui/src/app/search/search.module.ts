@@ -9,6 +9,8 @@ import { SearchPageComponent } from './containers/search-page.component';
 import { MaterialModule } from '../material';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { SearchStatusComponent } from './components/search-status/search-status.component';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { PipesModule } from '../shared/pipes';
 import { routes } from './search.routing';
 
 @NgModule({
@@ -18,6 +20,8 @@ import { routes } from './search.routing';
 		ReactiveFormsModule,
 		MaterialModule,
 		FlexLayoutModule,
+    NgxPaginationModule,
+    PipesModule,
 		RouterModule.forChild(routes),
 	],
 	declarations: [
