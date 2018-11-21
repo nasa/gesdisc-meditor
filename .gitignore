@@ -21,6 +21,10 @@
 /mongo-replicaset/package-lock.json
 /status/node_modules
 /status/package-lock.json
+/import-export/uui/node_modules
+/import-export/uui/package-lock.json
+*.node_modules
+*.package-lock.json
 
 # IDEs and editors
 /.idea

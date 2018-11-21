@@ -1,0 +1,79 @@
+{
+    "titleProperty": "title",
+    "name": "Glossary",
+    "description": "Glossary",
+    "category": "GESDISC",
+    "workflow": "Edit-Review-Publish",
+    "icon": {
+        "name": "fa-info",
+        "color": "#005ac8"
+    },
+    "schema": {
+        "$schema": "http://json-schema.org/schema#",
+        "$id": "https://disc.gsfc.nasa.gov/schemas/model.json",
+        "type": "object",
+        "properties": {
+            "title": {
+                "type": "string",
+                "required": true
+            },
+            "body": {
+                "type": "string",
+                "contentMediaType": "text/html",
+                "required": true
+            },
+            "tags": {
+                "type": "array",
+                "title": "Tags",
+                "items": {
+                    "type": "string",
+                    "enum": ["placeholder"]
+                },
+                "required": false
+            },
+            "datasets": {
+                "type": "array",
+                "title": "Related Datasets",
+                "items": {
+                    "type": "string",
+                    "enum": ["placeholder"]
+                },
+                "required": false
+            },
+            "notes": {
+                "type": "string",
+                "title": "Revision Comments",
+                "required": false
+            }
+        }
+    },
+    "layout": [
+        "title", {
+            "key": "body",
+            "type": "ckeditor"
+        },
+        {"key": "datasets", "type": "multi-select"},
+        {"key": "tags", "type": "multi-select"},
+        "notes"
+    ],
+    "templates" : [
+		{
+			"jsonpath" : "$.properties.tags.items.enum",
+			"macro" : "fetch tags"
+        },
+        {
+			"jsonpath" : "$.properties.datasets.items.enum",
+			"macro" : "fetch datasets"
+		}
+	],
+    "x-meditor": {
+        "model": "Models",
+        "modifiedOn": "$TODAY",
+        "modifiedBy": "$AUTHOR",
+        "states": [{
+            "source": "Init",
+            "target": "Draft",
+            "modifiedOn": "$TODAY"
+        }]
+    }
+}

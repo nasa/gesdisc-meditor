@@ -3,6 +3,7 @@ var _ = require('lodash');
 var mongo = require('mongodb');
 var requests = require('request-promise-native');
 var MongoClient = mongo.MongoClient;
+var mUtils = require('./lib/meditor-utils.js');
 
 const DEBUG_URS_LOGIN = false;
 
@@ -17,18 +18,21 @@ if (!!process.env.MEDITOR_ENV_FILE_PATH) {
 
 var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
 var DbName = "meditor";
+
+var SYNC_MEDITOR_DOCS_ONLY = process.env.SYNC_MEDITOR_DOCS_ONLY || false; // Update only those items in UUI that originated from mEditor
+
 var UUI_AUTH_CLIENT_ID = process.env.UUI_AUTH_CLIENT_ID;
 var UUI_APP_URL =  (process.env.UUI_APP_URL || 'http://localhost:9000').replace(/\/+$/, '');
 var URS_USER = process.env.URS_USER;
 var URS_PASSWORD = process.env.URS_PASSWORD;
 
 var URS_BASE_URL = 'https://urs.earthdata.nasa.gov';
-var URS_HEADERS = {
+var URS_HEADERS = { // A minimal viable set of URS headeres
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',  
     'Accept-Encoding': 'gzip, deflate, br',
     'Content-Type': 'application/x-www-form-urlencoded'
     // 'Host': 'urs.earthdata.nasa.gov',
-    //'Connection': 'keep-alive',
+    // 'Connection': 'keep-alive',
     // 'Content-Length': 336,
     // 'Pragma': 'no-cache',
     // 'Cache-Control': 'no-cache',
@@ -39,7 +43,7 @@ var URS_HEADERS = {
     // 'Accept-Language': 'en-US,en;q=0.9'
 }
 
-var UUI_HEADERS = {
+var UUI_HEADERS = { // A minimal viable set of UUI headeres
     'Accept-Encoding': 'gzip, deflate, br',
     'Accept': 'application/json, text/plain, */*',
     'Content-Type': 'application/json;charset=utf-8'
@@ -82,15 +86,19 @@ if (DEBUG_URS_LOGIN) {
         console.log('\n\n\n\n--------------------------------\n\n\n\n');
     });
 }
+
+// Returns a unique identifier for a given mEdiotor document
+// Used for provenance when writing a document to UUI
 function getDocumentUid (metadata, meditorDoc) {
     return encodeURIComponent(_.get(meditorDoc, metadata.titleProperty)) + '_' + meditorDoc['x-meditor'].modifiedOn;
 }
 
+// Converts mEditor model name into UUI model name
 function getUuiModelName (model) {
-    if (model == 'Image') return 'images'; // Hack until we fix the name of the images model
     return model.toLowerCase();
 }
 
+// Imitates a browser - based login into URS
 function loginIntoUrs (params) {
     var cookiejar = requests.jar();
     var URS_OAUTH_URL = URS_BASE_URL.replace(/\/+$/, '') + '/oauth/authorize?response_type=code&redirect_uri=' + encodeURIComponent(params.redirectUri) +'&client_id=' + params.clientId;
@@ -124,10 +132,87 @@ function loginIntoUrs (params) {
         .then(res => {return cookiejar;});
 }
 
+function pushDocument(meta, meditorDoc) {
+    return new Promise(function(resolve, reject) {
+        // Fetch image from GridFS if necessary
+        ((_.isNil(meditorDoc.image)) ? Promise.resolve() : mUtils.getFileSystemItem(meta.dbo.db(DbName), meditorDoc.image)).then(function(image) {
+            var postedModel = {};
+            var postRequest;
+            var uui_headers = _.cloneDeep(UUI_HEADERS);
+            console.log('Pushing [' + _.get(meditorDoc, meta.titleProperty) + '] of type [' + meta.params.model + '] to UUI');
+            postedModel = _.cloneDeep(meditorDoc);
+            _.assign(postedModel, {
+                'title': _.get(meditorDoc, meta.titleProperty),
+                'published': true,
+                'originName': 'meditor',
+                'originData': getDocumentUid(meta, meditorDoc)
+            });
+            postRequest = {
+                url: UUI_APP_URL + '/api/' + getUuiModelName(meta.params.model),
+                headers: uui_headers,
+                jar: meta.cookiejar, 
+                followAllRedirects: true,
+                gzip: true
+            }
+            if (image) {
+                // Image is stored in Base64 like this "image" : "data:image/png;base64,iVBORw0KGgoAA..."
+                image = image.split(',');
+                image[0] = image[0].replace(/[:;]/g, ',').split(',');
+                postedModel.image = null;
+                delete postedModel.image; // Remove image from request body (we will add it later)
+                // Add image binary
+                postedModel.fileRef = {
+                    value: new Buffer(image[1], 'base64'),
+                    options: {
+                        filename: _.get(meditorDoc, meta.titleProperty),
+                        contentType: image[0][1]
+                    }
+                }
+            }
+            if (!!meta.schema.properties.image) {
+                // File-based documents are submitted as a form
+                // Convert all keys to string as required by the form-encoded transport
+                uui_headers['Content-Type'] = 'multipart/form-data';
+                Object.keys(postedModel).forEach(function(key) {
+                    if (key === 'fileRef') return;
+                    postedModel[key] = _.trim(JSON.stringify(postedModel[key]), '"') + "" ;
+                });
+                postRequest.formData = postedModel;
+                postRequest.preambleCRLF = true;
+                postRequest.postambleCRLF = true;
+            } else {
+                //Documents without image are submitted as JSON
+                postRequest.json = true;
+                postRequest.body = postedModel;
+            }
+            requests.post(postRequest).then(resolve, reject);
+        })
+    });
+}
+
+function removeDocument(meta, uuiDoc) {
+    return new Promise(function(resolve, reject) {
+        console.log('Removing [' + uuiDoc.title + '] of type [' + meta.params.model + '] from UUI');
+        requests.delete({
+            url: UUI_APP_URL + '/api/' + getUuiModelName(meta.params.model) + '/' + encodeURIComponent(uuiDoc.title),
+            headers: UUI_HEADERS,
+            jar: meta.cookiejar, 
+            followAllRedirects: true
+        }).then(resolve, reject)
+    });
+}
+
+// Pushes all items from a mEditor model specified in params
+// into UUI and purges from UUI items that are no longer
+// present in mEditor. Every item pushed into UUI is marked
+// as 'source=meditor'. Consequently, sync removes and updates
+// only those items in UUI that are markes as 'source=meditor'.
+// All other items in UUI are essentially invisible to this code.
 module.exports.syncItems = function syncItems (params) {
   var that = {params: params};
   var xmeditorProperties = ["modifiedOn", "modifiedBy", "state"];
-  
+  var contentSelectorQuery = SYNC_MEDITOR_DOCS_ONLY ? '?originName=[$eq][meditor]' : '';
+
   return MongoClient.connect(MongoUrl)
     .then(res => {
         that.dbo = res;
@@ -142,7 +227,9 @@ module.exports.syncItems = function syncItems (params) {
     })
     .then(res => {
         var meditorContentQuery; 
-        that.titleProperty = res[0].titleProperty || 'title';
+        _.assign(that, res[0]);
+        if (!that.titleProperty) that.titleProperty = 'title';
+        if (that.schema) that.schema = JSON.parse(that.schema);
         meditorContentQuery = [
             {$addFields: {'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}}}, // Find last state
             {$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
@@ -177,83 +264,29 @@ module.exports.syncItems = function syncItems (params) {
     })
     .then(res => {
         UUI_HEADERS['x-csrf-token'] = res.csrfToken;
-        return requests({url: UUI_APP_URL + '/api/' + getUuiModelName(that.params.model) + '?originName=[$eq][meditor]', headers: UUI_HEADERS, json: true, jar: that.cookiejar, gzip: true});
+        return requests({url: UUI_APP_URL + '/api/' + getUuiModelName(that.params.model) + contentSelectorQuery, headers: UUI_HEADERS, json: true, jar: that.cookiejar, gzip: true});
     })
     .then(res => res.data)
     .then(res => {
-        var postDefers = [];
         var meditorIds = that.meditorDocs.map(doc => {return getDocumentUid(that, doc)});
-        var uuiIds = res.map(doc => {return doc.originData});
+        that.uuiIds = res.map(doc => {return doc.originData});
 
         // Compute and schedule items to unpublish
-        res.forEach(function(uuiDoc) {
-            if (meditorIds.indexOf(uuiDoc.originData) === -1) {
-                console.log('Removing [' + uuiDoc.title + '] of type [' + that.params.model + '] from UUI');
-                postDefers.push(
-                    requests.delete({
-                        url: UUI_APP_URL + '/api/' + getUuiModelName(that.params.model) + '/' + encodeURIComponent(uuiDoc.title),
-                        headers: UUI_HEADERS,
-                        jar: that.cookiejar, 
-                        followAllRedirects: true
-                    })
-                );
-            }
-        });
-
-        // Compute and schedule items to publish
-        that.meditorDocs.forEach(function(meditorDoc) {
-            var docId = getDocumentUid(that, meditorDoc);
-            var postedModel = {};
-            var image;
-            var imageType;
-            var postRequest;
-            var uui_headers = _.cloneDeep(UUI_HEADERS);
-            if (uuiIds.indexOf(docId) === -1) {
-                console.log('Pushing [' + _.get(meditorDoc, that.titleProperty) + '] of type [' + that.params.model + '] to UUI');
-                postedModel = _.cloneDeep(meditorDoc);
-                _.assign(postedModel, {
-                    'title': _.get(meditorDoc, that.titleProperty),
-                    'published': true,
-                    'originName': 'meditor',
-                    'originData': getDocumentUid(that, meditorDoc)
-                });
-                postRequest = {
-                    url: UUI_APP_URL + '/api/' + getUuiModelName(that.params.model),
-                    headers: uui_headers,
-                    jar: that.cookiejar, 
-                    followAllRedirects: true,
-                    gzip: true
-                }
-                if ('image' in postedModel) {
-                    uui_headers['Content-Type'] = 'multipart/form-data';
-                    // Image is stored in Base64 like this "image" : "data:image/png;base64,iVBORw0KGgoAA..."
-                    image = postedModel.image.split(',');
-                    image[0] = image[0].replace(/[:;]/g, ',').split(',');
-                    delete postedModel.image; // Remove image from request body (we will add it later)
-                    // Convert all keys to string as required by the form-encoded transport
-                    Object.keys(postedModel).forEach(function(key) {postedModel[key] = _.trim(JSON.stringify(postedModel[key]), '"') ;});
-                    // Add image binary
-                    postedModel.fileRef = {
-                        value: new Buffer(image[1], 'base64'),
-                        options: {
-                            filename: _.get(meditorDoc, that.titleProperty),
-                            contentType: image[0][1]
-                        }
-                    }
-                    postedModel.abstract = postedModel.abstract || postedModel.description; // Hack until we fix the images model
-                    
-                    postRequest.formData = postedModel;
-                    postRequest.preambleCRLF = true;
-                    postRequest.postambleCRLF = true;
-                    postDefers.push(requests.post(postRequest));
-                } else {
-                    postRequest.json = true;
-                    postRequest.body = postedModel;
-                }
-                postDefers.push(requests.post(postRequest));
-            }
-        });
-        return Promise.all(postDefers);
+        return res.reduce((promiseChain, uuiDoc) => {
+            return promiseChain.then(chainResults => 
+                ((meditorIds.indexOf(uuiDoc.originData) === -1) ? removeDocument(that, uuiDoc) : Promise.resolve())
+                    .then(currentResult => [ ...chainResults, currentResult ] )
+            );
+        }, Promise.resolve([]));
+    })
+    .then(res => {
+         // Compute and schedule items to publish
+        return that.meditorDocs.reduce((promiseChain, mDoc) => {
+            return promiseChain.then(chainResults => 
+                (that.uuiIds.indexOf(getDocumentUid(that, mDoc)) === -1) ? pushDocument(that, mDoc): Promise.resolve()
+                    .then(currentResult => [ ...chainResults, currentResult ])
+            );
+        }, Promise.resolve([]));
     })
     .then(res => {})
     .then(res => (that.dbo.close()))
@@ -262,4 +295,50 @@ module.exports.syncItems = function syncItems (params) {
       console.log(err.status || err.statusCode, err.message || 'Unknown error');
       return Promise.reject({status: err.status || err.statusCode, message: err.message || 'Unknown error'});
     });
+};
+
+// Retrieves a list of dataset IDs from UUI
+function fetchDatasets() {
+    // Note: can also fetch/transform from here https://cmr.earthdata.nasa.gov/search/collections.umm-json?provider=ges_disc&pretty=true&page_size=2000
+    return requests.post({
+        url: UUI_APP_URL + '/service/datasets/jsonwsp',
+        headers: UUI_HEADERS,
+        followAllRedirects: true,
+        gzip: true,
+        json: true,
+        body: {"methodname":"search","args":{"role":"subset","fields":["dataset.id"]},"type":"jsonwsp/request","version":"1.0"}
+    })
+    .then(function(res) {
+        return res.result.items.map(item => item.dataset.id);
+    })
+    .catch(function(e) {
+        console.log('Error while trying to fetch UUI datasets: ', e.message);
+        return ['Failed to fetch the list'];
+    });;
+};
+
+// Retrieves a list of keywords from UUI
+function fetchKeywords() {
+    return requests.post({
+        url: UUI_APP_URL + '/service/keywords/jsonwsp',
+        headers: UUI_HEADERS,
+        followAllRedirects: true,
+        gzip: true,
+        json: true,
+        body: {"methodname": "getKeywords", "args":{"role":"subset"},"type":"jsonwsp/request","version":"1.0"}
+    })
+    .then(function(res) {
+        return res.result.items;
+    })
+    .catch(function(e) {
+        console.log('Error while trying to fetch UUI keywords: ', e.message);
+        return ['Failed to fetch the list'];
+    });
+};
+
+module.exports.getFetchers = function() {
+    return {
+        tags: fetchKeywords,
+        datasets: fetchDatasets
+    };
 };
