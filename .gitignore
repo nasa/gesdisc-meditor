@@ -19,6 +19,8 @@
 /nodejs-server-server/package-lock.json
 /mongo-replicaset/node_modules
 /mongo-replicaset/package-lock.json
+/status/node_modules
+/status/package-lock.json
 
 # IDEs and editors
 /.idea
