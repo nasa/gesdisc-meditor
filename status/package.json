@@ -1,12 +1,14 @@
 {
-  "name": "mongo-replicaset",
+  "name": "meditor-status",
   "version": "0.0.1",
   "main": "init.js",
   "scripts": {
     "start": "node init.js"
   },
   "dependencies": {
+    "ascii-art": "^1.5.0",
     "mongodb": "^3.1.1",
-    "mongoose": "^5.3.8"
+    "mongoose": "^5.3.8",
+    "node-fetch": "^2.3.0"
   }
 }

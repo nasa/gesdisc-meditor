@@ -10,11 +10,11 @@ COPY ./node_modules/angular2-json-schema-form ./node_modules/angular2-json-schem
 
 RUN npm install
 RUN npm rebuild node-sass --force
+RUN npm run build
 
 CMD if [ "$NODE_ENV" = "production" ]; \
 	then \
     npm install -g http-server && \
-	npm run build && \
     cd dist && \
     hs -p 4200; \
 	else \
