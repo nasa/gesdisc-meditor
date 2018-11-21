@@ -1,12 +1,14 @@
 const mongoose = require('mongoose')
 const art = require('ascii-art')
-const fs = require('fs')
-const getContent = require('./get-content').getContent
+const fetch = require('node-fetch')
 
 art.Figlet.fontPath = './'
 
+const UI_URL = 'http://meditor_ui:4200'
+const API_URL = 'http://meditor_server:8081/meditor/api/listModels'
+const MONGO_URL = 'mongodb://meditor_database:27017'
 const MAX_MINUTES_TO_CONNECT = 2
-const MILLIS_BETWEEN_ATTEMPTS = 500
+const MILLIS_BETWEEN_ATTEMPTS = 2000
 const MAX_ATTEMPTS = MAX_MINUTES_TO_CONNECT * 60 * 1000 / MILLIS_BETWEEN_ATTEMPTS
 
 console.time('Startup time')
@@ -15,30 +17,49 @@ function delay(delayMillis) {
     return new Promise(resolve => setTimeout(resolve, delayMillis))
 }
 
-async function waitForUi(attempt = 1) {
-    console.log('on attempt: ', attempt, ' url: ', process.env.APP_UI_URL)
-
-    if (attempt >= MAX_ATTEMPTS) throw new Error('UI did not startup in time!')
+async function waitForService(serviceName, serviceUpFn, attempt = 1) {
+    let debugMessage = `Checking ${serviceName} status...`
 
     try {
-        await getContent(process.env.APP_UI_URL)
+        await serviceUpFn()
+        console.log(`${debugMessage} running!`)
     } catch (err) {
-        console.error(err)
+        if (attempt >= (MAX_ATTEMPTS - 1)) {
+            console.log(err)
+            throw new Error(`${serviceName} did not startup in time!`)
+        }
+        
+        console.log(`${debugMessage} not up yet`)
         await delay(MILLIS_BETWEEN_ATTEMPTS)
-        return await waitForUi(++attempt)
+        return await waitForService(serviceName, serviceUpFn, ++attempt)
     }
 }
 
+async function waitForUi() {
+    return await waitForService('UI', async () => {
+        if (!(await fetch(UI_URL)).ok) throw new Error()
+        return
+    })
+}
+
 async function waitForMongoReplicaset() {
-    return Promise.resolve()
+    return await waitForService('Database', async () => {
+        await mongoose.connect(MONGO_URL)
+        await mongoose.connection.useDb('meditor')
+
+        return await new Promise((resolve, reject) => {
+            mongoose.connection.db.admin().command({ replSetGetStatus: 1 }, (err, result) => {
+                err ? reject(err) : resolve(result)
+            })
+        })
+    })
 }
 
 async function waitForApi() {
-    return Promise.resolve()
-}
-
-async function waitForNotifier() {
-    return Promise.resolve()
+    return await waitForService('API', async () => {
+        let res = await fetch(API_URL)
+        return await res.json()
+    })
 }
 
 async function init() {
@@ -47,14 +68,13 @@ async function init() {
             waitForUi(),
             waitForApi(),
             waitForMongoReplicaset(),
-            waitForNotifier(),
         ])
 
         art.font('Meditor', 'big', rendered => {
             console.log('********************\n\n\n\n')
             console.log(`${rendered}\n\n`)
             console.log(`UI: ${process.env.APP_UI_URL}`)
-            console.log(`API: ${process.env.APP_URL}\n\n`)
+            console.log(`API: ${process.env.APP_UI_URL}/api/\n\n`)
             console.timeEnd('Startup time')
         })
     } catch (err) {
@@ -64,60 +84,3 @@ async function init() {
 }
 
 init()
-
-/*
-const MONGO_URL = "mongodb://meditor_database:27017"
-const RECONNECT_TIMEOUT_MILLIS = 2000
-const MAX_RECONNECT_ATTEMPTS = 5
-
-async function connectToMongoDb(attempt = 1) {
-    console.log(`attempting to connect to mongo (attempt #${attempt}): ${MONGO_URL} `)
-    try {
-        return await mongoose.connect(MONGO_URL)
-    } catch (err) {
-        if (attempt >= MAX_RECONNECT_ATTEMPTS) throw err
-
-        console.log('waiting for mongo to startup...')
-        setTimeout(() => connectToMongoDb(++attempt), RECONNECT_TIMEOUT_MILLIS)
-    }
-}
-
-async function getReplicaSetFromDb(db) {
-    try {
-        let adminDb = db.useDb('admin')
-        let info = await adminDb.command({ replSetGetStatus: 1 })
-        console.log(`Replica set ${info.set} is running`)
-        return info
-    } catch (err) {
-        console.log('Replica set is not running')
-        return null
-    }
-}
-
-async function initializeReplicaSetInDb(db) {
-    try {
-        let adminDb = db.useDb('admin')
-        let info = await adminDb.command({ replSetInitiate: replicaSetConfig })
-        console.log(info)
-    } catch (err) {
-        console.log(err)
-    }
-}
-
-async function init() {
-    try {
-        let db = await connectToMongoDb()
-        let rs = await getReplicaSetFromDb(db)
-
-        if (!rs) {
-            await initializeReplicaSetInDb(db)
-        }
-
-        db.close()
-    } catch (err) {
-        console.log(err)
-    }
-}
-
-init()
-*/

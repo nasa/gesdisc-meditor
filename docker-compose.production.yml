@@ -2,9 +2,17 @@ version: "3.3"
 
 services:
 
+  status:
+    container_name: meditor_status
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_status:0.18.0
+    environment:
+      - APP_URL=${APP_URL}
+      - APP_UI_URL=${APP_UI_URL}
+      - MONGOURL=mongodb://meditor_database:27017,meditor_database_sec_1:27017,meditor_database_sec_2:27017/?replicaSet=meditor
+
   proxy:
     container_name: meditor_proxy
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_proxy:0.16.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_proxy:0.18.0
     restart: on-failure
     ports:
       - "80:8080"
@@ -13,7 +21,7 @@ services:
 
   notifier:
     container_name: meditor_notifier
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_notifier:0.16.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_notifier:0.18.0
     restart: on-failure
     depends_on:
       - database
@@ -22,7 +30,7 @@ services:
 
   ui:
     container_name: meditor_ui
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_ui:0.16.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_ui:0.18.0
     restart: on-failure
     environment:
       - NODE_ENV=${NODE_ENV}
@@ -31,7 +39,7 @@ services:
  
   server:
     container_name: meditor_server
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_server:0.16.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_server:0.18.0
     depends_on:
       - database
     restart: on-failure
@@ -81,7 +89,7 @@ services:
     
   database-replicaset:
     container_name: meditor_replicaset
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_replicaset:0.16.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_replicaset:0.18.0
     restart: on-failure
     depends_on:
       - database
