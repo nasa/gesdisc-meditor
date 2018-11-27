@@ -96,6 +96,17 @@ services:
       - database_sec_1
       - database_sec_2
 
+  monitor:
+    container_name: meditor_monitor
+    image: portainer/portainer
+    command: -H unix:///var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - monitor_data:/data
+
+volumes:
+  monitor_data:
+
 secrets:
     auth_host:
       external: true
