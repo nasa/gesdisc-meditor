@@ -17,6 +17,10 @@
 /ui/package-lock.json
 /nodejs-server-server/node_modules
 /nodejs-server-server/package-lock.json
+/mongo-replicaset/node_modules
+/mongo-replicaset/package-lock.json
+/status/node_modules
+/status/package-lock.json
 /import-export/uui/node_modules
 /import-export/uui/package-lock.json
 *.node_modules

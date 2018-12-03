@@ -18,3 +18,4 @@ docker image build -t $REGISTRY/meditor_server ./nodejs-server-server --no-cache
 docker image build -t $REGISTRY/meditor_proxy ./proxy --no-cache
 docker image build -t $REGISTRY/meditor_notifier ./notifier --no-cache
 docker image build -t $REGISTRY/meditor_replicaset ./mongo-replicaset --no-cache
+docker image build -t $REGISTRY/meditor_status ./status --no-cache

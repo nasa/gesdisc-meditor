@@ -28,6 +28,7 @@
     "@angular/platform-browser-dynamic": "^7.0.2",
     "@angular/platform-server": "^6.1.8",
     "@angular/router": "^7.0.2",
+    "@ng-select/ng-select": "^2.12.1",
     "@ngxs/devtools-plugin": "^3.2.0",
     "@ngxs/router-plugin": "^3.2.0",
     "@ngxs/storage-plugin": "^3.2.0",

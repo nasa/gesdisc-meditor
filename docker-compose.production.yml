@@ -2,24 +2,27 @@ version: "3.3"
 
 services:
 
+  status:
+    container_name: meditor_status
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_status:0.19.0
+    environment:
+      - APP_URL=${APP_URL}
+      - APP_UI_URL=${APP_UI_URL}
+      - MONGOURL=mongodb://meditor_database:27017,meditor_database_sec_1:27017,meditor_database_sec_2:27017/?replicaSet=meditor
+
   proxy:
     container_name: meditor_proxy
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_proxy:0.14.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_proxy:0.19.0
+    restart: on-failure
     ports:
       - "80:8080"
-    links:
-      - ui
-      - server
     depends_on:
       - database
 
   notifier:
     container_name: meditor_notifier
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_notifier:0.14.0
-    links:
-      - database
-      - database-sec-1
-      - database-sec-2
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_notifier:0.19.0
+    restart: on-failure
     depends_on:
       - database
     environment:
@@ -27,7 +30,8 @@ services:
 
   ui:
     container_name: meditor_ui
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_ui:0.14.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_ui:0.19.0
+    restart: on-failure
     environment:
       - NODE_ENV=${NODE_ENV}
       - APP_URL=${APP_URL}
@@ -35,33 +39,34 @@ services:
  
   server:
     container_name: meditor_server
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_server:0.14.0
-    links:
-      - database
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_server:0.19.0
     depends_on:
       - database
+    restart: on-failure
     environment:
+      - NODE_ENV=${NODE_ENV}
       - APP_URL=${APP_URL}
       - APP_UI_URL=${APP_UI_URL}
-      - AUTH_HOST=${AUTH_HOST}
-      - AUTH_CLIENT_ID=${AUTH_CLIENT_ID}
-      - AUTH_CLIENT_SECRET=${AUTH_CLIENT_SECRET}
       - MONGOURL=mongodb://meditor_database:27017,meditor_database_sec_1:27017,meditor_database_sec_2:27017/?replicaSet=meditor
+    secrets:
+      - auth_host
+      - auth_client_id
+      - auth_client_secret
 
   database:
     container_name: meditor_database
     image: dev.gesdisc.eosdis.nasa.gov:443/mongo/4.1.4
-    restart: always
+    restart: on-failure
     ports:
       - "47017:27017"
     volumes:
       - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
     command: --replSet meditor
 
-  database-sec-1:
+  database_sec_1:
     container_name: meditor_database_sec_1
     image: dev.gesdisc.eosdis.nasa.gov:443/mongo/4.1.4
-    restart: always
+    restart: on-failure
     depends_on:
       - database
     ports:
@@ -70,10 +75,10 @@ services:
       - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
     command: --replSet meditor
 
-  database-sec-2:
+  database_sec_2:
     container_name: meditor_database_sec_2
     image: dev.gesdisc.eosdis.nasa.gov:443/mongo/4.1.4
-    restart: always
+    restart: on-failure
     depends_on:
       - database
     ports:
@@ -81,11 +86,31 @@ services:
     volumes:
       - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
     command: --replSet meditor
-
+    
   database-replicaset:
     container_name: meditor_replicaset
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_replicaset:0.14.0
-    links:
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_replicaset:0.19.0
+    restart: on-failure
+    depends_on:
       - database
-      - database-sec-1
-      - database-sec-2
+      - database_sec_1
+      - database_sec_2
+
+  monitor:
+    container_name: meditor_monitor
+    image: portainer/portainer
+    command: -H unix:///var/run/docker.sock
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - monitor_data:/data
+
+volumes:
+  monitor_data:
+
+secrets:
+    auth_host:
+      external: true
+    auth_client_id:
+      external: true
+    auth_client_secret:
+      external: true
