@@ -48,6 +48,11 @@ services:
       - APP_URL=${APP_URL}
       - APP_UI_URL=${APP_UI_URL}
       - MONGOURL=mongodb://meditor_database:27017,meditor_database_sec_1:27017,meditor_database_sec_2:27017/?replicaSet=meditor
+      - UUI_AUTH_CLIENT_ID=${UUI_AUTH_CLIENT_ID}
+      - UUI_APP_URL=${UUI_APP_URL}
+      - URS_USER=${URS_USER}
+      - URS_PASSWORD=${URS_PASSWORD}
+      - PUBLISH_TO_UUI=${PUBLISH_TO_UUI}
     secrets:
       - auth_host
       - auth_client_id
