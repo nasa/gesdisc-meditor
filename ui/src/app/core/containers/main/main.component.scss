@@ -12,7 +12,7 @@
 med-toolbar {
     background: #fff;
     margin: 0 auto 20px auto;
-    width: 60%;
+    width: 100%;
     -webkit-box-shadow: 0 3px 5px rgba(57, 63, 72, 0.1);
     -moz-box-shadow: 0 3px 5px rgba(57, 63, 72, 0.1);
     box-shadow: 0 3px 5px rgba(57, 63, 72, 0.1);
@@ -25,6 +25,6 @@ med-toolbar {
 med-toolbar + div {
     background: #fff;
     margin: 0 auto;
-    width: 60%;
+    width: 100%;
     padding: 15px !important;
 }
