@@ -9,7 +9,14 @@ COPY ./ ./
 COPY ./node_modules/angular2-json-schema-form ./node_modules/angular2-json-schema-form
 
 RUN npm install
-RUN npm rebuild node-sass --force
+
+RUN if [ "$NODE_ENV" = "production" ]; \
+	then \
+	echo "Not rebuilding node-sass for production builds"; \
+	else \
+	npm rebuild node-sass --force; \
+	fi
+
 RUN npm run build
 
 CMD if [ "$NODE_ENV" = "production" ]; \
