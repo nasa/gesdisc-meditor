@@ -7,6 +7,7 @@ import { Component } from '@angular/core';
 			<img src="assets/logo.png" class="logo" routerLink="/" />
 			<span class="spacer"></span>
 			<med-login-status></med-login-status>
+
       <mat-menu #appMenu="matMenu" fxHide.gt-sm>
         <button mat-menu-item routerLink="/">
           <mat-icon>home</mat-icon>
@@ -24,6 +25,7 @@ import { Component } from '@angular/core';
       <button mat-icon-button [matMenuTriggerFor]="appMenu" fxHide.gt-sm>
         <mat-icon>more_vert</mat-icon>
       </button>
+      
       <div fxHide.lt-md>
         <button mat-button class="tb-button" routerLink="/">
           <mat-icon>home</mat-icon>
