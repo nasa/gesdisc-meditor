@@ -98,6 +98,15 @@ function getUuiModelName (model) {
     return model.toLowerCase();
 }
 
+// Modified from: https://stackoverflow.com/questions/30366324/
+function jsonUnescape(j) {
+    // Note: this does not account for \uxxx - not sure if we have any
+    ['b', 'f', 'n', 'r', 't', '"'].forEach(function(c) {
+       j=j.split('\\' + c).join(JSON.parse('"\\' + c + '"'));
+    });
+    return j;
+}
+
 // Imitates a browser - based login into URS
 function loginIntoUrs (params) {
     var cookiejar = requests.jar();
@@ -175,7 +184,7 @@ function pushDocument(meta, meditorDoc) {
                 uui_headers['Content-Type'] = 'multipart/form-data';
                 Object.keys(postedModel).forEach(function(key) {
                     if (key === 'fileRef') return;
-                    postedModel[key] = _.trim(JSON.stringify(postedModel[key]), '"') + "" ;
+                    postedModel[key] = _.trim(jsonUnescape(JSON.stringify(postedModel[key])), '"') + "" ;
                 });
                 postRequest.formData = postedModel;
                 postRequest.preambleCRLF = true;
