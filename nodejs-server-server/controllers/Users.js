@@ -30,7 +30,7 @@ function fromSecretOrEnv(key) {
   if (fs.existsSync(SECRETS_DIR + key)) {
     return fs.readFileSync(SECRETS_DIR + key).toString();
   } else {
-    return process.env[key];
+    return process.env[key] || process.env[key.toUpperCase()];
   }
 }
 
