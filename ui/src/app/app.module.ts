@@ -51,8 +51,6 @@ const routeResolvers = [ DocumentResolver, ModelResolver, DocEditResolver, Model
 			AuthState,
 			WorkflowState ]),
 		NgxsRouterPluginModule.forRoot(),
-    NgxsStoragePluginModule.forRoot({storage: StorageOption.LocalStorage, key: ['auth'], deserialize: JSON.parse,
-      serialize: JSON.stringify}),
 		NgxsReduxDevtoolsPluginModule.forRoot(),
 		ApiModule
 	],
