@@ -564,7 +564,7 @@ function getModelContent (name) {
         // Fill in templates if they exist
 
         var promiseList = [];
-        if ( res[0].hasOwnProperty("templates")){
+        if (res[0] && res[0].hasOwnProperty("templates")){
           res[0].templates.forEach(element => {
             var macroFields = element.macro.split(/\s+/);
             var schema = JSON.parse(res[0].schema);
