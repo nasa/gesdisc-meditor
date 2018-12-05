@@ -69,6 +69,7 @@ export class DocumentState {
 										loading: false,
 									});
                   dispatch(new actions.GetCurrentDocumentHistory());
+                  dispatch(new actions.GetCurrentDocumentComments());
 							}),
 						);
 		}

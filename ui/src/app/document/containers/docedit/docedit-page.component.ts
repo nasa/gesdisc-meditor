@@ -65,10 +65,10 @@ export class DocEditPageComponent implements OnInit {
 			if (workflow) {
 				this.document$.subscribe(document => {
 					this.store.dispatch(new UpdateWorkflowState(document['x-meditor'].state));
-          this.store.dispatch(new GetCurrentDocumentComments());
 				});
 			}
 		});
+    // this.store.dispatch(new GetCurrentDocumentComments());
 	}
 
 	submitDocument(document: any) {
