@@ -67,10 +67,6 @@ services:
     volumes:
       - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
       - ${DATABASE_HOST_VOLUME}:/data/db
-    deploy:
-      placement:
-        constraints:
-          - node.labels.database == primary
     command: --replSet meditor
 
   database_sec_1:
@@ -84,10 +80,6 @@ services:
     volumes:
       - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
       - ${DATABASE_HOST_VOLUME}:/data/db
-    deploy:
-      placement:
-        constraints:
-          - node.labels.database == secondary-1
     command: --replSet meditor
 
   database_sec_2:
@@ -101,10 +93,6 @@ services:
     volumes:
       - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
       - ${DATABASE_HOST_VOLUME}:/data/db
-    deploy:
-      placement:
-        constraints:
-          - node.labels.database == secondary-2
     command: --replSet meditor
     
   database-replicaset:
