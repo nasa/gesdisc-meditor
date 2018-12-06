@@ -8,7 +8,7 @@ services:
     environment:
       - APP_URL=${APP_URL}
       - APP_UI_URL=${APP_UI_URL}
-      - MONGOURL=mongodb://meditor_database:27017,meditor_database_sec_1:27017,meditor_database_sec_2:27017/?replicaSet=meditor
+      - MONGOURL=mongodb://meditor_database:27017
 
   proxy:
     container_name: meditor_proxy
@@ -26,7 +26,7 @@ services:
     depends_on:
       - database
     environment:
-      - MONGOURL=mongodb://meditor_database:27017,meditor_database_sec_1:27017,meditor_database_sec_2:27017/?replicaSet=meditor
+      - MONGOURL=mongodb://meditor_database:27017
 
   ui:
     container_name: meditor_ui
@@ -47,8 +47,7 @@ services:
       - NODE_ENV=${NODE_ENV}
       - APP_URL=${APP_URL}
       - APP_UI_URL=${APP_UI_URL}
-      - MONGOURL=mongodb://meditor_database:27017,meditor_database_sec_1:27017,meditor_database_sec_2:27017/?replicaSet=meditor
-      - UUI_AUTH_CLIENT_ID=${UUI_AUTH_CLIENT_ID}
+      - MONGOURL=mongodb://meditor_database:27017}
       - UUI_APP_URL=${UUI_APP_URL}
       - URS_USER=${URS_USER}
       - URS_PASSWORD=${URS_PASSWORD}
@@ -65,44 +64,44 @@ services:
     ports:
       - "47017:27017"
     volumes:
-      - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
       - ${DATABASE_HOST_VOLUME}:/data/db
-    command: --replSet meditor
+  #   - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
+  #  command: --replSet meditor
 
-  database_sec_1:
-    container_name: meditor_database_sec_1
-    image: dev.gesdisc.eosdis.nasa.gov:443/mongo/4.1.4
-    restart: on-failure
-    depends_on:
-      - database
-    ports:
-      - "47018:27017"
-    volumes:
-      - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
-      - ${DATABASE_HOST_VOLUME}:/data/db
-    command: --replSet meditor
+  # database_sec_1:
+  #   container_name: meditor_database_sec_1
+  #   image: dev.gesdisc.eosdis.nasa.gov:443/mongo/4.1.4
+  #   restart: on-failure
+  #   depends_on:
+  #     - database
+  #   ports:
+  #     - "47018:27017"
+  #   volumes:
+  #     - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
+  #     - ${DATABASE_HOST_VOLUME}:/data/db
+  #   command: --replSet meditor
 
-  database_sec_2:
-    container_name: meditor_database_sec_2
-    image: dev.gesdisc.eosdis.nasa.gov:443/mongo/4.1.4
-    restart: on-failure
-    depends_on:
-      - database
-    ports:
-      - "47019:27017"
-    volumes:
-      - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
-      - ${DATABASE_HOST_VOLUME}:/data/db
-    command: --replSet meditor
+  # database_sec_2:
+  #   container_name: meditor_database_sec_2
+  #   image: dev.gesdisc.eosdis.nasa.gov:443/mongo/4.1.4
+  #   restart: on-failure
+  #   depends_on:
+  #     - database
+  #   ports:
+  #     - "47019:27017"
+  #   volumes:
+  #     - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
+  #     - ${DATABASE_HOST_VOLUME}:/data/db
+  #   command: --replSet meditor
     
-  database-replicaset:
-    container_name: meditor_replicaset
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_replicaset:0.20.0
-    restart: on-failure
-    depends_on:
-      - database
-      - database_sec_1
-      - database_sec_2
+  # database-replicaset:
+  #   container_name: meditor_replicaset
+  #   image: dev.gesdisc.eosdis.nasa.gov:443/meditor_replicaset:0.20.0
+  #   restart: on-failure
+  #   depends_on:
+  #     - database
+  #     - database_sec_1
+  #     - database_sec_2
 
   monitor:
     container_name: meditor_monitor

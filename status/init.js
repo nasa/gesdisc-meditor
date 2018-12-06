@@ -67,7 +67,7 @@ async function init() {
         await Promise.all([
             waitForUi(),
             waitForApi(),
-            waitForMongoReplicaset(),
+            //waitForMongoReplicaset(),
         ])
 
         art.font('Meditor', 'big', rendered => {
