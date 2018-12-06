@@ -47,7 +47,7 @@ services:
       - NODE_ENV=${NODE_ENV}
       - APP_URL=${APP_URL}
       - APP_UI_URL=${APP_UI_URL}
-      - MONGOURL=mongodb://meditor_database:27017}
+      - MONGOURL=mongodb://meditor_database:27017
       - UUI_APP_URL=${UUI_APP_URL}
       - URS_USER=${URS_USER}
       - URS_PASSWORD=${URS_PASSWORD}
