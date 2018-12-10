@@ -242,7 +242,7 @@ module.exports.logout = function logout(req, res, next) {
 // Exported method to get user info
 module.exports.getMe = function getMe(req, res, next) {
   if (_.isEmpty(req.user)) {
-    utils.writeJson(res, {}, 200);
+    utils.writeJson(res, {}, 401);
   } else {
     utils.writeJson(res, req.user, 200);
   }
