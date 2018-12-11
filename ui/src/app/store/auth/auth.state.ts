@@ -10,8 +10,8 @@ import * as _ from 'underscore';
 import { LoginDialog } from 'app/auth/components/login-dialog/login-dialog.component';
 import { WorkflowState } from 'app/store/workflow/workflow.state';
 import { ModelState } from 'app/store/model/model.state';
-import { Navigate } from '@ngxs/router-plugin';
-import { Params, Router } from '@angular/router';
+import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 
 export * from './auth.actions';
@@ -81,9 +81,8 @@ export class AuthState {
 		}
 
 		@Action(actions.Logout)
-			logout({ patchState, dispatch }: StateContext<AuthStateModel>, { }: actions.Logout) {
-				patchState({ user: null, loggedIn: false });
-				return dispatch(new Navigate(['/']));
+		logout() {
+			window.location.href = this.getApiUrl() + '/logout';
 		}
 
 		@Action(actions.OpenLoginDialog)
@@ -96,5 +95,10 @@ export class AuthState {
 					});
 				});
 			}
+
+		getApiUrl() {
+			const basePath = environment.API_BASE_PATH;
+			return basePath.indexOf('http') !== 0 ? window.location.origin + basePath : basePath;
+		}
 
 }

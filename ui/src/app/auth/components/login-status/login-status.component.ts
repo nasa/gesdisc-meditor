@@ -4,10 +4,6 @@ import { Observable } from 'rxjs/Observable';
 import { Store, Select } from '@ngxs/store';
 import { AuthState, Logout } from 'app/store/auth/auth.state';
 
-import { environment } from '../../../../environments/environment';
-
-
-
 @Component({
 	selector: 'med-login-status',
 	template: `
@@ -35,12 +31,6 @@ export class LoginStatusComponent implements OnInit {
 
 	logout() {
 		this.store.dispatch(new Logout());
-		window.location.href = this.getApiUrl() + '/logout';
-	}
-
-	getApiUrl() {
-		const basePath = environment.API_BASE_PATH;
-		return basePath.indexOf('http') !== 0 ? window.location.origin + basePath : basePath;
 	}
 
 	toggleButton() {
