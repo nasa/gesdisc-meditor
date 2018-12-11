@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-
 import { Store } from '@ngxs/store';
 import { GetUser } from 'app/store/auth/auth.state';
 
@@ -10,9 +9,10 @@ import { GetUser } from 'app/store/auth/auth.state';
 })
 export class GetUserComponent implements OnInit {
 
-	constructor(private store: Store) { }
+	constructor(private store: Store) {}
 
 	ngOnInit() {
-		this.store.dispatch(new GetUser());
+		this.store.dispatch(new GetUser(true));
 	}
+
 }

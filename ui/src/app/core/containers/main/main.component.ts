@@ -1,5 +1,11 @@
 import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 import { environment } from 'environments/environment';
+import { Observable } from 'rxjs/Observable'
+import { timer } from 'rxjs/observable/timer';
+import { Store, Select } from '@ngxs/store';
+import { AuthState, GetUser } from 'app/store/auth/auth.state';
+
+const KEEP_ALIVE_MILLIS = 10000
 
 @Component({
   selector: 'meditor-app',
@@ -19,10 +25,24 @@ import { environment } from 'environments/environment';
 })
 export class MainComponent implements OnInit {
 
+  @Select(AuthState.loggedIn) loggedIn$: Observable<boolean>;
+
   version: string = environment.VERSION
+  isLoggedIn: boolean = false
 
-  constructor() {}
+  constructor(private store: Store) { }
 
-	ngOnInit() {}
+	ngOnInit() {
+    this.loggedIn$.subscribe((isLoggedIn: boolean) => this.isLoggedIn = isLoggedIn)
+    this.keepAlive()
+    this.store.dispatch(new GetUser())
+  }
+
+  keepAlive() {
+    timer(undefined, KEEP_ALIVE_MILLIS).subscribe(() => {
+      if (!this.isLoggedIn) return
+      this.store.dispatch(new GetUser())
+    })
+  }
 
 }

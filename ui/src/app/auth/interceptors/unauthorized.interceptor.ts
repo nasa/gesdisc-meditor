@@ -14,7 +14,7 @@ export class UnauthorizedInterceptor implements HttpInterceptor {
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     return next.handle(request).do((event: HttpEvent<any>) => {}, (err: any) => {
       if (err instanceof HttpErrorResponse && err.status === 401) {
-          this.store.dispatch(this.router.url === '/' ? new OpenLoginDialog() : new Logout());
+        this.store.dispatch(this.router.url === '/' ? new OpenLoginDialog() : new Logout());
       }
     });
   }
