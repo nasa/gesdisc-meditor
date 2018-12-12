@@ -5,7 +5,7 @@ import { timer } from 'rxjs/observable/timer';
 import { Store, Select } from '@ngxs/store';
 import { AuthState, GetUser } from 'app/store/auth/auth.state';
 
-const KEEP_ALIVE_MILLIS = 10000
+const KEEP_ALIVE_MILLIS = 120000
 
 @Component({
   selector: 'meditor-app',
