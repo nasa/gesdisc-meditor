@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
@@ -9,7 +9,6 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { NgxsModule } from '@ngxs/store';
 import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin';
 import { NgxsRouterPluginModule } from '@ngxs/router-plugin';
-import { NgxsStoragePluginModule, StorageOption } from '@ngxs/storage-plugin';
 
 
 import {
@@ -30,6 +29,8 @@ import { environment } from '../environments/environment';
 
 import { routes } from './routes';
 import { DocumentResolver, ModelResolver, DocEditResolver, ModelsResolver, AuthGuard } from 'app/store/resolvers/';
+
+import { UnauthorizedInterceptor } from './auth/interceptors/unauthorized.interceptor';
 
 // const routeResolvers = Object.keys(resolvers).map(key => resolvers[key])	// TODO: remove this and use Object.values (need typescript to support ES2017)
 const routeResolvers = [ DocumentResolver, ModelResolver, DocEditResolver, ModelsResolver, AuthGuard ];
@@ -57,6 +58,11 @@ const routeResolvers = [ DocumentResolver, ModelResolver, DocEditResolver, Model
 	providers: [
 		{ provide: BASE_PATH, useValue: environment.API_BASE_PATH },
 		...routeResolvers,
+		{
+			provide: HTTP_INTERCEPTORS,
+			useClass: UnauthorizedInterceptor,
+			multi: true
+		},
 	],
 	declarations: [ SnackBarComponent ],
 	entryComponents: [ SnackBarComponent ],

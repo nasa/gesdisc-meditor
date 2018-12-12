@@ -10,8 +10,8 @@ import * as _ from 'underscore';
 import { LoginDialog } from 'app/auth/components/login-dialog/login-dialog.component';
 import { WorkflowState } from 'app/store/workflow/workflow.state';
 import { ModelState } from 'app/store/model/model.state';
-import { Navigate } from '@ngxs/router-plugin';
-import { Params, Router } from '@angular/router';
+import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 
 export * from './auth.actions';
@@ -47,13 +47,16 @@ export class AuthState {
 			private ngZone: NgZone ) {}
 
 		@Action(actions.GetUser)
-			getUser({ dispatch }: StateContext<AuthStateModel>, action: actions.GetUser) {
-				return this.service.getMe()
-					.pipe(
-						tap((user: any) => {
-							return user.uid ? dispatch(new actions.LoginSuccess(user)) : dispatch(new actions.OpenLoginDialog());
-						}),
-					);
+		getUser({ patchState, dispatch }: StateContext<AuthStateModel>, { isLogin }: actions.GetUser) {
+			return this.service.getMe().pipe(
+				tap((user: any) => {
+					if (isLogin) {
+						dispatch(new actions.LoginSuccess(user))
+					} else {
+						patchState({ user, loggedIn: true });
+					}
+				})
+			);
 		}
 
 		@Action(actions.GetUserPrivileges)
@@ -74,16 +77,15 @@ export class AuthState {
 		}
 
 		@Action(actions.LoginSuccess)
-			loginSuccess({ patchState,  dispatch }: StateContext<AuthStateModel>, { payload }: actions.LoginSuccess) {
-				patchState({ user: payload, loggedIn: true });
-        this.ngZone.run(() => { this.router.navigateByUrl(localStorage.getItem('returnUrl') || '/'); });
-				return dispatch(new notification.SuccessNotificationOpen('You have successfully logged in'));
+		loginSuccess({ patchState, dispatch }: StateContext<AuthStateModel>, { payload }: actions.LoginSuccess) {
+			patchState({ user: payload, loggedIn: true });
+			this.ngZone.run(() => { this.router.navigateByUrl(localStorage.getItem('returnUrl') || '/'); });
+			return dispatch(new notification.SuccessNotificationOpen('You have successfully logged in'));
 		}
 
 		@Action(actions.Logout)
-			logout({ patchState, dispatch }: StateContext<AuthStateModel>, { }: actions.Logout) {
-				patchState({ user: null, loggedIn: false });
-				return dispatch(new Navigate(['/']));
+		logout() {
+			window.location.href = this.getApiUrl() + '/logout';
 		}
 
 		@Action(actions.OpenLoginDialog)
@@ -96,5 +98,10 @@ export class AuthState {
 					});
 				});
 			}
+
+		getApiUrl() {
+			const basePath = environment.API_BASE_PATH;
+			return basePath.indexOf('http') !== 0 ? window.location.origin + basePath : basePath;
+		}
 
 }

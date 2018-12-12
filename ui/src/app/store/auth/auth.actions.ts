@@ -4,6 +4,8 @@ export class OpenLoginDialog {
 
 export class GetUser {
 	static readonly type = '[Auth] Get User';
+
+	constructor(public isLogin: Boolean = false) {}
 }
 
 export class GetUserPrivileges {
