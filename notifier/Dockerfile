@@ -5,7 +5,8 @@ RUN yum -y install crontabs
 RUN yum install -y gcc-c++ make
 RUN curl -sL https://rpm.nodesource.com/setup_10.x | bash -
 RUN yum -y install nodejs
-#RUN yum -y install postfix
+RUN yum -y install postfix
+RUN yum -y install sendmail
 RUN npm --version
 RUN node --version
 RUN npm install mongodb --save
