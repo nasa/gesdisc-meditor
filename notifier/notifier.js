@@ -5,7 +5,7 @@ var nodemailer = require('nodemailer');
 
 var transporter = nodemailer.createTransport({
     newline: 'unix',
-    host: 'gsfc-relay.ndc.nasa.gov',
+    host: process.env.MAIL_HOST,
     port: 25
   });
 
