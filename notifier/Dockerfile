@@ -26,4 +26,4 @@ RUN touch /var/log/cron.log
 RUN mkdir -p /usr/src/app/notifier
 ADD notifier.js /usr/src/app/notifier
 
-CMD crond -x proc && tail -f /var/log/cron.log
+CMD printenv | sed 's/^\(.*\)$/export \1/g' > /usr/src/app/env.sh && crond -x proc && tail -f /var/log/cron.log

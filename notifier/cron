@@ -2,5 +2,5 @@ SHELL=/bin/bash
 PATH=/sbin:/bin:/usr/sbin:/usr/bin
 MAILTO=root
 
-* * * * * root node /usr/src/app/notifier/notifier.js 
+* * * * * root . /usr/src/app/env.sh; node /usr/src/app/notifier/notifier.js 
 #empty line
