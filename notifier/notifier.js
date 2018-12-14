@@ -1,5 +1,5 @@
 var MongoClient = require('mongodb').MongoClient;
-var MongoUrl = process.env.MONGOURL || "mongodb://meditor_database:27017/";
+var MongoUrl = process.env.MONGOURL;
 var os = require('os');
 var nodemailer = require('nodemailer');
 
