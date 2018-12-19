@@ -16,6 +16,7 @@ import { DocNewPageComponent } from './containers/docnew/docnew-page.component';
 
 import { DocumentEditComponent } from './components/document-edit/document-edit.component';
 import { DochistoryComponent } from './components/dochistory/dochistory.component';
+import { DocBreadcrumbsComponent } from './components/docbreadcrumbs/docbreadcrumbs.component';
 import { CommentsModule } from '../comments/comments.module';
 
 import { routes } from './document.routing';
@@ -47,7 +48,8 @@ import { DocactionsComponent } from './components/docactions/docactions.componen
 		DocNewPageComponent,
 		DocumentEditComponent,
 		DochistoryComponent,
-		DocactionsComponent
+		DocactionsComponent,
+		DocBreadcrumbsComponent,
 	],
 	entryComponents: [
 		DocEditPageComponent

@@ -88,3 +88,8 @@ html {
     }
   }
 }
+
+.doc-new-container .mat-card-content,
+.doc-edit-container .mat-card-content {
+  padding-top: 20px;
+}
