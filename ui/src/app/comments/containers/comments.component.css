@@ -4,9 +4,9 @@
 }
 
 h3 {
-	padding: 24px 24px 0 24px;
 	font-size: 1.5em;
 	font-weight: bold;
+	margin: 1.5em 0 0 20px;
 }
 
 .reply-card {
@@ -32,5 +32,19 @@ h3 {
 .mat-drawer {
 	padding-bottom: 30px;
 }
+
+.comments-header {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: row;
+}
+
+.close-icon {
+  margin-left: auto;
+	margin-right: 12px;
+  margin-top: 12px;
+  z-index: 2;
+}
+
 
 

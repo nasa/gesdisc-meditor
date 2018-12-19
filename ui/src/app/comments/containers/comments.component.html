@@ -1,18 +1,19 @@
-<h3>Comments</h3>
-  <div class="control-panel" fxLayout="row" fxLayoutAlign="start">
-    <button fxFlex="45" type="submit" mat-raised-button (click)="toggleForm()" *ngIf="!showForm" class="new-comment-button">
-      <mat-icon>comment</mat-icon>
-      New comment
-    </button>
-    <button fxFlex="20" mat-raised-button (click)="close()" class="close-sidenav-button">
-      <mat-icon>close</mat-icon>
-      Close
-    </button>
-    <button fxFlex="35" mat-raised-button (click)="toggleResolvedComments()" class="resolved-sidenav-button">
-      <mat-icon>{{ showResolved ? 'visibility_off' : 'visibility' }}</mat-icon>
-      {{ showResolved ? 'Hide resolved': 'Show all'}}
-    </button>
-  </div>
+<div class="comments-header">
+  <h3>Comments</h3>
+  <button mat-icon-button class="close-icon" (click)="close()">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+<div class="control-panel" fxLayout="row" fxLayoutAlign="start">
+  <button fxFlex="35" type="submit" mat-raised-button (click)="toggleForm()" *ngIf="!showForm" class="new-comment-button">
+    <mat-icon>comment</mat-icon>
+    New comment
+  </button>
+  <button fxFlex="35" mat-raised-button (click)="toggleResolvedComments()" class="resolved-sidenav-button">
+    <mat-icon>{{ showResolved ? 'visibility_off' : 'visibility' }}</mat-icon>
+    {{ showResolved ? 'Hide resolved': 'Show all'}}
+  </button>
+</div>
 <mat-card class="reply-card" *ngIf="showForm">
   <mat-card-content>
     <mat-form-field class="reply-form-field">
