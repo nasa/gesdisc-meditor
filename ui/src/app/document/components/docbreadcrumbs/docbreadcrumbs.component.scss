@@ -1,0 +1,29 @@
+@import "~main-theme.scss";
+
+.breadcrumbs {
+    padding-bottom: 30px;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    display: inline-block;
+    line-height: 24px;
+    padding-right: 20px;
+    position: relative;
+
+    &:not(:last-child):after {
+        @extend .material-icons;
+
+        content: 'chevron_right';
+        display: block;
+        font-size: 18px;
+        position: absolute;
+        top: 4px;
+        right: 0;
+    }
+}
