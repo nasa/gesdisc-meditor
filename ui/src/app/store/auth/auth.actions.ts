@@ -2,6 +2,10 @@ export class OpenLoginDialog {
 	static readonly type = '[Auth] Open Login Dialog';
 }
 
+export class OpenSessionTimeoutDialog {
+	static readonly type = '[Auth] Open Session Timeout Dialog'
+}
+
 export class GetUser {
 	static readonly type = '[Auth] Get User';
 
