@@ -6,6 +6,7 @@ import { Document, DocHistory, Model, Comment, Edge } from 'app/service/model/mo
 import { Observable } from 'rxjs/Observable';
 import {
 	UpdateCurrentDocument,
+	GetDocument,
 	GetCurrentDocumentHistory,
 	GetCurrentDocumentVersion,
   GetCurrentDocumentComments,
@@ -80,6 +81,10 @@ export class DocEditPageComponent implements OnInit {
 	}
 
 	onSubmitDocumentSuccess(document: any) {
+		let model = document['x-meditor'].model
+		let title = document.title
+
+		this.store.dispatch(new GetDocument({ model, title }));
 		this.store.dispatch(new SuccessNotificationOpen('Successfully updated document'));
 	}
 
