@@ -55,6 +55,7 @@
             <mat-chip-list class="state-chip">
               <mat-chip>{{(document$ | async)['x-meditor'].state}}</mat-chip>
             </mat-chip-list>
+            <span class="version-info">(edited by {{(document$ | async)['x-meditor'].modifiedBy}} on {{(document$ | async)['x-meditor'].modifiedOn | date:'medium'}})</span>
 					</div>							
 					<med-document-edit 
 						[class.readonly-doc]="!(userPrivileges$ | async).includes('edit')"
