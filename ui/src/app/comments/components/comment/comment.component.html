@@ -13,11 +13,11 @@
 		</mat-card-content>
 
 		<mat-card-actions *ngIf="!comment.resolved">
-			<button mat-icon-button class="reply-button"
+			<button mat-icon-button matTooltip="Reply" class="reply-button"
 				(click)="openReplyForm(comment._id)">
 				<mat-icon>reply</mat-icon>
 			</button>
-			<button mat-icon-button class="resolve-button"
+			<button mat-icon-button matTooltip="Resolve" class="resolve-button"
         *ngIf="comment.parentId == 'root'"
 				(click)="resolve(comment._id)">
 				<mat-icon>done</mat-icon>
@@ -31,10 +31,10 @@
       </mat-form-field>
      </mat-card-content>
 	  <mat-card-actions>
-	    <button mat-icon-button class="action-button" (click)="submitComment(comment._id, comment.parentId)">
+	    <button mat-icon-button matTooltip="Send" class="action-button" (click)="submitComment(comment._id, comment.parentId)">
 	      <mat-icon>send</mat-icon>
 	    </button>
-	    <button mat-icon-button class="action-button" (click)="closeReply(comment._id)">
+	    <button mat-icon-button matTooltip="Cancel" class="action-button" (click)="closeReply(comment._id)">
 	      <mat-icon>cancel</mat-icon>
 	    </button>
 	  </mat-card-actions>
