@@ -8,6 +8,7 @@ import { tap } from 'rxjs/operators';
 import * as _ from 'underscore';
 
 import { LoginDialog } from 'app/auth/components/login-dialog/login-dialog.component';
+import { SessionTimeoutDialog } from 'app/auth/components/session-timeout-dialog/session-timeout-dialog.component';
 import { WorkflowState } from 'app/store/workflow/workflow.state';
 import { ModelState } from 'app/store/model/model.state';
 import { Router } from '@angular/router';
@@ -39,9 +40,11 @@ export class AuthState {
 		@Selector() static user(state: AuthStateModel): any { return state.user; }
 		@Selector() static userPrivileges(state: AuthStateModel): any { return state.privileges; }
 
+		sessionTimeoutDialogRef: any
+
 		constructor(
 			private store: Store,
-      private router: Router,
+      		private router: Router,
 			private service: DefaultService,
 			private dialog: MatDialog,
 			private ngZone: NgZone ) {}
@@ -98,6 +101,18 @@ export class AuthState {
 					});
 				});
 			}
+		
+		@Action(actions.OpenSessionTimeoutDialog)
+		openSessionTimeoutDialog() {
+			if (this.sessionTimeoutDialogRef) return
+
+			this.ngZone.run(() => {
+				this.sessionTimeoutDialogRef = this.dialog.open(SessionTimeoutDialog, {
+					width: '400px',
+					position: { top: '200px' },
+				});
+			});
+		}
 
 		getApiUrl() {
 			const basePath = environment.API_BASE_PATH;
