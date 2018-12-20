@@ -1,0 +1,19 @@
+<div class="breadcrumbs">
+    <ul>
+        <li>
+            <a (click)="navigate('/')" href="javascript:;">
+                Home
+            </a>
+        </li>
+
+        <li>
+            <a (click)="navigate('/search', { model: model.name })" href="javascript:;">
+                {{ model.name }}
+            </a>
+        </li>
+
+        <li>
+            {{ document ? document.doc[model.titleProperty] : 'New' }}
+        </li>
+    </ul>
+</div>
