@@ -16,7 +16,8 @@ import {
 	MatBadgeModule,
 	MatDialogModule,
 	MatChipsModule,
-  MatMenuModule
+  MatMenuModule,
+  MatTooltipModule
 } from '@angular/material';
 
 @NgModule({
@@ -36,7 +37,8 @@ import {
 		MatBadgeModule,
 		MatDialogModule,
 		MatChipsModule,
-    MatMenuModule
+    MatMenuModule,
+    MatTooltipModule
 	],
 	exports: [
 		MatInputModule,
@@ -54,7 +56,8 @@ import {
 		MatBadgeModule,
 		MatDialogModule,
 		MatChipsModule,
-    MatMenuModule
+    MatMenuModule,
+    MatTooltipModule
 	],
 })
 export class MaterialModule {}
