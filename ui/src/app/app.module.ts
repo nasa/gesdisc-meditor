@@ -51,9 +51,9 @@ const routeResolvers = [ DocumentResolver, ModelResolver, DocEditResolver, Model
 			NotificationState,
 			AuthState,
 			WorkflowState ]),
-		NgxsRouterPluginModule.forRoot(),
-		NgxsReduxDevtoolsPluginModule.forRoot(),
-		ApiModule
+      NgxsRouterPluginModule.forRoot(),
+      NgxsReduxDevtoolsPluginModule.forRoot(),
+      ApiModule
 	],
 	providers: [
 		{ provide: BASE_PATH, useValue: environment.API_BASE_PATH },

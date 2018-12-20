@@ -41,4 +41,15 @@
   position: fixed !important;
 }
 
+.state-chip {
+	display: inline-flex;
+  margin-left: 1em;
+}
+
+.version-info {
+  font-style: italic;
+  margin-left: 1em;
+  margin-top: auto;
+}
+
 
