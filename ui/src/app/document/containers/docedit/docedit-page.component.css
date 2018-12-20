@@ -32,7 +32,7 @@
 
 
 .mat-drawer:not(.mat-drawer-side) {
-  position: fixed;
+  position: fixed !important;
   margin-top: 102px;
   height: 80%;
 }
