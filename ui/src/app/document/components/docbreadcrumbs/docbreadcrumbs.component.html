@@ -1,13 +1,13 @@
 <div class="breadcrumbs">
     <ul>
         <li>
-            <a (click)="navigate('/')" href="javascript:;">
+            <a href="#/">
                 Home
             </a>
         </li>
 
         <li>
-            <a (click)="navigate('/search', { model: model.name })" href="javascript:;">
+            <a href="#/search?model={{model.name}}">
                 {{ model.name }}
             </a>
         </li>
