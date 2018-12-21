@@ -36,7 +36,7 @@
     "@types/underscore": "^1.8.9",
     "angular-font-awesome": "^3.1.2",
     "angular-froala-wysiwyg": "^2.8.0",
-    "angular2-json-schema-form": "git+https://git.earthdata.nasa.gov/scm/meditor/ngx-jsonsfe.git#angular-6-dist",
+    "angular2-json-schema-form": "git+https://git.earthdata.nasa.gov/scm/meditor/ngx-jsonsfe.git#angular-7-dist",
     "classlist.js": "^1.1.20150312",
     "core-js": "^2.5.7",
     "dotenv": "^5.0.1",
