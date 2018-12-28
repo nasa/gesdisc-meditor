@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { environment } from 'environments/environment';
 
 @Component({
 	selector: 'med-toolbar',
@@ -17,10 +18,10 @@ import { Component } from '@angular/core';
           <mat-icon>feedback</mat-icon>
           Feedback
         </a>
-        <button mat-menu-item>
+        <a mat-menu-item [href]="helpDocumentLocation" target="_blank">
           <mat-icon>help</mat-icon>
           Help
-        </button>
+        </a>
       </mat-menu>
       <button mat-icon-button [matMenuTriggerFor]="appMenu" fxHide.gt-sm>
         <mat-icon>more_vert</mat-icon>
@@ -35,14 +36,17 @@ import { Component } from '@angular/core';
           <mat-icon>feedback</mat-icon>
           Feedback
         </a>
-        <button mat-button class="tb-button">
+        <a mat-button class="tb-button" [href]="helpDocumentLocation" target="_blank">
           <mat-icon>help</mat-icon>
           Help
-        </button>
+        </a>
       </div>
 		</mat-toolbar>
 	`,
 	styleUrls: ['toolbar.component.scss']
 })
 export class ToolbarComponent {
+
+  helpDocumentLocation = environment.HELP_DOCUMENT_LOCATION
+
 }
