@@ -8,5 +8,6 @@ import { version } from './version'
 export const environment = {
   production: false,
   API_BASE_PATH: 'http://localhost:8081/meditor/api',
+  HELP_DOCUMENT_LOCATION: '/assets/mEditorhelp.html',
   VERSION: version,
 };
