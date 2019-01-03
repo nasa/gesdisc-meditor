@@ -1,9 +1,12 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+
+import * as _ from 'underscore';
 
 @Component({
 	selector: 'med-document-edit',
 	templateUrl: './document-edit.component.html',
-	styleUrls: ['./document-edit.component.css']
+	styleUrls: ['./document-edit.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class DocumentEditComponent implements OnInit {
@@ -18,6 +21,9 @@ export class DocumentEditComponent implements OnInit {
 		if (document.layout) {
 			const layoutString = document.layout.replace('\'', '');
 			this.layout = JSON.parse(layoutString);
+      if (this.layout && this.layout.findIndex(item => item.type === 'section') > -1) {
+        this.expandAll = true;
+      }
 		}
 
 		this.data = document.doc;
@@ -41,7 +47,7 @@ export class DocumentEditComponent implements OnInit {
 	liveFormData = {};
 	formValidationErrors = {};
 	formIsValid: boolean;
-
+  expandAll: boolean;
 
 	ngOnInit() {
 
@@ -58,5 +64,16 @@ export class DocumentEditComponent implements OnInit {
 	validationErrors(data: any): void {
 		this.formValidationErrors = data;
 	}
+
+  toggleAllSections() {
+    this.expandAll = !this.expandAll;
+    let newlayout = this.layout.slice(0);
+    newlayout.forEach(item => { 
+      if (item.type === 'section' && item.expandable === true) { 
+        item.expanded = !this.expandAll; 
+      } 
+    });
+    this.layout = newlayout;
+  }
 
 }

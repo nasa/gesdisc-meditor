@@ -5,6 +5,7 @@
 
 .comment-sidenav-container {
 	background-color: white;
+  overflow: visible;
 }
 
 .comment-sidenav {
