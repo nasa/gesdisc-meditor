@@ -11,6 +11,7 @@
             <med-doc-history
               [dochistory]="history"
               [selectedHistory]= "version$ | async"
+              (closeSidenav)="sidenav.close()"
               (loadVersion)="loadVersion($event)">
             </med-doc-history>
           </div>
