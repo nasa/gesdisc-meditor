@@ -22,6 +22,7 @@ export class DocumentEditComponent implements OnInit {
 			const layoutString = document.layout.replace('\'', '');
 			this.layout = JSON.parse(layoutString);
       if (this.layout && this.layout.findIndex(item => item.type === 'section') > -1) {
+        this.showExpandButton = true;
         this.expandAll = true;
       }
 		}
@@ -48,6 +49,7 @@ export class DocumentEditComponent implements OnInit {
 	formValidationErrors = {};
 	formIsValid: boolean;
   expandAll: boolean;
+  showExpandButton: boolean;
 
 	ngOnInit() {
 
