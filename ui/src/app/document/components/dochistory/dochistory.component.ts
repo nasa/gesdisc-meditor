@@ -11,10 +11,15 @@ export class DochistoryComponent implements OnInit {
 	@Input() dochistory: DocHistory[];
 	@Input() selectedHistory: string;
 	@Output() loadVersion = new EventEmitter<string>();
+  @Output() closeSidenav: EventEmitter<any> = new EventEmitter();
 
   constructor() { }
 
   ngOnInit() {
+  }
+
+  close() {
+    this.closeSidenav.emit();
   }
 
 }
