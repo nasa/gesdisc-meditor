@@ -1,7 +1,7 @@
 <div>
 	<a 
-		(click)="loadDocument.emit({title: result.title, state: result['x-meditor'].state})" 
-		href="#/document/edit?model={{model.name}}&title={{result.title}}"
+		(click)="triggerLoadDocument($event)" 
+		href="#/document/edit?model={{model.name}}&title={{result.title | encodeURIComponent}}"
 	>
 		{{result.title | bcEllipsis: 100}}
 	</a>
