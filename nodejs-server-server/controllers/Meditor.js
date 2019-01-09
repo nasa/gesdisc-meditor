@@ -703,13 +703,13 @@ function resolveCommentWithId(params) {
   });
 }
 
-function editCommentWithId(params) {
+function editCommentWithId(params, uid) {
   return new Promise(function(resolve, reject) {
     MongoClient.connect(MongoUrl, function(err, db) {
       if (err) throw err;
       var dbo = db.db(DbName);
       var objectId = new ObjectID(params.id);
-      dbo.collection("Comments").updateOne({_id: objectId}, {$set: {text: params.text, lastEdited: (new Date()).toISOString()}}, function(err, res) {
+      dbo.collection("Comments").updateOne({ $and: [{_id: objectId}, {userUid: uid}]}, {$set: {text: params.text, lastEdited: (new Date()).toISOString()}}, function(err, res) {
         if (err){
           console.log(err);
           throw err;
@@ -750,7 +750,8 @@ module.exports.resolveComment = function resolveComment(req, res, next) {
 //Exported method to edit comment
 module.exports.editComment = function editComment(req, res, next) {
   var params = getSwaggerParams(req);
-  editCommentWithId(params)
+  var uid = req.user.uid;
+  editCommentWithId(params, uid)
   .then(function (response) {
     utils.writeJson(res, {code:200, message:response}, 200);
   })
