@@ -18,13 +18,15 @@
         </ng-container>
         <ng-container *ngIf="showComments">
           <div *ngIf="comments$ | async as comments">
-            <med-comments
-              [comments]="comments"
-              [versionFilter]="versionFilter"
-              (closeSidenav)="sidenav.close()"
-              (resolveComment)="resolveComment($event)"
-              (submitComment)="submitComment($event)">
-            </med-comments>
+              <med-comments
+                [comments]="comments"
+                [versionFilter]="versionFilter"
+                [user] = "user$ | async"
+                (closeSidenav)="sidenav.close()"
+                (resolveComment)="resolveComment($event)"
+                (submitComment)="submitComment($event)"
+                (editComment)="editComment($event)">
+              </med-comments>
           </div>
         </ng-container>
 			</mat-drawer>

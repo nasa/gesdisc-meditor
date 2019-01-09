@@ -1,5 +1,6 @@
 import { Component, ChangeDetectionStrategy, OnInit, Input, EventEmitter, Output } from '@angular/core';
-import { Comment } from 'app/service/model/comment';
+import { Comment, User } from 'app/service/model/models';
+import { UseExistingWebDriver } from 'protractor/built/driverProviders';
 
 @Component({
 	selector: 'med-comments',
@@ -11,18 +12,12 @@ export class CommentsComponent implements OnInit {
 
   @Input() comments: Comment[];
   @Input() versionFilter: Date;
+  @Input() user: User;
   @Output() closeSidenav: EventEmitter<any> = new EventEmitter();
   @Output() resolveComment: EventEmitter<string> = new EventEmitter();
+  @Output() editComment: EventEmitter<any> = new EventEmitter();
   @Output() submitComment: EventEmitter<any> = new EventEmitter();
 	showResolved: boolean = false;
-
-  // @Input()
-	// set versionFilter(versionFilter: Date) {
-  //   console.log(this.versionFilter, this.comments);
-	// 	if(this.comments) this.comments.filter(c => { new Date(c.createdOn) <= versionFilter });
-	// };
-
-
 	showForm: boolean = false;
   commentText: string = '';
 

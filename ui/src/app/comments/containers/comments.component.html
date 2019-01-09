@@ -32,9 +32,11 @@
 <med-comment
   [comments]="comments"
   [versionFilter]="versionFilter"
+  [user] = "user"
   [tree]="true"
   parentId="root"
   [showResolved]="showResolved"
   (resolveComment)="resolveComment.emit($event)"
-  (replyComment)="submitNewComment($event.text, $event.parentId)">
+  (replyComment)="submitNewComment($event.text, $event.parentId)"
+  (editComment)="editComment.emit($event)">
 </med-comment>
