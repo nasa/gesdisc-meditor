@@ -64,7 +64,8 @@
 						[class.readonly-doc]="!(userPrivileges$ | async).includes('edit')"
 						[document]="document$ | async"
 						(liveData)="liveData($event)"
-						(isValid)="isValid($event)">
+						(isValid)="isValid($event)"
+						(isDirty)="isDirty($event)">
 					</med-document-edit>
           <button mat-raised-button 
             *ngIf="(userPrivileges$ | async).includes('edit')" 

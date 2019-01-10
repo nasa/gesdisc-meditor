@@ -1,6 +1,5 @@
-import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
-
-import * as _ from 'underscore';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import isMatch from 'lodash/isMatch' 		// lodash/isMatch does deep comparison, underscore/isMatch is shallow
 
 @Component({
 	selector: 'med-document-edit',
@@ -9,7 +8,7 @@ import * as _ from 'underscore';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class DocumentEditComponent implements OnInit {
+export class DocumentEditComponent {
 
 	@Input()
 	set document(document: any) {
@@ -32,6 +31,7 @@ export class DocumentEditComponent implements OnInit {
 
 	@Output() liveData = new EventEmitter<object>();
 	@Output() isValid = new EventEmitter<boolean>();
+	@Output() isDirty = new EventEmitter<boolean>();
 
 	selectedFramework = "material-design";
 	jsonFormOptions = {
@@ -45,17 +45,13 @@ export class DocumentEditComponent implements OnInit {
 	};
 
 	submittedFormData = {};
-	liveFormData = {};
 	formValidationErrors = {};
 	formIsValid: boolean;
   expandAll: boolean;
-  showExpandButton: boolean;
-
-	ngOnInit() {
-
-	}
+	showExpandButton: boolean;
 
 	onChanges(data: any) {
+		this.isDirty.emit(!isMatch(this.data, data));
 		this.liveData.emit(data);
 	}
 
