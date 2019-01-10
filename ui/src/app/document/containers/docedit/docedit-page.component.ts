@@ -71,7 +71,6 @@ export class DocEditPageComponent implements OnInit {
 				});
 			}
 		});
-    // this.store.dispatch(new GetCurrentDocumentComments());
 	}
 
 	submitDocument(document: any) {
