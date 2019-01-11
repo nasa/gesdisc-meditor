@@ -43,6 +43,7 @@
     "font-awesome": "^4.7.0",
     "hammerjs": "^2.0.8",
     "http-server": "^0.11.1",
+    "lodash.ismatch": "^4.4.0",
     "ngx-pagination": "^3.2.1",
     "node-sass": "^4.10.0",
     "nodemon": "^1.18.6",

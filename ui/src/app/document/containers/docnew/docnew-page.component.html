@@ -15,7 +15,8 @@
 			<med-document-edit
 				[document]="model$ | async"
 				(liveData)="liveData($event)"
-				(isValid)="isValid($event)">
+				(isValid)="isValid($event)"
+				(isDirty)="isDirty($event)">
 			</med-document-edit>
 			<button mat-raised-button 
         *ngIf="(userPrivileges$ | async).includes('edit')" 

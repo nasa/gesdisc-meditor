@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { Store, Select } from '@ngxs/store';
 import { Model } from 'app/service/model/models';
@@ -6,13 +6,14 @@ import { ModelState, AuthState } from 'app/store';
 import { CreateDocument } from 'app/store/document/document.state';
 import { Navigate } from '@ngxs/router-plugin';
 import { SuccessNotificationOpen, ErrorNotificationOpen } from 'app/store/notification/notification.state';
+import { ComponentCanDeactivate } from 'app/shared/guards/pending-changes.guard';
 
 @Component({
 	selector: 'med-docnew-page',
 	templateUrl: './docnew-page.component.html',
 	styleUrls: ['./docnew-page.component.css']
 })
-export class DocNewPageComponent implements OnInit {
+export class DocNewPageComponent implements OnInit, ComponentCanDeactivate {
 
 	@Select(ModelState.currentModel) model$: Observable<Model>;
 	@Select(AuthState.userPrivileges) userPrivileges$: Observable<string[]>;
@@ -21,6 +22,7 @@ export class DocNewPageComponent implements OnInit {
 	titleProperty: string;
 	liveFormData: Document;
 	isFormValid: boolean;
+	dirty: boolean = false;
 
 	constructor(private store: Store) {}
 
@@ -29,6 +31,11 @@ export class DocNewPageComponent implements OnInit {
 			this.modelName = model.name;
 			this.titleProperty = model.titleProperty;
 		});
+	}
+
+	@HostListener('window:beforeunload')
+	canDeactivate(): Observable<boolean> | boolean {
+		return !this.dirty;
 	}
 
 	createDocument(document: any) {
@@ -53,6 +60,10 @@ export class DocNewPageComponent implements OnInit {
 
 	isValid(event: boolean) {
 		this.isFormValid = event;
+	}
+
+	isDirty(event: boolean) {
+		this.dirty = event;
 	}
 
 	liveData(event: Document) {
