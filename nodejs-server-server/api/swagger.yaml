@@ -458,6 +458,45 @@ paths:
             $ref: "#/definitions/error"
       security: []
       x-swagger-router-controller: "Meditor"
+  /editComment:
+    post:
+      summary: "Edit comment"
+      description: "Edit comment"
+      operationId: "editComment"
+      parameters:
+      - name: "id"
+        in: "query"
+        description: "Comment id"
+        required: true
+        type: "string"
+      - name: "text"
+        in: "query"
+        description: "New text"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Successful response"
+          schema:
+            $ref: "#/definitions/success"
+        400:
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/error"
+        422:
+          description: "Invalid syntax"
+          schema:
+            $ref: "#/definitions/error"
+        500:
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/error"
+        503:
+          description: "Service not available"
+          schema:
+            $ref: "#/definitions/error"
+      security: []
+      x-swagger-router-controller: "Meditor"
   /login:
     get:
       summary: "Login"
@@ -793,6 +832,8 @@ definitions:
       documentId:
         type: "string"
       model:
+        type: "string"
+      lastEdited:
         type: "string"
   model_xmeditor:
     properties:

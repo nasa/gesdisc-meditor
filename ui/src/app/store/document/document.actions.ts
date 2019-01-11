@@ -49,6 +49,12 @@ export class ResolveComment {
   constructor (public payload: string) {}
 }
 
+export class EditComment {
+	static readonly type = '[Document] Edit Comment by ID';
+
+  constructor (public payload: { id: string, text: string }) {}
+}
+
 export class SubmitComment {
 	static readonly type = '[Document] Submit Comment';
 

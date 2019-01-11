@@ -22,4 +22,5 @@ export interface Comment {
     model: string;
     version: string;
     userUid: string;
+    lastEdited: string;
 }

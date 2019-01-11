@@ -2,7 +2,7 @@ import { Component, ViewChild, OnInit, HostListener } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Store, Select } from '@ngxs/store';
 import { ModelState } from 'app/store/model/model.state';
-import { Document, DocHistory, Model, Comment, Edge } from 'app/service/model/models';
+import { Document, DocHistory, Model, Comment, Edge, User } from 'app/service/model/models';
 import { Observable } from 'rxjs/Observable';
 import {
 	UpdateCurrentDocument,
@@ -11,6 +11,8 @@ import {
 	GetCurrentDocumentVersion,
   GetCurrentDocumentComments,
   ResolveComment,
+  SubmitComment,
+  EditComment,
 	UpdateDocumentState
 } from 'app/store/document/document.state';
 import {
@@ -20,7 +22,6 @@ import { Navigate } from '@ngxs/router-plugin';
 import { WorkflowState, AuthState, DocumentState } from 'app/store';
 import { SetInitialState } from 'app/store/workflow/workflow.state';
 import { SuccessNotificationOpen, ErrorNotificationOpen } from 'app/store/notification/notification.state';
-import { SubmitComment } from '../../../store/document/document.state';
 import { ComponentCanDeactivate } from 'app/shared/guards/pending-changes.guard';
 
 @Component({
@@ -40,6 +41,7 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
 	@Select(WorkflowState.currentEdges) edges$: Observable<Edge[]>;
 	@Select(WorkflowState.currentWorkflow) workflow$: Observable<Edge>;
 	@Select(AuthState.userPrivileges) userPrivileges$: Observable<string[]>;
+  @Select(AuthState.user) user$: Observable<User>;
 
 	@ViewChild('sidenav') sidenav: MatSidenav;
 
@@ -69,7 +71,6 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
 				});
 			}
 		});
-    // this.store.dispatch(new GetCurrentDocumentComments());
 	}
 
 	@HostListener('window:beforeunload')
@@ -162,6 +163,10 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
 
   resolveComment(id: string) {
     this.store.dispatch(new ResolveComment(id));
+  }
+
+  editComment(editedComment: any) {
+    this.store.dispatch(new EditComment(editedComment));
   }
 
   submitComment(commentData: any) {

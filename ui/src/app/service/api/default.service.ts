@@ -911,4 +911,57 @@ export class DefaultService {
         );
     }
 
+    /**
+     * Edit comment
+     * Edit comment
+     * @param id Comment id
+     * @param text Comment text
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public editComment(id: string, text: string, observe?: 'body', reportProgress?: boolean): Observable<Success>;
+    public editComment(id: string, text: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Success>>;
+    public editComment(id: string, text: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Success>>;
+    public editComment(id: string, text: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling editComment.');
+        }
+        if (text === null || text === undefined) {
+            throw new Error('Required parameter text was null or undefined when calling resolveComment.');
+        }
+
+        let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
+        if (id !== undefined) {
+            queryParameters = queryParameters.set('id', <any>id);
+        }
+        if (text !== undefined) {
+            queryParameters = queryParameters.set('text', <any>text);
+        }
+
+        let headers = this.defaultHeaders;
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+        ];
+        let httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set("Accept", httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        let consumes: string[] = [
+        ];
+
+        return this.httpClient.post<Success>(`${this.basePath}/editComment`,
+            null,
+            {
+                params: queryParameters,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
 }

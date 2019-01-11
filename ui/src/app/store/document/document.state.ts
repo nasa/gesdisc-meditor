@@ -116,7 +116,7 @@ export class DocumentState {
 		}
 
     @Action(actions.ResolveComment)
-		resolveComment({ patchState, getState, dispatch }: StateContext<DocumentStateModel>, { payload }: actions.ResolveComment) {
+		resolveComment({ dispatch }: StateContext<DocumentStateModel>, { payload }: actions.ResolveComment) {
         
         let user = this.store.selectSnapshot(AuthState.user);
         let resolvedBy = user.uid;
@@ -127,6 +127,16 @@ export class DocumentState {
               dispatch(new actions.GetCurrentDocumentComments())
             }),
           );
+		}
+
+    @Action(actions.EditComment)
+		editComment({ dispatch }: StateContext<DocumentStateModel>, { payload }: actions.EditComment) {
+      return this.service.editComment(payload.id, payload.text)
+        .pipe(
+          tap(() => { 
+            dispatch(new actions.GetCurrentDocumentComments())
+          }),
+        );
 		}
 
     @Action(actions.SubmitComment)

@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ElementRef, QueryList, ViewChildren } from '@angular/core';
-import { Comment } from 'app/service/model/comment';
+import { Comment, User } from 'app/service/model/models';
 
 import * as _ from 'underscore';
 
@@ -18,6 +18,7 @@ export class CommentComponent implements OnInit {
 	_showResolved: boolean;
   _replyTo: boolean;
   _versionFilter: Date;
+  _user: User;
 	commentText: string;
 
 	@Input()
@@ -49,8 +50,14 @@ export class CommentComponent implements OnInit {
 		this._parentId = parentId;
 	}
 
+   @Input()
+	set user(user: User) {
+		this._user = user;
+	}
+
 	@Output() resolveComment = new EventEmitter<string>();
 	@Output() replyComment = new EventEmitter<Object>();
+  @Output() editComment = new EventEmitter<Object>();
 
 
   ngOnInit() {
@@ -73,8 +80,18 @@ export class CommentComponent implements OnInit {
     }
   }
 
+  openEditForm(_id: string, text: string) {
+    _.find(this.extComments, function(comment) { return comment._id == _id }).edit = true;
+    this.commentText = text;
+  }
+
   closeReply(_id: string) {
   	_.find(this.extComments, function(comment) { return comment._id == _id }).replyTo = false;
+  }
+
+  closeEditForm(_id: string) {
+  	_.find(this.extComments, function(comment) { return comment._id == _id }).edit = false;
+    this.commentText = '';
   }
 
   treeify(list: Array<any>, idAttr: string, parentAttr: string, childrenAttr: string) {
@@ -115,6 +132,15 @@ export class CommentComponent implements OnInit {
 			'parentId': event.parentId
 		};
 		this.replyComment.emit(commentData);
+	}
+
+  sendEditComment(id: string) {
+		let commentData = {
+			'id': id,
+			'text': this.commentText
+		};
+		this.editComment.emit(commentData);
+    this.closeEditForm(id);
 	}
 
 }

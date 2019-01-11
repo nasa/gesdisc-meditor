@@ -36,8 +36,15 @@ med-comment > .comments-container > .comment-card {
   margin-top: 0;
 }
 
-.reply-form-field {
+.reply-form-field,
+.edit-form-field {
 	width: 100%;
+}
+
+.last-edited {
+  font-size: 0.8em;
+  color: grey;
+  float: right;
 }
 
 .comment-created-by {
