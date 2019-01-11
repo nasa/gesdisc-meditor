@@ -23,6 +23,7 @@ import { WorkflowState, AuthState, DocumentState } from 'app/store';
 import { SetInitialState } from 'app/store/workflow/workflow.state';
 import { SuccessNotificationOpen, ErrorNotificationOpen } from 'app/store/notification/notification.state';
 import { ComponentCanDeactivate } from 'app/shared/guards/pending-changes.guard';
+
 @Component({
 	selector: 'med-docedit-page',
 	templateUrl: './docedit-page.component.html',
