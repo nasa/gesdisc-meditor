@@ -22,6 +22,8 @@ import { CommentsModule } from '../comments/comments.module';
 import { routes } from './document.routing';
 import { DocactionsComponent } from './components/docactions/docactions.component';
 
+import { PendingChangesGuard } from 'app/shared/guards/pending-changes.guard';
+
 @NgModule({
 	imports: [
 		CommonModule,
@@ -53,7 +55,10 @@ import { DocactionsComponent } from './components/docactions/docactions.componen
 	],
 	entryComponents: [
 		DocEditPageComponent
-	]
+	],
+	providers: [
+		PendingChangesGuard,
+	],
 })
 
 export class DocumentModule {

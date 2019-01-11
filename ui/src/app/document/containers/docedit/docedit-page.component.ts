@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, ViewChild, OnInit, HostListener } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Store, Select } from '@ngxs/store';
 import { ModelState } from 'app/store/model/model.state';
@@ -22,15 +22,13 @@ import { Navigate } from '@ngxs/router-plugin';
 import { WorkflowState, AuthState, DocumentState } from 'app/store';
 import { SetInitialState } from 'app/store/workflow/workflow.state';
 import { SuccessNotificationOpen, ErrorNotificationOpen } from 'app/store/notification/notification.state';
-
-import * as _ from 'underscore';
-
+import { ComponentCanDeactivate } from 'app/shared/guards/pending-changes.guard';
 @Component({
 	selector: 'med-docedit-page',
 	templateUrl: './docedit-page.component.html',
 	styleUrls: ['./docedit-page.component.css'],
 })
-export class DocEditPageComponent implements OnInit {
+export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
 
 	@Select(ModelState.currentModel) model$: Observable<Model>;
 	@Select(DocumentState.currentDocument) document$: Observable<Document>;
@@ -53,7 +51,8 @@ export class DocEditPageComponent implements OnInit {
 	liveFormData: Document;
 	isFormValid: boolean;
   showHistory: boolean;
-  showComments: boolean;
+	showComments: boolean;
+	dirty: boolean = false;
 
 	constructor(private store: Store) {}
 
@@ -71,6 +70,11 @@ export class DocEditPageComponent implements OnInit {
 				});
 			}
 		});
+	}
+
+	@HostListener('window:beforeunload')
+	canDeactivate(): Observable<boolean> | boolean {
+		return !this.dirty;
 	}
 
 	submitDocument(document: any) {
@@ -142,6 +146,10 @@ export class DocEditPageComponent implements OnInit {
 
 	isValid(event: boolean) {
 		this.isFormValid = event;
+	}
+
+	isDirty(event: boolean) {
+		this.dirty = event;
 	}
 
 	liveData(event: Document) {
