@@ -1,6 +1,5 @@
 import { Component, ChangeDetectionStrategy, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { Comment, User } from 'app/service/model/models';
-import { UseExistingWebDriver } from 'protractor/built/driverProviders';
 
 @Component({
 	selector: 'med-comments',
