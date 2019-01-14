@@ -106,7 +106,7 @@ services:
 
   monitor:
     container_name: meditor_monitor
-    image: portainer/portainer
+    image: portainer/portainer:1.20.0
     command: -H unix:///var/run/docker.sock
     ports:
       - "9002:9000"
@@ -115,7 +115,7 @@ services:
       - monitor_data:/data
 
   agent:
-    image: portainer/agent
+    image: portainer/agent:1.1.2
     environment:
       AGENT_CLUSTER_ADDR: tasks.agent
     volumes:
