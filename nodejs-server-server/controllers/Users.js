@@ -128,9 +128,6 @@ passport.deserializeUser(function (userId, done) {
   });
 });
 
-console.log('Using auth config ', AUTH_CONFIG)
-console.log('With env config ', ENV_CONFIG)
-
 passport.use(new OAuth2Strategy({
   authorizationURL: AUTH_PROTOCOL + '//' + AUTH_CONFIG.HOST + '/oauth/authorize',
   tokenURL: AUTH_PROTOCOL + '//' + AUTH_CONFIG.HOST + '/oauth/token',
@@ -265,8 +262,8 @@ module.exports.init = function (app) {
   }));
   app.use(cookieParser());
   app.use(session({
-    name: _(20).range().shuffle().value().join(''),
-    secret: Date.now().toString(32) + Math.random().toString(32),
+    name: '__mEditor',
+    secret: AUTH_CONFIG.CLIENT_SECRET,
     resave: false,
     /* do not automatically write to the session store, even if the session was never modified during the request */
     saveUninitialized: true,
