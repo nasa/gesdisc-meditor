@@ -12,7 +12,7 @@ services:
 
   proxy:
     container_name: meditor_proxy
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_proxy:0.26.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_proxy:0.27.0
     restart: on-failure
     ports:
       - "80:8080"
@@ -40,7 +40,7 @@ services:
  
   server:
     container_name: meditor_server
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_server:0.27.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_server:0.28.0
     depends_on:
       - database
     restart: on-failure
