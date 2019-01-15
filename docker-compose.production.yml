@@ -5,6 +5,7 @@ services:
   status:
     container_name: meditor_status
     image: dev.gesdisc.eosdis.nasa.gov:443/meditor_status:0.26.0
+    restart: on-failure
     environment:
       - APP_URL=${APP_URL}
       - APP_UI_URL=${APP_UI_URL}
@@ -46,6 +47,7 @@ services:
     restart: on-failure
     environment:
       - NODE_ENV=${NODE_ENV}
+      - NODE_OPTIONS=--max_old_space_size=4096
       - APP_URL=${APP_URL}
       - APP_UI_URL=${APP_UI_URL}
       - MONGOURL=mongodb://meditor_database:27017
