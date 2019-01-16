@@ -41,7 +41,7 @@ services:
  
   server:
     container_name: meditor_server
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_server:0.28.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_server:0.29.0
     depends_on:
       - database
     restart: on-failure
