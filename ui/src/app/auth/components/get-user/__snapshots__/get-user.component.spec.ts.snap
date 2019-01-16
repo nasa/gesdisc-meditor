@@ -11,7 +11,7 @@ exports[`GetUserComponent should create 1`] = `
     fxlayoutalign="center center"
   >
     <h3>
-      Please wait while we redirecting you back to requested page!
+      Please wait while we redirect you back to the requested page!
     </h3>
   </div>
 </med-get-user>

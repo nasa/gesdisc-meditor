@@ -1,7 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ToolbarComponent should compile toolbar 1`] = `
-<med-toolbar>
+<med-toolbar
+  helpDocumentLocation={[Function String]}
+>
   <mat-toolbar
     class="med-toolbar mat-toolbar mat-toolbar-single-row"
   >
@@ -14,47 +16,109 @@ exports[`ToolbarComponent should compile toolbar 1`] = `
       class="spacer"
     />
     <med-login-status />
+    <mat-menu
+      fxhide.gt-sm=""
+    >
+      <button
+        mat-menu-item=""
+        routerlink="/"
+      >
+        <mat-icon
+          aria-hidden="true"
+          class="mat-icon material-icons mat-icon-no-color"
+          role="img"
+        >
+          home
+        </mat-icon>
+         Home 
+      </button>
+      <a
+        href="mailto:gsfc-uui-dev-disc@lists.nasa.gov"
+        mat-menu-item=""
+      >
+        <mat-icon
+          aria-hidden="true"
+          class="mat-icon material-icons mat-icon-no-color"
+          role="img"
+        >
+          feedback
+        </mat-icon>
+         Feedback 
+      </a>
+      <a
+        href="/assets/mEditorhelp.html"
+        mat-menu-item=""
+        target="_blank"
+      >
+        <mat-icon
+          aria-hidden="true"
+          class="mat-icon material-icons mat-icon-no-color"
+          role="img"
+        >
+          help
+        </mat-icon>
+         Help 
+      </a>
+    </mat-menu>
     <button
-      class="tb-button"
-      mat-button=""
-      routerlink="/"
+      fxhide.gt-sm=""
+      mat-icon-button=""
     >
       <mat-icon
         aria-hidden="true"
-        class="mat-icon material-icons"
+        class="mat-icon material-icons mat-icon-no-color"
         role="img"
       >
-        home
+        more_vert
       </mat-icon>
-       Home 
     </button>
-    <a
-      class="tb-button"
-      href="mailto:mahabaleshwa.s.hegde@nasa.gov"
-      mat-button=""
+    <div
+      fxhide.lt-md=""
     >
-      <mat-icon
-        aria-hidden="true"
-        class="mat-icon material-icons"
-        role="img"
+      <button
+        class="tb-button"
+        mat-button=""
+        routerlink="/"
       >
-        feedback
-      </mat-icon>
-       Feedback 
-    </a>
-    <button
-      class="tb-button"
-      mat-button=""
-    >
-      <mat-icon
-        aria-hidden="true"
-        class="mat-icon material-icons"
-        role="img"
+        <mat-icon
+          aria-hidden="true"
+          class="mat-icon material-icons mat-icon-no-color"
+          role="img"
+        >
+          home
+        </mat-icon>
+         Home 
+      </button>
+      <a
+        class="tb-button"
+        href="mailto:gsfc-uui-dev-disc@lists.nasa.gov"
+        mat-button=""
       >
-        help
-      </mat-icon>
-       Help 
-    </button>
+        <mat-icon
+          aria-hidden="true"
+          class="mat-icon material-icons mat-icon-no-color"
+          role="img"
+        >
+          feedback
+        </mat-icon>
+         Feedback 
+      </a>
+      <a
+        class="tb-button"
+        href="/assets/mEditorhelp.html"
+        mat-button=""
+        target="_blank"
+      >
+        <mat-icon
+          aria-hidden="true"
+          class="mat-icon material-icons mat-icon-no-color"
+          role="img"
+        >
+          help
+        </mat-icon>
+         Help 
+      </a>
+    </div>
   </mat-toolbar>
 </med-toolbar>
 `;

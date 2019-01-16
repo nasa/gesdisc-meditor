@@ -8,9 +8,9 @@ exports[`SearchResultComponent with mock data should compile with minimum input 
 >
   <div>
     <a
-      href="javascript:;"
+      href="#/document/edit?model=test name&title=test%20title"
     >
-      test title
+       test title 
     </a>
     <mat-chip-list
       aria-disabled="false"
@@ -27,12 +27,11 @@ exports[`SearchResultComponent with mock data should compile with minimum input 
         class="mat-chip-list-wrapper"
       >
         <mat-chip
-          aria-disabled="true"
+          aria-disabled="false"
           aria-selected="false"
-          class="mat-chip mat-primary mat-standard-chip mat-chip-disabled"
-          disabled="true"
-          ng-reflect-disabled="true"
+          class="mat-chip mat-primary mat-standard-chip"
           role="option"
+          tabindex="-1"
         >
           Draft
         </mat-chip>

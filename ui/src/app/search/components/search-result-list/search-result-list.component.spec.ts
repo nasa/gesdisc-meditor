@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed  } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { SearchResultListComponent } from './search-result-list.component';
+import { NgxPaginationModule } from 'ngx-pagination';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 
 describe('SearchResultListComponent', () => {
@@ -10,7 +11,8 @@ describe('SearchResultListComponent', () => {
 	beforeEach(() => {
 		TestBed.configureTestingModule({
 			imports: [
-				NoopAnimationsModule
+				NoopAnimationsModule,
+        NgxPaginationModule
 			],
 			declarations: [
 				SearchResultListComponent

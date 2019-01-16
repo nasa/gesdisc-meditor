@@ -3,8 +3,10 @@
 exports[`CommentComponent should create comment thread with mock data 1`] = `
 <med-comment
   _tree={[Function Boolean]}
+  _user={[Function Object]}
   commentForm="undefined"
   commentThreads={[Function QueryList]}
+  editComment={[Function EventEmitter]}
   extComments={[Function Array]}
   replyComment={[Function EventEmitter]}
   resolveComment={[Function EventEmitter]}
@@ -19,9 +21,10 @@ exports[`CommentComponent should create comment thread with mock data 1`] = `
       <mat-card-header
         class="mat-card-header"
       >
-        <div
-          class="comment-header-image mat-card-avatar"
+        <img
+          class="mat-card-avatar"
           mat-card-avatar=""
+          src="https://bugs.earthdata.nasa.gov/secure/useravatar?size=large&ownerId=undefined"
         />
         <div
           class="mat-card-header-text"
@@ -38,41 +41,48 @@ exports[`CommentComponent should create comment thread with mock data 1`] = `
           </mat-card-subtitle>
         </div>
       </mat-card-header>
+      
       <mat-card-content
         class="comment-text mat-card-content"
       >
-         test 
+        <div>
+          test
+        </div>
+        
       </mat-card-content>
+      
       
       <mat-card-actions
         class="mat-card-actions"
       >
         <button
-          class="reply-button"
           mat-icon-button=""
+          mattooltip="Reply"
         >
           <mat-icon
             aria-hidden="true"
-            class="mat-icon material-icons"
+            class="mat-icon material-icons mat-icon-no-color"
             role="img"
           >
             reply
           </mat-icon>
         </button>
         
+        
         <button
-          class="resolve-button"
           mat-icon-button=""
+          mattooltip="Resolve"
         >
           <mat-icon
             aria-hidden="true"
-            class="mat-icon material-icons"
+            class="mat-icon material-icons mat-icon-no-color"
             role="img"
           >
             done
           </mat-icon>
         </button>
       </mat-card-actions>
+      
     </mat-card>
     
     
@@ -80,6 +90,7 @@ exports[`CommentComponent should create comment thread with mock data 1`] = `
       ng-reflect-comments="[object Object],[object Object"
       ng-reflect-parent-id="5bc9fed4e7cd1d776e763685"
       ng-reflect-tree="false"
+      ng-reflect-user="[object Object]"
     >
       
       <div
@@ -92,9 +103,10 @@ exports[`CommentComponent should create comment thread with mock data 1`] = `
           <mat-card-header
             class="mat-card-header"
           >
-            <div
-              class="comment-header-image mat-card-avatar"
+            <img
+              class="mat-card-avatar"
               mat-card-avatar=""
+              src="https://bugs.earthdata.nasa.gov/secure/useravatar?size=large&ownerId=undefined"
             />
             <div
               class="mat-card-header-text"
@@ -111,29 +123,36 @@ exports[`CommentComponent should create comment thread with mock data 1`] = `
               </mat-card-subtitle>
             </div>
           </mat-card-header>
+          
           <mat-card-content
             class="comment-text mat-card-content"
           >
-             wow another reply here 
+            <div>
+              wow another reply here
+            </div>
+            
           </mat-card-content>
+          
           
           <mat-card-actions
             class="mat-card-actions"
           >
             <button
-              class="reply-button"
               mat-icon-button=""
+              mattooltip="Reply"
             >
               <mat-icon
                 aria-hidden="true"
-                class="mat-icon material-icons"
+                class="mat-icon material-icons mat-icon-no-color"
                 role="img"
               >
                 reply
               </mat-icon>
             </button>
             
+            
           </mat-card-actions>
+          
         </mat-card>
         
         
@@ -141,6 +160,7 @@ exports[`CommentComponent should create comment thread with mock data 1`] = `
           ng-reflect-comments=""
           ng-reflect-parent-id="5bcf41e2e59cd2e18508b1e7"
           ng-reflect-tree="false"
+          ng-reflect-user="[object Object]"
         >
           
         </med-comment>
@@ -155,9 +175,10 @@ exports[`CommentComponent should create comment thread with mock data 1`] = `
           <mat-card-header
             class="mat-card-header"
           >
-            <div
-              class="comment-header-image mat-card-avatar"
+            <img
+              class="mat-card-avatar"
               mat-card-avatar=""
+              src="https://bugs.earthdata.nasa.gov/secure/useravatar?size=large&ownerId=undefined"
             />
             <div
               class="mat-card-header-text"
@@ -174,29 +195,36 @@ exports[`CommentComponent should create comment thread with mock data 1`] = `
               </mat-card-subtitle>
             </div>
           </mat-card-header>
+          
           <mat-card-content
             class="comment-text mat-card-content"
           >
-             another important reply 
+            <div>
+              another important reply
+            </div>
+            
           </mat-card-content>
+          
           
           <mat-card-actions
             class="mat-card-actions"
           >
             <button
-              class="reply-button"
               mat-icon-button=""
+              mattooltip="Reply"
             >
               <mat-icon
                 aria-hidden="true"
-                class="mat-icon material-icons"
+                class="mat-icon material-icons mat-icon-no-color"
                 role="img"
               >
                 reply
               </mat-icon>
             </button>
             
+            
           </mat-card-actions>
+          
         </mat-card>
         
         
@@ -204,6 +232,7 @@ exports[`CommentComponent should create comment thread with mock data 1`] = `
           ng-reflect-comments=""
           ng-reflect-parent-id="5bcf4208e59cd2e18508b1e8"
           ng-reflect-tree="false"
+          ng-reflect-user="[object Object]"
         >
           
         </med-comment>
@@ -218,9 +247,10 @@ exports[`CommentComponent should create comment thread with mock data 1`] = `
           <mat-card-header
             class="mat-card-header"
           >
-            <div
-              class="comment-header-image mat-card-avatar"
+            <img
+              class="mat-card-avatar"
               mat-card-avatar=""
+              src="https://bugs.earthdata.nasa.gov/secure/useravatar?size=large&ownerId=undefined"
             />
             <div
               class="mat-card-header-text"
@@ -237,29 +267,36 @@ exports[`CommentComponent should create comment thread with mock data 1`] = `
               </mat-card-subtitle>
             </div>
           </mat-card-header>
+          
           <mat-card-content
             class="comment-text mat-card-content"
           >
-             hey topic starter, pay attention to this please 
+            <div>
+              hey topic starter, pay attention to this please
+            </div>
+            
           </mat-card-content>
+          
           
           <mat-card-actions
             class="mat-card-actions"
           >
             <button
-              class="reply-button"
               mat-icon-button=""
+              mattooltip="Reply"
             >
               <mat-icon
                 aria-hidden="true"
-                class="mat-icon material-icons"
+                class="mat-icon material-icons mat-icon-no-color"
                 role="img"
               >
                 reply
               </mat-icon>
             </button>
             
+            
           </mat-card-actions>
+          
         </mat-card>
         
         
@@ -267,6 +304,7 @@ exports[`CommentComponent should create comment thread with mock data 1`] = `
           ng-reflect-comments=""
           ng-reflect-parent-id="5bcf421be59cd2e18508b1e9"
           ng-reflect-tree="false"
+          ng-reflect-user="[object Object]"
         >
           
         </med-comment>
@@ -282,9 +320,10 @@ exports[`CommentComponent should create comment thread with mock data 1`] = `
       <mat-card-header
         class="mat-card-header"
       >
-        <div
-          class="comment-header-image mat-card-avatar"
+        <img
+          class="mat-card-avatar"
           mat-card-avatar=""
+          src="https://bugs.earthdata.nasa.gov/secure/useravatar?size=large&ownerId=undefined"
         />
         <div
           class="mat-card-header-text"
@@ -301,41 +340,48 @@ exports[`CommentComponent should create comment thread with mock data 1`] = `
           </mat-card-subtitle>
         </div>
       </mat-card-header>
+      
       <mat-card-content
         class="comment-text mat-card-content"
       >
-         image comment 
+        <div>
+          image comment
+        </div>
+        
       </mat-card-content>
+      
       
       <mat-card-actions
         class="mat-card-actions"
       >
         <button
-          class="reply-button"
           mat-icon-button=""
+          mattooltip="Reply"
         >
           <mat-icon
             aria-hidden="true"
-            class="mat-icon material-icons"
+            class="mat-icon material-icons mat-icon-no-color"
             role="img"
           >
             reply
           </mat-icon>
         </button>
         
+        
         <button
-          class="resolve-button"
           mat-icon-button=""
+          mattooltip="Resolve"
         >
           <mat-icon
             aria-hidden="true"
-            class="mat-icon material-icons"
+            class="mat-icon material-icons mat-icon-no-color"
             role="img"
           >
             done
           </mat-icon>
         </button>
       </mat-card-actions>
+      
     </mat-card>
     
     
@@ -343,6 +389,7 @@ exports[`CommentComponent should create comment thread with mock data 1`] = `
       ng-reflect-comments=""
       ng-reflect-parent-id="5bca04bace5e5478ac9c985f"
       ng-reflect-tree="false"
+      ng-reflect-user="[object Object]"
     >
       
     </med-comment>

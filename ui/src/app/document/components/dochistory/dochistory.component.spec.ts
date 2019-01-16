@@ -1,7 +1,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { MatCardModule } from '@angular/material';
+import { MatCardModule, MatIconModule } from '@angular/material';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import { DochistoryComponent } from './dochistory.component';
 
@@ -14,7 +15,9 @@ describe('DochistoryComponent', () => {
       imports: [ 
         NoopAnimationsModule,
         FormsModule,
-        MatCardModule
+        ScrollingModule,
+        MatCardModule,
+        MatIconModule
       ],
       declarations: [ DochistoryComponent ]
     })

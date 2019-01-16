@@ -11,7 +11,7 @@ exports[`Login Component should compile login status component 1`] = `
   >
     <mat-icon
       aria-hidden="true"
-      class="mat-icon material-icons"
+      class="mat-icon material-icons mat-icon-no-color"
       role="img"
     >
       person

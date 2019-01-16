@@ -1,72 +1,41 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Search Page should compile 1`] = `
+exports[`Document Edit Page should compile 1`] = `
 <med-docedit-page
-  commentText=""
-  comments$={[Function Store]}
-  document$={[Function Store]}
-  documentStore={[Function Store]}
-  history$={[Function Store]}
-  model$={[Function Store]}
-  rootStore={[Function Store]}
-  route={[Function ActivatedRoute]}
-  routeParams={[Function Object]}
-  router={[Function Router]}
-  selectedHistory$={[Function Store]}
-  showForm="false"
-  showHistory="false"
-  showResolved="false"
+  __commentsCount$__selector={[Function Observable]}
+  __edges$__selector={[Function Observable]}
+  __history$__selector={[Function Observable]}
+  __model$__selector={[Function Observable]}
+  __versionsCount$__selector={[Function Observable]}
+  __workflow$__selector={[Function Observable]}
+  dirty="false"
+  history="undefined"
+  readonlydoc={[Function Boolean]}
   sidenav={[Function ElementRef]}
+  store={[Function Store]}
+  versionFilter={[Function Date]}
 >
   <div
     class="doc-edit-container"
     fxlayout="row"
   >
     <mat-card
-      fxflex="75"
+      class="mat-elevation-z0"
+      fxflex="100"
     >
-      <mat-sidenav-container
+      <mat-drawer-container
         class="comment-sidenav-container"
       >
-        <mat-sidenav
+        <mat-drawer
           class="comment-sidenav"
         >
           
-          <button
-            class="new-comment-button"
-            mat-raised-button=""
-            type="submit"
-          >
-            <mat-icon>
-              comment
-            </mat-icon>
-             New comment 
-          </button>
-          <button
-            class="close-sidenav-button"
-            color="warn"
-            mat-raised-button=""
-          >
-            <mat-icon>
-              close
-            </mat-icon>
-             Close 
-          </button>
-          <button
-            class="resolved-sidenav-button"
-            mat-raised-button=""
-          >
-            <mat-icon>
-              visibility
-            </mat-icon>
-             Show all 
-          </button>
           
-          <med-comment />
-        </mat-sidenav>
-        <mat-sidenav-content
+        </mat-drawer>
+        <mat-drawer-content
           class="editor-form"
         >
+          <med-doc-breadcrumbs />
           <mat-card-title>
             <i
               class="icon-badge icon-badge-sm fa "
@@ -90,25 +59,41 @@ exports[`Search Page should compile 1`] = `
               </button>
               <button
                 mat-mini-fab=""
+                matbadgecolor="warn"
               >
                 <mat-icon>
                   history
                 </mat-icon>
               </button>
+              <mat-chip-list
+                class="state-chip"
+              >
+                <mat-chip>
+                  
+                </mat-chip>
+              </mat-chip-list>
+              <span
+                class="version-info"
+              >
+                (edited by  on )
+              </span>
             </div>
-            <med-document-edit />
+            <med-document-edit
+              class=""
+            />
+            
+            <button
+              disabled=""
+              mat-raised-button=""
+            >
+              Save 
+            </button>
+            
+            <med-document-actions />
           </mat-card-content>
-        </mat-sidenav-content>
-      </mat-sidenav-container>
+        </mat-drawer-content>
+      </mat-drawer-container>
     </mat-card>
-    <div
-      fxflex="2"
-    />
-    <div
-      fxflex="23"
-    >
-      
-    </div>
   </div>
 </med-docedit-page>
 `;
