@@ -559,7 +559,8 @@ function getModelContent (name) {
       dbo.collection("Models").find({name:name}).sort({"x-meditor.modifiedOn":-1}).project({_id:0}).toArray(function(err, res) {
         if (err){
           console.log(err);
-          throw err;
+          try {db.close()} catch (e) {};
+          reject(err);
         }
         // Fill in templates if they exist
 
@@ -569,16 +570,17 @@ function getModelContent (name) {
             var macroFields = element.macro.split(/\s+/);
             var schema = JSON.parse(res[0].schema);
             promiseList.push( new Promise(
-              function(resolve,reject){
+              function(promiseResolve,promiseReject){
                 if ( typeof macros[macroFields[0]] === "function" ) {
                   macros[macroFields[0]](dbo,macroFields.slice(1,macroFields.length)).then(function(response){
-                      resolve(response);
+                    promiseResolve(response);
                   }).catch(function(err){
                       console.log(err);
+                      promiseReject(err);
                   });
                 } else {
                   console.log("Macro, '" + macroName + "', not supported");
-                  throw("Macro, '" + macroName + "', not supported");
+                  promiseReject("Macro, '" + macroName + "', not supported");
                 }
               }
             ));
@@ -591,13 +593,17 @@ function getModelContent (name) {
                 jsonpath.value(schema,element.jsonpath,response[i++]);
                 res[0].schema = JSON.stringify(schema,null,2);
               });
+              db.close();
               resolve(res[0]);
             }
           ).catch(
             function(err){
+              try {db.close()} catch (e) {};
+              reject(err);
             }
           );
         } else {
+          db.close();
           resolve(res[0]);
         }
       });
