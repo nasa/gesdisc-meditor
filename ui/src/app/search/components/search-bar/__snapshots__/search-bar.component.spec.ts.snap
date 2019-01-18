@@ -16,7 +16,7 @@ exports[`SearchBarComponent with mock data should compile with minimum input 1`]
       aria-invalid="false"
       aria-multiselectable="false"
       aria-required="false"
-      class="search-bar-select mat-select ng-tns-c3-0 ng-untouched ng-pristine ng-valid"
+      class="search-bar-select mat-select ng-tns-c3-0 ng-untouched ng-pristine ng-valid mat-select-empty"
       id="mat-select-1"
       ng-reflect-form="[object Object]"
       role="listbox"
@@ -69,7 +69,7 @@ exports[`SearchBarComponent with mock data should compile with minimum input 1`]
     >
       <mat-icon
         aria-hidden="true"
-        class="mat-icon material-icons"
+        class="mat-icon material-icons mat-icon-no-color"
         matsuffix=""
         role="img"
       >

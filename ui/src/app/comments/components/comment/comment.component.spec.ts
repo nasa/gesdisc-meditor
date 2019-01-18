@@ -30,6 +30,7 @@ describe('CommentComponent', () => {
 
   it('should create comment thread with mock data', () => {
     component.tree = true;
+    component._user = { uid: 'test' };
     component.comments = 
       [
         {

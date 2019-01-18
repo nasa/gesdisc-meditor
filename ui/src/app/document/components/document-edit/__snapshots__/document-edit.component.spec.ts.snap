@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DocumentEditComponent should create 1`] = `
+<med-document-edit
+  data={[Function Object]}
+  defaultLayoutOptions={[Function Object]}
+  formValidationErrors={[Function Object]}
+  isDirty={[Function EventEmitter]}
+  isValid={[Function EventEmitter]}
+  jsonFormOptions={[Function Object]}
+  layout="undefined"
+  liveData={[Function EventEmitter]}
+  schema={[Function Object]}
+  selectedFramework={[Function String]}
+  submittedFormData={[Function Object]}
+>
+  <json-schema-form />
+</med-document-edit>
+`;

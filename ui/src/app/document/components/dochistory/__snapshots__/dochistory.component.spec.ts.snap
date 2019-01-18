@@ -2,71 +2,42 @@
 
 exports[`DochistoryComponent should create version list with mock data 1`] = `
 <med-doc-history
+  closeSidenav={[Function EventEmitter]}
   dochistory={[Function Array]}
   loadVersion={[Function EventEmitter]}
   selectedHistory={[Function String]}
 >
-  <h3>
-    History
-  </h3><div
-    class="history-content-container"
+  <div
+    class="history-header"
   >
-    
-    <div>
-      <mat-card
-        class="history-item mat-card"
-        ng-reflect-klass="history-item"
-        ng-reflect-ng-class=""
+    <h3>
+      History
+    </h3>
+    <button
+      class="close-icon"
+      mat-icon-button=""
+    >
+      <mat-icon
+        aria-hidden="true"
+        class="mat-icon material-icons mat-icon-no-color"
+        role="img"
       >
-        <div
-          class="modified-on-label"
-        >
-          Oct 29, 2018, 2:00:09 PM
-        </div>
-        <div
-          class="modified-by-label"
-        >
-          by azasorin
-        </div>
-      </mat-card>
+        close
+      </mat-icon>
+    </button>
+  </div><cdk-virtual-scroll-viewport
+    class="history-content-container cdk-virtual-scroll-viewport cdk-virtual-scroll-orientation-vertical"
+    itemsize="50"
+    ng-reflect-item-size="50"
+  >
+    <div
+      class="cdk-virtual-scroll-content-wrapper"
+    >
+      
     </div>
-    <div>
-      <mat-card
-        class="history-item mat-card"
-        ng-reflect-klass="history-item"
-        ng-reflect-ng-class=""
-      >
-        <div
-          class="modified-on-label"
-        >
-          Oct 29, 2018, 2:00:04 PM
-        </div>
-        <div
-          class="modified-by-label"
-        >
-          by azasorin
-        </div>
-      </mat-card>
-    </div>
-    <div>
-      <mat-card
-        class="history-item mat-card"
-        ng-reflect-klass="history-item"
-        ng-reflect-ng-class=""
-      >
-        <div
-          class="modified-on-label"
-        >
-          Oct 29, 2018, 2:00:01 PM
-        </div>
-        <div
-          class="modified-by-label"
-        >
-          by azasorin
-        </div>
-      </mat-card>
-    </div>
-    
-  </div>
+    <div
+      class="cdk-virtual-scroll-spacer"
+    />
+  </cdk-virtual-scroll-viewport>
 </med-doc-history>
 `;

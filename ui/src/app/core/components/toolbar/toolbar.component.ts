@@ -9,7 +9,7 @@ import { environment } from 'environments/environment';
 			<span class="spacer"></span>
 			<med-login-status></med-login-status>
 
-      <mat-menu #appMenu="matMenu" fxHide.gt-sm>
+      <mat-menu fxHide.gt-sm>
         <button mat-menu-item routerLink="/">
           <mat-icon>home</mat-icon>
           Home

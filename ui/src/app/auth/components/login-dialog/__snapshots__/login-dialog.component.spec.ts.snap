@@ -25,7 +25,7 @@ exports[`Login Component should compile login dialog 1`] = `
       <mat-icon
         _ngcontent-c0=""
         aria-hidden="true"
-        class="mat-icon material-icons"
+        class="mat-icon material-icons mat-icon-no-color"
         role="img"
       >
         person

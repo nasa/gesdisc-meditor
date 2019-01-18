@@ -1,25 +1,39 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed  } from '@angular/core/testing';
+import { NgxsModule, Store, } from '@ngxs/store';
+import { DocNewPageComponent } from './docnew-page.component';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { of } from 'rxjs';
 
-import { DocnewComponent } from './docnew.component';
+describe('Document New Page', () => {
+	let fixture: ComponentFixture<DocNewPageComponent>;
+	let store: Store;
+	let component: DocNewPageComponent;
 
-describe('DocnewComponent', () => {
-  let component: DocnewComponent;
-  let fixture: ComponentFixture<DocnewComponent>;
+	beforeEach(() => {
+		TestBed.configureTestingModule({
+			imports: [
+				NoopAnimationsModule,
+        NgxsModule.forRoot()
+			],
+			declarations: [
+				DocNewPageComponent
+			],
+			schemas: [ NO_ERRORS_SCHEMA ]
+		});
+    
+		fixture = TestBed.createComponent(DocNewPageComponent);
+		component = fixture.componentInstance;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ DocnewComponent ]
-    })
-    .compileComponents();
-  }));
+   
+    Object.defineProperty(component, 'userPrivileges$', { writable: true });
+    component.userPrivileges$ = of(['edit']);
+		store = TestBed.get(Store);
+	});
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(DocnewComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+	it('should compile', () => {
+		fixture.detectChanges();
+		expect(fixture).toMatchSnapshot();
+	});
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
 });

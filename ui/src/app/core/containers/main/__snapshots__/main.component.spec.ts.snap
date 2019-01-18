@@ -1,20 +1,23 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Main Page should compile main container 1`] = `
+exports[`Main Page should compile main container and call keepAlive 1`] = `
 <meditor-app
+  isLoggedIn="false"
+  keepAlive={[Function Function]}
+  store={[Function Store]}
   version={[Function String]}
 >
   <div
     class="app-container"
     fxfill=""
     fxlayout="column"
-    fxlayoutalign="center none"
+    fxlayoutalign="start none"
   >
     <med-toolbar
       fxflex="82px"
     />
     <div
-      fxflex="90-100px"
+      fxflex="80"
       style="overflow: scroll; padding: 0 16px;"
     >
       <router-outlet />
@@ -22,7 +25,7 @@ exports[`Main Page should compile main container 1`] = `
     <div
       class="app-version"
     >
-      v0.9.0
+      v0.28.0
     </div>
     <med-loading />
     <med-notification />

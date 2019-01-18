@@ -121,24 +121,19 @@ describe('Search Page', () => {
 
 		Object.defineProperty(component, 'categories$', { writable: true });
 		Object.defineProperty(component, 'models$', { writable: true });
-		Object.defineProperty(component, 'loggedIn$', { writable: true });
 		component.categories$ = of(['Admin', 'GESDISC']);
 		component.models$ = of(initialState.models);
-		component.loggedIn$ = of(initialState.auth.loggedIn);
 
 		store = TestBed.get(Store);
 		store.reset(initialState);
-
-		spyOn(component, 'loggedIn').and.callThrough();
 
 		fixture.detectChanges();
 	});
 
 	// TODO find a proper way to spy on dispatched actions, code below doesn't seems to be working.
 
-	it('should compile and call loggedIn func on init', () => {
+	it('should compile', () => {
 		expect(fixture).toMatchSnapshot();
 		component.ngOnInit();
-		expect(component.loggedIn).toHaveBeenCalled();
 	});
 });

@@ -1,87 +1,41 @@
 import { ComponentFixture, TestBed  } from '@angular/core/testing';
-import { RouterTestingModule,  } from "@angular/router/testing";
-import { ActivatedRoute } from '@angular/router';
-import { ActivatedRouteStub } from '../../testing/activated-route-stub';
-import { combineReducers, Store, StoreModule } from '@ngrx/store';
+import { NgxsModule, Store, } from '@ngxs/store';
 import { DocEditPageComponent } from './docedit-page.component';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import * as fromRoot from '../../reducers';
-import * as Model from '../../core/actions/model.actions';
-import * as Documents from '../actions/document.actions';
-import * as History from '../actions/history.actions';
-import * as Comments from '../../comments/actions/comments.actions';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { of } from 'rxjs';
 
 describe('Document Edit Page', () => {
 	let fixture: ComponentFixture<DocEditPageComponent>;
-	let store: Store<fromRoot.State>;
-	let instance: DocEditPageComponent;
-	let routeParams: any = { title: 'testtitle', model: 'testmodel' };
+	let store: Store;
+	let component: DocEditPageComponent;
 
 	beforeEach(() => {
 		TestBed.configureTestingModule({
 			imports: [
 				NoopAnimationsModule,
-				RouterTestingModule,
-				StoreModule.forRoot({
-					models: combineReducers(fromRoot.reducers),
-				})
+        NgxsModule.forRoot()
 			],
 			declarations: [
 				DocEditPageComponent
 			],
-			schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
+			schemas: [ NO_ERRORS_SCHEMA ]
 		});
 
 		fixture = TestBed.createComponent(DocEditPageComponent);
-		instance = fixture.componentInstance;
-		store = TestBed.get(Store);
+		component = fixture.componentInstance;
 
-		spyOn(store, 'dispatch').and.callThrough();
+    Object.defineProperty(component, 'userPrivileges$', { writable: true });
+    Object.defineProperty(component, 'document$', { writable: true });
+    component.userPrivileges$ = of(['edit']);
+    component.document$ = of({'x-meditor': {'targetStates': ['Draft', 'Under Review']}});
+		fixture.detectChanges();
+    
+		store = TestBed.get(Store);
 	});
 
 	it('should compile', () => {
-		fixture.detectChanges();
 		expect(fixture).toMatchSnapshot();
 	});
-
-	// TO DO Find a a proper way to test ngOnInit with queryparams
-
-  it('should dispatch 3 actions on loadDocument', () => {
-
-    const loadDocument = new Documents.Load(routeParams);
-		const loadHistory = new History.Load(routeParams);
-		const loadComments = new Comments.Load(routeParams.title);
-
-    instance.loadDocument(routeParams);
-
-    expect(store.dispatch).toHaveBeenCalledWith(loadDocument);
-    expect(store.dispatch).toHaveBeenCalledWith(loadHistory);
-    expect(store.dispatch).toHaveBeenCalledWith(loadComments);
-  });
-
-  it('should dispatch 2 actions on loadVersion', () => {
-  	let newParams = Object.assign({}, routeParams);
-		newParams.version = 'testversion';
-		console.log(newParams);
-    const loadDocument = new Documents.Load(newParams);
-		const setHistoryItem = new History.SetSelectedHistoryItem(newParams.version);
-
-    instance.loadVersion('testversion');
-
-    expect(store.dispatch).toHaveBeenCalledWith(loadDocument);
-    expect(store.dispatch).toHaveBeenCalledWith(setHistoryItem);
-  });
-
-  it('should dispatch 2 actions on submitDocument', () => {
-  	let data = {};
-    const submitDoc = new Documents.SubmitDocument(data);
-		const loadHistory = new History.Load(routeParams);
-
-    instance.submitDocument(data);
-
-    expect(store.dispatch).toHaveBeenCalledWith(submitDoc);
-    expect(store.dispatch).toHaveBeenCalledWith(loadHistory);
-  });
 
 });
