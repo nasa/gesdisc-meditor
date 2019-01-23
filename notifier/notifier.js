@@ -3,6 +3,8 @@ var MongoUrl = process.env.MONGOURL;
 var os = require('os');
 var nodemailer = require('nodemailer');
 
+var HOST_NAME = process.env.HOST_NAME || os.hostname();
+
 var transporter = nodemailer.createTransport({
     newline: 'unix',
     host: process.env.MAIL_HOST,
@@ -12,7 +14,7 @@ var transporter = nodemailer.createTransport({
 function notify(subject, textMessage, htmlMessage, mailtoURL) {
     try {
       transporter.sendMail({
-        from: 'mEditor <DoNotReply@' + os.hostname() + '>',
+        from: `mEditor <DoNotReply@${HOST_NAME}>`,
         to: mailtoURL,
         subject: subject,
         text: textMessage,
