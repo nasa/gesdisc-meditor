@@ -3,6 +3,7 @@ var transliteration = require('transliteration');
 var mongo = require('mongodb');
 var stream = require('stream');
 var ObjectID = mongo.ObjectID;
+var mFile = require('./meditor-mongo-file');
 
 // For a given document and metadata, returns a unique file name,
 // to be used when storing the file on the file system
@@ -10,27 +11,6 @@ module.exports.getFSFileName = function getFileName(modelMeta, doc) {
   var fileName = [modelMeta.titleProperty, doc[modelMeta.titleProperty], _.get(doc, "x-meditor.modifiedOn", (new ObjectID()).toString())].join('_');
   fileName == transliteration.slugify(fileName); // Unused for now
   return (new ObjectID).toString();
-};
-
-// Retrieves a file from GridFS and returns it as a string
-module.exports.getFileSystemItem = function getFileSystemItem(dbo, filename) {
-  var buf = new Buffer('');
-  return new Promise(function (resolve, reject) {
-    var bucket = new mongo.GridFSBucket(dbo);
-    var readstream = bucket.openDownloadStream(filename);
-    readstream.on('data', (chunk) => {
-      buf = Buffer.concat([buf, chunk]);
-    });
-    readstream.on('error', (err) => {
-      reject(err);
-    });
-    readstream.on('end', () => {
-      var res = buf.toString();
-      buf = null; // Clean up memory
-      readstream.destroy();
-      resolve(res);
-    });
-  });
 };
 
 // Stores a string 'data' attribute witha a given 'metadata' object on GridFS
@@ -79,7 +59,7 @@ function testFs() {
     putFileSystemItem(dbo, 'test', 'this is a test')
     .then(function(a) {
       console.log('Wrote a gridFS file with metadata:', a);
-      return getFileSystemItem(dbo, 'test')
+      return mFile.getFileSystemItem(dbo, 'test')
     })
     .then(function(a) {
       console.log('Got data back from a gridFS file:', a);
@@ -91,3 +71,12 @@ function testFs() {
     })
   });
 }
+
+// Inserts a data message into DB queue of connectors
+module.exports.addToConnectorQueue = function addToConnectorQueue(meta, DbName, target, data) {
+  return meta.dbo.db(DbName).collection('queue-connectors').insertOne({
+    created: Date.now(),
+    target: target,
+    data: data,
+  });
+};

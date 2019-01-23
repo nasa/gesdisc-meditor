@@ -3,4 +3,5 @@ PATH=/sbin:/bin:/usr/sbin:/usr/bin
 MAILTO=root
 
 * * * * * root . /usr/src/app/env.sh; node /usr/src/app/notifier/notifier.js 
+* * * * * root . /usr/src/app/env.sh; node /usr/src/app/notifier/connectors.js > /proc/1/fd/1 2>/proc/1/fd/2
 #empty line

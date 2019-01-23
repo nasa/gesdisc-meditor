@@ -1,24 +1,23 @@
 'use strict';
 
 var _ = require('lodash');
-var utils = require('../utils/writer.js');
+var utils = require('../utils/writer');
 var Default = require('../service/DefaultService');
 var mongo = require('mongodb');
 var MongoClient = mongo.MongoClient;
 var ObjectID = mongo.ObjectID;
 var jsonpath = require('jsonpath');
-var macros = require('./Macros.js');
-var mUtils = require('./lib/meditor-utils.js');
-var connectorUui = require('./Connector-uui');
-
+var macros = require('./Macros');
+var mUtils = require('./lib/meditor-utils');
+var mFile = require('./lib/meditor-mongo-file');
 var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
 var DbName = "meditor";
 
 var SHARED_MODELS = ['Workflows', 'Users', 'Models'];
 
-
 // ======================== Register fetch functions with Macro.fetch ==============
-macros.registerFetchers(connectorUui.getFetchers());
+
+macros.registerFetchers(require('./lib/fetchers').getFetchers());
 
 // ======================== Common helper functions ================================
 
@@ -434,7 +433,7 @@ module.exports.getDocument = function listDocuments (request, response, next) {
     })
     .then(function(res) {
       that.result = res.length > 0 ? res[0] : {};
-      return (_.isNil(_.get(that.result, 'doc.image'))) ? Promise.resolve(null) : mUtils.getFileSystemItem(that.dbo.db(DbName), that.result.doc.image);
+      return (_.isNil(_.get(that.result, 'doc.image'))) ? Promise.resolve(null) : mFile.getFileSystemItem(that.dbo.db(DbName), that.result.doc.image);
     })
     .then(function(res) {if (!_.isNil(res)) that.result.doc.image = res})
     .then(res => (that.dbo.close(), handleSuccess(response, that.result)))
@@ -539,7 +538,7 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
       const shouldNotify =  _.get(that.currentEdge, 'notify', true) && that.readyNodes.indexOf(that.params.state) === -1;
       return shouldNotify ? notifyOfStateChange(that) : Promise.resolve();
     })
-    .then(res => {return !!process.env.PUBLISH_TO_UUI ? connectorUui.syncItems({model: that.params.model}) : Promise.resolve();}) // Take an opportunity to sync with UUI
+    .then(res => {return mUtils.addToConnectorQueue(that, DbName, 'uui', {model: that.params.model})}) // Take an opportunity to sync with UUI    .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .catch(err => {
       try {that.dbo.close()} catch (e) {};
@@ -559,8 +558,7 @@ function getModelContent (name) {
       dbo.collection("Models").find({name:name}).sort({"x-meditor.modifiedOn":-1}).project({_id:0}).toArray(function(err, res) {
         if (err){
           console.log(err);
-          try {db.close()} catch (e) {};
-          reject(err);
+          throw err;
         }
         // Fill in templates if they exist
 
@@ -570,17 +568,16 @@ function getModelContent (name) {
             var macroFields = element.macro.split(/\s+/);
             var schema = JSON.parse(res[0].schema);
             promiseList.push( new Promise(
-              function(promiseResolve,promiseReject){
+              function(resolve,reject){
                 if ( typeof macros[macroFields[0]] === "function" ) {
                   macros[macroFields[0]](dbo,macroFields.slice(1,macroFields.length)).then(function(response){
-                    promiseResolve(response);
+                      resolve(response);
                   }).catch(function(err){
                       console.log(err);
-                      promiseReject(err);
                   });
                 } else {
                   console.log("Macro, '" + macroName + "', not supported");
-                  promiseReject("Macro, '" + macroName + "', not supported");
+                  throw("Macro, '" + macroName + "', not supported");
                 }
               }
             ));
@@ -593,17 +590,13 @@ function getModelContent (name) {
                 jsonpath.value(schema,element.jsonpath,response[i++]);
                 res[0].schema = JSON.stringify(schema,null,2);
               });
-              db.close();
               resolve(res[0]);
             }
           ).catch(
             function(err){
-              try {db.close()} catch (e) {};
-              reject(err);
             }
           );
         } else {
-          db.close();
           resolve(res[0]);
         }
       });
@@ -709,25 +702,6 @@ function resolveCommentWithId(params) {
   });
 }
 
-function editCommentWithId(params, uid) {
-  return new Promise(function(resolve, reject) {
-    MongoClient.connect(MongoUrl, function(err, db) {
-      if (err) throw err;
-      var dbo = db.db(DbName);
-      var objectId = new ObjectID(params.id);
-      dbo.collection("Comments").updateOne({ $and: [{_id: objectId}, {userUid: uid}]}, {$set: {text: params.text, lastEdited: (new Date()).toISOString()}}, function(err, res) {
-        if (err){
-          console.log(err);
-          throw err;
-        }
-        var userMsg = "Comment with id " + params.id + " updated";
-        db.close();
-        resolve(userMsg);
-      });
-    });
-  });
-}
-
 
 //Exported method to get comments for document
 module.exports.getComments = function getComments (req, res, next) {
@@ -745,19 +719,6 @@ module.exports.getComments = function getComments (req, res, next) {
 module.exports.resolveComment = function resolveComment(req, res, next) {
   var params = getSwaggerParams(req);
   resolveCommentWithId(params)
-  .then(function (response) {
-    utils.writeJson(res, {code:200, message:response}, 200);
-  })
-  .catch(function (response) {
-    utils.writeJson(res, {code:500, message: response}, 500);
-  });
-};
-
-//Exported method to edit comment
-module.exports.editComment = function editComment(req, res, next) {
-  var params = getSwaggerParams(req);
-  var uid = req.user.uid;
-  editCommentWithId(params, uid)
   .then(function (response) {
     utils.writeJson(res, {code:200, message:response}, 200);
   })

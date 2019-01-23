@@ -51,7 +51,9 @@ services:
       - APP_URL=${APP_URL}
       - APP_UI_URL=${APP_UI_URL}
       - MONGOURL=mongodb://meditor_database:27017
-      - UUI_APP_URL=${UUI_APP_URL}
+      - UUI_AUTH_CLIENT_ID=${UUI_AUTH_CLIENT_ID}
+      - UUI_APP_URL_OPS=${UUI_APP_URL_OPS}
+      - UUI_APP_URL_TEST=${UUI_APP_URL_TEST}
       - URS_USER=${URS_USER}
       - URS_PASSWORD=${URS_PASSWORD}
       - PUBLISH_TO_UUI=${PUBLISH_TO_UUI}

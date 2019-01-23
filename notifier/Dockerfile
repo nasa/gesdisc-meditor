@@ -24,6 +24,8 @@ RUN crontab /etc/cron.d/cron_test
 RUN touch /var/log/cron.log
 
 RUN mkdir -p /usr/src/app/notifier
-ADD notifier.js /usr/src/app/notifier
+WORKDIR /usr/src/app/notifier
+COPY ./ ./
+RUN npm install
 
 CMD printenv | sed 's/^\(.*\)$/export \1/g' > /usr/src/app/env.sh && crond -x proc && tail -f /var/log/cron.log

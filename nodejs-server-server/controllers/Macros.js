@@ -1,7 +1,4 @@
 var _ = require('lodash');
-var requests = require('request-promise-native');
-var connectorUui = require('./Connector-uui');
-
 var fetchers = {}; // A registry of various fetch functions
 
 Array.prototype.unique = function() {
