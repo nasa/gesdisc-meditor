@@ -12,6 +12,6 @@ MAILTO=root
 # │ │ │ │ │
 # * * * * * command to execute
 
-* * * * * root . /usr/src/app/env.sh; node /usr/src/app/notifier/notifier.js 
+* * * * * root . /usr/src/app/env.sh; node /usr/src/app/notifier/notifier.js > /proc/1/fd/1 2>/proc/1/fd/2
 * * * * * root . /usr/src/app/env.sh; node /usr/src/app/notifier/connectors.js > /proc/1/fd/1 2>/proc/1/fd/2
 ##empty line
