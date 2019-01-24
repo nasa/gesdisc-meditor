@@ -29,6 +29,7 @@ services:
     environment:
       - MONGOURL=mongodb://meditor_database:27017
       - MAIL_HOST=${MAIL_HOST}
+      - HOST_NAME=${HOST_NAME}
 
   ui:
     container_name: meditor_ui

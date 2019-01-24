@@ -42,8 +42,9 @@ services:
     image: dev.gesdisc.eosdis.nasa.gov:443/mongo/4.1.4
     volumes:
       - ${DATABASE_HOST_VOLUME}:/data/db
+    command: mongod --port ${DATABASE_HOST_PORT}
     ports:
-      - "${DATABASE_HOST_PORT}:27017"
+      - "${DATABASE_HOST_PORT}:${DATABASE_HOST_PORT}"
 
   database-seed:
     container_name: meditor_database_seed

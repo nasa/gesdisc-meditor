@@ -31,10 +31,12 @@
                 "type": "object",
                 "properties": {
                     "url": {
-                        "type": "string"
+                        "type": "string",
+                        "required": true
                     },
                     "caption": {
-                        "type": "string"
+                        "type": "string",
+                        "required": true
                     }
                 }
             },
@@ -42,10 +44,12 @@
                 "type": "object",
                 "properties": {
                     "url": {
-                        "type": "string"
+                        "type": "string",
+                        "required": true
                     },
                     "label": {
-                        "type": "string"
+                        "type": "string",
+                        "required": true
                     },
                     "tooltip": {
                         "type": "string"
@@ -55,11 +59,19 @@
             "phenomena": {
                 "type": "string",
                 "enum": [
-                    "fire",
-                    "floods",
-                    "hurricanes",
-                    "lightning",
-                    "volcanic eruption"
+                    "Fire",
+                    "Blizzard",
+                    "Freeze and Frost",
+                    "Lightning",
+                    "Volcano",
+                    "Hurricane",
+                    "Severe Storm",
+                    "Wave",
+                    "Flood",
+                    "Ice Storm",
+                    "Snow Storm",
+                    "Tornado",
+                    "Wave Storm"
                 ]
             }
         },

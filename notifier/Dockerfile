@@ -1,5 +1,6 @@
 FROM dev.gesdisc.eosdis.nasa.gov:443/centos
 
+
 # install crontabs RUN yum -y update
 RUN yum -y install crontabs
 RUN yum install -y gcc-c++ make
@@ -9,8 +10,6 @@ RUN yum -y install postfix
 RUN yum -y install sendmail
 RUN npm --version
 RUN node --version
-RUN npm install mongodb --save
-RUN npm install nodemailer
 
 # comment out PAM
 RUN sed -i -e '/pam_loginuid.so/s/^/#/' /etc/pam.d/crond
@@ -19,13 +18,10 @@ RUN sed -i -e '/pam_loginuid.so/s/^/#/' /etc/pam.d/crond
 ADD cron /etc/cron.d/cron_test
 RUN chmod 0644 /etc/cron.d/cron_test
 
-#This will add it to the cron table (crontab -e)
-RUN crontab /etc/cron.d/cron_test
-RUN touch /var/log/cron.log
-
+# App portion
 RUN mkdir -p /usr/src/app/notifier
 WORKDIR /usr/src/app/notifier
 COPY ./ ./
 RUN npm install
 
-CMD printenv | sed 's/^\(.*\)$/export \1/g' > /usr/src/app/env.sh && crond -x proc && tail -f /var/log/cron.log
+CMD printenv | sed 's/^\(.*\)$/export \1/g' > /usr/src/app/env.sh && crond -x proc
