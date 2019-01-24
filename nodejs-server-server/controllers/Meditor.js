@@ -13,6 +13,7 @@ var connectorUui = require('./Connector-uui');
 
 var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
 var DbName = "meditor";
+var NotificationQueueCollectionName = 'queue-notifications';
 
 var SHARED_MODELS = ['Workflows', 'Users', 'Models'];
 
@@ -488,7 +489,7 @@ function notifyOfStateChange(meta) {
     .then(users => {
       notification.to = users.map(u => '"'+ u.firstName + ' ' + u.lastName + '" <' + u.emailAddress + '>');
       if (notification.to.length === 0) throw {message: 'Could not find addressees to notify of the status change', status: 400};
-      return meta.dbo.db(DbName).collection('notifications').insertOne(notification);
+      return meta.dbo.db(DbName).collection(NotificationQueueCollectionName).insertOne(notification);
     });
 };
 
