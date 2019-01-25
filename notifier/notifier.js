@@ -9,7 +9,10 @@ var HOST_NAME = process.env.HOST_NAME || os.hostname();
 var transporter = nodemailer.createTransport({
     newline: 'unix',
     host: process.env.MAIL_HOST,
-    port: 25
+    port: 25,
+    tls: {
+        rejectUnauthorized: false,
+    }
   });
 
 function notify(subject, textMessage, htmlMessage, mailtoURL) {
