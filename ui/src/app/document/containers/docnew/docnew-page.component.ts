@@ -35,7 +35,7 @@ export class DocNewPageComponent implements OnInit, ComponentCanDeactivate {
 
 	@HostListener('window:beforeunload')
 	canDeactivate(): Observable<boolean> | boolean {
-		return !this.dirty;
+		return !this.dirty || this.isFormValid;
 	}
 
 	createDocument(document: any) {
