@@ -1,15 +1,15 @@
 'use strict';
 
 var _ = require('lodash');
-var utils = require('../utils/writer.js');
+var utils = require('../utils/writer');
 var Default = require('../service/DefaultService');
 var mongo = require('mongodb');
 var MongoClient = mongo.MongoClient;
 var ObjectID = mongo.ObjectID;
 var jsonpath = require('jsonpath');
-var macros = require('./Macros.js');
-var mUtils = require('./lib/meditor-utils.js');
-var connectorUui = require('./Connector-uui');
+var macros = require('./Macros');
+var mUtils = require('./lib/meditor-utils');
+var mFile = require('./lib/meditor-mongo-file');
 
 var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
 var DbName = "meditor";
@@ -19,7 +19,7 @@ var SHARED_MODELS = ['Workflows', 'Users', 'Models'];
 
 
 // ======================== Register fetch functions with Macro.fetch ==============
-macros.registerFetchers(connectorUui.getFetchers());
+macros.registerFetchers(require('./lib/fetchers').getFetchers());
 
 // ======================== Common helper functions ================================
 
@@ -435,7 +435,7 @@ module.exports.getDocument = function listDocuments (request, response, next) {
     })
     .then(function(res) {
       that.result = res.length > 0 ? res[0] : {};
-      return (_.isNil(_.get(that.result, 'doc.image'))) ? Promise.resolve(null) : mUtils.getFileSystemItem(that.dbo.db(DbName), that.result.doc.image);
+      return (_.isNil(_.get(that.result, 'doc.image'))) ? Promise.resolve(null) : mFile.getFileSystemItem(that.dbo.db(DbName), that.result.doc.image);
     })
     .then(function(res) {if (!_.isNil(res)) that.result.doc.image = res})
     .then(res => (that.dbo.close(), handleSuccess(response, that.result)))
@@ -540,7 +540,7 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
       const shouldNotify =  _.get(that.currentEdge, 'notify', true) && that.readyNodes.indexOf(that.params.state) === -1;
       return shouldNotify ? notifyOfStateChange(that) : Promise.resolve();
     })
-    .then(res => {return !!process.env.PUBLISH_TO_UUI ? connectorUui.syncItems({model: that.params.model}) : Promise.resolve();}) // Take an opportunity to sync with UUI
+    .then(res => {return mUtils.addToConnectorQueue(that, DbName, 'uui', {model: that.params.model})}) // Take an opportunity to sync with UUI    .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .catch(err => {
       try {that.dbo.close()} catch (e) {};
