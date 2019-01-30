@@ -30,6 +30,12 @@ services:
       - MONGOURL=mongodb://meditor_database:27017
       - MAIL_HOST=${MAIL_HOST}
       - HOST_NAME=${HOST_NAME}
+      - UUI_AUTH_CLIENT_ID=${UUI_AUTH_CLIENT_ID}
+      - UUI_APP_URL_OPS=${UUI_APP_URL_OPS}
+      - UUI_APP_URL_TEST=${UUI_APP_URL_TEST}
+      - URS_USER=${URS_USER}
+      - URS_PASSWORD=${URS_PASSWORD}
+      - PUBLISH_TO_UUI=${PUBLISH_TO_UUI}
 
   ui:
     container_name: meditor_ui
