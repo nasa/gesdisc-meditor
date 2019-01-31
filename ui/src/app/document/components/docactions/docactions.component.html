@@ -1,3 +1,9 @@
 <ng-container *ngFor="let action of actions">
-  <button mat-raised-button (click)="updateState.emit(action.target)">{{ action.label }}</button>
+  <button 
+    mat-raised-button 
+    (click)="updateState.emit(action.target)" 
+    [disabled]="formIsDirty"
+  >
+      {{ action.label }}
+  </button>
 </ng-container>

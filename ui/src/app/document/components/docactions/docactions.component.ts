@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Edge } from 'app/service';
 
 @Component({
@@ -6,14 +6,10 @@ import { Edge } from 'app/service';
 	templateUrl: './docactions.component.html',
 	styleUrls: ['./docactions.component.css']
 })
-export class DocactionsComponent implements OnInit {
+export class DocactionsComponent {
 
 	@Input() actions: Edge[];
+	@Input() formIsDirty: boolean = false
 	@Output() updateState = new EventEmitter<string>();
-
-	constructor() { }
-
-	ngOnInit() {
-	}
 
 }
