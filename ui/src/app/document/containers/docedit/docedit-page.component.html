@@ -76,7 +76,9 @@
           </button>
 					<med-document-actions *ngIf="(document$ | async)['x-meditor'].targetStates.length > 0"
 						[actions]="edges$ | async"
-						(updateState)="updateState($event)">
+						(updateState)="updateState($event)"
+						[formIsDirty]="dirty"
+					>
 					</med-document-actions>	
 				</mat-card-content>
 			</mat-drawer-content>
