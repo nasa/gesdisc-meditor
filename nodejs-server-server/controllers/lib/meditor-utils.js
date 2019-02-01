@@ -156,13 +156,16 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
       })
     .then(users => {
       // Replace author's name placeholder with an actual name (find it in either users or tosusers)
-      notification.body = notification.body.replace(
-        '###AUTHOR###',
-        _(users.length > 0 ? users : tosusers)
-          .filter({uid: meta.document['x-meditor'].modifiedBy})
-          .map(function(u) {return u.firstName + ' ' + u.lastName})
-          .value()[0]
-      );
+      var author = _.filter(users, {uid: meta.document['x-meditor'].modifiedBy});
+      if (author.length === 0) author = _.filter(tosusers, {uid: meta.document['x-meditor'].modifiedBy});
+      if (author.length > 0) {
+        notification.body = notification.body.replace(
+          '###AUTHOR###',
+          _.map(author, function(u) {return u.firstName + ' ' + u.lastName})[0]
+        );
+      } else {
+        notification.body = notification.body.replace('drafted by ###AUTHOR### ', ''); // Should not be here, but just in case...
+      }
       notification.cc = _.uniq(users.map(u => '"'+ u.firstName + ' ' + u.lastName + '" <' + u.emailAddress + '>'));
       return meta.dbo.db(DbName).collection(NotificationQueueCollectionName).insertOne(notification);
     });
