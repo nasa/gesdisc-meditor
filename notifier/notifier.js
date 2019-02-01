@@ -15,15 +15,18 @@ var transporter = nodemailer.createTransport({
     }
   });
 
-function notify(subject, textMessage, htmlMessage, mailtoURL) {
+function notify(subject, textMessage, htmlMessage, mailtoURL, mailCCUrl) {
+    var msg;
     try {
-      transporter.sendMail({
+      msg = {
         from: `mEditor <DoNotReply@${HOST_NAME}>`,
         to: mailtoURL,
         subject: subject,
         text: textMessage,
         html: htmlMessage
-      }, function(err) {
+      };
+      if (mailCCUrl && mailCCUrl.trim() !== '') msg.cc = mailCCUrl;
+      transporter.sendMail(msg, function(err) {
         if (err) console.error(err);
       });
     } catch (e) {
@@ -53,7 +56,8 @@ function getMessagesForProcessing (dbo){
                             var textMessage = element.body;
                             var htmlMessage = element.body + "<p>See <a href='" + element.link.url + "'>" + findResponse[0].link.label + "</a> for more details.</p>";
                             var mailToUrl = element.to.join();
-                            notify(subject,textMessage, htmlMessage, mailToUrl);
+                            var mailCCUrl = element.cc.join();
+                            notify(subject,textMessage, htmlMessage, mailToUrl, mailCCUrl);
                         });
                         dbo.collection(NotificationQueueCollectionName).update( {_id:{$in:docIds}}, sentTime, {multi:true}, function(err,sentResponse){
                             if(err){

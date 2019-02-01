@@ -5,6 +5,8 @@ var stream = require('stream');
 var ObjectID = mongo.ObjectID;
 var mFile = require('./meditor-mongo-file');
 
+var NotificationQueueCollectionName = 'queue-notifications';
+
 // For a given document and metadata, returns a unique file name,
 // to be used when storing the file on the file system
 module.exports.getFSFileName = function getFileName(modelMeta, doc) {
@@ -79,4 +81,92 @@ module.exports.addToConnectorQueue = function addToConnectorQueue(meta, DbName, 
     target: target,
     data: data,
   });
+};
+
+// Converts dictionary params back into URL params
+module.exports.serializeParams = function serializeParams(params, keys) {
+  return _(params)
+  .pickBy(function(val,key) {return (!!keys ? keys.indexOf(key) !== -1 : true) && !_.isNil(val);})
+  .map(function(val, key) {return key + "=" + encodeURIComponent(val);}).value().join('&')
+}
+
+// Create a DB message for the notifier daemon to mail to relevant users
+module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) {
+  var that = {};
+  var targetEdges = _(meta.workflow.edges).filter(function(e) {return e.source === meta.params.state;}).uniq().value();
+  var targetNodes = _(targetEdges).map('target').uniq().value();
+  var targetRoles = _(targetEdges).map('role').uniq().value();
+  var tos;
+  var tosusers;
+  // User: who sent action, including emailAddress, firstName, lastName
+  var notification = {
+    "to": [ ], // This is set later
+    "cc": [ ], // This is set later
+    "subject": meta.params.model + " document is now " + meta.params.state,
+    "body":
+      "An " + meta.params.model + " document drafted by ###AUTHOR### has been marked by " + meta.currentEdge.role + " "
+      + meta.user.firstName + ' ' + meta.user.lastName
+      + " as '" + meta.currentEdge.label + "' and is now in a '"
+      + meta.currentEdge.target + "' state." 
+      + " An action is required to transition the document to one of the [" + targetNodes.join(', ') + "] states.",
+    "link": {
+        label: meta.params.title,
+        url: process.env.APP_UI_URL + "/#/document/edit?" + module.exports.serializeParams(meta.params, ['title', 'model', 'version'])
+    },
+    "createdOn": (new Date()).toISOString()
+  };
+  return Promise.resolve()
+    .then(function() {
+      return meta.dbo
+        .db(DbName)
+        .collection('Users')
+        .aggregate(
+          [{$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
+          {$group: {_id: '$id', doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version
+          {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
+          {$unwind: '$roles'},
+          {$match: {'roles.model': meta.params.model, 'roles.role': {$in: targetRoles}}},
+          {$group: {_id: null, ids: {$addToSet: "$id"}}}
+        ])
+        .toArray();
+    })
+    .then(function(users) {
+       // TOs are all users that have a right to transition the document into a new state
+      if (users.length === 0) throw {message: 'Could not find addressees to notify of the status change', status: 400};
+      tos = _(users[0].ids).uniq().value();
+      return meta.dbo
+        .db(DbName)
+        .collection('users-urs')
+        .find({uid: {$in: tos}})
+        .project({_id:0, emailAddress: 1, firstName: 1, lastName: 1, uid: 1})
+        .toArray();
+    })
+    .then(users => {
+       // ccs are the original author and the person who just made the state change, unless they are already in TO
+      var ccs =  _([meta.user.uid, meta.document['x-meditor'].modifiedBy]).uniq().difference(tos).value();
+      tosusers = users;
+      notification.to = _.uniq(users.map(u => '"'+ u.firstName + ' ' + u.lastName + '" <' + u.emailAddress + '>'));
+      if (notification.to.length === 0) throw {message: 'Could not find addressees to notify of the status change', status: 400};
+      return meta.dbo
+        .db(DbName)
+        .collection('users-urs')
+        .find({uid: {$in: ccs}})
+        .project({_id:0, emailAddress: 1, firstName: 1, lastName: 1, uid: 1})
+        .toArray();
+      })
+    .then(users => {
+      // Replace author's name placeholder with an actual name (find it in either users or tosusers)
+      var author = _.filter(users, {uid: meta.document['x-meditor'].modifiedBy});
+      if (author.length === 0) author = _.filter(tosusers, {uid: meta.document['x-meditor'].modifiedBy});
+      if (author.length > 0) {
+        notification.body = notification.body.replace(
+          '###AUTHOR###',
+          _.map(author, function(u) {return u.firstName + ' ' + u.lastName})[0]
+        );
+      } else {
+        notification.body = notification.body.replace('drafted by ###AUTHOR### ', ''); // Should not be here, but just in case...
+      }
+      notification.cc = _.uniq(users.map(u => '"'+ u.firstName + ' ' + u.lastName + '" <' + u.emailAddress + '>'));
+      return meta.dbo.db(DbName).collection(NotificationQueueCollectionName).insertOne(notification);
+    });
 };

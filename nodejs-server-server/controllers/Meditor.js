@@ -13,7 +13,6 @@ var mFile = require('./lib/meditor-mongo-file');
 
 var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
 var DbName = "meditor";
-var NotificationQueueCollectionName = 'queue-notifications';
 
 var SHARED_MODELS = ['Workflows', 'Users', 'Models'];
 
@@ -42,13 +41,6 @@ function getSwaggerParams(request) {
     params[property] = request.swagger.params[property].value;
   }
   return params;
-}
-
-// Converts dictionary params back into URL params
-function serializeParams(params, keys) {
-  return _(params)
-  .pickBy(function(val,key) {return (!!keys ? keys.indexOf(key) !== -1 : true) && !_.isNil(val);})
-  .map(function(val, key) {return key + "=" + encodeURIComponent(val);}).value().join('&')
 }
 
 function handleResponse(response, res, defaultStatus, defaultMessage) {
@@ -445,54 +437,6 @@ module.exports.getDocument = function listDocuments (request, response, next) {
     });
 };
 
-function notifyOfStateChange(meta) {
-  var that = {};
-  var targetEdges = _(meta.workflow.edges).filter(function(e) {return e.source === meta.params.state;}).uniq().value();
-  var targetNodes = _(targetEdges).map('target').uniq().value();
-  var targetRoles = _(targetEdges).map('role').uniq().value();
-  var notification = {
-    "to": [ ], // This is set later
-    "subject": meta.params.model + " document is now " + meta.params.state,
-    "body":
-      "An " + meta.params.model + " document has been marked by " + meta.user.firstName + ' ' + meta.user.lastName +
-      " as [" + meta.params.state + "]. An action is required to transition the document to [" + targetNodes.join(', ') + "].",
-    "link": {
-        label: meta.params.title,
-        url: process.env.APP_UI_URL + "/#/document/edit?" + serializeParams(meta.params, ['title', 'model', 'version'])
-    },
-    "createdOn": (new Date()).toISOString()
-  };
-  return Promise.resolve()
-    .then(function() {
-      return meta.dbo
-        .db(DbName)
-        .collection('Users')
-        .aggregate(
-          [{$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
-          {$group: {_id: '$id', doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version
-          {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
-          {$unwind: '$roles'},
-          {$match: {'roles.model': meta.params.model, 'roles.role': {$in: targetRoles}}},
-          {$group: {_id: null, ids: {$addToSet: "$id"}}}
-        ])
-        .toArray();
-    })
-    .then(function(users) {
-      if (users.length === 0) throw {message: 'Could not find addressees to notify of the status change', status: 400};
-      return meta.dbo
-        .db(DbName)
-        .collection('users-urs')
-        .find({uid: {$in: users[0].ids}})
-        .project({_id:0, emailAddress: 1, firstName: 1, lastName: 1})
-        .toArray();
-    })
-    .then(users => {
-      notification.to = users.map(u => '"'+ u.firstName + ' ' + u.lastName + '" <' + u.emailAddress + '>');
-      if (notification.to.length === 0) throw {message: 'Could not find addressees to notify of the status change', status: 400};
-      return meta.dbo.db(DbName).collection(NotificationQueueCollectionName).insertOne(notification);
-    });
-};
-
 // Change workflow status of a document
 module.exports.changeDocumentState = function changeDocumentState (request, response, next) {
   var that = {};
@@ -505,6 +449,7 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
     .then(function() {
       var query = getDocumentAggregationQuery(that);
       query.push({$limit: 1});
+
       return that.dbo
         .db(DbName)
         .collection(that.params.model)
@@ -538,7 +483,7 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
     })
     .then(res => {
       const shouldNotify =  _.get(that.currentEdge, 'notify', true) && that.readyNodes.indexOf(that.params.state) === -1;
-      return shouldNotify ? notifyOfStateChange(that) : Promise.resolve();
+      return shouldNotify ? mUtils.notifyOfStateChange(DbName, that) : Promise.resolve();
     })
     .then(res => {return mUtils.addToConnectorQueue(that, DbName, 'uui', {model: that.params.model})}) // Take an opportunity to sync with UUI    .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
