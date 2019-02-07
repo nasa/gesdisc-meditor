@@ -3,6 +3,6 @@ import { version } from './version'
 export const environment = {
   production: true,
   API_BASE_PATH: '/meditor/api',
-  HELP_DOCUMENT_LOCATION: '/assets/mEditorhelp.html',
+  HELP_DOCUMENT_LOCATION: '/meditor/assets/mEditorhelp.html',
   VERSION: version,
 };
