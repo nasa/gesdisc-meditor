@@ -45,7 +45,7 @@
 
 				<mat-card-content>
 					<div class="button-panel">
-						<button mat-mini-fab
+						<button mat-mini-fab *ngIf="(userPrivileges$ | async).includes('comment')" 
 							matBadge="{{commentsCount$ | async}}"
 							matBadgeColor="warn" 
               (click)="showDocumentComments()">
