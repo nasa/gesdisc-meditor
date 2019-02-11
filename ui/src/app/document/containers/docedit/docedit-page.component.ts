@@ -46,6 +46,7 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
 	@ViewChild('sidenav') sidenav: MatSidenav;
 
 	modelName: string;
+	titleProperty: string;
   history: DocHistory[];
   versionFilter: Date = new Date();
 	readonlydoc = true;
@@ -60,6 +61,7 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
 	ngOnInit() {
 		this.model$.subscribe(model => {
 			this.modelName = model.name;
+			this.titleProperty = model.titleProperty;
 		});
     this.history$.subscribe(history => {
       this.history = history; 
@@ -88,7 +90,7 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
 
 	onSubmitDocumentSuccess(document: any) {
 		let model = document['x-meditor'].model
-		let title = document.title
+		let title = document[this.titleProperty]
 
 		this.store.dispatch(new GetDocument({ model, title }));
 		this.store.dispatch(new SuccessNotificationOpen('Successfully updated document'));
