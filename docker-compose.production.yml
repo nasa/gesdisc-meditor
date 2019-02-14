@@ -39,7 +39,7 @@ services:
 
   ui:
     container_name: meditor_ui
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_ui:0.32.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_ui:0.33.0
     restart: on-failure
     environment:
       - NODE_ENV=${NODE_ENV}
