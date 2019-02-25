@@ -40,7 +40,7 @@ var SYNC_TARGETS = [{
 var MEDITOR_MODEL_GROUPS = [
   { 
     uuiModelName: 'news',
-    meditorModelNames: ['News', 'Howto']
+    meditorModelNames: ['News', 'New News']
   }
 ];
 
@@ -234,6 +234,8 @@ function removeDocument(meta, uuiDoc) {
         }).then(resolve, reject)
     });
 }
+
+// Retrieves metadata and documents for a given modelName and given targetStates
 function getMeditorModelMetaAndDocuments(meta, targetStates, modelName) {
     var modelData = {model: modelName};
     return Promise.resolve()    
@@ -272,7 +274,7 @@ function getMeditorModelMetaAndDocuments(meta, targetStates, modelName) {
 
 function pushModelDocuments(meta, model) {
   var modelData = meta.meditorModelData[model];
-  // Compute and schedule items to publish
+  // Compute and schedule items to push to UUI
   return modelData.meditorDocs.reduce((promiseChain, mDoc) => {
     return promiseChain.then(chainResults => 
         ((meta.uuiIds.indexOf(getDocumentUid(modelData, mDoc)) === -1) ? pushDocument(meta, model, mDoc): Promise.resolve())
@@ -280,6 +282,7 @@ function pushModelDocuments(meta, model) {
     );
   }, Promise.resolve([]));
 };
+
 // Pushes all items from a mEditor model specified in params
 // into UUI and purges from UUI items that are no longer
 // present in mEditor. Every item pushed into UUI is marked
@@ -311,10 +314,13 @@ function syncItems (syncTarget, params) {
     return MongoClient.connect(MongoUrl)
         .then(res => {
             meta.dbo = res;
+            // Analyze each of the sibling models as defined by the group and retrieve
+            // metadata and documents for each model
             return Promise.all(modelGroup.meditorModelNames.map(model => getMeditorModelMetaAndDocuments(meta, [syncTarget.state], model)));
         })
         .then(res => {
             meta.meditorModelData = {};
+            // Stored returned metadata and documents under each model's name in meta.meditorModelData
             res.forEach(modelRes => {
               meta.meditorModelData[modelRes.model] = modelRes;
             });
@@ -341,10 +347,13 @@ function syncItems (syncTarget, params) {
         })
         .then(res => res.data || [])
         .then(res => {
-          console.log(meta.meditorModelData);
+            // Compute unique identifiers for each of the meditor documents
+            // for each of the target model and target this.state
+            // After that, flatten the array of id arrays
             var meditorIds = [].concat(...Object.values(meta.meditorModelData).map(modelData => modelData.meditorDocs.map(doc => {return getDocumentUid(modelData, doc)})));
+            // Compute document ids that currently reside in UUI
             meta.uuiIds = res.map(doc => {return doc.originData});
-            // Compute and schedule items to unpublish
+            // Compute and schedule items to remove from UUI (uui ids that are in uui, but not in meditor)
             return res.reduce((promiseChain, uuiDoc) => {
                 return promiseChain.then(chainResults => 
                     ((meditorIds.indexOf(uuiDoc.originData) === -1) ? removeDocument(meta, uuiDoc) : Promise.resolve())
@@ -353,6 +362,8 @@ function syncItems (syncTarget, params) {
             }, Promise.resolve([]));
         })
         .then(res => {
+            // Compute and schedule items to add to UUI (umeditor ids that are in meditor, but not uui)
+            // Do this by iterating through each of the target models and pushing documents from that model
             return Object.keys(meta.meditorModelData).reduce((promiseChain, model) => {
               return promiseChain.then(chainResults => 
                   (pushModelDocuments(meta, model))
@@ -377,5 +388,3 @@ module.exports.processQueueItem = function(data) {
         );
     }, Promise.resolve([]));
 };
-console.log('zzzz');
-syncItems(SYNC_TARGETS[0], {model: 'News'});
