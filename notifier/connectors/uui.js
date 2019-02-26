@@ -265,10 +265,10 @@ function syncItems (syncTarget, params) {
             if (meta.schema) meta.schema = JSON.parse(meta.schema);
             meditorContentQuery = [
                 {$addFields: {'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}}}, // Find last state
+                {$match: {'x-meditor.state': {$in: [syncTarget.state]}}}, // Filter states based on the specified state
                 {$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
-                {$group: {_id: '$' + meta.titleProperty, doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version
+                {$group: {_id: '$' + meta.titleProperty, doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version with the specified state
                 {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
-                {$match: {'x-meditor.state': {$in: [syncTarget.state]}}}, // Filter states based on the role's source states
             ];
             return meta.dbo
                 .db(DbName)
