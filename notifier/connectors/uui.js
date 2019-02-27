@@ -36,6 +36,14 @@ var SYNC_TARGETS = [{
     }
 ];
 
+// This parameter can be used to push from multiple mEditor models into a single model in UUI
+var MEDITOR_MODEL_GROUPS = [
+  { 
+    uuiModelName: 'news',
+    meditorModelNames: ['News', 'New News']
+  }
+];
+
 var URS_BASE_URL = 'https://urs.earthdata.nasa.gov';
 var URS_HEADERS = { // A minimal viable set of URS headeres
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',  
@@ -155,9 +163,9 @@ function loginIntoUrs (params) {
         .then(res => {return cookiejar;});
 }
 
-function pushDocument(meta, meditorDoc) {
+function pushDocument(meta, model, meditorDoc) {
     return new Promise(function(resolve, reject) {
-        console.log('Pushing [' + _.get(meditorDoc, meta.titleProperty) + '] of type [' + meta.params.model + '] to UUI', isDryRun() ? '(Dry Run Mode)' : '');
+        console.log('Pushing [' + _.get(meditorDoc, meta.meditorModelData[model].titleProperty) + '] of type [' + model + '] to UUI [' + meta.uuiModelName + ']', isDryRun() ? '(Dry Run Mode)' : '');
         if (isDryRun()) return resolve();
         // Fetch image from GridFS if necessary
         ((_.isNil(meditorDoc.image)) ? Promise.resolve() : mFile.getFileSystemItem(meta.dbo.db(DbName), meditorDoc.image)).then(function(image) {
@@ -166,13 +174,13 @@ function pushDocument(meta, meditorDoc) {
             var uui_headers = _.cloneDeep(UUI_HEADERS);
             postedModel = _.cloneDeep(meditorDoc);
             _.assign(postedModel, {
-                'title': _.get(meditorDoc, meta.titleProperty),
+                'title': _.get(meditorDoc, meta.meditorModelData[model].titleProperty),
                 'published': true,
                 'originName': 'meditor',
-                'originData': getDocumentUid(meta, meditorDoc)
+                'originData': getDocumentUid(meta.meditorModelData[model], meditorDoc)
             });
             postRequest = {
-                url: meta.UUI_APP_URL + '/api/' + getUuiModelName(meta.params.model),
+                url: meta.UUI_APP_URL + '/api/' + meta.uuiModelName,
                 headers: uui_headers,
                 jar: meta.cookiejar, 
                 followAllRedirects: true,
@@ -188,12 +196,12 @@ function pushDocument(meta, meditorDoc) {
                 postedModel.fileRef = {
                     value: new Buffer(image[1], 'base64'),
                     options: {
-                        filename: _.get(meditorDoc, meta.titleProperty),
+                        filename: _.get(meditorDoc, meta.meditorModelData[model].titleProperty),
                         contentType: image[0][1]
                     }
                 }
             }
-            if (!!meta.schema.properties.image) {
+            if (!!meta.meditorModelData[model].schema.properties.image) {
                 // File-based documents are submitted as a form
                 // Convert all keys to string as required by the form-encoded transport
                 uui_headers['Content-Type'] = 'multipart/form-data';
@@ -216,16 +224,64 @@ function pushDocument(meta, meditorDoc) {
 
 function removeDocument(meta, uuiDoc) {
     return new Promise(function(resolve, reject) {
-        console.log('Removing [' + uuiDoc.title + '] of type [' + meta.params.model + '] from UUI', isDryRun() ? '(Dry Run Mode)' : '');
+        console.log('Removing [' + uuiDoc.title + '] of type [' + meta.uuiModelName + '] from UUI [' + meta.uuiModelName + ']', isDryRun() ? '(Dry Run Mode)' : '');
         if (isDryRun()) return resolve();
         requests.delete({
-            url: meta.UUI_APP_URL + '/api/' + getUuiModelName(meta.params.model) + '/' + encodeURIComponent(encodeURIComponent(uuiDoc.title)),
+            url: meta.UUI_APP_URL + '/api/' + meta.uuiModelName + '/' + encodeURIComponent(encodeURIComponent(uuiDoc.title)),
             headers: UUI_HEADERS,
             jar: meta.cookiejar, 
             followAllRedirects: true
         }).then(resolve, reject)
     });
 }
+
+// Retrieves metadata and documents for a given modelName and given targetStates
+function getMeditorModelMetaAndDocuments(meta, targetStates, modelName) {
+    var modelData = {model: modelName};
+    return Promise.resolve()    
+        .then(res => {    
+            return meta.dbo.db(DbName)
+                .collection("Models")
+                .find({name: modelName})
+                .project({_id:0})
+                .sort({"x-meditor.modifiedOn":-1})
+                .limit(1)
+                .toArray();
+        })
+        .then(res => {
+            var meditorContentQuery; 
+            _.assign(modelData, res[0]);
+            if (!modelData.titleProperty) modelData.titleProperty = 'title';
+            if (modelData.schema) modelData.schema = JSON.parse(modelData.schema);
+            meditorContentQuery = [
+                {$addFields: {'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}}}, // Find last state
+                {$match: {'x-meditor.state': {$in: [syncTarget.state]}}}, // Filter states based on the specified state
+                {$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
+                {$group: {_id: '$' + meta.titleProperty, doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version with the specified state
+                {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
+            ];
+            return meta.dbo
+                .db(DbName)
+                .collection(modelName)
+                .aggregate(meditorContentQuery)
+                .toArray();
+        })
+        .then(res => {
+            modelData.meditorDocs = res;
+            return Promise.resolve(modelData);
+        });
+};
+
+function pushModelDocuments(meta, model) {
+  var modelData = meta.meditorModelData[model];
+  // Compute and schedule items to push to UUI
+  return modelData.meditorDocs.reduce((promiseChain, mDoc) => {
+    return promiseChain.then(chainResults => 
+        ((meta.uuiIds.indexOf(getDocumentUid(modelData, mDoc)) === -1) ? pushDocument(meta, model, mDoc): Promise.resolve())
+            .then(currentResult => [ ...chainResults, currentResult ])
+    );
+  }, Promise.resolve([]));
+};
 
 // Pushes all items from a mEditor model specified in params
 // into UUI and purges from UUI items that are no longer
@@ -237,10 +293,19 @@ function syncItems (syncTarget, params) {
     console.log('Syncronizing documents with UUI. Target:', syncTarget, 'Model:', params);
     var meta = {
         params: params,
+        modelData: {},
         UUI_APP_URL: syncTarget.uuiUrl.replace(/\/+$/, '')
     };
     var xmeditorProperties = ["modifiedOn", "modifiedBy", "state"];
     var contentSelectorQuery = SYNC_MEDITOR_DOCS_ONLY ? '?originName=[$eq][meditor]' : '';
+    var defaultModelGroup = {
+      uuiModelName: getUuiModelName(params.model),
+      meditorModelNames: [params.model]
+    };
+    var modelGroup = _.find(MEDITOR_MODEL_GROUPS, function(g) {
+      return g.meditorModelNames.indexOf(params.model) !== -1
+    }) || defaultModelGroup;
+    _.assign(meta, modelGroup);
 
     if (isDryRun()) {
         console.error('UUI sync is disabled. Running in Dry Run mode - changes will NOT be propagated to UUI. Set PUBLISH_TO_UUI to true to enable sync.');
@@ -249,35 +314,16 @@ function syncItems (syncTarget, params) {
     return MongoClient.connect(MongoUrl)
         .then(res => {
             meta.dbo = res;
-            return meta.dbo
-                .db(DbName)
-                .collection("Models")
-                .find({name:params.model})
-                .project({_id:0})
-                .sort({"x-meditor.modifiedOn":-1})
-                .limit(1)
-                .toArray();
+            // Analyze each of the sibling models as defined by the group and retrieve
+            // metadata and documents for each model
+            return Promise.all(modelGroup.meditorModelNames.map(model => getMeditorModelMetaAndDocuments(meta, [syncTarget.state], model)));
         })
         .then(res => {
-            var meditorContentQuery; 
-            _.assign(meta, res[0]);
-            if (!meta.titleProperty) meta.titleProperty = 'title';
-            if (meta.schema) meta.schema = JSON.parse(meta.schema);
-            meditorContentQuery = [
-                {$addFields: {'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}}}, // Find last state
-                {$match: {'x-meditor.state': {$in: [syncTarget.state]}}}, // Filter states based on the specified state
-                {$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
-                {$group: {_id: '$' + meta.titleProperty, doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version with the specified state
-                {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
-            ];
-            return meta.dbo
-                .db(DbName)
-                .collection(meta.params.model)
-                .aggregate(meditorContentQuery)
-                .toArray();
-        })
-        .then(res => {
-            meta.meditorDocs = res;
+            meta.meditorModelData = {};
+            // Stored returned metadata and documents under each model's name in meta.meditorModelData
+            res.forEach(modelRes => {
+              meta.meditorModelData[modelRes.model] = modelRes;
+            });
             return loginIntoUrs({
                 user: URS_USER,
                 password: URS_PASSWORD,
@@ -291,20 +337,23 @@ function syncItems (syncTarget, params) {
             return requests({url: meta.UUI_APP_URL + '/api/users/me', headers: UUI_HEADERS, json: true, jar: meta.cookiejar, gzip: true});
         })
         .then(res => {
-            console.log('Logged in into UUI as', res.uid, 'with roles for ' + meta.params.model + ': ', _.get(res, 'roles.' + getUuiModelName(meta.params.model), []));
+            console.log('Logged in into UUI as', res.uid, 'with roles for ' + meta.params.model + ': ', _.get(res, 'roles.' + meta.uuiModelName, []));
             // Acquire UUI CSRF token
             return requests({url: meta.UUI_APP_URL + '/api/csrf-token', headers: UUI_HEADERS, json: true, jar: meta.cookiejar, gzip: true});
         })
         .then(res => {
             UUI_HEADERS['x-csrf-token'] = res.csrfToken;
-            return requests({url: meta.UUI_APP_URL + '/api/' + getUuiModelName(meta.params.model) + contentSelectorQuery, headers: UUI_HEADERS, json: true, jar: meta.cookiejar, gzip: true});
+            return requests({url: meta.UUI_APP_URL + '/api/' + meta.uuiModelName + contentSelectorQuery, headers: UUI_HEADERS, json: true, jar: meta.cookiejar, gzip: true});
         })
         .then(res => res.data || [])
         .then(res => {
-            var meditorIds = meta.meditorDocs.map(doc => {return getDocumentUid(meta, doc)});
+            // Compute unique identifiers for each of the meditor documents
+            // for each of the target model and target this.state
+            // After that, flatten the array of id arrays
+            var meditorIds = [].concat(...Object.values(meta.meditorModelData).map(modelData => modelData.meditorDocs.map(doc => {return getDocumentUid(modelData, doc)})));
+            // Compute document ids that currently reside in UUI
             meta.uuiIds = res.map(doc => {return doc.originData});
-
-            // Compute and schedule items to unpublish
+            // Compute and schedule items to remove from UUI (uui ids that are in uui, but not in meditor)
             return res.reduce((promiseChain, uuiDoc) => {
                 return promiseChain.then(chainResults => 
                     ((meditorIds.indexOf(uuiDoc.originData) === -1) ? removeDocument(meta, uuiDoc) : Promise.resolve())
@@ -313,12 +362,13 @@ function syncItems (syncTarget, params) {
             }, Promise.resolve([]));
         })
         .then(res => {
-            // Compute and schedule items to publish
-            return meta.meditorDocs.reduce((promiseChain, mDoc) => {
-                return promiseChain.then(chainResults => 
-                    ((meta.uuiIds.indexOf(getDocumentUid(meta, mDoc)) === -1) ? pushDocument(meta, mDoc): Promise.resolve())
-                        .then(currentResult => [ ...chainResults, currentResult ])
-                );
+            // Compute and schedule items to add to UUI (umeditor ids that are in meditor, but not uui)
+            // Do this by iterating through each of the target models and pushing documents from that model
+            return Object.keys(meta.meditorModelData).reduce((promiseChain, model) => {
+              return promiseChain.then(chainResults => 
+                  (pushModelDocuments(meta, model))
+                      .then(currentResult => [ ...chainResults, currentResult ] )
+              );
             }, Promise.resolve([]));
         })
         .then(res => {})
