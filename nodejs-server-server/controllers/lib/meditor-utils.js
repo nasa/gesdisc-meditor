@@ -101,7 +101,7 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
   var tos;
   var tosusers;
   // User: who sent action, including emailAddress, firstName, lastName
-  var notificationTemplate = mustache.render(meta.model.notificationTemplate || '', meta.document)
+  var notificationTemplate = mustache.render(meta.model.notificationTemplate || '', meta.document);
   var notification = {
     "to": [ ], // This is set later
     "cc": [ ], // This is set later
