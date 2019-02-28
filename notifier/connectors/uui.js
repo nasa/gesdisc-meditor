@@ -255,9 +255,9 @@ function getMeditorModelMetaAndDocuments(meta, targetStates, modelName) {
             if (modelData.schema) modelData.schema = JSON.parse(modelData.schema);
             meditorContentQuery = [
                 {$addFields: {'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}}}, // Find last state
-                {$match: {'x-meditor.state': {$in: [targetStates]}}}, // Filter states based on the specified state
+                {$match: {'x-meditor.state': {$in: targetStates}}}, // Filter states based on the specified state
                 {$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
-                {$group: {_id: '$' + meta.titleProperty, doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version with the specified state
+                {$group: {_id: '$' + modelData.titleProperty, doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version with the specified state
                 {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
             ];
             return meta.dbo
