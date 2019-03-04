@@ -112,7 +112,7 @@ function isDryRun() {
 // Returns a unique identifier for a given mEdiotor document
 // Used for provenance when writing a document to UUI
 function getDocumentUid (metadata, meditorDoc) {
-    return encodeURIComponent(_.get(meditorDoc, metadata.titleProperty)) + '_' + meditorDoc['x-meditor'].modifiedOn;
+    return encodeURIComponent(_.get(meditorDoc, metadata.titleProperty)) + '_' + meditorDoc['x-meditor'].publishedOn;
 }
 
 // Converts mEditor model name into UUI model name
@@ -122,6 +122,7 @@ function getUuiModelName (model) {
 
 // Modified from: https://stackoverflow.com/questions/30366324/
 function jsonUnescape(j) {
+    if (!_.isString(j)) return j;
     // Note: this does not account for \uxxx - not sure if we have any
     ['b', 'f', 'n', 'r', 't', '"'].forEach(function(c) {
        j=j.split('\\' + c).join(JSON.parse('"\\' + c + '"'));
@@ -176,9 +177,13 @@ function pushDocument(meta, model, meditorDoc) {
             _.assign(postedModel, {
                 'title': _.get(meditorDoc, meta.meditorModelData[model].titleProperty),
                 'published': true,
+                'lastPublished': _.get(meditorDoc,'x-meditor.publishedOn'),
+                'updated': _.get(meditorDoc,'x-meditor.modifiedOn'),
+                'created': _.get(meditorDoc, 'x-meditor.createdOn'),
                 'originName': 'meditor',
                 'originData': getDocumentUid(meta.meditorModelData[model], meditorDoc)
             });
+
             postRequest = {
                 url: meta.UUI_APP_URL + '/api/' + meta.uuiModelName,
                 headers: uui_headers,
@@ -254,7 +259,11 @@ function getMeditorModelMetaAndDocuments(meta, targetStates, modelName) {
             if (!modelData.titleProperty) modelData.titleProperty = 'title';
             if (modelData.schema) modelData.schema = JSON.parse(modelData.schema);
             meditorContentQuery = [
-                {$addFields: {'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}}}, // Find last state
+                {$addFields: {
+                  'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}, // Find last state
+                  'x-meditor.createdOn': { $arrayElemAt: [ "$x-meditor.states.modifiedOn", 0 ]}, // Find first edit
+                  'x-meditor.publishedOn': { $arrayElemAt: [ "$x-meditor.states.modifiedOn", -1 ]} // Find last state transition
+                }},
                 {$match: {'x-meditor.state': {$in: targetStates}}}, // Filter states based on the specified state
                 {$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
                 {$group: {_id: '$' + modelData.titleProperty, doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version with the specified state
