@@ -6,9 +6,7 @@ ARG node_env
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 COPY ./ ./
-
-# Not sure what this is all about, but it is broken and does not seem to be necessary any more
-# COPY ./node_modules/angular2-json-schema-form ./node_modules/angular2-json-schema-form
+COPY ./node_modules/angular2-json-schema-form ./node_modules/angular2-json-schema-form
 
 RUN npm uninstall node-sass
 RUN npm install node-sass
