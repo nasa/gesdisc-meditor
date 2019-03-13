@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import isMatch from 'lodash/isMatch' 		// lodash/isMatch does deep comparison, underscore/isMatch is shallow
+import * as _ from 'underscore'
 
 @Component({
 	selector: 'med-document-edit',
@@ -28,6 +29,8 @@ export class DocumentEditComponent {
 
 		this.data = document.doc;
 	}
+
+  @Input() readonly: boolean;
 
 	@Output() liveData = new EventEmitter<object>();
 	@Output() isValid = new EventEmitter<boolean>();
@@ -66,12 +69,22 @@ export class DocumentEditComponent {
   toggleAllSections() {
     this.expandAll = !this.expandAll;
     let newlayout = this.layout.slice(0);
-    newlayout.forEach(item => { 
-      if (item.type === 'section' && item.expandable === true) { 
-        item.expanded = !this.expandAll; 
-      } 
-    });
+    let that = this;
+    this.toggleExpandable(newlayout, that)
     this.layout = newlayout;
   }
+
+  toggleExpandable(node: any, context: any) {
+    _.each(node, function(item: any) {
+      if (item.expandable) { item.expanded = !context.expandAll }
+      if (item.items) { 
+        _.each(item.items, function(i: any) {
+          context.toggleExpandable(i.items, context)
+        })  
+      }
+    })
+  }
+
+
 
 }

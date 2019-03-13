@@ -22,10 +22,6 @@
   margin-right: 0.5em;
 }
 
-.readonly-doc {
-	pointer-events: none;
-}
-
 .mat-drawer {
   padding-left: 30px;
 	padding-bottom: 30px;

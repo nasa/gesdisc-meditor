@@ -3,6 +3,7 @@
  (click)="toggleAllSections()" 
   style="margin-top: 1em;">{{ expandAll ? 'Expand all' : 'Collapse all' }}</button>
 <json-schema-form *ngIf="schema"
+  [class.readonly-doc]="readonly"
 	[schema] = "schema"
 	[layout] = "layout"
 	[defaultLayoutOptions] = "defaultLayoutOptions"
