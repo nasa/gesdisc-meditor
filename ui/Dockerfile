@@ -11,6 +11,7 @@ COPY ./node_modules/angular2-json-schema-form ./node_modules/angular2-json-schem
 RUN npm uninstall node-sass
 RUN npm install node-sass
 RUN npm install
+RUN npm install -g @angular/cli
 RUN npm install -g http-server
 RUN npm run build
 

@@ -2,8 +2,10 @@ var _ = require('lodash');
 var transliteration = require('transliteration');
 var mongo = require('mongodb');
 var stream = require('stream');
+var mustache = require('mustache');
+var he = require('he');
 var ObjectID = mongo.ObjectID;
-var mFile = require('./meditor-mongo-file');
+var mFile = require('./meditor-mongo-file'); 
 
 var NotificationQueueCollectionName = 'queue-notifications';
 
@@ -99,6 +101,7 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
   var tos;
   var tosusers;
   // User: who sent action, including emailAddress, firstName, lastName
+  var notificationTemplate = mustache.render(meta.model.notificationTemplate || '', meta.document);
   var notification = {
     "to": [ ], // This is set later
     "cc": [ ], // This is set later
@@ -108,13 +111,15 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
       + meta.user.firstName + ' ' + meta.user.lastName
       + " as '" + meta.currentEdge.label + "' and is now in a '"
       + meta.currentEdge.target + "' state." 
-      + " An action is required to transition the document to one of the [" + targetNodes.join(', ') + "] states.",
+      + " An action is required to transition the document to one of the [" + targetNodes.join(', ') + "] states."
+      + he.decode(notificationTemplate),
     "link": {
         label: meta.params.title,
         url: process.env.APP_UI_URL + "/#/document/edit?" + module.exports.serializeParams(meta.params, ['title', 'model', 'version'])
     },
     "createdOn": (new Date()).toISOString()
   };
+
   return Promise.resolve()
     .then(function() {
       return meta.dbo
