@@ -25,6 +25,6 @@ import { Title }     from '@angular/platform-browser';
 })
 export class NotFoundPageComponent {
   constructor(private titleService: Title) {
-    this.titleService.setTitle('mEditor | Page not found');
+    this.titleService.setTitle('Page not found | mEditor');
   }
 }

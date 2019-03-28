@@ -36,7 +36,7 @@ export class DocNewPageComponent implements OnInit, ComponentCanDeactivate {
 			this.titleProperty = model.titleProperty;
 		});
 
-    this.titleService.setTitle('mEditor | ' + this.modelName + ' | Add new');
+    this.titleService.setTitle( 'Add new | ' + this.modelName + ' | mEditor');
 	}
 
 	@HostListener('window:beforeunload')

@@ -74,7 +74,7 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
 			if (workflow) {
 				this.document$.subscribe(document => {
 					this.store.dispatch(new UpdateWorkflowState(document['x-meditor'].state));
-          this.titleService.setTitle('mEditor | ' + this.modelName + ' | ' + document.doc.title);
+          this.titleService.setTitle(document.doc.title + ' | ' + this.modelName + ' | mEditor');
 				});
 			}
 		});

@@ -45,7 +45,7 @@ export class SearchPageComponent implements OnInit {
 		this.store.dispatch(new GetModelDocuments());
 		this.store.dispatch(new GetWorkflow({title: model.workflow}));
 		this.store.dispatch(new GetUserPrivileges());
-    this.titleService.setTitle('mEditor | ' + this.selectedModelName);
+    this.titleService.setTitle(this.selectedModelName + ' | mEditor');
 	}
 
 	selectedModelDocumentsChanged() {
