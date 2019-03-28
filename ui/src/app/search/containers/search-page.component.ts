@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
+import { Title }     from '@angular/platform-browser';
 import { map, tap, withLatestFrom } from 'rxjs/operators';
 import * as _ from 'underscore';
 import { Observable } from 'rxjs/Observable';
@@ -27,7 +28,10 @@ export class SearchPageComponent implements OnInit {
 	filteredDocuments$: Observable<DocCatalogEntry[]>;
 	selectedModelName: string;
 
-	constructor(private store: Store) {}
+	constructor(
+		private store: Store,
+    private titleService: Title
+	) {}
 
 	ngOnInit() {
 		this.selectedModel$.subscribe(this.selectedModelChanged.bind(this));
@@ -41,6 +45,7 @@ export class SearchPageComponent implements OnInit {
 		this.store.dispatch(new GetModelDocuments());
 		this.store.dispatch(new GetWorkflow({title: model.workflow}));
 		this.store.dispatch(new GetUserPrivileges());
+    this.titleService.setTitle('mEditor | ' + this.selectedModelName);
 	}
 
 	selectedModelDocumentsChanged() {
