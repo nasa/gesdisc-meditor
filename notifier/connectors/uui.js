@@ -31,7 +31,7 @@ var SYNC_TARGETS = [{
         state: 'Published',
         uuiUrl: UUI_APP_URL_FOR_PUBLISHED
     }, {
-        state: 'In Test',
+        state: 'Draft',
         uuiUrl: UUI_APP_URL_FOR_TEST
     }
 ];
