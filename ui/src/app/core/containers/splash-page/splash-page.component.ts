@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Title }     from '@angular/platform-browser';
 import { ModelCatalogEntry } from 'app/service/model/models';
 import { Observable } from 'rxjs/Observable';
 
@@ -18,11 +19,13 @@ export class SplashPageComponent implements OnInit {
 	@Select(ModelState.categories) categories$: Observable<string[]>;
 
 	constructor(
-		private store: Store
+		private store: Store,
+    private titleService: Title
 	) {}
 
 	ngOnInit () {
 		localStorage.clear();
+    this.titleService.setTitle('mEditor');
 	}
 
 	goToSearchPage(event: any) {

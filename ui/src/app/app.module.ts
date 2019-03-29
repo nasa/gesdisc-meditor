@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, Title } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { FlexLayoutModule } from '@angular/flex-layout';
@@ -63,6 +63,7 @@ const routeResolvers = [ DocumentResolver, ModelResolver, DocEditResolver, Model
 			useClass: UnauthorizedInterceptor,
 			multi: true
 		},
+    Title
 	],
 	declarations: [ SnackBarComponent ],
 	entryComponents: [ SnackBarComponent ],

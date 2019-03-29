@@ -1,4 +1,5 @@
 import { Component, OnInit, HostListener } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { Observable } from 'rxjs/Observable';
 import { Store, Select } from '@ngxs/store';
 import { Model } from 'app/service/model/models';
@@ -24,13 +25,18 @@ export class DocNewPageComponent implements OnInit, ComponentCanDeactivate {
 	isFormValid: boolean;
 	dirty: boolean = false;
 
-	constructor(private store: Store) {}
+	constructor(
+		private store: Store,
+    private titleService: Title
+	) {}
 
 	ngOnInit() {
 		this.model$.subscribe((model: any) => {
 			this.modelName = model.name;
 			this.titleProperty = model.titleProperty;
 		});
+
+    this.titleService.setTitle( 'Add new | ' + this.modelName + ' | mEditor');
 	}
 
 	@HostListener('window:beforeunload')

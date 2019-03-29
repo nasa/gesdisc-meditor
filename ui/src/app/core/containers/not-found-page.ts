@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Title }     from '@angular/platform-browser';
 
 @Component({
   selector: 'med-not-found-page',
@@ -22,4 +23,8 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
   `,
   ],
 })
-export class NotFoundPageComponent {}
+export class NotFoundPageComponent {
+  constructor(private titleService: Title) {
+    this.titleService.setTitle('Page not found | mEditor');
+  }
+}

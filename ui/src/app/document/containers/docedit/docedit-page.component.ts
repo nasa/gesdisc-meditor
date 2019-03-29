@@ -1,4 +1,5 @@
 import { Component, ViewChild, OnInit, HostListener } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Store, Select } from '@ngxs/store';
 import { ModelState } from 'app/store/model/model.state';
@@ -56,7 +57,10 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
 	showComments: boolean;
 	dirty: boolean = false;
 
-	constructor(private store: Store) {}
+	constructor(
+		private store: Store,
+    private titleService: Title
+	) {}
 
 	ngOnInit() {
 		this.model$.subscribe(model => {
@@ -70,9 +74,11 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
 			if (workflow) {
 				this.document$.subscribe(document => {
 					this.store.dispatch(new UpdateWorkflowState(document['x-meditor'].state));
+          this.titleService.setTitle(document.doc.title + ' | ' + this.modelName + ' | mEditor');
 				});
 			}
 		});
+    
 	}
 
 	@HostListener('window:beforeunload')
