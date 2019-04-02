@@ -6,6 +6,9 @@ var MongoClient = mongo.MongoClient;
 var mFile = require('./lib/meditor-mongo-file');
 
 const DEBUG_URS_LOGIN = false;
+// Meditor models supported in UUI
+const PUBLISHABLE_MODELS = ['Alerts', 'Data-In-Action', 'Documents', 'FAQs', 'Glossary',
+  'Howto', 'Images', 'New News', 'News', 'Publications', 'Tools'];
 
 // Try to load up environment config if not loaded already
 if (!!process.env.MEDITOR_ENV_FILE_PATH) {
@@ -27,7 +30,7 @@ var UUI_APP_URL_FOR_TEST = process.env.UUI_APP_URL_TEST;
 var URS_USER = process.env.URS_USER;
 var URS_PASSWORD = process.env.URS_PASSWORD;
 
-var SYNC_TARGETS = [{
+const SYNC_TARGETS = [{
         state: 'Published',
         uuiUrl: UUI_APP_URL_FOR_PUBLISHED
     }, {
@@ -37,7 +40,7 @@ var SYNC_TARGETS = [{
 ];
 
 // This parameter can be used to push from multiple mEditor models into a single model in UUI
-var MEDITOR_MODEL_GROUPS = [
+const MEDITOR_MODEL_GROUPS = [
   { 
     uuiModelName: 'news',
     meditorModelNames: ['News', 'New News']
@@ -335,6 +338,7 @@ function pushModelDocuments(meta, model) {
 // All other items in UUI are essentially invisible to this code.
 function syncItems (syncTarget, params) {
     console.log('Syncronizing documents with UUI. Target:', syncTarget, 'Model:', params);
+    if (PUBLISHABLE_MODELS.indexOf(params.model) === -1) return Promise.resolve(); // Ignore models not supported in UUI
     var meta = {
         params: params,
         modelData: {},
@@ -350,7 +354,6 @@ function syncItems (syncTarget, params) {
       return g.meditorModelNames.indexOf(params.model) !== -1
     }) || defaultModelGroup;
     _.assign(meta, modelGroup);
-
     if (isDryRun()) {
         console.error('UUI sync is disabled. Running in Dry Run mode - changes will NOT be propagated to UUI. Set PUBLISH_TO_UUI to true to enable sync.');
     }
