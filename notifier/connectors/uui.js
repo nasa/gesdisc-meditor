@@ -6,6 +6,9 @@ var MongoClient = mongo.MongoClient;
 var mFile = require('./lib/meditor-mongo-file');
 
 const DEBUG_URS_LOGIN = false;
+// Meditor models supported in UUI
+const PUBLISHABLE_MODELS = ['Alerts', 'Data-In-Action', 'Documents', 'FAQs', 'Glossary',
+  'Howto', 'Images', 'New News', 'News', 'Publications', 'Tools'];
 
 // Try to load up environment config if not loaded already
 if (!!process.env.MEDITOR_ENV_FILE_PATH) {
@@ -29,16 +32,18 @@ var UUI_APP_URL_FOR_TEST = process.env.UUI_APP_URL_TEST;
 var URS_USER = process.env.URS_USER;
 var URS_PASSWORD = process.env.URS_PASSWORD;
 
-var SYNC_TARGETS = [{
+const SYNC_TARGETS = [{
   state: 'Published',
-  uuiUrl: UUI_APP_URL_FOR_PUBLISHED
+  uuiUrl: UUI_APP_URL_FOR_PUBLISHED,
+  targetLabel: 'OPS'
 }, {
   state: 'Draft',
-  uuiUrl: UUI_APP_URL_FOR_TEST
+  uuiUrl: UUI_APP_URL_FOR_TEST,
+  targetLabel: 'Test'
 }];
 
 // This parameter can be used to push from multiple mEditor models into a single model in UUI
-var MEDITOR_MODEL_GROUPS = [{
+const MEDITOR_MODEL_GROUPS = [{
   uuiModelName: 'news',
   meditorModelNames: ['News', 'New News']
 }];
@@ -104,6 +109,7 @@ if (DEBUG_URS_LOGIN) {
   });
 }
 
+// Tells us whether we should in fact update UUI or just 'probe' it
 function isDryRun() {
   return (((process.env.PUBLISH_TO_UUI || '') + '').toLowerCase() !== 'true');
 }
@@ -168,11 +174,39 @@ function loginIntoUrs(params) {
     });
 }
 
+// Helper function used in removeTargetUrlFromDocumentMetadataForAllTargets
+// Pulls all records of publishing a document with a given title to a given
+// target url
+var removeTargetUrlFromDocumentMetadata = function(meta, model, title, targetUrl) {
+  return new Promise(function (resolve, reject) {
+    meta.dbo.db(DbName).collection(model).updateMany({
+      title: title
+    }, {$pull: {'x-meditor.publishedTo': {'link': targetUrl}}}, function (err, res) {
+      if (err) return reject(err, res);
+      resolve();
+    });
+  });
+};
+
+// Helper function for removing a record of publishing a document to a target
+// Since multiple models in mEditor can map to a single model in UUI, iterate
+// through all possible sibling mEditor models for a given updated model
+var removeTargetUrlFromDocumentMetadataForAllTargets = function(meta, title, targetUrl) {
+  return Object.keys(meta.meditorModelData).reduce((promiseChain, model) => {
+    return promiseChain.then(chainResults =>
+      (removeTargetUrlFromDocumentMetadata(meta, model, title, targetUrl))
+      .then(currentResult => [...chainResults, currentResult])
+    );
+  }, Promise.resolve([]));
+};
+
+// Pushes a mEditor document into UUI
 function pushDocument(meta, model, meditorDoc) {
+  // targetUrl is where this pushed document will be available in UUI
   var targetUrl = meta.UUI_APP_URL + '/information/' + meta.uuiModelName + '?' + 'title=' + encodeURIComponent(_.get(meditorDoc, meta.meditorModelData[model].titleProperty));
   return Promise.resolve()
     .then(res => {
-      console.log('Pushing [' + _.get(meditorDoc, meta.meditorModelData[model].titleProperty) + '] of type [' + model + '] to UUI [' + meta.uuiModelName + ']', isDryRun() ? '(Dry Run Mode)' : '');
+      console.log('Publishing [' + _.get(meditorDoc, meta.meditorModelData[model].titleProperty) + '] of type [' + model + '] to UUI [' + meta.uuiModelName + ']', isDryRun() ? '(Dry Run Mode)' : '');
       if (isDryRun()) return resolve();
       // Fetch image from GridFS if necessary
       ((_.isNil(meditorDoc.image)) ? Promise.resolve() : mFile.getFileSystemItem(meta.dbo.db(DbName), meditorDoc.image))
@@ -233,20 +267,19 @@ function pushDocument(meta, model, meditorDoc) {
       return requests.post(postRequest)
     })
     .then(res => {
+      // Make sure to remove all previous records of publishing this document to a given target
+      return removeTargetUrlFromDocumentMetadataForAllTargets(meta, _.get(meditorDoc, meta.meditorModelData[model].titleProperty), targetUrl);
+    })
+    .then(res => {
+      // Make a record in 'x-meditor.publishedTo' of publishing the document
+      // to a given targetUrl
       return new Promise(function (resolve, reject) {
-        console.log('+++++++++++',{
-          _id: meditorDoc._id
-        }, JSON.stringify({$addToSet: {'x-meditor.publishedTo': {
-          'target': 'uui',
-          'link': targetUrl,
-          //'publishedOn': (new Date()).toISOString()
-        }}}, null,2));
         meta.dbo.db(DbName).collection(model).updateOne({
           _id: meditorDoc._id
         }, {$addToSet: {'x-meditor.publishedTo': {
-          'target': 'uui',
+          'target': 'GES DISC Web site (' + meta.target.targetLabel + ')',
           'link': targetUrl,
-          //'publishedOn': (new Date()).toISOString()
+          'publishedOn': (new Date()).toISOString()
         }
         }}, function (err, res) {
           if (err) return reject(err, res);
@@ -259,7 +292,9 @@ function pushDocument(meta, model, meditorDoc) {
     });
 }
 
+// Removes a document with a given title from UUI
 function removeDocument(meta, uuiDoc) {
+  // targetUrl is a URL of a UUI document that is being removed
   var targetUrl = meta.UUI_APP_URL + '/information/' + meta.uuiModelName + '?' + 'title=' + encodeURIComponent(uuiDoc.title);
   return Promise.resolve()
     .then(res => {
@@ -273,26 +308,8 @@ function removeDocument(meta, uuiDoc) {
       });
     })
     .then(function() {
-      var removeTargetUrlFromDocumentsMeta = function(meta, model, uuiDoc, targetUrl) {
-        return new Promise(function (resolve, reject) {
-          console.log('----------',{
-            title: uuiDoc.title
-          }, JSON.stringify({$pull: {'x-meditor.publishedTo': {'target': 'uui', 'link': targetUrl}}}, null,2));
-          meta.dbo.db(DbName).collection(model).updateMany({
-            title: uuiDoc.title
-          }, {$pull: {'x-meditor.publishedTo': {'target': 'uui', 'link': targetUrl}}}, function (err, res) {
-            if (err) return reject(err, res);
-            resolve();
-          });
-        });
-      };
-      return Object.keys(meta.meditorModelData).reduce((promiseChain, model) => {
-        return promiseChain.then(chainResults =>
-          (removeTargetUrlFromDocumentsMeta(meta, model, uuiDoc, targetUrl))
-          .then(currentResult => [...chainResults, currentResult])
-        );
-      }, Promise.resolve([]));
-
+      // Update 'x-meditor.publishedTo' to indicate our document is no longer in UUI
+      return removeTargetUrlFromDocumentMetadataForAllTargets(meta, uuiDoc.title, targetUrl);
     })
     .then(res => {
       return targetUrl;
@@ -459,10 +476,12 @@ function pushModelDocuments(meta, model) {
 // All other items in UUI are essentially invisible to this code.
 function syncItems(syncTarget, params) {
   console.log('Syncronizing documents with UUI. Target:', syncTarget, 'Model:', params);
+  if (PUBLISHABLE_MODELS.indexOf(params.model) === -1) return Promise.resolve(); // Ignore models not supported in UUI
   var meta = {
     params: params,
     modelData: {},
-    UUI_APP_URL: syncTarget.uuiUrl.replace(/\/+$/, '')
+    UUI_APP_URL: syncTarget.uuiUrl.replace(/\/+$/, ''),
+    target: syncTarget
   };
   var xmeditorProperties = ["modifiedOn", "modifiedBy", "state"];
   var contentSelectorQuery = SYNC_MEDITOR_DOCS_ONLY ? '?originName=[$eq][meditor]' : '';
@@ -553,7 +572,7 @@ function syncItems(syncTarget, params) {
     })
     .then(res => {
       // Compute and schedule items to add to UUI (umeditor ids that are in meditor, but not uui)
-      // Do this by iterating through each of the target models and pushing documents from that model
+      // Do this by iterating through each of the target models and publishing documents from that model
       return Object.keys(meta.meditorModelData).reduce((promiseChain, model) => {
         return promiseChain.then(chainResults =>
           (pushModelDocuments(meta, model))
@@ -575,6 +594,7 @@ function syncItems(syncTarget, params) {
     });
 };
 
+// Process a single model sync request from the request queue
 module.exports.processQueueItem = function (data) {
   return SYNC_TARGETS.reduce((promiseChain, syncTarget) => {
     return promiseChain.then(chainResults =>
@@ -583,3 +603,5 @@ module.exports.processQueueItem = function (data) {
     );
   }, Promise.resolve([]));
 };
+
+module.exports.processQueueItem({"model": "News"}); // test stub
