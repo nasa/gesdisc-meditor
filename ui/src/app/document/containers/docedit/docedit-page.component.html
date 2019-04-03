@@ -72,7 +72,7 @@
           <button mat-raised-button 
             *ngIf="(userPrivileges$ | async).includes('edit')" 
             (click)="saveDocument()" 
-            [disabled]="!isFormValid">Save
+            [disabled]="!isFormValid || !dirty">Save
           </button>
 					<med-document-actions *ngIf="(document$ | async)['x-meditor'].targetStates.length > 0"
 						[actions]="edges$ | async"
