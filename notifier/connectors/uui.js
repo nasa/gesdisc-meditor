@@ -326,15 +326,9 @@ function getMeditorModelMetaAndDocuments(meta, targetStates, modelName) {
     .then(res => {
       return meta.dbo.db(DbName)
         .collection("Models")
-        .find({
-          name: modelName
-        })
-        .project({
-          _id: 0
-        })
-        .sort({
-          "x-meditor.modifiedOn": -1
-        })
+        .find({name: modelName})
+        .project({_id:0})
+        .sort({"x-meditor.modifiedOn":-1})
         .limit(1)
         .toArray();
     })
@@ -345,44 +339,16 @@ function getMeditorModelMetaAndDocuments(meta, targetStates, modelName) {
       if (modelData.schema) modelData.schema = JSON.parse(modelData.schema);
       // For each document, find if it has any version matching the specified
       // target state
-      meditorContentQuery = [{
-          $addFields: {
-            'x-meditor.state': {
-              $arrayElemAt: ["$x-meditor.states.target", -1]
-            }, // Find last state
-            'x-meditor.createdOn': {
-              $arrayElemAt: ["$x-meditor.states.modifiedOn", 0]
-            }, // Find first edit (in mEditor, this is most likely the date of most recent edit)
-            'x-meditor.publishedOn': {
-              $arrayElemAt: ["$x-meditor.states.modifiedOn", -1]
-            } // Find last state transition
-          }
-        },
-        {
-          $match: {
-            'x-meditor.state': {
-              $in: targetStates
-            }
-          }
-        }, // Filter states based on the specified state
-        {
-          $sort: {
-            "x-meditor.modifiedOn": -1
-          }
-        }, // Sort descending by version (date)
-        {
-          $group: {
-            _id: '$' + modelData.titleProperty,
-            doc: {
-              $first: '$$ROOT'
-            }
-          }
-        }, // Grab all fields in the most recent version with the specified state
-        {
-          $replaceRoot: {
-            newRoot: "$doc"
-          }
-        }, // Put all fields of the most recent doc back into root of the document
+      meditorContentQuery = [
+        {$addFields: {
+          'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}, // Find last state
+          'x-meditor.createdOn': { $arrayElemAt: [ "$x-meditor.states.modifiedOn", 0 ]}, // Find first edit (in mEditor, this is most likely the date of most recent edit)
+          'x-meditor.publishedOn': { $arrayElemAt: [ "$x-meditor.states.modifiedOn", -1 ]} // Find last state transition
+        }},
+        {$match: {'x-meditor.state': {$in: targetStates}}}, // Filter states based on the specified state
+        {$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
+        {$group: {_id: '$' + modelData.titleProperty, doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version with the specified state
+        {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
       ];
       return meta.dbo
         .db(DbName)
@@ -400,40 +366,16 @@ function getMeditorModelMetaAndDocuments(meta, targetStates, modelName) {
       // Now build a new query to retrive the very first version of each of the matching
       // documents. This is needed to find out the true creation date
       projection[modelData.titleProperty] = 1;
-      matcher[modelData.titleProperty] = {
-        $in: res.map(doc => doc[modelData.titleProperty])
-      };
-      meditorCreatedOnQuery = [{
-          $match: matcher
-        },
-        {
-          $addFields: {
-            'createdOn': {
-              $arrayElemAt: ["$x-meditor.states.modifiedOn", 0]
-            }, // Find first edit
-          }
-        },
-        {
-          $sort: {
-            "x-meditor.modifiedOn": 1
-          }
-        }, // Sort ascending by version (date)
-        {
-          $group: {
-            _id: '$' + modelData.titleProperty,
-            doc: {
-              $first: '$$ROOT'
-            }
-          }
-        }, // Grab all fields in the most recent version with the specified state
-        {
-          $replaceRoot: {
-            newRoot: "$doc"
-          }
-        }, // Put all fields of the most recent doc back into root of the document
-        {
-          $project: projection
-        }
+      matcher[modelData.titleProperty] = {$in: res.map(doc => doc[modelData.titleProperty])};
+      meditorCreatedOnQuery = [
+        {$match: matcher},
+        {$addFields: {
+          'createdOn': { $arrayElemAt: [ "$x-meditor.states.modifiedOn", 0 ]}, // Find first edit
+        }},
+        {$sort: {"x-meditor.modifiedOn": 1}}, // Sort ascending by version (date)
+        {$group: {_id: '$' + modelData.titleProperty, doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version with the specified state
+        {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
+        {$project: projection}
       ];
       return meta.dbo
         .db(DbName)
