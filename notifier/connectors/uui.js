@@ -604,4 +604,4 @@ module.exports.processQueueItem = function (data) {
   }, Promise.resolve([]));
 };
 
-module.exports.processQueueItem({"model": "News"}); // test stub
+// module.exports.processQueueItem({"model": "News"}); // test stub
