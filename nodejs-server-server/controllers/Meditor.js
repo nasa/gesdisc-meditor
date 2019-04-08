@@ -353,6 +353,7 @@ module.exports.putDocument = function putDocument (request, response, next) {
     .then(function(savedDoc) {
       return Promise.resolve("Inserted document");
     })
+    .then(res => {return mUtils.actOnDocumentChanges(that, DbName, doc);})
     .then(res => (that.dbo.close(), handleSuccess(response, {message: "Inserted document"})))
     .catch(err => {
       try {that.dbo.close()} catch (e) {};
