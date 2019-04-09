@@ -375,7 +375,6 @@ function handleModelChanges(meta, DbName, modelDoc) {
       meta.workflows[meta.oldModel.workflow].workflow.edges.forEach(oldEdge => {
         computeAndAddEdgeMapping(meta, workflowRoot, oldEdge);
       });
-      console.log('Mapping: ', JSON.stringify(meta.edgeMapping, null,2));
       return meta.dbo
         .db(DbName)
         .collection(modelDoc.name)
