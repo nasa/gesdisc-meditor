@@ -7,7 +7,9 @@ var he = require('he');
 var ObjectID = mongo.ObjectID;
 var mFile = require('./meditor-mongo-file'); 
 
-var NotificationQueueCollectionName = 'queue-notifications';
+const NotificationQueueCollectionName = 'queue-notifications';
+module.exports.WORKFLOW_ROOT = 'Init';
+module.exports.WORKFLOW_ROOT_EDGE = {source: 'Init', target: 'Draft'};
 
 // For a given document and metadata, returns a unique file name,
 // to be used when storing the file on the file system
@@ -176,9 +178,10 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
     });
 };
 
+// Finds a shortest path between all nodes of a given graph
 // https://en.wikipedia.org/wiki/Floyd%E2%80%93Warshall_algorithm
 function floydWarshallWithPathReconstruction(workflow) {
-  // https://stackoverflow.com/questions/13808325/creating-a-2d-array-with-specific-length-and-width
+  // Creates a 2D array 
   function makeArray(d1, d2) {
     var arr = new Array(d1), i, l;
     for(i = 0, l = d2; i < l; i++) {
@@ -186,10 +189,10 @@ function floydWarshallWithPathReconstruction(workflow) {
     }
     return arr;
   };
-  var inf = 10000000;
-  var nodeIdx = {};
-  var reverseNodeIndex;
-  var nodeRank = {};
+  var inf = 10000000; // Infinity
+  var nodeIndex = {}; // Maps states to indices
+  var reverseNodeIndex; // Maps indices back to states
+  var nodeRank = {}; // A dictionary containing rank of each state in topologically ordered workflow (starting from Init)
   var i, j, k;
   var dist = makeArray(workflow.nodes.length, workflow.nodes.length);
   var next = makeArray(workflow.nodes.length, workflow.nodes.length);
@@ -201,19 +204,23 @@ function floydWarshallWithPathReconstruction(workflow) {
       next[i][j] = null;
     }
   };
+  // Compute node lookup tables
   for (i = 0; i < workflow.nodes.length; i++) {
-    nodeIdx[workflow.nodes[i].id] = i;
+    nodeIndex[workflow.nodes[i].id] = i;
   }
+  reverseNodeIndex = Object.keys(nodeIndex).reduce(function(acc, curr) {acc[nodeIndex[curr]] = curr; return acc;},{});
+  // Initialize adjacency matrix
   workflow.edges.forEach(edge => {
-    dist[nodeIdx[edge.source]][nodeIdx[edge.target]] = 1;  // the weight of the edge (u,v)
-    // dist[nodeIdx[edge.target]][nodeIdx[edge.source]] = 1;
-    next[nodeIdx[edge.source]][nodeIdx[edge.target]] = nodeIdx[edge.target];
+    dist[nodeIndex[edge.source]][nodeIndex[edge.target]] = 1;  // the weight of the edge (u,v)
+    // dist[nodeIndex[edge.target]][nodeIndex[edge.source]] = 1;
+    next[nodeIndex[edge.source]][nodeIndex[edge.target]] = nodeIndex[edge.target];
   });
   workflow.nodes.forEach(v => {
-        dist[nodeIdx[v.id]][nodeIdx[v.id]] = 0
-        next[nodeIdx[v.id]][nodeIdx[v.id]] = nodeIdx[v.id]
+        dist[nodeIndex[v.id]][nodeIndex[v.id]] = 0
+        next[nodeIndex[v.id]][nodeIndex[v.id]] = nodeIndex[v.id]
   });
-  for (k = 0; k < workflow.nodes.length; k++) {// standard Floyd-Warshall implementation
+  // Standard Floyd-Warshall implementation, O(n^3)
+  for (k = 0; k < workflow.nodes.length; k++) {
     for (i = 0; i < workflow.nodes.length; i++) {
       for (j = 0; j < workflow.nodes.length; j++) {
         if (dist[i][j] > dist[i][k] + dist[k][j]) {
@@ -223,13 +230,18 @@ function floydWarshallWithPathReconstruction(workflow) {
       }
     }
   }
-  reverseNodeIndex = Object.keys(nodeIdx).reduce(function(acc, curr) {acc[nodeIdx[curr]] = curr; return acc;},{});
+  // Compute topological ordering of nodes starting from Init (currently unused)
   for (i = 0; i < workflow.nodes.length; i++) {
     nodeRank[reverseNodeIndex[i]] = dist[0][i];
   }
-  return {nodeIndex: nodeIdx, reverseNodeIndex: reverseNodeIndex, nodeRank: nodeRank, dist: dist, next: next};
+  // Return node look dictionary, matrix of distances, matrix of successors, and topological ordering ranks
+  return {nodeIndex: nodeIndex, reverseNodeIndex: reverseNodeIndex, nodeRank: nodeRank, dist: dist, next: next};
 };
 
+// Auxiliary procedure for finding shortest path in graph between
+// two nodes using a successor matrix computed by the Floyd-Warshall
+// algorithm. Modified to return a list of states, e.g.,
+// [Init, Draft, Published]
 function getWorkflowPath(workflowPaths, source, target) {
   var u = workflowPaths.nodeIndex[source];
   var v = workflowPaths.nodeIndex[target];
@@ -242,71 +254,90 @@ function getWorkflowPath(workflowPaths, source, target) {
   return path;
 };
 
+// A helper function that, given an shortest paths matrix in the old
+// workflow and the new workflow, computes a mapping from an edge in
+// the old workflow to an edge or a chain of edges in the new workflow
+// The resulting mapping is stored in the meta.edgeMapping dictionary
+// meta.edgeMapping[oldEdge.source][oldEdge.target] = [edge1, edge2, .., edgeN];
 function computeAndAddEdgeMapping(meta, workflowRoot, oldEdge) {
-  // console.log('Edge: ', oldEdge.source, oldEdge.target);
+  // Steps:
+  // 1. Find a shortest path from Init to the old edge's source in the
+  //    old workflow. The path consists of the nodes in the old workflow.
+  // 2. Iterate the path back to Init node until we find a node on the path
+  //    that exists in both the old and the new workflow. This node becomes
+  //    the source of the mapped edge. In the worst case, we will simply 
+  //    retrace all the way back to Init.
+  // 3. Append the target of the old edge to the path from (1) and again
+  //    iterate the path back until we find a node that exists in both
+  //    workflows. This will be the target of the mapped edge.
+  // 4. Find the shortest path between the new source and the new target
+  //    in the new workflow.
+  // 5. If the path does not exists or consists of a single node (basically,
+  //    source and target are the same), set the mapping to []
+  // 6. Otherwise, set the mapping to a chain of edges forming the path,
+  //    e.g., [Init, Draft, Published] path becomes a mapping of
+  //    [{Init->Draft}, {Draft->Published}]
   var i;
   var newEdge = {};
+  // Compute shortest path in the old workflow between Init and old Source
   var path = getWorkflowPath(meta.workflows[meta.oldModel.workflow].paths, workflowRoot, oldEdge.source );
-  // console.log('   ', path);
+  // Find mapping from old Source to the new Source, basically a node that
+  // exists in both workflows and appears earlier or the same in the 'approval
+  // sequence' of the old workflow as the old Source
   for (i = path.length - 1; i >= 0; i--) {
-    if (path[i] in meta.workflows[meta.newModel.workflow].paths.nodeRank) {
+    if (path[i] in meta.workflows[meta.newModel.workflow].paths.nodeIndex) {
       newEdge.source = path[i];
+      break;
     }
   };
+  // Find mapping from old Target to the new Target, basically a node that
+  // exists in both workflows and appears earlier or the same in the 'approval
+  // sequence' of the old workflow as the old Target
   path.push(oldEdge.target);
   for (i = path.length - 1; i >= 0; i--) {
-    if (path[i] in meta.workflows[meta.newModel.workflow].paths.nodeRank) {
+    if (path[i] in meta.workflows[meta.newModel.workflow].paths.nodeIndex) {
       newEdge.target = path[i];
       break;
     }
   };
+  // Compute shortest path in the new workflow between new Source and new Target
   path = getWorkflowPath(meta.workflows[meta.newModel.workflow].paths, newEdge.source, newEdge.target );
-  
+  // Init mapping dictionary
   if (!meta.edgeMapping[oldEdge.source]) meta.edgeMapping[oldEdge.source] = {};
   meta.edgeMapping[oldEdge.source][oldEdge.target] = [];
-  if (path.length > 1) {
+  // Add a chain of edges on the path between the new Source and the new Target
+  if (path !== null && path.length > 1) {
     for (i = 0; i < path.length - 1; i ++) {
       meta.edgeMapping[oldEdge.source][oldEdge.target].push({source: path[i], target: path[i + 1]});
     }
   }
 };
 
-function handleModelChanges(meta, DbName, doc) {
-  // 1. Get ultimate version
-  // 2. Get pen-ultimate version
+function handleModelChanges(meta, DbName, modelDoc) {
+  // 1. Get the ultimate version of the model
+  // 2. Get pen-ultimate version of the model
   // 3. Compare 'workflow' fields
-  // 4.a. Stop if not changed
-  // 4.b. Continue to 5 if changed
+  // 4. Stop if workflow field did not change
   // 5. Fetch old workflow and new workflow (latest versions for both)
-  // 6. Compare states and compute mapping (using topological sort of the tree rooted at Init?):
-  // edge in old workflow -> edge in new workflow
+  // 6. Compute mapping:
+  //    edge in old workflow -> set of edges forming a path in new workflow
+  //    this is done by comparing shortest paths between source and target
+  //    in the old workflow and the new workflow
   // 7. Iterate through all documents of the model
   //   7.a. Iterate through state change history
-  //   7.b. Replace every transition according to the mapping
-  //   7.c. Collapse duplicate transitions
+  //   7.b. Replace every edge (transition) according to the mapping
+  //   7.c. Collapse duplicate adjuscent transitions
   
-  // "states" : [
-  //   {
-  //     "source" : "Init",
-  //     "target" : "Draft",
-  //     "modifiedOn" : "2010-03-18T21:59:12.000Z"
-  //   },
-  //   {
-  //     "source" : "Approved",
-  //     "target" : "Published",
-  //     "modifiedOn" : "2010-03-18T21:59:12.000Z"
-  //   }
-  // ]
-   console.log('------', doc.name);
-  const workflowRoot = 'Init';
-  const workflowRootEdge = {source: 'Init', target: 'Draft'};
+  console.log('Remapping state change history for documents in ' + modelDoc.name);
+  const workflowRoot = module.exports.WORKFLOW_ROOT;
+  const workflowRootEdge = module.exports.WORKFLOW_ROOT_EDGE;
   return Promise.resolve()
     .then(function() {
       return meta.dbo
         .db(DbName)
         .collection('Models')
         .aggregate(
-          [ {$match: {name: doc.name}},
+          [ {$match: {name: modelDoc.name}},
             {$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
             {$addFields: {'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}}}, // Find last state
             {$limit: 2}
@@ -340,71 +371,81 @@ function handleModelChanges(meta, DbName, doc) {
         return accumulator;
       }, {})
       meta.edgeMapping = {}; // Mapping is a two-level dictionary, e.g., {Draft: {Review: {from: Draft, to: Published}}
-      console.log('\n\n\n');
       // console.log(getWorkflowPath(workflows['Edit-Publish'].paths,'Draft', 'Published' ));
-      console.log(getWorkflowPath(meta.workflows['Edit-Test-Review-Publish'].paths, 'Draft', 'Published' ));
-      console.log(JSON.stringify(meta.workflows['Edit-Test-Review-Publish'].paths.nodeRank, null,2));
-      console.log('\n\n\n');
-      // 0. Build path from the state history? Or use the graph
-      // 1. Retrace old target back in path until we find a node from the new workflow
-      // 2. Retrace old source back in path until we find a node from the new workflow
-      // 3. Make sure new source < new target
-      // 4. Either add newSource -> newTarget or path between the two?
-      
       meta.workflows[meta.oldModel.workflow].workflow.edges.forEach(oldEdge => {
         computeAndAddEdgeMapping(meta, workflowRoot, oldEdge);
       });
-      console.log('Mapping: ', meta.edgeMapping);
+      console.log('Mapping: ', JSON.stringify(meta.edgeMapping, null,2));
       return meta.dbo
         .db(DbName)
-        .collection(doc.name)
+        .collection(modelDoc.name)
         .find()
         .toArray();
     })
     .then(function(res) {
-      // Modify history
+      // Iterate through all documents of the changed model and remap their state history
       var updateQueue = [];
       res.forEach(doc => {
+        var oldHistory = _.cloneDeep(doc['x-meditor']['states']);
         var newStateHistory = [];
-        console.log('Old history: ', JSON.stringify(doc['x-meditor']['states'],null,2));
+        // console.log('Old history: ', JSON.stringify(doc['x-meditor']['states'], null, 2));
         doc['x-meditor']['states'].forEach(oldEdge => {
+          // Some edges might not be in the old workflow, e.g., a result of a botched import etc,
+          // see if we can still compute a mapping
           if (!meta.edgeMapping[oldEdge.source] || !meta.edgeMapping[oldEdge.source][oldEdge.target]) computeAndAddEdgeMapping(meta, workflowRoot, oldEdge);
+          // Discard an edge if there is no mapping
           if (!meta.edgeMapping[oldEdge.source] || !meta.edgeMapping[oldEdge.source][oldEdge.target]) return;
+          // Add all edges from the mapping edge chain to the history, preserving extraneous attributes
+          // and discarding duplicate edges
           meta.edgeMapping[oldEdge.source][oldEdge.target].forEach(edge => {
             var historyLast = null;
             var mappedEdge;
             if (newStateHistory.length !== 0) historyLast = newStateHistory[newStateHistory.length - 1];
             if (!historyLast || !(historyLast.source === edge.source && historyLast.target === edge.target)) {
-              mappedEdge = _.cloneDeep(oldEdge);
-              mappedEdge.source = edge.source;
-              mappedEdge.target = edge.target;
-              mappedEdge.notes = 'Mapped from [' + oldEdge.source + ', ' + oldEdge.target + ']';
-              newStateHistory.push(mappedEdge);
+              if (edge.source === oldEdge.source && edge.target === oldEdge.target) {
+                // The old edge is exactly the same as the new edge, just push it as-is
+                newStateHistory.push(oldEdge);
+              } else {
+                // Otherwise, copy attributes from the old edge to the new edge
+                mappedEdge = _.cloneDeep(oldEdge);
+                mappedEdge.source = edge.source;
+                mappedEdge.target = edge.target;
+                mappedEdge.notes = 'Mapped from [' + oldEdge.source + ', ' + oldEdge.target + ']';
+                newStateHistory.push(mappedEdge);
+              }
             }
           });
           return oldEdge;
         });
+        // If the new state history came back empty - set it to the default Init->Draft edge
         if (newStateHistory.length === 0) {
           newStateHistory = [_.cloneDeep(workflowRootEdge)];
           newStateHistory[0].modifiedOn = doc['x-meditor']['modifiedOn'];
-          newStateHistory[0].nodes = 'Failed to map old workflow to the new workflow, falling back on init edge';
+          newStateHistory[0].notes = 'Failed to map old workflow to the new workflow, falling back on init edge';
         }
-        console.log('New history: ', JSON.stringify(newStateHistory, null,2));
-        console.log('-------------------------\n\n\n');
-        // updateQueue.push(meta.dbo
-        //   .db(DbName)
-        //   .collection(doc.name)
-        //   .updateOne({_id: doc._id}, {$set: {'x-meditor.states': newStateHistory}})
-        // );
+        // console.log('New history: ', JSON.stringify(newStateHistory, null, 2), '-------------------------\n\n\n');
+        // Update the document in the database
+        updateQueue.push(meta.dbo
+          .db(DbName)
+          .collection(modelDoc.name)
+          .updateOne({_id: doc._id}, {$set: {'x-meditor.states': newStateHistory, 'x-meditor.backupStates': oldHistory}})
+        );
         updateQueue.push(Promise.resolve());
       });
-      // Save modified docs
+      // Wait for all update transactions to complete
       return Promise.all(updateQueue);
+    })
+    .then(function(res) {
+      console.log('Done updating state history for documents in ' + modelDoc.name);
+      // Re-publish documents as necessary, since some of the states could have changed
+      return exports.addToConnectorQueue(meta, DbName, 'uui', {model: modelDoc.name}); // Take an opportunity to sync with UUI
     })
     .catch(function(e) {
       if (_.isObject(e) && e.result) {
+        // Exited the promise chain (not an actual error)
         return Promise.resolve(e.result);
       }
+      console.log(e);
       return Promise.reject(e);
     });
 };
@@ -414,20 +455,23 @@ module.exports.actOnDocumentChanges = function actOnDocumentChanges(meta, DbName
   return Promise.resolve();
 };
 
-// var defaultStateName = "Unspecified";
-// var defaultState = {target: defaultStateName, source: defaultStateName, modifiedBy: 'Unknown', modifiedOn: (new Date()).toISOString()};
-var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
-var MongoClient = mongo.MongoClient;
-MongoClient.connect(MongoUrl, function(err, db) {
-  var DbName = "meditor";
-  if (err) {
-    console.log(err);
-    throw err;
-  }
-  var dbo = db;
-  var meta = {
-    dbo: dbo
-  }
-  module.exports.actOnDocumentChanges(meta, DbName, {name: 'Alerts', 'x-meditor': {model: 'Models'}});
-});
+// This is used for developing / testing purposes
+module.exports.testStub = function() {
+  // var defaultStateName = "Unspecified";
+  // var defaultState = {target: defaultStateName, source: defaultStateName, modifiedBy: 'Unknown', modifiedOn: (new Date()).toISOString()};
+  var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
+  var MongoClient = mongo.MongoClient;
+  MongoClient.connect(MongoUrl, function(err, db) {
+    var DbName = "meditor";
+    if (err) {
+      console.log(err);
+      throw err;
+    }
+    var dbo = db;
+    var meta = {
+      dbo: dbo
+    }
+    module.exports.actOnDocumentChanges(meta, DbName, {name: 'News', 'x-meditor': {model: 'Models'}});
+  });
+};
 

@@ -335,10 +335,12 @@ module.exports.putDocument = function putDocument (request, response, next) {
     .then(function() {
       var imageStr = null;
       var imagePromise = Promise.resolve();
+      var rootState = _.cloneDeep(mUtils.WORKFLOW_ROOT_EDGE);
+      rootState.modifiedOn = doc["x-meditor"]["modifiedOn"];
       doc["x-meditor"]["modifiedOn"] = (new Date()).toISOString();
       doc["x-meditor"]["modifiedBy"] = request.user.uid;
       // TODO: replace with actual model init state
-      doc["x-meditor"]["states"] = [{source: 'Init', target: 'Draft', modifiedOn: doc["x-meditor"]["modifiedOn"]}];
+      doc["x-meditor"]["states"] = [rootState];
       if (!_.isNil(doc.image)) {
         imageStr = doc.image;
         doc.image = mUtils.getFSFileName(that, doc);
