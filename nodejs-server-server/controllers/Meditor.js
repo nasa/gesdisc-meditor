@@ -356,6 +356,7 @@ module.exports.putDocument = function putDocument (request, response, next) {
       return Promise.resolve("Inserted document");
     })
     .then(res => {return mUtils.actOnDocumentChanges(that, DbName, doc);})
+    .then(res => {return mUtils.addToConnectorQueue(that, DbName, 'uui', {model: doc["x-meditor"]["model"]})}) // Take an opportunity to sync with UUI    .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .then(res => (that.dbo.close(), handleSuccess(response, {message: "Inserted document"})))
     .catch(err => {
       try {that.dbo.close()} catch (e) {};
