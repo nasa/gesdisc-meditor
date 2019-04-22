@@ -86,7 +86,11 @@ export class CkeditorComponent implements OnInit {
     format_tags: 'p;h1;h2;h3;pre',
 
     // Simplify the dialog windows.
-    removeDialogTabs: 'image:advanced;link:advanced'
+    removeDialogTabs: 'image:advanced;link:advanced',
+    
+    // support for uploading
+    filebrowserUploadUrl: '/images',
+    filebrowserUploadMethod: 'form',
   }
 
   constructor(
