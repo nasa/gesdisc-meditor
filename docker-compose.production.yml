@@ -22,7 +22,7 @@ services:
 
   notifier:
     container_name: meditor_notifier
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_notifier:0.30.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_notifier:0.31.0
     restart: on-failure
     depends_on:
       - database
@@ -39,7 +39,7 @@ services:
 
   ui:
     container_name: meditor_ui
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_ui:0.35.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_ui:0.36.0
     restart: on-failure
     environment:
       - NODE_ENV=${NODE_ENV}
@@ -48,7 +48,7 @@ services:
  
   server:
     container_name: meditor_server
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_server:0.32.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_server:0.33.0
     depends_on:
       - database
     restart: on-failure
