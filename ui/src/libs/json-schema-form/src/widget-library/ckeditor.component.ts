@@ -89,7 +89,7 @@ export class CkeditorComponent implements OnInit {
     removeDialogTabs: 'image:advanced;link:advanced',
     
     // support for uploading
-    filebrowserUploadUrl: '/images',
+    filebrowserUploadUrl: '/images/upload',
     filebrowserUploadMethod: 'form',
   }
 
