@@ -335,10 +335,12 @@ module.exports.putDocument = function putDocument (request, response, next) {
     .then(function() {
       var imageStr = null;
       var imagePromise = Promise.resolve();
+      var rootState = _.cloneDeep(mUtils.WORKFLOW_ROOT_EDGE);
+      rootState.modifiedOn = doc["x-meditor"]["modifiedOn"];
       doc["x-meditor"]["modifiedOn"] = (new Date()).toISOString();
       doc["x-meditor"]["modifiedBy"] = request.user.uid;
       // TODO: replace with actual model init state
-      doc["x-meditor"]["states"] = [{source: 'Init', target: 'Draft', modifiedOn: doc["x-meditor"]["modifiedOn"]}];
+      doc["x-meditor"]["states"] = [rootState];
       if (!_.isNil(doc.image)) {
         imageStr = doc.image;
         doc.image = mUtils.getFSFileName(that, doc);
@@ -353,6 +355,7 @@ module.exports.putDocument = function putDocument (request, response, next) {
     .then(function(savedDoc) {
       return Promise.resolve("Inserted document");
     })
+    .then(res => {return mUtils.actOnDocumentChanges(that, DbName, doc);})
     .then(res => {return mUtils.addToConnectorQueue(that, DbName, 'uui', {model: doc["x-meditor"]["model"]})}) // Take an opportunity to sync with UUI    .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .then(res => (that.dbo.close(), handleSuccess(response, {message: "Inserted document"})))
     .catch(err => {
