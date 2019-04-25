@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import isMatch from 'lodash/isMatch' 		// lodash/isMatch does deep comparison, underscore/isMatch is shallow
 import * as _ from 'underscore'
+import { environment } from '../../../../environments/environment'
 
 @Component({
 	selector: 'med-document-edit',
@@ -38,7 +39,8 @@ export class DocumentEditComponent {
 
 	selectedFramework = "material-design";
 	jsonFormOptions = {
-		addSubmit: false
+		addSubmit: false,
+		imageUploadUrl: environment.IMAGE_UPLOAD_URL,
 	};
 	schema =  {};
 	data = {};
