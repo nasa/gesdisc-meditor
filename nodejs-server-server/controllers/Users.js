@@ -8,7 +8,7 @@ var passport = require('passport')
 var session = require('express-session')
 var SessionStore = require('connect-mongodb-session')(session)
 var OAuth2Strategy = require('passport-oauth2').Strategy
-var StrategyMock = require('../test/strategy-mock')
+var CustomStrategy = require('passport-custom').Strategy
 var csrf = require('csurf')
 var utils = require('../utils/writer.js')
 var swaggerTools = require('swagger-tools')
@@ -47,7 +47,7 @@ var URS_FIELDS = ['uid', 'emailAddress', 'firstName', 'lastName', 'middleInitial
 // Earthdata's OAuth2 slightly deviates from what's supported in the current oauth module,
 // so let's overwrite it
 // Credit: most of code in this function belongs to https://github.com/ciaranj/node-oauth
-require('oauth').OAuth2.prototype.getOAuthAccessToken = function(code, params, callback) {
+require('oauth').OAuth2.prototype.getOAuthAccessToken = function (code, params, callback) {
     var codeParam
     var postData
     var postHeaders
@@ -67,7 +67,7 @@ require('oauth').OAuth2.prototype.getOAuthAccessToken = function(code, params, c
     postHeaders = {
         'Content-Type': 'application/x-www-form-urlencoded',
     }
-    this._request('POST', this._getAccessTokenUrl(), postHeaders, postData, null, function(error, data, response) {
+    this._request('POST', this._getAccessTokenUrl(), postHeaders, postData, null, function (error, data, response) {
         // eslint-disable-line no-unused-vars
         if (error) {
             callback(error)
@@ -85,13 +85,13 @@ require('oauth').OAuth2.prototype.getOAuthAccessToken = function(code, params, c
     })
 }
 
-passport.serializeUser(function(userId, done) {
+passport.serializeUser(function (userId, done) {
     done(null, userId)
 })
 
-passport.deserializeUser(function(userId, done) {
+passport.deserializeUser(function (userId, done) {
     var user = null
-    MongoClient.connect(MongoUrl, function(err, db) {
+    MongoClient.connect(MongoUrl, function (err, db) {
         if (err) {
             console.log(err)
             throw err
@@ -108,12 +108,12 @@ passport.deserializeUser(function(userId, done) {
                     },
                 }
             )
-            .then(function() {
+            .then(function () {
                 return dbo.collection(USERS_COLLECTION_URS).findOne({
                     uid: userId,
                 })
             })
-            .then(function(res) {
+            .then(function (res) {
                 user = res
                 user.roles = {}
                 return dbo.collection(USERS_COLLECTION_MEDITOR).findOne(
@@ -123,13 +123,13 @@ passport.deserializeUser(function(userId, done) {
                     { sort: { 'x-meditor.modifiedOn': -1 } }
                 )
             })
-            .then(function(res) {
+            .then(function (res) {
                 // Attach Meditor roles if available
                 if (res) user.roles = res.roles
                 done(null, user)
                 db.close()
             })
-            .catch(function(err) {
+            .catch(function (err) {
                 console.log(err)
                 done(err, null)
                 db.close()
@@ -137,7 +137,23 @@ passport.deserializeUser(function(userId, done) {
     })
 })
 
-passport.use(new StrategyMock(options, verifyFunction))
+if (process.env.NODE_ENV === 'development') {
+    passport.use('impersonate', new CustomStrategy(async (req, done) => {
+        let client = await MongoClient.connect(MongoUrl)
+        let db = client.db(DbName)
+        let uid = req.query.impersonate
+        let user = null
+
+        try {
+            user = await db.collection(USERS_COLLECTION_URS).findOne({ uid })
+        } catch (err) {
+            return done(err)
+        } finally {
+            client.close()
+            return user ? done(null, uid) : done()
+        }
+    }))
+}
 
 passport.use(
     new OAuth2Strategy(
@@ -151,7 +167,7 @@ passport.use(
                 Authorization: new Buffer(AUTH_CONFIG.CLIENT_ID + ':' + AUTH_CONFIG.CLIENT_SECRET).toString('base64'),
             },
         },
-        function(accessToken, refreshToken, authResp, profile, cb) {
+        function (accessToken, refreshToken, authResp, profile, cb) {
             https
                 .get(
                     {
@@ -162,23 +178,23 @@ passport.use(
                             Authorization: 'Bearer ' + accessToken,
                         },
                     },
-                    function(res) {
+                    function (res) {
                         var resp = ''
 
-                        res.on('data', function(data) {
+                        res.on('data', function (data) {
                             resp += data
                         })
 
-                        res.on('end', function() {
+                        res.on('end', function () {
                             var updatedModel = {
                                 lastAccessed: _.now(),
                             }
                             try {
                                 resp = JSON.parse(resp)
-                                _.forEach(URS_FIELDS, function(field) {
+                                _.forEach(URS_FIELDS, function (field) {
                                     updatedModel[field] = resp[_.snakeCase(field)]
                                 })
-                                MongoClient.connect(MongoUrl, function(err, db) {
+                                MongoClient.connect(MongoUrl, function (err, db) {
                                     if (err) {
                                         cb(err)
                                         throw err
@@ -188,7 +204,7 @@ passport.use(
                                         .findOne({
                                             uid: resp.uid,
                                         })
-                                        .then(function(model) {
+                                        .then(function (model) {
                                             if (_.isNil(model)) {
                                                 updatedModel.created = _.now()
                                                 model = updatedModel
@@ -205,11 +221,11 @@ passport.use(
                                                 }
                                             )
                                         })
-                                        .then(function() {
+                                        .then(function () {
                                             cb(null, resp.uid)
                                             db.close()
                                         })
-                                        .catch(function(e) {
+                                        .catch(function (e) {
                                             cb(e)
                                             db.close()
                                         })
@@ -220,30 +236,42 @@ passport.use(
                         })
                     }
                 )
-                .on('error', function(err) {
+                .on('error', function (err) {
                     cb(err)
                 })
         }
     )
 )
 
+
+function impersonateUser(req, res, next) {
+    passport.authenticate('impersonate', function (impersonateReq, impersonateRes) {
+        req.logIn(impersonateRes, function (err) {
+            if (err) {
+                utils.writeJson(res, {
+                    code: 500,
+                    message: err,
+                }, 500)
+            } else {
+                res.writeHead(301, {
+                    Location: ENV_CONFIG.APP_UI_URL + '/#/auth/getuser',
+                })
+                res.end()
+            }
+        })
+    })(req, res, next)
+
+    return
+}
+
 // Exported method to login
 module.exports.login = function login(req, res, next) {
-    console.log('in login method ', process.env.NODE_ENV, req.query)
-
-    // TODO: remember to switch this back to development before committing!
-    if (process.env.NODE_ENV === 'development' && 'mockUser' in req.query) {
-        console.log('MOCKING USER ', req.query.mockUser)
-        req.user = req.query.mockUser
-        res.writeHead(301, {
-            Location: ENV_CONFIG.APP_UI_URL + '/#/auth/getuser',
-        })
-        res.end()
-        return
+    if (process.env.NODE_ENV === 'development' && 'impersonate' in req.query) {
+        return impersonateUser(req, res, next)
     }
 
-    passport.authenticate('oauth2', function(req1, res1) {
-        req.logIn(res1, function(err) {
+    passport.authenticate('oauth2', function (req1, res1) {
+        req.logIn(res1, function (err) {
             if (err) {
                 utils.writeJson(
                     res,
@@ -304,7 +332,7 @@ module.exports.getCsrfToken = function getCsrfToken(req, res, next) {
     )
 }
 
-module.exports.init = function(app) {
+module.exports.init = function (app) {
     app.use(
         helmet({
             noCache: true,

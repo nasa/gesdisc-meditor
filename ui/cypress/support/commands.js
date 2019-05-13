@@ -1,57 +1,74 @@
-function createUser(uid, firstName, lastName, emailAddress, roles) {
-	return {
-		_id: '5bfd878f679c5578deb07a26',
-		created: 1543341967899,
-		lastAccessed: 1543341967881,
-		middleInitial: null,
-		studyArea: null,
-		uid,
-		emailAddress,
-		firstName,
-		lastName,
-		roles,
-	}
-}
+const COMMAND_DELAY = 0
 
-Cypress.Commands.add('login', userType => {
-	let types = {
-		author: createUser('author', 'Author', 'Author', 'author@fakedomain.com', [{ model: 'News', role: 'Author' }]),
-	}
-
-	const mockUser = types[userType]
-
+Cypress.Commands.add('logout', () => {
+	// logout of URS
 	cy.request({
-		url: `/login`,
+		url: 'https://urs.earthdata.nasa.gov/logout',
+		method: 'GET',
+	}).then(res => {
+		// logout of Meditor
+		cy.request({
+			url: '/logout',
+			method: 'GET',
+		})
+	})
+})
+
+Cypress.Commands.add('login', uid => {
+	cy.request({
+		url: 'login',
 		method: 'GET',
 		qs: {
-			mockUser,
-		},
-	})
-		.its('body')
-		.then(body => {
-			console.log(body)
-		})
+			impersonate: uid,
+		}
+	}).its('body')
 })
 
 Cypress.Commands.add('getMe', () => {
 	cy.request({
 		url: `/me`,
 		method: 'GET',
-	})
-		.its('body')
-		.then(body => {
-			console.log(body)
-		})
+	}).its('body')
 })
 
-Cypress.Commands.add('createDocument', () => {
-	cy.request({
-		url: '/putDocument',
-		method: 'POST',
-		headers: {
-			'content-type': 'multipart/form-data; boundary=----WebKitFormBoundaryg6SBy3mWLvHZpQje',
-		},
-		body:
-			'------WebKitFormBoundaryg6SBy3mWLvHZpQje\r\nContent-Disposition: form-data; name="file"; filename="blob"\r\nContent-Type: application/octet-stream\r\n\r\n{"title":"News Item 12345","abstract":"Automated testing news item","type":"News","image":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII=","imageCaption":"Caption","body":"<p>Lorem ipsum</p>\\n","x-meditor":{"model":"News"}}\r\n------WebKitFormBoundaryg6SBy3mWLvHZpQje--\r\n',
+Cypress.Commands.add('typeCKEditor', (content) => {
+	// TODO: support multiple ckeditor instances by using get()
+	cy.window().then(win => {
+		let keys = Object.keys(win.CKEDITOR.instances)
+		win.CKEDITOR.instances[keys[0]].setData(content)
 	})
 })
+
+function getFixtureBlob(fileUrl, type) {
+	return type === 'application/json'
+		? cy.fixture(fileUrl)
+			.then(JSON.stringify)
+			.then(jsonStr => new Blob([jsonStr], { type: 'application/json' }))
+		: cy.fixture(fileUrl, 'base64')
+			.then(Cypress.Blob.base64StringToBlob)
+
+}
+
+Cypress.Commands.add('uploadImage', { prevSubject: 'element' }, (subject, imageName, type = 'image/png') => {
+	return getFixtureBlob(imageName, type).then(blob => {
+		const el = subject[0]
+		const imageFile = new File([blob], imageName, { type })
+		const dataTransfer = new DataTransfer()
+
+		dataTransfer.items.add(imageFile)
+		el.files = dataTransfer.files
+		el.dispatchEvent(new Event('change'))
+	})
+})
+
+for (const command of ['visit', 'click', 'trigger', 'type', 'clear', 'reload', 'contains']) {
+	Cypress.Commands.overwrite(command, (originalFn, ...args) => {
+		const origVal = originalFn(...args)
+
+		return new Promise((resolve) => {
+			setTimeout(() => {
+				resolve(origVal)
+			}, COMMAND_DELAY)
+		})
+	})
+} 

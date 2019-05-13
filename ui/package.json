@@ -10,7 +10,8 @@
 		"e2e": "ng e2e",
 		"client": "ng serve --proxy-config server.conf.json --host 0.0.0.0",
 		"server": "cd ../nodejs-server-server;nodemon index.js",
-		"start": "npm-run-all -p client server"
+		"start": "npm-run-all -p client server",
+		"cypress:open": "cypress open"
 	},
 	"private": true,
 	"dependencies": {
@@ -78,6 +79,7 @@
 		"karma-coverage-istanbul-reporter": "^1.4.3",
 		"karma-jasmine": "^1.1.2",
 		"karma-jasmine-html-reporter": "^0.2.2",
+		"lorem-ipsum": "^2.0.2",
 		"protractor": "^5.4.1",
 		"ts-node": "~3.0.4",
 		"tsconfig-paths": "^3.6.0",
