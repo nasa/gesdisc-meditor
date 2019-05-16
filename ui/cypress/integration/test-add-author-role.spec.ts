@@ -87,4 +87,24 @@ describe('Test Addin Author Role To User', () => {
 		})
 	})
 
+	it('user with removed role should not see \'Create\' button', () => {
+		cy.login(AUTHOR_UID)
+
+		cy.getMe().then(user => {
+			// @ts-ignore
+			cy.wrap(user).its('uid').should('eq', AUTHOR_UID)
+
+			// intercept future /me requests to avoid the Earthdata redirect
+			cy.server()
+			cy.route({ url: '/me', response: user })
+
+			// visit homepage
+			cy.visit(Cypress.env('appUrl'))
+
+			// navigate to model page, find new document, and approve it
+			cy.contains(new RegExp(`^${ALERTS_MODEL}`)).parent().click()
+			cy.contains('button', 'Create').should('not.exist')
+		})
+	})
+
 })
