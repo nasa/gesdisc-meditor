@@ -3,7 +3,7 @@ const ALERTS_MODEL = 'Alerts'
 const AUTHOR_UID = 'andyauthor'
 const REVIEWER_UID = 'joereviewer'
 
-describe('Test Addin Author Role To User', () => {
+describe('Test Adding Author Role To User', () => {
 
 	it('user with permissions can add role author to user', () => {
 		cy.login(REVIEWER_UID)
