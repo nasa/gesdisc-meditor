@@ -77,8 +77,12 @@ services:
       - "47017:27017"
     volumes:
       - ${DATABASE_HOST_VOLUME}:/data/db
-  #   - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
-  #  command: --replSet meditor
+      # - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
+    deploy:
+      placement:
+        constraints:
+          - node.labels.database == primary
+    # command: --replSet meditor
 
   # database_sec_1:
   #   container_name: meditor_database_sec_1
