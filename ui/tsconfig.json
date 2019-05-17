@@ -10,20 +10,15 @@
 		"lib": ["es2016", "dom"],
 		"outDir": "../out-tsc/app",
 		"target": "es5",
+		"types": ["cypress"],
 		"module": "commonjs",
 		"rootDir": "./",
-		"strict": true,
+		"strict": true
 		// "baseUrl": ".",
-  	// "paths": {
-  	// }
+		// "paths": {
+		// }
 	},
-	"exclude": [
-		"bazel-out",
-		"dist",
-		"node_modules",
-		"**/*/node_modules",
-		"modules/schematics/src/*/files/**/*"
-	],
+	"exclude": ["bazel-out", "dist", "node_modules", "**/*/node_modules", "modules/schematics/src/*/files/**/*"],
 	"compileOnSave": false,
 	"buildOnSave": false,
 	"atom": {
@@ -31,5 +26,5 @@
 	},
 	"bazelOptions": {
 		"suppressTsconfigOverrideWarnings": true
-  }
+	}
 }

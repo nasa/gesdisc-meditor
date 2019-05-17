@@ -8,6 +8,7 @@ var passport = require('passport');
 var session = require('express-session');
 var SessionStore = require('connect-mongodb-session')(session);
 var OAuth2Strategy = require('passport-oauth2').Strategy;
+var CustomStrategy = require('passport-custom').Strategy;
 var csrf = require('csurf');
 var utils = require('../utils/writer.js');
 var swaggerTools = require('swagger-tools');
@@ -128,6 +129,24 @@ passport.deserializeUser(function (userId, done) {
   });
 });
 
+if (process.env.NODE_ENV === 'development') {
+  passport.use('impersonate', new CustomStrategy(async (req, done) => {
+    let client = await MongoClient.connect(MongoUrl)
+    let db = client.db(DbName)
+    let uid = req.query.impersonate
+    let user = null
+
+    try {
+      user = await db.collection(USERS_COLLECTION_URS).findOne({ uid })
+    } catch (err) {
+      return done(err)
+    } finally {
+      client.close()
+      return user ? done(null, uid) : done()
+    }
+  }))
+}
+
 passport.use(new OAuth2Strategy({
   authorizationURL: AUTH_PROTOCOL + '//' + AUTH_CONFIG.HOST + '/oauth/authorize',
   tokenURL: AUTH_PROTOCOL + '//' + AUTH_CONFIG.HOST + '/oauth/token',
@@ -198,8 +217,32 @@ passport.use(new OAuth2Strategy({
   });
 }));
 
+function impersonateUser(req, res, next) {
+  passport.authenticate('impersonate', function (impersonateReq, impersonateRes) {
+      req.logIn(impersonateRes, function (err) {
+          if (err) {
+              utils.writeJson(res, {
+                  code: 500,
+                  message: err,
+              }, 500)
+          } else {
+              res.writeHead(301, {
+                  Location: ENV_CONFIG.APP_UI_URL + '/#/auth/getuser',
+              })
+              res.end()
+          }
+      })
+  })(req, res, next)
+
+  return
+}
+
 // Exported method to login
 module.exports.login = function login(req, res, next) {
+  if (process.env.NODE_ENV === 'development' && 'impersonate' in req.query) {
+    return impersonateUser(req, res, next)
+  }
+  
   passport.authenticate('oauth2',
     function (req1, res1) {
       req.logIn(res1, function (err) {
