@@ -37,9 +37,7 @@
     "transliteration": "^1.6.5"
   },
   "devDependencies": {
-    "lorem-ipsum": "^2.0.2",
     "nodemon": "^1.18.8",
-    "passport-custom": "^1.0.5",
-    "passport-mock-strategy": "^1.1.1"
+    "passport-custom": "^1.0.5"
   }
 }
