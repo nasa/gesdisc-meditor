@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
-import isMatch from 'lodash/isMatch' 		// lodash/isMatch does deep comparison, underscore/isMatch is shallow
+import isEqual from 'lodash/isEqual' 		// lodash/isMatch does deep comparison, underscore/isMatch is shallow
 import * as _ from 'underscore'
 import { environment } from '../../../../environments/environment'
 
@@ -43,7 +43,7 @@ export class DocumentEditComponent {
 		imageUploadUrl: environment.IMAGE_UPLOAD_URL,
 	};
 	schema =  {};
-	data = {};
+	data: any;
 	layout = undefined;
 	defaultLayoutOptions = {
 		fxLayoutGap: '50px',
@@ -56,7 +56,9 @@ export class DocumentEditComponent {
 	showExpandButton: boolean;
 
 	onChanges(data: any) {
-		this.isDirty.emit(!isMatch(this.data, data));
+		delete this.data.banTransitions;
+		delete this.data._id;
+		this.isDirty.emit(!isEqual(this.data, data));
 		this.liveData.emit(data);
 	}
 
@@ -79,10 +81,10 @@ export class DocumentEditComponent {
   toggleExpandable(node: any, context: any) {
     _.each(node, function(item: any) {
       if (item.expandable) { item.expanded = !context.expandAll }
-      if (item.items) { 
+      if (item.items) {
         _.each(item.items, function(i: any) {
           context.toggleExpandable(i.items, context)
-        })  
+        })
       }
     })
   }

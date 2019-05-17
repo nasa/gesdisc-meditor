@@ -68,17 +68,17 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
 			this.titleProperty = model.titleProperty;
 		});
     this.history$.subscribe(history => {
-      this.history = history; 
+      this.history = history;
     })
 		this.workflow$.subscribe(workflow => {
 			if (workflow) {
 				this.document$.subscribe(document => {
 					this.store.dispatch(new UpdateWorkflowState(document['x-meditor'].state));
-          this.titleService.setTitle(document.doc.title + ' | ' + this.modelName + ' | mEditor');
+          this.titleService.setTitle(document.doc[this.titleProperty] + ' | ' + this.modelName + ' | mEditor');
 				});
 			}
 		});
-    
+
 	}
 
 	@HostListener('window:beforeunload')
@@ -126,8 +126,8 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
 	loadVersion(version: string) {
 		this.store.dispatch(new GetCurrentDocumentVersion({ version }));
     let versionIdx = this.history.findIndex(i => i.modifiedOn.toString() == version);
-    if (versionIdx - 1 > -1) { 
-      this.versionFilter = this.history[versionIdx - 1].modifiedOn 
+    if (versionIdx - 1 > -1) {
+      this.versionFilter = this.history[versionIdx - 1].modifiedOn
     } else {
       this.versionFilter = new Date();
     }
