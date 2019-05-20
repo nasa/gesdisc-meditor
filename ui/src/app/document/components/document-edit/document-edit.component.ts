@@ -56,8 +56,11 @@ export class DocumentEditComponent {
 	showExpandButton: boolean;
 
 	onChanges(data: any) {
-		delete this.data.banTransitions;
-		delete this.data._id;
+		try {
+			delete this.data.banTransitions;
+			delete this.data._id;
+		} catch(err) {}
+		
 		this.isDirty.emit(!isEqual(this.data, data));
 		this.liveData.emit(data);
 	}
