@@ -8,7 +8,7 @@ var mFile = require('./lib/meditor-mongo-file');
 const DEBUG_URS_LOGIN = false;
 // Meditor models supported in UUI
 const PUBLISHABLE_MODELS = ['Alerts', 'Data-In-Action', 'Documents', 'FAQs', 'Glossary',
-  'Howto', 'Images', 'New News', 'News', 'Publications', 'Tools'];
+  'Howto', 'Images', 'New News', 'News', 'Publications', 'Tools', 'Data Release', 'Service Release'];
 
 // Try to load up environment config if not loaded already
 if (!!process.env.MEDITOR_ENV_FILE_PATH) {
