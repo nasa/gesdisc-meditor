@@ -43,10 +43,20 @@ const SYNC_TARGETS = [{
 }];
 
 // This parameter can be used to push from multiple mEditor models into a single model in UUI
-const MEDITOR_MODEL_GROUPS = [{
-  uuiModelName: 'news',
-  meditorModelNames: ['News', 'New News']
-}];
+const MEDITOR_MODEL_GROUPS = [
+  {
+    uuiModelName: 'news',
+    meditorModelNames: ['News', 'New News'],
+  },
+  {
+    uuiModelName: 'data-release',
+    meditorModelNames: ['Data Release'],
+  },
+  {
+    uuiModelName: 'service-release',
+    meditorModelNames: ['Service Release'],
+  },
+];
 
 var URS_BASE_URL = 'https://urs.earthdata.nasa.gov';
 var URS_HEADERS = { // A minimal viable set of URS headeres
@@ -122,7 +132,7 @@ function getDocumentUid(metadata, meditorDoc) {
 
 // Converts mEditor model name into UUI model name
 function getUuiModelName(model) {
-  return model.toLowerCase();
+  return model.toLowerCase().replace(/ /g, '-');
 }
 
 // Modified from: https://stackoverflow.com/questions/30366324/
