@@ -10,6 +10,10 @@ services:
       - APP_URL=${APP_URL}
       - APP_UI_URL=${APP_UI_URL}
       - MONGOURL=mongodb://meditor_database:27017
+    deploy:
+      placement:
+        constraints:
+          - node.labels.database == primary
 
   proxy:
     container_name: meditor_proxy
@@ -19,6 +23,10 @@ services:
       - "80:8080"
     depends_on:
       - database
+    deploy:
+      placement:
+        constraints:
+          - node.labels.database == primary
 
   notifier:
     container_name: meditor_notifier
@@ -36,6 +44,10 @@ services:
       - URS_USER=${URS_USER}
       - URS_PASSWORD=${URS_PASSWORD}
       - PUBLISH_TO_UUI=${PUBLISH_TO_UUI}
+    deploy:
+        placement:
+          constraints:
+            - node.labels.database == primary
 
   ui:
     container_name: meditor_ui
@@ -45,6 +57,10 @@ services:
       - NODE_ENV=${NODE_ENV}
       - APP_URL=${APP_URL}
       - APP_UI_URL=${APP_UI_URL}
+    deploy:
+      placement:
+        constraints:
+          - node.labels.database == primary
  
   server:
     container_name: meditor_server
@@ -68,6 +84,10 @@ services:
       - auth_host
       - auth_client_id
       - auth_client_secret
+    deploy:
+      placement:
+        constraints:
+          - node.labels.database == primary
 
   database:
     container_name: meditor_database
@@ -128,6 +148,10 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - monitor_data:/data
+    deploy:
+      placement:
+        constraints:
+          - node.labels.database == primary
 
   agent:
     image: portainer/agent:1.1.2
@@ -146,7 +170,9 @@ services:
     deploy:
       mode: global
       placement:
-        constraints: [node.platform.os == linux]
+        constraints: 
+          - node.platform.os == linux
+          - node.labels.database == primary
 
 networks:
   portainer_agent:
