@@ -43,20 +43,10 @@ const SYNC_TARGETS = [{
 }];
 
 // This parameter can be used to push from multiple mEditor models into a single model in UUI
-const MEDITOR_MODEL_GROUPS = [
-  {
-    uuiModelName: 'news',
-    meditorModelNames: ['News', 'New News'],
-  },
-  {
-    uuiModelName: 'data-release',
-    meditorModelNames: ['Data Release'],
-  },
-  {
-    uuiModelName: 'service-release',
-    meditorModelNames: ['Service Release'],
-  },
-];
+const MEDITOR_MODEL_GROUPS = [{
+  uuiModelName: 'news',
+  meditorModelNames: ['News', 'New News','Data-In-Action','Data Release','Service Release']
+}];
 
 var URS_BASE_URL = 'https://urs.earthdata.nasa.gov';
 var URS_HEADERS = { // A minimal viable set of URS headeres
