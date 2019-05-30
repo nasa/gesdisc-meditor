@@ -127,7 +127,7 @@ function isDryRun() {
 // Returns a unique identifier for a given mEdiotor document
 // Used for provenance when writing a document to UUI
 function getDocumentUid(metadata, meditorDoc) {
-  return encodeURIComponent(_.get(meditorDoc, metadata.titleProperty)) + '_' + meditorDoc['x-meditor'].publishedOn;
+  return encodeURIComponent(_.get(meditorDoc, metadata.titleProperty)) + '_' + (_.get(meditorDoc, 'x-meditor.publishedOn') || _.get(meditorDoc, 'x-meditor.modifiedOn'));
 }
 
 // Converts mEditor model name into UUI model name
@@ -219,7 +219,7 @@ function pushDocument(meta, model, meditorDoc) {
       console.log('Publishing [' + _.get(meditorDoc, meta.meditorModelData[model].titleProperty) + '] of type [' + model + '] to UUI [' + meta.uuiModelName + ']', isDryRun() ? '(Dry Run Mode)' : '');
       if (isDryRun()) return resolve();
       // Fetch image from GridFS if necessary
-      ((_.isNil(meditorDoc.image)) ? Promise.resolve() : mFile.getFileSystemItem(meta.dbo.db(DbName), meditorDoc.image))
+      ((_.isNil(meditorDoc.image) || !/^[a-f\d]{24}$/i.test(meditorDoc.image)) ? Promise.resolve() : mFile.getFileSystemItem(meta.dbo.db(DbName), meditorDoc.image))
     })
     .then(function (image) {
       var postedModel = {};
@@ -229,9 +229,9 @@ function pushDocument(meta, model, meditorDoc) {
       _.assign(postedModel, {
         'title': _.get(meditorDoc, meta.meditorModelData[model].titleProperty),
         'published': true,
-        'lastPublished': _.get(meditorDoc, 'x-meditor.publishedOn'),
+        'lastPublished': _.get(meditorDoc, 'x-meditor.publishedOn') || _.get(meditorDoc, 'x-meditor.modifiedOn'),
         'updated': _.get(meditorDoc, 'x-meditor.modifiedOn'),
-        'created': _.get(meditorDoc, 'x-meditor.createdOn'),
+        'created': _.get(meditorDoc, 'x-meditor.createdOn') || _.get(meditorDoc, 'x-meditor.modifiedOn'),
         'originName': 'meditor',
         'originData': getDocumentUid(meta.meditorModelData[model], meditorDoc)
       });
@@ -243,7 +243,7 @@ function pushDocument(meta, model, meditorDoc) {
         followAllRedirects: true,
         gzip: true
       }
-      if (image) {
+      if (image && image.indexOf('base64') !== -1) {
         // Image is stored in Base64 like this "image" : "data:image/png;base64,iVBORw0KGgoAA..."
         image = image.split(',');
         image[0] = image[0].replace(/[:;]/g, ',').split(',');
@@ -258,7 +258,7 @@ function pushDocument(meta, model, meditorDoc) {
           }
         }
       }
-      if (!!meta.meditorModelData[model].schema.properties.image) {
+      if (postedModel.fileRef) {
         // File-based documents are submitted as a form
         // Convert all keys to string as required by the form-encoded transport
         uui_headers['Content-Type'] = 'multipart/form-data';
