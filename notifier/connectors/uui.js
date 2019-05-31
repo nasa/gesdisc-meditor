@@ -268,7 +268,7 @@ function pushDocument(meta, model, meditorDoc) {
               value: new Buffer(image),
               options: {
                 filename: _.get(meditorDoc, meta.meditorModelData[model].titleProperty),
-                contentType: 'image/' + image.replace(/.*\./, '')
+                contentType: 'text/plain'
               }
             }
           }
