@@ -9,6 +9,7 @@ const DEBUG_URS_LOGIN = false;
 // Meditor models supported in UUI
 const PUBLISHABLE_MODELS = ['Alerts', 'Data-In-Action', 'Documents', 'FAQs', 'Glossary',
   'Howto', 'Images', 'New News', 'News', 'Publications', 'Tools', 'Data Release', 'Service Release'];
+const FILE_BASED_UUI_MODELS = ['news', 'images', 'tools'];
 
 // Try to load up environment config if not loaded already
 if (!!process.env.MEDITOR_ENV_FILE_PATH) {
@@ -243,22 +244,40 @@ function pushDocument(meta, model, meditorDoc) {
         followAllRedirects: true,
         gzip: true
       }
-      if (image && image.indexOf('base64') !== -1) {
-        // Image is stored in Base64 like this "image" : "data:image/png;base64,iVBORw0KGgoAA..."
-        image = image.split(',');
-        image[0] = image[0].replace(/[:;]/g, ',').split(',');
-        postedModel.image = null;
-        delete postedModel.image; // Remove image from request body (we will add it later)
-        // Add image binary
-        postedModel.fileRef = {
-          value: new Buffer(image[1], 'base64'),
-          options: {
-            filename: _.get(meditorDoc, meta.meditorModelData[model].titleProperty),
-            contentType: image[0][1]
+      if (image) {
+        if (FILE_BASED_UUI_MODELS.indexOf(meta.uuiModelName) !== -1) {
+          // A case of file-based model in UUI. Needs to be send as a form.
+          postedModel.image = null;
+          delete postedModel.image; // Remove image from request body (we will add it later)
+          if (image.indexOf('base64') !== -1) {
+            // Case 1: image stored in Base64 like this "image" : "data:image/png;base64,iVBORw0KGgoAA..."
+            image = image.split(',');
+            image[0] = image[0].replace(/[:;]/g, ',').split(',');
+            
+            // Add image binary
+            postedModel.fileRef = {
+              value: new Buffer(image[1], 'base64'),
+              options: {
+                filename: _.get(meditorDoc, meta.meditorModelData[model].titleProperty),
+                contentType: image[0][1]
+              }
+            }
+          } else {
+            // Case 2: Image stored as a URL
+            postedModel.fileRef = {
+              value: new Buffer(image),
+              options: {
+                filename: _.get(meditorDoc, meta.meditorModelData[model].titleProperty),
+                contentType: 'image/' + image.replace(/.*\./, '')
+              }
+            }
           }
+        } else {
+          // A case of non-file based model. Image URL is simply an attribute of the model.
+          postedModel.image = image;
         }
       }
-      if (postedModel.fileRef) {
+      if (FILE_BASED_UUI_MODELS.indexOf(meta.uuiModelName) !== -1) {
         // File-based documents are submitted as a form
         // Convert all keys to string as required by the form-encoded transport
         uui_headers['Content-Type'] = 'multipart/form-data';
