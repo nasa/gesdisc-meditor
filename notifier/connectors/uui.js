@@ -219,7 +219,7 @@ function pushDocument(meta, model, meditorDoc) {
       console.log('Publishing [' + _.get(meditorDoc, meta.meditorModelData[model].titleProperty) + '] of type [' + model + '] to UUI [' + meta.uuiModelName + ']', isDryRun() ? '(Dry Run Mode)' : '');
       if (isDryRun()) return resolve();
       // Fetch image from GridFS if necessary
-      ((_.isNil(meditorDoc.image) || !/^[a-f\d]{24}$/i.test(meditorDoc.image)) ? Promise.resolve() : mFile.getFileSystemItem(meta.dbo.db(DbName), meditorDoc.image))
+      return ((_.isNil(meditorDoc.image) || !/^[a-f\d]{24}$/i.test(meditorDoc.image)) ? Promise.resolve() : mFile.getFileSystemItem(meta.dbo.db(DbName), meditorDoc.image))
     })
     .then(function (image) {
       var postedModel = {};
