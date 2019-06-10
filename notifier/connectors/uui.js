@@ -245,31 +245,19 @@ function pushDocument(meta, model, meditorDoc) {
         gzip: true
       }
       if (image) {
-        if (FILE_BASED_UUI_MODELS.indexOf(meta.uuiModelName) !== -1) {
+        if (FILE_BASED_UUI_MODELS.indexOf(meta.uuiModelName) !== -1 && image.indexOf('base64') !== -1) {
           // A case of file-based model in UUI. Needs to be send as a form.
-          postedModel.image = null;
           delete postedModel.image; // Remove image from request body (we will add it later)
-          if (image.indexOf('base64') !== -1) {
-            // Case 1: image stored in Base64 like this "image" : "data:image/png;base64,iVBORw0KGgoAA..."
-            image = image.split(',');
-            image[0] = image[0].replace(/[:;]/g, ',').split(',');
-            
-            // Add image binary
-            postedModel.fileRef = {
-              value: new Buffer(image[1], 'base64'),
-              options: {
-                filename: _.get(meditorDoc, meta.meditorModelData[model].titleProperty),
-                contentType: image[0][1]
-              }
-            }
-          } else {
-            // Case 2: Image stored as a URL
-            postedModel.fileRef = {
-              value: new Buffer(image),
-              options: {
-                filename: _.get(meditorDoc, meta.meditorModelData[model].titleProperty),
-                contentType: 'text/plain'
-              }
+          // Image stored in Base64 like this "image" : "data:image/png;base64,iVBORw0KGgoAA..."
+          image = image.split(',');
+          image[0] = image[0].replace(/[:;]/g, ',').split(',');
+          
+          // Add image binary
+          postedModel.fileRef = {
+            value: new Buffer(image[1], 'base64'),
+            options: {
+              filename: _.get(meditorDoc, meta.meditorModelData[model].titleProperty),
+              contentType: image[0][1]
             }
           }
         } else {
@@ -282,8 +270,11 @@ function pushDocument(meta, model, meditorDoc) {
         // Convert all keys to string as required by the form-encoded transport
         uui_headers['Content-Type'] = 'multipart/form-data';
         Object.keys(postedModel).forEach(function (key) {
+          var shouldUnescape = !(postedModel[key] instanceof Object);
           if (key === 'fileRef') return;
-          postedModel[key] = _.trim(jsonUnescape(JSON.stringify(postedModel[key])), '"') + "";
+          postedModel[key] = JSON.stringify(postedModel[key]);
+          if (shouldUnescape) postedModel[key] = jsonUnescape(postedModel[key]);
+          postedModel[key] = _.trim(postedModel[key], '"') + "";
         });
         postRequest.formData = postedModel;
         postRequest.preambleCRLF = true;
@@ -575,4 +566,14 @@ module.exports.processQueueItem = function (data) {
   }, Promise.resolve([]));
 };
 
+module.exports.syncAll = function() {
+  return PUBLISHABLE_MODELS.reduce((promiseChain, syncModel) => {
+    return promiseChain.then(chainResults =>
+      (module.exports.processQueueItem({"model": syncModel}))
+      .then(currentResult => [...chainResults, currentResult])
+    );
+  }, Promise.resolve([]));
+};
+
 // module.exports.processQueueItem({"model": "News"}); // test stub
+// module.exports.syncAll(); // Can be used to force sync of all models
