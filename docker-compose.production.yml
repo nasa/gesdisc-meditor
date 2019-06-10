@@ -30,7 +30,7 @@ services:
 
   notifier:
     container_name: meditor_notifier
-    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_notifier:0.33.0
+    image: dev.gesdisc.eosdis.nasa.gov:443/meditor_notifier:0.34.0
     restart: on-failure
     depends_on:
       - database
