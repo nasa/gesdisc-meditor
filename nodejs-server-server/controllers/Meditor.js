@@ -113,7 +113,7 @@ function getDocumentModelMetadata(dbo, request, paramsExtra) {
     roles: _.get(request, 'user.roles', {}),
     dbo: dbo,
     user: request.user || {},
-    exclusiveStates: ['Under Review']
+    exclusiveStates: ['Under Review', 'Approved']
   };
   // TODO Useful for dubugging
   // that.roles = [ 
