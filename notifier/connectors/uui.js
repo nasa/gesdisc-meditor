@@ -265,7 +265,7 @@ function pushDocument(meta, model, meditorDoc) {
           postedModel.image = image;
         }
       }
-      if (FILE_BASED_UUI_MODELS.indexOf(meta.uuiModelName) !== -1) {
+      if (FILE_BASED_UUI_MODELS.indexOf(meta.uuiModelName) !== -1 && postedModel.fileRef) {
         // File-based documents are submitted as a form
         // Convert all keys to string as required by the form-encoded transport
         uui_headers['Content-Type'] = 'multipart/form-data';
