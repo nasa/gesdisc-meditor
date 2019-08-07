@@ -41,6 +41,10 @@ const SYNC_TARGETS = [{
   state: 'Draft',
   uuiUrl: UUI_APP_URL_FOR_TEST,
   targetLabel: 'Test'
+}, {
+  state: 'Under Review',
+  uuiUrl: UUI_APP_URL_FOR_TEST,
+  targetLabel: 'Test'
 }];
 
 // This parameter can be used to push from multiple mEditor models into a single model in UUI
