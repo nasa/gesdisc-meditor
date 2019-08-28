@@ -1,4 +1,4 @@
-FROM dev.gesdisc.eosdis.nasa.gov:443/centos
+FROM registry1.gesdisc.eosdis.nasa.gov/certified/centos:7.5.1804
 
 
 # install crontabs RUN yum -y update

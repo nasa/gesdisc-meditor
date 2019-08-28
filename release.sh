@@ -1,6 +1,7 @@
 set -e
 
-REGISTRY=dev.gesdisc.eosdis.nasa.gov:443
+#REGISTRY=registry1.gesdisc.eosdis.nasa.gov
+REGISTRY=registry1.gesdisc.eosdis.nasa.gov
 IMAGES=( "meditor_ui" "meditor_server" "meditor_proxy" "meditor_notifier" "meditor_replicaset" "meditor_status" )
 
 getLatestFromRepository () {
@@ -111,7 +112,7 @@ deployImageToRegistry() {
 
 main() {
     getLatestFromRepository
-    incrementMeditorProjectVersion
+    #incrementMeditorProjectVersion
 
     echo "\nSelect which image(s) to release\n"
 
@@ -127,12 +128,12 @@ main() {
         for image in $imagesToDeploy
         do
             currentVersion=$(getImageCurrentVersion $image)
-            newVersion=$(getImageNewVersion $image)
+            #newVersion=$(getImageNewVersion $image)
 
-            echo "Building $image:$newVersion"
+            echo "Building $image:$currentVersion"
 
             buildImage $image
-            incrementImageVersion $image
+            #incrementImageVersion $image
             deployImageToRegistry $image
         done
     else
@@ -140,7 +141,7 @@ main() {
         echo "\nRelease was cancelled."
     fi
 
-    pushMeditorVersionToRepository
+    #pushMeditorVersionToRepository
 }
  
 main "$@"

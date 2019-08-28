@@ -23,7 +23,7 @@ The easiest way to get up and running is via Docker:
 
 ### Running production
 
-All meditor images are stored in the registry: dev.gesdisc.eosdis.nasa.gov:443
+All meditor images are stored in the registry: registry1.gesdisc.eosdis.nasa.gov
 
 Production mode doesn't use the .env file as described above, it uses environment variables.
 
