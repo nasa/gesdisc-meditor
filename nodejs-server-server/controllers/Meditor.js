@@ -356,7 +356,7 @@ module.exports.putDocument = function putDocument (request, response, next) {
       return Promise.resolve("Inserted document");
     })
     .then(res => {return mUtils.actOnDocumentChanges(that, DbName, doc);})
-    .then(res => {return mUtils.addToConnectorQueue(that, DbName, 'uui', {model: doc["x-meditor"]["model"]})}) // Take an opportunity to sync with UUI    .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
+    .then(res => {return mUtils.publishToNats({model: doc["x-meditor"]["model"]})}) // Take an opportunity to sync with UUI    .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .then(res => (that.dbo.close(), handleSuccess(response, {message: "Inserted document"})))
     .catch(err => {
       try {that.dbo.close()} catch (e) {};
@@ -489,7 +489,7 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
       const shouldNotify =  _.get(that.currentEdge, 'notify', true) && that.readyNodes.indexOf(that.params.state) === -1;
       return shouldNotify ? mUtils.notifyOfStateChange(DbName, that) : Promise.resolve();
     })
-    .then(res => {return mUtils.addToConnectorQueue(that, DbName, 'uui', {model: that.params.model})}) // Take an opportunity to sync with UUI    .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
+    .then(res => {return mUtils.publishToNats({model: that.params.model})}) // Take an opportunity to sync with UUI    .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .catch(err => {
       try {that.dbo.close()} catch (e) {};

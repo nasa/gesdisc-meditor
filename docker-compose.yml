@@ -34,8 +34,10 @@ services:
       - /usr/src/app/node_modules
     links:
       - database
+      - nats
     depends_on:
       - database
+      - nats
 
   database:
     container_name: meditor_database
@@ -51,3 +53,13 @@ services:
     build: mongo-seed/.
     links:
       - database
+
+  nats:
+    container_name: nats
+    image: nats-streaming:0.15.1 
+    ports:
+      - "${NATS_HOST_PORT}:4222"
+      - "${NATS_MONITORING_PORT}:8222"
+    volumes:
+      - ${NATS_HOST_VOLUME}:/nats/data
+

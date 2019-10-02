@@ -53,6 +53,7 @@ yarn-error.log
 testem.log
 /typings
 .env
+/demo
 
 # e2e
 /e2e/*.js

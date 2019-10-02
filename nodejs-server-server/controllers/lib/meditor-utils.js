@@ -5,7 +5,8 @@ var stream = require('stream');
 var mustache = require('mustache');
 var he = require('he');
 var ObjectID = mongo.ObjectID;
-var mFile = require('./meditor-mongo-file'); 
+var mFile = require('./meditor-mongo-file');
+var indexFile = require('../../index');
 
 const NotificationQueueCollectionName = 'queue-notifications';
 module.exports.WORKFLOW_ROOT = 'Init';
@@ -78,12 +79,22 @@ function testFs() {
   });
 }
 
-// Inserts a data message into DB queue of connectors
-module.exports.addToConnectorQueue = function addToConnectorQueue(meta, DbName, target, data) {
-  return meta.dbo.db(DbName).collection('queue-connectors').insertOne({
-    created: Date.now(),
-    target: target,
-    data: data,
+// Inserts a data message into a NATS channel
+module.exports.publishToNats = function publishToNats(data) {
+  var modelName =   data['x-meditor'].model;
+  var state = data['x-meditor']['states'][data['x-meditor']['states'].length - 1]['source'];
+  var channelName = modelName + '-' + state;
+  channelName = channelName.toLowerCase().replace(/\s+/g, '');
+  console.log("Channel name : " + channelName);
+  
+  // Publish message to channel
+  indexFile.stan.publish(channelName, JSON.stringify(data), function(err, guid) {
+    if (err) {
+      console.log('publish failed: ' + err);
+    }
+    else {
+      console.log('published message with guid: ' + guid);
+    }
   });
 };
 
@@ -437,7 +448,7 @@ function handleModelChanges(meta, DbName, modelDoc) {
     .then(function(res) {
       console.log('Done updating state history for documents in ' + modelDoc.name);
       // Re-publish documents as necessary, since some of the states could have changed
-      return exports.addToConnectorQueue(meta, DbName, 'uui', {model: modelDoc.name}); // Take an opportunity to sync with UUI
+      return exports.publishToNats({model: modelDoc.name}); // Take an opportunity to sync with UUI
     })
     .catch(function(e) {
       if (_.isObject(e) && e.result) {
@@ -474,3 +485,25 @@ module.exports.testStub = function() {
   });
 };
 
+module.exports.testNATS = function() {
+  var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
+  var MongoClient = mongo.MongoClient;
+  MongoClient.connect(MongoUrl, function(err, db) {
+    var DbName = "meditor";
+    if (err) {
+      console.log(err);
+      throw err;
+    }
+    var dbo = db;
+    var meta = {
+      dbo: dbo
+    }
+    
+    module.exports.publishToNats({'x-meditor': {model: 'News', 'states': [{'source': 'Approved', 'target': 'Published'}]}});
+    module.exports.publishToNats({'x-meditor': {model: 'News', 'states': [{'source': 'Approved', 'target': 'Published'}]}});
+    module.exports.publishToNats({'x-meditor': {model: 'Alerts', 'states': [{'source': 'Approved','target': 'Published'}]}});
+    module.exports.publishToNats({'x-meditor': {model: 'New News', 'states': [{'source': 'Approved', 'target': 'Published'}]}});
+});
+};
+
+module.exports.testNATS();
