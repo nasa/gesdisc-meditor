@@ -13,6 +13,7 @@ var csrf = require('csurf');
 var utils = require('../utils/writer.js');
 var swaggerTools = require('swagger-tools');
 var fs = require('fs');
+var HttpsProxyAgent = require('https-proxy-agent');
 
 var MongoClient = require('mongodb').MongoClient;
 var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
@@ -147,7 +148,7 @@ if (process.env.NODE_ENV === 'development') {
   }))
 }
 
-passport.use(new OAuth2Strategy({
+let oauth2Strategy = new OAuth2Strategy({
   authorizationURL: AUTH_PROTOCOL + '//' + AUTH_CONFIG.HOST + '/oauth/authorize',
   tokenURL: AUTH_PROTOCOL + '//' + AUTH_CONFIG.HOST + '/oauth/token',
   clientID: AUTH_CONFIG.CLIENT_ID,
@@ -215,7 +216,15 @@ passport.use(new OAuth2Strategy({
   }).on('error', function (err) {
     cb(err);
   });
-}));
+})
+
+if (process.env.PROXY_REQUEST_URL) {
+  let httpsProxyAgent = new HttpsProxyAgent(process.env.PROXY_REQUEST_URL)
+  oauth2Strategy._oauth2.setAgent(httpsProxyAgent)
+}
+
+
+passport.use(oauth2Strategy);
 
 function impersonateUser(req, res, next) {
   passport.authenticate('impersonate', function (impersonateReq, impersonateRes) {
@@ -243,9 +252,29 @@ module.exports.login = function login(req, res, next) {
     return impersonateUser(req, res, next)
   }
   
-  passport.authenticate('oauth2',
-    function (req1, res1) {
-      req.logIn(res1, function (err) {
+  passport.authenticate('oauth2', function (err, user) {
+      if (err) {
+        console.log('hit this error ', err)
+        return next(err)
+      }
+
+      if (!user) {
+        return res.send(401, { success: false, message: 'Authentication failed' })
+      }
+
+      req.logIn(user, function (err) {
+        if (err) {
+          console.log('hit a login error', err)
+          return next(err)
+        }
+
+        res.writeHead(301, {
+          Location: ENV_CONFIG.APP_UI_URL + '/#/auth/getuser'
+        });
+        
+        res.end();
+
+        /*
         if (err) {
           utils.writeJson(res, {
             code: 500,
@@ -256,7 +285,7 @@ module.exports.login = function login(req, res, next) {
             Location: ENV_CONFIG.APP_UI_URL + '/#/auth/getuser'
           });
           res.end();
-        }
+        }*/
       });
     }
   )(req, res, next);

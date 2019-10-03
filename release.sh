@@ -1,6 +1,6 @@
 set -e
 
-REGISTRY=dev.gesdisc.eosdis.nasa.gov:443
+REGISTRY=registry1.gesdisc.eosdis.nasa.gov/meditor
 IMAGES=( "meditor_ui" "meditor_server" "meditor_proxy" "meditor_notifier" "meditor_replicaset" "meditor_status" )
 
 getLatestFromRepository () {
@@ -129,7 +129,7 @@ main() {
             currentVersion=$(getImageCurrentVersion $image)
             newVersion=$(getImageNewVersion $image)
 
-            echo "Building $image:$newVersion"
+            echo "Building $image:$currentVersion"
 
             buildImage $image
             incrementImageVersion $image

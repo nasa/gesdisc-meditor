@@ -1,4 +1,4 @@
-FROM dev.gesdisc.eosdis.nasa.gov:443/mongo/4.1.4
+FROM registry1.gesdisc.eosdis.nasa.gov/certified/mongo:4.1.4
 
 COPY backup /tmp/backup
 

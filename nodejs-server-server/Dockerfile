@@ -1,4 +1,4 @@
-FROM dev.gesdisc.eosdis.nasa.gov:443/node/10.12.0
+FROM registry1.gesdisc.eosdis.nasa.gov/certified/node:10.12.0
 
 ENV NPM_CONFIG_LOGLEVEL warn
 ARG node_env
