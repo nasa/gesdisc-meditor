@@ -164,7 +164,8 @@ function loginIntoUrs(params) {
     })
     .then(res => {
       const token = res.match(/name\=\"authenticity\_token\"\s+value\=\"(.*?)\"/)[1]; // Find CSRF token in the form
-      return requests.post({
+      
+      let requestParams = {
         url: URS_LOGIN_URL,
         headers: URS_HEADERS,
         jar: cookiejar,
@@ -182,7 +183,11 @@ function loginIntoUrs(params) {
           'stay_in': 1,
           'commit': 'Log+in'
         }
-      });
+      }
+
+      if (process.env.PROXY_REQUEST_URL) requestParams.proxy = process.env.PROXY_REQUEST_URL
+      
+      return requests.post(requestParams);
     })
     .then(res => {
       return cookiejar;
@@ -248,6 +253,9 @@ function pushDocument(meta, model, meditorDoc) {
         followAllRedirects: true,
         gzip: true
       }
+
+      if (process.env.PROXY_REQUEST_URL) postRequest.proxy = process.env.PROXY_REQUEST_URL
+
       if (image) {
         if (FILE_BASED_UUI_MODELS.indexOf(meta.uuiModelName) !== -1 && image.indexOf('base64') !== -1) {
           // A case of file-based model in UUI. Needs to be send as a form.
@@ -487,34 +495,41 @@ function syncItems(syncTarget, params) {
     .then(res => {
       meta.cookiejar = res;
       // Verify we logged in - request user profile info
-      return requests({
+      let requestParams = {
         url: meta.UUI_APP_URL + '/api/users/me',
         headers: UUI_HEADERS,
         json: true,
         jar: meta.cookiejar,
         gzip: true
-      });
+      }
+
+      if (process.env.PROXY_REQUEST_URL) requestParams.proxy = process.env.PROXY_REQUEST_URL
+
+      return requests(requestParams);
     })
     .then(res => {
       console.log('Logged in into UUI as', res.uid, 'with roles for ' + meta.params.model + ': ', _.get(res, 'roles.' + meta.uuiModelName, []));
       // Acquire UUI CSRF token
-      return requests({
+      let requestParams = {
         url: meta.UUI_APP_URL + '/api/csrf-token',
         headers: UUI_HEADERS,
         json: true,
         jar: meta.cookiejar,
         gzip: true
-      });
+      }
+
+      if (process.env.PROXY_REQUEST_URL) requestParams.proxy = process.env.PROXY_REQUEST_URL
+
+      return requests(requestParams);
     })
     .then(res => {
       UUI_HEADERS['x-csrf-token'] = res.csrfToken;
-      return requests({
-        url: meta.UUI_APP_URL + '/api/' + meta.uuiModelName + contentSelectorQuery,
-        headers: UUI_HEADERS,
-        json: true,
-        jar: meta.cookiejar,
-        gzip: true
-      });
+
+      let requestParams = {}
+
+      if (process.env.PROXY_REQUEST_URL) requestParams.proxy = process.env.PROXY_REQUEST_URL
+
+      return requests(requestParams);
     })
     .then(res => res.data || [])
     .then(res => {
