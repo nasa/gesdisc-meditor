@@ -129,7 +129,7 @@ main() {
             currentVersion=$(getImageCurrentVersion $image)
             newVersion=$(getImageNewVersion $image)
 
-            echo "Building $image:$currentVersion"
+            echo "Building $image:$newVersion"
 
             buildImage $image
             incrementImageVersion $image
