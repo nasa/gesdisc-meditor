@@ -6,7 +6,7 @@ var mustache = require('mustache');
 var he = require('he');
 var ObjectID = mongo.ObjectID;
 var mFile = require('./meditor-mongo-file');
-var indexFile = require('../../index');
+var nats = require('./nats-connection');
 
 const NotificationQueueCollectionName = 'queue-notifications';
 module.exports.WORKFLOW_ROOT = 'Init';
@@ -88,7 +88,7 @@ module.exports.publishToNats = function publishToNats(data) {
   console.log("Channel name : " + channelName);
   
   // Publish message to channel
-  indexFile.stan.publish(channelName, JSON.stringify(data), function(err, guid) {
+  nats.stan.publish(channelName, JSON.stringify(data), function(err, guid) {
     if (err) {
       console.log('publish failed: ' + err);
     }

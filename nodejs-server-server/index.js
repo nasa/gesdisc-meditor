@@ -10,12 +10,7 @@ var jsyaml = require('js-yaml');
 var cors = require('cors');
 var serverPort = 8081;
 
-// NATS clusterID, clientID, server
-var clusterID = 'test-cluster';
-var clientID = 'publisher';
-var server = 'nats://nats:4222';
-var stan = require('node-nats-streaming').connect(clusterID, clientID, server);
-module.exports.stan = stan; 
+var nats = require('./controllers/lib/nats-connection');
 
 // swaggerRouter configuration
 var options = {
@@ -29,7 +24,7 @@ var spec = fs.readFileSync(path.join(__dirname,'api/swagger.yaml'), 'utf8');
 var swaggerDoc = jsyaml.safeLoad(spec);
 
 // Connect to NATS Streaming
-stan.on('connect', function() {
+nats.stan.on('connect', function() {
   console.log('Connected to NATS');
 
   // Initialize the Swagger middleware
@@ -59,6 +54,6 @@ stan.on('connect', function() {
   });
 })
 
-stan.on('error', function(reason) {
+nats.stan.on('error', function(reason) {
   console.log(reason);
 })
