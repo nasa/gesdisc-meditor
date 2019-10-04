@@ -498,11 +498,6 @@ module.exports.testNATS = function() {
     var meta = {
       dbo: dbo
     }
-    
-    module.exports.publishToNats({'x-meditor': {model: 'News', 'states': [{'source': 'Approved', 'target': 'Published'}]}});
-    module.exports.publishToNats({'x-meditor': {model: 'News', 'states': [{'source': 'Approved', 'target': 'Published'}]}});
-    module.exports.publishToNats({'x-meditor': {model: 'Alerts', 'states': [{'source': 'Approved','target': 'Published'}]}});
-    module.exports.publishToNats({'x-meditor': {model: 'New News', 'states': [{'source': 'Approved', 'target': 'Published'}]}});
 });
 };
 
