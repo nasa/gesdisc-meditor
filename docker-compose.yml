@@ -1,6 +1,15 @@
 version: "3.3"
 
 services:
+
+  notifier:
+    container_name: meditor_notifier
+    build: notifier
+    restart: on-failure
+    depends_on:
+      - database
+    env_file:
+      - .env
   
   ui:
     container_name: meditor_ui

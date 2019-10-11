@@ -99,6 +99,9 @@ incrementImageVersion() {
 
     sed -E "s/${1}:${currentVersion}/${1}:${newVersion}/g" docker-compose.production.yml > docker-compose.production.yml.new \
     && mv docker-compose.production.yml.new docker-compose.production.yml
+
+    sed -E "s/${1}:${currentVersion}/${1}:${newVersion}/g" docker-compose.uat.yml > docker-compose.uat.yml.new \
+    && mv docker-compose.uat.yml.new docker-compose.uat.yml
 }
 
 deployImageToRegistry() {

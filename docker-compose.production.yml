@@ -2,19 +2,6 @@ version: "3.3"
 
 services:
 
-  status:
-    container_name: meditor_status
-    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_status:0.26.0
-    restart: on-failure
-    environment:
-      - APP_URL=${APP_URL}
-      - APP_UI_URL=${APP_UI_URL}
-      - MONGOURL=mongodb://meditor_database:27017
-    deploy:
-      placement:
-        constraints:
-          - node.labels.database == primary
-
   proxy:
     container_name: meditor_proxy
     image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_proxy:0.31.0
@@ -23,6 +10,10 @@ services:
       - "80:8080"
     depends_on:
       - database
+    environment:
+      - SERVER_HOST=meditor_server
+      - UI_HOST=meditor_ui
+      - MONITOR_HOST=meditor_monitor
     deploy:
       placement:
         constraints:
