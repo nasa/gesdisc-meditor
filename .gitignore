@@ -10,6 +10,7 @@
 /ui/tmp
 /ui/out-tsc
 /data/
+/data2/
 
 # dependencies
 /node_modules
