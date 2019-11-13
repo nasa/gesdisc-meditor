@@ -184,8 +184,6 @@ function loginIntoUrs(params) {
           'commit': 'Log+in'
         }
       }
-
-      if (process.env.PROXY_REQUEST_URL) requestParams.proxy = process.env.PROXY_REQUEST_URL
       
       return requests.post(requestParams);
     })
@@ -253,8 +251,6 @@ function pushDocument(meta, model, meditorDoc) {
         followAllRedirects: true,
         gzip: true
       }
-
-      if (process.env.PROXY_REQUEST_URL) postRequest.proxy = process.env.PROXY_REQUEST_URL
 
       if (image) {
         if (FILE_BASED_UUI_MODELS.indexOf(meta.uuiModelName) !== -1 && image.indexOf('base64') !== -1) {
@@ -503,33 +499,28 @@ function syncItems(syncTarget, params) {
         gzip: true
       }
 
-      if (process.env.PROXY_REQUEST_URL) requestParams.proxy = process.env.PROXY_REQUEST_URL
-
       return requests(requestParams);
     })
     .then(res => {
       console.log('Logged in into UUI as', res.uid, 'with roles for ' + meta.params.model + ': ', _.get(res, 'roles.' + meta.uuiModelName, []));
       // Acquire UUI CSRF token
-      let requestParams = {
+      return requests({
         url: meta.UUI_APP_URL + '/api/csrf-token',
         headers: UUI_HEADERS,
         json: true,
         jar: meta.cookiejar,
         gzip: true
-      }
-
-      if (process.env.PROXY_REQUEST_URL) requestParams.proxy = process.env.PROXY_REQUEST_URL
-
-      return requests(requestParams);
+      });
     })
     .then(res => {
       UUI_HEADERS['x-csrf-token'] = res.csrfToken;
-
-      let requestParams = {}
-
-      if (process.env.PROXY_REQUEST_URL) requestParams.proxy = process.env.PROXY_REQUEST_URL
-
-      return requests(requestParams);
+      return requests({
+        url: meta.UUI_APP_URL + '/api/' + meta.uuiModelName + contentSelectorQuery,
+        headers: UUI_HEADERS,
+        json: true,
+        jar: meta.cookiejar,
+        gzip: true
+      });
     })
     .then(res => res.data || [])
     .then(res => {
