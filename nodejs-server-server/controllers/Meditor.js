@@ -341,15 +341,6 @@ module.exports.putDocument = function putDocument (request, response, next) {
       doc["x-meditor"]["modifiedBy"] = request.user.uid;
       // TODO: replace with actual model init state
       doc["x-meditor"]["states"] = [rootState];
-      if (!_.isNil(doc.image)) {
-        imageStr = doc.image;
-        doc.image = mUtils.getFSFileName(that, doc);
-        imagePromise = mUtils.putFileSystemItem(that.dbo.db(DbName), doc.image, imageStr, {
-          model: doc["x-meditor"]["model"],
-          version: doc["x-meditor"]["modifiedOn"],
-          originalTitle: doc[that.titleProperty]
-        }) 
-      }
       return Promise.all([that.dbo.db(DbName).collection(doc["x-meditor"]["model"]).insertOne(doc), imagePromise]);
     })
     .then(function(savedDoc) {
@@ -389,7 +380,6 @@ module.exports.listDocuments = function listDocuments (request, response, next) 
           res["x-meditor"] = _.pickBy(doc['x-meditor'], function(value, key) {return xmeditorProperties.indexOf(key) !== -1;});
           if ('state' in res["x-meditor"] && !res["x-meditor"].state) res["x-meditor"].state = 'Unspecified';
           _.merge(res, getExtraDocumentMetadata(that, doc));
-          if ('image' in res) delete res.image;
           return res;
       })
       .toArray();
@@ -431,9 +421,8 @@ module.exports.getDocument = function listDocuments (request, response, next) {
     })
     .then(function(res) {
       that.result = res.length > 0 ? res[0] : {};
-      return (_.isNil(_.get(that.result, 'doc.image'))) ? Promise.resolve(null) : mFile.getFileSystemItem(that.dbo.db(DbName), that.result.doc.image);
+      return Promise.resolve(null)
     })
-    .then(function(res) {if (!_.isNil(res)) that.result.doc.image = res})
     .then(res => (that.dbo.close(), handleSuccess(response, that.result)))
     .catch(err => {
       try {that.dbo.close()} catch (e) {};
