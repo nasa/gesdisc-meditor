@@ -32,6 +32,7 @@ var UUI_APP_URL_FOR_PUBLISHED = process.env.UUI_APP_URL_OPS;
 var UUI_APP_URL_FOR_TEST = process.env.UUI_APP_URL_TEST;
 var URS_USER = process.env.URS_USER;
 var URS_PASSWORD = process.env.URS_PASSWORD;
+var DEBUG_MODE = _.isString(process.env.DEBUG_MODE_NOTIFIER) && process.env.DEBUG_MODE_NOTIFIER === 'true';
 
 const SYNC_TARGETS = [{
   states: ['Published'],
@@ -253,6 +254,7 @@ function pushDocument(meta, model, meditorDoc) {
         'originData': getDocumentUid(meta.meditorModelData[model], meditorDoc),
         'originMeta': getDocumentMetadata(meditorDoc)
       });
+      if (DEBUG_MODE) console.log('Pushing doc ID from UUI:', postedModel.originData);
 
       postRequest = {
         url: meta.UUI_APP_URL + '/api/' + meta.uuiModelName,
@@ -337,6 +339,7 @@ function removeDocument(meta, uuiDoc) {
   return Promise.resolve()
     .then(res => {
       console.log('Removing [' + uuiDoc.title + '] of type [' + meta.uuiModelName + '] from UUI [' + meta.uuiModelName + '] (' + meta.target.targetLabel+ ')', isDryRun() ? '(Dry Run Mode)' : '');
+      if (DEBUG_MODE) console.log('Removing doc ID from UUI:', uuiDoc.originData);
       if (isDryRun()) return resolve();
       return requests.delete({
         url: meta.UUI_APP_URL + '/api/' + meta.uuiModelName + '/' + encodeURIComponent(encodeURIComponent(uuiDoc.title)),
@@ -538,10 +541,12 @@ function syncItems(syncTarget, params) {
       // for each of the target model and target this.state
       // After that, flatten the array of id arrays
       var meditorIds = [].concat(...Object.values(meta.meditorModelData).map(modelData => modelData.meditorDocs.map(doc => {
+        if (DEBUG_MODE) console.log('Meditor doc ID: ', syncTarget.targetLabel, getDocumentUid(modelData, doc))
         return getDocumentUid(modelData, doc)
       })));
       // Compute document ids that currently reside in UUI
       meta.uuiIds = res.map(doc => {
+        if (DEBUG_MODE) console.log('Doc ID found in UUI:', meta.UUI_APP_URL, syncTarget.targetLabel, doc.originData);
         return doc.originData
       });
       // Compute and schedule items to remove from UUI (uui ids that are in uui, but not in meditor)
@@ -595,5 +600,5 @@ module.exports.syncAll = function() {
   }, Promise.resolve([]));
 };
 
-module.exports.processQueueItem({"model": "News"}); // test stub
+// module.exports.processQueueItem({"model": "News"}); // test stub
 // module.exports.syncAll(); // Can be used to force sync of all models
