@@ -31,6 +31,8 @@ var PLACEHOLDER_IMG_TITLE = 'Placeholder image';
 var PLACEHOLDER_IMG_CAPTION = 'No image available for the document';
 var placeholderImgDoc = db.images.findOne({title: PLACEHOLDER_IMG_TITLE});
 
+print('Removing groups from images');
+db.images.update({}, {$unset: {groups: 1}}, {multi: true});
 contentTypes.forEach(function(contentType) {
 	print('Processing: ', contentType);
 	db[contentType].find({}).forEach(function(doc) {
@@ -39,13 +41,16 @@ contentTypes.forEach(function(contentType) {
             if (!doc[arrField]) {
                 changed = true;
                 doc[arrField] = [];
+                print('Added empty array field');
             } else if (typeof doc[arrField] === "string") {
                 doc[arrField] = (doc[arrField] !== "") ? [doc[arrField]] : []; 
                 changed = true;
+                print('Converted array field');
             };
         })
 		if (fileBasedTypes.indexOf(contentType) !== -1 && (!doc.abstract || doc.abstract === "")) {
             doc.abstract = doc.title;
+            print('Set abstract to title');
             changed = true;
         };
         if ('groups' in doc && contentType in groups) {
@@ -55,17 +60,19 @@ contentTypes.forEach(function(contentType) {
                 }
             })
         }
-        if (contentRequiresImage.indexOf(contentType) !== -1 && (!doc.fileRef || doc.fileRef === {})) {
+        if (contentRequiresImage.indexOf(contentType) !== -1 && (!doc.image && (!doc.fileRef || doc.fileRef === {}))) {
             changed = true;
             doc.fileRef = placeholderImgDoc.fileRef;
             doc.imageCaption = placeholderImgDoc.abstract;
+            print('Added placeholder image');
         }
         if (contentRequiresImage.indexOf(contentType) !== -1 && (!doc.imageCaption || doc.imageCaption === '')) {
             changed = true;
             doc.imageCaption = "No caption available for the image";
+            print('Added empty title');
         }
 		if (changed) {
-            print('Updating ', contentType, ':', doc.title);
+            // print('Updating ', contentType, ':', doc.title);
             db[contentType].update({_id: doc._id}, {$set: doc});
         }
 	});
