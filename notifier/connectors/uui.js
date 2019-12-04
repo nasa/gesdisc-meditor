@@ -32,17 +32,14 @@ var UUI_APP_URL_FOR_PUBLISHED = process.env.UUI_APP_URL_OPS;
 var UUI_APP_URL_FOR_TEST = process.env.UUI_APP_URL_TEST;
 var URS_USER = process.env.URS_USER;
 var URS_PASSWORD = process.env.URS_PASSWORD;
+var DEBUG_MODE = _.isString(process.env.DEBUG_MODE_NOTIFIER) && process.env.DEBUG_MODE_NOTIFIER === 'true';
 
 const SYNC_TARGETS = [{
-  state: 'Published',
+  states: ['Published'],
   uuiUrl: UUI_APP_URL_FOR_PUBLISHED,
   targetLabel: 'OPS'
 }, {
-  state: 'Draft',
-  uuiUrl: UUI_APP_URL_FOR_TEST,
-  targetLabel: 'Test'
-}, {
-  state: 'Under Review',
+  states: ['Draft', 'Under Review'],
   uuiUrl: UUI_APP_URL_FOR_TEST,
   targetLabel: 'Test'
 }];
@@ -129,10 +126,23 @@ function isDryRun() {
   return (((process.env.PUBLISH_TO_UUI || '') + '').toLowerCase() !== 'true');
 }
 
+function getDocumentTimestamp(meditorDoc) {
+  return (_.get(meditorDoc, 'x-meditor.publishedOn') || _.get(meditorDoc, 'x-meditor.modifiedOn'));
+}
+
 // Returns a unique identifier for a given mEdiotor document
 // Used for provenance when writing a document to UUI
 function getDocumentUid(metadata, meditorDoc) {
-  return encodeURIComponent(_.get(meditorDoc, metadata.titleProperty)) + '_' + (_.get(meditorDoc, 'x-meditor.publishedOn') || _.get(meditorDoc, 'x-meditor.modifiedOn'));
+  return encodeURIComponent(_.get(meditorDoc, metadata.titleProperty)) + '_' + getDocumentTimestamp(meditorDoc);
+}
+
+// Returns an additional document metadata to be sent to UUI
+function getDocumentMetadata(meditorDoc) {
+  var metadata = {
+    authorId: _.get(meditorDoc, "x-meditor.modifiedBy"),
+    lastPublished: getDocumentTimestamp(meditorDoc)
+  };
+  return metadata;
 }
 
 // Converts mEditor model name into UUI model name
@@ -224,7 +234,7 @@ function pushDocument(meta, model, meditorDoc) {
   var targetUrl = meta.UUI_APP_URL + '/information/' + meta.uuiModelName + '?' + 'title=' + encodeURIComponent(_.get(meditorDoc, meta.meditorModelData[model].titleProperty));
   return Promise.resolve()
     .then(res => {
-      console.log('Publishing [' + _.get(meditorDoc, meta.meditorModelData[model].titleProperty) + '] of type [' + model + '] to UUI [' + meta.uuiModelName + ']', isDryRun() ? '(Dry Run Mode)' : '');
+      console.log('Publishing [' + _.get(meditorDoc, meta.meditorModelData[model].titleProperty) + '] of type [' + model + '] to UUI [' + meta.uuiModelName + '] (' + meta.target.targetLabel+ ')', isDryRun() ? '(Dry Run Mode)' : '');
       if (isDryRun()) return resolve();
       // Fetch image from GridFS if necessary
       return ((_.isNil(meditorDoc.image) || !/^[a-f\d]{24}$/i.test(meditorDoc.image)) ? Promise.resolve() : mFile.getFileSystemItem(meta.dbo.db(DbName), meditorDoc.image))
@@ -241,8 +251,10 @@ function pushDocument(meta, model, meditorDoc) {
         'updated': _.get(meditorDoc, 'x-meditor.modifiedOn'),
         'created': _.get(meditorDoc, 'x-meditor.createdOn') || _.get(meditorDoc, 'x-meditor.modifiedOn'),
         'originName': 'meditor',
-        'originData': getDocumentUid(meta.meditorModelData[model], meditorDoc)
+        'originData': getDocumentUid(meta.meditorModelData[model], meditorDoc),
+        'originMeta': getDocumentMetadata(meditorDoc)
       });
+      if (DEBUG_MODE) console.log('Pushing doc ID from UUI:', postedModel.originData);
 
       postRequest = {
         url: meta.UUI_APP_URL + '/api/' + meta.uuiModelName,
@@ -326,7 +338,8 @@ function removeDocument(meta, uuiDoc) {
   var targetUrl = meta.UUI_APP_URL + '/information/' + meta.uuiModelName + '?' + 'title=' + encodeURIComponent(uuiDoc.title);
   return Promise.resolve()
     .then(res => {
-      console.log('Removing [' + uuiDoc.title + '] of type [' + meta.uuiModelName + '] from UUI [' + meta.uuiModelName + ']', isDryRun() ? '(Dry Run Mode)' : '');
+      console.log('Removing [' + uuiDoc.title + '] of type [' + meta.uuiModelName + '] from UUI [' + meta.uuiModelName + '] (' + meta.target.targetLabel+ ')', isDryRun() ? '(Dry Run Mode)' : '');
+      if (DEBUG_MODE) console.log('Removing doc ID from UUI:', uuiDoc.originData);
       if (isDryRun()) return resolve();
       return requests.delete({
         url: meta.UUI_APP_URL + '/api/' + meta.uuiModelName + '/' + encodeURIComponent(encodeURIComponent(uuiDoc.title)),
@@ -473,7 +486,7 @@ function syncItems(syncTarget, params) {
       meta.dbo = res;
       // Analyze each of the sibling models as defined by the group and retrieve
       // metadata and documents for each model
-      return Promise.all(modelGroup.meditorModelNames.map(model => getMeditorModelMetaAndDocuments(meta, [syncTarget.state], model)));
+      return Promise.all(modelGroup.meditorModelNames.map(model => getMeditorModelMetaAndDocuments(meta, syncTarget.states, model)));
     })
     .then(res => {
       meta.meditorModelData = {};
@@ -528,10 +541,12 @@ function syncItems(syncTarget, params) {
       // for each of the target model and target this.state
       // After that, flatten the array of id arrays
       var meditorIds = [].concat(...Object.values(meta.meditorModelData).map(modelData => modelData.meditorDocs.map(doc => {
+        if (DEBUG_MODE) console.log('Meditor doc ID: ', syncTarget.targetLabel, getDocumentUid(modelData, doc))
         return getDocumentUid(modelData, doc)
       })));
       // Compute document ids that currently reside in UUI
       meta.uuiIds = res.map(doc => {
+        if (DEBUG_MODE) console.log('Doc ID found in UUI:', meta.UUI_APP_URL, syncTarget.targetLabel, doc.originData);
         return doc.originData
       });
       // Compute and schedule items to remove from UUI (uui ids that are in uui, but not in meditor)
