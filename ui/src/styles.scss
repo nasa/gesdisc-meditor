@@ -101,3 +101,9 @@ html {
 .control-label {
   text-transform: capitalize;
 }
+
+.required {
+  color: #af0000;
+  font-size: 1.1em;
+  margin-left: 3px;
+}

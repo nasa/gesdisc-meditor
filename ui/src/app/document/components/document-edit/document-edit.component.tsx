@@ -1,30 +1,38 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, ViewChild, ElementRef, Renderer2 } from '@angular/core';
-import isEqual from 'lodash/isEqual' // lodash/isMatch does deep comparison, underscore/isMatch is shallow
-import isEmpty from 'lodash/isEmpty'
-import * as _ from 'underscore';
+import {
+	Component,
+	Input,
+	Output,
+	EventEmitter,
+	ChangeDetectionStrategy,
+	ViewChild,
+	ElementRef,
+	Renderer2
+} from "@angular/core";
+import isEqual from "lodash/isEqual"; // lodash/isMatch does deep comparison, underscore/isMatch is shallow
+import isEmpty from "lodash/isEmpty";
+import * as _ from "underscore";
 // @ts-ignore
-import React from 'react';
-import ReactDOM from 'react-dom';
-import Form from 'react-jsonschema-form';
+import React from "react";
+import ReactDOM from "react-dom";
+import Form from "react-jsonschema-form";
 
-const log = (type:any) => console.log.bind(console, type)
+const log = (type: any) => console.log.bind(console, type);
 
 @Component({
-	selector: 'med-document-edit',
-	templateUrl: './document-edit.component.html',
-	styleUrls: ['./document-edit.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+	selector: "med-document-edit",
+	templateUrl: "./document-edit.component.html",
+	styleUrls: ["./document-edit.component.css"],
+	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DocumentEditComponent {
-
-	@ViewChild('reactform') reactformRef: ElementRef;
+	@ViewChild("reactform") reactformRef: ElementRef;
 
 	constructor(private renderer2: Renderer2) {}
 
 	@Input()
 	set document(document: any) {
 		if (document.schema) {
-			const schemaString = document.schema.replace('\'', '');
+			const schemaString = document.schema.replace("'", "");
 			this.schema = JSON.parse(schemaString);
 		}
 
@@ -32,14 +40,14 @@ export class DocumentEditComponent {
 		try {
 			delete this.data.banTransitions;
 			delete this.data._id;
-		} catch (err) { }
+		} catch (err) {}
 
 		this.renderSchemaInForm();
 	}
 
 	@Input()
 	set model(model: any) {
-		this.uiSchema = model.uiSchema || '{}';
+		this.uiSchema = model.uiSchema || "{}";
 		this.renderSchemaInForm();
 	}
 
@@ -49,43 +57,45 @@ export class DocumentEditComponent {
 	@Output() isValid = new EventEmitter<boolean>();
 	@Output() isDirty = new EventEmitter<boolean>();
 
-
-	schema =  {};
+	schema = {};
 	data: any;
-	uiSchema = '{}';
+	uiSchema = "{}";
 
 	formIsValid: boolean;
-  expandAll: boolean;
+	expandAll: boolean;
 	showExpandButton: boolean;
 
 	ngOnInit() {
-
 		//remove react form Submit button
 
-		let btns = this.reactformRef.nativeElement.querySelectorAll('.btn');
+		let btns = this.reactformRef.nativeElement.querySelectorAll(".btn");
 		let submit = btns[btns.length - 1];
-    this.renderer2.removeChild(this.reactformRef.nativeElement, submit);
+		this.renderer2.removeChild(this.reactformRef.nativeElement, submit);
 	}
 
 	renderSchemaInForm() {
-		if (!this.schema || !this.uiSchema) return
+		if (!this.schema || !this.uiSchema) return;
 
-		ReactDOM.render(React.createElement(Form, {
-			schema: this.schema,
-			formData: this.data,
-			uiSchema: JSON.parse(this.uiSchema),
-			liveValidate: true,
-			//widgets,
-			onChange: (e: any) => {
-				this.isFormValid(isEmpty(e.errors));
-				this.onChanges(e.formData);
-			},
-			onSubmit: (e: any) => {
-
-			},
-			onError: log('errors'),
-		}, null), this.reactformRef.nativeElement);
-
+		ReactDOM.render(
+			React.createElement(
+				Form,
+				{
+					schema: this.schema,
+					formData: this.data,
+					uiSchema: JSON.parse(this.uiSchema),
+					liveValidate: true,
+					//widgets,
+					onChange: (e: any) => {
+						this.isFormValid(isEmpty(e.errors));
+						this.onChanges(e.formData);
+					},
+					onSubmit: (e: any) => {},
+					onError: log("errors")
+				},
+				null
+			),
+			this.reactformRef.nativeElement
+		);
 	}
 
 	ngOnDestroy() {
@@ -93,7 +103,9 @@ export class DocumentEditComponent {
 	}
 
 	onChanges(data: any) {
-		Object.keys(data).forEach(key => data[key] === undefined ? delete data[key] : '');
+		Object.keys(data).forEach(key =>
+			data[key] === undefined ? delete data[key] : ""
+		);
 		this.isDirty.emit(!isEqual(this.data, data));
 		this.liveData.emit(data);
 	}
@@ -101,5 +113,4 @@ export class DocumentEditComponent {
 	isFormValid(isvalid: boolean): void {
 		this.isValid.emit(isvalid);
 	}
-
 }
