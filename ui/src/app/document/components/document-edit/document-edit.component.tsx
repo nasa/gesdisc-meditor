@@ -10,6 +10,7 @@ import {
 } from "@angular/core";
 import isEqual from "lodash/isEqual"; // lodash/isMatch does deep comparison, underscore/isMatch is shallow
 import isEmpty from "lodash/isEmpty";
+import cloneDeep from 'lodash.clonedeep'
 import * as _ from "underscore";
 // @ts-ignore
 import React from "react";
@@ -76,12 +77,16 @@ export class DocumentEditComponent {
 	renderSchemaInForm() {
 		if (!this.schema || !this.uiSchema) return;
 
+		// make a copy of the form data, otherwise angular will trigger validation for every field
+		// on every change
+		let formData = cloneDeep(this.data)
+
 		ReactDOM.render(
 			React.createElement(
 				Form,
 				{
 					schema: this.schema,
-					formData: this.data,
+					formData,
 					uiSchema: JSON.parse(this.uiSchema),
 					liveValidate: true,
 					//widgets,

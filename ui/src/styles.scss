@@ -103,7 +103,49 @@ html {
 }
 
 .required {
-  color: #af0000;
+  color: #e51c23;
   font-size: 1.1em;
   margin-left: 3px;
+}
+
+form.rjsf {
+  display: flex;
+  flex-direction: column;
+
+  .panel.errors {
+    order: 10;
+  }
+}
+
+.field-description {
+  text-align: right;
+  color: rgba(0,0,0,.54);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: .75em;
+  margin: 8px 0 !important; // material theming is a bit too eager
+}
+
+.form-group.field {
+  display: flex;
+  flex-direction: column;
+
+  .control-label {
+    order: 1;
+  }
+
+  input {
+    order: 2;
+  }
+
+  .field-description {
+    order: 3;
+  }
+
+  & > div:last-child {
+    order: 4;
+    margin-top: -30px;
+  }
 }
