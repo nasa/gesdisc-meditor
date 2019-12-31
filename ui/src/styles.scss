@@ -133,10 +133,12 @@ form.rjsf {
   flex-direction: column;
 
   .control-label {
+    color: rgba(0,0,0,.6);
+    font-size: .75em;
     order: 1;
   }
 
-  input {
+  .form-control {
     order: 2;
   }
 
@@ -147,5 +149,19 @@ form.rjsf {
   & > div:last-child {
     order: 4;
     margin-top: -30px;
+  }
+
+  legend {
+    border-bottom: none;
+    font-size: 14px;
+    font-weight: bold;
+
+    .required {
+      display: none;
+    }
+  }
+
+  legend .required {
+    display: none;
   }
 }

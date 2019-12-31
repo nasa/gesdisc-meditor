@@ -16,6 +16,7 @@ import * as _ from 'underscore'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import Form from 'react-jsonschema-form'
+import { ObjectFieldTemplate } from '../react/ObjectFieldTemplate'
 
 const log = (type: any) => console.log.bind(console, type)
 
@@ -37,18 +38,23 @@ export class DocumentEditComponent {
             this.schema = JSON.parse(schemaString)
         }
 
+        if (document.layout) {
+            this.layout = JSON.parse(document.layout)
+
+            /*
+			if (this.layout.findIndex(item => item.type === 'section') > -1) {
+				this.showExpandButton = true;
+				this.expandAll = true;
+			}*/
+        }
+
         this.data = document.doc
+
         try {
             delete this.data.banTransitions
             delete this.data._id
         } catch (err) {}
 
-        this.renderSchemaInForm()
-    }
-
-    @Input()
-    set model(model: any) {
-        this.uiSchema = model.uiSchema || '{}'
         this.renderSchemaInForm()
     }
 
@@ -60,7 +66,7 @@ export class DocumentEditComponent {
 
     schema = {}
     data: any
-    uiSchema = '{}'
+    layout = {}
 
     formIsValid: boolean
     expandAll: boolean
@@ -75,21 +81,16 @@ export class DocumentEditComponent {
     }
 
     renderSchemaInForm() {
-        if (!this.schema || !this.uiSchema) return
-
-        console.log('render schema in form ')
-
-        // make a copy of the form data, otherwise angular will trigger validation for every field
-        // on every change
-        let formData = cloneDeep(this.data)
+        if (!this.schema || !this.layout) return
 
         ReactDOM.render(
             React.createElement(
                 Form,
                 {
-                    schema: this.schema,
-                    formData,
-                    uiSchema: JSON.parse(this.uiSchema),
+                    schema: cloneDeep(this.schema),
+                    ObjectFieldTemplate,
+                    formData: cloneDeep(this.data),
+                    uiSchema: this.layout,
                     liveValidate: true,
                     //widgets,
                     onChange: (e: any) => {
