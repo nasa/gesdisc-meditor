@@ -8,15 +8,16 @@ import {
     ElementRef,
     Renderer2,
 } from '@angular/core'
+// @ts-ignore
 import isEqual from 'lodash/isEqual' // lodash/isMatch does deep comparison, underscore/isMatch is shallow
+// @ts-ignore
 import isEmpty from 'lodash/isEmpty'
 import cloneDeep from 'lodash.clonedeep'
 import * as _ from 'underscore'
 // @ts-ignore
 import React from 'react'
 import ReactDOM from 'react-dom'
-import Form from 'react-jsonschema-form'
-import { ObjectFieldTemplate } from '../react/ObjectFieldTemplate'
+import { JsonSchemaForm } from 'gesdisc-jsonschema-form'
 
 const log = (type: any) => console.log.bind(console, type)
 
@@ -85,14 +86,12 @@ export class DocumentEditComponent {
 
         ReactDOM.render(
             React.createElement(
-                Form,
+                JsonSchemaForm,
                 {
                     schema: cloneDeep(this.schema),
-                    ObjectFieldTemplate,
                     formData: cloneDeep(this.data),
-                    uiSchema: this.layout,
+                    layout: this.layout,
                     liveValidate: true,
-                    //widgets,
                     onChange: (e: any) => {
                         this.isFormValid(isEmpty(e.errors))
                         this.onChanges(e.formData)
