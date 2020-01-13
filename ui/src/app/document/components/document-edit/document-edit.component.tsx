@@ -41,12 +41,10 @@ export class DocumentEditComponent {
 
         if (document.layout) {
             this.layout = JSON.parse(document.layout)
-
-            /*
-			if (this.layout.findIndex(item => item.type === 'section') > -1) {
-				this.showExpandButton = true;
-				this.expandAll = true;
-			}*/
+            this.showExpandButton = this.layoutHasExpandableSections(
+                this.layout
+            )
+            this.expandAll = true
         }
 
         this.data = document.doc
@@ -119,5 +117,19 @@ export class DocumentEditComponent {
 
     isFormValid(isvalid: boolean): void {
         this.isValid.emit(isvalid)
+    }
+
+    layoutHasExpandableSections(layout: any) {
+        return Object.keys(layout).some((key: any) => {
+            let node = layout[key]
+            return 'ui:field' in node && node['ui:field'] === 'CollapsibleField'
+        })
+    }
+
+    toggleAllSections() {
+        this.expandAll = !this.expandAll
+        Array.from(
+            document.querySelectorAll('.collapsible-heading')
+        ).forEach((el: any) => el.click())
     }
 }
