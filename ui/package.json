@@ -40,7 +40,7 @@
         "core-js": "^2.6.9",
         "dotenv": "^5.0.1",
         "font-awesome": "^4.7.0",
-        "gesdisc-jsonschema-form": "^0.4.0",
+        "gesdisc-jsonschema-form": "^0.6.0",
         "hammerjs": "^2.0.8",
         "http-server": "^0.11.1",
         "lodash.clonedeep": "^4.5.0",
