@@ -18,27 +18,6 @@ services:
         constraints:
           - node.labels.database == primary
 
-  notifier:
-    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_notifier:0.36.0
-    restart: on-failure
-    depends_on:
-      - database
-    environment:
-      - MONGOURL=mongodb://meditor-test_database:27017
-      - MAIL_HOST=${MAIL_HOST}
-      - HOST_NAME=${HOST_NAME}
-      - UUI_AUTH_CLIENT_ID=${UUI_AUTH_CLIENT_ID}
-      - UUI_APP_URL_OPS=${UUI_APP_URL_OPS}
-      - UUI_APP_URL_TEST=${UUI_APP_URL_TEST}
-      - URS_USER=${URS_USER}
-      - URS_PASSWORD=${URS_PASSWORD}
-      - PUBLISH_TO_UUI=${PUBLISH_TO_UUI}
-      - PROXY_REQUEST_URL=${PROXY_REQUEST_URL}
-    deploy:
-        placement:
-          constraints:
-            - node.labels.database == primary
-
   ui:
     image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_ui:0.42.0
     restart: on-failure
