@@ -13,6 +13,7 @@
 /data2/
 
 # dependencies
+/notifier-nats/node_modules
 /node_modules
 /ui/node_modules
 /ui/package-lock.json
