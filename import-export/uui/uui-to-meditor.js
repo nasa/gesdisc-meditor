@@ -12,6 +12,7 @@ var SYNC_MEDITOR_DOCS_ONLY = process.env.SYNC_MEDITOR_DOCS_ONLY || false; // Imp
 var dbMeditor = 'meditor';
 var dbUui = 'uui-db';
 
+//rm Comments* Data-In-Action* Models* New%20News* Sessions* Users* Workflows* fs* not* q* u* Image.*
 // ==========================================================================
 
 // This code imports documents from a UUI database into mEditor database
@@ -37,7 +38,8 @@ var mappableFields = [
     'answer', // FAQs
     'relatedHowto', 'example', 'prereq', 'procedure', 'additionalInfo', // Howto
     'pubAuthors', 'year', 'conferenceName', 'journalName', 'pages', 'doi', // Publications
-    'tags', 'datasets', 'groups', 'notes' // Common block
+    'tags', 'datasets', 'groups', 'notes', // Common block
+    'image', 'notebook'
 ];
 
 // Mappinng of DB names
@@ -181,6 +183,7 @@ function importDocument(meta, modelConfig, document) {
     return getDocImage(meta, modelConfig, document)
         .then(function(img) {
             if (img !== null) {
+                console.log('ERROR: document has an image file - please verify', document);
                 newDocument.image = getFileName(document);
                 // Save the image to mEditor GridFS
                 return putFileSystemItem(meta.dbo.db(dbMeditor), newDocument.image, img, {

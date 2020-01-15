@@ -10,15 +10,15 @@ http {
         '"$http_referer" "$http_user_agent" "$gzip_ratio"';
 
     upstream api {
-        server meditor_server:8081;
+        server ${SERVER_HOST}:8081;
     }
 
     upstream web {
-        server meditor_ui:4200;
+        server ${UI_HOST}:4200;
     }
 
     upstream monitor {
-        server meditor_monitor:9000;
+        server ${MONITOR_HOST}:9000;
     }
 
     server {

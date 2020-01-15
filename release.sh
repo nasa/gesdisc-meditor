@@ -1,6 +1,6 @@
 set -e
 
-REGISTRY=dev.gesdisc.eosdis.nasa.gov:443
+REGISTRY=registry1.gesdisc.eosdis.nasa.gov/meditor
 IMAGES=( "meditor_ui" "meditor_server" "meditor_proxy" "meditor_notifier" "meditor_replicaset" "meditor_status" )
 
 getLatestFromRepository () {
@@ -99,6 +99,9 @@ incrementImageVersion() {
 
     sed -E "s/${1}:${currentVersion}/${1}:${newVersion}/g" docker-compose.production.yml > docker-compose.production.yml.new \
     && mv docker-compose.production.yml.new docker-compose.production.yml
+
+    sed -E "s/${1}:${currentVersion}/${1}:${newVersion}/g" docker-compose.uat.yml > docker-compose.uat.yml.new \
+    && mv docker-compose.uat.yml.new docker-compose.uat.yml
 }
 
 deployImageToRegistry() {

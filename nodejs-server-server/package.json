@@ -23,6 +23,7 @@
     "express-session": "^1.15.6",
     "he": "^1.2.0",
     "helmet": "^3.13.0",
+    "https-proxy-agent": "^2.2.2",
     "js-yaml": "^3.3.0",
     "jsonpath": "1.0.0",
     "lodash": "^4.17.10",

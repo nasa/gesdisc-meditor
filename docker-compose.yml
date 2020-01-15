@@ -1,6 +1,7 @@
 version: "3.3"
 
 services:
+
   notifier:
     container_name: meditor_notifier
     build: notifier
@@ -9,7 +10,7 @@ services:
       - database
     env_file:
       - .env
-
+  
   ui:
     container_name: meditor_ui
     build: ui
@@ -41,7 +42,7 @@ services:
 
   database:
     container_name: meditor_database
-    image: dev.gesdisc.eosdis.nasa.gov:443/mongo/4.1.4
+    image: registry1.gesdisc.eosdis.nasa.gov/certified/mongo:4.1.4
     volumes:
       - ${DATABASE_HOST_VOLUME}:/data/db
     command: mongod --port ${DATABASE_HOST_PORT}

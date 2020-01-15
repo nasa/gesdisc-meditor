@@ -1,6 +1,6 @@
 set -ex
 
-REGISTRY=dev.gesdisc.eosdis.nasa.gov:443
+REGISTRY=registry1.gesdisc.eosdis.nasa.gov
 BASEDIR=$(dirname "$0")
 
 # temporary hack to get this private repo installing correctly
