@@ -8,8 +8,11 @@ services:
     restart: on-failure
     depends_on:
       - database
+      - nats
     env_file:
       - .env
+    volumes:
+      - ./notifier:/usr/src/app
   
   ui:
     container_name: meditor_ui
