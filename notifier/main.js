@@ -39,7 +39,7 @@ async function handleMessage(message) {
             parsedMessage.subject, 
             parsedMessage.body,
             `${parsedMessage.body}<p>See <a href="${parsedMessage.link.url}">${parsedMessage.link.label}</a> for more details.</p>`,
-            '"Jon Carlson" <jonathan.d.carlson@nasa.gov>',  // parsedMessage.to.join()
+            parsedMessage.to.join(),
             parsedMessage.cc.join(),
         )
         
