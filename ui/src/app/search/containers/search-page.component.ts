@@ -1,99 +1,125 @@
-import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
-import { Title }     from '@angular/platform-browser';
-import { map, tap, withLatestFrom } from 'rxjs/operators';
-import * as _ from 'underscore';
-import { Observable } from 'rxjs/Observable';
-import { Store, Select } from '@ngxs/store';
-import { GetModel, GetModelDocuments } from 'app/store/model/model.state';
-import { UpdateWorkflowState, GetWorkflow } from 'app/store/workflow/workflow.state';
-import { GetUserPrivileges } from 'app/store/auth/auth.state';
-import { Navigate } from '@ngxs/router-plugin';
-import { ModelCatalogEntry, DocCatalogEntry, Edge, Model } from 'app/service/model/models';
-import { AuthState, ModelState, WorkflowState } from 'app/store';
+import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core'
+import { Title } from '@angular/platform-browser'
+import { map, tap, withLatestFrom } from 'rxjs/operators'
+import * as _ from 'underscore'
+import { Observable } from 'rxjs/Observable'
+import { Store, Select } from '@ngxs/store'
+import { GetModel, GetModelDocuments } from 'app/store/model/model.state'
+import {
+    UpdateWorkflowState,
+    GetWorkflow,
+} from 'app/store/workflow/workflow.state'
+import { GetUserPrivileges } from 'app/store/auth/auth.state'
+import { Navigate } from '@ngxs/router-plugin'
+import {
+    ModelCatalogEntry,
+    DocCatalogEntry,
+    Edge,
+    Model,
+} from 'app/service/model/models'
+import { AuthState, ModelState, WorkflowState } from 'app/store'
 
 @Component({
-	selector: 'med-search-page',
-	changeDetection: ChangeDetectionStrategy.OnPush,
-	templateUrl: './search-page.component.html',
-	styles: [``],
+    selector: 'med-search-page',
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    templateUrl: './search-page.component.html',
+    styles: [``],
 })
 export class SearchPageComponent implements OnInit {
+    @Select(ModelState.models) models$: Observable<ModelCatalogEntry[]>
+    @Select(ModelState.currentModel) selectedModel$: Observable<Model>
+    @Select(ModelState.currentModelDocuments)
+    selectedModelDocuments$: Observable<DocCatalogEntry[]>
+    @Select(AuthState.userPrivileges) userPrivileges$: Observable<string[]>
+    @Select(WorkflowState.currentEdges) currentEdges$: Observable<Edge[]>
 
-	@Select(ModelState.models) models$: Observable<ModelCatalogEntry[]>;
-	@Select(ModelState.currentModel) selectedModel$: Observable<Model>;
-	@Select(ModelState.currentModelDocuments) selectedModelDocuments$: Observable<DocCatalogEntry[]>;
-	@Select(AuthState.userPrivileges) userPrivileges$: Observable<string[]>;
-	@Select(WorkflowState.currentEdges) currentEdges$: Observable<Edge[]>;
+    filteredDocuments$: Observable<DocCatalogEntry[]>
+    selectedModelName: string
 
-	filteredDocuments$: Observable<DocCatalogEntry[]>;
-	selectedModelName: string;
+    constructor(private store: Store, private titleService: Title) {}
 
-	constructor(
-		private store: Store,
-    private titleService: Title
-	) {}
+    ngOnInit() {
+        this.selectedModel$.subscribe(this.selectedModelChanged.bind(this))
+        this.selectedModelDocuments$.subscribe(
+            this.selectedModelDocumentsChanged.bind(this)
+        )
+    }
 
-	ngOnInit() {
-		this.selectedModel$.subscribe(this.selectedModelChanged.bind(this));
-		this.selectedModelDocuments$.subscribe(this.selectedModelDocumentsChanged.bind(this));
-	}
+    selectedModelChanged(model: Model) {
+        if (this.selectedModelName === model.name) {
+            return
+        }
 
-	selectedModelChanged(model: Model) {
-		if (this.selectedModelName === model.name) { return; }
+        this.selectedModelName = model.name
+        this.store.dispatch(new GetModelDocuments())
+        this.store.dispatch(new GetWorkflow({ title: model.workflow }))
+        this.store.dispatch(new GetUserPrivileges())
+        this.titleService.setTitle(this.selectedModelName + ' | mEditor')
+    }
 
-		this.selectedModelName = model.name;
-		this.store.dispatch(new GetModelDocuments());
-		this.store.dispatch(new GetWorkflow({title: model.workflow}));
-		this.store.dispatch(new GetUserPrivileges());
-    this.titleService.setTitle(this.selectedModelName + ' | mEditor');
-	}
+    selectedModelDocumentsChanged() {
+        this.filteredDocuments$ = this.selectedModelDocuments$
+    }
 
-	selectedModelDocumentsChanged() {
-		this.filteredDocuments$ = this.selectedModelDocuments$;
-	}
+    filterDocuments(event: string) {
+        this.filteredDocuments$ = this.selectedModelDocuments$.pipe(
+            map(this.filterDocumentsBySearchTerm.bind(this, event))
+        )
+    }
 
-	filterDocuments(event: string) {
-		this.filteredDocuments$ = this.selectedModelDocuments$
-			.pipe(map(this.filterDocumentsBySearchTerm.bind(this, event)));
-	}
+    filterDocumentsBySearchTerm(
+        searchTerm: string,
+        documents: DocCatalogEntry[]
+    ) {
+        return documents.filter(
+            this.documentContainSearchTerm.bind(this, searchTerm)
+        )
+    }
 
-	filterDocumentsBySearchTerm(searchTerm: string, documents: DocCatalogEntry[]) {
-		return documents.filter(this.documentContainSearchTerm.bind(this, searchTerm));
-	}
+    documentContainSearchTerm(searchTerm: string, document: DocCatalogEntry) {
+        if (!document.title) return false
+        return document.title.search(new RegExp(searchTerm, 'i')) !== -1
+    }
 
-	documentContainSearchTerm(searchTerm: string, document: DocCatalogEntry) {
-		return document.title.search(new RegExp(searchTerm, 'i')) !== -1;
-	}
+    sortByChanged(event: string) {
+        this.filteredDocuments$ = this.selectedModelDocuments$.pipe(
+            map(this.sortDocumentsByDate.bind(this, event))
+        )
+    }
 
-	sortByChanged(event: string) {
-		this.filteredDocuments$ = this.selectedModelDocuments$.pipe(
-			map(this.sortDocumentsByDate.bind(this, event))
-		);
-	}
+    sortDocumentsByDate(date: string, documents: DocCatalogEntry[]) {
+        return documents.sort((a, b) => {
+            if (date === 'oldest') {
+                return a['x-meditor'].modifiedOn < b['x-meditor'].modifiedOn
+                    ? -1
+                    : 1
+            } else {
+                return a['x-meditor'].modifiedOn > b['x-meditor'].modifiedOn
+                    ? -1
+                    : 1
+            }
+        })
+    }
 
-	sortDocumentsByDate(date: string, documents: DocCatalogEntry[]) {
-		return documents.sort((a, b) => {
-			if (date === 'oldest') {
-				return a['x-meditor'].modifiedOn < b['x-meditor'].modifiedOn ? -1 : 1;
-			} else {
-				return a['x-meditor'].modifiedOn > b['x-meditor'].modifiedOn ? -1 : 1;
-			}
-		});
-	}
+    selectAndChange(modelName: any) {
+        this.store.dispatch(new GetModel({ name: modelName }))
+        this.store.dispatch(new Navigate(['/search'], { model: modelName }))
+    }
 
-	selectAndChange(modelName: any) {
-		this.store.dispatch(new GetModel({ name: modelName }));
-		this.store.dispatch(new Navigate(['/search'], { model: modelName}));
-	}
+    addNewDocument(event: string) {
+        this.store.dispatch(new UpdateWorkflowState(event))
+        this.store.dispatch(
+            new Navigate(['/document/new'], { model: this.selectedModelName })
+        )
+    }
 
-	addNewDocument(event: string) {
-		this.store.dispatch(new UpdateWorkflowState(event));
-		this.store.dispatch(new Navigate(['/document/new'], { model: this.selectedModelName}));
-	}
-
-	loadDocument(event: {title: string, state: string}) {
-		this.store.dispatch(new UpdateWorkflowState(event.state));
-		this.store.dispatch(new Navigate(['/document/edit'], { model: this.selectedModelName, title: event.title}));
-	}
+    loadDocument(event: { title: string; state: string }) {
+        this.store.dispatch(new UpdateWorkflowState(event.state))
+        this.store.dispatch(
+            new Navigate(['/document/edit'], {
+                model: this.selectedModelName,
+                title: event.title,
+            })
+        )
+    }
 }
-

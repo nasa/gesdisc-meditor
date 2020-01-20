@@ -6,11 +6,6 @@ import { MaterialModule } from '../material';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
-import {
-	JsonSchemaFormModule, MaterialDesignFrameworkModule, MaterialDesignFramework,
-	WidgetLibraryService, FrameworkLibraryService, JsonSchemaFormService, Framework
-} from 'angular2-json-schema-form';
-
 import { DocEditPageComponent } from './containers/docedit/docedit-page.component';
 import { DocNewPageComponent } from './containers/docnew/docnew-page.component';
 
@@ -33,17 +28,7 @@ import { PendingChangesGuard } from 'app/shared/guards/pending-changes.guard';
 		ReactiveFormsModule,
     ScrollingModule,
 		RouterModule.forChild(routes),
-		MaterialDesignFrameworkModule,
 		CommentsModule,
-		{
-			ngModule: JsonSchemaFormModule,
-			providers: [
-				JsonSchemaFormService,
-				FrameworkLibraryService,
-				WidgetLibraryService,
-				{ provide: Framework, useClass: MaterialDesignFramework, multi: true}
-			]
-		}
 	],
 	declarations: [
 		DocEditPageComponent,

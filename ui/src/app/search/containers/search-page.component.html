@@ -16,7 +16,7 @@
 } as data">
 	<med-search-status
 		[resultCount] = "data.selectedModelDocuments?.length"
-		[filteredCount] = "data.filteredDocuments.length"
+		[filteredCount] = "data.filteredDocuments?.length"
 		[modelName] = "data.selectedModel?.name"
 		[actions] = "data.currentEdges"
 		[privileges] = "data.userPrivileges"        
