@@ -2,17 +2,7 @@
  *ngIf="showExpandButton"
  (click)="toggleAllSections()" 
   style="margin-top: 1em;">{{ expandAll ? 'Expand all' : 'Collapse all' }}</button>
-<json-schema-form *ngIf="schema"
-  [class.readonly-doc]="readonly"
-	[schema] = "schema"
-	[layout] = "layout"
-	[defaultLayoutOptions] = "defaultLayoutOptions"
-	[data] = "data"
-	[options]="jsonFormOptions"
-	[framework]="selectedFramework"
-	[loadExternalAssets]="true"
-	(onChanges)="onChanges($event)"
-	(isValid)="isFormValid($event)"
-	(validationErrors)="validationErrors($event)">
-</json-schema-form>
 
+<div style="display:flex; margin-top: 30px;">
+	<div #reactform style="flex: 1 0 auto; width: 100%;"></div>
+</div>

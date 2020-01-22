@@ -13,10 +13,12 @@
 		"types": ["cypress"],
 		"module": "commonjs",
 		"rootDir": "./",
-		"strict": true
-		// "baseUrl": ".",
-		// "paths": {
-		// }
+		"strict": true,
+		"jsx"        : "react",
+		"jsxFactory" : "h",
+		"typeRoots": [
+			"node_modules/@types"
+		]
 	},
 	"exclude": ["bazel-out", "dist", "node_modules", "**/*/node_modules", "modules/schematics/src/*/files/**/*"],
 	"compileOnSave": false,

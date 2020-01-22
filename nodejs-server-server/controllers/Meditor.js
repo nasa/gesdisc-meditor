@@ -507,7 +507,6 @@ function getModelContent (name) {
         if (res[0] && res[0].hasOwnProperty("templates")){
           res[0].templates.forEach(element => {
             var macroFields = element.macro.split(/\s+/);
-            var schema = JSON.parse(res[0].schema);
             promiseList.push( new Promise(
               function(promiseResolve,promiseReject){
                 if ( typeof macros[macroFields[0]] === "function" ) {
@@ -524,18 +523,20 @@ function getModelContent (name) {
               }
             ));
           });
-          Promise.all(promiseList).then(
-            function(response){
+          Promise.all(promiseList).then((response) => {
+            try {
               var schema = JSON.parse(res[0].schema);
               var i=0;
               res[0].templates.forEach(element=>{
                 jsonpath.value(schema,element.jsonpath,response[i++]);
                 res[0].schema = JSON.stringify(schema,null,2);
               });
-              db.close();
               resolve(res[0]);
+            } catch (err) {
+              console.error('Failed to parse schema', err)
+              reject(err)
             }
-          ).catch(
+          }).catch(
             function(err){
               try {db.close()} catch (e) {};
               reject(err);
