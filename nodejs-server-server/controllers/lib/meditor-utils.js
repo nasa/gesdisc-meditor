@@ -83,6 +83,10 @@ function testFs() {
 // Inserts a data message into a NATS channel
 module.exports.publishToNats = function publishToNats(document, modelName, state = '') {
   let channelName = NATS_QUEUE_PREFIX + modelName
+
+  // clear out meditor internal info
+  delete document["x-meditor"]
+
   let message = JSON.stringify({
     document,
     state,

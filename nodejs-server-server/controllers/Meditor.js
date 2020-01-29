@@ -482,7 +482,7 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
       return shouldNotify ? mUtils.notifyOfStateChange(DbName, that) : Promise.resolve();
     })
     .then(res => {
-      return mUtils.publishToNats(that.params, that.params.model, that.params.state)
+      return mUtils.publishToNats(that.document, that.params.model, that.params.state)
     }) // Take an opportunity to sync with UUI    .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .catch(err => {
