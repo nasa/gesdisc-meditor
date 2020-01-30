@@ -348,8 +348,10 @@ module.exports.putDocument = function putDocument (request, response, next) {
     })
     .then(res => {return mUtils.actOnDocumentChanges(that, DbName, doc);})
     .then(res => {
-      let state = doc['states'][doc['states'].length - 1].target
-      return mUtils.publishToNats(doc, doc.model, state)
+      let meta = 'x-meditor' in doc ? doc['x-meditor'] : doc
+      let state = meta.states[meta.states.length - 1].target
+      
+      return mUtils.publishToNats(doc, meta.model, state)
     }) // Take an opportunity to sync with UUI    .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .then(res => (that.dbo.close(), handleSuccess(response, {message: "Inserted document"})))
     .catch(err => {
