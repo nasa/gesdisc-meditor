@@ -3,7 +3,7 @@ import { Title } from '@angular/platform-browser';
 import { MatSidenav } from '@angular/material/sidenav';
 import { Store, Select } from '@ngxs/store';
 import { ModelState } from 'app/store/model/model.state';
-import { Document, DocHistory, Model, Comment, Edge, User } from 'app/service/model/models';
+import { Document, DocHistory, Model, Comment, Edge, User, Workflow } from 'app/service/model/models';
 import { Observable } from 'rxjs/Observable';
 import {
 	UpdateCurrentDocument,
@@ -40,7 +40,7 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
   @Select(DocumentState.currentCommentsCount) commentsCount$: Observable<number>;
   @Select(DocumentState.currentVersionsCount) versionsCount$: Observable<number>;
 	@Select(WorkflowState.currentEdges) edges$: Observable<Edge[]>;
-	@Select(WorkflowState.currentWorkflow) workflow$: Observable<Edge>;
+	@Select(WorkflowState.currentWorkflow) workflow$: Observable<Workflow>;
 	@Select(AuthState.userPrivileges) userPrivileges$: Observable<string[]>;
   @Select(AuthState.user) user$: Observable<User>;
 
