@@ -81,11 +81,16 @@ function testFs() {
 }
 
 // Inserts a data message into a NATS channel
-module.exports.publishToNats = function publishToNats(document, modelName, state = '') {
+module.exports.publishToNats = function publishToNats(document, model, state = '') {
+  let modelName = typeof model === 'string' ? model : model.name
   let channelName = NATS_QUEUE_PREFIX + modelName
 
   let message = JSON.stringify({
+    id: document._id,
     document,
+    model: {
+      titleProperty: _.get(model, 'titleProperty'),
+    },
     state,
     time: Date.now(),
   })
