@@ -14,6 +14,7 @@ services:
   ui:
     container_name: meditor_ui
     build: ui
+    #image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_ui:0.42.0
     env_file:
       - .env
     ports:
@@ -64,3 +65,16 @@ services:
     volumes:
       - ${NATS_HOST_VOLUME}:/nats/data
 
+  uui-subscriber:
+    container_name: uui-subscriber
+    build: uui-subscriber
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ${UUI_SUBSCRIBER_HOST_VOLUME}:/usr/src/app
+      - /usr/src/app/node_modules
+    links:
+      - nats
+    depends_on:
+      - nats
