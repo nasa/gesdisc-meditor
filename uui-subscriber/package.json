@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "LOG_LEVEL=debug nodemon -L index.js"
+    "start": "node index.js",
+    "dev": "LOG_LEVEL=debug  nodemon -L --exec npm run start",
+    "prod": "sleep 20 && npm run start"
   },
   "author": "",
   "license": "ISC",
