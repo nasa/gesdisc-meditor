@@ -17,12 +17,12 @@ A document in the queue will look similar to this example:
 
 ```json
 {
-      "id": "",
-      "document": {...},
-      "model": {...},
-      "target": "uui",            # (optional) if included, this message is only meant for a certain subscriber
-      "state": "Under Review",
-      "time": 1580324162703
+    "id": "",
+    "document": {...},
+    "model": {...},
+    "target": "uui",            # (optional) if included, this message is only meant for a certain subscriber
+    "state": "Under Review",
+    "time": 1580324162703
 }
 ```
 
