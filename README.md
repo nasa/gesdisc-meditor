@@ -17,10 +17,12 @@ A document in the queue will look similar to this example:
 
 ```json
 {
-    "document": {...},
-    "target": "uui",            # (optional) if included, this message is only meant for a certain subscriber
-    "state": "Under Review",
-    "time": 1580324162703
+      "id": "",
+      "document": {...},
+      "model": {...},
+      "target": "uui",            # (optional) if included, this message is only meant for a certain subscriber
+      "state": "Under Review",
+      "time": 1580324162703
 }
 ```
 
@@ -33,7 +35,7 @@ The clients are expected to publish an acknowledgement message into the 'meditor
     "model": "News",
     "target": "uui",
     "url": "https://disc.gsfc.nasa.gov/information/news?title=Example%20article",
-    "message": ,
+    "message": "Success!",
     "statusCode": "200",
     "state": "Under Review"
 }

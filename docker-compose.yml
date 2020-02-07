@@ -64,17 +64,3 @@ services:
       - "${NATS_MONITORING_PORT}:8222"
     volumes:
       - ${NATS_HOST_VOLUME}:/nats/data
-
-  uui-subscriber:
-    container_name: uui-subscriber
-    build: uui-subscriber
-    restart: always
-    env_file:
-      - .env
-    volumes:
-      - ${UUI_SUBSCRIBER_HOST_VOLUME}:/usr/src/app
-      - /usr/src/app/node_modules
-    links:
-      - nats
-    depends_on:
-      - nats
