@@ -8,6 +8,7 @@ var ObjectID = mongo.ObjectID;
 var mFile = require('./meditor-mongo-file');
 var nats = require('./nats-connection');
 
+const NATS_QUEUE_PREFIX = 'meditor-'
 const NotificationQueueCollectionName = 'queue-notifications';
 module.exports.WORKFLOW_ROOT = 'Init';
 module.exports.WORKFLOW_ROOT_EDGE = {source: 'Init', target: 'Draft'};
@@ -80,15 +81,24 @@ function testFs() {
 }
 
 // Inserts a data message into a NATS channel
-module.exports.publishToNats = function publishToNats(data) {
-  var modelName =   data['x-meditor'].model;
-  var state = data['x-meditor']['states'][data['x-meditor']['states'].length - 1]['source'];
-  var channelName = modelName + '-' + state;
-  channelName = channelName.toLowerCase().replace(/\s+/g, '');
-  console.log("Channel name : " + channelName);
-  
-  // Publish message to channel
-  nats.stan.publish(channelName, JSON.stringify(data), function(err, guid) {
+module.exports.publishToNats = function publishToNats(document, model, state = '') {
+  let modelName = typeof model === 'string' ? model : model.name
+  let channelName = NATS_QUEUE_PREFIX + modelName
+
+  let message = JSON.stringify({
+    id: document._id,
+    document,
+    model: {
+      titleProperty: _.get(model, 'titleProperty'),
+    },
+    state,
+    time: Date.now(),
+  })
+
+  console.log(`Publishing message to channel ${channelName}: `, message)
+
+  // Publish message to channel (meditor-Alerts)
+  nats.stan.publish(NATS_QUEUE_PREFIX + modelName, JSON.stringify(message), function(err, guid) {
     if (err) {
       console.log('publish failed: ' + err);
     }
@@ -461,7 +471,7 @@ function handleModelChanges(meta, DbName, modelDoc) {
     .then(function(res) {
       console.log('Done updating state history for documents in ' + modelDoc.name);
       // Re-publish documents as necessary, since some of the states could have changed
-      return exports.publishToNats({model: modelDoc.name}); // Take an opportunity to sync with UUI
+      return exports.publishToNats(modelDoc, modelDoc.name); // Take an opportunity to sync with UUI
     })
     .catch(function(e) {
       if (_.isObject(e) && e.result) {

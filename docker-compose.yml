@@ -66,4 +66,3 @@ services:
       - "${NATS_MONITORING_PORT}:8222"
     volumes:
       - ${NATS_HOST_VOLUME}:/nats/data
-

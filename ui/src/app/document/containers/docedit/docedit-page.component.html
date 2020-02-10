@@ -2,7 +2,6 @@
 	<mat-card fxFlex="100" class="mat-elevation-z0">
 		<mat-drawer-container
 			class="comment-sidenav-container"
-			(backdropClick)="sidenav.close()"
 		>
 			<mat-drawer
 				#sidenav
@@ -10,6 +9,7 @@
 				(closedStart)="resetSidenav()"
 				class="comment-sidenav"
 				[position]="'end'"
+				[mode]="'side'"
 			>
 				<ng-container *ngIf="showHistory">
 					<div *ngIf="history$ | async as history">
@@ -65,10 +65,11 @@
 							*ngIf="(userPrivileges$ | async).includes('comment')"
 							matBadge="{{ commentsCount$ | async }}"
 							matBadgeColor="warn"
-							(click)="showDocumentComments()"
+							(click)="toggleDocumentComments()"
 						>
 							<mat-icon>question_answer</mat-icon>
 						</button>
+
 						<button
 							mat-mini-fab
 							matBadge="{{ versionsCount$ | async }}"
