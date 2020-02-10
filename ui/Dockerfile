@@ -6,7 +6,6 @@ ARG node_env
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 COPY ./ ./
-COPY ./node_modules/angular2-json-schema-form ./node_modules/angular2-json-schema-form
 
 RUN npm uninstall node-sass
 RUN npm install node-sass

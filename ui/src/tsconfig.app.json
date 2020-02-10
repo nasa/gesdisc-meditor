@@ -1,17 +1,21 @@
 {
-	"compilerOptions": {
-		"sourceMap": true,
-		"declaration": false,
-		"moduleResolution": "node",
-		"emitDecoratorMetadata": true,
-		"experimentalDecorators": true,
-		"lib": ["es2017", "dom"],
-		"outDir": "../out-tsc/app",
-		"target": "es5",
-		"module": "es2015",
-		"types": [],
-		"baseUrl": ".",
-		"rootDir": "../"
-	},
-	"exclude": ["../node_modules", "test.ts", "**/*.spec.ts"]
+    "compilerOptions": {
+        "sourceMap": true,
+        "declaration": false,
+        "moduleResolution": "node",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "lib": ["es2017", "dom"],
+        "outDir": "../out-tsc/app",
+        "target": "es5",
+        "module": "es2015",
+        "types": [],
+        "baseUrl": ".",
+        "rootDir": "../",
+        "jsx": "react",
+        "jsxFactory": "h",
+        "allowJs": true,
+        "typeRoots": ["node_modules/@types"]
+    },
+    "exclude": ["../node_modules", "test.ts", "**/*.spec.ts"]
 }
