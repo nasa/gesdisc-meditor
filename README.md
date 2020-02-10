@@ -11,15 +11,33 @@ The Meditor stack is comprised of these projects:
 ### Subscribing to published documents
 
 mEditor pushes published documents into a queue (NATS) that can be subscribed to by an external service.
+Each document type has its own queue, e.g., 'meditor-News' for News and so on.
 
 A document in the queue will look similar to this example:
 
 ```json
 {
+    "id": "",
     "document": {...},
+    "model": {...},
     "target": "uui",            # (optional) if included, this message is only meant for a certain subscriber
     "state": "Under Review",
     "time": 1580324162703
+}
+```
+
+The clients are expected to publish an acknowledgement message into the 'meditor-Acknowledgement' queue:
+
+```json
+{
+    "time": 1580324162703,
+    "id": "Example article",
+    "model": "News",
+    "target": "uui",
+    "url": "https://disc.gsfc.nasa.gov/information/news?title=Example%20article",
+    "message": "Success!",
+    "statusCode": "200",
+    "state": "Under Review"
 }
 ```
 
