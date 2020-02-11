@@ -21,21 +21,13 @@ services:
 
   notifier:
     container_name: meditor_notifier
-    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_notifier:0.36.0
+    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_notifier:0.37.0
     restart: on-failure
     depends_on:
-      - database
+      - nats
     environment:
-      - MONGOURL=mongodb://meditor_database:27017
       - MAIL_HOST=${MAIL_HOST}
       - HOST_NAME=${HOST_NAME}
-      - UUI_AUTH_CLIENT_ID=${UUI_AUTH_CLIENT_ID}
-      - UUI_APP_URL_OPS=${UUI_APP_URL_OPS}
-      - UUI_APP_URL_TEST=${UUI_APP_URL_TEST}
-      - URS_USER=${URS_USER}
-      - URS_PASSWORD=${URS_PASSWORD}
-      - PUBLISH_TO_UUI=${PUBLISH_TO_UUI}
-      - PROXY_REQUEST_URL=${PROXY_REQUEST_URL}
     deploy:
         placement:
           constraints:
@@ -72,7 +64,6 @@ services:
       - URS_USER=${URS_USER}
       - URS_PASSWORD=${URS_PASSWORD}
       - PUBLISH_TO_UUI=${PUBLISH_TO_UUI}
-      - PROXY_REQUEST_URL=${PROXY_REQUEST_URL}
     secrets:
       - auth_host
       - auth_client_id
@@ -81,6 +72,16 @@ services:
       placement:
         constraints:
           - node.labels.database == primary
+
+  nats:
+    container_name: nats
+    image: nats-streaming:0.15.1 
+    restart: on-failure
+    ports:
+      - "${NATS_HOST_PORT}:4222"
+      - "${NATS_MONITORING_PORT}:8222"
+    volumes:
+      - ${NATS_HOST_VOLUME}:/nats/data
 
   database:
     container_name: meditor_database

@@ -7,7 +7,6 @@ services:
     build: notifier
     restart: on-failure
     depends_on:
-      - database
       - nats
     env_file:
       - .env

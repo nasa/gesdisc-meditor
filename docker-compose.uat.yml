@@ -17,6 +17,20 @@ services:
         constraints:
           - node.labels.database == primary
 
+  notifier:
+    container_name: meditor_notifier
+    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_notifier:0.37.0
+    restart: on-failure
+    depends_on:
+      - nats
+    environment:
+      - MAIL_HOST=${MAIL_HOST}
+      - HOST_NAME=${HOST_NAME}
+    deploy:
+        placement:
+          constraints:
+            - node.labels.database == primary
+
   ui:
     image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_ui:0.43.0
     restart: on-failure
@@ -48,6 +62,16 @@ services:
       placement:
         constraints:
           - node.labels.database == primary
+
+  nats:
+    container_name: nats
+    image: nats-streaming:0.15.1 
+    restart: on-failure
+    ports:
+      - "${NATS_HOST_PORT}:4222"
+      - "${NATS_MONITORING_PORT}:8222"
+    volumes:
+      - ${NATS_HOST_VOLUME}:/nats/data
 
   database:
     image: registry1.gesdisc.eosdis.nasa.gov/certified/mongo:4.1.4
