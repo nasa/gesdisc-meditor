@@ -199,7 +199,6 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
       const channel = process.env.MEDITOR_NATS_NOTIFICATIONS_CHANNEL || 'meditor-notifications'
 
       console.log('Publishing notification to NATS channel: ', channel)
-      console.debug(notification)
 
       nats.stan.publish(channel, JSON.stringify(notification), (err, guid) => {
         if (err) {
@@ -207,7 +206,7 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
           return
         }
 
-        console.debug('Successfully published notification: ', guid)
+        console.log('Successfully published notification: ', guid)
       })
     });
 };
