@@ -195,7 +195,19 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
         notification.body = notification.body.replace('drafted by ###AUTHOR### ', ''); // Should not be here, but just in case...
       }
       notification.cc = _.uniq(users.map(u => '"'+ u.firstName + ' ' + u.lastName + '" <' + u.emailAddress + '>'));
-      return meta.dbo.db(DbName).collection(NotificationQueueCollectionName).insertOne(notification);
+
+      const channel = process.env.MEDITOR_NATS_NOTIFICATIONS_CHANNEL || 'meditor-notifications'
+
+      console.log('Publishing notification to NATS channel: ', channel)
+
+      nats.stan.publish(channel, JSON.stringify(notification), (err, guid) => {
+        if (err) {
+          console.error('Failed to publish notification ', err)
+          return
+        }
+
+        console.log('Successfully published notification: ', guid)
+      })
     });
 };
 

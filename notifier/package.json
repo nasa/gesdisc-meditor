@@ -1,18 +1,23 @@
 {
   "name": "notifier",
-  "version": "0.0.1",
-  "description": "notifier",
-  "license": "Unlicense",
-  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "dev": "",
-    "prod": "",
-    "start": ""
+    "start": "nodemon -L index.js"
   },
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "nodemailer": "1.0.0",
-    "mongodb": "^3.1.1"
+    "log": "^6.0.0",
+    "log-node": "^7.0.0",
+    "node-nats-streaming": "^0.2.6",
+    "nodemailer": "^6.4.2",
+    "nodemon": "^2.0.2"
   },
   "devDependencies": {
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-register": "^6.26.0"
   }
 }

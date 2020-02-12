@@ -13,6 +13,8 @@
 /data2/
 
 # dependencies
+/notifier/node_modules
+/notifier/package-lock.json
 /node_modules
 /ui/node_modules
 /ui/package-lock.json
