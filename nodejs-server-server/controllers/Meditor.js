@@ -329,7 +329,7 @@ module.exports.putDocument = function putDocument (request, response, next) {
   try {
     var model = getModelContent(doc['x-meditor'].model);
     var v = new Validator();
-    res = v.validate(doc, model);
+    res = v.validate(doc, model.schema);
     if (res.errors.length > 0) {
       return handleError(response, {
         status: 400,
