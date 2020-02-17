@@ -10,6 +10,7 @@ var jsonpath = require('jsonpath');
 var macros = require('./Macros');
 var mUtils = require('./lib/meditor-utils');
 var mFile = require('./lib/meditor-mongo-file');
+var Validator = require('jsonschema').Validator;
 
 var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
 var DbName = "meditor";
@@ -317,12 +318,29 @@ module.exports.putDocument = function putDocument (request, response, next) {
   var doc;
   try {
     doc = safelyParseJSON(file.buffer.toString());
-    // TODO: validate JSON based on schema
   } catch(err) {
     console.log(err);
     return handleError(response, {
       status: 400,
       message: "Failed to parse the Document"
+    });
+  };
+
+  try {
+    var model = getModelContent(doc['x-meditor'].model);
+    var v = new Validator();
+    res = v.validate(doc, model);
+    if (res.errors.length > 0) {
+      return handleError(response, {
+        status: 400,
+        message: "JSON doesn't match the schema: " + res.errors
+      });
+    }
+  } catch(err) {
+    console.log(err);
+    return handleError(response, {
+      status: 400,
+      message: "Failed to validate the schema"
     });
   };
 
@@ -348,9 +366,6 @@ module.exports.putDocument = function putDocument (request, response, next) {
     })
     .then(res => {return mUtils.actOnDocumentChanges(that, DbName, doc);})
     .then(() => {
-      return getModelContent(doc['x-meditor'].model)
-    })
-    .then((model) => {
       let state = doc['x-meditor'].states[doc['x-meditor'].states.length - 1].target      
       return mUtils.publishToNats(doc, model, state)
     })
