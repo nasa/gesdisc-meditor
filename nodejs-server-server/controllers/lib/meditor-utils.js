@@ -84,6 +84,7 @@ function testFs() {
 module.exports.publishToNats = function publishToNats(document, model, state = '') {
   let modelName = typeof model === 'string' ? model : model.name
   let channelName = NATS_QUEUE_PREFIX + modelName
+  let workflowName = typeof model === 'string' ? '' : model.workflow
 
   let message = JSON.stringify({
     id: document._id,
@@ -94,18 +95,35 @@ module.exports.publishToNats = function publishToNats(document, model, state = '
     state,
     time: Date.now(),
   })
-
-  console.log(`Publishing message to channel ${channelName}: `, message)
-
-  // Publish message to channel (meditor-Alerts)
-  nats.stan.publish(NATS_QUEUE_PREFIX + modelName, JSON.stringify(message), function(err, guid) {
-    if (err) {
-      console.log('publish failed: ' + err);
-    }
-    else {
-      console.log('published message with guid: ' + guid);
-    }
-  });
+  
+  if (workflowName) {
+    var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
+    var MongoClient = mongo.MongoClient;
+    MongoClient.connect(MongoUrl, function(err, db) {
+      db.db(DbName)
+        .collection('Workflows')
+        .findOne({name: {$eq: workflowName}})
+        .then((workflow) => {
+          // Get node from workflow based on state passed
+          var workflowState = workflow ? workflow.nodes.filter(node => node.id === state) : null;
+          // If got workflow node and publishable flag is true for node
+          if (workflowState && workflowState.length && workflowState[0].publishable) {
+            // Publish message to channel (meditor-Alerts)
+            console.log(`Publishing message to channel ${channelName}: `, message)
+            nats.stan.publish(NATS_QUEUE_PREFIX + modelName, JSON.stringify(message), function(err, guid) {
+              if (err) {
+                console.log('publish failed: ' + err);
+              }
+              else {
+                console.log('published message with guid: ' + guid);
+              }
+            });
+          }
+        })
+    });
+  } else {
+    // Default if no workflow?
+  }
 };
 
 // Converts dictionary params back into URL params
