@@ -71,20 +71,24 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
     showHistory: boolean
     showComments: boolean
     dirty: boolean = false
+    modelSubscriber: any
+    historySubscriber: any
+    workflowSubscriber: any
+    documentSubscriber: any
 
     constructor(private store: Store, private titleService: Title) {}
 
     ngOnInit() {
-        this.model$.subscribe(model => {
+        this.modelSubscriber = this.model$.subscribe(model => {
             this.modelName = model.name
             this.titleProperty = model.titleProperty
         })
-        this.history$.subscribe(history => {
+        this.historySubscriber = this.history$.subscribe(history => {
             this.history = history
         })
-        this.workflow$.subscribe(workflow => {
+        this.workflowSubscriber = this.workflow$.subscribe(workflow => {
             if (workflow) {
-                this.document$.subscribe(document => {
+                this.documentSubscriber = this.document$.subscribe(document => {
                     this.store.dispatch(
                         new UpdateWorkflowState(document['x-meditor'].state)
                     )
@@ -97,6 +101,13 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
                 })
             }
         })
+    }
+
+    ngOnDestroy() {
+        this.modelSubscriber.unsubscribe()
+        this.historySubscriber.unsubscribe()
+        this.workflowSubscriber.unsubscribe()
+        this.documentSubscriber.unsubscribe()
     }
 
     @HostListener('window:beforeunload')

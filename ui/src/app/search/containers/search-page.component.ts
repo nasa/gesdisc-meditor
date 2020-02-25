@@ -35,14 +35,23 @@ export class SearchPageComponent implements OnInit {
 
     filteredDocuments$: Observable<DocCatalogEntry[]>
     selectedModelName: string
+    modelSubscriber: any
+    modelDocumentsSubscriber: any
 
     constructor(private store: Store, private titleService: Title) {}
 
     ngOnInit() {
-        this.selectedModel$.subscribe(this.selectedModelChanged.bind(this))
-        this.selectedModelDocuments$.subscribe(
+        this.modelSubscriber = this.selectedModel$.subscribe(
+            this.selectedModelChanged.bind(this)
+        )
+        this.modelDocumentsSubscriber = this.selectedModelDocuments$.subscribe(
             this.selectedModelDocumentsChanged.bind(this)
         )
+    }
+
+    ngOnDestroy() {
+        this.modelSubscriber.unsubscribe()
+        this.modelDocumentsSubscriber.unsubscribe()
     }
 
     selectedModelChanged(model: Model) {
