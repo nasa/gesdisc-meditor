@@ -14,7 +14,7 @@ export class ModelsResolver implements Resolve<void> {
     resolve(route: ActivatedRouteSnapshot, snapshot: RouterStateSnapshot) {
         return new Promise<void>((resolve: any) => {
             this.store
-                .dispatch(new GetAllModels({ reload: false }))
+                .dispatch(new GetAllModels({ reload: false })) // don't reload all models, individual model info is updated when user visits the model/search page
                 .subscribe((store: any) => resolve(store.models))
         })
     }
