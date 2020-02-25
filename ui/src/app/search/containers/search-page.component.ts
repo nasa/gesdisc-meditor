@@ -1,4 +1,11 @@
-import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core'
+import {
+    Component,
+    ChangeDetectionStrategy,
+    OnInit,
+    ApplicationRef,
+    NgZone,
+} from '@angular/core'
+import { Router } from '@angular/router'
 import { Title } from '@angular/platform-browser'
 import { map, tap, withLatestFrom } from 'rxjs/operators'
 import * as _ from 'underscore'
@@ -18,6 +25,7 @@ import {
     Model,
 } from 'app/service/model/models'
 import { AuthState, ModelState, WorkflowState } from 'app/store'
+import { forceTickOnRender } from '../../shared/utils'
 
 @Component({
     selector: 'med-search-page',
@@ -38,7 +46,15 @@ export class SearchPageComponent implements OnInit {
     modelSubscriber: any
     modelDocumentsSubscriber: any
 
-    constructor(private store: Store, private titleService: Title) {}
+    constructor(
+        private store: Store,
+        private titleService: Title,
+        private router: Router,
+        private applicationRef: ApplicationRef,
+        private zone: NgZone
+    ) {
+        forceTickOnRender(router, applicationRef, zone)
+    }
 
     ngOnInit() {
         this.modelSubscriber = this.selectedModel$.subscribe(
