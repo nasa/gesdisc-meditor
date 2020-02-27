@@ -531,9 +531,11 @@ function getModelContent (name) {
                 jsonpath.value(schema,element.jsonpath,response[i++]);
                 res[0].schema = JSON.stringify(schema,null,2);
               });
+              db.close()
               resolve(res[0]);
             } catch (err) {
               console.error('Failed to parse schema', err)
+              db.close()
               reject(err)
             }
           }).catch(
