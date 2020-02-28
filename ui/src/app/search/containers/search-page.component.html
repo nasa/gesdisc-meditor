@@ -3,7 +3,7 @@
 		[models]="models" 
 		[selectedModel]="selectedModel$ | async" 
 		(selectionChanged)="selectAndChange($event)"
-		(searchChanged)="filterDocuments($event)">
+		(searchChanged)="searchTermChanged($event)">
 	</med-search-bar>
 </div>
 
@@ -19,9 +19,11 @@
 		[filteredCount] = "data.filteredDocuments?.length"
 		[modelName] = "data.selectedModel?.name"
 		[actions] = "data.currentEdges"
-		[privileges] = "data.userPrivileges"        
+		[privileges] = "data.userPrivileges"    
+		[states] = "selectedModelDocumentStates"    
 		(addNew) = "addNewDocument($event)"
-		(sortByChanged)="sortByChanged($event)">
+		(sortByChanged)="sortByChanged($event)"
+		(filterByChanged)="filterByChanged($event)">
 	</med-search-status>
 
 	<med-search-result-list 
