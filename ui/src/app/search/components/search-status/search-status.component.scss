@@ -11,6 +11,10 @@
 		display: flex;
 		flex: 1;
 	}
+
+	& > div:last-child {
+		justify-content: flex-end;
+	}
 }
 
 .add-new-button {
