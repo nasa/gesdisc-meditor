@@ -45,6 +45,10 @@ export class SearchPageComponent implements OnInit {
     selectedModelName: string
     modelSubscriber: any
     modelDocumentsSubscriber: any
+    selectedModelDocumentStates: string[]
+    searchTerm: string
+    filterBy: string
+    sortBy: string
 
     constructor(
         private store: Store,
@@ -82,13 +86,35 @@ export class SearchPageComponent implements OnInit {
         this.titleService.setTitle(this.selectedModelName + ' | mEditor')
     }
 
-    selectedModelDocumentsChanged() {
+    selectedModelDocumentsChanged(documents: DocCatalogEntry[]) {
+        this.selectedModelDocumentStates = documents
+            .map((document: DocCatalogEntry) => document['x-meditor'].state)
+            .filter((state, index, states) => states.indexOf(state) === index)
+            .sort()
+
         this.filteredDocuments$ = this.selectedModelDocuments$
     }
 
-    filterDocuments(event: string) {
+    searchTermChanged(searchTerm: string) {
+        this.searchTerm = searchTerm
+        this.filterDocuments()
+    }
+
+    sortByChanged(sortBy: string) {
+        this.sortBy = sortBy
+        this.filterDocuments()
+    }
+
+    filterByChanged(filterBy: string) {
+        this.filterBy = filterBy
+        this.filterDocuments()
+    }
+
+    filterDocuments() {
         this.filteredDocuments$ = this.selectedModelDocuments$.pipe(
-            map(this.filterDocumentsBySearchTerm.bind(this, event))
+            map(this.sortDocumentsByDate.bind(this, this.sortBy)),
+            map(this.filterDocumentsBySearchTerm.bind(this, this.searchTerm)),
+            map(this.filterDocumentsByState.bind(this, this.filterBy))
         )
     }
 
@@ -106,13 +132,9 @@ export class SearchPageComponent implements OnInit {
         return document.title.search(new RegExp(searchTerm, 'i')) !== -1
     }
 
-    sortByChanged(event: string) {
-        this.filteredDocuments$ = this.selectedModelDocuments$.pipe(
-            map(this.sortDocumentsByDate.bind(this, event))
-        )
-    }
-
     sortDocumentsByDate(date: string, documents: DocCatalogEntry[]) {
+        if (!date) return documents
+
         return documents.sort((a, b) => {
             if (date === 'oldest') {
                 return a['x-meditor'].modifiedOn < b['x-meditor'].modifiedOn
@@ -123,6 +145,14 @@ export class SearchPageComponent implements OnInit {
                     ? -1
                     : 1
             }
+        })
+    }
+
+    filterDocumentsByState(state: string, documents: DocCatalogEntry[]) {
+        if (!state) return documents
+
+        return documents.filter((document: DocCatalogEntry) => {
+            return document['x-meditor'].state === state
         })
     }
 

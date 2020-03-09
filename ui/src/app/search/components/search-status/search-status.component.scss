@@ -1,0 +1,43 @@
+.search-status-bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-top: 40px;
+	margin-bottom: 30px;
+	color: grey;
+
+	& > div {
+		align-items: center;
+		display: flex;
+		flex: 1;
+	}
+
+	& > div:last-child {
+		justify-content: flex-end;
+	}
+}
+
+.add-new-button {
+	margin-top: -10px;
+	margin-left: 10px;
+	width: 120px;
+}
+
+.add-new-button mat-icon {
+	margin-right: 5px;
+}
+
+.search-select {
+	display: flex;
+	margin-left: 10px;
+	margin-right: 10px;
+
+	mat-label {
+		margin-right: 5px;
+		white-space: nowrap;
+	}
+
+	mat-select {
+		min-width: 100px;
+	}
+}
