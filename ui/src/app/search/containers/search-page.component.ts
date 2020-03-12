@@ -27,13 +27,36 @@ import {
 import { AuthState, ModelState, WorkflowState } from 'app/store'
 import { forceTickOnRender } from '../../shared/utils'
 
+import { ModelStore } from '../../store/model.store'
+import { WorkflowStore } from '../../store/workflow.store'
+
 @Component({
     selector: 'med-search-page',
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './search-page.component.html',
     styles: [``],
 })
-export class SearchPageComponent implements OnInit {
+export class SearchPageComponent {
+    constructor(
+        private modelStore: ModelStore,
+        private workflowStore: WorkflowStore,
+        private titleService: Title,
+        private router: Router,
+        private applicationRef: ApplicationRef,
+        private zone: NgZone
+    ) {
+        forceTickOnRender(router, applicationRef, zone)
+    }
+
+    ngOnInit() {
+        console.log('page loaded')
+    }
+
+    changeModel(model: string) {
+        this.router.navigate(['/search'], { queryParams: { model } })
+    }
+
+    /*
     @Select(ModelState.models) models$: Observable<ModelCatalogEntry[]>
     @Select(ModelState.currentModel) selectedModel$: Observable<Model>
     @Select(ModelState.currentModelDocuments)
@@ -46,15 +69,7 @@ export class SearchPageComponent implements OnInit {
     modelSubscriber: any
     modelDocumentsSubscriber: any
 
-    constructor(
-        private store: Store,
-        private titleService: Title,
-        private router: Router,
-        private applicationRef: ApplicationRef,
-        private zone: NgZone
-    ) {
-        forceTickOnRender(router, applicationRef, zone)
-    }
+    
 
     ngOnInit() {
         this.modelSubscriber = this.selectedModel$.subscribe(
@@ -126,10 +141,7 @@ export class SearchPageComponent implements OnInit {
         })
     }
 
-    selectAndChange(modelName: any) {
-        this.store.dispatch(new GetModel({ name: modelName }))
-        this.store.dispatch(new Navigate(['/search'], { model: modelName }))
-    }
+    
 
     addNewDocument(event: string) {
         this.store.dispatch(new UpdateWorkflowState(event))
@@ -146,5 +158,5 @@ export class SearchPageComponent implements OnInit {
                 title: event.title,
             })
         )
-    }
+    }*/
 }

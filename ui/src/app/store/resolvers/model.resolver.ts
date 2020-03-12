@@ -1,36 +1,35 @@
-import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, RouterStateSnapshot, Resolve } from '@angular/router';
-import { Store } from '@ngxs/store';
-import { GetModel } from 'app/store/model/model.state';
-import { GetWorkflow } from 'app/store/workflow/workflow.state';
-import { GetUserPrivileges } from 'app/store/auth/auth.state';
+import { Injectable } from '@angular/core'
+import {
+    ActivatedRouteSnapshot,
+    RouterStateSnapshot,
+    Resolve,
+} from '@angular/router'
+import { ModelStore } from '../model.store'
+import { WorkflowStore } from '../workflow.store'
 
 @Injectable()
 export class ModelResolver implements Resolve<void> {
+    constructor(
+        private modelStore: ModelStore,
+        private workflowStore: WorkflowStore
+    ) {}
 
-	constructor(private store: Store) {}
+    async resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+        console.log('resolver called again ', route.queryParams.model)
 
-	private async getModel(name: string, reload?: boolean) {
-		let store = await this.store.dispatch(new GetModel({ name, reload })).toPromise();
-		return store.models.currentModel;
-	}
+        const modelName = route.queryParams.model
+        const model = await this.modelStore.fetchModel(modelName)
 
-	private async getWorkflow(title: string, reload?: boolean) {
-		if (!title) return;
+        if (!model) throw new Error('Model not found: ' + modelName)
+        if (!model.workflow)
+            throw new Error('Model has no workflow: ' + modelName)
 
-		let store = await this.store.dispatch(new GetWorkflow({ title })).toPromise();
-		return store.workflow.currentWorkflow;
-	}
+        const workflow = await this.workflowStore.fetchWorkflow(model.workflow)
 
-	async resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-		const name = route.queryParams.model;
-		const reload = state.url.indexOf('/search') > -1
+        console.log('workflow is ', workflow)
 
-		const model = await this.getModel(name, reload);
-		const workflow = await this.getWorkflow(model.workflow, reload);
-
-		if (!workflow.nodes) throw new Error('Current workflow has no nodes');
-
-		return model;
-	}
+        if (!workflow)
+            throw new Error('Workflow does not exist: ' + model.workflow)
+        if (!workflow.nodes) throw new Error('Current workflow has no nodes')
+    }
 }

@@ -1,11 +1,13 @@
-<div *ngIf="models$ | async as models">
+<div *ngIf="modelStore.models$ | async as models">
 	<med-search-bar 
 		[models]="models" 
-		[selectedModel]="selectedModel$ | async" 
-		(selectionChanged)="selectAndChange($event)"
+		[selectedModel]="modelStore.currentModel$ | async" 
+		(selectionChanged)="changeModel($event)"
 		(searchChanged)="filterDocuments($event)">
 	</med-search-bar>
 </div>
+
+<!--
 
 <div *ngIf="{
 	filteredDocuments: filteredDocuments$ | async,
@@ -30,3 +32,5 @@
 		(loadDocument)="loadDocument($event)">
 	</med-search-result-list>
 </div>
+
+-->
