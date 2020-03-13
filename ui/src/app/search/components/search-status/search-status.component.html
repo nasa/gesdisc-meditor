@@ -9,12 +9,12 @@
 	
 	<div fxFlex="8" class="sortby-select mr-2">
 		<mat-select [(value)]="sortBy" (selectionChange)="sortByChanged.emit(sortBy)">
-			<mat-option value="oldest">Oldest</mat-option>
-			<mat-option value="newest">Newest</mat-option>
+			<mat-option value="asc">Oldest</mat-option>
+			<mat-option value="desc">Newest</mat-option>
 		</mat-select>
 	</div>
 
-	<div fxFlex *ngIf="privileges.includes('create')">
+	<div fxFlex *ngIf="privileges && privileges.includes('create')">
 		<ng-container *ngFor="let action of actions">
 			<button mat-raised-button color="accent" class="add-new-button" (click)="addNew.emit(action.target)" >
 				<mat-icon>add</mat-icon>

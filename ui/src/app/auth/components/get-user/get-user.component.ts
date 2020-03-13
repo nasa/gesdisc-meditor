@@ -1,18 +1,15 @@
-import { Component, OnInit } from '@angular/core';
-import { Store } from '@ngxs/store';
-import { GetUser } from 'app/store/auth/auth.state';
+import { Component, OnInit } from '@angular/core'
+import { UserStore } from '../../../store'
 
 @Component({
-	selector: 'med-get-user',
-	templateUrl: './get-user.component.html',
-	styleUrls: ['./get-user.component.css']
+    selector: 'med-get-user',
+    templateUrl: './get-user.component.html',
+    styleUrls: ['./get-user.component.css'],
 })
 export class GetUserComponent implements OnInit {
+    constructor(private userStore: UserStore) {}
 
-	constructor(private store: Store) {}
-
-	ngOnInit() {
-		this.store.dispatch(new GetUser(true));
-	}
-
+    ngOnInit() {
+        this.userStore.fetchUser(true)
+    }
 }

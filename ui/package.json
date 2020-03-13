@@ -92,7 +92,7 @@
         "ts-node": "~3.0.4",
         "tsconfig-paths": "^3.8.0",
         "tslint": "~5.3.2",
-        "typescript": "3.1.6"
+        "typescript": "3.8.2"
     },
     "husky": {
         "hooks": {
@@ -112,7 +112,8 @@
         "semi": false,
         "singleQuote": true,
         "quoteProps": "as-needed",
-        "bracketSpacing": true
+        "bracketSpacing": true,
+        "printWidth": 120
     },
     "jest": {
         "setupTestFrameworkScriptFile": "<rootDir>/setup-jest.ts",

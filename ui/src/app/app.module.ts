@@ -10,13 +10,7 @@ import { NgxsModule } from '@ngxs/store'
 import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin'
 import { NgxsRouterPluginModule } from '@ngxs/router-plugin'
 
-import {
-    DocumentState,
-    ModelState,
-    NotificationState,
-    AuthState,
-    WorkflowState,
-} from './store/'
+import { DocumentState } from './store/'
 
 import { SnackBarComponent } from './core/components/notification/notification.component'
 import { CoreModule } from './core/core.module'
@@ -34,20 +28,15 @@ import {
     DocEditResolver,
     ModelsResolver,
     AuthGuard,
-} from 'app/store/resolvers/'
+    RedirectGuard,
+} from './store/resolvers/'
 
 import { UnauthorizedInterceptor } from './auth/interceptors/unauthorized.interceptor'
 
-import { ModelStore } from './store/model.store'
+import { AppStore, ModelStore, NotificationStore, UserStore, WorkflowStore } from './store/'
 
 // const routeResolvers = Object.keys(resolvers).map(key => resolvers[key])	// TODO: remove this and use Object.values (need typescript to support ES2017)
-const routeResolvers = [
-    DocumentResolver,
-    ModelResolver,
-    DocEditResolver,
-    ModelsResolver,
-    AuthGuard,
-]
+const routeResolvers = [DocumentResolver, ModelResolver, DocEditResolver, ModelsResolver, AuthGuard, RedirectGuard]
 
 @NgModule({
     imports: [
@@ -59,13 +48,7 @@ const routeResolvers = [
         MaterialModule,
         CoreModule.forRoot(),
         RouterModule.forRoot(routes, { useHash: true }),
-        NgxsModule.forRoot([
-            DocumentState,
-            ModelState,
-            NotificationState,
-            AuthState,
-            WorkflowState,
-        ]),
+        NgxsModule.forRoot([DocumentState]),
         NgxsRouterPluginModule.forRoot(),
         NgxsReduxDevtoolsPluginModule.forRoot(),
         ApiModule,
@@ -79,7 +62,11 @@ const routeResolvers = [
             multi: true,
         },
         Title,
+        AppStore,
         ModelStore,
+        NotificationStore,
+        UserStore,
+        WorkflowStore,
     ],
     declarations: [SnackBarComponent],
     entryComponents: [SnackBarComponent],

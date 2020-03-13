@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router'
 import { NotFoundPageComponent } from './core/containers/not-found-page'
 import { SplashPageComponent } from './core/containers/splash-page/splash-page.component'
-import { ModelsResolver, AuthGuard } from 'app/store/resolvers/'
+import { ModelsResolver, AuthGuard, RedirectGuard } from 'app/store/resolvers/'
 
 export const routes: Routes = [
     {
@@ -10,7 +10,6 @@ export const routes: Routes = [
         resolve: {
             models: ModelsResolver,
         },
-        // canActivate: [ AuthGuard ]
     },
     {
         path: 'auth',
@@ -25,6 +24,12 @@ export const routes: Routes = [
         path: 'document',
         loadChildren: './document/document.module#DocumentModule',
         canActivate: [AuthGuard],
+    },
+    {
+        path: 'redirect',
+        pathMatch: 'full',
+        children: [],
+        canActivate: [RedirectGuard],
     },
     { path: '**', component: NotFoundPageComponent },
 ]
