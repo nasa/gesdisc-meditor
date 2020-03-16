@@ -69,7 +69,7 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
 
     async submitDocument(document: any) {
         try {
-            await this.documentStore.updateCurrentDocument(document) // save changes to the document
+            await this.documentStore.createOrUpdateDocument(document) // save changes to the document
 
             await this.documentStore.fetchDocument(this.modelName, document[this.titleProperty]) // fetch the newest version
 

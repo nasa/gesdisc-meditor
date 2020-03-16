@@ -25,7 +25,10 @@ export class UserStore {
     constructor(
         private service: DefaultService,
         private workflowStore: WorkflowStore,
-        /*private ngZone: NgZone, private router: Router,*/ private notificationStore: NotificationStore /* , private dialog: MatDialog*/
+        private ngZone: NgZone,
+        private router: Router,
+        private notificationStore: NotificationStore,
+        private dialog: MatDialog
     ) {
         //
     }
@@ -50,11 +53,13 @@ export class UserStore {
      * retrieves logged in user from the API service
      */
     async fetchUser(isLogin: boolean = false) {
-        this.user = await this.service.getMe().toPromise()
+        try {
+            this.user = await this.service.getMe().toPromise()
 
-        this.handleLoginSuccess(this.user)
+            this.handleLoginSuccess(this.user)
 
-        return this.user
+            return this.user
+        } catch (err) {}
     }
 
     /**
@@ -77,11 +82,9 @@ export class UserStore {
             ROLE_KEY
         )
 
-        console.log('node privileges are ', nodePrivileges, currentUserRoles)
-
         if (nodePrivileges) {
             currentUserRoles.forEach(role => {
-                let nodePrivilege = findWhere(nodePrivileges, { ROLE_KEY: role })
+                let nodePrivilege = findWhere(nodePrivileges, { [`${ROLE_KEY}`]: role })
 
                 if (nodePrivilege) {
                     privileges = union(privileges, nodePrivilege.privilege)
@@ -96,33 +99,29 @@ export class UserStore {
      * opens the login dialog
      * TODO: move this to a component, the store shouldn't handle showing/hiding dialogs
      */
-    async openLoginDialog() {
-        console.log('open login dialog')
-        /*
+    openLoginDialog() {
         this.ngZone.run(() => {
             this.dialog.open(LoginDialog, {
                 width: '400px',
                 position: { top: '200px' },
-                disableClose: true
+                disableClose: true,
             })
         })
-        */
     }
 
     /**
      * opens the session timeout dialog
      * TODO: move this to a component, the store shouldn't handle showing/hiding dialogs
      */
-    async openSessionTimeoutDialog() {
-        console.log('open session timeout dialog')
-        /*
+    openSessionTimeoutDialog() {
+        if (this.sessionTimeoutDialogRef) return
+
         this.ngZone.run(() => {
             this.sessionTimeoutDialogRef = this.dialog.open(SessionTimeoutDialog, {
                 width: '400px',
-				position: { top: '200px' },
+                position: { top: '200px' },
             })
         })
-        */
     }
 
     private handleLoginSuccess(user: any) {
@@ -130,9 +129,9 @@ export class UserStore {
         this.user = user
 
         // navigate back to the original URL the user was trying to access (or the dashboard)
-        // this.ngZone.run(() => {
-        //   this.router.navigateByUrl(localStorage.getItem('returnUrl') || '/')
-        //})
+        this.ngZone.run(() => {
+            this.router.navigateByUrl(localStorage.getItem('returnUrl') || '/')
+        })
 
         this.notificationStore.showSuccessNotification('You have successfully logged in')
     }

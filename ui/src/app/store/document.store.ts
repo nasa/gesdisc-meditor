@@ -78,10 +78,12 @@ export class DocumentStore {
     async fetchDocument(modelName: string, title: string, version?: string) {
         this.currentDocument = await this.service.getDocument(modelName, title, version).toPromise()
 
+        // @ts-ignore
+        let documentMeta = this.currentDocument['x-meditor']
+
         this.currentDocumentTitle = title
         this.currentDocumentModel = modelName
-        // @ts-ignore
-        this.currentDocumentVersion = version || document['x-meditor'].modifiedOn.toString()
+        this.currentDocumentVersion = version || documentMeta.modifiedOn.toString()
 
         await this.fetchCurrentDocumentHistory()
         await this.fetchCurrentDocumentComments()
@@ -92,10 +94,10 @@ export class DocumentStore {
     /**
      * updates the current document
      */
-    async updateCurrentDocument(document: any) {
+    async createOrUpdateDocument(document: any, model?: string) {
         // TODO: clean this up, if we're updating a document it should already know what model it's in
         document['x-meditor'] = {
-            model: this.currentDocumentModel,
+            model: model || this.currentDocumentModel,
         }
 
         let documentBlob = new Blob([JSON.stringify(document)])

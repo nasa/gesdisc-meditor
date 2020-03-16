@@ -89,7 +89,44 @@ export class WorkflowStore {
         return this.currentWorkflow
     }
 
+    async updateWorkflowState(nodeId?: string) {
+        let node: Node | undefined
+        let edges: Edge[]
+
+        // handle incorrectly configured workflow first
+
+        if (!this.currentWorkflow) {
+            throw new Error('No active workflow was found')
+        }
+
+        if (!this.currentWorkflow.nodes || !this.currentWorkflow.nodes.length) {
+            throw new Error('Workflow does not have any nodes')
+        }
+
+        if (!this.currentWorkflow.edges || !this.currentWorkflow.edges.length) {
+            throw new Error('Workflow does not have any edges')
+        }
+
+        if (nodeId) {
+            // find node and edges for a particular node
+            node = this.currentWorkflow.nodes.find(n => n.id === nodeId)
+            edges = this.currentWorkflow.edges.filter(e => e.source === nodeId)
+        } else {
+            // find init node and it's edges
+            node = this.currentWorkflow.nodes && this.currentWorkflow.nodes[0]
+            edges = this.findInitialEdges(this.currentWorkflow.edges)
+        }
+
+        if (!node) {
+            throw new Error('Failed to update workflow state, node not found ' + nodeId)
+        }
+
+        this.currentNode = node
+        this.currentEdges = edges
+    }
+
     private findInitialEdges(edges: Edge[]) {
+        if (!edges) return []
         const sources = _pluck(edges, EDGE_SOURCE_KEY)
         const targets = _pluck(edges, EDGE_TARGET_KEY)
         const initEdge = sources.filter(e => !targets.includes(e))[0]

@@ -3,7 +3,7 @@ import { Title } from '@angular/platform-browser'
 import { ComponentCanDeactivate } from '../../../shared/guards/pending-changes.guard'
 import { Document } from '../../../service'
 import { ModelStore, UserStore, NotificationStore, DocumentStore } from '../../../store'
-import { Observable } from 'rxjs'
+import { Observable, from } from 'rxjs'
 import { Router } from '@angular/router'
 
 @Component({
@@ -12,6 +12,8 @@ import { Router } from '@angular/router'
     styleUrls: ['./docnew-page.component.css'],
 })
 export class DocNewPageComponent implements OnInit, ComponentCanDeactivate {
+    privileges$: Observable<string[]>
+    modelName: string
     liveFormData: Document
     isFormValid: boolean
     dirty: boolean = false
@@ -27,6 +29,11 @@ export class DocNewPageComponent implements OnInit, ComponentCanDeactivate {
 
     ngOnInit() {
         let modelName = this.modelStore.currentModel && this.modelStore.currentModel.name
+
+        if (!modelName) return
+
+        this.privileges$ = from(this.userStore.retrievePrivilegesForModel(modelName))
+
         this.titleService.setTitle('Add new | ' + modelName + ' | mEditor')
     }
 
@@ -35,36 +42,27 @@ export class DocNewPageComponent implements OnInit, ComponentCanDeactivate {
         return !this.dirty || this.isFormValid
     }
 
-    createDocument(document: any) {
-        /*this.
+    async createDocument(document: any) {
+        let modelName = this.modelStore.currentModel && this.modelStore.currentModel.name
+        let titleProperty = this.modelStore.currentModel && this.modelStore.currentModel.titleProperty
 
-        this.store
-            .dispatch(new CreateDocument({ model: this.modelName, document }))
-            .subscribe(this.onCreateDocumentSuccess.bind(this, document), this.onCreateDocumentError.bind(this))
-            */
-    }
+        if (!modelName || !titleProperty) return
 
-    onCreateDocumentSuccess(document: any) {
-        this.notificationStore.showSuccessNotification('Successfully created document')
+        try {
+            await this.documentStore.createOrUpdateDocument(document, modelName)
 
-        let model = this.modelStore.currentModel
-        let modelName = model && model.name
-        let titleProperty = model && model.titleProperty
+            this.notificationStore.showSuccessNotification('Successfully created document')
 
-        if (!modelName || !titleProperty) {
-            throw new Error(`Model ${modelName} must have a title property`)
+            this.router.navigate(['/document/edit'], {
+                queryParams: {
+                    model: modelName,
+                    title: document[titleProperty],
+                },
+            })
+        } catch (err) {
+            console.error(err)
+            this.notificationStore.showErrorNotification('Failed to create document, please review and try again')
         }
-
-        this.router.navigate(['/document/edit'], {
-            queryParams: {
-                model: modelName,
-                title: document[titleProperty],
-            },
-        })
-    }
-
-    onCreateDocumentError() {
-        this.notificationStore.showErrorNotification('Failed to create document, please review and try again.')
     }
 
     isValid(event: boolean) {

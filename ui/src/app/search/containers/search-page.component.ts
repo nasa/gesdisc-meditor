@@ -3,8 +3,9 @@ import { Title } from '@angular/platform-browser'
 
 import { AppStore, ModelStore, WorkflowStore, UserStore } from '../../store/'
 import { DocCatalogEntry } from '../../service'
-import { Observable, from } from 'rxjs'
+import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
+import { Router } from '@angular/router'
 
 @Component({
     selector: 'med-search-page',
@@ -13,7 +14,7 @@ import { map } from 'rxjs/operators'
     styles: [``],
 })
 export class SearchPageComponent {
-    userPrivileges$: Observable<any[]>
+    userPrivileges: string[]
     filteredDocuments$: Observable<DocCatalogEntry[]>
 
     private modelName: string = ''
@@ -26,16 +27,16 @@ export class SearchPageComponent {
         public workflowStore: WorkflowStore,
         public userStore: UserStore,
         private appStore: AppStore,
-        private titleService: Title
+        private titleService: Title,
+        private router: Router
     ) {}
 
-    ngOnInit() {
-        // TODO: fix with typescript
+    async ngOnInit() {
         if (this.modelStore.currentModel && this.modelStore.currentModel.name) {
             this.modelName = this.modelStore.currentModel.name
         }
 
-        this.userPrivileges$ = from(this.userStore.retrievePrivilegesForModel(this.modelName))
+        this.userPrivileges = await this.userStore.retrievePrivilegesForModel(this.modelName)
 
         this.updatePageTitle()
         this.filterDocuments()
@@ -91,21 +92,24 @@ export class SearchPageComponent {
         })
     }
 
-    /*
-    addNewDocument(event: string) {
-        this.store.dispatch(new UpdateWorkflowState(event))
-        this.store.dispatch(
-            new Navigate(['/document/new'], { model: this.selectedModelName })
-        )
+    addNewDocument(state: string) {
+        this.workflowStore.updateWorkflowState(state)
+
+        this.router.navigate(['/document/new'], {
+            queryParams: {
+                model: this.modelName,
+            },
+        })
     }
 
     loadDocument(event: { title: string; state: string }) {
-        this.store.dispatch(new UpdateWorkflowState(event.state))
-        this.store.dispatch(
-            new Navigate(['/document/edit'], {
-                model: this.selectedModelName,
+        this.workflowStore.updateWorkflowState(event.state)
+
+        this.router.navigate(['/document/edit'], {
+            queryParams: {
+                model: this.modelName,
                 title: event.title,
-            })
-        )
-    }*/
+            },
+        })
+    }
 }
