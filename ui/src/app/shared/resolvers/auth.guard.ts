@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core'
 import { RouterStateSnapshot, CanActivate } from '@angular/router'
 import { map, take } from 'rxjs/operators'
-import { UserStore } from '../user.store'
+import { UserStore } from '../../store/'
 import { Observable } from 'rxjs'
 
 @Injectable()

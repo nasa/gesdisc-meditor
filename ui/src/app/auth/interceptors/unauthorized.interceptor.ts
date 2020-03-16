@@ -3,7 +3,6 @@ import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse
 import { Router } from '@angular/router'
 import { Observable } from 'rxjs/Observable'
 import 'rxjs/add/operator/do'
-import { Store } from '@ngxs/store'
 import { UserStore } from '../../store/'
 
 @Injectable()

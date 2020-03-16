@@ -6,12 +6,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 import { RouterModule } from '@angular/router'
 import { FlexLayoutModule } from '@angular/flex-layout'
 
-import { NgxsModule } from '@ngxs/store'
-import { NgxsReduxDevtoolsPluginModule } from '@ngxs/devtools-plugin'
-import { NgxsRouterPluginModule } from '@ngxs/router-plugin'
-
-import { DocumentState } from './store/'
-
 import { SnackBarComponent } from './core/components/notification/notification.component'
 import { CoreModule } from './core/core.module'
 import { ApiModule } from './service/api.module'
@@ -29,7 +23,7 @@ import {
     ModelsResolver,
     AuthGuard,
     RedirectGuard,
-} from './store/resolvers/'
+} from './shared/resolvers/'
 
 import { UnauthorizedInterceptor } from './auth/interceptors/unauthorized.interceptor'
 
@@ -48,9 +42,6 @@ const routeResolvers = [DocumentResolver, ModelResolver, DocEditResolver, Models
         MaterialModule,
         CoreModule.forRoot(),
         RouterModule.forRoot(routes, { useHash: true }),
-        NgxsModule.forRoot([DocumentState]),
-        NgxsRouterPluginModule.forRoot(),
-        NgxsReduxDevtoolsPluginModule.forRoot(),
         ApiModule,
     ],
     providers: [

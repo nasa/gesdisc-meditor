@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core'
 import { ActivatedRouteSnapshot, RouterStateSnapshot, Resolve } from '@angular/router'
-import { ModelStore } from '../model.store'
-import { WorkflowStore } from '../workflow.store'
+import { ModelStore, WorkflowStore } from '../../store'
 
 @Injectable()
 export class ModelResolver implements Resolve<void> {
