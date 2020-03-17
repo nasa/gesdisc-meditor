@@ -19,7 +19,7 @@
 				(isDirty)="isDirty($event)">
 			</med-document-edit>
 			<button mat-raised-button 
-        *ngIf="(privileges$ | async)?.indexOf('create') > -1" 
+        *ngIf="(workflowStore.currentNodeUserPrivileges$ | async)?.indexOf('create') > -1" 
         (click)="saveDocument()" 
         [disabled]="!isFormValid">Save
       </button>

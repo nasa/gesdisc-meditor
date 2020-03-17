@@ -20,7 +20,7 @@ import { UserStore } from '../../../store'
 export class LoginStatusComponent {
     userBtn: boolean = true
 
-    constructor(private userStore: UserStore) {}
+    constructor(public userStore: UserStore) {}
 
     logout() {
         this.userStore.logout()

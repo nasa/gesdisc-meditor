@@ -14,7 +14,6 @@ import { Router } from '@angular/router'
     styles: [``],
 })
 export class SearchPageComponent {
-    userPrivileges: string[]
     filteredDocuments$: Observable<DocCatalogEntry[]>
 
     private modelName: string = ''
@@ -35,8 +34,6 @@ export class SearchPageComponent {
         if (this.modelStore.currentModel && this.modelStore.currentModel.name) {
             this.modelName = this.modelStore.currentModel.name
         }
-
-        this.userPrivileges = await this.userStore.retrievePrivilegesForModel(this.modelName)
 
         this.updatePageTitle()
         this.filterDocuments()

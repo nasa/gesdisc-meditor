@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core'
 import { BehaviorSubject, Observable } from 'rxjs'
-import { map, pluck } from 'rxjs/operators'
 import { pluck as _pluck, where } from 'underscore'
 import { Workflow, Edge, Privilege, Node } from '../service/model/models'
 import { DefaultService } from '../service/api/default.service'
+import { UserStore } from './user.store'
+import { ModelStore } from './model.store'
 
 const WORKFLOW_MODEL_NAME = 'Workflows'
 const NODE_PRIVILEGES_KEY = 'privileges'
@@ -29,11 +30,13 @@ export class WorkflowStore {
     private readonly _currentEdges = new BehaviorSubject<Edge[]>([INIT_EDGE])
     private readonly _currentNode = new BehaviorSubject<Node>(INIT_NODE)
     private readonly _currentNodePrivileges = new BehaviorSubject<Privilege[] | undefined>([])
+    private readonly _currentNodeUserPrivileges = new BehaviorSubject<string[] | undefined>([])
 
     readonly currentWorkflow$ = this._currentWorkflow.asObservable()
     readonly currentEdges$ = this._currentEdges.asObservable()
     readonly currentNode$ = this._currentNode.asObservable()
     readonly currentNodePrivileges$ = this._currentNodePrivileges.asObservable()
+    readonly currentNodeUserPrivileges$ = this._currentNodeUserPrivileges.asObservable()
 
     get currentWorkflow(): Workflow | undefined {
         return this._currentWorkflow.getValue()
@@ -57,14 +60,27 @@ export class WorkflowStore {
 
     set currentNode(currentNode: Node) {
         this._currentNode.next(currentNode)
-        this._currentNodePrivileges.next(currentNode[NODE_PRIVILEGES_KEY])
+
+        let privileges = currentNode[NODE_PRIVILEGES_KEY]
+
+        this._currentNodePrivileges.next(privileges)
+
+        if (!privileges) return
+
+        let userPrivileges = this.userStore.retrievePrivilegesForModel(this.modelStore.currentModelName, privileges)
+
+        this._currentNodeUserPrivileges.next(userPrivileges)
     }
 
     get currentNodePrivileges(): Privilege[] | undefined {
         return this._currentNodePrivileges.getValue()
     }
 
-    constructor(private service: DefaultService) {
+    get currentNodeUserPrivileges(): string[] | undefined {
+        return this._currentNodeUserPrivileges.getValue()
+    }
+
+    constructor(private service: DefaultService, private userStore: UserStore, private modelStore: ModelStore) {
         //
     }
 

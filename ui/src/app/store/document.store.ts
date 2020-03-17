@@ -110,12 +110,14 @@ export class DocumentStore {
      * @param state
      */
     async updateCurrentDocumentState(state: string) {
-        await this.service.changeDocumentState(
-            this.currentDocumentModel,
-            this.currentDocumentTitle,
-            state,
-            this.currentDocumentVersion
-        )
+        await this.service
+            .changeDocumentState(
+                this.currentDocumentModel,
+                this.currentDocumentTitle,
+                state,
+                this.currentDocumentVersion
+            )
+            .toPromise()
     }
 
     /**
@@ -124,7 +126,7 @@ export class DocumentStore {
      */
     async resolveComment(id: string) {
         let resolvedBy = this.userStore.user.uid
-        await this.service.resolveComment(id, resolvedBy)
+        await this.service.resolveComment(id, resolvedBy).toPromise()
         await this.fetchCurrentDocumentComments()
     }
 
@@ -134,7 +136,7 @@ export class DocumentStore {
      * @param text
      */
     async updateComment(id: string, text: string) {
-        await this.service.editComment(id, text)
+        await this.service.editComment(id, text).toPromise()
         await this.fetchCurrentDocumentComments()
     }
 
@@ -153,7 +155,7 @@ export class DocumentStore {
 
         let commentBlob = new Blob([JSON.stringify(comment)])
 
-        await this.service.postComment(commentBlob)
+        await this.service.postComment(commentBlob).toPromise()
         await this.fetchCurrentDocumentComments()
     }
 

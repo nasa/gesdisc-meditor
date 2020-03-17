@@ -9,7 +9,7 @@
 
 <div *ngIf="{
 	filteredDocuments: filteredDocuments$ | async,
-	userPrivileges: userPrivileges,
+	userPrivileges: workflowStore.currentNodeUserPrivileges$ | async,
 	currentEdges: workflowStore.currentEdges$ | async,
 	currentModel: modelStore.currentModel$ | async,
 	currentModelDocuments: modelStore.currentModelDocuments$ | async

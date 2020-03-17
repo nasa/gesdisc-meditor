@@ -60,17 +60,15 @@
 
 				<mat-card-content>
 					<div class="button-panel">
-						<!-- TODO: implement user privileges
 						<button
 							mat-mini-fab
-							*ngIf="(userPrivileges$ | async).includes('comment')"
+							*ngIf="(workflowStore.currentNodeUserPrivileges$ | async).includes('comment')"
 							matBadge="{{ commentsCount$ | async }}"
 							matBadgeColor="warn"
 							(click)="toggleDocumentComments()"
 						>
 							<mat-icon>question_answer</mat-icon>
 						</button>
-						-->
 
 						<button
 							mat-mini-fab
@@ -91,9 +89,8 @@
 						>
 					</div>
 					
-					<!-- TODO:
 					<med-document-edit
-						[readonly]="!(userPrivileges$ | async).includes('edit')"
+						[readonly]="!(workflowStore.currentNodeUserPrivileges$ | async).includes('edit')"
 						[document]="documentStore.currentDocument$ | async"
 						(liveData)="liveData($event)"
 						(isValid)="isValid($event)"
@@ -102,13 +99,12 @@
 					</med-document-edit>
 					<button
 						mat-raised-button
-						*ngIf="(userPrivileges$ | async).includes('edit')"
+						*ngIf="(workflowStore.currentNodeUserPrivileges$ | async).includes('edit')"
 						(click)="saveDocument()"
 						[disabled]="!isFormValid || !dirty"
 					>
 						Save
 					</button>
-					-->
 					<med-document-actions
 						*ngIf="(documentStore.currentDocument$ | async)['x-meditor'].targetStates.length > 0"
 						[actions]="edges$ | async"

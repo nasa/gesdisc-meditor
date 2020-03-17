@@ -24,7 +24,7 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
     )
 
     modelName: string
-    titleProperty: string
+    titleProperty: string | undefined
     versionFilter: Date = new Date()
     readonlydoc = true
     liveFormData: Document
@@ -44,22 +44,20 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
     ) {}
 
     ngOnInit() {
-        /*
-        this.workflowSubscriber = this.workflow$.subscribe(workflow => {
-            if (workflow) {
-                this.documentSubscriber = this.document$.subscribe(document => {
-                    this.store.dispatch(
-                        new UpdateWorkflowState(document['x-meditor'].state)
-                    )
-                    this.titleService.setTitle(
-                        document.doc[this.titleProperty] +
-                            ' | ' +
-                            this.modelName +
-                            ' | mEditor'
-                    )
-                })
-            }
-        })*/
+        let model = this.modelStore.currentModel
+
+        if (!model) return
+
+        this.modelName = model.name
+        this.titleProperty = model.titleProperty
+
+        if (!this.modelName || !this.titleProperty) return
+
+        // @ts-ignore
+        this.workflowStore.updateWorkflowState(this.documentStore.currentDocument['x-meditor'].state)
+        this.titleService.setTitle(
+            `${this.documentStore.currentDocument.doc[this.titleProperty]} | ${this.modelName} | mEditor`
+        )
     }
 
     @HostListener('window:beforeunload')
@@ -71,6 +69,7 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
         try {
             await this.documentStore.createOrUpdateDocument(document) // save changes to the document
 
+            // @ts-ignore
             await this.documentStore.fetchDocument(this.modelName, document[this.titleProperty]) // fetch the newest version
 
             this.notificationStore.showSuccessNotification('Successfully updated document')
@@ -120,7 +119,7 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
 
             this.notificationStore.showSuccessNotification('Document sent successfully')
 
-            // TODO: this.store.dispatch(new SetInitialState())
+            this.workflowStore.updateWorkflowState()
 
             this.router.navigate(['/search'], {
                 queryParams: {

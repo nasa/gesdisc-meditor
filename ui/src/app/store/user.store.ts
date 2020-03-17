@@ -1,14 +1,14 @@
 import { Injectable, NgZone } from '@angular/core'
-import { BehaviorSubject, Observable } from 'rxjs'
+import { BehaviorSubject } from 'rxjs'
 import { pluck, findWhere, union } from 'underscore'
 import { DefaultService } from '../service/api/default.service'
-import { WorkflowStore } from './workflow.store'
 import { Router } from '@angular/router'
 import { NotificationStore } from './notification.store'
 import { environment } from '../../environments/environment'
 import { MatDialog } from '@angular/material'
 import { LoginDialog } from '../auth/components/login-dialog/login-dialog.component'
 import { SessionTimeoutDialog } from '../auth/components/session-timeout-dialog/session-timeout-dialog.component'
+import { Privilege } from '../service'
 
 const ROLE_KEY = 'role'
 
@@ -24,7 +24,6 @@ export class UserStore {
 
     constructor(
         private service: DefaultService,
-        private workflowStore: WorkflowStore,
         private ngZone: NgZone,
         private router: Router,
         private notificationStore: NotificationStore,
@@ -73,18 +72,17 @@ export class UserStore {
      * given a model, will return the privileges the user has for that model
      * @param modelName
      */
-    async retrievePrivilegesForModel(modelName: string) {
+    retrievePrivilegesForModel(modelName: string, currentNodePrivileges: Privilege[]) {
         let privileges: string[] = []
 
-        const nodePrivileges = this.workflowStore.currentNodePrivileges
         const currentUserRoles = pluck(
             this.user.roles.filter((role: any) => role.model === modelName),
             ROLE_KEY
         )
 
-        if (nodePrivileges) {
+        if (currentNodePrivileges) {
             currentUserRoles.forEach(role => {
-                let nodePrivilege = findWhere(nodePrivileges, { [`${ROLE_KEY}`]: role })
+                let nodePrivilege = findWhere(currentNodePrivileges, { [`${ROLE_KEY}`]: role })
 
                 if (nodePrivilege) {
                     privileges = union(privileges, nodePrivilege.privilege)

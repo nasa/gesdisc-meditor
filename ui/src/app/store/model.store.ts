@@ -1,32 +1,22 @@
 import { Injectable } from '@angular/core'
 import { BehaviorSubject } from 'rxjs'
 import { map } from 'rxjs/operators'
-import {
-    Model,
-    ModelCatalogEntry,
-    DocCatalogEntry,
-} from '../service/model/models'
+import { Model, ModelCatalogEntry, DocCatalogEntry } from '../service/model/models'
 import { DefaultService } from '../service/api/default.service'
 
 @Injectable({ providedIn: 'root' })
 export class ModelStore {
     private readonly _models = new BehaviorSubject<ModelCatalogEntry[]>([])
-    private readonly _currentModel = new BehaviorSubject<Model | undefined>(
-        undefined
-    )
-    private readonly _currentModelDocuments = new BehaviorSubject<
-        DocCatalogEntry[]
-    >([])
+    private readonly _currentModel = new BehaviorSubject<Model | undefined>(undefined)
+    private readonly _currentModelName = new BehaviorSubject<string>('')
+    private readonly _currentModelDocuments = new BehaviorSubject<DocCatalogEntry[]>([])
 
-    readonly models$ = this._models
-        .asObservable()
-        .pipe(map(models => models.sort(this.sortModels)))
+    readonly models$ = this._models.asObservable().pipe(map(models => models.sort(this.sortModels)))
 
-    readonly categories$ = this.models$.pipe(
-        map(models => this.getCategoriesFromModels(models))
-    )
+    readonly categories$ = this.models$.pipe(map(models => this.getCategoriesFromModels(models)))
 
     readonly currentModel$ = this._currentModel.asObservable()
+    readonly currentModelName$ = this._currentModelName.asObservable()
     readonly currentModelDocuments$ = this._currentModelDocuments
         .asObservable()
         .pipe(map(documents => documents.sort(this.sortDocuments)))
@@ -49,6 +39,15 @@ export class ModelStore {
 
     set currentModel(currentModel: Model | undefined) {
         this._currentModel.next(currentModel)
+        this.currentModelName = currentModel ? currentModel.name : ''
+    }
+
+    get currentModelName(): string {
+        return this._currentModelName.getValue()
+    }
+
+    set currentModelName(currentModelName: string) {
+        this._currentModelName.next(currentModelName || '')
     }
 
     get currentModelDocuments(): DocCatalogEntry[] {
@@ -82,9 +81,7 @@ export class ModelStore {
      * @param modelName
      */
     async fetchModelDocuments(modelName: string) {
-        this.currentModelDocuments = await this.service
-            .listDocuments(modelName)
-            .toPromise()
+        this.currentModelDocuments = await this.service.listDocuments(modelName).toPromise()
         return this.currentModelDocuments
     }
 
@@ -110,10 +107,7 @@ export class ModelStore {
      * @param documentA
      * @param documentB
      */
-    private sortDocuments(
-        documentA: DocCatalogEntry,
-        documentB: DocCatalogEntry
-    ) {
+    private sortDocuments(documentA: DocCatalogEntry, documentB: DocCatalogEntry) {
         if (
             !(
                 documentA &&

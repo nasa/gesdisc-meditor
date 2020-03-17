@@ -2,8 +2,8 @@ import { Component, OnInit, HostListener } from '@angular/core'
 import { Title } from '@angular/platform-browser'
 import { ComponentCanDeactivate } from '../../../shared/guards/pending-changes.guard'
 import { Document } from '../../../service'
-import { ModelStore, UserStore, NotificationStore, DocumentStore } from '../../../store'
-import { Observable, from } from 'rxjs'
+import { ModelStore, UserStore, NotificationStore, DocumentStore, WorkflowStore } from '../../../store'
+import { Observable } from 'rxjs'
 import { Router } from '@angular/router'
 
 @Component({
@@ -12,7 +12,6 @@ import { Router } from '@angular/router'
     styleUrls: ['./docnew-page.component.css'],
 })
 export class DocNewPageComponent implements OnInit, ComponentCanDeactivate {
-    privileges$: Observable<string[]>
     modelName: string
     liveFormData: Document
     isFormValid: boolean
@@ -22,6 +21,7 @@ export class DocNewPageComponent implements OnInit, ComponentCanDeactivate {
         public modelStore: ModelStore,
         public userStore: UserStore,
         public documentStore: DocumentStore,
+        public workflowStore: WorkflowStore,
         private notificationStore: NotificationStore,
         private titleService: Title,
         private router: Router
@@ -31,8 +31,6 @@ export class DocNewPageComponent implements OnInit, ComponentCanDeactivate {
         let modelName = this.modelStore.currentModel && this.modelStore.currentModel.name
 
         if (!modelName) return
-
-        this.privileges$ = from(this.userStore.retrievePrivilegesForModel(modelName))
 
         this.titleService.setTitle('Add new | ' + modelName + ' | mEditor')
     }
