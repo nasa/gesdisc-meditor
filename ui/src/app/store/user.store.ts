@@ -54,11 +54,16 @@ export class UserStore {
     async fetchUser(isLogin: boolean = false) {
         try {
             this.user = await this.service.getMe().toPromise()
+            this.loggedIn = true
 
-            this.handleLoginSuccess(this.user)
+            if (isLogin) {
+                this.handleLoginSuccess(this.user)
+            }
 
             return this.user
-        } catch (err) {}
+        } catch (err) {
+            console.error('Failed to fetch user ', err)
+        }
     }
 
     /**
@@ -123,9 +128,6 @@ export class UserStore {
     }
 
     private handleLoginSuccess(user: any) {
-        this.loggedIn = true
-        this.user = user
-
         // navigate back to the original URL the user was trying to access (or the dashboard)
         this.ngZone.run(() => {
             this.router.navigateByUrl(localStorage.getItem('returnUrl') || '/')
