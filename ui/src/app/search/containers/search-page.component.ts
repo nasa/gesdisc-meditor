@@ -16,10 +16,10 @@ import { Router } from '@angular/router'
 export class SearchPageComponent {
     filteredDocuments$: Observable<DocCatalogEntry[]>
 
-    private modelName: string = ''
-    private searchTerm: string = ''
-    private sortBy: string = 'modifiedOn'
-    private sortDir: string = 'desc'
+    modelName: string = ''
+    searchTerm: string = ''
+    sortBy: string = 'modifiedOn'
+    sortDir: 'asc' | 'desc' = 'desc'
 
     constructor(
         public modelStore: ModelStore,
@@ -35,6 +35,8 @@ export class SearchPageComponent {
             this.modelName = this.modelStore.currentModel.name
         }
 
+        this.loadFiltersFromStore()
+        await this.modelStore.fetchModelDocuments(this.modelName)
         this.updatePageTitle()
         this.filterDocuments()
     }
@@ -45,7 +47,7 @@ export class SearchPageComponent {
     }
 
     // TODO: support sorting by other properties
-    sortByChanged(sortDir: string) {
+    sortByChanged(sortDir: 'asc' | 'desc') {
         this.sortDir = sortDir
         this.filterDocuments()
     }
@@ -62,6 +64,8 @@ export class SearchPageComponent {
     }
 
     private filterDocuments() {
+        this.saveFiltersInStore()
+
         this.filteredDocuments$ = this.modelStore.currentModelDocuments$
             .pipe(map(this.filterDocumentsBySearchTerm.bind(this, this.searchTerm)))
             .pipe(map(this.sortDocuments.bind(this, this.sortBy, this.sortDir)))
@@ -108,5 +112,17 @@ export class SearchPageComponent {
                 title: event.title,
             },
         })
+    }
+
+    private loadFiltersFromStore() {
+        this.searchTerm = this.modelStore.currentModelDocumentsSearchTerm
+        this.sortBy = this.modelStore.currentModelDocumentsSortBy
+        this.sortDir = this.modelStore.currentModelDocumentsSortDir
+    }
+
+    private saveFiltersInStore() {
+        this.modelStore.currentModelDocumentsSearchTerm = this.searchTerm
+        this.modelStore.currentModelDocumentsSortBy = this.sortBy
+        this.modelStore.currentModelDocumentsSortDir = this.sortDir
     }
 }

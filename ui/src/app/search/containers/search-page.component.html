@@ -1,6 +1,7 @@
 <div *ngIf="modelStore.models$ | async as models">
 	<med-search-bar 
 		[models]="models" 
+		[searchTerm]="searchTerm"
 		[selectedModel]="modelStore.currentModel$ | async" 
 		(selectionChanged)="changeModel($event)"
 		(searchChanged)="searchTermChanged($event)">

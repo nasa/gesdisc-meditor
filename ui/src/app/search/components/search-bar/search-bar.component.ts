@@ -10,6 +10,7 @@ import { ModelCatalogEntry } from '../../../service'
 export class SearchBarComponent implements OnInit {
     @Input() models: ModelCatalogEntry[]
     @Input() selectedModel: ModelCatalogEntry
+    @Input() searchTerm: string
     @Output() selectionChanged = new EventEmitter<string>()
     @Output() searchChanged = new EventEmitter<string>()
 
@@ -17,10 +18,12 @@ export class SearchBarComponent implements OnInit {
     modelcontrol = new FormControl()
 
     ngOnInit() {
+        this.query = this.searchTerm
         this.setModelControl()
     }
 
     ngOnChanges() {
+        this.query = this.searchTerm
         this.setModelControl()
     }
 

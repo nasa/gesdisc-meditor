@@ -20,6 +20,10 @@ export class ModelStore {
         .asObservable()
         .pipe(map(documents => documents.sort(this.sortDocuments)))
 
+    currentModelDocumentsSearchTerm: string
+    currentModelDocumentsSortBy: string
+    currentModelDocumentsSortDir: 'asc' | 'desc'
+
     constructor(private service: DefaultService, private notificationStore: NotificationStore) {
         //
     }
@@ -39,6 +43,9 @@ export class ModelStore {
     set currentModel(currentModel: Model | undefined) {
         this._currentModel.next(currentModel)
         this.currentModelName = currentModel ? currentModel.name : ''
+        this.currentModelDocumentsSearchTerm = ''
+        this.currentModelDocumentsSortBy = 'modifiedOn'
+        this.currentModelDocumentsSortDir = 'desc'
     }
 
     get currentModelName(): string {
@@ -74,8 +81,10 @@ export class ModelStore {
      * @param name
      */
     async fetchModel(modelName: string) {
-        this.currentModel = await this.service.getModel(modelName).toPromise()
-        this.fetchModelDocuments(modelName)
+        if (modelName !== this.currentModelName) {
+            this.currentModel = await this.service.getModel(modelName).toPromise()
+        }
+
         return this.currentModel
     }
 
