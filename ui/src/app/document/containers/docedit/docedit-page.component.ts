@@ -3,7 +3,7 @@ import { Title } from '@angular/platform-browser'
 import { MatSidenav } from '@angular/material/sidenav'
 import { ComponentCanDeactivate } from '../../../shared/guards/pending-changes.guard'
 import { Document, DocHistory, Comment } from '../../../service'
-import { ModelStore, WorkflowStore, UserStore, DocumentStore, NotificationStore } from '../../../store'
+import { ModelStore, WorkflowStore, UserStore, DocumentStore, NotificationStore, AppStore } from '../../../store'
 import { Observable } from 'rxjs'
 import { Router } from '@angular/router'
 import { map } from 'rxjs/operators'
@@ -40,7 +40,8 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
         public documentStore: DocumentStore,
         private notificationStore: NotificationStore,
         private titleService: Title,
-        private router: Router
+        private router: Router,
+        private appStore: AppStore
     ) {}
 
     ngOnInit() {
@@ -63,20 +64,6 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
     @HostListener('window:beforeunload')
     canDeactivate(): Observable<boolean> | boolean {
         return !this.dirty
-    }
-
-    async submitDocument(document: any) {
-        try {
-            await this.documentStore.createOrUpdateDocument(document) // save changes to the document
-
-            // @ts-ignore
-            await this.documentStore.fetchDocument(this.modelName, document[this.titleProperty]) // fetch the newest version
-
-            this.notificationStore.showSuccessNotification('Successfully updated document')
-        } catch (err) {
-            console.error(err)
-            this.notificationStore.showErrorNotification('Failed to update document, please review and try again')
-        }
     }
 
     showDocumentHistory() {
@@ -146,7 +133,26 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
         this.liveFormData = event
     }
 
-    saveDocument() {
-        this.submitDocument(this.liveFormData)
+    async saveDocument() {
+        try {
+            await this.documentStore.createOrUpdateDocument(this.liveFormData)
+
+            this.notificationStore.showSuccessNotification('Successfully updated document')
+        } catch (err) {
+            console.error(err)
+            this.notificationStore.showErrorNotification('Failed to update document, please review and try again')
+        }
+
+        // ensure the form is reset to initial clean state
+        this.dirty = false
+
+        // reload the page to refresh the workflow states
+        this.appStore.navigate('/document/edit', {
+            queryParams: {
+                model: this.modelName,
+                title: this.documentStore.currentDocument.doc[this.titleProperty || ''],
+            },
+            reloadSameRoute: true,
+        })
     }
 }

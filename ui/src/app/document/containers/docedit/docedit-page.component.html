@@ -107,7 +107,7 @@
 					</button>
 					<med-document-actions
 						*ngIf="(documentStore.currentDocument$ | async)['x-meditor'].targetStates.length > 0"
-						[actions]="edges$ | async"
+						[actions]="workflowStore.currentEdges$ | async"
 						(updateState)="updateState($event)"
 						[formIsDirty]="dirty"
 					>
