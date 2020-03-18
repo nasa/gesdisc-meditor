@@ -17,11 +17,19 @@ export class SearchBarComponent implements OnInit {
     modelcontrol = new FormControl()
 
     ngOnInit() {
-        const i = this.models.map(m => m.name).indexOf(this.selectedModel.name)
-        this.modelcontrol.setValue(this.models[i])
+        this.setModelControl()
+    }
+
+    ngOnChanges() {
+        this.setModelControl()
     }
 
     onSearchChange() {
         this.searchChanged.emit(this.query)
+    }
+
+    setModelControl() {
+        const i = this.models.map(m => m.name).indexOf(this.selectedModel.name)
+        this.modelcontrol.setValue(this.models[i])
     }
 }

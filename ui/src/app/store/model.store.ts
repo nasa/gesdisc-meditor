@@ -3,6 +3,7 @@ import { BehaviorSubject } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { Model, ModelCatalogEntry, DocCatalogEntry } from '../service/model/models'
 import { DefaultService } from '../service/api/default.service'
+import { NotificationStore } from './notification.store'
 
 @Injectable({ providedIn: 'root' })
 export class ModelStore {
@@ -12,16 +13,14 @@ export class ModelStore {
     private readonly _currentModelDocuments = new BehaviorSubject<DocCatalogEntry[]>([])
 
     readonly models$ = this._models.asObservable().pipe(map(models => models.sort(this.sortModels)))
-
     readonly categories$ = this.models$.pipe(map(models => this.getCategoriesFromModels(models)))
-
     readonly currentModel$ = this._currentModel.asObservable()
     readonly currentModelName$ = this._currentModelName.asObservable()
     readonly currentModelDocuments$ = this._currentModelDocuments
         .asObservable()
         .pipe(map(documents => documents.sort(this.sortDocuments)))
 
-    constructor(private service: DefaultService) {
+    constructor(private service: DefaultService, private notificationStore: NotificationStore) {
         //
     }
 
@@ -61,7 +60,11 @@ export class ModelStore {
     /**
      * retrieves all of the Models from the API service
      */
-    async fetchModels() {
+    async fetchModels(useCache: boolean = true) {
+        if (useCache && this.models.length) {
+            return this.models
+        }
+
         this.models = await this.service.listModels().toPromise()
         return this.models
     }
@@ -81,7 +84,15 @@ export class ModelStore {
      * @param modelName
      */
     async fetchModelDocuments(modelName: string) {
+        // clear out any existing documents
+        this.currentModelDocuments = []
+
+        this.notificationStore.loading = true
+
         this.currentModelDocuments = await this.service.listDocuments(modelName).toPromise()
+
+        this.notificationStore.loading = false
+
         return this.currentModelDocuments
     }
 

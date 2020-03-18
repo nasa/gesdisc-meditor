@@ -9,16 +9,26 @@ interface Notification {
 
 @Injectable({ providedIn: 'root' })
 export class NotificationStore {
+    private readonly _loading = new BehaviorSubject<boolean>(false)
     private readonly _notification = new BehaviorSubject<Notification>({
         show: false,
         message: '',
         action: undefined,
     })
 
+    readonly loading$ = this._loading.asObservable()
     readonly notification$ = this._notification.asObservable()
 
     constructor() {
         //
+    }
+
+    get loading(): boolean {
+        return this._loading.getValue()
+    }
+
+    set loading(loading: boolean) {
+        this._loading.next(loading)
     }
 
     get notification(): Notification {
