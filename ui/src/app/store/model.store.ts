@@ -23,6 +23,7 @@ export class ModelStore {
     currentModelDocumentsSearchTerm: string
     currentModelDocumentsSortBy: string
     currentModelDocumentsSortDir: 'asc' | 'desc'
+    currentModelDocumentsFilterBy: string
 
     constructor(private service: DefaultService, private notificationStore: NotificationStore) {
         //
@@ -46,6 +47,7 @@ export class ModelStore {
         this.currentModelDocumentsSearchTerm = ''
         this.currentModelDocumentsSortBy = 'modifiedOn'
         this.currentModelDocumentsSortDir = 'desc'
+        this.currentModelDocumentsFilterBy = ''
     }
 
     get currentModelName(): string {

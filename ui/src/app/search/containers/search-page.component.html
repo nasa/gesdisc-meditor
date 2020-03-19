@@ -20,9 +20,11 @@
 		[filteredCount] = "data.filteredDocuments?.length"
 		[modelName] = "data.currentModel?.name"
 		[actions] = "data.currentEdges"
-		[privileges] = "data.userPrivileges"        
+		[privileges] = "data.userPrivileges"    
+		[states] = "selectedModelDocumentStates"    
 		(addNew) = "addNewDocument($event)"
-		(sortByChanged)="sortByChanged($event)">
+		(sortByChanged)="sortByChanged($event)"
+		(filterByChanged)="filterByChanged($event)">
 	</med-search-status>
 
 	<med-search-result-list 

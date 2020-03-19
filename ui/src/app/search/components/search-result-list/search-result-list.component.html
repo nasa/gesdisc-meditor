@@ -1,2 +1,2 @@
-<med-search-result *ngFor="let result of results | paginate: { itemsPerPage: 9, currentPage: p }" [result]="result" [model]="model" (loadDocument)="loadDocument.emit($event)"></med-search-result>
+<med-search-result *ngFor="let result of results | paginate: { itemsPerPage: 50, currentPage: p }" [result]="result" [model]="model" (loadDocument)="loadDocument.emit($event)"></med-search-result>
 <pagination-controls (pageChange)="p = $event"></pagination-controls>

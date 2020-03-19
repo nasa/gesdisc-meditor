@@ -585,14 +585,25 @@ function findDocHistory (params) {
           query["x-meditor.modifiedOn"] = params.version;
         }
         query[titleField]=params.title;
-        dbo.collection(params.model).find(query).project({_id:0}).sort({"x-meditor.modifiedOn":-1}).map(function(obj){return {modifiedOn:obj["x-meditor"].modifiedOn, modifiedBy:obj["x-meditor"].modifiedBy}}).toArray(function(err, res) {
-          if (err){
-            console.log(err);
-            throw err;
-          }
-          db.close();
-          resolve(res);
-        });
+        
+        dbo.collection(params.model)
+          .find(query)
+          .project({ _id:0 })
+          .sort({ "x-meditor.modifiedOn":-1 })
+          .map(function(obj){
+            return {
+              modifiedOn:obj["x-meditor"].modifiedOn, 
+              modifiedBy:obj["x-meditor"].modifiedBy,
+              state: _.last(obj['x-meditor'].states).target,
+            }
+          }).toArray(function(err, res) {
+            if (err){
+              console.log(err);
+              throw err;
+            }
+            db.close();
+            resolve(res);
+          });
       });
     });
   });
