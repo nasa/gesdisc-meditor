@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core'
 import { BehaviorSubject, Observable } from 'rxjs'
-import { pluck as _pluck, where } from 'underscore'
+import * as _ from 'underscore'
 import { Workflow, Edge, Privilege, Node } from '../service/model/models'
 import { DefaultService } from '../service/api/default.service'
 import { UserStore } from './user.store'
@@ -143,9 +143,9 @@ export class WorkflowStore {
 
     private findInitialEdges(edges: Edge[]) {
         if (!edges) return []
-        const sources = _pluck(edges, EDGE_SOURCE_KEY)
-        const targets = _pluck(edges, EDGE_TARGET_KEY)
+        const sources = _.pluck(edges, EDGE_SOURCE_KEY)
+        const targets = _.pluck(edges, EDGE_TARGET_KEY)
         const initEdge = sources.filter(e => !targets.includes(e))[0]
-        return where(edges, { source: initEdge }) as Edge[]
+        return _.where(edges, { source: initEdge }) as Edge[]
     }
 }
