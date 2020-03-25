@@ -2,6 +2,7 @@ const { gql } = require('apollo-server')
 
 const typeDefs = gql`
     type Query {
+        modelCategories: [ModelCategory!]! @cacheControl(maxAge: 10)
         models: [Model!]! @cacheControl(maxAge: 10)
     }
 
@@ -19,6 +20,11 @@ const typeDefs = gql`
         states: [WorkflowState!]!
     }
 
+    type ModelCategory {
+        name: String
+        models: [Model!]!
+    }
+
     type WorkflowState {
         source: String!
         target: String!
@@ -31,7 +37,7 @@ const typeDefs = gql`
         category: String
         workflow: String
         icon: ModelIcon
-        meta: ModelMeta
+        xMeditor: ModelMeta
         schema: String
         layout: String
         titleProperty: String

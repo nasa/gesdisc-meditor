@@ -1,34 +1,48 @@
 import { useQuery } from '@apollo/react-hooks'
 import gql from 'graphql-tag'
+import Button from 'react-bootstrap/Button'
+import Icon from './icon'
 
-export const MODELS_QUERY = gql`
+export const QUERY = gql`
     {
-        models {
+        modelCategories {
             name
-            icon {
+            models {
                 name
-                color
+                icon {
+                    name
+                    color
+                }
             }
         }
     }
 `
 
 const ModelsList = () => {
-    const { loading, error, data } = useQuery(MODELS_QUERY)
+    const { loading, error, data } = useQuery(QUERY)
 
-    if (error) return <div>Error</div>
-    if (loading) return <div>Loading</div>
+    if (error || loading) return <div></div>
 
     return (
-        <section>
-            <ul>
-                {data.models.map((model, index) => (
-                    <li key={index}>
-                        {model.name}
-                    </li>
-                ))}
-            </ul>
-        </section>
+        <>
+            {data.modelCategories.map(category => (
+                <div key={category.name}>
+                    <h2>{category.name}</h2>
+                    {category.models.map(model => (
+                        <ModelButton key={model.name} name={model.name} icon={model.icon.name} />
+                    ))}
+                </div>
+            ))}
+        </>
+    )
+}
+
+const ModelButton = ({ name, icon }) => {
+    return (
+        <Button key={name}>
+            <Icon name={icon} />
+            {name}
+        </Button>
     )
 }
 
