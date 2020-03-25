@@ -1,7 +1,7 @@
 import { withApollo } from '../../lib/apollo'
 import ModelsList from '../../components/models-list'
 
-const Dashboard = () => {
+const DashboardPage = () => {
     return (
         <div>
             <ModelsList />
@@ -9,5 +9,5 @@ const Dashboard = () => {
     )
 }
 
-export default withApollo({ ssr: true })(Dashboard)
+export default withApollo({ ssr: true })(DashboardPage)
 
