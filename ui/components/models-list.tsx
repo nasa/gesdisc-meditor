@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/react-hooks'
+import Router from 'next/router'
 import gql from 'graphql-tag'
 import Button from 'react-bootstrap/Button'
 import Icon from './icon'
@@ -29,20 +30,14 @@ const ModelsList = () => {
                 <div key={category.name}>
                     <h2>{category.name}</h2>
                     {category.models.map(model => (
-                        <ModelButton key={model.name} name={model.name} icon={model.icon.name} />
+                        <Button key={model.name} onClick={() => Router.push('/[modelName]', `/${model.name}`)}>
+                            <Icon name={model.icon.name} />
+                            {model.name}
+                        </Button>
                     ))}
                 </div>
             ))}
         </>
-    )
-}
-
-const ModelButton = ({ name, icon }) => {
-    return (
-        <Button key={name}>
-            <Icon name={icon} />
-            {name}
-        </Button>
     )
 }
 
