@@ -12,7 +12,7 @@
 				[mode]="'side'"
 			>
 				<ng-container *ngIf="showHistory">
-					<div *ngIf="history$ | async as history">
+					<div *ngIf="documentStore.currentDocumentHistory$ | async as history">
 						<med-doc-history
 							[dochistory]="history"
 							[selectedHistory]="version$ | async"
@@ -23,15 +23,15 @@
 					</div>
 				</ng-container>
 				<ng-container *ngIf="showComments">
-					<div *ngIf="comments$ | async as comments">
+					<div *ngIf="documentStore.currentDocumentComments$ | async as comments">
 						<med-comments
 							[comments]="comments"
 							[versionFilter]="versionFilter"
-							[user]="user$ | async"
+							[user]="userStore.user$ | async"
 							(closeSidenav)="sidenav.close()"
-							(resolveComment)="resolveComment($event)"
-							(submitComment)="submitComment($event)"
-							(editComment)="editComment($event)"
+							(resolveComment)="documentStore.resolveComment($event)"
+							(submitComment)="documentStore.createComment($event)"
+							(editComment)="documentStore.updateComment($event.id, $event.text)"
 						>
 						</med-comments>
 					</div>
@@ -40,29 +40,29 @@
 
 			<mat-drawer-content class="editor-form">
 				<med-doc-breadcrumbs
-					[document]="document$ | async"
-					[model]="model$ | async"
+					[document]="documentStore.currentDocument$ | async"
+					[model]="modelStore.currentModel$ | async"
 				></med-doc-breadcrumbs>
 
 				<mat-card-title>
 					<i
 						class="icon-badge icon-badge-sm fa {{
-							(model$ | async)?.icon?.name
+							(modelStore.currentModel$ | async)?.icon?.name
 						}}"
-						[style.background-color]="(model$ | async)?.icon?.color"
+						[style.background-color]="(modelStore.currentModel$ | async)?.icon?.color"
 					></i>
-					{{ (model$ | async)?.name }}
+					{{ (modelStore.currentModel$ | async)?.name }}
 				</mat-card-title>
 
 				<mat-card-subtitle>
-					{{ (model$ | async)?.description }}
+					{{ (modelStore.currentModel$ | async)?.description }}
 				</mat-card-subtitle>
 
 				<mat-card-content>
 					<div class="button-panel">
 						<button
 							mat-mini-fab
-							*ngIf="(userPrivileges$ | async).includes('comment')"
+							*ngIf="(workflowStore.currentNodeUserPrivileges$ | async).includes('comment')"
 							matBadge="{{ commentsCount$ | async }}"
 							matBadgeColor="warn"
 							(click)="toggleDocumentComments()"
@@ -79,18 +79,19 @@
 							<mat-icon>history</mat-icon>
 						</button>
 						<mat-chip-list class="state-chip">
-							<mat-chip>{{ (document$ | async)["x-meditor"].state }}</mat-chip>
+							<mat-chip>{{ (documentStore.currentDocument$ | async)["x-meditor"].state }}</mat-chip>
 						</mat-chip-list>
 						<span class="version-info"
-							>(edited by {{ (document$ | async)["x-meditor"].modifiedBy }} on
+							>(edited by {{ (documentStore.currentDocument$ | async)["x-meditor"].modifiedBy }} on
 							{{
-								(document$ | async)["x-meditor"].modifiedOn | date: "medium"
+								(documentStore.currentDocument$ | async)["x-meditor"].modifiedOn | date: "medium"
 							}})</span
 						>
 					</div>
+					
 					<med-document-edit
-						[readonly]="!(userPrivileges$ | async).includes('edit')"
-						[document]="document$ | async"
+						[readonly]="!(workflowStore.currentNodeUserPrivileges$ | async).includes('edit')"
+						[document]="documentStore.currentDocument$ | async"
 						(liveData)="liveData($event)"
 						(isValid)="isValid($event)"
 						(isDirty)="isDirty($event)"
@@ -98,15 +99,15 @@
 					</med-document-edit>
 					<button
 						mat-raised-button
-						*ngIf="(userPrivileges$ | async).includes('edit')"
+						*ngIf="(workflowStore.currentNodeUserPrivileges$ | async).includes('edit')"
 						(click)="saveDocument()"
 						[disabled]="!isFormValid || !dirty"
 					>
 						Save
 					</button>
 					<med-document-actions
-						*ngIf="(document$ | async)['x-meditor'].targetStates.length > 0"
-						[actions]="edges$ | async"
+						*ngIf="(documentStore.currentDocument$ | async)['x-meditor'].targetStates.length > 0"
+						[actions]="workflowStore.currentEdges$ | async"
 						(updateState)="updateState($event)"
 						[formIsDirty]="dirty"
 					>

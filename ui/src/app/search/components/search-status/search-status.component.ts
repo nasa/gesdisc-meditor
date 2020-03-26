@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core'
-import { Edge } from 'app/service'
+import { Edge } from '../../../service'
 
 @Component({
     selector: 'med-search-status',

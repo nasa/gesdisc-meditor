@@ -1,5 +1,6 @@
-export { DocumentState } from './document/document.state';
-export { ModelState } from './model/model.state';
-export { NotificationState } from './notification/notification.state';
-export { AuthState } from './auth/auth.state';
-export { WorkflowState } from './workflow/workflow.state';
+export * from './app.store'
+export * from './model.store'
+export * from './notification.store'
+export * from './user.store'
+export * from './workflow.store'
+export * from './document.store'

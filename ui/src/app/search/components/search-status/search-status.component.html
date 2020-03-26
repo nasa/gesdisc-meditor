@@ -20,12 +20,12 @@
 		<div class="search-select">
 			<mat-label>Sort by:</mat-label>
 			<mat-select [(value)]="sortBy" (selectionChange)="sortByChanged.emit(sortBy)">
-				<mat-option value="oldest">Oldest</mat-option>
-				<mat-option value="newest">Newest</mat-option>
+				<mat-option value="asc">Oldest</mat-option>
+				<mat-option value="desc">Newest</mat-option>
 			</mat-select>
 		</div>
 
-		<div *ngIf="privileges.includes('create')">
+		<div *ngIf="privileges && privileges.includes('create')">
 			<ng-container *ngFor="let action of actions">
 				<button mat-raised-button color="accent" class="add-new-button" (click)="addNew.emit(action.target)" >
 					<mat-icon>add</mat-icon>

@@ -41,18 +41,14 @@ export class DocumentEditComponent {
 
         if (document.layout) {
             this.layout = JSON.parse(document.layout)
-            this.showExpandButton = this.layoutHasExpandableSections(
-                this.layout
-            )
+            this.showExpandButton = this.layoutHasExpandableSections(this.layout)
             this.expandAll = true
         }
 
-        this.data = document.doc
+        this.data = document.doc || {}
 
-        try {
-            delete this.data.banTransitions
-            delete this.data._id
-        } catch (err) {}
+        delete this.data.banTransitions
+        delete this.data._id
 
         this.renderSchemaInForm()
     }
@@ -108,9 +104,7 @@ export class DocumentEditComponent {
     }
 
     onChanges(data: any) {
-        Object.keys(data).forEach(key =>
-            data[key] === undefined ? delete data[key] : ''
-        )
+        Object.keys(data).forEach(key => (data[key] === undefined ? delete data[key] : ''))
         this.isDirty.emit(!isEqual(this.data, data))
         this.liveData.emit(data)
     }
@@ -128,8 +122,6 @@ export class DocumentEditComponent {
 
     toggleAllSections() {
         this.expandAll = !this.expandAll
-        Array.from(
-            document.querySelectorAll('.collapsible-heading')
-        ).forEach((el: any) => el.click())
+        Array.from(document.querySelectorAll('.collapsible-heading')).forEach((el: any) => el.click())
     }
 }

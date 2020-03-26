@@ -1,37 +1,12 @@
 import { Component, ViewChild, OnInit, HostListener } from '@angular/core'
 import { Title } from '@angular/platform-browser'
 import { MatSidenav } from '@angular/material/sidenav'
-import { Store, Select } from '@ngxs/store'
-import { ModelState } from 'app/store/model/model.state'
-import {
-    Document,
-    DocHistory,
-    Model,
-    Comment,
-    Edge,
-    User,
-} from 'app/service/model/models'
-import { Observable } from 'rxjs/Observable'
-import {
-    UpdateCurrentDocument,
-    GetDocument,
-    GetCurrentDocumentHistory,
-    GetCurrentDocumentVersion,
-    GetCurrentDocumentComments,
-    ResolveComment,
-    SubmitComment,
-    EditComment,
-    UpdateDocumentState,
-} from 'app/store/document/document.state'
-import { UpdateWorkflowState } from 'app/store/workflow/workflow.state'
-import { Navigate } from '@ngxs/router-plugin'
-import { WorkflowState, AuthState, DocumentState } from 'app/store'
-import { SetInitialState } from 'app/store/workflow/workflow.state'
-import {
-    SuccessNotificationOpen,
-    ErrorNotificationOpen,
-} from 'app/store/notification/notification.state'
-import { ComponentCanDeactivate } from 'app/shared/guards/pending-changes.guard'
+import { ComponentCanDeactivate } from '../../../shared/guards/pending-changes.guard'
+import { Document, DocHistory, Comment } from '../../../service'
+import { ModelStore, WorkflowStore, UserStore, DocumentStore, NotificationStore, AppStore } from '../../../store'
+import { Observable } from 'rxjs'
+import { Router } from '@angular/router'
+import { map } from 'rxjs/operators'
 
 @Component({
     selector: 'med-docedit-page',
@@ -39,31 +14,17 @@ import { ComponentCanDeactivate } from 'app/shared/guards/pending-changes.guard'
     styleUrls: ['./docedit-page.component.css'],
 })
 export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
-    @Select(ModelState.currentModel) model$: Observable<Model>
-    @Select(DocumentState.currentDocument) document$: Observable<Document>
-    @Select(DocumentState.currentDocumentHistory) history$: Observable<
-        DocHistory[]
-    >
-    @Select(DocumentState.currentDocumentVersion) version$: Observable<string>
-    @Select(DocumentState.currentDocumentComments) comments$: Observable<
-        Comment[]
-    >
-    @Select(DocumentState.currentCommentsCount) commentsCount$: Observable<
-        number
-    >
-    @Select(DocumentState.currentVersionsCount) versionsCount$: Observable<
-        number
-    >
-    @Select(WorkflowState.currentEdges) edges$: Observable<Edge[]>
-    @Select(WorkflowState.currentWorkflow) workflow$: Observable<Edge>
-    @Select(AuthState.userPrivileges) userPrivileges$: Observable<string[]>
-    @Select(AuthState.user) user$: Observable<User>
-
     @ViewChild('sidenav') sidenav: MatSidenav
 
+    readonly commentsCount$: Observable<number> = this.documentStore.currentDocumentComments$.pipe(
+        map((comments: Comment[]) => comments.length)
+    )
+    readonly versionsCount$: Observable<number> = this.documentStore.currentDocumentHistory$.pipe(
+        map((history: DocHistory[]) => history.length)
+    )
+
     modelName: string
-    titleProperty: string
-    history: DocHistory[]
+    titleProperty: string | undefined
     versionFilter: Date = new Date()
     readonlydoc = true
     liveFormData: Document
@@ -71,43 +32,33 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
     showHistory: boolean
     showComments: boolean
     dirty: boolean = false
-    modelSubscriber: any
-    historySubscriber: any
-    workflowSubscriber: any
-    documentSubscriber: any
 
-    constructor(private store: Store, private titleService: Title) {}
+    constructor(
+        public modelStore: ModelStore,
+        public workflowStore: WorkflowStore,
+        public userStore: UserStore,
+        public documentStore: DocumentStore,
+        private notificationStore: NotificationStore,
+        private titleService: Title,
+        private router: Router,
+        private appStore: AppStore
+    ) {}
 
     ngOnInit() {
-        this.modelSubscriber = this.model$.subscribe(model => {
-            this.modelName = model.name
-            this.titleProperty = model.titleProperty
-        })
-        this.historySubscriber = this.history$.subscribe(history => {
-            this.history = history
-        })
-        this.workflowSubscriber = this.workflow$.subscribe(workflow => {
-            if (workflow) {
-                this.documentSubscriber = this.document$.subscribe(document => {
-                    this.store.dispatch(
-                        new UpdateWorkflowState(document['x-meditor'].state)
-                    )
-                    this.titleService.setTitle(
-                        document.doc[this.titleProperty] +
-                            ' | ' +
-                            this.modelName +
-                            ' | mEditor'
-                    )
-                })
-            }
-        })
-    }
+        let model = this.modelStore.currentModel
 
-    ngOnDestroy() {
-        this.modelSubscriber.unsubscribe()
-        this.historySubscriber.unsubscribe()
-        this.workflowSubscriber.unsubscribe()
-        this.documentSubscriber.unsubscribe()
+        if (!model) return
+
+        this.modelName = model.name
+        this.titleProperty = model.titleProperty
+
+        if (!this.modelName || !this.titleProperty) return
+
+        // @ts-ignore
+        this.workflowStore.updateWorkflowState(this.documentStore.currentDocument['x-meditor'].state)
+        this.titleService.setTitle(
+            `${this.documentStore.currentDocument.doc[this.titleProperty]} | ${this.modelName} | mEditor`
+        )
     }
 
     @HostListener('window:beforeunload')
@@ -115,42 +66,12 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
         return !this.dirty
     }
 
-    submitDocument(document: any) {
-        this.store
-            .dispatch(new UpdateCurrentDocument({ document }))
-            .subscribe(
-                this.onSubmitDocumentSuccess.bind(this, document),
-                this.onSubmitDocumentError.bind(this)
-            )
-    }
-
-    onSubmitDocumentSuccess(document: any) {
-        let model = document['x-meditor'].model
-        let title = document[this.titleProperty]
-
-        this.store.dispatch(new GetDocument({ model, title }))
-        this.store.dispatch(
-            new SuccessNotificationOpen('Successfully updated document')
-        )
-    }
-
-    onSubmitDocumentError() {
-        this.store.dispatch(
-            new ErrorNotificationOpen(
-                'Failed to update document, please review and try again.'
-            )
-        )
-    }
-
     showDocumentHistory() {
-        this.store.dispatch(new GetCurrentDocumentHistory())
         this.showHistory = !this.showHistory
         this.sidenav.open()
     }
 
     toggleDocumentComments() {
-        this.store.dispatch(new GetCurrentDocumentComments())
-
         if (this.showComments) {
             this.sidenav.close()
         } else {
@@ -164,41 +85,40 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
         this.showHistory = false
     }
 
-    loadVersion(version: string) {
-        this.store.dispatch(new GetCurrentDocumentVersion({ version }))
-        let versionIdx = this.history.findIndex(
-            i => i.modifiedOn.toString() == version
+    async loadVersion(version: string) {
+        await this.documentStore.fetchDocument(
+            this.documentStore.currentDocumentModel,
+            this.documentStore.currentDocumentTitle,
+            version
         )
+
+        let versionIdx = this.documentStore.currentDocumentHistory.findIndex(i => i.modifiedOn.toString() == version)
         if (versionIdx - 1 > -1) {
-            this.versionFilter = this.history[versionIdx - 1].modifiedOn
+            this.versionFilter = this.documentStore.currentDocumentHistory[versionIdx - 1].modifiedOn
         } else {
             this.versionFilter = new Date()
         }
     }
 
-    updateState(target: string) {
-        this.store
-            .dispatch(new UpdateDocumentState({ state: target }))
-            .subscribe(
-                this.onUpdateStatusSuccess.bind(this, document),
-                this.onUpdateStatusError.bind(this)
-            )
-    }
+    async updateState(target: string) {
+        try {
+            await this.documentStore.updateCurrentDocumentState(target)
 
-    onUpdateStatusSuccess(document: any) {
-        this.store.dispatch(new SuccessNotificationOpen('Document sent'))
-        this.store.dispatch(new SetInitialState())
-        this.store.dispatch(
-            new Navigate(['/search'], { model: this.modelName })
-        )
-    }
+            this.notificationStore.showSuccessNotification('Document sent successfully')
 
-    onUpdateStatusError() {
-        this.store.dispatch(
-            new ErrorNotificationOpen(
-                'Failed to change document state document, please review and try again.'
+            this.workflowStore.updateWorkflowState()
+
+            this.router.navigate(['/search'], {
+                queryParams: {
+                    model: this.modelName,
+                },
+            })
+        } catch (err) {
+            console.error(err)
+            this.notificationStore.showErrorNotification(
+                'Faield to change document state, please review and try again.'
             )
-        )
+        }
     }
 
     isValid(event: boolean) {
@@ -213,19 +133,26 @@ export class DocEditPageComponent implements OnInit, ComponentCanDeactivate {
         this.liveFormData = event
     }
 
-    saveDocument() {
-        this.submitDocument(this.liveFormData)
-    }
+    async saveDocument() {
+        try {
+            await this.documentStore.createOrUpdateDocument(this.liveFormData)
 
-    resolveComment(id: string) {
-        this.store.dispatch(new ResolveComment(id))
-    }
+            this.notificationStore.showSuccessNotification('Successfully updated document')
+        } catch (err) {
+            console.error(err)
+            this.notificationStore.showErrorNotification('Failed to update document, please review and try again')
+        }
 
-    editComment(editedComment: any) {
-        this.store.dispatch(new EditComment(editedComment))
-    }
+        // ensure the form is reset to initial clean state
+        this.dirty = false
 
-    submitComment(commentData: any) {
-        this.store.dispatch(new SubmitComment(commentData))
+        // reload the page to refresh the workflow states
+        this.appStore.navigate('/document/edit', {
+            queryParams: {
+                model: this.modelName,
+                title: this.documentStore.currentDocument.doc[this.titleProperty || ''],
+            },
+            reloadSameRoute: true,
+        })
     }
 }

@@ -1,9 +1,6 @@
 import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core'
-import { environment } from 'environments/environment'
-import { Observable } from 'rxjs/Observable'
 import { timer } from 'rxjs/observable/timer'
-import { Store, Select } from '@ngxs/store'
-import { AuthState, GetUser } from 'app/store/auth/auth.state'
+import { UserStore } from '../../../store'
 
 const KEEP_ALIVE_MILLIS = 120000
 
@@ -11,17 +8,11 @@ const KEEP_ALIVE_MILLIS = 120000
     selector: 'meditor-app',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <div
-            class="app-container"
-            fxFill
-            fxLayout="column"
-            fxLayoutAlign="start none"
-        >
+        <div class="app-container" fxFill fxLayout="column" fxLayoutAlign="start none">
             <med-toolbar fxFlex="82px"></med-toolbar>
             <div fxFlex="80" style="overflow: scroll; padding: 0 16px;">
                 <router-outlet></router-outlet>
             </div>
-            <div class="app-version">v{{ version }}</div>
             <med-loading></med-loading>
             <med-notification></med-notification>
         </div>
@@ -29,20 +20,18 @@ const KEEP_ALIVE_MILLIS = 120000
     styleUrls: ['main.component.scss'],
 })
 export class MainComponent implements OnInit {
-    @Select(AuthState.loggedIn) loggedIn$: Observable<boolean>
-
-    version: string = environment.VERSION
     isLoggedIn: boolean = false
     loggedInSubscriber: any
 
-    constructor(private store: Store) {}
+    constructor(private userStore: UserStore) {}
 
     ngOnInit() {
-        this.loggedInSubscriber = this.loggedIn$.subscribe(
+        this.loggedInSubscriber = this.userStore.loggedIn$.subscribe(
             (isLoggedIn: boolean) => (this.isLoggedIn = isLoggedIn)
         )
         this.keepAlive()
-        this.store.dispatch(new GetUser())
+
+        this.userStore.fetchUser()
     }
 
     ngOnDestroy() {
@@ -52,7 +41,7 @@ export class MainComponent implements OnInit {
     keepAlive() {
         timer(undefined, KEEP_ALIVE_MILLIS).subscribe(() => {
             if (!this.isLoggedIn) return
-            this.store.dispatch(new GetUser())
+            this.userStore.fetchUser()
         })
     }
 }

@@ -40,7 +40,7 @@
         "core-js": "^2.6.9",
         "dotenv": "^5.0.1",
         "font-awesome": "^4.7.0",
-        "gesdisc-jsonschema-form": "^0.14.0",
+        "gesdisc-jsonschema-form": "^0.16.0",
         "hammerjs": "^2.0.8",
         "http-server": "^0.11.1",
         "lodash.clonedeep": "^4.5.0",
@@ -92,7 +92,7 @@
         "ts-node": "~3.0.4",
         "tsconfig-paths": "^3.8.0",
         "tslint": "~5.3.2",
-        "typescript": "3.1.6"
+        "typescript": "^3.2.1"
     },
     "husky": {
         "hooks": {
@@ -112,7 +112,8 @@
         "semi": false,
         "singleQuote": true,
         "quoteProps": "as-needed",
-        "bracketSpacing": true
+        "bracketSpacing": true,
+        "printWidth": 120
     },
     "jest": {
         "setupTestFrameworkScriptFile": "<rootDir>/setup-jest.ts",
