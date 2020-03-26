@@ -11,6 +11,10 @@ class mEditorApi extends RESTDataSource {
         return await this.get('listModels')
     }
 
+    async getDocumentsForModel(model) {
+        return await this.get('listDocuments', { model })
+    }
+
 }
 
 module.exports.mEditorApi = mEditorApi

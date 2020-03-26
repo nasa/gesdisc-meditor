@@ -1,3 +1,5 @@
+const GraphQLJSON = require('graphql-type-json')
+
 function sortModels(modelA, modelB) {
     if (modelA.category < modelB.category) return 1
     if (modelA.category > modelB.category) return -1
@@ -27,5 +29,22 @@ module.exports = {
                 models: models.filter(model => model.category === category)
             }))
         },
+        documents: async (_, params, { dataSources }) => {
+            let documents = await dataSources.mEditorApi.getDocumentsForModel(params.modelName)
+
+            documents.map(document => {
+                document.modifiedOn = document['x-meditor'].modifiedOn
+                document.modifiedBy = document['x-meditor'].modifiedBy
+                document.state = document['x-meditor'].state
+                document.targetStates = document['x-meditor'].targetStates
+                delete document['x-meditor']
+
+                return document
+            })
+
+            return documents
+        }
     },
+    JSON: GraphQLJSON.GraphQLJSON,
+    JSONObject: GraphQLJSON.GraphQLJSONObject,
 }

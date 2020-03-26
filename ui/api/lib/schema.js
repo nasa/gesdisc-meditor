@@ -1,9 +1,13 @@
 const { gql } = require('apollo-server')
 
 const typeDefs = gql`
+    scalar JSON
+    scalar JSONObject
+
     type Query {
         modelCategories: [ModelCategory!]! @cacheControl(maxAge: 10)
         models: [Model!]! @cacheControl(maxAge: 10)
+        documents(modelName: String): [Document!]! @cacheControl(maxAge: 10)
     }
 
     type ModelIcon {
@@ -43,6 +47,18 @@ const typeDefs = gql`
         titleProperty: String
         documentation: String
         tag: [String!]!
+        documents: [Document!]!
+    }
+
+    type Document {
+        title: String
+        model: String
+        doc: JSONObject!
+        modifiedOn: String
+        modifiedBy: String
+        state: String
+        states: [WorkflowState!]!
+        targetStates: [String!]!
     }
 `
 
