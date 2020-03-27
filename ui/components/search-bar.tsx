@@ -83,6 +83,7 @@ const SearchBar = ({ modelName, onInput }) => {
                     className="model-select"
                     classNamePrefix="model-select"
                     isSearchable={false}
+                    placeholder=""
                 />
 
                 <input
