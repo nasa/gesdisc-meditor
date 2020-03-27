@@ -10,6 +10,7 @@ import { withApollo } from '../lib/apollo'
 import ModelIcon from './model-icon'
 import { MdSearch } from 'react-icons/md'
 import { useInput } from '../lib/use-input.hook'
+import { useDebounce } from '../lib/use-debounce.hook'
 
 /**
  * queries all models for display in the select dropdown
@@ -43,7 +44,8 @@ const SearchBar = ({ modelName, onInput }) => {
     const { value, bind, reset } = useInput('')
     const [selectedModel, setSelectedModel] = useState(null)
     const [options, setOptions] = useState([])
-
+    const searchTerm = useDebounce(value, 200)
+ 
     /**
      * when models are returned from the API, set them in the select and then select the matching model
      */
@@ -56,8 +58,8 @@ const SearchBar = ({ modelName, onInput }) => {
      * notify when search changes
      */
     useEffect(() => {
-        onInput(value)
-    }, [value])
+        onInput(searchTerm)
+    }, [searchTerm])
 
     /**
      * route to the requested model when a different one is selected
