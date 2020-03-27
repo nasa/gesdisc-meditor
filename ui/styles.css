@@ -21,3 +21,28 @@ body {
     background: #fff;
     padding: 15px;
 }
+
+.model-select {
+    width: 220px;
+}
+
+.model-select .model-select__control {
+    background: none;
+    border: none;
+    border-radius: 6px 0 0 6px;
+    height: 48px;
+}
+
+.model-select .model-select__indicator-separator {
+    display: none;
+}
+
+.model-select .model-select__option {
+    background: #fff;
+    color: #000;
+    cursor: pointer;
+}
+
+.model-select .model-select__option:hover {
+    background: #eee;
+}

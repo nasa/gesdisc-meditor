@@ -29,6 +29,7 @@ import {
 import {
     MdWarning,
 } from 'react-icons/md'
+import styles from './model-icon.module.css'
 
 const DEFAULT_ICON = 'FaFile'
 
@@ -62,7 +63,7 @@ const SUPPORTED_ICONS = {
     MdWarning,
 }
 
-const Icon = ({ name = '' }) => {
+const ModelIcon = ({ name = '', color = '#000' }) => {
     // TODO: Model schema's icon list should use `FaIcon` naming style instead of `fa-icon` naming style, then refactor this
     let camelCasedIcon = name.replace(/-([a-z])/g, (g) => g[1].toUpperCase())
     camelCasedIcon = camelCasedIcon[0].toUpperCase() + camelCasedIcon.slice(1)
@@ -93,8 +94,10 @@ const Icon = ({ name = '' }) => {
     let Icon = SUPPORTED_ICONS[camelCasedIcon]
 
     return (
-        <Icon />
+        <span className={styles.container} style={{ background: `${color}` }}>
+            <Icon />
+        </span>
     )
 }
 
-export default Icon
+export default ModelIcon

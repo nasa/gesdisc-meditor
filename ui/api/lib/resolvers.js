@@ -33,6 +33,7 @@ module.exports = {
             let documents = await dataSources.mEditorApi.getDocumentsForModel(params.modelName)
 
             documents.map(document => {
+                document.model = document.model || params.modelName
                 document.modifiedOn = document['x-meditor'].modifiedOn
                 document.modifiedBy = document['x-meditor'].modifiedBy
                 document.state = document['x-meditor'].state

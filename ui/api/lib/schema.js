@@ -7,7 +7,7 @@ const typeDefs = gql`
     type Query {
         modelCategories: [ModelCategory!]! @cacheControl(maxAge: 10)
         models: [Model!]! @cacheControl(maxAge: 10)
-        documents(modelName: String): [Document!]! @cacheControl(maxAge: 10)
+        documents(modelName: String!): [Document!]! @cacheControl(maxAge: 10)
     }
 
     type ModelIcon {
@@ -53,12 +53,12 @@ const typeDefs = gql`
     type Document {
         title: String
         model: String
-        doc: JSONObject!
+        doc: JSONObject
         modifiedOn: String
         modifiedBy: String
         state: String
-        states: [WorkflowState!]!
-        targetStates: [String!]!
+        states: [WorkflowState]
+        targetStates: [String]
     }
 `
 
