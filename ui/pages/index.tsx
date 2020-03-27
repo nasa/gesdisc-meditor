@@ -1,19 +1,46 @@
-import React, { useEffect } from 'react'
+import { useQuery } from '@apollo/react-hooks'
+import gql from 'graphql-tag'
 import Router from 'next/router'
+import Button from 'react-bootstrap/Button'
+import { withApollo } from '../lib/apollo'
+import ModelIcon from '../components/model-icon'
 
-function redirectHomeToDashboard() {
-    const { pathname } = Router
-
-    if (pathname == '/') {
-        Router.push('/dashboard')
+const QUERY = gql`
+    {
+        modelCategories {
+            name
+            models {
+                name
+                icon {
+                    name
+                    color
+                }
+            }
+        }
     }
+`
+
+const DashboardPage = () => {
+    const { loading, error, data } = useQuery(QUERY)
+
+    if (error || loading) return <div></div>
+
+    return (
+        <div>
+            {data.modelCategories.map(category => (
+                <div key={category.name}>
+                    <h2>{category.name}</h2>
+                    {category.models.map(model => (
+                        <Button key={model.name} onClick={() => Router.push('/[modelName]', `/${model.name}`)}>
+                            <ModelIcon name={model.icon.name} />
+                            {model.name}
+                        </Button>
+                    ))}
+                </div>
+            ))}
+        </div>
+    )
 }
 
-const Home = () => {
-    useEffect(redirectHomeToDashboard)
-    
-    // this won't be rendered, so just return an empty page
-    return <></>
-}
+export default withApollo({ ssr: true })(DashboardPage)
 
-export default Home

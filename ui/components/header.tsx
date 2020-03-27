@@ -1,7 +1,12 @@
+import Router from 'next/router'
 import Button from 'react-bootstrap/Button'
 import Navbar from 'react-bootstrap/Navbar'
 import { MdPerson, MdHome, MdFeedback, MdHelp } from 'react-icons/md'
 import styles from './header.module.css'
+
+function goToHomepage() {
+    Router.push('/')
+}
 
 const Header = () => {
     return (
@@ -10,7 +15,7 @@ const Header = () => {
                 justifyContent: "space-between",
                 padding: "0 20px",
             }}>
-                <Navbar.Brand href="#home">
+                <Navbar.Brand href="#home" onClick={goToHomepage}>
                     <img
                         alt="mEditor"
                         src="/logo.png"
@@ -25,7 +30,7 @@ const Header = () => {
                         Hi, Jon
                     </Button>
 
-                    <Button variant="link">
+                    <Button variant="link" onClick={goToHomepage}>
                         <MdHome />
                         Home
                     </Button>
