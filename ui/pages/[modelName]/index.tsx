@@ -9,13 +9,20 @@ import SearchList from '../../components/search-list'
 import RenderResponse from '../../components/render-response'
 import Loading from '../../components/loading'
 
-const QUERY = gql`
+const MODEL_DOCUMENTS_QUERY = gql`
     query getDocuments($modelName: String!) {
+        model(modelName: $modelName) {
+            name
+            icon {
+                name
+                color
+            }
+        }
         documents(modelName: $modelName) {
             title
             model
             modifiedBy
-            modifiedOn
+            modifiedOn (format:"M/dd/yyyy, h:mm a")
             state
         }
     }
@@ -29,13 +36,15 @@ const ModelPage = () => {
     const { modelName } = router.query
 
     const [searchTerm, setSearchTerm] = useState('')
-    const { loading, error, data } = useQuery(QUERY, {
+    const [sortDir, setSortDir] = useState('desc')
+
+    const { loading, error, data } = useQuery(MODEL_DOCUMENTS_QUERY, {
         variables: { modelName },
     })
 
     return (
         <div>
-            <SearchBar modelName={modelName} onInput={(searchTerm) => setSearchTerm(searchTerm)} />
+            <SearchBar model={data?.model} modelName={modelName} onInput={(searchTerm) => setSearchTerm(searchTerm)} />
 
             <div className="my-4">
                 <RenderResponse
@@ -51,7 +60,13 @@ const ModelPage = () => {
                         </Alert>
                     }
                 >
-                    <SearchList documents={data?.documents} searchTerm={searchTerm} />
+                    <SearchList 
+                        modelName={modelName} 
+                        documents={data?.documents} 
+                        searchTerm={searchTerm}
+                        sortDir={sortDir}
+                        onSortDirChange={setSortDir}
+                    />
                 </RenderResponse>
             </div>
         </div>

@@ -7,7 +7,11 @@ class mEditorApi extends RESTDataSource {
         this.baseURL = 'http://meditor_server:8081/meditor/api'
     }
 
-    async getModels(model) {
+    async getModel(name) {
+        return await this.get('getModel', { name })
+    }
+
+    async getModels() {
         return await this.get('listModels')
     }
 

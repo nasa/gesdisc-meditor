@@ -1,3 +1,4 @@
+const { GraphQLScalarType } = require('graphql')
 const GraphQLJSON = require('graphql-type-json')
 
 function sortModels(modelA, modelB) {
@@ -11,7 +12,17 @@ function sortModels(modelA, modelB) {
 }
 
 module.exports = {
+    Date: new GraphQLScalarType({
+        name: 'Date',
+        description: 'Date custom scalar type',
+        parseValue: value => new Date(value),
+        serialize: value => new Date(value).getTime(),
+        parseLiteral: ast => ast.kind === Kind.INT ? parseInt(ast.value, 10) : null
+    }),
     Query: {
+        model: async (_, params, { dataSources }) => {
+            return dataSources.mEditorApi.getModel(params.modelName)
+        },
         models: async (_, _params, { dataSources }) => {
             return dataSources.mEditorApi.getModels()
         },

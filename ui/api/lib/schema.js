@@ -1,12 +1,18 @@
 const { gql } = require('apollo-server')
 
 const typeDefs = gql`
+    directive @date(
+        defaultFormat: String = "mmmm d, yyyy"
+    ) on FIELD_DEFINITION
+
+    scalar Date
     scalar JSON
     scalar JSONObject
 
     type Query {
         modelCategories: [ModelCategory!]! @cacheControl(maxAge: 10)
         models: [Model!]! @cacheControl(maxAge: 10)
+        model(modelName: String!): Model! @cacheControl(maxAge: 10)
         documents(modelName: String!): [Document!]! @cacheControl(maxAge: 10)
     }
 
@@ -18,7 +24,7 @@ const typeDefs = gql`
     type ModelMeta {
         model: String!
         title: String!
-        modifiedOn: String!
+        modifiedOn: Date! @date
         modifiedBy: String!
         count: String!
         states: [WorkflowState!]!
@@ -32,7 +38,7 @@ const typeDefs = gql`
     type WorkflowState {
         source: String!
         target: String!
-        modifiedOn: String!
+        modifiedOn: Date! @date
     }
 
     type Model {
@@ -54,7 +60,7 @@ const typeDefs = gql`
         title: String
         model: String
         doc: JSONObject
-        modifiedOn: String
+        modifiedOn: Date @date
         modifiedBy: String
         state: String
         states: [WorkflowState]

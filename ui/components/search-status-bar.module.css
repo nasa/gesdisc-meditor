@@ -1,0 +1,21 @@
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.count {
+    color: grey;
+}
+
+.select label {
+    display: flex;
+    white-space: nowrap;
+    align-items: center;
+}
+
+.select select {
+    margin-left: 8px;
+}

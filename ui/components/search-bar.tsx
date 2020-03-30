@@ -38,20 +38,39 @@ const formatOptionLabel = (model) => (
     </div>
 )
 
-const SearchBar = ({ modelName, onInput }) => {
+const SearchBar = ({ model, modelName, onInput }) => {
     const { data } = useQuery(ALL_MODELS_QUERY)
 
     const { value, bind, reset } = useInput('')
     const [selectedModel, setSelectedModel] = useState(null)
     const [options, setOptions] = useState([])
     const searchTerm = useDebounce(value, 200)
- 
+
     /**
-     * when models are returned from the API, set them in the select and then select the matching model
+     * set models as selectable options in the dropdown and then select the matching model
+     * @param models 
+     */
+    function updateSelectedModelsDropdown(models) {
+        if (!models) return
+        setOptions(models)
+        setSelectedModel(models.find(model => model.name === modelName))
+    }
+
+    /**
+     * default the dropdown to just the selected model
      */
     useEffect(() => {
-        setOptions(data?.models || [])
-        setSelectedModel(data?.models.find(model => model.name === modelName))
+        // don't update dropdown if we've already set it up
+        if (options.length || !model) return
+
+        updateSelectedModelsDropdown([model])
+    }, [model, options])
+ 
+    /**
+     * when models are returned from the API, set them in the dropdown
+     */
+    useEffect(() => {
+        updateSelectedModelsDropdown(data?.models || [])
     }, [data])
 
     /**
