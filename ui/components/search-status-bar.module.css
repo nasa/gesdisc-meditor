@@ -10,6 +10,16 @@
     color: grey;
 }
 
+.actions {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.select {
+    margin-left: 15px;
+}
+
 .select label {
     display: flex;
     white-space: nowrap;

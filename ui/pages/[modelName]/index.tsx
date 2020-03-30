@@ -37,6 +37,7 @@ const ModelPage = () => {
 
     const [searchTerm, setSearchTerm] = useState('')
     const [sortDir, setSortDir] = useState('desc')
+    const [filterBy, setFilterBy] = useState('')
 
     const { loading, error, data } = useQuery(MODEL_DOCUMENTS_QUERY, {
         variables: { modelName },
@@ -66,6 +67,8 @@ const ModelPage = () => {
                         searchTerm={searchTerm}
                         sortDir={sortDir}
                         onSortDirChange={setSortDir}
+                        filterBy={filterBy}
+                        onFilterByChange={setFilterBy}
                     />
                 </RenderResponse>
             </div>
