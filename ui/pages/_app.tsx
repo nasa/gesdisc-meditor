@@ -1,4 +1,5 @@
 import Header from '../components/header'
+import AppStore from '../components/app-store'
 import '../styles.css'
 
 /**
@@ -13,7 +14,9 @@ const App = ({ Component, pageProps }) => {
 
             <div className="container-fluid">
                 <section className="page-container">
-                    <Component {...pageProps} />
+                    <AppStore>
+                        <Component {...pageProps} />
+                    </AppStore>
                 </section>
             </div>
         </>

@@ -1,5 +1,6 @@
 import { useQuery } from '@apollo/react-hooks'
-import { useState } from 'react'
+import { useContext } from 'react'
+import { AppContext } from '../../components/app-store'
 import gql from 'graphql-tag'
 import { useRouter } from 'next/router'
 import Alert from 'react-bootstrap/Alert'
@@ -35,9 +36,15 @@ const ModelPage = () => {
     const router = useRouter()
     const { modelName } = router.query
 
-    const [searchTerm, setSearchTerm] = useState('')
-    const [sortDir, setSortDir] = useState('desc')
-    const [filterBy, setFilterBy] = useState('')
+    const { 
+        searchTerm,
+        setSearchTerm,
+        sortDir,
+        setSortDir,
+        filterBy,
+        setFilterBy
+    } = useContext(AppContext)
+    
 
     const { loading, error, data } = useQuery(MODEL_DOCUMENTS_QUERY, {
         variables: { modelName },
@@ -45,7 +52,7 @@ const ModelPage = () => {
 
     return (
         <div>
-            <SearchBar model={data?.model} modelName={modelName} onInput={(searchTerm) => setSearchTerm(searchTerm)} />
+            <SearchBar model={data?.model} modelName={modelName} initialInput={searchTerm} onInput={(searchTerm) => setSearchTerm(searchTerm)} />
 
             <div className="my-4">
                 <RenderResponse

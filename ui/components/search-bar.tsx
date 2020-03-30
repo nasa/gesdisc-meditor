@@ -38,10 +38,10 @@ const formatOptionLabel = (model) => (
     </div>
 )
 
-const SearchBar = ({ model, modelName, onInput }) => {
+const SearchBar = ({ model, modelName, initialInput = '', onInput }) => {
     const { data } = useQuery(ALL_MODELS_QUERY)
 
-    const { value, bind, reset } = useInput('')
+    const { value, bind, reset } = useInput(initialInput)
     const [selectedModel, setSelectedModel] = useState(null)
     const [options, setOptions] = useState([])
     const searchTerm = useDebounce(value, 200)
