@@ -1,4 +1,6 @@
 @import '~bootstrap/dist/css/bootstrap.min.css';
+@import '~flatpickr/dist/themes/light.css';
+@import '~@yaireo/tagify/dist/tagify.css';
 
 html,
 body {
@@ -46,4 +48,129 @@ body {
 
 .model-select .model-select__option:hover {
     background: #eee;
+}
+
+.form-control {
+    color: #000;
+}
+
+.control-label {
+    text-transform: capitalize;
+}
+
+.required {
+    color: #e51c23;
+    font-size: 1.1em;
+    margin-left: 3px;
+}
+
+form.rjsf {
+    display: flex;
+    flex-direction: column;
+}
+
+form.rjsf .panel.errors {
+    order: 10;
+}
+
+form.rjsf .panel.errors .panel-heading {
+    display: none;
+}
+
+form.rjsf button[type="submit"] {
+    display: none;
+}
+
+.field-description {
+    text-align: right;
+    color: rgba(0, 0, 0, 0.54);
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.75em;
+    margin: 8px 0 !important;
+}
+
+.container-fluid,
+.form-group > .container-fluid {
+    width: 100%;
+}
+
+.form-group.field {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.form-group.field .checkbox,
+.form-group.field legend {
+    text-transform: capitalize;
+}
+
+.form-group.field .control-label {
+    color: rgba(0, 0, 0, 0.6);
+    order: 1;
+}
+
+.form-group.field .form-control,
+.form-group.field .cke,
+.form-group.field .image-widget-content,
+.form-group.field .form-input-control {
+    order: 2;
+}
+
+.form-group.field .field-description {
+    order: 3;
+}
+
+.form-group.field > div:last-child:not([class]),
+.form-group.field > div[class=""]:last-child {
+    order: 4;
+}
+
+.form-group.field legend {
+    border-bottom: none;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.form-group.field legend .required {
+    display: none;
+}
+
+fieldset.field-array fieldset.field-array {
+    margin-left: 30px;
+}
+
+.array-item:hover > .array-item-toolbox > .btn-group > .array-item-remove {
+    opacity: 1;
+}
+
+.array-item-remove {
+    background: none;
+    border: none;
+    box-shadow: none;
+    color: rgba(0, 0, 0, .3);
+    flex: 0 1 40px !important;
+    opacity: 0;
+}
+
+.array-item-remove:hover {
+    background: none;
+    border: none;
+    box-shadow: none;
+    color: rgba(0, 0, 0, 1);
+}
+
+.btn-info,
+.btn-info:active {
+    color: #fff;
+    background: #607d8b !important;
+    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+}
+
+.btn-info:hover,
+.btn-info:focus {
+    background: #74919f !important;
 }
