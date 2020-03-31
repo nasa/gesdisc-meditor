@@ -8,11 +8,13 @@ import Loading from '../../../components/loading'
 import PageTitle from '../../../components/page-title'
 import Form from '../../../components/form'
 import { Breadcrumbs, Breadcrumb } from '../../../components/breadcrumbs'
+import DocumentHeader from '../../../components/document-header'
 
 const QUERY = gql`
     query getModel($modelName: String!) {
         model(modelName: $modelName) {
             name
+            description
             icon {
                 name
                 color
@@ -40,6 +42,8 @@ const NewDocumentPage = () => {
                 <Breadcrumb title={modelName} href="/[modelName]" as={`/${modelName}`} />
                 <Breadcrumb title="New" />
             </Breadcrumbs>
+
+            <DocumentHeader model={data?.model} />
 
             <RenderResponse
                 loading={loading}

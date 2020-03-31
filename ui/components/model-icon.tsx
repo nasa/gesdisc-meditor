@@ -64,6 +64,8 @@ const SUPPORTED_ICONS = {
 }
 
 const ModelIcon = ({ name = '', color = '#000' }) => {
+    if (!name.length) return <></>
+
     // TODO: Model schema's icon list should use `FaIcon` naming style instead of `fa-icon` naming style, then refactor this
     let camelCasedIcon = name.replace(/-([a-z])/g, (g) => g[1].toUpperCase())
     camelCasedIcon = camelCasedIcon[0].toUpperCase() + camelCasedIcon.slice(1)
