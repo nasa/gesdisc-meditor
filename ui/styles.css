@@ -71,6 +71,7 @@ form.rjsf {
 
 form.rjsf .panel.errors {
     order: 10;
+    margin-bottom: 20px;
 }
 
 form.rjsf .panel.errors .panel-heading {

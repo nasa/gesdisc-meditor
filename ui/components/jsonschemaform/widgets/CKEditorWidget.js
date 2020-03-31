@@ -39,7 +39,14 @@ function CKEditorWidget(props) {
             className="form-control"
             config={config}
             data={props.value} 
-            onChange={(event) => props.onChange(event.editor.getData())}
+            onBlur={(event) => {
+                let value = event.editor.getData() || undefined
+                props.onBlur(props.id, value)
+            }}
+            onChange={(event) => {
+                let value = event.editor.getData() || undefined
+                props.onChange(value)
+            }}
             onBeforeLoad={(CKEDITOR) => CKEDITOR.disableAutoInline = true}
         />
     )

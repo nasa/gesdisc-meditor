@@ -14,6 +14,7 @@ const typeDefs = gql`
         models: [Model!]! @cacheControl(maxAge: 10)
         model(modelName: String!): Model! @cacheControl(maxAge: 10)
         documents(modelName: String!): [Document!]! @cacheControl(maxAge: 10)
+        document(modelName: String!, title: String!): Document! @cacheControl(maxAge: 10)
     }
 
     type ModelIcon {

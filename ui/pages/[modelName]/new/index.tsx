@@ -3,10 +3,10 @@ import { useRouter } from 'next/router'
 import gql from 'graphql-tag'
 import { withApollo } from '../../../lib/apollo'
 import Alert from 'react-bootstrap/Alert'
-import JsonSchemaForm from '../../../components/jsonschemaform/jsonschemaform'
 import RenderResponse from '../../../components/render-response'
 import Loading from '../../../components/loading'
 import PageTitle from '../../../components/page-title'
+import Form from '../../../components/form'
 
 const QUERY = gql`
     query getModel($modelName: String!) {
@@ -47,15 +47,7 @@ const NewDocumentPage = () => {
                     </Alert>
                 }
             >
-                <JsonSchemaForm
-                    schema={data ? JSON.parse(data.model?.schema) : {}}
-                    formData={{}}
-                    layout={data ? JSON.parse(data.model?.layout) : {}}
-                    liveValidate={true}
-                    onChange={e => console.log('form changed! ', e)}
-                    onSubmit={() => {}}
-                    onError={err => console.log('error occured ', err)}
-                />
+                <Form model={data?.model} />
             </RenderResponse>
         </div>
     )

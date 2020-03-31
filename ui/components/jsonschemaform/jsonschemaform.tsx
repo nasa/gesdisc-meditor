@@ -1,34 +1,62 @@
-import React from 'react'
+import React, { useRef, useEffect } from 'react'
 import Form from 'react-jsonschema-form'
 import fields from './fields/'
 import widgets from './widgets/'
+import filter from 'lodash/filter'
+import uniqWith from 'lodash/uniqWith'
+import isEqual from 'lodash/isEqual'
 
 const JsonSchemaForm = ({ 
     schema, 
     formData, 
     imageUploadUrl = null,
     layout, 
-    liveValidate = true,
-    onChange,
-    onSubmit,
-    onError, 
-}) => (
-    <Form 
-        schema={schema} 
-        formData={formData}
-        uiSchema={layout}
-        fields={fields}
-        widgets={widgets}
-        ObjectFieldTemplate={fields.FlexLayoutField}
-        liveValidate={liveValidate}
-        onChange={onChange} 
-        onSubmit={onSubmit} 
-        onError={onError}
-        formContext={{ 
-            // use the configured image upload url or default to LB if none found
-            imageUploadUrl: imageUploadUrl || 'https://lb.gesdisc.eosdis.nasa.gov/images/upload', 
-        }}
-    />
-)
+    liveValidate = false,
+    onInit = (form: any) => {},
+}) => {
+    const formEl: any = useRef(null)
+
+    useEffect(() => {
+        onInit(formEl?.current)
+    }, [onInit, formEl])
+
+    function onBlur(...args) {
+        setTimeout(() => {
+            const field = args[0].split('_')[1]
+            const { formData, errors, errorSchema } = formEl.current.state
+
+            const { errors: _errors, errorSchema: _errorSchema } = formEl.current.validate(formData)
+
+            const prevOtherFieldErrors = filter(errors, error => error['property'] !== `.${field}`)
+
+            const fieldErrors = filter(_errors, ['property', `.${field}`])
+
+            const fieldErrorSchema = _errorSchema[field]
+
+            formEl.current.setState({
+                errors: uniqWith([...prevOtherFieldErrors, ...fieldErrors], isEqual),
+                errorSchema: { ...errorSchema, [field]: fieldErrorSchema }
+            })
+        }, 10)
+    }
+
+    return (
+        <Form 
+            ref={formEl}
+            schema={schema} 
+            formData={formData}
+            uiSchema={layout}
+            fields={fields}
+            widgets={widgets}
+            ObjectFieldTemplate={fields.FlexLayoutField}
+            liveValidate={liveValidate}
+            onBlur={onBlur}
+            formContext={{ 
+                // use the configured image upload url or default to LB if none found
+                imageUploadUrl: imageUploadUrl || 'https://lb.gesdisc.eosdis.nasa.gov/images/upload', 
+            }}
+        />
+    )
+}
 
 export default JsonSchemaForm

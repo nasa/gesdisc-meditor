@@ -11,6 +11,23 @@ function sortModels(modelA, modelB) {
     return 0
 }
 
+function parseDocumentForUI(document, modelName, documentTitle) {
+    try {
+        document.title = documentTitle || document.title || document.doc.title
+    } catch (e) {
+        document.title = ''
+    }
+
+    document.model = document.model || modelName
+    document.modifiedOn = document['x-meditor'].modifiedOn
+    document.modifiedBy = document['x-meditor'].modifiedBy
+    document.state = document['x-meditor'].state
+    document.targetStates = document['x-meditor'].targetStates
+    delete document['x-meditor']
+    
+    return document
+}
+
 module.exports = {
     Date: new GraphQLScalarType({
         name: 'Date',
@@ -42,19 +59,11 @@ module.exports = {
         },
         documents: async (_, params, { dataSources }) => {
             let documents = await dataSources.mEditorApi.getDocumentsForModel(params.modelName)
-
-            documents.map(document => {
-                document.model = document.model || params.modelName
-                document.modifiedOn = document['x-meditor'].modifiedOn
-                document.modifiedBy = document['x-meditor'].modifiedBy
-                document.state = document['x-meditor'].state
-                document.targetStates = document['x-meditor'].targetStates
-                delete document['x-meditor']
-
-                return document
-            })
-
-            return documents
+            return documents.map(document => parseDocumentForUI(document, params.modelName))
+        },
+        document: async (_, params, { dataSources }) => {
+            let document = await dataSources.mEditorApi.getDocument(params.modelName, params.title)
+            return parseDocumentForUI(document, params.modelName, params.title)
         }
     },
     JSON: GraphQLJSON.GraphQLJSON,
