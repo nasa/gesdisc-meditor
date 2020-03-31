@@ -9,6 +9,7 @@ import SearchBar from '../../components/search-bar'
 import SearchList from '../../components/search-list'
 import RenderResponse from '../../components/render-response'
 import Loading from '../../components/loading'
+import PageTitle from '../../components/page-title'
 
 const MODEL_DOCUMENTS_QUERY = gql`
     query getDocuments($modelName: String!) {
@@ -44,7 +45,6 @@ const ModelPage = () => {
         filterBy,
         setFilterBy
     } = useContext(AppContext)
-    
 
     const { loading, error, data } = useQuery(MODEL_DOCUMENTS_QUERY, {
         variables: { modelName },
@@ -52,6 +52,8 @@ const ModelPage = () => {
 
     return (
         <div>
+            <PageTitle title={modelName} />
+
             <SearchBar model={data?.model} modelName={modelName} initialInput={searchTerm} onInput={(searchTerm) => setSearchTerm(searchTerm)} />
 
             <div className="my-4">

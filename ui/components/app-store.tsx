@@ -1,11 +1,20 @@
-import { createContext, useState, useEffect } from 'react'
+import { createContext, useState } from 'react'
 
-export const AppContext = createContext(null)
+const DEFAULTS = {
+    searchTerm: '',
+    setSearchTerm: (_searchTerm: string) => {},
+    sortDir: 'desc',
+    setSortDir: (_sortDir: 'asc' | 'desc') => {},
+    filterBy: '',
+    setFilterBy: (_filterBy: string) => {}
+}
+
+export const AppContext = createContext(DEFAULTS)
 
 export default (props) => {
-    const [searchTerm, setSearchTerm] = useState('')
-    const [sortDir, setSortDir] = useState('desc')
-    const [filterBy, setFilterBy] = useState('')
+    const [searchTerm, setSearchTerm] = useState<string>(DEFAULTS.searchTerm)
+    const [sortDir, setSortDir] = useState<string>(DEFAULTS.sortDir)
+    const [filterBy, setFilterBy] = useState<string>(DEFAULTS.filterBy)
 
     const store = {
         searchTerm,

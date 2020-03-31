@@ -1,4 +1,5 @@
 import { useQuery } from '@apollo/react-hooks'
+import PageTitle from '../components/page-title'
 import gql from 'graphql-tag'
 import Router from 'next/router'
 import Button from 'react-bootstrap/Button'
@@ -27,6 +28,8 @@ const DashboardPage = () => {
 
     return (
         <div>
+            <PageTitle title="" />
+
             {data.modelCategories.map(category => (
                 <div key={category.name}>
                     <h2>{category.name}</h2>
