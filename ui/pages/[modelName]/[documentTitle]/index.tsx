@@ -7,6 +7,7 @@ import RenderResponse from '../../../components/render-response'
 import Loading from '../../../components/loading'
 import PageTitle from '../../../components/page-title'
 import Form from '../../../components/form'
+import { Breadcrumbs, Breadcrumb } from '../../../components/breadcrumbs'
 
 const QUERY = gql`
     query getDocument($modelName: String!, $title: String!) {
@@ -39,6 +40,11 @@ const EditDocumentPage = () => {
     return (
         <div>
             <PageTitle title={[documentTitle, modelName]} />
+
+            <Breadcrumbs>
+                <Breadcrumb title={modelName} href="/[modelName]" as={`/${modelName}`} />
+                <Breadcrumb title={documentTitle} />
+            </Breadcrumbs>
 
             <RenderResponse
                 loading={loading}
