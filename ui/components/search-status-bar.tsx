@@ -1,9 +1,12 @@
 import styles from './search-status-bar.module.css'
+import Button from 'react-bootstrap/Button'
+import { MdAdd } from 'react-icons/md'
 
 const SearchStatusBar = ({
     modelName,
     documentCount = 0,
     totalDocumentCount = 0,
+    onAddNew,
     sortDir,
     onSortDirChange,
     documentStates = [],
@@ -17,7 +20,7 @@ const SearchStatusBar = ({
             </div>
 
             <div className={styles.actions}>
-                <div className={styles.select}>
+                <div className={styles.action}>
                     <label>
                         Filter by:
                         <select
@@ -38,7 +41,7 @@ const SearchStatusBar = ({
                     </label>
                 </div>
 
-                <div className={styles.select}>
+                <div className={styles.action}>
                     <label>
                         Sort by:
                         <select
@@ -50,6 +53,13 @@ const SearchStatusBar = ({
                             <option value="desc">Newest</option>
                         </select>
                     </label>
+                </div>
+
+                <div className={styles.action}>
+                    <Button variant="secondary" onClick={onAddNew}>
+                        <MdAdd />
+                        Add New
+                    </Button>
                 </div>
             </div>
         </div>

@@ -44,6 +44,7 @@ function sortDocuments(sortDir, documentA, documentB) {
 const SearchList = ({ 
     modelName, 
     documents, 
+    onAddNew,
     searchTerm = '', 
     sortDir,
     onSortDirChange,
@@ -70,6 +71,7 @@ const SearchList = ({
                 modelName={modelName}
                 documentCount={filteredDocuments.length}
                 totalDocumentCount={documents.length}
+                onAddNew={onAddNew}
                 sortDir={sortDir}
                 onSortDirChange={onSortDirChange}
                 documentStates={documentStates}

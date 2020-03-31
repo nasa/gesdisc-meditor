@@ -50,6 +50,10 @@ const ModelPage = () => {
         variables: { modelName },
     })
 
+    function addNewDocument() {
+        router.push('/[modelName]/new', `/${modelName}/new`)
+    }
+
     return (
         <div>
             <PageTitle title={modelName} />
@@ -73,6 +77,7 @@ const ModelPage = () => {
                     <SearchList 
                         modelName={modelName} 
                         documents={data?.documents} 
+                        onAddNew={addNewDocument}
                         searchTerm={searchTerm}
                         sortDir={sortDir}
                         onSortDirChange={setSortDir}
