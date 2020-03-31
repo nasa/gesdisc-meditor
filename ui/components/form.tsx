@@ -14,6 +14,7 @@ const Form = ({
     document = {
         doc: {}
     },
+    liveValidate = false,
 }) => {
     const [ form, setForm ] = useState(null)
 
@@ -23,7 +24,7 @@ const Form = ({
                 schema={model ? JSON.parse(model.schema) : {}}
                 formData={document ? document.doc : {}}
                 layout={model ? JSON.parse(model.layout) : {}}
-                liveValidate={false}
+                liveValidate={liveValidate}
                 onInit={setForm}
             />
 

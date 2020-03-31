@@ -6,6 +6,7 @@ import Alert from 'react-bootstrap/Alert'
 import RenderResponse from '../../../components/render-response'
 import Loading from '../../../components/loading'
 import PageTitle from '../../../components/page-title'
+import Form from '../../../components/form'
 
 const QUERY = gql`
     query getDocument($modelName: String!, $title: String!) {
@@ -34,24 +35,6 @@ const EditDocumentPage = () => {
     const { loading, error, data } = useQuery(QUERY, {
         variables: { modelName, title: documentTitle },
     })
-
-    let fakeLayout = {
-        "ui:order": [
-            "title",
-            "abstract",
-            "example",
-            "prereq",
-            "procedure",
-            "additionalInfo",
-            "relatedHowto",
-            "datasets",
-            "tags",
-            "groups",
-            "notebook",
-            "notes",
-            "*"
-        ]
-    }
     
     return (
         <div>
@@ -71,21 +54,10 @@ const EditDocumentPage = () => {
                     </Alert>
                 }
             >
-                <div>edit form here</div>
+                <Form model={data?.model} document={data?.document} liveValidate={true} />
             </RenderResponse>
         </div>
     )
-
-    /*
-    <JsonSchemaForm
-                    schema={data ? JSON.parse(data.model?.schema) : {}}
-                    formData={data ? data.document?.doc : {}}
-                    layout={fakeLayout}
-                    liveValidate={true}
-                    onChange={(e) => console.log('form changed! ', e)}
-                    onSubmit={() => {}}
-                    onError={(err) => console.log('error occured ', err)}
-                /> */
 }
 
 export default withApollo({ ssr: true })(EditDocumentPage)
