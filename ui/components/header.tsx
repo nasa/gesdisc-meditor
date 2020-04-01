@@ -24,24 +24,24 @@ const Header = () => {
                     />
                 </Navbar.Brand>
 
-                <div>
-                    <Button variant="link">
-                        <MdPerson />
+                <div className="d-flex flex-row">
+                    <Button className="d-flex align-items-center" variant="link" style={{ color: "#607d8b" }}>
+                        <MdPerson style={{ fontSize: '1.6em' }} />
                         Hi, Jon
                     </Button>
 
-                    <Button variant="link" onClick={goToHomepage}>
-                        <MdHome />
+                    <Button className="d-flex align-items-center" variant="link" style={{ color: "grey", marginLeft: 10 }} onClick={goToHomepage}>
+                        <MdHome style={{ fontSize: '1.6em' }} />
                         Home
                     </Button>
 
-                    <Button variant="link">
-                        <MdFeedback />
+                    <Button className="d-flex align-items-center" variant="link" style={{ color: "grey", marginLeft: 10 }}>
+                        <MdFeedback style={{ fontSize: '1.6em' }} />
                         Feedback
                     </Button>
 
-                    <Button variant="link">
-                        <MdHelp />
+                    <Button className="d-flex align-items-center" variant="link" style={{ color: "grey", marginLeft: 10 }}>
+                        <MdHelp style={{ fontSize: '1.6em' }} />
                         Help
                     </Button>
                 </div>
