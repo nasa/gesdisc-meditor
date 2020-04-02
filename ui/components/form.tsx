@@ -15,6 +15,7 @@ const Form = ({
         doc: {}
     },
     liveValidate = false,
+    onSave = (_document: any) => {},
 }) => {
     const [ form, setForm ] = useState(null)
 
@@ -28,7 +29,7 @@ const Form = ({
                 onInit={setForm}
             />
 
-            <FormActions form={form} onSave={() => console.log('save the document')} />
+            <FormActions form={form} onSave={onSave} />
         </>
     )
 }

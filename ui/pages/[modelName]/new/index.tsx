@@ -9,6 +9,7 @@ import PageTitle from '../../../components/page-title'
 import Form from '../../../components/form'
 import { Breadcrumbs, Breadcrumb } from '../../../components/breadcrumbs'
 import DocumentHeader from '../../../components/document-header'
+import mEditorApi from '../../../service/'
 
 const QUERY = gql`
     query getModel($modelName: String!) {
@@ -57,7 +58,19 @@ const NewDocumentPage = () => {
                     </Alert>
                 }
             >
-                <Form model={data?.model} />
+                <Form 
+                    model={data?.model} 
+                    onSave={async (document) => {
+                        document['x-meditor'] = {}
+                        document['x-meditor'].model = modelName
+
+                        let documentBlob = new Blob([JSON.stringify(document)])
+
+                        let response = await mEditorApi.putDocument(documentBlob)
+
+                        console.log('got back ', response)
+                    }}
+                />
             </RenderResponse>
         </div>
     )

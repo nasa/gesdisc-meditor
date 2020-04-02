@@ -10,6 +10,7 @@ import SearchList from '../../components/search-list'
 import RenderResponse from '../../components/render-response'
 import Loading from '../../components/loading'
 import PageTitle from '../../components/page-title'
+import withAuthentication from '../../components/with-authentication'
 
 const MODEL_DOCUMENTS_QUERY = gql`
     query getDocuments($modelName: String!) {
@@ -90,5 +91,4 @@ const ModelPage = () => {
     )
 }
 
-export default withApollo({ ssr: true })(ModelPage)
-
+export default withApollo({ ssr: true })(withAuthentication(ModelPage))

@@ -236,7 +236,7 @@ function impersonateUser(req, res, next) {
               }, 500)
           } else {
               res.writeHead(301, {
-                  Location: ENV_CONFIG.APP_UI_URL + '/#/auth/getuser',
+                  Location: ENV_CONFIG.APP_UI_URL + '/login',
               })
               res.end()
           }
@@ -269,7 +269,7 @@ module.exports.login = function login(req, res, next) {
         }
 
         res.writeHead(301, {
-          Location: ENV_CONFIG.APP_UI_URL + '/#/auth/getuser'
+          Location: ENV_CONFIG.APP_UI_URL + '/login'
         });
         
         res.end();
@@ -282,7 +282,7 @@ module.exports.login = function login(req, res, next) {
           }, 500);
         } else {
           res.writeHead(301, {
-            Location: ENV_CONFIG.APP_UI_URL + '/#/auth/getuser'
+            Location: ENV_CONFIG.APP_UI_URL + '/login'
           });
           res.end();
         }*/
@@ -303,7 +303,7 @@ module.exports.logout = function logout(req, res, next) {
   // };
   // if (outCookies.length > 0) res.setHeader('Set-Cookie', outCookies);
   res.writeHead(301, {
-    Location: ENV_CONFIG.APP_UI_URL + '/#/'
+    Location: ENV_CONFIG.APP_UI_URL
   });
   res.end();
 };

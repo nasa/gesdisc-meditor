@@ -29,6 +29,7 @@
     "isomorphic-unfetch": "^3.0.0",
     "next": "9.3.1",
     "pluralize": "^8.0.0",
+    "portable-fetch": "^3.0.0",
     "react": "16.13.1",
     "react-bootstrap": "^1.0.0",
     "react-dom": "16.13.1",
@@ -36,7 +37,8 @@
     "react-icons": "^3.9.0",
     "react-jsonschema-form": "^1.8.1",
     "react-select": "^3.1.0",
-    "react-window": "^1.8.5"
+    "react-window": "^1.8.5",
+    "url": "^0.11.0"
   },
   "devDependencies": {
     "@types/node": "^13.9.3",
