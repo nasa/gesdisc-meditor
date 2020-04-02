@@ -54,7 +54,12 @@ module.exports = {
             
             return categories.map(category => ({
                 name: category,
-                models: models.filter(model => model.category === category)
+                models: models
+                    .filter(model => model.category === category)
+                    .map(model => {
+                        model.xMeditor = model['x-meditor']
+                        return model
+                    })
             }))
         },
         documents: async (_, params, { dataSources }) => {
