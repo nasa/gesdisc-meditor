@@ -16,6 +16,6 @@
 .model {
     display: flex;
     flex-direction: column;
-    width: 120px;
+    width: 150px;
     margin: 10px;
 }

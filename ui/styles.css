@@ -191,6 +191,8 @@ fieldset.field-array fieldset.field-array {
 .dashboard-model > span {
     white-space: nowrap;
     text-overflow: ellipsis;
+    max-width: 128px;
+    overflow: hidden;
 }
 
 .dashboard-model > span:first-child {

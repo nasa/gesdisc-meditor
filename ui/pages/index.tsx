@@ -40,10 +40,9 @@ const DashboardPage = () => {
 
                     <div className={styles.models}>
                         {category.models.map(model => (
-                            <div className={styles.model}>
+                            <div key={model.name} className={styles.model}>
                                 <Button
                                     variant="light"
-                                    key={model.name}
                                     onClick={() => Router.push('/[modelName]', `/${model.name}`)}
                                     className="dashboard-model"
                                 >
