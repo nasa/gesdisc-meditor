@@ -1185,7 +1185,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         changeDocumentState(model: string, title: string, state: string, version?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
             const localVarFetchArgs = DefaultApiFetchParamCreator(configuration).changeDocumentState(model, title, state, version, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                return configuration.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
                         return response.json();
                     } else {
@@ -1205,7 +1205,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         editComment(id: string, text: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Success> {
             const localVarFetchArgs = DefaultApiFetchParamCreator(configuration).editComment(id, text, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                return configuration.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
                         return response.json();
                     } else {
@@ -1225,7 +1225,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         getComments(title: string, model: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
             const localVarFetchArgs = DefaultApiFetchParamCreator(configuration).getComments(title, model, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                return configuration.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
                         return response.json();
                     } else {
@@ -1243,7 +1243,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         getCsrfToken(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Csrf> {
             const localVarFetchArgs = DefaultApiFetchParamCreator(configuration).getCsrfToken(options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                return configuration.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
                         return response.json();
                     } else {
@@ -1264,7 +1264,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         getDocument(model: string, title: string, version?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
             const localVarFetchArgs = DefaultApiFetchParamCreator(configuration).getDocument(model, title, version, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                return configuration.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
                         return response.json();
                     } else {
@@ -1284,7 +1284,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         getDocumentHistory(model: string, title: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
             const localVarFetchArgs = DefaultApiFetchParamCreator(configuration).getDocumentHistory(model, title, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                return configuration.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
                         return response.json();
                     } else {
@@ -1302,7 +1302,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         getMe(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<User> {
             const localVarFetchArgs = DefaultApiFetchParamCreator(configuration).getMe(options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                return configuration.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
                         return response.json();
                     } else {
@@ -1321,7 +1321,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         getModel(name: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Model> {
             const localVarFetchArgs = DefaultApiFetchParamCreator(configuration).getModel(name, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                return configuration.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
                         return response.json();
                     } else {
@@ -1340,7 +1340,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         listDocuments(model: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<DocCatalogEntry>> {
             const localVarFetchArgs = DefaultApiFetchParamCreator(configuration).listDocuments(model, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                return configuration.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
                         return response.json();
                     } else {
@@ -1359,7 +1359,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         listModels(properties?: Array<string>, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Array<ModelCatalogEntry>> {
             const localVarFetchArgs = DefaultApiFetchParamCreator(configuration).listModels(properties, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                return configuration.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
                         return response.json();
                     } else {
@@ -1378,7 +1378,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         login(code?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Success> {
             const localVarFetchArgs = DefaultApiFetchParamCreator(configuration).login(code, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                return configuration.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
                         return response.json();
                     } else {
@@ -1396,7 +1396,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         logout(options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Success> {
             const localVarFetchArgs = DefaultApiFetchParamCreator(configuration).logout(options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                return configuration.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
                         return response.json();
                     } else {
@@ -1415,7 +1415,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         postComment(file: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Success> {
             const localVarFetchArgs = DefaultApiFetchParamCreator(configuration).postComment(file, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                return configuration.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
                         return response.json();
                     } else {
@@ -1434,7 +1434,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         putDocument(file: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Success> {
             const localVarFetchArgs = DefaultApiFetchParamCreator(configuration).putDocument(file, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                return configuration.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
                         return response.json();
                     } else {
@@ -1453,7 +1453,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         putModel(file: any, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Success> {
             const localVarFetchArgs = DefaultApiFetchParamCreator(configuration).putModel(file, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                return configuration.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
                         return response.json();
                     } else {
@@ -1473,7 +1473,7 @@ export const DefaultApiFp = function(configuration?: Configuration) {
         resolveComment(id: string, resolvedBy: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Success> {
             const localVarFetchArgs = DefaultApiFetchParamCreator(configuration).resolveComment(id, resolvedBy, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
-                return fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                return configuration.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
                         return response.json();
                     } else {

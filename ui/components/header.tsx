@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import Router from 'next/router'
+import Dropdown from 'react-bootstrap/Dropdown'
 import Button from 'react-bootstrap/Button'
 import Navbar from 'react-bootstrap/Navbar'
 import { MdPerson, MdHome, MdFeedback, MdHelp } from 'react-icons/md'
@@ -8,7 +10,12 @@ function goToHomepage() {
     Router.push('/')
 }
 
-const Header = () => {
+const Header = ({
+    user,
+    isAuthenticated,
+}) => {
+    const [ userMenuOpen, setUserMenuOpen ] = useState(false)
+
     return (
         <>
             <Navbar fixed="top" className={styles.navbar} style={{
@@ -25,10 +32,29 @@ const Header = () => {
                 </Navbar.Brand>
 
                 <div className="d-flex flex-row">
-                    <Button className="d-flex align-items-center" variant="link" style={{ color: "#607d8b" }}>
-                        <MdPerson style={{ fontSize: '1.6em' }} />
-                        Hi, Jon
-                    </Button>
+                    {isAuthenticated && (
+                        <Dropdown
+                            onMouseEnter={() => setUserMenuOpen(true)}
+                            onMouseLeave={() => setUserMenuOpen(false)}
+                            show={userMenuOpen}
+                        >
+                            <Dropdown.Toggle 
+                                className="d-flex align-items-center" 
+                                variant="link" 
+                                id="user-menu"
+                                style={{ color: "#607d8b" }}
+                            >
+                                <MdPerson style={{ fontSize: '1.6em' }} />
+                                Hi, {user?.firstName}
+                            </Dropdown.Toggle>
+
+                            <Dropdown.Menu>
+                                <Dropdown.Item href="http://localhost:8081/meditor/api/logout">
+                                    Logout
+                                </Dropdown.Item>
+                            </Dropdown.Menu>
+                        </Dropdown>
+                    )}
 
                     <Button className="d-flex align-items-center" variant="link" style={{ color: "grey", marginLeft: 10 }} onClick={goToHomepage}>
                         <MdHome style={{ fontSize: '1.6em' }} />

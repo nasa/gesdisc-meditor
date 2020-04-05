@@ -13,16 +13,25 @@
 
 import { DefaultApi } from './api'
 import { Configuration, ConfigurationParameters } from './configuration'
-import * as url from "url"
+import * as url from 'url'
+import * as portableFetch from 'portable-fetch'
+import { attach } from './interceptor'
 
 // monkey patch URLSearchParams until this issue is resolved: https://github.com/swagger-api/swagger-codegen/issues/6403
 // @ts-ignore
-url.URLSearchParams = URLSearchParams;
+url.URLSearchParams = URLSearchParams
+
+const fetchIntercept = attach()
 
 const API_CONFIG: ConfigurationParameters = {
     basePath: 'http://localhost:8081/meditor/api',
+    fetch,
 }
 
 const mEditorAPI = new DefaultApi(new Configuration(API_CONFIG))
+
+export function attachInterceptor(registration) {
+    return fetchIntercept.register(registration)
+}
 
 export default mEditorAPI

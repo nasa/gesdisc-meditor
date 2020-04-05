@@ -1,7 +1,10 @@
 import Head from 'next/head'
 import Header from '../components/header'
 import AppStore from '../components/app-store'
+import UserAuthentication from '../components/user-authentication'
 import '../styles.css'
+import { useState } from 'react'
+import { useRouter } from 'next/router'
 
 /**
  * customize the App to provide a consistent layout across pages
@@ -9,6 +12,12 @@ import '../styles.css'
  * @param props.pageProps if page is using getInitialProps, pageProps will contain those
  */
 const App = ({ Component, pageProps }) => {
+    const [ user, setUser ] = useState()
+    const router = useRouter()
+
+    const isAuthenticated = typeof user !== 'undefined' && user != null
+    const canLoadPage = typeof user !== 'undefined' || router.pathname == '/'
+   
     return (
         <>
             <Head>
@@ -20,15 +29,21 @@ const App = ({ Component, pageProps }) => {
                 <meta property="og:url" content="https://lb.gesdisc.eosdis.nasa.gov/meditor" />
             </Head>
 
-            <Header />
+            <Header user={user} isAuthenticated={isAuthenticated} />
 
-            <div className="container-fluid">
-                <section className="page-container">
-                    <AppStore>
-                        <Component {...pageProps} />
-                    </AppStore>
-                </section>
-            </div>
+            <AppStore>
+                <div className="container-fluid">
+                    <section className="page-container">
+                        {canLoadPage ? (
+                            <Component {...pageProps} user={user} isAuthenticated={isAuthenticated} />
+                        ) : (
+                            <></>
+                        )}
+                    </section>
+                </div>
+
+                <UserAuthentication onUserUpdate={setUser} user={user} isAuthenticated={isAuthenticated} />
+            </AppStore>
         </>
     )
 }

@@ -1,29 +1,27 @@
 import Router from 'next/router'
-import mEditorAPI from '../service/'
+
+const REDIRECT_URL_KEY = 'redirectUrl'
 
 const LoginPage = ({ user }) => {
-    let redirectUrl: any = localStorage.getItem('redirectUrl')
+    let redirectUrl: any = localStorage.getItem(REDIRECT_URL_KEY)
+    
+    // remove redirect url so future logins aren't redirected
+    localStorage.removeItem(REDIRECT_URL_KEY)
 
-    if (user && redirectUrl) {
+    try {
+        if (!user || !redirectUrl) {
+            throw new Error()
+        }
+
         // go back to the URL the user tried to access before logging in
         redirectUrl = JSON.parse(redirectUrl)
         Router.push(redirectUrl.href, redirectUrl.as)
-    } else {
+    } catch (err) {
         // go to the dashboard, we either don't have a logged in user or don't know where to send them
         Router.push('/')
     }
 
     return <></>
-}
-
-export async function getServerSideProps(context) {
-    let props = { user: null }
-
-    try {
-        props.user = await mEditorAPI.getMe()
-    } catch (err) {}
-
-    return { props }
 }
 
 export default LoginPage

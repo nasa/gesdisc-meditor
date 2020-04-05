@@ -18,6 +18,7 @@ export interface ConfigurationParameters {
     password?: string;
     accessToken?: string | ((name: string, scopes?: string[]) => string);
     basePath?: string;
+    fetch?: any;
 }
 
 export class Configuration {
@@ -56,11 +57,14 @@ export class Configuration {
      */
     basePath?: string;
 
+    fetch?: any;
+
     constructor(param: ConfigurationParameters = {}) {
         this.apiKey = param.apiKey;
         this.username = param.username;
         this.password = param.password;
         this.accessToken = param.accessToken;
         this.basePath = param.basePath;
+        this.fetch = param.fetch;
     }
 }
