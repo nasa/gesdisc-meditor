@@ -1,5 +1,6 @@
 const { GraphQLScalarType } = require('graphql')
 const GraphQLJSON = require('graphql-type-json')
+const jsonMapper = require('json-mapper-json')
 
 function sortModels(modelA, modelB) {
     if (modelA.category < modelB.category) return 1
@@ -11,21 +12,37 @@ function sortModels(modelA, modelB) {
     return 0
 }
 
-function parseDocumentForUI(document, modelName, documentTitle) {
-    try {
-        document.title = documentTitle || document.title || document.doc.title
-    } catch (e) {
-        document.title = ''
+function getDocumentMap(modelName, documentTitle) {
+    return {
+        'title': {
+            path: '$item',
+            required: false,
+            formatting: (document) => {
+                try {
+                    return documentTitle || document.title || document.doc.title
+                } catch (err) {
+                    return ''
+                }
+            }
+        },
+        'model': {
+            path: 'model',
+            required: false,
+            formatting: (model) => model || modelName,
+        },
+        'doc': {
+            path: 'doc',
+            required: false,
+        },
+        'modifiedOn': 'x-meditor.modifiedOn',
+        'modifiedBy': 'x-meditor.modifiedBy',
+        'state': 'x-meditor.state',
+        'states': {
+            path: 'x-meditor.states',
+            required: false,
+        },
+        'targetStates': 'x-meditor.targetStates',
     }
-
-    document.model = document.model || modelName
-    document.modifiedOn = document['x-meditor'].modifiedOn
-    document.modifiedBy = document['x-meditor'].modifiedBy
-    document.state = document['x-meditor'].state
-    document.targetStates = document['x-meditor'].targetStates
-    delete document['x-meditor']
-    
-    return document
 }
 
 module.exports = {
@@ -64,11 +81,11 @@ module.exports = {
         },
         documents: async (_, params, { dataSources }) => {
             let documents = await dataSources.mEditorApi.getDocumentsForModel(params.modelName)
-            return documents.map(document => parseDocumentForUI(document, params.modelName))
+            return await jsonMapper(documents, getDocumentMap(params.modelName))
         },
         document: async (_, params, { dataSources }) => {
             let document = await dataSources.mEditorApi.getDocument(params.modelName, params.title)
-            return parseDocumentForUI(document, params.modelName, params.title)
+            return await jsonMapper(document, getDocumentMap(params.modelName, params.title))
         }
     },
     JSON: GraphQLJSON.GraphQLJSON,
