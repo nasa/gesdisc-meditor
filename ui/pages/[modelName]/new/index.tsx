@@ -1,3 +1,5 @@
+import { useContext } from 'react'
+import { AppContext } from '../../../components/app-store'
 import { useQuery } from '@apollo/react-hooks'
 import { useRouter } from 'next/router'
 import gql from 'graphql-tag'
@@ -10,6 +12,7 @@ import Form from '../../../components/form'
 import { Breadcrumbs, Breadcrumb } from '../../../components/breadcrumbs'
 import DocumentHeader from '../../../components/document-header'
 import mEditorApi from '../../../service/'
+import withAuthentication from '../../../components/with-authentication'
 
 const QUERY = gql`
     query getModel($modelName: String!) {
@@ -29,11 +32,19 @@ const QUERY = gql`
 
 const NewDocumentPage = () => {
     const router = useRouter()
-    const { modelName } = router.query
+    const params = router.query
+    const modelName = params.modelName as string
+
+    const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
 
     const { loading, error, data } = useQuery(QUERY, {
         variables: { modelName },
     })
+
+    function redirectToDocumentEdit(document) {
+        let documentName = encodeURIComponent(document[data.model.titleProperty])
+        router.push('/[modelName]/[documentTitle]', `/${encodeURIComponent(modelName)}/${documentName}`)
+    }
 
     return (
         <div>
@@ -66,9 +77,15 @@ const NewDocumentPage = () => {
 
                         let documentBlob = new Blob([JSON.stringify(document)])
 
-                        let response = await mEditorApi.putDocument(documentBlob)
+                        try {
+                            await mEditorApi.putDocument(documentBlob)
 
-                        console.log('got back ', response)
+                            setSuccessNotification('Successfully created the document')
+                            redirectToDocumentEdit(document)
+                        } catch (err) {
+                            console.error('Failed to create document ', err)
+                            setErrorNotification('Failed to create the document')
+                        }
                     }}
                 />
             </RenderResponse>
@@ -76,4 +93,4 @@ const NewDocumentPage = () => {
     )
 }
 
-export default withApollo({ ssr: true })(NewDocumentPage)
+export default withApollo({ ssr: true })(withAuthentication(NewDocumentPage))

@@ -49,6 +49,7 @@ const ModelPage = () => {
 
     const { loading, error, data } = useQuery(MODEL_DOCUMENTS_QUERY, {
         variables: { modelName },
+        fetchPolicy: 'cache-and-network',
     })
 
     function addNewDocument() {

@@ -26,7 +26,7 @@ const FormActions = ({ form, onSave }) => {
             return
         }
 
-        onSave()    // no errors, document can be saved!
+        onSave(form.state.formData)    // no errors, document can be saved!
     }
 
     return (

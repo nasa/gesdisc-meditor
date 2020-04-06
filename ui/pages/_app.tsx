@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import Header from '../components/header'
 import AppStore from '../components/app-store'
+import Toast from '../components/toast'
 import UserAuthentication from '../components/user-authentication'
 import '../styles.css'
 import { useState } from 'react'
@@ -43,6 +44,7 @@ const App = ({ Component, pageProps }) => {
                 </div>
 
                 <UserAuthentication onUserUpdate={setUser} user={user} isAuthenticated={isAuthenticated} />
+                <Toast />
             </AppStore>
         </>
     )

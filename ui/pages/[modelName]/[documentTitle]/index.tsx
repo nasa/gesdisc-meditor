@@ -9,6 +9,7 @@ import PageTitle from '../../../components/page-title'
 import Form from '../../../components/form'
 import { Breadcrumbs, Breadcrumb } from '../../../components/breadcrumbs'
 import DocumentHeader from '../../../components/document-header'
+import withAuthentication from '../../../components/with-authentication'
 
 const QUERY = gql`
     query getDocument($modelName: String!, $title: String!) {
@@ -37,6 +38,7 @@ const EditDocumentPage = () => {
 
     const { loading, error, data } = useQuery(QUERY, {
         variables: { modelName, title: documentTitle },
+        fetchPolicy: 'cache-and-network',
     })
     
     return (
@@ -70,5 +72,5 @@ const EditDocumentPage = () => {
     )
 }
 
-export default withApollo({ ssr: true })(EditDocumentPage)
+export default withApollo({ ssr: true })(withAuthentication(EditDocumentPage))
 

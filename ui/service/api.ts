@@ -1072,6 +1072,8 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
             localVarRequestOptions.headers = Object.assign({}, options.headers);
             localVarRequestOptions.body = localVarFormParams//.toString();
 
+            localVarRequestOptions.credentials = 'include'
+
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
