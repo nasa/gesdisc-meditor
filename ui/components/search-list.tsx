@@ -1,6 +1,8 @@
 import Alert from 'react-bootstrap/Alert'
 import SearchStatusBar from './search-status-bar'
 import SearchResult from './search-result'
+import { useContext } from 'react'
+import { AppContext } from './app-store'
 
 /**
  * determines if a document contains a given search term
@@ -42,16 +44,13 @@ function sortDocuments(sortDir, documentA, documentB) {
 const SearchList = ({
     documents,
     onAddNew,
-    searchTerm = '',
-    sortDir,
-    onSortDirChange,
-    filterBy,
-    onFilterByChange,
     user,
 }) => {
     if (!documents?.length) {
         return <Alert variant="info">No documents found.</Alert>
     }
+
+    const { searchTerm, sortDir, filterBy } = useContext(AppContext)
 
     let filteredDocuments = documents
         .filter(document => documentMatchesSearchTerm(document, searchTerm))
@@ -69,11 +68,7 @@ const SearchList = ({
                 documentCount={filteredDocuments.length}
                 totalDocumentCount={documents.length}
                 onAddNew={onAddNew}
-                sortDir={sortDir}
-                onSortDirChange={onSortDirChange}
                 documentStates={documentStates}
-                filterBy={filterBy}
-                onFilterByChange={onFilterByChange}
                 user={user}
             />
 

@@ -5,6 +5,8 @@ import { MdAdd } from 'react-icons/md'
 import { useRouter } from 'next/router'
 import gql from 'graphql-tag'
 import { withApollo } from '../lib/apollo'
+import { useContext } from 'react'
+import { AppContext } from './app-store'
 
 const QUERY = gql`
     query getModel($modelName: String!) {
@@ -24,17 +26,15 @@ const SearchStatusBar = ({
     documentCount = 0,
     totalDocumentCount = 0,
     onAddNew,
-    sortDir,
-    onSortDirChange,
     documentStates = [],
-    filterBy,
-    onFilterByChange,
     user,
 }) => {
     const router = useRouter()
     const { modelName } = router.query
 
-    const { loading, error, data } = useQuery(QUERY, {
+    const { sortDir, setSortDir, filterBy, setFilterBy } = useContext(AppContext)
+
+    const { error, data } = useQuery(QUERY, {
         variables: { modelName },
         fetchPolicy: 'cache-and-network',
     })
@@ -44,6 +44,7 @@ const SearchStatusBar = ({
     }) || []
 
     if (error) {
+        // something went wrong, but there's nowhere to show the error, log it
         console.error(error)
     }
 
@@ -60,7 +61,7 @@ const SearchStatusBar = ({
                         <select
                             className="form-control"
                             value={filterBy}
-                            onChange={e => onFilterByChange(e.target.value)}
+                            onChange={e => setFilterBy(e.target.value)}
                         >
                             <option value=""></option>
 
@@ -81,7 +82,7 @@ const SearchStatusBar = ({
                         <select
                             className="form-control"
                             value={sortDir}
-                            onChange={e => onSortDirChange(e.target.value)}
+                            onChange={e => setSortDir(e.target.value)}
                         >
                             <option value="asc">Oldest</option>
                             <option value="desc">Newest</option>

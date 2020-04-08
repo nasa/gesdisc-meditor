@@ -15,7 +15,7 @@ const DEFAULTS = {
     searchTerm: '',
     setSearchTerm: (_searchTerm: string) => {},
     sortDir: 'desc',
-    setSortDir: (_sortDir: 'asc' | 'desc') => {},
+    setSortDir: (_sortDir: string) => {},
     filterBy: '',
     setFilterBy: (_filterBy: string) => {}
 }

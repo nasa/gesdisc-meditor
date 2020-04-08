@@ -38,7 +38,7 @@ const ModelPage = ({ user }) => {
     const router = useRouter()
     const { modelName } = router.query
 
-    const { searchTerm, setSearchTerm, sortDir, setSortDir, filterBy, setFilterBy } = useContext(AppContext)
+    const { searchTerm, setSearchTerm } = useContext(AppContext)
 
     const { loading, error, data } = useQuery(MODEL_DOCUMENTS_QUERY, {
         variables: { modelName },
@@ -75,11 +75,6 @@ const ModelPage = ({ user }) => {
                     <SearchList
                         documents={data?.documents}
                         onAddNew={addNewDocument}
-                        searchTerm={searchTerm}
-                        sortDir={sortDir}
-                        onSortDirChange={setSortDir}
-                        filterBy={filterBy}
-                        onFilterByChange={setFilterBy}
                         user={user}
                     />
                 </RenderResponse>
