@@ -36,17 +36,11 @@ const typeDefs = gql`
         models: [Model!]!
     }
 
-    type WorkflowState {
-        source: String!
-        target: String!
-        modifiedOn: Date! @date
-    }
-
     type Model {
         name: String
         description: String
         category: String
-        workflow: String
+        workflow: Workflow
         icon: ModelIcon
         xMeditor: ModelMeta
         schema: String
@@ -66,6 +60,38 @@ const typeDefs = gql`
         state: String
         states: [WorkflowState]
         targetStates: [String]
+    }
+
+    type WorkflowState {
+        source: String!
+        target: String!
+        modifiedOn: Date! @date
+    }
+
+    type WorkflowPrivilege {
+        role: String
+        privilege: [String]
+    }
+
+    type WorkflowNode {
+        id: String!
+        privileges: [WorkflowPrivilege]
+    }
+
+    type WorkflowEdge {
+        role: String
+        source: String
+        target: String
+        label: String
+        notify: Boolean
+    }
+
+    type Workflow {
+        name: String!
+        roles: [String]!
+        nodes: [WorkflowNode]!
+        edges: [WorkflowEdge]!
+        currentEdges: [WorkflowEdge]!
     }
 `
 

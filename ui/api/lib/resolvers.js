@@ -12,6 +12,17 @@ function sortModels(modelA, modelB) {
     return 0
 }
 
+function findInitialEdges(edges) {
+    if (!edges) return []
+
+    // get list of workflow targets (["Draft", "Under Review", "Published"])
+    const targets = edges.map(edge => edge.target)
+    
+    // only return edges whose source does not exist in any other edges target
+    // aka, the initial edges for the workflow
+    return edges.filter(edge => !targets.includes(edge.source))
+}
+
 function getDocumentMap(modelName, documentTitle) {
     return {
         'title': {
@@ -55,7 +66,14 @@ module.exports = {
     }),
     Query: {
         model: async (_, params, { dataSources }) => {
-            return dataSources.mEditorApi.getModel(params.modelName)
+            let model = await dataSources.mEditorApi.getModel(params.modelName)
+
+            model.workflow = await dataSources.mEditorApi.getWorkflow(model.workflow)
+
+            // TODO: handle retrieving currentEdges based on a passed in state
+            model.workflow.currentEdges = findInitialEdges(model.workflow.edges)
+
+            return model
         },
         models: async (_, _params, { dataSources }) => {
             return dataSources.mEditorApi.getModels()

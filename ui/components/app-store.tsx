@@ -6,6 +6,8 @@ interface Notification {
 }
 
 const DEFAULTS = {
+    user: null,
+    setUser: (_user: any) => {},
     notification: null,
     setNotification: (_notification: Notification) => {},
     setSuccessNotification: (_message: String) => {},
@@ -21,22 +23,27 @@ const DEFAULTS = {
 export const AppContext = createContext(DEFAULTS)
 
 export default (props) => {
+    const [user, setUser] = useState<any>(null)
     const [notification, setNotification] = useState<Notification>(null)
     const [searchTerm, setSearchTerm] = useState<string>(DEFAULTS.searchTerm)
     const [sortDir, setSortDir] = useState<string>(DEFAULTS.sortDir)
     const [filterBy, setFilterBy] = useState<string>(DEFAULTS.filterBy)
 
+    function setSuccessNotification(message) {
+        setNotification({ message, type: 'ok' })
+    }
+
+    function setErrorNotification(message) {
+        setNotification({ message, type: 'error' })
+    }
+
     const store = {
+        user,
+        setUser,
         notification,
         setNotification,
-        setSuccessNotification: (message) => setNotification({
-            message,
-            type: 'ok',
-        }),
-        setErrorNotification: (message) => setNotification({
-            message,
-            type: 'error',
-        }),
+        setSuccessNotification,
+        setErrorNotification,
         searchTerm,
         setSearchTerm,
         sortDir,

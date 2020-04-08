@@ -1,9 +1,26 @@
+import { useQuery } from '@apollo/react-hooks'
 import styles from './search-status-bar.module.css'
 import Button from 'react-bootstrap/Button'
 import { MdAdd } from 'react-icons/md'
+import { useRouter } from 'next/router'
+import gql from 'graphql-tag'
+import { withApollo } from '../lib/apollo'
+
+const QUERY = gql`
+    query getModel($modelName: String!) {
+        model(modelName: $modelName) {
+            name
+            workflow {
+                currentEdges {
+                    role
+                    label
+                }
+            }
+        }
+    }
+`
 
 const SearchStatusBar = ({
-    modelName,
     documentCount = 0,
     totalDocumentCount = 0,
     onAddNew,
@@ -12,7 +29,24 @@ const SearchStatusBar = ({
     documentStates = [],
     filterBy,
     onFilterByChange,
+    user,
 }) => {
+    const router = useRouter()
+    const { modelName } = router.query
+
+    const { loading, error, data } = useQuery(QUERY, {
+        variables: { modelName },
+        fetchPolicy: 'cache-and-network',
+    })
+
+    const currentEdges = data?.model?.workflow?.currentEdges?.filter(edge => {
+        return user.rolesForModel(modelName).includes(edge.role)
+    }) || []
+
+    if (error) {
+        console.error(error)
+    }
+
     return (
         <div className={styles.container}>
             <div className={styles.count}>
@@ -55,15 +89,17 @@ const SearchStatusBar = ({
                     </label>
                 </div>
 
-                <div className={styles.action}>
-                    <Button variant="secondary" onClick={onAddNew}>
-                        <MdAdd />
-                        Add New
-                    </Button>
-                </div>
+                {currentEdges.map(edge => (
+                    <div className={styles.action} key={edge.label}>
+                        <Button variant="secondary" onClick={onAddNew}>
+                            <MdAdd />
+                            {edge.label}
+                        </Button>
+                    </div>
+                ))}
             </div>
         </div>
     )
 }
 
-export default SearchStatusBar
+export default withApollo({ ssr: true })(SearchStatusBar)

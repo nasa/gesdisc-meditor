@@ -25,7 +25,7 @@ const MODEL_DOCUMENTS_QUERY = gql`
             title
             model
             modifiedBy
-            modifiedOn (format:"M/dd/yyyy, h:mm a")
+            modifiedOn(format: "M/dd/yyyy, h:mm a")
             state
         }
     }
@@ -34,18 +34,11 @@ const MODEL_DOCUMENTS_QUERY = gql`
 /**
  * renders the model page with the model's documents in a searchable/filterable list
  */
-const ModelPage = () => {
+const ModelPage = ({ user }) => {
     const router = useRouter()
     const { modelName } = router.query
 
-    const { 
-        searchTerm,
-        setSearchTerm,
-        sortDir,
-        setSortDir,
-        filterBy,
-        setFilterBy
-    } = useContext(AppContext)
+    const { searchTerm, setSearchTerm, sortDir, setSortDir, filterBy, setFilterBy } = useContext(AppContext)
 
     const { loading, error, data } = useQuery(MODEL_DOCUMENTS_QUERY, {
         variables: { modelName },
@@ -60,15 +53,18 @@ const ModelPage = () => {
         <div>
             <PageTitle title={modelName} />
 
-            <SearchBar model={data?.model} modelName={modelName} initialInput={searchTerm} onInput={(searchTerm) => setSearchTerm(searchTerm)} />
+            <SearchBar
+                model={data?.model}
+                modelName={modelName}
+                initialInput={searchTerm}
+                onInput={searchTerm => setSearchTerm(searchTerm)}
+            />
 
             <div className="my-4">
                 <RenderResponse
                     loading={loading}
                     error={error}
-                    loadingComponent={
-                        <Loading text={`Loading...`} />
-                    }
+                    loadingComponent={<Loading text={`Loading...`} />}
                     errorComponent={
                         <Alert variant="danger">
                             <p>Failed to retrieve {modelName} documents.</p>
@@ -76,15 +72,15 @@ const ModelPage = () => {
                         </Alert>
                     }
                 >
-                    <SearchList 
-                        modelName={modelName} 
-                        documents={data?.documents} 
+                    <SearchList
+                        documents={data?.documents}
                         onAddNew={addNewDocument}
                         searchTerm={searchTerm}
                         sortDir={sortDir}
                         onSortDirChange={setSortDir}
                         filterBy={filterBy}
                         onFilterByChange={setFilterBy}
+                        user={user}
                     />
                 </RenderResponse>
             </div>

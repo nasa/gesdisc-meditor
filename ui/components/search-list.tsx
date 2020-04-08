@@ -17,17 +17,15 @@ function documentMatchesSearchTerm(document, searchTerm) {
  * @param state
  */
 function documentHasState(document, state) {
-    if (!state) return true     // if no state given, all documents should show
+    if (!state) return true // if no state given, all documents should show
     return document.state == state
 }
 
-
-
 /**
  * sorts documents by modified date
- * @param sortDir 
- * @param documentA 
- * @param documentB 
+ * @param sortDir
+ * @param documentA
+ * @param documentB
  */
 function sortDocuments(sortDir, documentA, documentB) {
     const a = new Date(documentA.modifiedOn)
@@ -41,15 +39,15 @@ function sortDocuments(sortDir, documentA, documentB) {
 /**
  * renders the model page with the model's documents in a searchable/filterable list
  */
-const SearchList = ({ 
-    modelName, 
-    documents, 
+const SearchList = ({
+    documents,
     onAddNew,
-    searchTerm = '', 
+    searchTerm = '',
     sortDir,
     onSortDirChange,
     filterBy,
     onFilterByChange,
+    user,
 }) => {
     if (!documents?.length) {
         return <Alert variant="info">No documents found.</Alert>
@@ -68,7 +66,6 @@ const SearchList = ({
     return (
         <div>
             <SearchStatusBar
-                modelName={modelName}
                 documentCount={filteredDocuments.length}
                 totalDocumentCount={documents.length}
                 onAddNew={onAddNew}
@@ -77,6 +74,7 @@ const SearchList = ({
                 documentStates={documentStates}
                 filterBy={filterBy}
                 onFilterByChange={onFilterByChange}
+                user={user}
             />
 
             {filteredDocuments.map(document => (
