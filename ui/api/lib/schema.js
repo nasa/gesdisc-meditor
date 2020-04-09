@@ -91,6 +91,7 @@ const typeDefs = gql`
         roles: [String]!
         nodes: [WorkflowNode]!
         edges: [WorkflowEdge]!
+        currentNode: WorkflowNode!
         currentEdges: [WorkflowEdge]!
     }
 `

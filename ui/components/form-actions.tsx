@@ -1,8 +1,9 @@
 import Button from 'react-bootstrap/Button'
 import { useRef } from 'react'
 
-const FormActions = ({ form, onSave }) => {
+const FormActions = ({ actions = [], privileges, form, onSave }) => {
     const saveEl = useRef(null)
+    const canSave = privileges.includes('edit') || privileges.includes('create')
 
     function validateAllFields() {
         const { formData } = form.state
@@ -18,7 +19,7 @@ const FormActions = ({ form, onSave }) => {
 
     function handleSave() {
         let errors = validateAllFields()
-        
+
         // don't save a document that has errors!
         if (errors.length) {
             // errors are printed above the save button, pushing it down. scroll it back
@@ -26,14 +27,16 @@ const FormActions = ({ form, onSave }) => {
             return
         }
 
-        onSave(form.state.formData)    // no errors, document can be saved!
+        onSave(form.state.formData) // no errors, document can be saved!
     }
 
     return (
         <>
-            <Button variant="secondary" onClick={handleSave} ref={saveEl}>
-                Save
-            </Button>
+            {canSave && (
+                <Button variant="secondary" onClick={handleSave} ref={saveEl}>
+                    Save
+                </Button>
+            )}
         </>
     )
 }

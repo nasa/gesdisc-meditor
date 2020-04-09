@@ -17,6 +17,27 @@ class User {
             .map((role: any) => role.role) // retrieve the role name
             .filter((v, i, a) => a.indexOf(v) === i) // remove duplicates
     }
+
+    privilegesForModelAndWorkflowNode(modelName, node) {
+        if (!node?.privileges) {
+            return []
+        }
+        
+        let privileges = []
+        let roles = this.rolesForModel(modelName)
+
+        roles.forEach(role => {
+            privileges = privileges.concat(
+                node.privileges
+                    // only retrieve privilege matching the current role (ex. Author)
+                    .filter(nodePrivilege => nodePrivilege.role == role)
+                    // return a list of privileges for the current role (ex. ["edit", "comment"])
+                    .reduce((nodePrivileges, nodePrivilege) => nodePrivileges.concat(nodePrivilege.privilege), [])
+            )
+        })
+
+        return privileges
+    }
 }
 
 /**
