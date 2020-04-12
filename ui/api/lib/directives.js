@@ -18,8 +18,8 @@ class FormattableDateDirective extends SchemaDirectiveVisitor {
         field.resolve = async function(source, { format, ...otherArgs }, context, info) {
             const date = await resolve.call(this, source, otherArgs, context, info)
 
-            if (!format) return date
-            
+            if (!date || !format) return date
+
             return format === 'relative' ? 
                 formatRelative(typeof date === 'string' ? parseISO(date) : date, new Date()) : 
                 dateFormat(typeof date === 'string' ? parseISO(date) : date, format)

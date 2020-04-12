@@ -5,9 +5,9 @@ export default function IconButton(props) {
     return (
         <button type="button" className={`btn btn-${type} ${className || ''}`} {...otherProps}>
             <i 
-                className={`glyphicon glyphicon-${icon}`}
+                className={`fas fa-${icon}`}
                 style={{
-                    marginRight: `${children.length ? '5px' : 0}`
+                    marginRight: `${children && children.length ? '5px' : 0}`
                 }}
             />
 

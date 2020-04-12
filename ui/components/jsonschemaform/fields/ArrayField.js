@@ -1,5 +1,5 @@
 import AddButton from "../components/AddButton";
-import IconButton from "react-jsonschema-form/lib/components/IconButton";
+import IconButton from "../components/IconButton";
 import React, { Component } from "react";
 import includes from "core-js/library/fn/array/includes";
 
@@ -84,7 +84,7 @@ function DefaultArrayItem(props) {
             {props.hasRemove && (
               <IconButton
                 type="danger"
-                icon="remove"
+                icon="times"
                 className="array-item-remove"
                 tabIndex="-1"
                 style={btnStyle}

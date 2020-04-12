@@ -13,6 +13,12 @@ const QUERY = gql`
         model(modelName: $modelName) {
             name
             workflow {
+                currentNode {
+                    privileges {
+                        role
+                        privilege
+                    }
+                }
                 currentEdges {
                     role
                     label
@@ -39,6 +45,7 @@ const SearchStatusBar = ({
         fetchPolicy: 'cache-and-network',
     })
 
+    const currentPrivileges = data?.model?.workflow ? user.privilegesForModelAndWorkflowNode(modelName, data.model.workflow.currentNode) : []
     const currentEdges = data?.model?.workflow?.currentEdges?.filter(edge => {
         return user.rolesForModel(modelName).includes(edge.role)
     }) || []
@@ -90,14 +97,16 @@ const SearchStatusBar = ({
                     </label>
                 </div>
 
-                {currentEdges.map(edge => (
-                    <div className={styles.action} key={edge.label}>
-                        <Button variant="secondary" onClick={onAddNew}>
-                            <MdAdd />
-                            {edge.label}
-                        </Button>
+                {currentPrivileges.includes('create') && (
+                    <div className={styles.action}>
+                        {currentEdges.length && (
+                            <Button variant="secondary" onClick={onAddNew}>
+                                <MdAdd />
+                                {currentEdges[0].label}
+                            </Button>
+                        )}
                     </div>
-                ))}
+                )}
             </div>
         </div>
     )

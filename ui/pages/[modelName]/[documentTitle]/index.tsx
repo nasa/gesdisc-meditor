@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
+import { AppContext } from '../../../components/app-store'
 import { useQuery } from '@apollo/react-hooks'
 import { useRouter } from 'next/router'
 import gql from 'graphql-tag'
@@ -12,6 +13,7 @@ import { Breadcrumbs, Breadcrumb } from '../../../components/breadcrumbs'
 import DocumentHeader from '../../../components/document-header'
 import withAuthentication from '../../../components/with-authentication'
 import FormActions from '../../../components/form-actions'
+import mEditorApi from '../../../service/'
 
 const QUERY = gql`
     query getDocument($modelName: String!, $title: String!) {
@@ -50,8 +52,12 @@ const QUERY = gql`
 
 const EditDocumentPage = ({ user }) => {
     const router = useRouter()
-    const { modelName, documentTitle } = router.query
+    const params = router.query
+    const documentTitle = params.documentTitle
+    const modelName = params.modelName as string
+
     const [form, setForm] = useState(null)
+    const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
 
     const { loading, error, data } = useQuery(QUERY, {
         variables: { modelName, title: documentTitle },
@@ -60,8 +66,12 @@ const EditDocumentPage = ({ user }) => {
 
     const currentPrivileges = data?.model?.workflow ? user.privilegesForModelAndWorkflowNode(modelName, data.model.workflow.currentNode) : []
 
+    function redirectToDocumentEdit(document) {
+        let documentName = encodeURIComponent(document[data.model.titleProperty])
+        router.push('/[modelName]/[documentTitle]', `/${encodeURIComponent(modelName)}/${documentName}`)
+    }
+
     async function saveDocument(document) {
-        /*
         document['x-meditor'] = {}
         document['x-meditor'].model = modelName
 
@@ -75,8 +85,7 @@ const EditDocumentPage = ({ user }) => {
         } catch (err) {
             console.error('Failed to create document ', err)
             setErrorNotification('Failed to create the document')
-        }*/
-        console.log('save document')
+        }
     }
     
     return (

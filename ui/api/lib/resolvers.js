@@ -45,14 +45,26 @@ function getDocumentMap(modelName, documentTitle) {
             path: 'doc',
             required: false,
         },
-        'modifiedOn': 'x-meditor.modifiedOn',
-        'modifiedBy': 'x-meditor.modifiedBy',
-        'state': 'x-meditor.state',
+        'modifiedOn': {
+            path: 'x-meditor.modifiedOn',
+            required: false,
+        },
+        'modifiedBy': {
+            path: 'x-meditor.modifiedBy',
+            required: false,
+        },
+        'state': {
+            path: 'x-meditor.state',
+            required: false,
+        },
         'states': {
             path: 'x-meditor.states',
             required: false,
         },
-        'targetStates': 'x-meditor.targetStates',
+        'targetStates': {
+            path: 'x-meditor.targetStates',
+            required: false,
+        }
     }
 }
 
