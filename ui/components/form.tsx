@@ -14,12 +14,14 @@ const Form = ({
     },
     liveValidate = false,
     onUpdateForm,
-}) => {
+}) => { 
+    let layout = model?.uiSchema || model?.layout || '{}'
+
     return (
         <JsonSchemaForm
             schema={model ? JSON.parse(model.schema) : {}}
             formData={document ? document.doc : {}}
-            layout={model ? JSON.parse(model.layout) : {}}
+            layout={JSON.parse(layout)}
             liveValidate={liveValidate}
             onInit={onUpdateForm}
         />
