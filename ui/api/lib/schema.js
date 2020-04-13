@@ -10,11 +10,13 @@ const typeDefs = gql`
     scalar JSONObject
 
     type Query {
-        modelCategories: [ModelCategory!]! @cacheControl(maxAge: 10)
-        models: [Model!]! @cacheControl(maxAge: 10)
-        model(modelName: String!, currentState: String): Model! @cacheControl(maxAge: 10)
-        documents(modelName: String!): [Document!]! @cacheControl(maxAge: 10)
-        document(modelName: String!, title: String!): Document! @cacheControl(maxAge: 10)
+        modelCategories: [ModelCategory!]!
+        models: [Model!]!
+        model(modelName: String!, currentState: String): Model!
+        documents(modelName: String!): [Document!]!
+        document(modelName: String!, title: String!): Document!
+        documentComments(modelName: String!, title: String!): [Comment]!
+        documentHistory(modelName: String!, title: String!): [History]!
     }
 
     type ModelIcon {
@@ -94,6 +96,26 @@ const typeDefs = gql`
         edges: [WorkflowEdge]!
         currentNode: WorkflowNode!
         currentEdges: [WorkflowEdge]!
+    }
+
+    type History {
+        modifiedOn: String!
+        modifiedBy: String!
+        state: String!
+    }
+
+    type Comment {
+        _id: String!
+        parentId: String!
+        documentId: String!
+        userUid: String!
+        text: String!
+        model: String
+        version: String
+        resolved: Boolean
+        resolvedBy: String
+        createdBy: String
+        createdOn: String
     }
 `
 

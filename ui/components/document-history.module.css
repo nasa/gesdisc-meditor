@@ -1,0 +1,25 @@
+.card {
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.card:hover {
+    background: #eee;
+}
+
+.body {
+    display: flex;
+    justify-content: space-between;
+}
+
+.body a,
+.body a:hover {
+    text-decoration: underline;
+    text-decoration-color: #00f;
+    color: #00f;
+}
+
+.meta {
+    display: flex;
+    flex-direction: column;
+}

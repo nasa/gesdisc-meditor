@@ -1,5 +1,4 @@
 const { ApolloServer } = require('apollo-server')
-const responseCachePlugin = require('apollo-server-plugin-response-cache')
 const { mEditorApi } = require('./lib/datasources')
 const resolvers = require('./lib/resolvers')
 const typeDefs = require('./lib/schema')
@@ -13,10 +12,7 @@ const server = new ApolloServer({
     },
     dataSources: () => ({
         mEditorApi: new mEditorApi(),
-    }),
-    plugins: [
-        responseCachePlugin(),
-    ]
+    })
 })
 
 server.listen().then(({ url }) => {

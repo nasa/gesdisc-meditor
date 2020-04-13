@@ -11,9 +11,13 @@ import PageTitle from '../../../components/page-title'
 import Form from '../../../components/form'
 import { Breadcrumbs, Breadcrumb } from '../../../components/breadcrumbs'
 import DocumentHeader from '../../../components/document-header'
+import DocumentPanel from '../../../components/document-panel'
+import DocumentComments from '../../../components/document-comments'
+import DocumentHistory from '../../../components/document-history'
 import withAuthentication from '../../../components/with-authentication'
 import FormActions from '../../../components/form-actions'
 import mEditorApi from '../../../service/'
+import styles from './document-edit.module.css'
 
 const DOCUMENT_QUERY = gql`
     query getDocument($modelName: String!, $title: String!) {
@@ -22,6 +26,8 @@ const DOCUMENT_QUERY = gql`
             doc
             state
             version
+            modifiedBy
+            modifiedOn
         }
     }
 `
@@ -57,6 +63,31 @@ const MODEL_QUERY = gql`
     }
 `
 
+const COMMENTS_QUERY = gql`
+    query getComments($modelName: String!, $title: String!) {
+        documentComments(modelName: $modelName, title: $title) {
+            _id
+            parentId
+            userUid
+            text
+            resolved
+            resolvedBy
+            createdBy
+            createdOn
+        }
+    }
+`
+
+const HISTORY_QUERY = gql`
+    query getHistory($modelName: String!, $title: String!) {
+        documentHistory(modelName: $modelName, title: $title) {
+            modifiedOn
+            modifiedBy
+            state
+        }
+    }
+`
+
 const EditDocumentPage = ({ user }) => {
     const router = useRouter()
     const params = router.query
@@ -64,6 +95,8 @@ const EditDocumentPage = ({ user }) => {
     const modelName = params.modelName as string
 
     const [form, setForm] = useState(null)
+    const [commentsOpen, setCommentsOpen] = useState(false)
+    const [historyOpen, setHistoryOpen] = useState(true)
     const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
 
     const documentResponse = useQuery(DOCUMENT_QUERY, {
@@ -72,6 +105,14 @@ const EditDocumentPage = ({ user }) => {
     })
 
     const [loadModel, modelResponse] = useLazyQuery(MODEL_QUERY, {
+        fetchPolicy: 'network-only',
+    })
+
+    const [loadComments, commentsResponse] = useLazyQuery(COMMENTS_QUERY, {
+        fetchPolicy: 'network-only',
+    })
+
+    const [loadHistory, historyResponse] = useLazyQuery(HISTORY_QUERY, {
         fetchPolicy: 'network-only',
     })
 
@@ -84,14 +125,36 @@ const EditDocumentPage = ({ user }) => {
                 currentState: documentResponse.data.document.state,
             },
         })
+
+        loadComments({
+            variables: {
+                modelName,
+                title: documentTitle,
+            },
+        })
+
+        loadHistory({
+            variables: {
+                modelName,
+                title: documentTitle,
+            },
+        })
     }, [documentResponse.data])
+
+    useEffect(() => {
+        if (commentsOpen) setHistoryOpen(false)
+    }, [commentsOpen])
+
+    useEffect(() => {
+        if (historyOpen) setCommentsOpen(false)
+    }, [historyOpen])
 
     const currentPrivileges = modelResponse?.data?.model?.workflow
         ? user.privilegesForModelAndWorkflowNode(modelName, modelResponse.data.model.workflow.currentNode)
         : []
 
     function reloadDocument() {
-        setTimeout(() => location.reload(), 500)
+        location.reload()
     }
 
     async function saveDocument(document) {
@@ -127,7 +190,15 @@ const EditDocumentPage = ({ user }) => {
                 <Breadcrumb title={documentTitle} />
             </Breadcrumbs>
 
-            <DocumentHeader model={modelResponse?.data?.model} />
+            <DocumentHeader
+                document={documentResponse?.data?.document}
+                model={modelResponse?.data?.model}
+                toggleCommentsOpen={() => setCommentsOpen(!commentsOpen)}
+                toggleHistoryOpen={() => setHistoryOpen(!historyOpen)}
+                privileges={currentPrivileges}
+                comments={commentsResponse?.data?.documentComments}
+                history={historyResponse?.data?.documentHistory}
+            />
 
             <RenderResponse
                 loading={documentResponse.loading}
@@ -141,13 +212,29 @@ const EditDocumentPage = ({ user }) => {
                     </Alert>
                 }
             >
-                <Form
-                    model={modelResponse?.data?.model}
-                    document={documentResponse?.data?.document}
-                    onUpdateForm={setForm}
-                />
+                <div className={styles.stage} style={{ paddingRight: (commentsOpen || historyOpen) ? 430 : 0 }}>
+                    <Form
+                        model={modelResponse?.data?.model}
+                        document={documentResponse?.data?.document}
+                        onUpdateForm={setForm}
+                    />
 
-                <FormActions privileges={currentPrivileges} form={form} onSave={saveDocument} onUpdateState={updateDocumentState} actions={modelResponse?.data?.model?.workflow?.currentEdges} />
+                    <DocumentPanel title="Comments" open={commentsOpen} onClose={() => setCommentsOpen(false)}>
+                        <DocumentComments comments={commentsResponse?.data?.documentComments} />
+                    </DocumentPanel>
+
+                    <DocumentPanel title="History" open={historyOpen} onClose={() => setHistoryOpen(false)}>
+                        <DocumentHistory history={historyResponse?.data?.documentHistory} onVersionChange={(version) => console.log('change to version ', version)} />
+                    </DocumentPanel>
+                </div>
+
+                <FormActions
+                    privileges={currentPrivileges}
+                    form={form}
+                    onSave={saveDocument}
+                    onUpdateState={updateDocumentState}
+                    actions={modelResponse?.data?.model?.workflow?.currentEdges}
+                />
             </RenderResponse>
         </div>
     )

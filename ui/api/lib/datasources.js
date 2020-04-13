@@ -23,6 +23,14 @@ class mEditorApi extends RESTDataSource {
         return await this.get('getDocument', { model, title })
     }
 
+    async getDocumentComments(model, title) {
+        return await this.get('getComments', { model, title })
+    }
+
+    async getDocumentHistory(model, title) {
+        return await this.get('getDocumentHistory', { model, title })
+    }
+
     async getWorkflow(title) {
         return (await this.getDocument('Workflows', title)).doc
     }

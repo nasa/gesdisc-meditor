@@ -1,0 +1,30 @@
+.panel {
+    border: 1px solid rgba(0, 0, 0, .12);
+    flex: 0 auto 430px;
+    width: 430px;
+    position: fixed;
+    top: 80px;
+    right: 15px;
+    background: #fff;
+    height: calc(100% - 80px);
+    padding: 20px;
+    transform: translateX(445px);
+    transition: transform .1s linear;
+    overflow-y: auto;
+}
+
+.panel h3 {
+    margin-bottom: 30px;
+}
+
+.panelOpen {
+    transform: translateX(15px);
+}
+
+.close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 1.78em;
+    cursor: pointer;
+}

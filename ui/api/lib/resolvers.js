@@ -132,7 +132,13 @@ module.exports = {
         document: async (_, params, { dataSources }) => {
             let document = await dataSources.mEditorApi.getDocument(params.modelName, params.title)
             return await jsonMapper(document, getDocumentMap(params.modelName, params.title))
-        }
+        },
+        documentComments: async (_, params, { dataSources }) => {
+            return dataSources.mEditorApi.getDocumentComments(params.modelName, params.title)
+        },
+        documentHistory: async (_, params, { dataSources }) => {
+            return dataSources.mEditorApi.getDocumentHistory(params.modelName, params.title)
+        },
     },
     JSON: GraphQLJSON.GraphQLJSON,
     JSONObject: GraphQLJSON.GraphQLJSONObject,
