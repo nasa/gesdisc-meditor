@@ -10,13 +10,14 @@ Array.prototype.unique = function() {
 exports.list = function (dbo,item){
     return new Promise(function(resolve, reject) {
         var [model, field] = item[0].split('.');
+
         if ( ! model.match(/^\S+$/) ) {
             console.log("Error: collection name in '"+item+"' should not have white spaces");
             throw("Error: collection name in "+item+" should not have white spaces");
         }
         var projection = {"_id":0};
         projection[field] = 1;
-        dbo.collection(model).find({}).project(projection).toArray(function(err,res){
+        dbo.collection(decodeURIComponent(model)).find({}).project(projection).toArray(function(err,res){
             if (err){
                 console.log(err);
                 throw(err);
