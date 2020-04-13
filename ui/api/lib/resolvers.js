@@ -64,6 +64,17 @@ function getDocumentMap(modelName, documentTitle) {
         'targetStates': {
             path: 'x-meditor.targetStates',
             required: false,
+        },
+        'version': {
+            path: '$item',
+            required: false,
+            formatting: (document) => {
+                let modifiedOn = document['x-meditor'].modifiedOn
+
+                if (modifiedOn) modifiedOn = modifiedOn.toString()
+
+                return document.version || modifiedOn
+            }
         }
     }
 }
@@ -82,11 +93,13 @@ module.exports = {
 
             model.workflow = await dataSources.mEditorApi.getWorkflow(model.workflow)
 
-            // TODO: handle retrieving currentNode based on a passed in state
-            model.workflow.currentNode = model.workflow.nodes[0]
-
-            // TODO: handle retrieving currentEdges based on a passed in state
-            model.workflow.currentEdges = findInitialEdges(model.workflow.edges)
+            if (params.currentState) {
+                model.workflow.currentNode = model.workflow.nodes.find(node => node.id === params.currentState)
+                model.workflow.currentEdges = model.workflow.edges.filter(edge => edge.source === params.currentState)
+            } else {
+                model.workflow.currentNode = model.workflow.nodes[0]
+                model.workflow.currentEdges = findInitialEdges(model.workflow.edges)
+            }
 
             return model
         },

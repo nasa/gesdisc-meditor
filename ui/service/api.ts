@@ -595,6 +595,8 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
 
+            localVarRequestOptions.credentials = 'include'
+
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,

@@ -1,3 +1,4 @@
+import Alert from 'react-bootstrap/Alert'
 import { useQuery } from '@apollo/react-hooks'
 import styles from './search-status-bar.module.css'
 import Button from 'react-bootstrap/Button'
@@ -53,6 +54,21 @@ const SearchStatusBar = ({
     if (error) {
         // something went wrong, but there's nowhere to show the error, log it
         console.error(error)
+    }
+
+    if (!totalDocumentCount) {
+        return (
+            <Alert variant="info">
+                No documents found.
+
+                {(currentPrivileges.includes('create') && currentEdges.length) && (
+                    <Button variant="secondary" onClick={onAddNew} style={{ marginLeft: 20 }}>
+                        <MdAdd />
+                        {currentEdges[0].label}
+                    </Button>
+                )}
+            </Alert>
+        )
     }
 
     return (

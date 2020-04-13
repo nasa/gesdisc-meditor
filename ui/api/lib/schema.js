@@ -12,7 +12,7 @@ const typeDefs = gql`
     type Query {
         modelCategories: [ModelCategory!]! @cacheControl(maxAge: 10)
         models: [Model!]! @cacheControl(maxAge: 10)
-        model(modelName: String!): Model! @cacheControl(maxAge: 10)
+        model(modelName: String!, currentState: String): Model! @cacheControl(maxAge: 10)
         documents(modelName: String!): [Document!]! @cacheControl(maxAge: 10)
         document(modelName: String!, title: String!): Document! @cacheControl(maxAge: 10)
     }
@@ -60,6 +60,7 @@ const typeDefs = gql`
         state: String
         states: [WorkflowState]
         targetStates: [String]
+        version: String
     }
 
     type WorkflowState {

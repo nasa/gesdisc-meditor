@@ -1,7 +1,8 @@
 import Button from 'react-bootstrap/Button'
 import { useRef } from 'react'
+import styles from './form-actions.module.css'
 
-const FormActions = ({ actions = [], privileges, form, onSave }) => {
+const FormActions = ({ actions = [], privileges, form, onSave, onUpdateState = (target: string) => {} }) => {
     const saveEl = useRef(null)
     const canSave = privileges.includes('edit') || privileges.includes('create')
 
@@ -33,10 +34,16 @@ const FormActions = ({ actions = [], privileges, form, onSave }) => {
     return (
         <>
             {canSave && (
-                <Button variant="secondary" onClick={handleSave} ref={saveEl}>
+                <Button className={styles.button} variant="secondary" onClick={handleSave} ref={saveEl}>
                     Save
                 </Button>
             )}
+
+            {actions.map(action => (
+                <Button key={action.label} className={styles.button} variant="secondary" onClick={() => onUpdateState(action.target)}>   
+                    {action.label}
+                </Button>
+            ))}
         </>
     )
 }

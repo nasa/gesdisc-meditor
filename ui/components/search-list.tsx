@@ -1,4 +1,3 @@
-import Alert from 'react-bootstrap/Alert'
 import SearchStatusBar from './search-status-bar'
 import SearchResult from './search-result'
 import { useContext } from 'react'
@@ -46,10 +45,6 @@ const SearchList = ({
     onAddNew,
     user,
 }) => {
-    if (!documents?.length) {
-        return <Alert variant="info">No documents found.</Alert>
-    }
-
     const { searchTerm, sortDir, filterBy } = useContext(AppContext)
 
     let filteredDocuments = documents
