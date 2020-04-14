@@ -20,8 +20,8 @@ import mEditorApi from '../../../service/'
 import styles from './document-edit.module.css'
 
 const DOCUMENT_QUERY = gql`
-    query getDocument($modelName: String!, $title: String!) {
-        document(modelName: $modelName, title: $title) {
+    query getDocument($modelName: String!, $title: String!, $version: String) {
+        document(modelName: $modelName, title: $title, version: $version) {
             title
             doc
             state
@@ -96,11 +96,10 @@ const EditDocumentPage = ({ user }) => {
 
     const [form, setForm] = useState(null)
     const [commentsOpen, setCommentsOpen] = useState(false)
-    const [historyOpen, setHistoryOpen] = useState(true)
+    const [historyOpen, setHistoryOpen] = useState(false)
     const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
 
-    const documentResponse = useQuery(DOCUMENT_QUERY, {
-        variables: { modelName, title: documentTitle },
+    const [loadDocument, documentResponse] = useLazyQuery(DOCUMENT_QUERY, {
         fetchPolicy: 'network-only',
     })
 
@@ -115,6 +114,12 @@ const EditDocumentPage = ({ user }) => {
     const [loadHistory, historyResponse] = useLazyQuery(HISTORY_QUERY, {
         fetchPolicy: 'network-only',
     })
+
+    useEffect(() => {
+        loadDocument({
+            variables: { modelName, title: documentTitle },
+        })
+    }, [])
 
     useEffect(() => {
         if (!documentResponse.data) return
@@ -157,6 +162,12 @@ const EditDocumentPage = ({ user }) => {
         location.reload()
     }
 
+    function loadDocumentVersion(version) {
+        loadDocument({
+            variables: { modelName, title: documentTitle, version }
+        })
+    }
+
     async function saveDocument(document) {
         delete document._id
         delete document.banTransitions
@@ -189,7 +200,7 @@ const EditDocumentPage = ({ user }) => {
                 <Breadcrumb title={modelName} href="/[modelName]" as={`/${modelName}`} />
                 <Breadcrumb title={documentTitle} />
             </Breadcrumbs>
-
+            
             <DocumentHeader
                 document={documentResponse?.data?.document}
                 model={modelResponse?.data?.model}
@@ -224,7 +235,7 @@ const EditDocumentPage = ({ user }) => {
                     </DocumentPanel>
 
                     <DocumentPanel title="History" open={historyOpen} onClose={() => setHistoryOpen(false)}>
-                        <DocumentHistory history={historyResponse?.data?.documentHistory} onVersionChange={(version) => console.log('change to version ', version)} />
+                        <DocumentHistory history={historyResponse?.data?.documentHistory} onVersionChange={loadDocumentVersion} />
                     </DocumentPanel>
                 </div>
 

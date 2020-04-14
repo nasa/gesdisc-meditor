@@ -14,7 +14,7 @@ const typeDefs = gql`
         models: [Model!]!
         model(modelName: String!, currentState: String): Model!
         documents(modelName: String!): [Document!]!
-        document(modelName: String!, title: String!): Document!
+        document(modelName: String!, title: String!, version: String): Document!
         documentComments(modelName: String!, title: String!): [Comment]!
         documentHistory(modelName: String!, title: String!): [History]!
     }

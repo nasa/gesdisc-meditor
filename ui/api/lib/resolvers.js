@@ -130,7 +130,14 @@ module.exports = {
             return await jsonMapper(documents, getDocumentMap(params.modelName))
         },
         document: async (_, params, { dataSources }) => {
-            let document = await dataSources.mEditorApi.getDocument(params.modelName, params.title)
+            let document
+
+            if (params.version) {
+                document = await dataSources.mEditorApi.getDocumentVersion(params.modelName, params.title, params.version)
+            } else {
+                document = await dataSources.mEditorApi.getDocument(params.modelName, params.title)
+            }
+
             return await jsonMapper(document, getDocumentMap(params.modelName, params.title))
         },
         documentComments: async (_, params, { dataSources }) => {

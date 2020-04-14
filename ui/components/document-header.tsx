@@ -23,33 +23,35 @@ const DocumentHeader = ({
 
             <div className={styles.description}>{model?.description}</div>
 
-            <div className={styles.subheader}>
-                {privileges.includes('comment') && (
-                    <Button variant="primary" onClick={toggleCommentsOpen}>
-                        <MdComment />
+            {document && (
+                <div className={styles.subheader}>
+                    {privileges.includes('comment') && (
+                        <Button variant="primary" onClick={toggleCommentsOpen}>
+                            <MdComment />
+                            <Badge className={styles.badge} variant="light">
+                                {comments.length}
+                            </Badge>
+                            <span className="sr-only">comments</span>
+                        </Button>
+                    )}
+
+                    <Button variant="primary" onClick={toggleHistoryOpen}>
+                        <MdHistory />
                         <Badge className={styles.badge} variant="light">
-                            {comments.length}
+                            {history.length}
                         </Badge>
-                        <span className="sr-only">comments</span>
+                        <span className="sr-only">history items</span>
                     </Button>
-                )}
 
-                <Button variant="primary" onClick={toggleHistoryOpen}>
-                    <MdHistory />
-                    <Badge className={styles.badge} variant="light">
-                        {history.length}
-                    </Badge>
-                    <span className="sr-only">history items</span>
-                </Button>
+                    <DocumentStateBadge document={document} />
 
-                <DocumentStateBadge document={document} />
-
-                <div>
-                    <em>
-                        (edited by {document?.modifiedBy} on {document?.modifiedOn})
-                    </em>
+                    <div>
+                        <em>
+                            (edited by {document?.modifiedBy} on {document?.modifiedOn})
+                        </em>
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     )
 }
