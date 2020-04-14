@@ -1,6 +1,7 @@
 const { GraphQLScalarType } = require('graphql')
 const GraphQLJSON = require('graphql-type-json')
 const jsonMapper = require('json-mapper-json')
+require('portable-fetch')
 
 function sortModels(modelA, modelB) {
     if (modelA.category < modelB.category) return 1
@@ -146,6 +147,33 @@ module.exports = {
         documentHistory: async (_, params, { dataSources }) => {
             return dataSources.mEditorApi.getDocumentHistory(params.modelName, params.title)
         },
+        validLink: async (_, { url }) => {
+            try {
+                let regex = new RegExp(/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi)
+
+                if (!url || !url.match(regex)) {
+                    throw new Error('Invalid URL')
+                }
+
+                let response = await fetch(url, {
+                    method: 'HEAD',
+                })
+
+                if (response.status >= 400) {
+                    throw new Error('Bad response from server')
+                }
+
+                return {
+                    isValid: true,
+                    message: 'Valid URL',
+                }
+            } catch (err) {
+                return {
+                    isValid: false,
+                    message: err.message || 'Invalid URL',
+                }
+            }
+        }
     },
     JSON: GraphQLJSON.GraphQLJSON,
     JSONObject: GraphQLJSON.GraphQLJSONObject,

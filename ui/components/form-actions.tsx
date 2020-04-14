@@ -19,6 +19,13 @@ const FormActions = ({ actions = [], privileges, form, onSave, onUpdateState = (
     }
 
     function handleSave() {
+        let brokenLinks = localStorage.getItem('brokenLinks')
+        let hasBrokenLinks = brokenLinks && Object.values(JSON.parse(brokenLinks)).includes("false")
+
+        if (hasBrokenLinks && !confirm('There are broken links in your document, are you sure you want to save?')) {
+            return
+        }
+
         let errors = validateAllFields()
 
         // don't save a document that has errors!
@@ -31,6 +38,10 @@ const FormActions = ({ actions = [], privileges, form, onSave, onUpdateState = (
         onSave(form.state.formData) // no errors, document can be saved!
     }
 
+    function handleStateUpdate(target) {
+        onUpdateState(target)
+    }
+
     return (
         <>
             {canSave && (
@@ -40,7 +51,7 @@ const FormActions = ({ actions = [], privileges, form, onSave, onUpdateState = (
             )}
 
             {actions.map(action => (
-                <Button key={action.label} className={styles.button} variant="secondary" onClick={() => onUpdateState(action.target)}>   
+                <Button key={action.label} className={styles.button} variant="secondary" onClick={() => handleStateUpdate(action.target)}>   
                     {action.label}
                 </Button>
             ))}

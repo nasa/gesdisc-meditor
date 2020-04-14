@@ -1,12 +1,28 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { default as RJSFStringField } from 'react-jsonschema-form/lib/components/fields/StringField'
+import { MdWarning } from 'react-icons/md'
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
+import Tooltip from 'react-bootstrap/Tooltip'
 
 /**
  * overrides the original StringField to add custom features
  * @param {*} props
  */
 function StringField(props) {
-    console.log(props)
+    const [linkIsValid, setLinkIsValid] = useState(null)
+
+    useEffect(() => {
+        if (linkIsValid === null) return
+
+        let brokenLinks = localStorage.getItem('brokenLinks')
+
+        if (brokenLinks) brokenLinks = JSON.parse(brokenLinks)
+        else brokenLinks = {}
+        
+        brokenLinks[props.name] = linkIsValid.toString()
+
+        localStorage.setItem('brokenLinks', JSON.stringify(brokenLinks))
+    }, [linkIsValid])
 
     function validateNoBrokenLinks() {
         if (!props.formData) {
@@ -26,29 +42,60 @@ function StringField(props) {
 
         // ok we have a valid URL, let's test it
         
-        fetch(props.formContext.linkCheckerApiUrl + props.formData.replace('https://', '').replace('http://', ''), {
-            method: 'HEAD',
+        let apiUrl = props.formContext.linkCheckerApiUrl + (props.formContext.linkCheckerApiUrl.substr(-1) != '/' ? '/' : '')
+
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                query: `query { validLink(url:"${props.formData}") { isValid, message } }`
+            })
         })
+            .then(response => response.json())
             .then(response => {
-                if (!response.ok) {
-                    console.log('failed!')
+                if (response.data.validLink.isValid) {
+                    setLinkIsValid(true)
+                } else {
+                    setLinkIsValid(false)
+                    console.debug(response.data.validLink.message)
                 }
             })
     }
 
-    function handleBlur(a, b, c) {
+    function handleBlur(args) {
         let fieldFormat = props.schema.format
 
         if (fieldFormat && (fieldFormat === 'uri' || fieldFormat === 'url')) {
+            setLinkIsValid(true)
             validateNoBrokenLinks()
         }
 
         if (props.onBlur) {
-            props.onBlur()
+            props.onBlur(args)
         }
     }
 
-    return <RJSFStringField {...props} onBlur={handleBlur} />
+    return (
+        <>
+            <RJSFStringField {...props} onBlur={handleBlur} />
+
+            {linkIsValid === false && (
+                <div className="field-warning">
+                    <OverlayTrigger 
+                        placement="left" 
+                        delay={{ show: 150, hide: 400 }} 
+                        overlay={(props) => (
+                            <Tooltip {...props}>
+                                URL doesn't exist
+                            </Tooltip>
+                        )}
+                    >
+                        <MdWarning />
+                    </OverlayTrigger>
+                </div>
+            )}
+        </>
+    )
 }
 
 export default StringField

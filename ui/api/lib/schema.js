@@ -17,6 +17,7 @@ const typeDefs = gql`
         document(modelName: String!, title: String!, version: String): Document!
         documentComments(modelName: String!, title: String!): [Comment]!
         documentHistory(modelName: String!, title: String!): [History]!
+        validLink(url: String!): ValidLinkResponse!
     }
 
     type ModelIcon {
@@ -116,6 +117,11 @@ const typeDefs = gql`
         resolvedBy: String
         createdBy: String
         createdOn: String
+    }
+
+    type ValidLinkResponse {
+        isValid: Boolean!
+        message: String
     }
 `
 

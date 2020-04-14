@@ -23,6 +23,9 @@ const JsonSchemaForm = ({
     function onBlur(...args) {
         setTimeout(() => {
             const field = args[0].split('_')[1]
+
+            if (!formEl.current) return
+
             const { formData, errors, errorSchema } = formEl.current.state
 
             const { errors: _errors, errorSchema: _errorSchema } = formEl.current.validate(formData)
@@ -54,6 +57,7 @@ const JsonSchemaForm = ({
             formContext={{ 
                 // use the configured image upload url or default to LB if none found
                 imageUploadUrl: imageUploadUrl || 'https://lb.gesdisc.eosdis.nasa.gov/images/upload', 
+                linkCheckerApiUrl: 'http://localhost:4000',
             }}
         />
     )

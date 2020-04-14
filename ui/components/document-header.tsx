@@ -6,10 +6,10 @@ import Badge from 'react-bootstrap/Badge'
 import { MdHistory, MdComment } from 'react-icons/md'
 
 const DocumentHeader = ({
-    document,
+    document = null,
     model,
-    toggleCommentsOpen,
-    toggleHistoryOpen,
+    toggleCommentsOpen = () => {},
+    toggleHistoryOpen = () => {},
     privileges = [],
     comments = [],
     history = [],

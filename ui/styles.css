@@ -106,6 +106,18 @@ form.rjsf button[type="submit"] {
     width: 100%;
 }
 
+.form-group.field-string {
+    position: relative;
+}
+
+.field-warning {
+    position: absolute;
+    top: 30px;
+    color: orange;
+    right: 10px;
+    font-size: 1.3em;
+}
+
 .form-group.field .checkbox,
 .form-group.field legend {
     text-transform: capitalize;
