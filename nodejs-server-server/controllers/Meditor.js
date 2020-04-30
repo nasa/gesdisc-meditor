@@ -10,6 +10,7 @@ var jsonpath = require('jsonpath');
 var macros = require('./Macros');
 var mUtils = require('./lib/meditor-utils');
 var mFile = require('./lib/meditor-mongo-file');
+var Validator = require('jsonschema').Validator;
 
 var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
 var DbName = "meditor";
@@ -51,11 +52,21 @@ function handleResponse(response, res, defaultStatus, defaultMessage) {
   if (_.isString(result)) {
     result = {code: status, description: result};
   };
+
+  if (res.errors) {
+    result.errors = res.errors
+  }
+
   utils.writeJson(response, result, status);
 }
 
 function handleError(response, err) {
-  console.log('Error: ', err);
+  // if the error message contains a list of errors, remove them for the console message so we don't pollute the logs
+  // these errors will remain visible in the API response
+  let consoleError = Object.assign({}, err)
+  delete consoleError.errors
+
+  console.log('Error: ', consoleError);
   handleResponse(response, err, 500, 'Unknown error');
 };
 
@@ -167,6 +178,26 @@ function getExtraDocumentMetadata (meta, doc) {
     {targetStates: doc.banTransitions ? [] : _.get(meta.sourceToTargetStateMap, _.get(doc, "x-meditor.state", "Unknown"), [])}
   };
   return extraMeta;
+}
+
+/**
+ * cleans up schema validation error messages
+ * error messages can include things like enums that are very large
+ */
+function mapValidationErrorMessage(error) {
+  let enumKey = 'enum values:'
+
+  // enum values can be very large, remove enum values from error messages
+  let message = error.message.indexOf(enumKey) > -1 ? error.message.substring(0, error.message.indexOf(enumKey) + enumKey.length - 1) : error.message
+  let stack = error.stack.indexOf(enumKey) > -1 ? error.stack.substring(0, error.stack.indexOf(enumKey) + enumKey.length - 1) : error.stack
+  
+  return {
+    property: error.property,
+    name: error.name,
+    argument: error.argument.length <= 100 ? error.argument : [],
+    message,
+    stack,
+  }
 }
 
 // ================================= Exported API functions =========================
@@ -317,7 +348,6 @@ module.exports.putDocument = function putDocument (request, response, next) {
   var doc;
   try {
     doc = safelyParseJSON(file.buffer.toString());
-    // TODO: validate JSON based on schema
   } catch(err) {
     console.log(err);
     return handleError(response, {
@@ -326,7 +356,29 @@ module.exports.putDocument = function putDocument (request, response, next) {
     });
   };
 
-  return MongoClient.connect(MongoUrl)
+  return getModelContent(doc['x-meditor'].model)
+    .then(model => {
+      if (!model || !model.schema) throw new Error('Failed to find the requested model')
+
+      that.model = model
+      return model
+    })
+    .then(model => {
+      // validate the document against the schema
+      var v = new Validator();
+      var result = v.validate(doc, JSON.parse(model.schema))
+
+      if (result.errors.length > 0) {
+        throw {
+          status: 400,
+          message: `Document does not validate against the ${doc['x-meditor'].model} schema`,
+          errors: result.errors.map(error => mapValidationErrorMessage(error)),
+        }
+      }
+    })
+    .then(() => {
+      return MongoClient.connect(MongoUrl)
+    })
     .then(res => {
       that.dbo = res;
       return getDocumentModelMetadata(that.dbo, request, {model: doc["x-meditor"]["model"]});
@@ -348,11 +400,8 @@ module.exports.putDocument = function putDocument (request, response, next) {
     })
     .then(res => {return mUtils.actOnDocumentChanges(that, DbName, doc);})
     .then(() => {
-      return getModelContent(doc['x-meditor'].model)
-    })
-    .then((model) => {
       let state = doc['x-meditor'].states[doc['x-meditor'].states.length - 1].target      
-      return mUtils.publishToNats(doc, model, state)
+      return mUtils.publishToNats(doc, that.model, state)
     })
     .then(res => (that.dbo.close(), handleSuccess(response, {message: "Inserted document"})))
     .catch(err => {
