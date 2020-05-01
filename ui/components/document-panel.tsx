@@ -1,4 +1,5 @@
 import styles from './document-panel.module.css'
+import IconButton from './icon-button'
 import { MdClose } from 'react-icons/md'
 
 const DocumentPanel = ({ title, children, onClose, open = false }) => {
@@ -8,7 +9,11 @@ const DocumentPanel = ({ title, children, onClose, open = false }) => {
         
             {children}
 
-            <MdClose className={styles.close} onClick={onClose} />
+            <div className={styles.close}>
+                <IconButton alt="Close" tooltipPlacement="left">
+                    <MdClose onClick={onClose} />
+                </IconButton>
+            </div>
         </div>
     )
 }
