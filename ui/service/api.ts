@@ -638,6 +638,8 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
 
+            localVarRequestOptions.credentials = 'include'
+
             return {
                 url: url.format(localVarUrlObj),
                 options: localVarRequestOptions,
@@ -1015,19 +1017,28 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
             const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
-            const localVarFormParams = new url.URLSearchParams();
+            const localVarFormParams = new FormData()
 
-            if (file !== undefined) {
-                localVarFormParams.set('file', file as any);
+            // authentication URS4 required
+            // oauth required
+            if (configuration && configuration.accessToken) {
+				const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
+					? configuration.accessToken("URS4", ["read", "write"])
+					: configuration.accessToken;
+                localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
             }
 
-            localVarHeaderParameter['Content-Type'] = 'application/x-www-form-urlencoded';
+            if (file !== undefined) {
+                localVarFormParams.append('file', file);
+            }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
-            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
-            localVarRequestOptions.body = localVarFormParams.toString();
+            localVarRequestOptions.headers = Object.assign({}, options.headers);
+            localVarRequestOptions.body = localVarFormParams
+
+            localVarRequestOptions.credentials = 'include'
 
             return {
                 url: url.format(localVarUrlObj),
@@ -1161,6 +1172,8 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
             // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
             delete localVarUrlObj.search;
             localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            localVarRequestOptions.credentials = 'include'
 
             return {
                 url: url.format(localVarUrlObj),

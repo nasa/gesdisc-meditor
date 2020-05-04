@@ -18,6 +18,7 @@ import withAuthentication from '../../../components/with-authentication'
 import FormActions from '../../../components/form-actions'
 import mEditorApi from '../../../service/'
 import styles from './document-edit.module.css'
+import { treeify } from '../../../lib/treeify'
 
 const DOCUMENT_QUERY = gql`
     query getDocument($modelName: String!, $title: String!, $version: String) {
@@ -95,7 +96,8 @@ const EditDocumentPage = ({ user }) => {
     const modelName = params.modelName as string
 
     const [form, setForm] = useState(null)
-    const [commentsOpen, setCommentsOpen] = useState(false)
+    const [commentsOpen, setCommentsOpen] = useState(true)
+    const [treeifiedComments, setTreeifiedComments] = useState([])
     const [historyOpen, setHistoryOpen] = useState(false)
     const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
 
@@ -131,12 +133,7 @@ const EditDocumentPage = ({ user }) => {
             },
         })
 
-        loadComments({
-            variables: {
-                modelName,
-                title: documentTitle,
-            },
-        })
+        reloadComments()
 
         loadHistory({
             variables: {
@@ -145,6 +142,10 @@ const EditDocumentPage = ({ user }) => {
             },
         })
     }, [documentResponse.data])
+
+    useEffect(() => {
+        setTreeifiedComments(treeify(commentsResponse?.data?.documentComments))        
+    }, [commentsResponse.data])
 
     useEffect(() => {
         if (commentsOpen) setHistoryOpen(false)
@@ -192,6 +193,40 @@ const EditDocumentPage = ({ user }) => {
         reloadDocument()
     }
 
+    async function reloadComments() {
+        loadComments({
+            variables: {
+                modelName,
+                title: documentTitle,
+            },
+        })
+    }
+
+    async function saveComment(comment) {
+        if (!('_id' in comment)) {
+            comment.documentId = documentTitle
+            comment.model = modelName
+            comment.version = documentResponse.data.document.version
+            
+            // TODO: move to the API
+            comment.createdBy = user.firstName + ' ' + user.lastName
+            comment.userUid = user.uid
+
+            const commentBlob = new Blob([JSON.stringify(comment)])
+
+            await mEditorApi.postComment(commentBlob)
+        } else {
+            await mEditorApi.editComment(comment._id, comment.text)
+        }
+        
+        reloadComments()
+    }
+
+    async function resolveComment(comment) {
+        await mEditorApi.resolveComment(comment._id, user.uid)
+        reloadComments()
+    }
+
     return (
         <div>
             <PageTitle title={[documentTitle, modelName]} />
@@ -231,7 +266,7 @@ const EditDocumentPage = ({ user }) => {
                     />
 
                     <DocumentPanel title="Comments" open={commentsOpen} onClose={() => setCommentsOpen(false)}>
-                        <DocumentComments comments={commentsResponse?.data?.documentComments} />
+                        <DocumentComments user={user} comments={treeifiedComments} saveComment={saveComment} resolveComment={resolveComment} />
                     </DocumentPanel>
 
                     <DocumentPanel title="History" open={historyOpen} onClose={() => setHistoryOpen(false)}>
