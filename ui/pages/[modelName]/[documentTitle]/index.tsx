@@ -96,7 +96,7 @@ const EditDocumentPage = ({ user }) => {
     const modelName = params.modelName as string
 
     const [form, setForm] = useState(null)
-    const [commentsOpen, setCommentsOpen] = useState(true)
+    const [commentsOpen, setCommentsOpen] = useState(false)
     const [treeifiedComments, setTreeifiedComments] = useState([])
     const [historyOpen, setHistoryOpen] = useState(false)
     const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
