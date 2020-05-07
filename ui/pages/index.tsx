@@ -39,7 +39,7 @@ const DashboardPage = ({ user }) => {
                     <h3>{category.name}</h3>
 
                     <div className={styles.models}>
-                        {category.models.map(model => (
+                        {category.models.sort((a, b) => a.name.localeCompare(b.name)).map(model => (
                             <div key={model.name} className={styles.model}>
                                 <Button
                                     variant="light"
