@@ -1,17 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react'
 import Tagify from '@yaireo/tagify'
 
-// required tagify options, these shouldn't be changed as they change the expected functionality of the multi-select
-// if you need to add a new one
-const TAGIFY_OPTIONS = {
-    whitelist: [],
-    enforceWhitelist: true,
-    dropdown: {
-        enabled: 0,
-        maxItems: 1000,
-    }
-}
-
 function MultiSelectWidget(props) {
     const { id, placeholder, required, disabled, readonly, autofocus, value, options, onChange } = props
     const [ tagify, setTagify ] = useState(null)
@@ -21,9 +10,17 @@ function MultiSelectWidget(props) {
     useEffect(() => {
         if (tagify) return
 
-        setTagify(new Tagify(inputEl.current, Object.assign({}, TAGIFY_OPTIONS, {
-            whitelist: options.enumOptions,
-        }))) 
+        let tagifyOptions = {
+            whitelist: options.enumOptions || [],
+            enforceWhitelist: 'enforceEnumOptions' in options ? options.enforceEnumOptions : true,
+            keepInvalidTags: 'keepInvalidTags' in options ? options.keepInvalidTags : true,
+            dropdown: {
+                enabled: 'dropdownEnabled' in options ? options.dropdownEnabled : 0,
+                maxItems: 'maxOptions' in options ? options.maxOptions : 1000,
+            },
+        }
+
+        setTagify(new Tagify(inputEl.current, tagifyOptions))
     }, [inputEl, tagify, options.enumOptions])
 
     useEffect(() => {
