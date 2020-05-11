@@ -8,7 +8,7 @@ var mFile = require('./lib/meditor-mongo-file');
 const DEBUG_URS_LOGIN = false;
 // Meditor models supported in UUI
 const PUBLISHABLE_MODELS = ['Alerts', 'Data-In-Action', 'Documents', 'FAQs', 'Glossary',
-  'Howto', 'Images', 'New News', 'News', 'Publications', 'Tools', 'Data Release', 'Service Release'];
+  'Howto', 'Images', 'New News', 'News', 'Publications', 'Tools', 'Data Release', 'Service Release', 'Collection Metadata'];
 const FILE_BASED_UUI_MODELS = ['news', 'images', 'tools'];
 
 // Try to load up environment config if not loaded already
@@ -600,5 +600,5 @@ module.exports.syncAll = function() {
   }, Promise.resolve([]));
 };
 
-// module.exports.processQueueItem({"model": "News"}); // test stub
+// module.exports.processQueueItem({"model": "Collection Metadata"}); // test stub
 // module.exports.syncAll(); // Can be used to force sync of all models
