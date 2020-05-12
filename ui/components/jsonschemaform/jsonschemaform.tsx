@@ -13,6 +13,7 @@ const JsonSchemaForm = ({
     layout, 
     liveValidate = false,
     onInit = (form: any) => {},
+    onChange = (event: any) => {},
 }) => {
     const formEl: any = useRef(null)
 
@@ -54,6 +55,7 @@ const JsonSchemaForm = ({
             ObjectFieldTemplate={fields.FlexLayoutField}
             liveValidate={liveValidate}
             onBlur={onBlur}
+            onChange={onChange}
             formContext={{ 
                 // use the configured image upload url or default to LB if none found
                 imageUploadUrl: imageUploadUrl || 'https://lb.gesdisc.eosdis.nasa.gov/images/upload', 

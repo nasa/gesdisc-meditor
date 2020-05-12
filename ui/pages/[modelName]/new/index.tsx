@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react'
+import { useContext, useState, useEffect } from 'react'
 import { AppContext } from '../../../components/app-store'
 import { useQuery } from '@apollo/react-hooks'
 import { useRouter } from 'next/router'
@@ -45,6 +45,7 @@ const NewDocumentPage = ({ user }) => {
     const modelName = params.modelName as string
 
     const [form, setForm] = useState(null)
+    const [formData, setFormData] = useState(null)
     const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
 
     const { loading, error, data } = useQuery(QUERY, {
@@ -52,6 +53,13 @@ const NewDocumentPage = ({ user }) => {
     })
 
     const currentPrivileges = data?.model?.workflow ? user.privilegesForModelAndWorkflowNode(modelName, data.model.workflow.currentNode) : []
+
+    // set initial formData
+    useEffect(() => {
+        if (!form?.state) return
+        
+        setFormData(form.state.formData)
+    }, [form])
 
     function redirectToDocumentEdit(document) {
         let documentName = encodeURIComponent(document[data.model.titleProperty])
@@ -73,6 +81,10 @@ const NewDocumentPage = ({ user }) => {
             console.error('Failed to create document ', err)
             setErrorNotification('Failed to create the document')
         }
+    }
+
+    function onChange(formData: any) {
+        setFormData(formData)
     }
 
     return (
@@ -98,13 +110,16 @@ const NewDocumentPage = ({ user }) => {
                     </Alert>
                 }
             >
-                <Form model={data?.model} onUpdateForm={setForm} />
+                <Form model={data?.model} document={formData} onUpdateForm={setForm} onChange={onChange} />
                 
-                <FormActions  
-                    privileges={currentPrivileges}
-                    form={form} 
-                    onSave={createDocument}
-                />
+                {form?.state && (
+                    <FormActions  
+                        privileges={currentPrivileges}
+                        form={form} 
+                        formData={formData}
+                        onSave={createDocument}
+                    />
+                )}
             </RenderResponse>
         </div>
     )

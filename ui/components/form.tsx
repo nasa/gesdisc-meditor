@@ -9,21 +9,22 @@ const JsonSchemaForm = dynamic(
 
 const Form = ({ 
     model, 
-    document = {
-        doc: {}
-    },
+    document,
     liveValidate = false,
     onUpdateForm,
+    onChange = (data: any) => {},
 }) => { 
     let layout = model?.uiSchema || model?.layout || '{}'
+    let formData = document?.doc || document || {}
 
     return (
         <JsonSchemaForm
             schema={model ? JSON.parse(model.schema) : {}}
-            formData={document ? document.doc : {}}
+            formData={formData}
             layout={JSON.parse(layout)}
             liveValidate={liveValidate}
             onInit={onUpdateForm}
+            onChange={(event: any) => onChange(event?.formData)}
         />
     )
 }

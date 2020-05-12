@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect } from 'react'
 import { AppContext } from '../../../components/app-store'
-import { useQuery, useLazyQuery } from '@apollo/react-hooks'
+import { useLazyQuery } from '@apollo/react-hooks'
 import { useRouter } from 'next/router'
 import gql from 'graphql-tag'
 import { withApollo } from '../../../lib/apollo'
@@ -96,6 +96,7 @@ const EditDocumentPage = ({ user }) => {
     const modelName = params.modelName as string
 
     const [form, setForm] = useState(null)
+    const [formData, setFormData] = useState(null)
     const [commentsOpen, setCommentsOpen] = useState(false)
     const [treeifiedComments, setTreeifiedComments] = useState([])
     const [historyOpen, setHistoryOpen] = useState(false)
@@ -125,6 +126,8 @@ const EditDocumentPage = ({ user }) => {
 
     useEffect(() => {
         if (!documentResponse.data) return
+
+        setFormData(documentResponse.data.document)
 
         loadModel({
             variables: {
@@ -227,6 +230,10 @@ const EditDocumentPage = ({ user }) => {
         reloadComments()
     }
 
+    function onChange(formData: any) {
+        setFormData(formData)
+    }
+
     return (
         <div>
             <PageTitle title={[documentTitle, modelName]} />
@@ -261,8 +268,9 @@ const EditDocumentPage = ({ user }) => {
                 <div className={styles.stage} style={{ paddingRight: (commentsOpen || historyOpen) ? 430 : 0 }}>
                     <Form
                         model={modelResponse?.data?.model}
-                        document={documentResponse?.data?.document}
+                        document={formData}
                         onUpdateForm={setForm}
+                        onChange={onChange}
                     />
 
                     <DocumentPanel title="Comments" open={commentsOpen} onClose={() => setCommentsOpen(false)}>
@@ -277,6 +285,7 @@ const EditDocumentPage = ({ user }) => {
                 <FormActions
                     privileges={currentPrivileges}
                     form={form}
+                    formData={formData}
                     onSave={saveDocument}
                     onUpdateState={updateDocumentState}
                     actions={modelResponse?.data?.model?.workflow?.currentEdges}
