@@ -8,7 +8,7 @@ const LoginDialog = ({
     onHide = () => {},
 }) => {
     function login() {
-        window.location.href = 'http://localhost:8081/meditor/api/login'
+        window.location.href = '/meditor/api/login'
     }
 
     return (

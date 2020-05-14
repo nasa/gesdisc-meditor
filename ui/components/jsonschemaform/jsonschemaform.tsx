@@ -10,6 +10,7 @@ const JsonSchemaForm = ({
     schema, 
     formData, 
     imageUploadUrl = null,
+    linkCheckerUrl = null,
     layout, 
     liveValidate = false,
     onInit = (form: any) => {},
@@ -59,7 +60,7 @@ const JsonSchemaForm = ({
             formContext={{ 
                 // use the configured image upload url or default to LB if none found
                 imageUploadUrl: imageUploadUrl || 'https://lb.gesdisc.eosdis.nasa.gov/images/upload', 
-                linkCheckerApiUrl: 'http://localhost:4000',
+                linkCheckerApiUrl: linkCheckerUrl,
             }}
         />
     )

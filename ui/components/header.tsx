@@ -49,7 +49,7 @@ const Header = ({
                             </Dropdown.Toggle>
 
                             <Dropdown.Menu>
-                                <Dropdown.Item href="http://localhost:8081/meditor/api/logout">
+                                <Dropdown.Item href="/meditor/api/logout">
                                     Logout
                                 </Dropdown.Item>
                             </Dropdown.Menu>

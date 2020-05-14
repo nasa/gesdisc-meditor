@@ -24,7 +24,7 @@ url.URLSearchParams = URLSearchParams
 const fetchIntercept = attach()
 
 const API_CONFIG: ConfigurationParameters = {
-    basePath: 'http://localhost:8081/meditor/api',
+    basePath: process.env.API_BASE_PATH,
     fetch,
 }
 
