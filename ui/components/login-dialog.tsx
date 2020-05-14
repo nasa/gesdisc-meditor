@@ -8,7 +8,7 @@ const LoginDialog = ({
     onHide = () => {},
 }) => {
     function login() {
-        window.location.href = '/meditor/api/login'
+        window.location.href = process.env.NEXT_PUBLIC_API_BASE_PATH + '/login'
     }
 
     return (

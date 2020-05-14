@@ -25,8 +25,8 @@ const Form = ({
             liveValidate={liveValidate}
             onInit={onUpdateForm}
             onChange={(event: any) => onChange(event?.formData)}
-            imageUploadUrl={process.env.IMAGE_UPLOAD_URL}
-            linkCheckerUrl={process.env.LINK_CHECKER_URL}
+            imageUploadUrl={process.env.NEXT_PUBLIC_IMAGE_UPLOAD_URL}
+            linkCheckerUrl={process.env.NEXT_PUBLIC_LINK_CHECKER_URL}
         />
     )
 }

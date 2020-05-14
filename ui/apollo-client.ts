@@ -9,7 +9,7 @@ export default function createApolloClient(initialState, ctx) {
     return new ApolloClient({
         ssrMode: Boolean(ctx),
         link: new HttpLink({
-            uri: process.env.GRAPHQL_URL,
+            uri: process.env.NEXT_PUBLIC_GRAPHQL_URL,
             fetch,
         }),
         cache: new InMemoryCache({

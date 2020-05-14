@@ -32,6 +32,8 @@ const Header = ({
                 </Navbar.Brand>
 
                 <div className="d-flex flex-row">
+        <span>API URL: {process.env.NEXT_PUBLIC_API_BASE_PATH}</span>
+
                     {isAuthenticated && (
                         <Dropdown
                             onMouseEnter={() => setUserMenuOpen(true)}
@@ -49,7 +51,7 @@ const Header = ({
                             </Dropdown.Toggle>
 
                             <Dropdown.Menu>
-                                <Dropdown.Item href="/meditor/api/logout">
+                                <Dropdown.Item href={process.env.NEXT_PUBLIC_API_BASE_PATH + '/logout'}>
                                     Logout
                                 </Dropdown.Item>
                             </Dropdown.Menu>

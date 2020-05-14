@@ -24,7 +24,7 @@ url.URLSearchParams = URLSearchParams
 const fetchIntercept = attach()
 
 const API_CONFIG: ConfigurationParameters = {
-    basePath: process.env.API_BASE_PATH,
+    basePath: process.env.NEXT_PUBLIC_API_BASE_PATH,
     fetch,
 }
 
