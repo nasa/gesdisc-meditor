@@ -10,29 +10,16 @@ services:
     depends_on:
       - database
     environment:
-      - SERVER_HOST=meditor-test_server
-      - UI_HOST=meditor-test_ui
+      - SERVER_HOST=meditor_test_server
+      - UI_HOST=meditor_test_ui
+      - MONITOR_HOST=lb.gesdisc.eosdis.nasa.gov   # use the same monitor as LB
     deploy:
       placement:
         constraints:
           - node.labels.database == primary
 
-  notifier:
-    container_name: meditor_notifier
-    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_notifier:0.37.0
-    restart: on-failure
-    depends_on:
-      - nats
-    environment:
-      - MAIL_HOST=${MAIL_HOST}
-      - HOST_NAME=${HOST_NAME}
-    deploy:
-        placement:
-          constraints:
-            - node.labels.database == primary
-
   ui:
-    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_ui:0.43.0
+    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_ui:0.47.0
     restart: on-failure
     environment:
       - NODE_ENV=${NODE_ENV}
@@ -44,7 +31,7 @@ services:
           - node.labels.database == primary
 
   server:
-    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_server:0.40.0
+    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_server:0.41.0
     depends_on:
       - database
     restart: on-failure
@@ -53,7 +40,7 @@ services:
       - NODE_OPTIONS=--max_old_space_size=4096
       - APP_URL=https://uat.gesdisc.eosdis.nasa.gov
       - APP_UI_URL=https://uat.gesdisc.eosdis.nasa.gov/meditor
-      - MONGOURL=mongodb://meditor-test_database:27017
+      - MONGOURL=mongodb://meditor_test_database:27017
     secrets:
       - auth_host
       - auth_client_id
