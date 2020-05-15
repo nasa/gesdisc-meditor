@@ -66,7 +66,7 @@ function handleError(response, err) {
   let consoleError = Object.assign({}, err)
   delete consoleError.errors
 
-  console.log('Error: ', consoleError);
+  console.log('Error: ', err);
   handleResponse(response, err, 500, 'Unknown error');
 };
 
@@ -190,11 +190,11 @@ function mapValidationErrorMessage(error) {
   // enum values can be very large, remove enum values from error messages
   let message = error.message.indexOf(enumKey) > -1 ? error.message.substring(0, error.message.indexOf(enumKey) + enumKey.length - 1) : error.message
   let stack = error.stack.indexOf(enumKey) > -1 ? error.stack.substring(0, error.stack.indexOf(enumKey) + enumKey.length - 1) : error.stack
-  
+ 
   return {
     property: error.property,
     name: error.name,
-    argument: error.argument.length <= 100 ? error.argument : [],
+    argument: error.argument && error.argument.length <= 100 ? error.argument : [],
     message,
     stack,
   }
