@@ -93,6 +93,7 @@ module.exports.publishToNats = function publishToNats(document, model, state = '
     },
     state,
     time: Date.now(),
+    target: 'uui',        // TODO: alter uui-subscriber to ignore target then this can be removed
   })
 
   console.log(`Publishing message to channel ${channelName}: `, message)

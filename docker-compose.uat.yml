@@ -32,7 +32,7 @@ services:
           - node.labels.database == primary
 
   server:
-    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_server:0.43.0
+    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_server:0.44.0
     depends_on:
       - database
     restart: on-failure
