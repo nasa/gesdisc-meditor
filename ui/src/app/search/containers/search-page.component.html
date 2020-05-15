@@ -1,32 +1,35 @@
-<div *ngIf="models$ | async as models">
+<div *ngIf="modelStore.models$ | async as models">
 	<med-search-bar 
 		[models]="models" 
-		[selectedModel]="selectedModel$ | async" 
-		(selectionChanged)="selectAndChange($event)"
-		(searchChanged)="filterDocuments($event)">
+		[searchTerm]="searchTerm"
+		[selectedModel]="modelStore.currentModel$ | async" 
+		(selectionChanged)="changeModel($event)"
+		(searchChanged)="searchTermChanged($event)">
 	</med-search-bar>
 </div>
 
 <div *ngIf="{
 	filteredDocuments: filteredDocuments$ | async,
-	userPrivileges: userPrivileges$ | async,
-	currentEdges: currentEdges$ | async,
-	selectedModel: selectedModel$ | async,
-	selectedModelDocuments: selectedModelDocuments$ | async
+	userPrivileges: workflowStore.currentNodeUserPrivileges$ | async,
+	currentEdges: workflowStore.currentEdges$ | async,
+	currentModel: modelStore.currentModel$ | async,
+	currentModelDocuments: modelStore.currentModelDocuments$ | async
 } as data">
 	<med-search-status
-		[resultCount] = "data.selectedModelDocuments?.length"
+		[resultCount] = "data.currentModelDocuments?.length"
 		[filteredCount] = "data.filteredDocuments?.length"
-		[modelName] = "data.selectedModel?.name"
+		[modelName] = "data.currentModel?.name"
 		[actions] = "data.currentEdges"
-		[privileges] = "data.userPrivileges"        
+		[privileges] = "data.userPrivileges"    
+		[states] = "selectedModelDocumentStates"    
 		(addNew) = "addNewDocument($event)"
-		(sortByChanged)="sortByChanged($event)">
+		(sortByChanged)="sortByChanged($event)"
+		(filterByChanged)="filterByChanged($event)">
 	</med-search-status>
 
 	<med-search-result-list 
 		[results]="data.filteredDocuments" 
-		[model]="data.selectedModel"
+		[model]="data.currentModel"
 		(loadDocument)="loadDocument($event)">
 	</med-search-result-list>
 </div>

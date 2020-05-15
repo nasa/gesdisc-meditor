@@ -1,83 +1,81 @@
-import { Component, OnInit, HostListener } from '@angular/core';
-import { Title } from '@angular/platform-browser';
-import { Observable } from 'rxjs/Observable';
-import { Store, Select } from '@ngxs/store';
-import { Model } from 'app/service/model/models';
-import { ModelState, AuthState } from 'app/store';
-import { CreateDocument } from 'app/store/document/document.state';
-import { Navigate } from '@ngxs/router-plugin';
-import { SuccessNotificationOpen, ErrorNotificationOpen } from 'app/store/notification/notification.state';
-import { ComponentCanDeactivate } from 'app/shared/guards/pending-changes.guard';
+import { Component, OnInit, HostListener } from '@angular/core'
+import { Title } from '@angular/platform-browser'
+import { ComponentCanDeactivate } from '../../../shared/guards/pending-changes.guard'
+import { Document } from '../../../service'
+import { ModelStore, UserStore, NotificationStore, DocumentStore, WorkflowStore } from '../../../store'
+import { Observable } from 'rxjs'
+import { Router } from '@angular/router'
 
 @Component({
-	selector: 'med-docnew-page',
-	templateUrl: './docnew-page.component.html',
-	styleUrls: ['./docnew-page.component.css']
+    selector: 'med-docnew-page',
+    templateUrl: './docnew-page.component.html',
+    styleUrls: ['./docnew-page.component.css'],
 })
 export class DocNewPageComponent implements OnInit, ComponentCanDeactivate {
+    modelName: string
+    liveFormData: Document
+    isFormValid: boolean
+    dirty: boolean = false
 
-	@Select(ModelState.currentModel) model$: Observable<Model>;
-	@Select(AuthState.userPrivileges) userPrivileges$: Observable<string[]>;
+    constructor(
+        public modelStore: ModelStore,
+        public userStore: UserStore,
+        public documentStore: DocumentStore,
+        public workflowStore: WorkflowStore,
+        private notificationStore: NotificationStore,
+        private titleService: Title,
+        private router: Router
+    ) {}
 
-	modelName: string;
-	titleProperty: string;
-	liveFormData: Document;
-	isFormValid: boolean;
-	dirty: boolean = false;
+    ngOnInit() {
+        let modelName = this.modelStore.currentModel && this.modelStore.currentModel.name
 
-	constructor(
-		private store: Store,
-    private titleService: Title
-	) {}
+        if (!modelName) return
 
-	ngOnInit() {
-		this.model$.subscribe((model: any) => {
-			this.modelName = model.name;
-			this.titleProperty = model.titleProperty;
-		});
+        this.titleService.setTitle('Add new | ' + modelName + ' | mEditor')
+    }
 
-    this.titleService.setTitle( 'Add new | ' + this.modelName + ' | mEditor');
-	}
+    @HostListener('window:beforeunload')
+    canDeactivate(): Observable<boolean> | boolean {
+        return !this.dirty || this.isFormValid
+    }
 
-	@HostListener('window:beforeunload')
-	canDeactivate(): Observable<boolean> | boolean {
-		return !this.dirty || this.isFormValid;
-	}
+    async createDocument(document: any) {
+        let modelName = this.modelStore.currentModel && this.modelStore.currentModel.name
+        let titleProperty = this.modelStore.currentModel && this.modelStore.currentModel.titleProperty
 
-	createDocument(document: any) {
-		this.store.dispatch(new CreateDocument({ model: this.modelName, document }))
-			.subscribe(
-				this.onCreateDocumentSuccess.bind(this, document),
-				this.onCreateDocumentError.bind(this)
-			);
-	}
+        if (!modelName || !titleProperty) return
 
-	onCreateDocumentSuccess(document: any) {
-		this.store.dispatch(new SuccessNotificationOpen('Successfully created document'));
-		this.store.dispatch(new Navigate(['/document/edit'], {
-			model: this.modelName,
-			title: document[this.titleProperty],
-		}));
-	}
+        try {
+            await this.documentStore.createOrUpdateDocument(document, modelName)
 
-	onCreateDocumentError() {
-		this.store.dispatch(new ErrorNotificationOpen('Failed to create document, please review and try again.'));
-	}
+            this.notificationStore.showSuccessNotification('Successfully created document')
 
-	isValid(event: boolean) {
-		this.isFormValid = event;
-	}
+            this.router.navigate(['/document/edit'], {
+                queryParams: {
+                    model: modelName,
+                    title: document[titleProperty],
+                },
+            })
+        } catch (err) {
+            console.error(err)
+            this.notificationStore.showErrorNotification('Failed to create document, please review and try again')
+        }
+    }
 
-	isDirty(event: boolean) {
-		this.dirty = event;
-	}
+    isValid(event: boolean) {
+        this.isFormValid = event
+    }
 
-	liveData(event: Document) {
-		this.liveFormData = event;
-	}
+    isDirty(event: boolean) {
+        this.dirty = event
+    }
 
-	saveDocument() {
-		this.createDocument(this.liveFormData);
-	}
+    liveData(event: Document) {
+        this.liveFormData = event
+    }
 
+    saveDocument() {
+        this.createDocument(this.liveFormData)
+    }
 }

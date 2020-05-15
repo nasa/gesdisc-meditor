@@ -17,7 +17,7 @@ import { CommentsModule } from '../comments/comments.module'
 import { routes } from './document.routing'
 import { DocactionsComponent } from './components/docactions/docactions.component'
 
-import { PendingChangesGuard } from 'app/shared/guards/pending-changes.guard'
+import { PendingChangesGuard } from '../shared/guards/pending-changes.guard'
 
 @NgModule({
     imports: [

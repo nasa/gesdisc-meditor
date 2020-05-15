@@ -591,9 +591,11 @@ function getModelContent (name) {
                 jsonpath.value(schema,element.jsonpath,response[i++]);
                 res[0].schema = JSON.stringify(schema,null,2);
               });
+              db.close()
               resolve(res[0]);
             } catch (err) {
               console.error('Failed to parse schema', err)
+              db.close()
               reject(err)
             }
           }).catch(
@@ -643,14 +645,25 @@ function findDocHistory (params) {
           query["x-meditor.modifiedOn"] = params.version;
         }
         query[titleField]=params.title;
-        dbo.collection(params.model).find(query).project({_id:0}).sort({"x-meditor.modifiedOn":-1}).map(function(obj){return {modifiedOn:obj["x-meditor"].modifiedOn, modifiedBy:obj["x-meditor"].modifiedBy}}).toArray(function(err, res) {
-          if (err){
-            console.log(err);
-            throw err;
-          }
-          db.close();
-          resolve(res);
-        });
+        
+        dbo.collection(params.model)
+          .find(query)
+          .project({ _id:0 })
+          .sort({ "x-meditor.modifiedOn":-1 })
+          .map(function(obj){
+            return {
+              modifiedOn:obj["x-meditor"].modifiedOn, 
+              modifiedBy:obj["x-meditor"].modifiedBy,
+              state: _.last(obj['x-meditor'].states).target,
+            }
+          }).toArray(function(err, res) {
+            if (err){
+              console.log(err);
+              throw err;
+            }
+            db.close();
+            resolve(res);
+          });
       });
     });
   });

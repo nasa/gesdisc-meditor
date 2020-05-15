@@ -1,52 +1,44 @@
 .doc-edit-container {
-	margin-top: 5px;
-	margin-bottom: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 .comment-sidenav-container {
-	background-color: white;
-  overflow: visible;
+    background-color: white;
+    overflow: visible;
 }
 
 .comment-sidenav {
-	width: 30%;
-	min-width: 430px;
+    width: 30%;
+    min-width: 430px;
 }
 
 .button-panel {
-	display: flex;
-  justify-content: flex-start;
+    display: flex;
+    justify-content: flex-start;
 }
 
 .button-panel > button {
-  margin-right: 0.5em;
+    margin-right: 0.5em;
 }
 
 .mat-drawer {
-  padding-left: 30px;
-	padding-bottom: 30px;
+    padding-left: 30px;
+    padding-bottom: 30px;
 }
 
-
 .mat-drawer:not(.mat-drawer-side) {
-  position: fixed !important;
-  margin-top: 102px;
-  height: 80%;
+    position: fixed !important;
+    margin-top: 102px;
+    height: 80%;
 }
 
 .mat-drawer-backdrop {
-  position: fixed !important;
-}
-
-.state-chip {
-	display: inline-flex;
-  margin-left: 1em;
+    position: fixed !important;
 }
 
 .version-info {
-  font-style: italic;
-  margin-left: 1em;
-  margin-top: auto;
+    font-style: italic;
+    margin-left: 1em;
+    margin-top: auto;
 }
-
-

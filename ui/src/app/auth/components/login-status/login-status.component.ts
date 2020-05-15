@@ -1,40 +1,32 @@
-import { Component, OnInit} from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-
-import { Store, Select } from '@ngxs/store';
-import { AuthState, Logout } from 'app/store/auth/auth.state';
+import { Component } from '@angular/core'
+import { UserStore } from '../../../store'
 
 @Component({
-	selector: 'med-login-status',
-	template: `
-		<button mat-button
-			(click)="logout()"
-			color="accent"
-			*ngIf="(user$ | async) as user"
-			(mouseenter)="toggleButton()"
-			(mouseleave)="toggleButton()">
-				<mat-icon>{{ userBtn ? 'person' : 'exit_to_app' }}</mat-icon>
-				{{ userBtn ? 'Hi, ' + user.firstName : 'Logout' }}
-		</button>
-	`
+    selector: 'med-login-status',
+    template: `
+        <button
+            mat-button
+            (click)="logout()"
+            color="accent"
+            *ngIf="userStore.user$ | async as user"
+            (mouseenter)="toggleButton()"
+            (mouseleave)="toggleButton()"
+        >
+            <mat-icon>{{ userBtn ? 'person' : 'exit_to_app' }}</mat-icon>
+            {{ userBtn ? 'Hi, ' + user.firstName : 'Logout' }}
+        </button>
+    `,
 })
-export class LoginStatusComponent implements OnInit {
+export class LoginStatusComponent {
+    userBtn: boolean = true
 
-	@Select(AuthState.user) user$: Observable<any>;
-	userBtn: boolean = true;
+    constructor(public userStore: UserStore) {}
 
-	constructor(private store: Store) {
-	}
+    logout() {
+        this.userStore.logout()
+    }
 
-	ngOnInit() {
-	}
-
-	logout() {
-		this.store.dispatch(new Logout());
-	}
-
-	toggleButton() {
-		this.userBtn = !this.userBtn;
-	}
-
+    toggleButton() {
+        this.userBtn = !this.userBtn
+    }
 }

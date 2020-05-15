@@ -1,25 +1,37 @@
-<div fxLayout="row" fxLayoutAlign="center start" class="search-status-bar">
-	<div fxFlex="60">
+<div class="search-status-bar">
+	<div>
 		Showing {{ filteredCount > 0 ? 1 : 0 }} - {{ filteredCount }} of {{ resultCount }} {{modelName}} documents
 	</div>
-	
-	<div fxFlex="4" fxFlexOffset="20" class="sortby-select">
-		Sort&nbsp;by:
-	</div>
-	
-	<div fxFlex="8" class="sortby-select mr-2">
-		<mat-select [(value)]="sortBy" (selectionChange)="sortByChanged.emit(sortBy)">
-			<mat-option value="oldest">Oldest</mat-option>
-			<mat-option value="newest">Newest</mat-option>
-		</mat-select>
-	</div>
 
-	<div fxFlex *ngIf="privileges.includes('create')">
-		<ng-container *ngFor="let action of actions">
-			<button mat-raised-button color="accent" class="add-new-button" (click)="addNew.emit(action.target)" >
-				<mat-icon>add</mat-icon>
-				{{ action.label }}
-			</button>
-		</ng-container>
+	<div>
+		<div class="search-select">
+			<mat-label>Filter by:</mat-label>
+			<mat-select [(value)]="filterBy" (selectionChange)="filterByChanged.emit(filterBy)">
+				<mat-option></mat-option>
+
+				<mat-optgroup label="State">
+					<mat-option *ngFor="let state of states" [value]="state">
+						{{ state }}
+					</mat-option>
+				</mat-optgroup>
+			</mat-select>
+		</div>
+		
+		<div class="search-select">
+			<mat-label>Sort by:</mat-label>
+			<mat-select [(value)]="sortBy" (selectionChange)="sortByChanged.emit(sortBy)">
+				<mat-option value="asc">Oldest</mat-option>
+				<mat-option value="desc">Newest</mat-option>
+			</mat-select>
+		</div>
+
+		<div *ngIf="privileges && privileges.includes('create')">
+			<ng-container *ngFor="let action of actions">
+				<button mat-raised-button color="accent" class="add-new-button" (click)="addNew.emit(action.target)" >
+					<mat-icon>add</mat-icon>
+					{{ action.label }}
+				</button>
+			</ng-container>
+		</div>
 	</div>
 </div>
