@@ -57,7 +57,7 @@ services:
     restart: always
     environment:
       - NODE_ENV=${NODE_ENV}
-      - PUBLISH_TO_UUI=True
+      - PUBLISH_TO_UUI=${PUBLISH_TO_UUI}
       - MEDITOR_NATS_SERVER=nats://meditor_test_nats:4222
       - UUI_APP_URL_OPS=https://dev.gesdisc.eosdis.nasa.gov/uui
       - UUI_APP_URL_TEST=https://dev.gesdisc.eosdis.nasa.gov/~mnauage/uui
@@ -67,7 +67,6 @@ services:
       - URS_PASSWORD
 
   nats:
-    container_name: nats
     image: nats-streaming:0.15.1 
     restart: on-failure
     volumes:
