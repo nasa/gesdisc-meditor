@@ -21,8 +21,8 @@ pushMeditorVersionToRepository () {
     git add -A
     git commit -m "release $version"
     git tag -a "$version" -m "release $version"
-    git push
-    git push --tags
+    #git push
+    #git push --tags
 }
 
 promptUserForImagesToRelease() {

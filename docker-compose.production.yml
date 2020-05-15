@@ -3,8 +3,7 @@ version: "3.3"
 services:
 
   proxy:
-    container_name: meditor_proxy
-    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_proxy:0.31.0
+    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_proxy:0.32.0
     restart: on-failure
     ports:
       - "80:8080"
@@ -14,36 +13,28 @@ services:
       - SERVER_HOST=meditor_server
       - UI_HOST=meditor_ui
       - MONITOR_HOST=meditor_monitor
+      - NATS_HOST=meditor_nats
     deploy:
       placement:
         constraints:
           - node.labels.database == primary
 
   notifier:
-    container_name: meditor_notifier
-    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_notifier:0.36.0
+    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_notifier:0.37.0
     restart: on-failure
     depends_on:
-      - database
+      - nats
     environment:
-      - MONGOURL=mongodb://meditor_database:27017
       - MAIL_HOST=${MAIL_HOST}
       - HOST_NAME=${HOST_NAME}
-      - UUI_AUTH_CLIENT_ID=${UUI_AUTH_CLIENT_ID}
-      - UUI_APP_URL_OPS=${UUI_APP_URL_OPS}
-      - UUI_APP_URL_TEST=${UUI_APP_URL_TEST}
-      - URS_USER=${URS_USER}
-      - URS_PASSWORD=${URS_PASSWORD}
-      - PUBLISH_TO_UUI=${PUBLISH_TO_UUI}
-      - PROXY_REQUEST_URL=${PROXY_REQUEST_URL}
+      - MEDITOR_NATS_SERVER=nats://meditor_nats:4222
     deploy:
         placement:
           constraints:
             - node.labels.database == primary
 
   ui:
-    container_name: meditor_ui
-    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_ui:0.43.0
+    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_ui:0.42.0
     restart: on-failure
     environment:
       - NODE_ENV=${NODE_ENV}
@@ -55,8 +46,7 @@ services:
           - node.labels.database == primary
  
   server:
-    container_name: meditor_server
-    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_server:0.40.0
+    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_server:0.46.0
     depends_on:
       - database
     restart: on-failure
@@ -66,13 +56,9 @@ services:
       - APP_URL=${APP_URL}
       - APP_UI_URL=${APP_UI_URL}
       - MONGOURL=mongodb://meditor_database:27017
-      - UUI_AUTH_CLIENT_ID=${UUI_AUTH_CLIENT_ID}
       - UUI_APP_URL_OPS=${UUI_APP_URL_OPS}
       - UUI_APP_URL_TEST=${UUI_APP_URL_TEST}
-      - URS_USER=${URS_USER}
-      - URS_PASSWORD=${URS_PASSWORD}
-      - PUBLISH_TO_UUI=${PUBLISH_TO_UUI}
-      - PROXY_REQUEST_URL=${PROXY_REQUEST_URL}
+      - MEDITOR_NATS_SERVER=nats://meditor_nats:4222
     secrets:
       - auth_host
       - auth_client_id
@@ -82,58 +68,39 @@ services:
         constraints:
           - node.labels.database == primary
 
+  uui-subscriber:
+    image: registry1.gesdisc.eosdis.nasa.gov/uui/uui-meditor-subscriber:0.9.0
+    restart: always
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - PUBLISH_TO_UUI=${PUBLISH_TO_UUI}
+      - MEDITOR_NATS_SERVER=nats://meditor_nats:4222
+      - UUI_APP_URL_OPS=${UUI_APP_URL_OPS}
+      - UUI_APP_URL_TEST=${UUI_APP_URL_TEST}
+    secrets:
+      - UUI_AUTH_CLIENT_ID
+      - URS_USER
+      - URS_PASSWORD
+
+  nats:
+    image: nats-streaming:0.15.1 
+    restart: on-failure
+    volumes:
+      - ${NATS_HOST_VOLUME}:/nats/data
+
   database:
-    container_name: meditor_database
     image: registry1.gesdisc.eosdis.nasa.gov/certified/mongo:4.1.4
     restart: on-failure
     ports:
       - "47017:27017"
     volumes:
       - ${DATABASE_HOST_VOLUME}:/data/db
-      # - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
     deploy:
       placement:
         constraints:
           - node.labels.database == primary
-    # command: --replSet meditor
-
-  # database_sec_1:
-  #   container_name: meditor_database_sec_1
-  #   image: registry1.gesdisc.eosdis.nasa.gov/certified/mongo:4.1.4
-  #   restart: on-failure
-  #   depends_on:
-  #     - database
-  #   ports:
-  #     - "47018:27017"
-  #   volumes:
-  #     - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
-  #     - ${DATABASE_HOST_VOLUME}:/data/db
-  #   command: --replSet meditor
-
-  # database_sec_2:
-  #   container_name: meditor_database_sec_2
-  #   image: registry1.gesdisc.eosdis.nasa.gov/certified/mongo:4.1.4
-  #   restart: on-failure
-  #   depends_on:
-  #     - database
-  #   ports:
-  #     - "47019:27017"
-  #   volumes:
-  #     - ${PWD}/mongo-replicaset/mongorc.js:/etc/mongorc.js
-  #     - ${DATABASE_HOST_VOLUME}:/data/db
-  #   command: --replSet meditor
-    
-  # database-replicaset:
-  #   container_name: meditor_replicaset
-  #   image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_replicaset:0.26.0
-  #   restart: on-failure
-  #   depends_on:
-  #     - database
-  #     - database_sec_1
-  #     - database_sec_2
 
   monitor:
-    container_name: meditor_monitor
     image: portainer/portainer:1.20.0
     command: -H unix:///var/run/docker.sock
     ports:
@@ -181,4 +148,10 @@ secrets:
     auth_client_id:
       external: true
     auth_client_secret:
+      external: true
+    UUI_AUTH_CLIENT_ID:
+      external: true
+    URS_USER:
+      external: true
+    URS_PASSWORD:
       external: true

@@ -13,6 +13,8 @@
 /data2/
 
 # dependencies
+/notifier/node_modules
+/notifier/package-lock.json
 /node_modules
 /ui/node_modules
 /ui/package-lock.json
@@ -20,10 +22,6 @@
 /nodejs-server-server/package-lock.json
 /mongo-replicaset/node_modules
 /mongo-replicaset/package-lock.json
-/status/node_modules
-/status/package-lock.json
-/import-export/uui/node_modules
-/import-export/uui/package-lock.json
 *.node_modules
 *.package-lock.json
 
@@ -54,6 +52,7 @@ yarn-error.log
 testem.log
 /typings
 .env
+/demo
 
 # e2e
 /e2e/*.js
