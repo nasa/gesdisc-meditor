@@ -13,6 +13,7 @@ services:
       - SERVER_HOST=meditor_test_server
       - UI_HOST=meditor_test_ui
       - MONITOR_HOST=lb.gesdisc.eosdis.nasa.gov   # use the same monitor as LB
+      - NATS_HOST=meditor_test_nats
     deploy:
       placement:
         constraints:
@@ -41,6 +42,7 @@ services:
       - APP_URL=https://uat.gesdisc.eosdis.nasa.gov
       - APP_UI_URL=https://uat.gesdisc.eosdis.nasa.gov/meditor
       - MONGOURL=mongodb://meditor_test_database:27017
+      - MEDITOR_NATS_SERVER=nats://meditor_test_nats:4222
     secrets:
       - auth_host
       - auth_client_id
@@ -50,13 +52,24 @@ services:
         constraints:
           - node.labels.database == primary
 
+  uui-subscriber:
+    image: registry1.gesdisc.eosdis.nasa.gov/uui/uui-meditor-subscriber:0.9.0
+    restart: always
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - PUBLISH_TO_UUI=True
+      - MEDITOR_NATS_SERVER=nats://meditor_test_nats:4222
+      - UUI_APP_URL_OPS=https://dev.gesdisc.eosdis.nasa.gov/uui
+      - UUI_APP_URL_TEST=https://dev.gesdisc.eosdis.nasa.gov/~mnauage/uui
+    secrets:
+      - UUI_AUTH_CLIENT_ID
+      - URS_USER
+      - URS_PASSWORD
+
   nats:
     container_name: nats
     image: nats-streaming:0.15.1 
     restart: on-failure
-    ports:
-      - "${NATS_HOST_PORT}:4222"
-      - "${NATS_MONITORING_PORT}:8222"
     volumes:
       - ${NATS_HOST_VOLUME}:/nats/data
 
@@ -78,4 +91,10 @@ secrets:
     auth_client_id:
       external: true
     auth_client_secret:
+      external: true
+    UUI_AUTH_CLIENT_ID:
+      external: true
+    URS_USER:
+      external: true
+    URS_PASSWORD:
       external: true

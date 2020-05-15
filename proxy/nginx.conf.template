@@ -20,6 +20,11 @@ http {
     upstream monitor {
         server ${MONITOR_HOST}:9000;
     }
+    
+    upstream nats {
+        server ${NATS_HOST}:4222;
+        server ${NATS_HOST}:8222;
+    }
 
     server {
         listen 8080;
