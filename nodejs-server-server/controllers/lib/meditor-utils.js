@@ -85,6 +85,8 @@ module.exports.publishToNats = function publishToNats(document, model, state = '
   let modelName = typeof model === 'string' ? model : model.name
   let channelName = NATS_QUEUE_PREFIX + modelName
 
+  document.target = 'uui',        // TODO: alter uui-subscriber to ignore target then this can be removed
+
   let message = JSON.stringify({
     id: document._id,
     document,
@@ -93,7 +95,6 @@ module.exports.publishToNats = function publishToNats(document, model, state = '
     },
     state,
     time: Date.now(),
-    target: 'uui',        // TODO: alter uui-subscriber to ignore target then this can be removed
   })
 
   console.log(`Publishing message to channel ${channelName}: `, message)
