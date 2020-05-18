@@ -16,7 +16,7 @@ exports.list = function (dbo,item){
         }
         var projection = {"_id":0};
         projection[field] = 1;
-        dbo.collection(model).find({}).project(projection).toArray(function(err,res){
+        dbo.collection(decodeURIComponent(model)).find({}).project(projection).toArray(function(err,res){
             if (err){
                 console.log(err);
                 throw(err);
