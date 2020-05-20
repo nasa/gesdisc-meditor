@@ -1,0 +1,33 @@
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.count {
+    color: grey;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.action {
+    margin-left: 15px;
+}
+
+.action label {
+    display: flex;
+    white-space: nowrap;
+    align-items: center;
+    margin-bottom: 0;
+}
+
+.action select,
+.action button {
+    margin-left: 8px;
+}

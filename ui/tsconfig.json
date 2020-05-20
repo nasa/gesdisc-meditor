@@ -1,36 +1,30 @@
 {
-    "compilerOptions": {
-        "sourceMap": true,
-        "declaration": false,
-        "moduleResolution": "node",
-        "emitDecoratorMetadata": true,
-        "experimentalDecorators": true,
-        "strictPropertyInitialization": false,
-        "noStrictGenericChecks": true,
-        "lib": ["es2016", "dom"],
-        "outDir": "../out-tsc/app",
-        "target": "es5",
-        "types": ["cypress"],
-        "module": "commonjs",
-        "rootDir": "./",
-        "strict": true,
-        "jsx": "react",
-        "jsxFactory": "h",
-        "typeRoots": ["node_modules/@types"]
-    },
-    "exclude": [
-        "bazel-out",
-        "dist",
-        "node_modules",
-        "**/*/node_modules",
-        "modules/schematics/src/*/files/**/*"
+  "compilerOptions": {
+    "target": "es5",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
     ],
-    "compileOnSave": false,
-    "buildOnSave": false,
-    "atom": {
-        "rewriteTsconfig": false
-    },
-    "bazelOptions": {
-        "suppressTsconfigOverrideWarnings": true
-    }
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "types": ["cypress"]
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx"
+  ]
 }

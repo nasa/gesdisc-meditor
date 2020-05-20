@@ -19,7 +19,8 @@ services:
     env_file:
       - .env
     ports:
-      - "${UI_HOST_PORT}:4200"
+      - "${UI_HOST_PORT}:3000"
+      - "4000:4000"
     volumes:
       - ${UI_HOST_VOLUME}:/usr/src/app
       - /usr/src/app/node_modules
