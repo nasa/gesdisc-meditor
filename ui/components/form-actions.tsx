@@ -89,6 +89,7 @@ const FormActions = ({ actions = [], privileges, form, formData, onSave, onUpdat
             return
         }
 
+        setIsDirty(false)
         onSave(form.state.formData) // no errors, document can be saved!
     }
 
