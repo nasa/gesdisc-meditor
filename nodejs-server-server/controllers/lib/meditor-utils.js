@@ -5,8 +5,10 @@ var stream = require('stream');
 var mustache = require('mustache');
 var he = require('he');
 var ObjectID = mongo.ObjectID;
-var mFile = require('./meditor-mongo-file'); 
+var mFile = require('./meditor-mongo-file');
+var nats = require('./nats-connection');
 
+const NATS_QUEUE_PREFIX = 'meditor-'
 const NotificationQueueCollectionName = 'queue-notifications';
 module.exports.WORKFLOW_ROOT = 'Init';
 module.exports.WORKFLOW_ROOT_EDGE = {source: 'Init', target: 'Draft'};
@@ -78,12 +80,33 @@ function testFs() {
   });
 }
 
-// Inserts a data message into DB queue of connectors
-module.exports.addToConnectorQueue = function addToConnectorQueue(meta, DbName, target, data) {
-  return meta.dbo.db(DbName).collection('queue-connectors').insertOne({
-    created: Date.now(),
-    target: target,
-    data: data,
+// Inserts a data message into a NATS channel
+module.exports.publishToNats = function publishToNats(document, model, state = '') {
+  let modelName = typeof model === 'string' ? model : model.name
+  let channelName = NATS_QUEUE_PREFIX + modelName
+
+  document.target = 'uui'        // TODO: alter uui-subscriber to ignore target then this can be removed
+
+  let message = JSON.stringify({
+    id: document._id,
+    document,
+    model: {
+      titleProperty: _.get(model, 'titleProperty'),
+    },
+    state,
+    time: Date.now(),
+  })
+
+  console.log(`Publishing message to channel ${channelName}: `, message)
+
+  // Publish message to channel (meditor-Alerts)
+  nats.stan.publish(NATS_QUEUE_PREFIX + modelName, JSON.stringify(message), function(err, guid) {
+    if (err) {
+      console.log('publish failed: ' + err);
+    }
+    else {
+      console.log('published message with guid: ' + guid);
+    }
   });
 };
 
@@ -174,7 +197,19 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
         notification.body = notification.body.replace('drafted by ###AUTHOR### ', ''); // Should not be here, but just in case...
       }
       notification.cc = _.uniq(users.map(u => '"'+ u.firstName + ' ' + u.lastName + '" <' + u.emailAddress + '>'));
-      return meta.dbo.db(DbName).collection(NotificationQueueCollectionName).insertOne(notification);
+
+      const channel = process.env.MEDITOR_NATS_NOTIFICATIONS_CHANNEL || 'meditor-notifications'
+
+      console.log('Publishing notification to NATS channel: ', channel)
+
+      nats.stan.publish(channel, JSON.stringify(notification), (err, guid) => {
+        if (err) {
+          console.error('Failed to publish notification ', err)
+          return
+        }
+
+        console.log('Successfully published notification: ', guid)
+      })
     });
 };
 
@@ -437,7 +472,7 @@ function handleModelChanges(meta, DbName, modelDoc) {
     .then(function(res) {
       console.log('Done updating state history for documents in ' + modelDoc.name);
       // Re-publish documents as necessary, since some of the states could have changed
-      return exports.addToConnectorQueue(meta, DbName, 'uui', {model: modelDoc.name}); // Take an opportunity to sync with UUI
+      return exports.publishToNats(modelDoc, modelDoc.name); // Take an opportunity to sync with UUI
     })
     .catch(function(e) {
       if (_.isObject(e) && e.result) {
@@ -474,3 +509,20 @@ module.exports.testStub = function() {
   });
 };
 
+module.exports.testNATS = function() {
+  var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
+  var MongoClient = mongo.MongoClient;
+  MongoClient.connect(MongoUrl, function(err, db) {
+    var DbName = "meditor";
+    if (err) {
+      console.log(err);
+      throw err;
+    }
+    var dbo = db;
+    var meta = {
+      dbo: dbo
+    }
+});
+};
+
+module.exports.testNATS();

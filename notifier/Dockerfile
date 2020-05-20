@@ -1,27 +1,9 @@
-FROM registry1.gesdisc.eosdis.nasa.gov/certified/centos:7.5.1804
+FROM node:10.12.0
 
-
-# install crontabs RUN yum -y update
-RUN yum -y install crontabs
-RUN yum install -y gcc-c++ make
-RUN curl -sL https://rpm.nodesource.com/setup_10.x | bash -
-RUN yum -y install nodejs
-RUN yum -y install postfix
-RUN yum -y install sendmail
-RUN npm --version
-RUN node --version
-
-# comment out PAM
-RUN sed -i -e '/pam_loginuid.so/s/^/#/' /etc/pam.d/crond
-
-#Add your cron file
-ADD cron /etc/cron.d/cron_test
-RUN chmod 0644 /etc/cron.d/cron_test
-
-# App portion
-RUN mkdir -p /usr/src/app/notifier
-WORKDIR /usr/src/app/notifier
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
 COPY ./ ./
+
 RUN npm install
 
-CMD printenv | sed 's/^\(.*\)$/export \1/g' > /usr/src/app/env.sh && crond -x proc
+CMD npm run start

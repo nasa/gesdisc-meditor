@@ -1,10 +1,10 @@
 {
-  "name": "notifier",
+  "name": "subscriber",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon -L index.js"
+    "start": "LOG_LEVEL=debug nodemon -L index.js"
   },
   "author": "",
   "license": "ISC",
@@ -12,7 +12,6 @@
     "log": "^6.0.0",
     "log-node": "^7.0.0",
     "node-nats-streaming": "^0.2.6",
-    "nodemailer": "^6.4.2",
     "nodemon": "^2.0.2"
   },
   "devDependencies": {
