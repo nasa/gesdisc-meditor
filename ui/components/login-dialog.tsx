@@ -12,18 +12,18 @@ const LoginDialog = ({
     }
 
     return (
-        <Modal show={show} centered onHide={onHide} animation={false}>
+        <Modal show={show} centered onHide={onHide} animation={false} dialogClassName="modal-sm">
             <Modal.Body className={styles.body}>
                 <h3>Welcome!</h3>
 
-                mEditor requires that you be an authorized user to add models or edit documents, so please...
+                <p>mEditor requires that you be an authorized user to add models or edit documents, so please...</p>
 
                 <Button onClick={login} variant="link">
-                    <MdPerson />
+                    <MdPerson size={20} />
                     Login
                 </Button>
 
-                <h5>No account? Please <a href="https://urs.earthdata.nasa.gov">register</a></h5>
+                <small>No account? Please <a href="https://urs.earthdata.nasa.gov">register</a></small>
             </Modal.Body>
         </Modal>
     )

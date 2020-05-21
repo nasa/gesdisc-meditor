@@ -284,3 +284,7 @@ fieldset.field-array fieldset.field-array {
     flex: 0 0 100%;
     width: 100%;
 }
+
+.modal-sm {
+    max-width: 400px;
+}

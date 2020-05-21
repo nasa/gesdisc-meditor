@@ -4,4 +4,14 @@
     align-items: center;
     text-align: center;
     justify-content: center;
+    max-width: 400px;
+    padding: 2rem !important;
+}
+
+.body p {
+    margin: 15px 0;
+}
+
+.body small {
+    margin-top: 15px;
 }
