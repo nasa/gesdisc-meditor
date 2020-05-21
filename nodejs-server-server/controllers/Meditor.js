@@ -586,10 +586,17 @@ function getModelContent (name) {
           Promise.all(promiseList).then((response) => {
             try {
               var schema = JSON.parse(res[0].schema);
+              var layout = JSON.parse(res[0].layout);
+
               var i=0;
-              res[0].templates.forEach(element=>{
-                jsonpath.value(schema,element.jsonpath,response[i++]);
-                res[0].schema = JSON.stringify(schema,null,2);
+              res[0].templates.forEach(element => {
+                let replaceValue = response[i++]
+
+                jsonpath.value(schema, element.jsonpath, replaceValue);
+                jsonpath.value(layout, element.jsonpath, replaceValue);
+
+                res[0].schema = JSON.stringify(schema, null, 2);
+                res[0].layout = JSON.stringify(layout, null, 2);
               });
               db.close()
               resolve(res[0]);

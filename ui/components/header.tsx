@@ -32,8 +32,6 @@ const Header = ({
                 </Navbar.Brand>
 
                 <div className="d-flex flex-row">
-        <span>API URL: {process.env.NEXT_PUBLIC_API_BASE_PATH}</span>
-
                     {isAuthenticated && (
                         <Dropdown
                             onMouseEnter={() => setUserMenuOpen(true)}
