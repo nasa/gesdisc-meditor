@@ -1,32 +1,14 @@
 import { useQuery } from '@apollo/react-hooks'
 import PageTitle from '../components/page-title'
-import gql from 'graphql-tag'
 import Router from 'next/router'
 import Button from 'react-bootstrap/Button'
 import { withApollo } from '../lib/apollo'
 import ModelIcon from '../components/model-icon'
 import styles from './dashboard.module.css'
-
-const QUERY = gql`
-    {
-        modelCategories {
-            name
-            models {
-                name
-                icon {
-                    name
-                    color
-                }
-                xMeditor {
-                    count
-                }
-            }
-        }
-    }
-`
+import { MODEL_CATEGORIES_QUERY } from './queries'
 
 const DashboardPage = ({ user }) => {
-    const { loading, error, data } = useQuery(QUERY)
+    const { loading, error, data } = useQuery(MODEL_CATEGORIES_QUERY)
 
     if (error || loading) return <div></div>
 

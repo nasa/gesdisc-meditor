@@ -2,7 +2,6 @@ import { useContext, useState, useEffect } from 'react'
 import { AppContext } from '../../../components/app-store'
 import { useQuery } from '@apollo/react-hooks'
 import { useRouter } from 'next/router'
-import gql from 'graphql-tag'
 import { withApollo } from '../../../lib/apollo'
 import Alert from 'react-bootstrap/Alert'
 import RenderResponse from '../../../components/render-response'
@@ -14,30 +13,7 @@ import DocumentHeader from '../../../components/document-header'
 import mEditorApi from '../../../service/'
 import withAuthentication from '../../../components/with-authentication'
 import FormActions from '../../../components/form-actions'
-
-const QUERY = gql`
-    query getModel($modelName: String!) {
-        model(modelName: $modelName) {
-            name
-            description
-            icon {
-                name
-                color
-            }
-            schema
-            layout
-            titleProperty
-            workflow {
-                currentNode {
-                    privileges {
-                        role
-                        privilege
-                    }
-                }
-            }
-        }
-    }
-`
+import { MODEL_QUERY } from './queries'
 
 const NewDocumentPage = ({ user }) => {
     const router = useRouter()
@@ -48,7 +24,7 @@ const NewDocumentPage = ({ user }) => {
     const [formData, setFormData] = useState(null)
     const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
 
-    const { loading, error, data } = useQuery(QUERY, {
+    const { loading, error, data } = useQuery(MODEL_QUERY, {
         variables: { modelName },
     })
 

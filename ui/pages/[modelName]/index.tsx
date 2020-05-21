@@ -1,7 +1,6 @@
 import { useQuery } from '@apollo/react-hooks'
 import { useContext } from 'react'
 import { AppContext } from '../../components/app-store'
-import gql from 'graphql-tag'
 import { useRouter } from 'next/router'
 import Alert from 'react-bootstrap/Alert'
 import { withApollo } from '../../lib/apollo'
@@ -11,25 +10,7 @@ import RenderResponse from '../../components/render-response'
 import Loading from '../../components/loading'
 import PageTitle from '../../components/page-title'
 import withAuthentication from '../../components/with-authentication'
-
-const MODEL_DOCUMENTS_QUERY = gql`
-    query getDocuments($modelName: String!) {
-        model(modelName: $modelName) {
-            name
-            icon {
-                name
-                color
-            }
-        }
-        documents(modelName: $modelName) {
-            title
-            model
-            modifiedBy
-            modifiedOn(format: "M/dd/yyyy, h:mm a")
-            state
-        }
-    }
-`
+import { MODEL_DOCUMENTS_QUERY } from './queries'
 
 /**
  * renders the model page with the model's documents in a searchable/filterable list
