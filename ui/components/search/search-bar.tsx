@@ -6,11 +6,11 @@ import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Select from 'react-select'
 import styles from './search-bar.module.css'
-import { withApollo } from '../lib/apollo'
-import ModelIcon from './model-icon'
+import { withApollo } from '../../lib/apollo'
+import ModelIcon from '../model-icon'
 import { MdSearch } from 'react-icons/md'
-import { useInput } from '../lib/use-input.hook'
-import { useDebounce } from '../lib/use-debounce.hook'
+import { useInput } from '../../lib/use-input.hook'
+import { useDebounce } from '../../lib/use-debounce.hook'
 
 /**
  * queries all models for display in the select dropdown

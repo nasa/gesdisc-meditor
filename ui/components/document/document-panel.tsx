@@ -1,5 +1,5 @@
 import styles from './document-panel.module.css'
-import IconButton from './icon-button'
+import IconButton from '../icon-button'
 import { MdClose } from 'react-icons/md'
 
 const DocumentPanel = ({ title, children, onClose, open = false }) => {

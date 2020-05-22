@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import DocumentStateBadge from '../components/document-state-badge'
+import DocumentStateBadge from '../document/document-state-badge'
 import styles from './search-result.module.css'
 
 const SearchResult = ({ document }) => {

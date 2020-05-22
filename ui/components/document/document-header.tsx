@@ -1,5 +1,5 @@
 import styles from './document-header.module.css'
-import ModelIcon from './model-icon'
+import ModelIcon from '../model-icon'
 import DocumentStateBadge from './document-state-badge'
 import Button from 'react-bootstrap/Button'
 import Badge from 'react-bootstrap/Badge'

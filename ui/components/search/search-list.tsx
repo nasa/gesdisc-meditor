@@ -1,7 +1,7 @@
 import SearchStatusBar from './search-status-bar'
 import SearchResult from './search-result'
 import { useContext } from 'react'
-import { AppContext } from './app-store'
+import { AppContext } from '../app-store'
 
 /**
  * determines if a document contains a given search term

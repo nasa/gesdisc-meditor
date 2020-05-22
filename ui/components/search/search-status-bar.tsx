@@ -5,9 +5,9 @@ import Button from 'react-bootstrap/Button'
 import { MdAdd } from 'react-icons/md'
 import { useRouter } from 'next/router'
 import gql from 'graphql-tag'
-import { withApollo } from '../lib/apollo'
+import { withApollo } from '../../lib/apollo'
 import { useContext } from 'react'
-import { AppContext } from './app-store'
+import { AppContext } from '../app-store'
 
 const QUERY = gql`
     query getModel($modelName: String!) {
