@@ -20,7 +20,7 @@ import styles from './document-edit.module.css'
 import { treeify } from '../../../lib/treeify'
 import { DOCUMENT_QUERY, MODEL_QUERY, COMMENTS_QUERY, HISTORY_QUERY } from './queries'
 
-const EditDocumentPage = ({ user }) => {
+const EditDocumentPage = ({ user, version = null }) => {
     const router = useRouter()
     const params = router.query
     const documentTitle = params.documentTitle as string
@@ -51,7 +51,11 @@ const EditDocumentPage = ({ user }) => {
 
     useEffect(() => {
         loadDocument({
-            variables: { modelName, title: documentTitle },
+            variables: {
+                modelName,
+                title: documentTitle,
+                version,
+            },
         })
     }, [])
 
@@ -78,7 +82,7 @@ const EditDocumentPage = ({ user }) => {
     }, [documentResponse.data])
 
     useEffect(() => {
-        setTreeifiedComments(treeify(commentsResponse?.data?.documentComments))        
+        setTreeifiedComments(treeify(commentsResponse?.data?.documentComments))
     }, [commentsResponse.data])
 
     useEffect(() => {
@@ -141,7 +145,7 @@ const EditDocumentPage = ({ user }) => {
             comment.documentId = documentTitle
             comment.model = modelName
             comment.version = documentResponse.data.document.version
-            
+
             // TODO: move to the API
             comment.createdBy = user.firstName + ' ' + user.lastName
             comment.userUid = user.uid
@@ -152,7 +156,7 @@ const EditDocumentPage = ({ user }) => {
         } else {
             await mEditorApi.editComment(comment._id, comment.text)
         }
-        
+
         reloadComments()
     }
 
@@ -173,7 +177,7 @@ const EditDocumentPage = ({ user }) => {
                 <Breadcrumb title={modelName} href="/[modelName]" as={`/${modelName}`} />
                 <Breadcrumb title={documentTitle} />
             </Breadcrumbs>
-            
+
             <DocumentHeader
                 document={documentResponse?.data?.document}
                 model={modelResponse?.data?.model}
@@ -196,7 +200,7 @@ const EditDocumentPage = ({ user }) => {
                     </Alert>
                 }
             >
-                <div className={styles.stage} style={{ paddingRight: (commentsOpen || historyOpen) ? 430 : 0 }}>
+                <div className={styles.stage} style={{ paddingRight: commentsOpen || historyOpen ? 430 : 0 }}>
                     <Form
                         model={modelResponse?.data?.model}
                         document={formData}
@@ -205,7 +209,12 @@ const EditDocumentPage = ({ user }) => {
                     />
 
                     <DocumentPanel title="Comments" open={commentsOpen} onClose={() => setCommentsOpen(false)}>
-                        <DocumentComments user={user} comments={treeifiedComments} saveComment={saveComment} resolveComment={resolveComment} />
+                        <DocumentComments
+                            user={user}
+                            comments={treeifiedComments}
+                            saveComment={saveComment}
+                            resolveComment={resolveComment}
+                        />
                     </DocumentPanel>
 
                     <DocumentPanel title="History" open={historyOpen} onClose={() => setHistoryOpen(false)}>
