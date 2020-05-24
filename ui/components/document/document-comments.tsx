@@ -6,7 +6,7 @@ import { MdComment, MdSend, MdClose, MdEdit, MdReply, MdCheck } from 'react-icon
 import { IoMdEye, IoMdEyeOff } from 'react-icons/io'
 import styles from './document-comments.module.css'
 import { useState, useEffect } from 'react'
-import IconButton from './icon-button'
+import IconButton from '../icon-button'
 import { format } from 'date-fns'
 
 const AVATAR_URL = 'https://bugs.earthdata.nasa.gov/secure/useravatar?size=large&ownerId=${uid}'
