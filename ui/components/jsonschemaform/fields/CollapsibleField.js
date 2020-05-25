@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { deepEquals, getDefaultFormState } from 'react-jsonschema-form'
+import { MdKeyboardArrowUp, MdKeyboardArrowDown  } from 'react-icons/md'
 
 class CollapseMenuAction extends Component {
     render() {
@@ -40,7 +41,7 @@ function CollapseMenu(props) {
                 classNames = 'collapsible-heading',
                 collapseDivStyles: {
                     collapseGlyphColor = 'black',
-                    collapseGlyphFontSize = '12px',
+                    collapseGlyphFontSize = '32px',
                     addGlyphColor = 'black',
                     glyphPadding = '0 10px 0 0',
                     padding = '14px 0 14px 0',
@@ -67,6 +68,13 @@ function CollapseMenu(props) {
         onAdd(event)
     }
 
+    const iconStyle = {
+        color: collapseGlyphColor,
+        padding: glyphPadding,
+    }
+
+    const iconSize = collapseGlyphFontSize
+
     return (
         <div
             className={`${wrapClassName}`}
@@ -87,16 +95,13 @@ function CollapseMenu(props) {
                 }}
             >
                 <a>
-                    <i
-                        style={{
-                            color: collapseGlyphColor,
-                            fontSize: collapseGlyphFontSize,
-                            padding: glyphPadding,
-                        }}
-                        className={collapsed ? disabled : enabled}
-                    />
+                    {collapsed ? (
+                        <MdKeyboardArrowUp size={iconSize} style={iconStyle} />
+                    ) : (
+                        <MdKeyboardArrowDown size={iconSize} style={iconStyle} />
+                    )}
                 </a>
-                <span>{title || name}</span>&nbsp;
+                <span>{title || name}</span>{props.required && <span className="required">*</span>}&nbsp;
                 {addTo && (
                     <a onClick={handleAdd} style={{ color: addGlyphColor, cursor: addCursor }}>
                         <i style={{ cursor: addCursor }} className={add} />
@@ -261,6 +266,7 @@ class CollapsibleField extends Component {
 
         title = uiSchema['ui:title'] ? uiSchema['ui:title'] : title ? title : name
         let customizedId = collapsed ? $id : undefined
+
         return (
             <div id={customizedId}>
                 <CollapseMenu
@@ -270,11 +276,12 @@ class CollapsibleField extends Component {
                     formContext={formContext}
                     onAdd={this.handleAdd}
                     onChange={this.handleCollapsed}
+                    required={this.props.required}
                 />
-                <div className="form-group">
+                <div className={`form-group ${collapsed && 'collapsed'}`}>
                     {AddElement && <AddElement />}
-                    {!collapsed && <CollapseLegend {...this.props} />}
-                    {!collapsed && <CollapseElement {...this.props} />}
+                    <CollapseLegend {...this.props} />
+                    <CollapseElement {...this.props} />
                 </div>
             </div>
         )

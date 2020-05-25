@@ -110,6 +110,10 @@ form.rjsf button[type="submit"] {
     position: relative;
 }
 
+.form-group.collapsed {
+    display: none;
+}
+
 .field-warning {
     position: absolute;
     top: 30px;
