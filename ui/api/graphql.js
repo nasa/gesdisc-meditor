@@ -12,7 +12,9 @@ const server = new ApolloServer({
     },
     dataSources: () => ({
         mEditorApi: new mEditorApi(),
-    })
+    }),
+    introspection: true,
+    playground: true,
 })
 
 server.listen().then(({ url }) => {

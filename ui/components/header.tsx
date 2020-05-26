@@ -24,7 +24,7 @@ const Header = ({ user, isAuthenticated }) => {
                 }}
             >
                 <Navbar.Brand href="#home" onClick={goToHomepage}>
-                    <img alt="mEditor" src="/logo.png" width="156" className="d-inline-block align-top" />
+                    <img alt="mEditor" src="/meditor/logo.png" width="156" className="d-inline-block align-top" />
                 </Navbar.Brand>
 
                 <div className="d-flex flex-row">

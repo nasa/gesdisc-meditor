@@ -64,6 +64,8 @@ const App = ({ Component, pageProps }) => {
                 <meta name="og:description" property="og:description" content="Model Editor" />
                 <meta property="og:site_name" content="mEditor" />
                 <meta property="og:url" content="https://lb.gesdisc.eosdis.nasa.gov/meditor" />
+
+                <link rel="icon" type="image/x-icon" href="/meditor/favicon.ico" />
             
                 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" />
             </Head>

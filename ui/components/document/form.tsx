@@ -38,7 +38,7 @@ const Form = ({ model, document, liveValidate = false, onUpdateForm, onChange = 
                 onInit={onUpdateForm}
                 onChange={(event: any) => onChange(event?.formData)}
                 imageUploadUrl={process.env.NEXT_PUBLIC_IMAGE_UPLOAD_URL}
-                linkCheckerUrl={process.env.NEXT_PUBLIC_LINK_CHECKER_URL}
+                linkCheckerUrl={process.env.APP_URL + process.env.NEXT_PUBLIC_LINK_CHECKER_URL}
             />
         </>
     )
