@@ -13,7 +13,31 @@ import DocumentHeader from '../../../components/document/document-header'
 import mEditorApi from '../../../service/'
 import withAuthentication from '../../../components/with-authentication'
 import FormActions from '../../../components/document/form-actions'
-import { MODEL_QUERY } from './queries'
+import gql from 'graphql-tag'
+
+const MODEL_QUERY = gql`
+    query getModel($modelName: String!) {
+        model(modelName: $modelName) {
+            name
+            description
+            icon {
+                name
+                color
+            }
+            schema
+            layout
+            titleProperty
+            workflow {
+                currentNode {
+                    privileges {
+                        role
+                        privilege
+                    }
+                }
+            }
+        }
+    }
+`
 
 const NewDocumentPage = ({ user }) => {
     const router = useRouter()

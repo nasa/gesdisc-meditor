@@ -76,6 +76,7 @@ const Header = ({ user, isAuthenticated }) => {
                         className="d-flex align-items-center"
                         variant="link"
                         style={{ color: 'grey', marginLeft: 10 }}
+                        as="a"
                         href="https://docs.google.com/document/d/e/2PACX-1vSNC0fvXJ6rbOuuOcAGarA1s4ys3l0mKZ608RgPPlHVvBAYAktxoUWUIsVZqY_QQYN4OvPR6xppz7mI/pub"
                         target="_blank"
                     >

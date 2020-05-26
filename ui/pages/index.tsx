@@ -5,7 +5,25 @@ import Button from 'react-bootstrap/Button'
 import { withApollo } from '../lib/apollo'
 import ModelIcon from '../components/model-icon'
 import styles from './dashboard.module.css'
-import { MODEL_CATEGORIES_QUERY } from './queries'
+import gql from 'graphql-tag'
+
+export const MODEL_CATEGORIES_QUERY = gql`
+    {
+        modelCategories {
+            name
+            models {
+                name
+                icon {
+                    name
+                    color
+                }
+                xMeditor {
+                    count
+                }
+            }
+        }
+    }
+`
 
 const DashboardPage = ({ user }) => {
     const { loading, error, data } = useQuery(MODEL_CATEGORIES_QUERY)

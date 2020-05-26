@@ -1,3 +1,4 @@
+import gql from 'graphql-tag'
 import { useContext, useState, useEffect } from 'react'
 import { AppContext } from '../../../components/app-store'
 import { useLazyQuery } from '@apollo/react-hooks'
@@ -18,7 +19,75 @@ import FormActions from '../../../components/document/form-actions'
 import mEditorApi from '../../../service/'
 import styles from './document-edit.module.css'
 import { treeify } from '../../../lib/treeify'
-import { DOCUMENT_QUERY, MODEL_QUERY, COMMENTS_QUERY, HISTORY_QUERY } from './queries'
+
+const DOCUMENT_QUERY = gql`
+    query getDocument($modelName: String!, $title: String!, $version: String) {
+        document(modelName: $modelName, title: $title, version: $version) {
+            title
+            doc
+            state
+            version
+            modifiedBy
+            modifiedOn
+        }
+    }
+`
+
+const MODEL_QUERY = gql`
+    query getModel($modelName: String!, $currentState: String!) {
+        model(modelName: $modelName, currentState: $currentState) {
+            name
+            description
+            icon {
+                name
+                color
+            }
+            schema
+            layout
+            titleProperty
+            workflow {
+                currentNode {
+                    id
+                    privileges {
+                        role
+                        privilege
+                    }
+                }
+                currentEdges {
+                    role
+                    source
+                    target
+                    label
+                }
+            }
+        }
+    }
+`
+
+const COMMENTS_QUERY = gql`
+    query getComments($modelName: String!, $title: String!) {
+        documentComments(modelName: $modelName, title: $title) {
+            _id
+            parentId
+            userUid
+            text
+            resolved
+            resolvedBy
+            createdBy
+            createdOn
+        }
+    }
+`
+
+const HISTORY_QUERY = gql`
+    query getHistory($modelName: String!, $title: String!) {
+        documentHistory(modelName: $modelName, title: $title) {
+            modifiedOn
+            modifiedBy
+            state
+        }
+    }
+`
 
 const EditDocumentPage = ({ user, version = null }) => {
     const router = useRouter()
