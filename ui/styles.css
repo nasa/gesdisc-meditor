@@ -114,6 +114,10 @@ form.rjsf button[type="submit"] {
     display: none;
 }
 
+.collapsible-section ~ .form-group {
+    margin-left: 15px;
+}
+
 .field-warning {
     position: absolute;
     top: 30px;

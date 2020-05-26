@@ -157,6 +157,24 @@ class CollapsibleField extends Component {
         this.state = { collapsed }
     }
 
+    componentDidMount() {
+        window.addEventListener('expandall', this.expandAll.bind(this));
+        window.addEventListener('collapseall', this.collapseAll.bind(this));
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('expandall', this.expandAll.bind(this));
+        window.removeEventListener('collapseall', this.collapseAll.bind(this));
+    }
+
+    expandAll() {
+        this.setState({ collapsed: false })
+    }
+
+    collapseAll() {
+        this.setState({ collapsed: true })
+    }
+
     appendToArray = (formData = [], newVal) => {
         let {
             uiSchema: { collapse: { addToBottom = true } = {} },
