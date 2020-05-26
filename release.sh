@@ -67,27 +67,10 @@ getImageNewVersion() {
     echo "0.$((minorVersion+1)).0"
 }
 
-buildUIDependencies() {
-    # temporary hack to get this private repo installing correctly
-    cd ./ui
-    npm install
-    cd ..
-
-    # update visible version number
-    # TODO: remove this, get version number from health endpoint
-    echo "export const version = '$(getImageNewVersion $1)'" > './ui/src/environments/version.ts'
-}
-
 buildImage() {
     BASEDIR=$(dirname "$0")
 
     newVersion=$(getImageNewVersion $1)
-
-    if [[ $1 = "meditor_ui" ]]
-    then
-        buildUIDependencies $1
-    fi
-
     localDir=$(getImageLocalDir "$1")
 
     docker image build -t $REGISTRY/$1 $localDir --no-cache
