@@ -11,6 +11,8 @@ export default function createApolloClient(initialState, ctx) {
     } else if (process.env.APP_URL.indexOf('uat.gesdisc.eosdis.nasa.gov') >= 0) {
         uri = 'http://meditor_test_ui:4000'
     }
+
+    console.log('using api: ', uri)
  
     // The `ctx` (NextPageContext) will only be present on the server.
     // use it to extract auth headers (ctx.req) or similar.

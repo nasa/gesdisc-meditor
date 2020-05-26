@@ -14,7 +14,9 @@ class mEditorApi extends RESTDataSource {
             isTest = process.env.APP_URL.indexOf('uat.gesdisc.eosdis.nasa.gov') >= 0
         }
 
-        this.baseUrl = `http://${isTest ? 'meditor_test_server' : 'meditor_server'}:8081/meditor/api`
+        this.baseURL = `http://${isTest ? 'meditor_test_server' : 'meditor_server'}:8081/meditor/api`
+
+        console.log('using baseURL ', this.baseURL)
     }
 
     async getModel(name) {
