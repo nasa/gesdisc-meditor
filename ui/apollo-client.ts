@@ -5,11 +5,13 @@ import fetch from 'isomorphic-unfetch'
 
 export default function createApolloClient(initialState, ctx) {
     let uri = 'http://meditor_ui:4000'
-    
+
     if (typeof window !== 'undefined') {
         uri = window.location.origin + '/meditor/graphql'
+    } else if (process.env.APP_URL.indexOf('uat.gesdisc.eosdis.nasa.gov') >= 0) {
+        uri = 'http://meditor_test_ui:4000'
     }
-    
+ 
     // The `ctx` (NextPageContext) will only be present on the server.
     // use it to extract auth headers (ctx.req) or similar.
     return new ApolloClient({

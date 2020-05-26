@@ -20,7 +20,7 @@ services:
           - node.labels.database == primary
 
   ui:
-    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_ui:0.51.0
+    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_ui:0.52.0
     restart: on-failure
     environment:
       - NODE_ENV=${NODE_ENV}
