@@ -1,159 +1,56 @@
 {
-    "name": "meditor",
-    "version": "0.0.0",
-    "license": "MIT",
-    "scripts": {
-        "ng": "ng",
-        "build": "ng build --prod",
-        "test": "jest",
-        "lint": "ng lint",
-        "e2e": "ng e2e",
-        "client": "ng serve --proxy-config server.conf.json --host 0.0.0.0 --poll 100 --aot",
-        "server": "cd ../nodejs-server-server;nodemon index.js",
-        "start": "npm-run-all -p client server",
-        "cypress:open": "cypress open"
-    },
-    "private": true,
-    "dependencies": {
-        "@angular/animations": "^7.2.15",
-        "@angular/cdk": "^7.3.7",
-        "@angular/common": "^7.2.15",
-        "@angular/compiler": "^7.2.15",
-        "@angular/core": "^7.2.15",
-        "@angular/flex-layout": "^7.0.0-beta.24",
-        "@angular/forms": "^7.2.15",
-        "@angular/http": "^7.2.15",
-        "@angular/material": "^7.3.7",
-        "@angular/material-moment-adapter": "^6.4.7",
-        "@angular/platform-browser": "^7.2.15",
-        "@angular/platform-browser-dynamic": "^7.2.15",
-        "@angular/platform-server": "^6.1.8",
-        "@angular/router": "^7.2.15",
-        "@ng-select/ng-select": "^2.20.5",
-        "@ngxs/devtools-plugin": "^3.5.1",
-        "@ngxs/router-plugin": "^3.5.1",
-        "@ngxs/storage-plugin": "^3.5.1",
-        "@ngxs/store": "^3.5.1",
-        "@types/underscore": "^1.9.2",
-        "angular-font-awesome": "^3.1.2",
-        "classlist.js": "^1.1.20150312",
-        "core-js": "^2.6.9",
-        "dotenv": "^5.0.1",
-        "font-awesome": "^4.7.0",
-        "gesdisc-jsonschema-form": "^0.16.0",
-        "hammerjs": "^2.0.8",
-        "http-server": "^0.11.1",
-        "lodash.clonedeep": "^4.5.0",
-        "lodash.ismatch": "^4.4.0",
-        "ngx-pagination": "^3.3.1",
-        "node-sass": "^4.12.0",
-        "nodemon": "^1.19.1",
-        "npm-run-all": "^4.1.3",
-        "opencollective": "^1.0.3",
-        "react": "^16.8.6",
-        "react-dom": "^16.8.6",
-        "react-window": "^1.8.5",
-        "rxjs": "6.2.2",
-        "rxjs-compat": "6.2.2",
-        "underscore": "^1.9.1",
-        "zone.js": "^0.8.29"
-    },
-    "devDependencies": {
-        "@angular-devkit/build-angular": "^0.10.4",
-        "@angular/cli": "^7.3.9",
-        "@angular/compiler-cli": "^7.2.15",
-        "@angular/language-service": "^7.2.15",
-        "@types/jasmine": "~2.5.53",
-        "@types/jasminewd2": "~2.0.2",
-        "@types/jest": "^20.0.2",
-        "@types/lodash": "^4.14.149",
-        "@types/node": "^7.0.70",
-        "@types/react": "^16.8.22",
-        "codelyzer": "^4.4.4",
-        "cypress": "^3.4.1",
-        "husky": "^3.1.0",
-        "jasmine": "^3.4.0",
-        "jasmine-core": "~2.6.2",
-        "jasmine-marbles": "^0.3.1",
-        "jasmine-spec-reporter": "~4.1.0",
-        "jest": "^21.0.2",
-        "jest-preset-angular": "^3.0.1",
-        "jest-zone-patch": "^0.0.7",
-        "karma": "^3.1.4",
-        "karma-chrome-launcher": "~2.1.1",
-        "karma-cli": "~1.0.1",
-        "karma-coverage-istanbul-reporter": "^1.4.3",
-        "karma-jasmine": "^1.1.2",
-        "karma-jasmine-html-reporter": "^0.2.2",
-        "lint-staged": "^9.5.0",
-        "lorem-ipsum": "^2.0.3",
-        "prettier": "^1.19.1",
-        "protractor": "^5.4.2",
-        "ts-node": "~3.0.4",
-        "tsconfig-paths": "^3.8.0",
-        "tslint": "~5.3.2",
-        "typescript": "^3.2.1"
-    },
-    "husky": {
-        "hooks": {
-            "pre-commit": "lint-staged"
-        }
-    },
-    "lint-staged": {
-        "*.{js,ts,tsx,css,json,md}": [
-            "prettier --write",
-            "git add"
-        ]
-    },
-    "prettier": {
-        "trailingComma": "es5",
-        "useTabs": false,
-        "tabWidth": 4,
-        "semi": false,
-        "singleQuote": true,
-        "quoteProps": "as-needed",
-        "bracketSpacing": true,
-        "printWidth": 120
-    },
-    "jest": {
-        "setupTestFrameworkScriptFile": "<rootDir>/setup-jest.ts",
-        "globals": {
-            "ts-jest": {
-                "tsConfigFile": "tsconfig.spec.json"
-            },
-            "__TRANSFORM_HTML__": true
-        },
-        "transform": {
-            "^.+\\.(ts|js|html)$": "<rootDir>/node_modules/jest-preset-angular/preprocessor.js"
-        },
-        "testMatch": [
-            "<rootDir>/app/**/*.spec.ts"
-        ],
-        "moduleFileExtensions": [
-            "ts",
-            "js",
-            "html",
-            "json"
-        ],
-        "mapCoverage": true,
-        "collectCoverage": true,
-        "coverageReporters": [
-            "json",
-            "html"
-        ],
-        "coveragePathIgnorePatterns": [
-            "/node_modules/",
-            "/modules/*.*/",
-            "/libs/*.*/"
-        ],
-        "moduleNameMapper": {
-            "^@ngrx/(?!db)(.*)": "<rootDir>/modules/$1"
-        },
-        "transformIgnorePatterns": [
-            "node_modules/(?!@ngrx)"
-        ],
-        "modulePathIgnorePatterns": [
-            "dist"
-        ]
-    }
+  "name": "meditor",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run graphql:dev\" \"next dev\"",
+    "build": "next build",
+    "start": "concurrently \"npm run graphql:start\" \"next start\"",
+    "graphql:dev": "nodemon -L --watch api api/graphql.js",
+    "graphql:start": "node api/graphql.js",
+    "test": "cypress open"
+  },
+  "dependencies": {
+    "@apollo/react-hooks": "^3.1.5",
+    "@apollo/react-ssr": "^3.1.5",
+    "@yaireo/tagify": "^3.8.0",
+    "apollo-cache-inmemory": "^1.6.6",
+    "apollo-client": "^2.6.10",
+    "apollo-datasource-rest": "^0.8.1",
+    "apollo-link-http": "^1.5.17",
+    "apollo-server": "^2.13.1",
+    "apollo-server-plugin-response-cache": "^0.4.1",
+    "bootstrap": "^4.5.0",
+    "ckeditor4-react": "^1.1.0",
+    "concurrently": "^5.2.0",
+    "date-fns": "^2.13.0",
+    "graphql": "^14.6.0",
+    "graphql-tag": "^2.10.3",
+    "graphql-type-json": "^0.3.1",
+    "isomorphic-unfetch": "^3.0.0",
+    "json-mapper-json": "^1.3.3",
+    "lodash.clonedeep": "^4.5.0",
+    "lodash.isequal": "^4.5.0",
+    "next": "^9.4.0",
+    "pluralize": "^8.0.0",
+    "portable-fetch": "^3.0.0",
+    "react": "^16.13.1",
+    "react-bootstrap": "^1.0.1",
+    "react-dom": "^16.13.1",
+    "react-flatpickr": "^3.10.0",
+    "react-icons": "^3.10.0",
+    "react-jsonschema-form": "^1.8.1",
+    "react-select": "^3.1.0",
+    "react-window": "^1.8.5",
+    "url": "^0.11.0"
+  },
+  "devDependencies": {
+    "@types/node": "^13.13.6",
+    "@types/react": "^16.9.35",
+    "cypress": "^4.5.0",
+    "lorem-ipsum": "^2.0.3",
+    "nodemon": "^2.0.4",
+    "typescript": "^3.9.2",
+    "webpack": "^4.43.0"
+  }
 }

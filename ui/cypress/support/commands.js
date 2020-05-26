@@ -57,7 +57,11 @@ Cypress.Commands.add('uploadImage', { prevSubject: 'element' }, (subject, imageN
 
 		dataTransfer.items.add(imageFile)
 		el.files = dataTransfer.files
-		el.dispatchEvent(new Event('change'))
+
+		// have to emulate a user actually uploading
+		var event = document.createEvent('UIEvents')
+		event.initUIEvent("change", true, true)
+		el.dispatchEvent(event)
 	})
 })
 

@@ -1,0 +1,54 @@
+.title {
+    align-items: center;
+    display: flex;
+    font-size: 24px;
+    font-weight: 500;
+}
+
+.title span {
+    box-shadow: 0 2px 5px 0 rgba(0,0,0,.26);
+    font-size: .7em;
+    margin-right: 10px;
+}
+
+.title svg {
+    font-size: 1.2em;
+}
+
+.description {
+    color: rgba(0, 0, 0, .54);
+    margin-top: 5px;
+}
+
+.subheader {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.subheader button {
+    background: #607d8b;
+    border: none;
+    color: #fff;
+    position: relative;
+    border-radius: 100%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+}
+
+.subheader button > svg {
+    font-size: 24px;
+}
+
+.badge {
+    background: #ff6e40;
+    color: rgba(0, 0, 0, .87);
+    position: absolute !important;
+    top: -5px !important;
+    border-radius: 100% !important;
+    right: -5px !important;
+}

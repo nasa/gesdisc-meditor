@@ -113,8 +113,10 @@ module.exports.publishToNats = function publishToNats(document, model, state = '
 // Converts dictionary params back into URL params
 module.exports.serializeParams = function serializeParams(params, keys) {
   return _(params)
-  .pickBy(function(val,key) {return (!!keys ? keys.indexOf(key) !== -1 : true) && !_.isNil(val);})
-  .map(function(val, key) {return key + "=" + encodeURIComponent(val);}).value().join('&')
+    .pickBy(function(val,key) {return (!!keys ? keys.indexOf(key) !== -1 : true) && !_.isNil(val);})
+    .map((val) => encodeURIComponent(val))
+    .value()
+    .join('/')
 }
 
 // Create a DB message for the notifier daemon to mail to relevant users
@@ -140,7 +142,7 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
       + he.decode(notificationTemplate),
     "link": {
         label: meta.params.title,
-        url: process.env.APP_UI_URL + "/#/document/edit?" + module.exports.serializeParams(meta.params, ['title', 'model', 'version'])
+        url: process.env.APP_UI_URL + "/" + module.exports.serializeParams(meta.params, ['model', 'title','version'])
     },
     "createdOn": (new Date()).toISOString()
   };

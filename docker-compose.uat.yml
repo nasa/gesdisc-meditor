@@ -32,7 +32,7 @@ services:
           - node.labels.database == primary
 
   server:
-    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_server:0.46.0
+    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_server:0.47.0
     depends_on:
       - database
     restart: on-failure
@@ -43,6 +43,8 @@ services:
       - APP_UI_URL=https://uat.gesdisc.eosdis.nasa.gov/meditor
       - MONGOURL=mongodb://meditor_test_database:27017
       - MEDITOR_NATS_SERVER=nats://meditor_test_nats:4222
+      - UUI_APP_URL_OPS=https://dev.gesdisc.eosdis.nasa.gov/uui
+      - UUI_APP_URL_TEST=https://dev.gesdisc.eosdis.nasa.gov/~mnauage/uui
     secrets:
       - auth_host
       - auth_client_id
@@ -69,6 +71,9 @@ services:
   nats:
     image: nats-streaming:0.15.1 
     restart: on-failure
+    ports:
+      - "${NATS_HOST_PORT}:4222"
+      - "${NATS_MONITORING_PORT}:8222"
     volumes:
       - ${NATS_HOST_VOLUME}:/nats/data
 
