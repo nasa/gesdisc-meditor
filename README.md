@@ -54,7 +54,7 @@ The easiest way to get up and running is via Docker:
 * Inside this file, you'll need to modify `AUTH_CLIENT_ID` and `AUTH_CLIENT_SECRET` with the real values (ask someone)
 * Build and run the app: `docker-compose up`
 * Access parts of the app on these ports:
-    * Frontend: [http://localhost:4200](http://localhost:4200)
+    * Frontend: [http://localhost:4000](http://localhost:4000)
     * Node.js backend: [http://localhost:8081](http://localhost:8081)
     * Mongo: [http://localhost:27017](http://localhost:27017)
 

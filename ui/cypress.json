@@ -2,6 +2,6 @@
 	"baseUrl": "http://localhost:8081/meditor/api",
 	"chromeWebSecurity": false,
 	"env": {
-		"appUrl": "http://localhost:4200"
+		"appUrl": "http://localhost:4000"
 	}
 }

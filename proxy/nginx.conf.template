@@ -14,7 +14,7 @@ http {
     }
 
     upstream web {
-        server ${UI_HOST}:4200;
+        server ${UI_HOST}:4000;
     }
 
     upstream monitor {
