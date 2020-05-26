@@ -3,7 +3,7 @@ version: "3.3"
 services:
 
   proxy:
-    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_proxy:0.33.0
+    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_proxy:0.34.0
     restart: on-failure
     ports:
       - "80:8080"
@@ -34,7 +34,7 @@ services:
             - node.labels.database == primary
 
   ui:
-    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_ui:0.49.0
+    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_ui:0.50.0
     restart: on-failure
     environment:
       - NODE_ENV=${NODE_ENV}
