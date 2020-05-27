@@ -51,6 +51,14 @@ body {
     background: #eee;
 }
 
+.model-select .model-select__value-container {
+    overflow: visible;
+}
+
+.model-select .model-select__single-value > div > span {
+    flex: 1 0 2em;
+}
+
 .form-control {
     color: #000;
 }

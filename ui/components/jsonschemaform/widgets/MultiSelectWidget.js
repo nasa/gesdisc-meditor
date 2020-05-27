@@ -1,6 +1,18 @@
 import React, { useRef, useEffect, useState } from 'react'
 import Tagify from '@yaireo/tagify'
 
+function optionHasValue(option) {
+    if (!option) {
+        return false
+    }
+
+    if (typeof option === 'object') {
+        return option.value && option.value != ""
+    }
+
+    return option != ""
+}
+
 function MultiSelectWidget(props) {
     const { id, placeholder, required, disabled, readonly, autofocus, value, options, onChange } = props
     const [ tagify, setTagify ] = useState(null)
@@ -11,7 +23,7 @@ function MultiSelectWidget(props) {
         if (tagify) return
 
         let tagifyOptions = {
-            whitelist: options.enumOptions || [],
+            whitelist: options.enumOptions.filter(optionHasValue) || [],
             enforceWhitelist: 'enforceEnumOptions' in options ? options.enforceEnumOptions : true,
             keepInvalidTags: 'keepInvalidTags' in options ? options.keepInvalidTags : true,
             dropdown: {
@@ -39,7 +51,7 @@ function MultiSelectWidget(props) {
     useEffect(() => {
         if (!tagify) return
 
-        tagify.settings.whitelist = options.enumOptions
+        tagify.settings.whitelist = options.enumOptions.filter(optionHasValue)
     }, [tagify, options.enumOptions])
     
     return (
