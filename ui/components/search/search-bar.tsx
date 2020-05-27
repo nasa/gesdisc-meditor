@@ -87,7 +87,7 @@ const SearchBar = ({ model, modelName, initialInput = '', onInput }) => {
     function handleModelChange(selectedModel) {
         setSelectedModel(selectedModel)
         reset()
-        Router.push('/[modelName]', `/${selectedModel.name}`)
+        Router.push('/meditor/[modelName]', `/meditor/${selectedModel.name}`)
     }
 
     return (

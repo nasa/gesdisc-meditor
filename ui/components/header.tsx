@@ -6,10 +6,6 @@ import Navbar from 'react-bootstrap/Navbar'
 import { MdPerson, MdHome, MdFeedback, MdHelp } from 'react-icons/md'
 import styles from './header.module.css'
 
-function goToHomepage() {
-    Router.push('/')
-}
-
 const Header = ({ user, isAuthenticated }) => {
     const [userMenuOpen, setUserMenuOpen] = useState(false)
 
@@ -23,7 +19,7 @@ const Header = ({ user, isAuthenticated }) => {
                     padding: '0 20px',
                 }}
             >
-                <Navbar.Brand href="#home" onClick={goToHomepage}>
+                <Navbar.Brand href="/meditor">
                     <img alt="mEditor" src="/meditor/logo.png" width="156" className="d-inline-block align-top" />
                 </Navbar.Brand>
 
@@ -56,7 +52,7 @@ const Header = ({ user, isAuthenticated }) => {
                         className="d-flex align-items-center"
                         variant="link"
                         style={{ color: 'grey', marginLeft: 10 }}
-                        onClick={goToHomepage}
+                        href="/meditor"
                     >
                         <MdHome style={{ fontSize: '1.6em' }} />
                         Home

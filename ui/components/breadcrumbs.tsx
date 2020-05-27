@@ -21,7 +21,7 @@ export const Breadcrumbs = ({ children }) => {
     return (
         <div className={styles.breadcrumbs}>
             <ul className={styles.ul}>
-                <Breadcrumb title="Home" href="/" />
+                <Breadcrumb title="Home" href="/meditor" />
 
                 {children}
             </ul>

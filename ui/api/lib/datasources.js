@@ -5,18 +5,15 @@ class mEditorApi extends RESTDataSource {
     constructor() {
         super()
 
-        // TODO: do this with environment files instead
         let isTest = false
 
         if (typeof window !== 'undefined') {
             isTest = window.location.origin.indexOf('uat.gesdisc.eosdis.nasa.gov') >= 0
         } else {
-            isTest = process.env.APP_URL.indexOf('uat.gesdisc.eosdis.nasa.gov') >= 0
+            isTest = process.env.APP_URL && process.env.APP_URL.indexOf('uat.gesdisc.eosdis.nasa.gov') >= 0
         }
 
         this.baseURL = `http://${isTest ? 'meditor_test_server' : 'meditor_server'}:8081/meditor/api`
-
-        console.log('using baseURL ', this.baseURL)
     }
 
     async getModel(name) {

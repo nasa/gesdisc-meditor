@@ -12,9 +12,9 @@ import { useRouter } from 'next/router'
  * Because old URLs may be bookmarked, let's redirect the old URLs to the new URLs
  */
 const OLD_URL_MAPPING = {
-    '#/search?': { href: '/[modelName]', as: '/{model}' },
-    '#/document/edit?': { href: '/[modelName]/[documentTitle]', as: '/{model}/{title}' },
-    '#/document/new?': { href: '/[modelName]/new', as: '/{model}/new' },
+    '#/search?': { href: '/meditor/[modelName]', as: '/meditor/{model}' },
+    '#/document/edit?': { href: '/meditor/[modelName]/[documentTitle]', as: '/meditor/{model}/{title}' },
+    '#/document/new?': { href: '/meditor/[modelName]/new', as: '/meditor/{model}/new' },
 }
 
 function getOldUrlMapping() {

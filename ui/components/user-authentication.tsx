@@ -65,12 +65,12 @@ const UserAuthentication = ({ onUserUpdate = (_user: any) => {}, user, isAuthent
             localStorage.setItem(
                 'redirectUrl',
                 JSON.stringify({
-                    href: Router.pathname,
+                    href: Router.pathname.indexOf('/meditor') >= 0 ? Router.pathname : `/meditor${Router.pathname}`,
                     as: Router.asPath,
                 })
             )
 
-            Router.push('/')
+            Router.push('/meditor')
         }
     }
 

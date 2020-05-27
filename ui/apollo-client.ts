@@ -8,7 +8,7 @@ export default function createApolloClient(initialState, ctx) {
 
     if (typeof window !== 'undefined') {
         uri = window.location.origin + '/meditor/graphql'
-    } else if (process.env.APP_URL.indexOf('uat.gesdisc.eosdis.nasa.gov') >= 0) {
+    } else if (process.env.APP_URL && process.env.APP_URL.indexOf('uat.gesdisc.eosdis.nasa.gov') >= 0) {
         uri = 'http://meditor_test_ui:4000'
     }
 

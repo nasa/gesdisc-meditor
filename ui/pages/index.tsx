@@ -43,7 +43,7 @@ const DashboardPage = ({ user }) => {
                             <div key={model.name} className={styles.model}>
                                 <Button
                                     variant="light"
-                                    onClick={() => Router.push('/[modelName]', `/${model.name}`)}
+                                    onClick={() => Router.push('/meditor/[modelName]', `/meditor/${model.name}`)}
                                     className="dashboard-model"
                                 >
                                     <ModelIcon name={model?.icon?.name} color={model?.icon?.color} />

@@ -6,7 +6,7 @@ const SearchResult = ({ document }) => {
     return (
         <div className={styles.result}>
             <div>
-                <Link href="/[modelName]/[documentTitle]" as={`/${encodeURIComponent(document.model)}/${encodeURIComponent(document.title)}`}>
+                <Link href="/meditor/[modelName]/[documentTitle]" as={`/meditor/${encodeURIComponent(document.model)}/${encodeURIComponent(document.title)}`}>
                     <a>{document.title}</a>
                 </Link>
 

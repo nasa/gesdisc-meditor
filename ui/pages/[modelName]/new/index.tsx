@@ -63,7 +63,7 @@ const NewDocumentPage = ({ user }) => {
 
     function redirectToDocumentEdit(document) {
         let documentName = encodeURIComponent(document[data.model.titleProperty])
-        router.push('/[modelName]/[documentTitle]', `/${encodeURIComponent(modelName)}/${documentName}`)
+        router.push('/meditor/[modelName]/[documentTitle]', `/meditor/${encodeURIComponent(modelName)}/${documentName}`)
     }
 
     async function createDocument(document) {
@@ -92,7 +92,7 @@ const NewDocumentPage = ({ user }) => {
             <PageTitle title={['Add New', modelName]} />
 
             <Breadcrumbs>
-                <Breadcrumb title={modelName} href="/[modelName]" as={`/${modelName}`} />
+                <Breadcrumb title={modelName} href="/meditor/[modelName]" as={`/meditor/${modelName}`} />
                 <Breadcrumb title="New" />
             </Breadcrumbs>
 

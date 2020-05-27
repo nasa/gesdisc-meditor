@@ -18,7 +18,7 @@ const LoginPage = ({ user }) => {
         Router.push(redirectUrl.href, redirectUrl.as)
     } catch (err) {
         // go to the dashboard, we either don't have a logged in user or don't know where to send them
-        Router.push('/')
+        Router.push('/meditor')
     }
 
     return <></>

@@ -2,6 +2,19 @@ version: "3.3"
 
 services:
 
+  proxy:
+    build: proxy
+    restart: on-failure
+    ports:
+      - "80:8080"
+    depends_on:
+      - database
+    environment:
+      - SERVER_HOST=meditor_server
+      - UI_HOST=meditor_ui
+      - MONITOR_HOST=lb.gesdis.eosdis.nasa.gov
+      - NATS_HOST=meditor_nats
+
   notifier:
     container_name: meditor_notifier
     build: notifier

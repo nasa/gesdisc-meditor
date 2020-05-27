@@ -243,7 +243,7 @@ const EditDocumentPage = ({ user, version = null }) => {
             <PageTitle title={[documentTitle, modelName]} />
 
             <Breadcrumbs>
-                <Breadcrumb title={modelName} href="/[modelName]" as={`/${modelName}`} />
+                <Breadcrumb title={modelName} href="/meditor/[modelName]" as={`/meditor/${modelName}`} />
                 <Breadcrumb title={documentTitle} />
             </Breadcrumbs>
 

@@ -46,7 +46,7 @@ const ModelPage = ({ user }) => {
     })
 
     function addNewDocument() {
-        router.push('/[modelName]/new', `/${modelName}/new`)
+        router.push('/meditor/[modelName]/new', `/meditor/${modelName}/new`)
     }
 
     return (
