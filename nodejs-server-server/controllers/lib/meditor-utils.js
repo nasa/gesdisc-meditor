@@ -83,7 +83,7 @@ function testFs() {
 // Inserts a data message into a NATS channel
 module.exports.publishToNats = function publishToNats(document, model, state = '') {
   let modelName = typeof model === 'string' ? model : model.name
-  let channelName = NATS_QUEUE_PREFIX + modelName
+  let channelName = NATS_QUEUE_PREFIX + modelName.replace(/ /g, '-')
 
   document.target = 'uui'        // TODO: alter uui-subscriber to ignore target then this can be removed
 
@@ -100,7 +100,7 @@ module.exports.publishToNats = function publishToNats(document, model, state = '
   console.log(`Publishing message to channel ${channelName}: `, message)
 
   // Publish message to channel (meditor-Alerts)
-  nats.stan.publish(NATS_QUEUE_PREFIX + modelName, JSON.stringify(message), function(err, guid) {
+  nats.stan.publish(channelName, JSON.stringify(message), function(err, guid) {
     if (err) {
       console.log('publish failed: ' + err);
     }
