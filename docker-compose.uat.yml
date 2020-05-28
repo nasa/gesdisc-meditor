@@ -55,7 +55,7 @@ services:
           - node.labels.database == primary
 
   uui-subscriber:
-    image: registry1.gesdisc.eosdis.nasa.gov/uui/uui-meditor-subscriber:0.9.0
+    image: registry1.gesdisc.eosdis.nasa.gov/uui/uui-meditor-subscriber:0.11.0
     restart: always
     environment:
       - NODE_ENV=${NODE_ENV}
