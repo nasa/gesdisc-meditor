@@ -12,7 +12,7 @@ services:
     environment:
       - SERVER_HOST=meditor_server
       - UI_HOST=meditor_ui
-      - MONITOR_HOST=lb.gesdis.eosdis.nasa.gov
+      - MONITOR_HOST=lb.gesdisc.eosdis.nasa.gov
       - NATS_HOST=meditor_nats
 
   notifier:

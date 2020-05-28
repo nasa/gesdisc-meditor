@@ -19,5 +19,6 @@ CMD if [ "$NODE_ENV" = "production" ]; \
 	npm run build && \
 	npm run start; \
 	else \
+	npm run build && \
 	npm run dev; \
 	fi
