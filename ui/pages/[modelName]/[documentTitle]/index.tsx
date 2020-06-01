@@ -19,6 +19,7 @@ import FormActions from '../../../components/document/form-actions'
 import mEditorApi from '../../../service/'
 import styles from './document-edit.module.css'
 import { treeify } from '../../../lib/treeify'
+import { urlDecode } from '../../../lib/url'
 
 const DOCUMENT_QUERY = gql`
     query getDocument($modelName: String!, $title: String!, $version: String) {
@@ -92,7 +93,7 @@ const HISTORY_QUERY = gql`
 const EditDocumentPage = ({ user, version = null }) => {
     const router = useRouter()
     const params = router.query
-    const documentTitle = params.documentTitle as string
+    const documentTitle = urlDecode(params.documentTitle as string)
     const modelName = params.modelName as string
 
     const [form, setForm] = useState(null)

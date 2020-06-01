@@ -14,6 +14,7 @@ import mEditorApi from '../../../service/'
 import withAuthentication from '../../../components/with-authentication'
 import FormActions from '../../../components/document/form-actions'
 import gql from 'graphql-tag'
+import { urlEncode } from '../../../lib/url'
 
 const MODEL_QUERY = gql`
     query getModel($modelName: String!) {
@@ -62,8 +63,8 @@ const NewDocumentPage = ({ user }) => {
     }, [form])
 
     function redirectToDocumentEdit(document) {
-        let documentName = encodeURIComponent(document[data.model.titleProperty])
-        router.push('/meditor/[modelName]/[documentTitle]', `/meditor/${encodeURIComponent(modelName)}/${documentName}`)
+        let documentName = urlEncode(document[data.model.titleProperty])
+        router.push('/meditor/[modelName]/[documentTitle]', `/meditor/${urlEncode(modelName)}/${documentName}`)
     }
 
     async function createDocument(document) {
