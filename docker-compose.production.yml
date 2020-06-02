@@ -82,6 +82,17 @@ services:
       - URS_USER
       - URS_PASSWORD
 
+  cmr-subscriber:
+    image: registry1.gesdisc.eosdis.nasa.gov/cmr/cmr-meditor-subscriber:0.2.0
+    restart: always
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - MEDITOR_NATS_SERVER=nats://meditor_nats:4222
+      - MEDITOR_BASELINE=${MEDITOR_BASELINE}
+    secrets:
+      - PFX_FILE
+      - PFX_PASSPHRASE_FILE
+
   nats:
     image: nats-streaming:0.15.1 
     restart: on-failure
@@ -154,4 +165,8 @@ secrets:
     URS_USER:
       external: true
     URS_PASSWORD:
+      external: true
+    PFX_FILE:
+      external: true
+    PFX_PASSPHRASE_FILE:
       external: true
