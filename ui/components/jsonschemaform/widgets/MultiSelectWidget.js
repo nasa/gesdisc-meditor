@@ -54,16 +54,10 @@ function MultiSelectWidget(props) {
 
         tagify.settings.whitelist = options.enumOptions.filter(optionHasValue)
     }, [tagify, options.enumOptions])
- 
-    // make sure passed in value is an array
-    let filteredValues = value || []
 
-    if (typeof filteredValues === 'string') {
-        filteredValues = filteredValues.split(',')
-    }
+    let filteredValue = value && typeof value === 'string' ? [value] : value
 
-    // make sure passed in value matches the array of objects format
-    filteredValues = filteredValues.map(filteredValue => typeof filteredValue === 'string' ? { value: filteredValue } : filteredValue)
+    filteredValue = filteredValue ? filteredValue.map(value => typeof value === 'string' ? { value: value } : value) : []
 
     return (
         <input
@@ -74,7 +68,7 @@ function MultiSelectWidget(props) {
             required={required}
             disabled={disabled || readonly}
             autoFocus={autofocus || false}
-            defaultValue={JSON.stringify(filteredValues)}
+            defaultValue={JSON.stringify(filteredValue)}
         />
     )
 }
