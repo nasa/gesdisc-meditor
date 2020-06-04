@@ -30,6 +30,7 @@ function MultiSelectWidget(props) {
                 enabled: 'dropdownEnabled' in options ? options.dropdownEnabled : 0,
                 maxItems: 'maxOptions' in options ? options.maxOptions : 1000,
             },
+            delimiters: null,
         }
 
         setTagify(new Tagify(inputEl.current, tagifyOptions))
@@ -53,7 +54,17 @@ function MultiSelectWidget(props) {
 
         tagify.settings.whitelist = options.enumOptions.filter(optionHasValue)
     }, [tagify, options.enumOptions])
-    
+ 
+    // make sure passed in value is an array
+    let filteredValues = value || []
+
+    if (typeof filteredValues === 'string') {
+        filteredValues = filteredValues.split(',')
+    }
+
+    // make sure passed in value matches the array of objects format
+    filteredValues = filteredValues.map(filteredValue => typeof filteredValue === 'string' ? { value: filteredValue } : filteredValue)
+
     return (
         <input
             ref={inputEl}
@@ -63,7 +74,7 @@ function MultiSelectWidget(props) {
             required={required}
             disabled={disabled || readonly}
             autoFocus={autofocus || false}
-            defaultValue={value}
+            defaultValue={JSON.stringify(filteredValues)}
         />
     )
 }
