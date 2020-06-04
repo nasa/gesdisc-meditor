@@ -71,6 +71,8 @@ Production mode doesn't use the .env file as described above, it uses environmen
 * `printf "ASK_SOMEONE_FOR_THIS" | docker secret create UUI_AUTH_CLIENT_ID -`
 * `printf "ASK_SOMEONE_FOR_THIS" | docker secret create URS_USER -`
 * `printf "ASK_SOMEONE_FOR_THIS" | docker secret create URS_PASSWORD -`
+* `docker secret create PFX_FILE .svgsgesdisc.pfx` - you'll need to get this file, securely, from someone else
+* `docker secret create PFX_PASSPHRASE_FILE .pfxpass` - you'll need to get this file, securely, from someone else
 * `docker node ls` - copy node ID for next step
 * `docker node update --label-add database=primary {NODEID}`
 * `env HOST_NAME=``hostname`` docker stack deploy -c docker-compose.production.yml --with-registry-auth meditor`
