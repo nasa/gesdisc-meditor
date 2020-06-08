@@ -1,84 +1,12 @@
 var _ = require('lodash');
-var transliteration = require('transliteration');
 var mongo = require('mongodb');
-var stream = require('stream');
 var mustache = require('mustache');
 var he = require('he');
-var ObjectID = mongo.ObjectID;
-var mFile = require('./meditor-mongo-file');
 var nats = require('./nats-connection');
 
 const NATS_QUEUE_PREFIX = 'meditor-'
-const NotificationQueueCollectionName = 'queue-notifications';
 module.exports.WORKFLOW_ROOT = 'Init';
 module.exports.WORKFLOW_ROOT_EDGE = {source: 'Init', target: 'Draft'};
-
-// For a given document and metadata, returns a unique file name,
-// to be used when storing the file on the file system
-module.exports.getFSFileName = function getFileName(modelMeta, doc) {
-  var fileName = [modelMeta.titleProperty, doc[modelMeta.titleProperty], _.get(doc, "x-meditor.modifiedOn", (new ObjectID()).toString())].join('_');
-  fileName == transliteration.slugify(fileName); // Unused for now
-  return (new ObjectID).toString();
-};
-
-// Stores a string 'data' attribute witha a given 'metadata' object on GridFS
-// If a file with a given 'filename' already exists on FS - the original file
-// is removed and replaced with the new one
-module.exports.putFileSystemItem = function putFileSystemItem(dbo, filename, data, meta) {
-  var options = meta ? {
-    metadata: meta
-  } : null;
-  var putItemHelper = function (bucket, resolve, reject) {
-    var writeStream = bucket.openUploadStreamWithId(filename, filename, options);
-    var s = new stream.Readable();
-    s.push(data);
-    s.push(null); // Push null to end stream
-    s.pipe(writeStream);
-    writeStream.on('finish', resolve);
-    writeStream.on('error', reject);
-  };
-  return new Promise(function (resolve, reject) {
-    var bucket = new mongo.GridFSBucket(dbo);
-    bucket.find({_id: filename}).count(function (err, count) {
-      if (err) return reject(err);
-      if (count > 0) {
-        bucket.delete(filename, function (err) {
-          if (err) {
-            reject(err);
-          } else {
-              putItemHelper(bucket, resolve, reject);
-          }
-        })
-      } else {
-        putItemHelper(bucket, resolve, reject);
-      }
-    }, reject);
-  });
-};
-
-// A test driver for FS storage functions
-function testFs() {
-  var MongoClient = mongo.MongoClient;
-  var MongoUrl = 'mongodb://localhost:27017';
-  var DbName = 'test';
-  MongoClient.connect(MongoUrl, function(err, db) {
-    if (err) throw err;
-    var dbo = db.db(DbName);
-    putFileSystemItem(dbo, 'test', 'this is a test')
-    .then(function(a) {
-      console.log('Wrote a gridFS file with metadata:', a);
-      return mFile.getFileSystemItem(dbo, 'test')
-    })
-    .then(function(a) {
-      console.log('Got data back from a gridFS file:', a);
-      db.close();
-    })
-    .catch(function(e) {
-      console.log(e);
-      db.close();
-    })
-  });
-}
 
 // Inserts a data message into a NATS channel
 module.exports.publishToNats = function publishToNats(document, model, state = '') {
@@ -87,6 +15,7 @@ module.exports.publishToNats = function publishToNats(document, model, state = '
 
   document.target = 'uui'        // TODO: alter uui-subscriber to ignore target then this can be removed
 
+  // TODO: remove this stringify, need to update subscribers to remove the double JSON parse
   let message = JSON.stringify({
     id: document._id,
     document,
@@ -159,7 +88,7 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
           {$unwind: '$roles'},
           {$match: {'roles.model': meta.params.model, 'roles.role': {$in: targetRoles}}},
           {$group: {_id: null, ids: {$addToSet: "$id"}}}
-        ])
+        ], {allowDiskUse: true})
         .toArray();
     })
     .then(function(users) {
@@ -378,7 +307,7 @@ function handleModelChanges(meta, DbName, modelDoc) {
             {$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
             {$addFields: {'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}}}, // Find last state
             {$limit: 2}
-        ])
+        ], {allowDiskUse: true})
         .toArray();
     })
     .then(function(res) {
@@ -395,7 +324,7 @@ function handleModelChanges(meta, DbName, modelDoc) {
           {$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
           {$group: {_id: '$name', doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version
           {$replaceRoot: { newRoot: "$doc"}} // Put all fields of the most recent doc back into root of the document
-        ])
+        ], {allowDiskUse: true})
         .sort({'x-meditor.modifiedOn': -1})
         .toArray();
     })

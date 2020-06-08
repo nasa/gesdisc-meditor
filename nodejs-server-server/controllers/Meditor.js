@@ -2,14 +2,12 @@
 
 var _ = require('lodash');
 var utils = require('../utils/writer');
-var Default = require('../service/DefaultService');
 var mongo = require('mongodb');
 var MongoClient = mongo.MongoClient;
 var ObjectID = mongo.ObjectID;
 var jsonpath = require('jsonpath');
 var macros = require('./Macros');
 var mUtils = require('./lib/meditor-utils');
-var mFile = require('./lib/meditor-mongo-file');
 var Validator = require('jsonschema').Validator;
 
 var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
@@ -253,7 +251,7 @@ module.exports.listModels = function listModels (request, response, next) {
           {$group: {_id: '$name', doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version
           {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
           {$project: projection}
-        ])
+        ], {allowDiskUse: true})
         .toArray();
     })
     .then(function(res) {
@@ -273,7 +271,7 @@ module.exports.listModels = function listModels (request, response, next) {
         var query = getDocumentAggregationQuery(modelMeta);
         query.push({$group: {_id: null, "count": { "$sum": 1 }}});
         query.push({$addFields: {name: modelMeta.modelName}});
-        return that.dbo.db(DbName).collection(modelMeta.modelName).aggregate(query).toArray();
+        return that.dbo.db(DbName).collection(modelMeta.modelName).aggregate(query, {allowDiskUse: true}).toArray();
       }));
     })
     .then(function(res) {
@@ -288,7 +286,7 @@ module.exports.listModels = function listModels (request, response, next) {
           {$group: {_id: '$' + modelMeta.titleProperty}},
           {$group: {_id: null, "count": { "$sum": 1 }}},
           {$addFields: {name: modelMeta.modelName}}
-        ]).toArray();
+        ], {allowDiskUse: true}).toArray();
       }));
     })
     .then(function(res) {
@@ -429,7 +427,7 @@ module.exports.listDocuments = function listDocuments (request, response, next) 
       return that.dbo
         .db(DbName)
         .collection(that.params.model)
-        .aggregate(query)
+        .aggregate(query, {allowDiskUse: true})
         .map(function(doc) {
           var res = {"title": _.get(doc, that.titleProperty)};
           res["x-meditor"] = _.pickBy(doc['x-meditor'], function(value, key) {return xmeditorProperties.indexOf(key) !== -1;});
@@ -461,7 +459,7 @@ module.exports.getDocument = function listDocuments (request, response, next) {
       return that.dbo
         .db(DbName)
         .collection(that.params.model)
-        .aggregate(query)
+        .aggregate(query, {allowDiskUse: true})
         .map(res => {
           var out = {};
           _.merge(res, getExtraDocumentMetadata(that, res));
@@ -501,7 +499,7 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
       return that.dbo
         .db(DbName)
         .collection(that.params.model)
-        .aggregate(query)
+        .aggregate(query, {allowDiskUse: true})
         .toArray();
     })
     .then(res => res[0])
