@@ -72,7 +72,7 @@ services:
       - database
 
   nats:
-    container_name: nats
+    container_name: meditor_nats
     image: nats-streaming:0.15.1 
     ports:
       - "${NATS_HOST_PORT}:4222"
