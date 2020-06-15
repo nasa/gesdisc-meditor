@@ -86,6 +86,8 @@ function handleNotFound(response, res) {
  * @param {*} message 
  */
 async function handlePublicationAcknowledgements(message) {
+  log.debug(message)
+
   const acknowledgement = escape(JSON.parse(message.getData()))
 
   log.debug('Acknowledgement received, processing now ', acknowledgement)
