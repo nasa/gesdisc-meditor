@@ -86,27 +86,17 @@ function handleNotFound(response, res) {
  * @param {*} message 
  */
 async function handlePublicationAcknowledgements(message) {
-  log.debug(message)
-
   const acknowledgement = escape(JSON.parse(message.getData()))
 
   log.debug('Acknowledgement received, processing now ', acknowledgement)
 
   try {
-    // some quick validation to make sure the acknowledgement is valid
-    const requiredFields = ['id', 'model', 'message', 'statusCode', 'state', 'target']
-    const isValid = _.every(requiredFields, _.partial(_.has, acknowledgement))
-
-    if (!isValid) {
-      throw new Error('Acknowledgement is missing required fields!')
-    }
-
     const publicationStatus = {
-      link: acknowledgement.url,
-      target: acknowledgement.target,
-      message: acknowledgement.message,
-      statusCode: acknowledgement.statusCode,
-      [acknowledgement.statusCode == 200 ? 'publishedOn': 'failedOn']: Date.now(),
+      ...acknowledgement.url && { url: acknowledgement.url },
+      ...acknowledgement.message && { message: acknowledgement.message },
+      ...acknowledgement.target && { target: acknowledgement.target },
+      ...acknowledgement.statusCode && { statusCode: acknowledgement.statusCode },
+      ...acknowledgement.statusCode && { [acknowledgement.statusCode == 200 ? 'publishedOn' : 'failedOn']: Date.now() },
     }
 
     const dbo = await MongoClient.connect(MongoUrl)
