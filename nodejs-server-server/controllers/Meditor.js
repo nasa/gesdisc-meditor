@@ -21,9 +21,6 @@ var SHARED_MODELS = ['Workflows', 'Users', 'Models'];
 // subscribe to publication acknowledgements
 nats.subscribeToChannel('meditor-Acknowledge').on('message', handlePublicationAcknowledgements)
 
-// ======================== Register fetch functions with Macro.fetch ==============
-macros.registerFetchers(require('./lib/fetchers').getFetchers());
-
 // ======================== Common helper functions ================================
 
 // Wrapper to parse JSON giving v8 a chance to optimize code
