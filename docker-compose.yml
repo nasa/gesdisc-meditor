@@ -25,6 +25,17 @@ services:
       - .env
     volumes:
       - ./notifier:/usr/src/app
+
+  fetchers:
+    container_name: meditor_fetchers
+    build: fetchers
+    restart: on-failure
+    depends_on:
+      - database
+    env_file:
+      - .env
+    volumes:
+      - ./fetchers:/usr/src/app
   
   ui:
     container_name: meditor_ui
