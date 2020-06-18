@@ -30,6 +30,7 @@ const DOCUMENT_QUERY = gql`
             version
             modifiedBy
             modifiedOn
+            targetStates
         }
     }
 `
@@ -299,6 +300,7 @@ const EditDocumentPage = ({ user, version = null }) => {
                     onSave={saveDocument}
                     onUpdateState={updateDocumentState}
                     actions={modelResponse?.data?.model?.workflow?.currentEdges}
+                    showActions={documentResponse?.data?.document?.targetStates?.length > 0}
                 />
             </RenderResponse>
         </div>

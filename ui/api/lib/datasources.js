@@ -16,6 +16,17 @@ class mEditorApi extends RESTDataSource {
         this.baseURL = `http://${isTest ? 'meditor_test_server' : 'meditor_server'}:8081/meditor/api`
     }
 
+    getCookiesHeaderValue() {
+        let cookies = this.context.cookies
+        return Object.keys(cookies).map(key => `${key}=${cookies[key]}`).join(';')
+    }
+
+    willSendRequest(request) {
+        if ('cookies' in this.context) {
+            request.headers.set('Cookie', this.getCookiesHeaderValue())
+        }
+    }
+
     async getModel(name) {
         return await this.get('getModel', { name })
     }
