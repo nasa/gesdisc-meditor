@@ -23,6 +23,7 @@ function MultiSelectWidget(props) {
         if (tagify) return
 
         let tagifyOptions = {
+            mode: !props.multiple ? 'select' : null,
             whitelist: options.enumOptions.filter(optionHasValue) || [],
             enforceWhitelist: 'enforceEnumOptions' in options ? options.enforceEnumOptions : true,
             keepInvalidTags: 'keepInvalidTags' in options ? options.keepInvalidTags : true,
@@ -40,8 +41,8 @@ function MultiSelectWidget(props) {
         if (!tagify) return
 
         const handleTagsChanged = (event) => {
-            let selectedItems = event.detail.tagify.value
-            onChange(selectedItems.map(item => item.value))
+            let selectedItems = event.detail.tagify.value.map(item => item.value)
+            onChange(!props.multiple ? selectedItems.join(',') : selectedItems)
         }
 
         tagify.on('add', handleTagsChanged)
