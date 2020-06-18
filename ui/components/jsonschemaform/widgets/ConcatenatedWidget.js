@@ -30,10 +30,11 @@ function ConcatenatedWidget(props) {
                 fields.push(el)
 
                 el.onblur = function (e) {
-                    let newValue = fields.map((field) => field.value)
+                    let newValue = fields.map((field) => field.value).join(delimeter)
 
                     // finally, set the value to the concatenated value of all the fields!
-                    setConcatenatedValue(newValue.join(delimeter))
+                    setConcatenatedValue(newValue)
+                    props.onChange(newValue)
                 }
             })
         }, 500)
@@ -41,11 +42,8 @@ function ConcatenatedWidget(props) {
 
     return (
         <BaseInput
+            {...props}
             value={concatenatedValue}
-            options={props.options}
-            id={props.id}
-            schema={props.schema}
-            type="text"
             readonly={true}
         />
     )
