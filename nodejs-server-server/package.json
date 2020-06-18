@@ -28,6 +28,9 @@
     "jsonpath": "1.0.0",
     "jsonschema": "^1.2.5",
     "lodash": "^4.17.10",
+    "log": "^6.0.0",
+    "log-node": "^7.0.0",
+    "mongo-escape": "^2.0.6",
     "mongodb": "^3.1.1",
     "mustache": "^3.0.1",
     "node-nats-streaming": "^0.2.6",
@@ -36,7 +39,7 @@
     "request": "^2.88.0",
     "request-debug": "^0.2.0",
     "request-promise-native": "^1.0.5",
-    "swagger-tools": "0.10.1",
+    "swagger-tools": "^0.10.3",
     "transliteration": "^1.6.5",
     "uuid": "3.3.3"
   },

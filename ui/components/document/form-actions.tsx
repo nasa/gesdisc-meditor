@@ -5,7 +5,7 @@ import styles from './form-actions.module.css'
 import isEqual from 'lodash.isequal'
 import cloneDeep from 'lodash.clonedeep'
 
-const FormActions = ({ actions = [], privileges, form, formData, onSave, onUpdateState = (target: string) => {} }) => {
+const FormActions = ({ actions = [], showActions = true, privileges, form, formData, onSave, onUpdateState = (target: string) => {} }) => {
     const saveEl = useRef(null)
     const canSave = privileges.includes('edit') || privileges.includes('create')
     const router = useRouter()
@@ -105,7 +105,7 @@ const FormActions = ({ actions = [], privileges, form, formData, onSave, onUpdat
                 </Button>
             )}
 
-            {actions.map(action => (
+            {showActions && actions.map(action => (
                 <Button key={action.label} className={styles.button} variant="secondary" onClick={() => handleStateUpdate(action.target)}>   
                     {action.label}
                 </Button>

@@ -21,6 +21,7 @@ export default function createApolloClient(initialState, ctx) {
         link: new HttpLink({
             uri,
             fetch,
+            credentials: 'include',
         }),
         cache: new InMemoryCache({
             dataIdFromObject: object => {

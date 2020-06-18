@@ -24,7 +24,7 @@ const JsonSchemaForm = ({
 
     function onBlur(...args) {
         setTimeout(() => {
-            const field = args[0].split('_')[1]
+            const field = args[0].replace('root_', '')
 
             if (!formEl.current) return
 
@@ -36,7 +36,7 @@ const JsonSchemaForm = ({
 
             const fieldErrors = filter(_errors, ['property', `.${field}`])
 
-            const fieldErrorSchema = _errorSchema[field]
+            const fieldErrorSchema = _errorSchema[field] || {}
 
             formEl.current.setState({
                 errors: uniqWith([...prevOtherFieldErrors, ...fieldErrors], isEqual),

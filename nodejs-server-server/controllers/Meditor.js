@@ -1,25 +1,28 @@
 'use strict';
 
+var log = require('log');
 var _ = require('lodash');
 var utils = require('../utils/writer');
-var Default = require('../service/DefaultService');
 var mongo = require('mongodb');
 var MongoClient = mongo.MongoClient;
 var ObjectID = mongo.ObjectID;
 var jsonpath = require('jsonpath');
 var macros = require('./Macros');
 var mUtils = require('./lib/meditor-utils');
-var mFile = require('./lib/meditor-mongo-file');
 var Validator = require('jsonschema').Validator;
+var nats = require('./lib/nats-connection');
+var escape = require('mongo-escape').escape;
 
 var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
 var DbName = "meditor";
 
 var SHARED_MODELS = ['Workflows', 'Users', 'Models'];
 
-
 // ======================== Register fetch functions with Macro.fetch ==============
 macros.registerFetchers(require('./lib/fetchers').getFetchers());
+
+// subscribe to publication acknowledgements
+nats.subscribeToChannel('meditor-Acknowledge').on('message', handlePublicationAcknowledgements)
 
 // ======================== Common helper functions ================================
 
@@ -73,6 +76,59 @@ function handleError(response, err) {
 function handleSuccess(response, res) {
   handleResponse(response, res, 200, 'Success');
 };
+
+function handleNotFound(response, res) {
+  handleResponse(response, res, 404, 'Not found')
+}
+
+/**
+ * handles success/failure messages received from the NATS acknowledgements queue
+ * @param {*} message 
+ */
+async function handlePublicationAcknowledgements(message) {
+  const acknowledgement = escape(JSON.parse(message.getData()))
+
+  log.debug('Acknowledgement received, processing now ', acknowledgement)
+
+  try {
+    const publicationStatus = {
+      ...acknowledgement.url && { url: acknowledgement.url },
+      ...acknowledgement.message && { message: acknowledgement.message },
+      ...acknowledgement.target && { target: acknowledgement.target },
+      ...acknowledgement.statusCode && { statusCode: acknowledgement.statusCode },
+      ...acknowledgement.statusCode && { [acknowledgement.statusCode == 200 ? 'publishedOn' : 'failedOn']: Date.now() },
+    }
+
+    const dbo = await MongoClient.connect(MongoUrl)
+    const db = dbo.db(DbName).collection(acknowledgement.model)
+
+    // remove any existing publication statuses for this target (for example: past failures)
+    await db.updateOne({
+      _id: ObjectID(acknowledgement.id),
+    }, {
+      $pull: {
+        'x-meditor.publishedTo': {
+          target: acknowledgement.target,
+        },
+      },
+    })
+
+    // update document state to reflect publication status
+    await db.updateOne({
+      _id: ObjectID(acknowledgement.id),
+    }, {
+      $addToSet: {
+        'x-meditor.publishedTo': publicationStatus,
+      },
+    })
+
+    log.debug('Successfully updated document with publication status ', publicationStatus)
+
+    message.ack()
+  } catch (err) {
+    console.error('Failed to process message', err)
+  }
+}
 
 // Builds aggregation pipeline query for a given model (common starting point for most API functions)
 function getDocumentAggregationQuery(meta) {
@@ -253,7 +309,7 @@ module.exports.listModels = function listModels (request, response, next) {
           {$group: {_id: '$name', doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version
           {$replaceRoot: { newRoot: "$doc"}}, // Put all fields of the most recent doc back into root of the document
           {$project: projection}
-        ])
+        ], {allowDiskUse: true})
         .toArray();
     })
     .then(function(res) {
@@ -273,7 +329,7 @@ module.exports.listModels = function listModels (request, response, next) {
         var query = getDocumentAggregationQuery(modelMeta);
         query.push({$group: {_id: null, "count": { "$sum": 1 }}});
         query.push({$addFields: {name: modelMeta.modelName}});
-        return that.dbo.db(DbName).collection(modelMeta.modelName).aggregate(query).toArray();
+        return that.dbo.db(DbName).collection(modelMeta.modelName).aggregate(query, {allowDiskUse: true}).toArray();
       }));
     })
     .then(function(res) {
@@ -288,7 +344,7 @@ module.exports.listModels = function listModels (request, response, next) {
           {$group: {_id: '$' + modelMeta.titleProperty}},
           {$group: {_id: null, "count": { "$sum": 1 }}},
           {$addFields: {name: modelMeta.modelName}}
-        ]).toArray();
+        ], {allowDiskUse: true}).toArray();
       }));
     })
     .then(function(res) {
@@ -393,6 +449,7 @@ module.exports.putDocument = function putDocument (request, response, next) {
       doc["x-meditor"]["modifiedBy"] = request.user.uid;
       // TODO: replace with actual model init state
       doc["x-meditor"]["states"] = [rootState];
+      doc["x-meditor"]["publishedTo"] = []
       return Promise.all([that.dbo.db(DbName).collection(doc["x-meditor"]["model"]).insertOne(doc), imagePromise]);
     })
     .then(function(savedDoc) {
@@ -429,7 +486,7 @@ module.exports.listDocuments = function listDocuments (request, response, next) 
       return that.dbo
         .db(DbName)
         .collection(that.params.model)
-        .aggregate(query)
+        .aggregate(query, {allowDiskUse: true})
         .map(function(doc) {
           var res = {"title": _.get(doc, that.titleProperty)};
           res["x-meditor"] = _.pickBy(doc['x-meditor'], function(value, key) {return xmeditorProperties.indexOf(key) !== -1;});
@@ -461,7 +518,7 @@ module.exports.getDocument = function listDocuments (request, response, next) {
       return that.dbo
         .db(DbName)
         .collection(that.params.model)
-        .aggregate(query)
+        .aggregate(query, {allowDiskUse: true})
         .map(res => {
           var out = {};
           _.merge(res, getExtraDocumentMetadata(that, res));
@@ -485,6 +542,40 @@ module.exports.getDocument = function listDocuments (request, response, next) {
     });
 };
 
+// Exported method to get a document's publication status
+module.exports.getDocumentPublicationStatus = async function(request, response, next) {
+  let client = new MongoClient(MongoUrl)
+
+  try {
+    await client.connect()
+
+    const model = await getModelContent(request.query.model)
+
+    if (!model) throw new Error('Model not found')
+
+    const results = await client.db(DbName).collection(request.query.model)
+      .aggregate([
+        { $match: { [model.titleProperty]: request.query.title } },
+        { $sort: { 'x-meditor.modifiedOn': -1 } },
+        { $project: { 'x-meditor.publishedTo': 1 } },
+      ], {allowDiskUse: true})
+      .toArray()
+
+      if (!results.length) throw new Error('No document found')
+
+      if (!results[0]['x-meditor'].publishedTo) {
+        handleNotFound(response, 'Document has not been published')
+      } else {
+        handleSuccess(response, results[0]['x-meditor'].publishedTo || [])
+      }
+  } catch (err) {
+    console.error(err)
+    handleError(response, err)
+  } finally {
+    client.close()
+  }
+};
+
 // Change workflow status of a document
 module.exports.changeDocumentState = function changeDocumentState (request, response, next) {
   var that = {};
@@ -501,7 +592,7 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
       return that.dbo
         .db(DbName)
         .collection(that.params.model)
-        .aggregate(query)
+        .aggregate(query, {allowDiskUse: true})
         .toArray();
     })
     .then(res => res[0])

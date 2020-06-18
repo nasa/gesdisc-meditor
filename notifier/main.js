@@ -5,7 +5,7 @@ require('log-node')()
 
 const CLUSTER_ID = process.env.MEDITOR_NATS_CLUSTER_ID || 'test-cluster'
 const CLIENT_ID = process.env.MEDITOR_NATS_CLIENT_ID || 'meditor_notifier'
-const SERVER = process.env.MEDITOR_NATS_SERVER || 'nats://nats:4222'
+const SERVER = process.env.MEDITOR_NATS_SERVER || 'nats://meditor_nats:4222'
 const CHANNEL_NAME = process.env.MEDITOR_NATS_NOTIFICATIONS_CHANNEL || 'meditor-notifications'
 
 log.notice(`Attempting to connect client (${CLIENT_ID}) to NATS (Cluster: ${CLUSTER_ID}, Server: ${SERVER})`)

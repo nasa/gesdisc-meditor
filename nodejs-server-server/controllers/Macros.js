@@ -45,7 +45,7 @@ exports.userRoles = function (dbo){
                 {"_id":0, "name":1, "graph.roles":1}
             },
             { $unwind: "$graph" }
-        ]).toArray(function(err,res){
+        ], {allowDiskUse: true}).toArray(function(err,res){
             if (err){
                 console.log(err);
                 throw(err);
