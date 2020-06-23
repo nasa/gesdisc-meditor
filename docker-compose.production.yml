@@ -83,7 +83,7 @@ services:
       - URS_PASSWORD
 
   cmr-subscriber:
-    image: registry1.gesdisc.eosdis.nasa.gov/cmr/cmr-meditor-subscriber:0.7.0
+    image: registry1.gesdisc.eosdis.nasa.gov/cmr/cmr-meditor-subscriber:0.8.0
     restart: always
     environment:
       - NODE_ENV=${NODE_ENV}
