@@ -188,7 +188,7 @@ function getDocumentModelMetadata(dbo, request, paramsExtra) {
   //   { model: 'Alerts', role: 'Reviewer' } ];
   that.modelName = that.params.model;
   that.modelRoles = _(that.roles).filter({model: that.params.model}).map('role').value();
-  return getModelContent(that.params.model, dbo) // The model should be pre-filled with Macro subs
+  return getModelContent(that.params.model, dbo.db(DbName)) // The model should be pre-filled with Macro subs
     .then(res => {
       if (_.isEmpty(res)) throw {message: 'Model for ' + that.params.model + ' not found', status: 400};
       that.model = res;
@@ -633,7 +633,7 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
       return shouldNotify ? mUtils.notifyOfStateChange(DbName, that) : Promise.resolve();
     })
     .then(() => {
-      return getModelContent(that.params.model, that.dbo)
+      return getModelContent(that.params.model, that.dbo.db(DbName))
     })
     .then(model => {
       return mUtils.publishToNats(that.document, model, that.params.state)
