@@ -1,6 +1,7 @@
 const { GraphQLScalarType } = require('graphql')
 const GraphQLJSON = require('graphql-type-json')
 const jsonMapper = require('json-mapper-json')
+const clonedeep = require('lodash.clonedeep')
 require('portable-fetch')
 
 function sortModels(modelA, modelB) {
@@ -31,7 +32,7 @@ function getDocumentMap(modelName, documentTitle) {
             required: false,
             formatting: (document) => {
                 try {
-                    return documentTitle || document.title || document.doc.title
+                    return documentTitle || document.title
                 } catch (err) {
                     return ''
                 }
@@ -137,6 +138,16 @@ module.exports = {
                 document = await dataSources.mEditorApi.getDocumentVersion(params.modelName, params.title, params.version)
             } else {
                 document = await dataSources.mEditorApi.getDocument(params.modelName, params.title)
+            }
+
+            // the original API response had a separate "doc" property
+            // we'll put it back to reduce complexity in resolving GraphQL responses
+            let doc = clonedeep(document)
+            let meta = clonedeep(document['x-meditor'])
+            delete doc['x-meditor']
+            document = {
+                'x-meditor': meta,
+                doc,
             }
 
             return await jsonMapper(document, getDocumentMap(params.modelName, params.title))

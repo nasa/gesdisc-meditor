@@ -417,7 +417,7 @@ module.exports.putDocument = function putDocument (request, response, next) {
       that.dbo = res;
     })
     .then(() => {
-      return getModelContent(doc['x-meditor'].model, that.dbo)
+      return getModelContent(doc['x-meditor'].model, that.dbo.db(DbName))
     })
     .then(model => {
       if (!model || !model.schema) throw new Error('Failed to find the requested model')
@@ -526,14 +526,8 @@ module.exports.getDocument = function listDocuments (request, response, next) {
         .collection(that.params.model)
         .aggregate(query, {allowDiskUse: true})
         .map(res => {
-          var out = {};
           _.merge(res, getExtraDocumentMetadata(that, res));
-          out["x-meditor"] = res["x-meditor"];
-          delete res["x-meditor"];
-          out["schema"] = that.model.schema;
-          out["layout"] = that.model.layout;
-          out["doc"] = res;
-          return out;
+          return res;
         })
         .toArray();
     })
