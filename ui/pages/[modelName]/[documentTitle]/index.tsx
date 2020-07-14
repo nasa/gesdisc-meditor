@@ -307,4 +307,4 @@ const EditDocumentPage = ({ user, version = null }) => {
     )
 }
 
-export default withApollo({ ssr: true })(withAuthentication(EditDocumentPage))
+export default withApollo({ ssr: true })(withAuthentication()(EditDocumentPage))

@@ -12,4 +12,4 @@ const EditDocumentByVersionPage = (props) => {
     return <EditDocumentPage {...props} version={documentVersion} />
 }
 
-export default withApollo({ ssr: true })(withAuthentication(EditDocumentByVersionPage))
+export default withApollo({ ssr: true })(withAuthentication()(EditDocumentByVersionPage))

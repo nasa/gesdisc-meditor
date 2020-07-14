@@ -126,4 +126,4 @@ const NewDocumentPage = ({ user }) => {
     )
 }
 
-export default withApollo({ ssr: true })(withAuthentication(NewDocumentPage))
+export default withApollo({ ssr: true })(withAuthentication()(NewDocumentPage))
