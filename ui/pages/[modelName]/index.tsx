@@ -63,6 +63,7 @@ const ModelPage = ({ user, model, documents }) => {
                 {documents && (
                     <SearchList
                         documents={documents}
+                        modelName={modelName}
                         onAddNew={addNewDocument}
                         user={user}
                     />

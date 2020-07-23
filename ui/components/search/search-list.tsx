@@ -42,6 +42,7 @@ function sortDocuments(sortDir, documentA, documentB) {
  */
 const SearchList = ({
     documents,
+    modelName,
     onAddNew,
     user,
 }) => {
@@ -68,7 +69,7 @@ const SearchList = ({
             />
 
             {filteredDocuments.map(document => (
-                <SearchResult key={document.title} document={document} />
+                <SearchResult key={document.title} document={document} modelName={modelName} />
             ))}
         </div>
     )

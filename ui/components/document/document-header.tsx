@@ -8,6 +8,7 @@ import { MdHistory, MdComment } from 'react-icons/md'
 const DocumentHeader = ({
     document = null,
     model,
+    version = null,
     toggleCommentsOpen = () => {},
     toggleHistoryOpen = () => {},
     privileges = [],
@@ -43,7 +44,15 @@ const DocumentHeader = ({
                         <span className="sr-only">history items</span>
                     </Button>
 
-                    <DocumentStateBadge document={document} />
+                    {model?.name && (
+                        <DocumentStateBadge
+                            document={document}
+                            modelName={model.name}
+                            version={version}
+                            showPublicationStatus={true}
+                            pollToUpdate={true}
+                        />
+                    )}
 
                     <div>
                         <em>

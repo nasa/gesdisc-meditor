@@ -3,7 +3,7 @@ import DocumentStateBadge from '../document/document-state-badge'
 import styles from './search-result.module.css'
 import { urlEncode } from '../../lib/url'
 
-const SearchResult = ({ document }) => {
+const SearchResult = ({ document, modelName }) => {
     return (
         <div className={styles.result}>
             <div>
@@ -11,7 +11,7 @@ const SearchResult = ({ document }) => {
                     <a>{document.title}</a>
                 </Link>
 
-                <DocumentStateBadge document={document} />
+                <DocumentStateBadge document={document} modelName={modelName} />
             </div>
 
             <div>
