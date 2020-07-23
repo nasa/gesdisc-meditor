@@ -64,6 +64,7 @@ const typeDefs = gql`
         states: [WorkflowState]
         targetStates: [String]
         version: String
+        publicationStatus: [PublicationStatus]
     }
 
     type WorkflowState {
@@ -122,6 +123,15 @@ const typeDefs = gql`
     type ValidLinkResponse {
         isValid: Boolean!
         message: String
+    }
+
+    type PublicationStatus {
+        url: String
+        message: String
+        target: String
+        statusCode: Int
+        publishedOn: Date @date
+        failedOn: Date @date
     }
 `
 

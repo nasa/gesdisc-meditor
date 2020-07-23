@@ -67,6 +67,10 @@ function getDocumentMap(modelName, documentTitle) {
             path: 'x-meditor.targetStates',
             required: false,
         },
+        'publicationStatus': {
+            path: 'x-meditor.publishedTo',
+            required: false,
+        },
         'version': {
             path: '$item',
             required: false,
