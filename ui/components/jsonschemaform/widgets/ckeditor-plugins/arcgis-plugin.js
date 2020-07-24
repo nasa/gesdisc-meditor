@@ -1,17 +1,13 @@
-const VALID_SIZES = [
-    ['100%', '800px'],
-    ['100%', '640px'],
-    ['800px', '600px'],
-    ['640px', '480px'],
-]
-
 export const arcgisstorymap = {
     lang: ['en'],
     en: {
         button: 'Embed ArcGIS Story Map',
         title: 'Embed ArcGIS Story Map',
         txtUrl: 'Paste ArcGIS Story Map URL',
-        txtSize: 'Size (width/height)',
+        txtWidth: 'Width (include px or %)',
+        txtHeight: 'Height (include px or %)',
+        invalidWidth: 'Please input a valid width (including unit, px or %)',
+        invalidHeight: 'Please input a valid height (including unit, px or %)',
         chkAutoplay: 'Autoplay mode',
         noCode: 'You must input a URL',
         invalidUrl: "The URL you've entered doesn't appear to be valid",
@@ -70,21 +66,49 @@ export const arcgisstorymap = {
                                 },
                             },
                             {
-                                type: 'select',
-                                id: 'size',
-                                label: editor.lang.arcgisstorymap.txtSize,
-                                items: VALID_SIZES.map((size) => [size.join(' / ')]),
-                                default: '640px / 480px',
+                                type: 'text',
+                                id: 'txtWidth',
+                                width: '60px',
+                                label: editor.lang.arcgisstorymap.txtWidth,
+                                default:
+                                    editor.config.arcgisstorymap_width != null
+                                        ? editor.config.arcgisstorymap_width
+                                        : '640px',
+                                validate: function () {
+                                    let width = this.getValue()
+
+                                    if (!width || (width.indexOf('px') < 0 && width.indexOf('%') < 0)) {
+                                        alert(editor.lang.arcgisstorymap.invalidWidth)
+                                        return false
+                                    }
+                                },
                             },
                             {
-                                        id: 'chkAutoplay',
-                                        type: 'checkbox',
-                                        default:
-                                            editor.config.arcgisstorymap_autoplay != null
-                                                ? editor.config.arcgisstorymap_autoplay
-                                                : false,
-                                        label: editor.lang.arcgisstorymap.chkAutoplay,
-                                   
+                                type: 'text',
+                                id: 'txtHeight',
+                                width: '60px',
+                                label: editor.lang.arcgisstorymap.txtHeight,
+                                default:
+                                    editor.config.arcgisstorymap_height != null
+                                        ? editor.config.arcgisstorymap_height
+                                        : '480px',
+                                validate: function () {
+                                    let height = this.getValue()
+
+                                    if (!height || (height.indexOf('px') < 0 && height.indexOf('%') < 0)) {
+                                        alert(editor.lang.arcgisstorymap.invalidHeight)
+                                        return false
+                                    }
+                                },
+                            },
+                            {
+                                id: 'chkAutoplay',
+                                type: 'checkbox',
+                                default:
+                                    editor.config.arcgisstorymap_autoplay != null
+                                        ? editor.config.arcgisstorymap_autoplay
+                                        : false,
+                                label: editor.lang.arcgisstorymap.chkAutoplay,
                             },
                         ],
                     },
@@ -92,33 +116,32 @@ export const arcgisstorymap = {
                 onOk: function () {
                     var content = ''
 
-                        var url = this.getContentElement('arcgisstorymapPlugin', 'txtUrl').getValue(),
-                            params = [],
-                            paramAutoplay = ''
-                        var width = this.getValueOf('arcgisstorymapPlugin', 'size').split(' / ')[0]
-                        var height = this.getValueOf('arcgisstorymapPlugin', 'size').split(' / ')[1]
+                    var url = this.getContentElement('arcgisstorymapPlugin', 'txtUrl').getValue(),
+                        params = [],
+                        paramAutoplay = ''
+                    var width = this.getValueOf('arcgisstorymapPlugin', 'txtWidth')
+                    var height = this.getValueOf('arcgisstorymapPlugin', 'txtHeight')
 
-                        if (this.getContentElement('arcgisstorymapPlugin', 'chkAutoplay').getValue() === true) {
-                            params.push('autoplay')
-                            paramAutoplay = 'autoplay'
-                        }
+                    if (this.getContentElement('arcgisstorymapPlugin', 'chkAutoplay').getValue() === true) {
+                        params.push('autoplay')
+                        paramAutoplay = 'autoplay'
+                    }
 
-                        if (params.length > 0) {
-                            url = url + '&' + params.join('&')
-                        }
-                        
-                        content +=
-                            '<iframe ' +
-                            (paramAutoplay ? 'allow="' + paramAutoplay + ';" ' : '') +
-                            'width="' +
-                            width +
-                            '" height="' +
-                            height +
-                            '" src="' +
-                            url +
-                            '" '
-                        content += 'frameborder="0" allowfullscreen></iframe>'
-                    
+                    if (params.length > 0) {
+                        url = url + '&' + params.join('&')
+                    }
+
+                    content +=
+                        '<iframe ' +
+                        (paramAutoplay ? 'allow="' + paramAutoplay + ';" ' : '') +
+                        'width="' +
+                        width +
+                        '" height="' +
+                        height +
+                        '" src="' +
+                        url +
+                        '" '
+                    content += 'frameborder="0" allowfullscreen></iframe>'
 
                     var element = CKEDITOR.dom.element.createFromHtml(content)
                     var instance = this.getParentEditor()
