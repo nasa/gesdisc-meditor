@@ -1,7 +1,8 @@
 import SearchStatusBar from './search-status-bar'
 import SearchResult from './search-result'
-import { useContext } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { AppContext } from '../app-store'
+import { findUnsavedDocumentsByModel } from '../../lib/unsaved-changes'
 
 /**
  * determines if a document contains a given search term
@@ -44,8 +45,18 @@ const SearchList = ({
     documents,
     onAddNew,
     user,
+    modelName,
 }) => {
     const { searchTerm, sortDir, filterBy } = useContext(AppContext)
+    const [localChanges, setLocalChanges] = useState([])
+
+    // look for unsaved documents in local storage
+    useEffect(() => {
+        setLocalChanges(findUnsavedDocumentsByModel(modelName))
+    }, [])
+
+    let localDocuments = localChanges
+        .sort(sortDocuments.bind(this, sortDir))
 
     let filteredDocuments = documents
         .filter(document => documentMatchesSearchTerm(document, searchTerm))
@@ -66,6 +77,10 @@ const SearchList = ({
                 documentStates={documentStates}
                 user={user}
             />
+
+            {localDocuments.map(localDocument => (
+                <SearchResult key={localDocument.localId} document={localDocument} isLocalDocument={true} />
+            ))}
 
             {filteredDocuments.map(document => (
                 <SearchResult key={document.title} document={document} />

@@ -18,6 +18,8 @@ import { urlEncode } from '../../../lib/url'
 import omitBy from 'lodash.omitby'
 import { v4 as uuid } from 'uuid'
 
+const UNTITLED_DOCUMENT_TITLE = 'Untitled Document'
+
 const MODEL_QUERY = gql`
     query getModel($modelName: String!) {
         model(modelName: $modelName) {
@@ -50,6 +52,7 @@ const NewDocumentPage = ({ user }) => {
     // TODO: look for document in local storage first, populate from there, otherwise create new object
     const [localChanges, setLocalChanges] = useState({
         localId: uuid(),
+        title: UNTITLED_DOCUMENT_TITLE,
         model: modelName,
         modifiedOn: Date.now(),
         modifiedBy: user.uid,
@@ -112,9 +115,13 @@ const NewDocumentPage = ({ user }) => {
     }
 
     function onChange(formData: any) {
+        let titleProperty = data?.model?.titleProperty
+        let title = (titleProperty && formData[titleProperty]) ? formData[titleProperty] : UNTITLED_DOCUMENT_TITLE
+
         setLocalChanges({
             ...localChanges,
-            formData: omitBy(formData, (value) => typeof value === 'undefined' || (Array.isArray(value) && !value.length)),    // clear out undefined values
+            formData: omitBy(formData, (value) => typeof value === 'undefined' || (Array.isArray(value) && !value.length)),
+            title,
         })
     }
 
