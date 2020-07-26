@@ -15,6 +15,8 @@ import withAuthentication from '../../../components/with-authentication'
 import FormActions from '../../../components/document/form-actions'
 import gql from 'graphql-tag'
 import { urlEncode } from '../../../lib/url'
+import omitBy from 'lodash.omitby'
+import { v4 as uuid } from 'uuid'
 
 const MODEL_QUERY = gql`
     query getModel($modelName: String!) {
@@ -45,8 +47,16 @@ const NewDocumentPage = ({ user }) => {
     const params = router.query
     const modelName = params.modelName as string
 
+    // TODO: look for document in local storage first, populate from there, otherwise create new object
+    const [localChanges, setLocalChanges] = useState({
+        localId: uuid(),
+        model: modelName,
+        modifiedOn: Date.now(),
+        modifiedBy: user.uid,
+        formData: {},
+    })
+
     const [form, setForm] = useState(null)
-    const [formData, setFormData] = useState(null)
     const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
 
     const { loading, error, data } = useQuery(MODEL_QUERY, {
@@ -58,9 +68,23 @@ const NewDocumentPage = ({ user }) => {
     // set initial formData
     useEffect(() => {
         if (!form?.state) return
-        
-        setFormData(form.state.formData)
+        onChange(form.state.formData)
     }, [form])
+
+    // save changes to form in localstorage for later retrieval
+    useEffect(() => {
+        // make sure at least one field is filled out to save the form data
+        if (localChanges.formData && Object.entries(localChanges.formData).length > 0) {
+            localStorage.setItem(getLocalStorageKey(), JSON.stringify(localChanges))    
+        } else {
+            // if we've previously saved, but user cleared out all the inputs, remove the item
+            localStorage.removeItem(getLocalStorageKey())
+        }       
+    }, [localChanges])
+
+    function getLocalStorageKey() {
+        return `meditor.${modelName}.${localChanges.localId}`
+    }
 
     function redirectToDocumentEdit(document) {
         let documentName = urlEncode(document[data.model.titleProperty])
@@ -76,6 +100,9 @@ const NewDocumentPage = ({ user }) => {
         try {
             await mEditorApi.putDocument(documentBlob)
 
+            // remove the unsaved changes from localStorage
+            localStorage.removeItem(getLocalStorageKey())
+
             setSuccessNotification('Successfully created the document')
             redirectToDocumentEdit(document)
         } catch (err) {
@@ -85,7 +112,10 @@ const NewDocumentPage = ({ user }) => {
     }
 
     function onChange(formData: any) {
-        setFormData(formData)
+        setLocalChanges({
+            ...localChanges,
+            formData: omitBy(formData, (value) => typeof value === 'undefined' || (Array.isArray(value) && !value.length)),    // clear out undefined values
+        })
     }
 
     return (
@@ -111,13 +141,13 @@ const NewDocumentPage = ({ user }) => {
                     </Alert>
                 }
             >
-                <Form model={data?.model} document={formData} onUpdateForm={setForm} onChange={onChange} />
+                <Form model={data?.model} document={localChanges?.formData} onUpdateForm={setForm} onChange={onChange} />
                 
                 {form?.state && (
                     <FormActions  
                         privileges={currentPrivileges}
                         form={form} 
-                        formData={formData}
+                        formData={localChanges?.formData}
                         onSave={createDocument}
                     />
                 )}
