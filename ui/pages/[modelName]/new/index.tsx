@@ -60,6 +60,8 @@ const NewDocumentPage = ({ user }) => {
         localId ? retrieveUnsavedDocumentFromLS(modelName, localId) : getNewUnsavedDocument(modelName, user.uid)
     )
 
+    const hasFormData = localChanges?.formData && Object.keys(localChanges.formData).length
+
     const [form, setForm] = useState(null)
     const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
 
@@ -121,6 +123,12 @@ const NewDocumentPage = ({ user }) => {
         })
     }
 
+    function deleteUnsavedDocument() {
+        removeUnsavedDocumentFromLS(localChanges)
+        setSuccessNotification(`Successfully deleted document: '${localChanges.title}'`)
+        router.push('/meditor/[modelName]', `/meditor/${urlEncode(modelName)}`)
+    }
+
     return (
         <div>
             <PageTitle title={['Add New', modelName]} />
@@ -130,7 +138,7 @@ const NewDocumentPage = ({ user }) => {
                 <Breadcrumb title="New" />
             </Breadcrumbs>
 
-            <DocumentHeader localDocument={localChanges} model={data?.model} />
+            <DocumentHeader model={data?.model} />
 
             <RenderResponse
                 loading={loading}
@@ -157,6 +165,7 @@ const NewDocumentPage = ({ user }) => {
                         form={form}
                         formData={localChanges?.formData}
                         onSave={createDocument}
+                        onDelete={hasFormData ? deleteUnsavedDocument : null}
                     />
                 )}
             </RenderResponse>

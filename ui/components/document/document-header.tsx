@@ -4,13 +4,9 @@ import DocumentStateBadge from './document-state-badge'
 import Button from 'react-bootstrap/Button'
 import Badge from 'react-bootstrap/Badge'
 import { MdHistory, MdComment } from 'react-icons/md'
-import StateBadge from '../state-badge'
-import { format } from 'date-fns'
-import { useRouter } from 'next/router'
 
 const DocumentHeader = ({
     document = null,
-    localDocument = null,
     model,
     toggleCommentsOpen = () => {},
     toggleHistoryOpen = () => {},
@@ -18,10 +14,6 @@ const DocumentHeader = ({
     comments = [],
     history = [],
 }) => {
-    const router = useRouter()
-    const params = router.query
-    const localId = params.localId as string
-
     return (
         <div>
             <div className={styles.title}>
@@ -30,18 +22,6 @@ const DocumentHeader = ({
             </div>
 
             <div className={styles.description}>{model?.description}</div>
-
-            {(localDocument && localId) && (
-                <div className={styles.subheader}>
-                    <StateBadge variant="warning">Unsaved</StateBadge>
-
-                    <div>
-                        <em>
-                            (autosaved on {format(new Date(localDocument.modifiedOn), 'M/d/yy, h:mm aaa')})
-                        </em>
-                    </div>
-                </div>
-            )}
 
             {document && (
                 <div className={styles.subheader}>

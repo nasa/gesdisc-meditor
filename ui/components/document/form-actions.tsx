@@ -109,7 +109,11 @@ const FormActions = ({
     }
 
     function confirmAndHandleDelete() {
-        if (!confirm('Are you sure you want to delete this document?\n\nThis document will be deleted immediately. You can\'t undo this action.')) {
+        if (
+            !confirm(
+                "Are you sure you want to delete this document?\n\nThis document will be deleted immediately. You can't undo this action."
+            )
+        ) {
             return
         }
 
@@ -117,9 +121,13 @@ const FormActions = ({
     }
 
     return (
-        <div className={`container-fluid shadow-sm ${styles.container}`}>
+        <div className={`container-fluid ${styles.container}`}>
             <div>
-                {onDelete && <Button variant="outline-danger">Delete</Button>}
+                {onDelete && (
+                    <Button variant="outline-danger" onClick={confirmAndHandleDelete}>
+                        Delete
+                    </Button>
+                )}
 
                 {canSave && (
                     <Button className={styles.button} variant="secondary" onClick={handleSave} ref={saveEl}>
