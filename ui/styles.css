@@ -24,6 +24,7 @@ body {
     background: #fff;
     padding: 15px;
     min-height: calc(100vh - 120px);
+    margin-bottom: 50px;
 }
 
 .model-select {

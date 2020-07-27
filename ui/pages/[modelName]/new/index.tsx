@@ -16,9 +16,14 @@ import FormActions from '../../../components/document/form-actions'
 import gql from 'graphql-tag'
 import { urlEncode } from '../../../lib/url'
 import omitBy from 'lodash.omitby'
-import { v4 as uuid } from 'uuid'
-
-const UNTITLED_DOCUMENT_TITLE = 'Untitled Document'
+import {
+    getNewUnsavedDocument,
+    retrieveUnsavedDocumentFromLS,
+    updateUnsavedDocumentInLS,
+    UnsavedDocument,
+    removeUnsavedDocumentFromLS,
+    UNTITLED_DOCUMENT_TITLE,
+} from '../../../lib/unsaved-changes'
 
 const MODEL_QUERY = gql`
     query getModel($modelName: String!) {
@@ -46,18 +51,14 @@ const MODEL_QUERY = gql`
 
 const NewDocumentPage = ({ user }) => {
     const router = useRouter()
+
     const params = router.query
     const modelName = params.modelName as string
+    const localId = params.localId as string
 
-    // TODO: look for document in local storage first, populate from there, otherwise create new object
-    const [localChanges, setLocalChanges] = useState({
-        localId: uuid(),
-        title: UNTITLED_DOCUMENT_TITLE,
-        model: modelName,
-        modifiedOn: Date.now(),
-        modifiedBy: user.uid,
-        formData: {},
-    })
+    const [localChanges, setLocalChanges] = useState(
+        localId ? retrieveUnsavedDocumentFromLS(modelName, localId) : getNewUnsavedDocument(modelName, user.uid)
+    )
 
     const [form, setForm] = useState(null)
     const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
@@ -66,7 +67,9 @@ const NewDocumentPage = ({ user }) => {
         variables: { modelName },
     })
 
-    const currentPrivileges = data?.model?.workflow ? user.privilegesForModelAndWorkflowNode(modelName, data.model.workflow.currentNode) : []
+    const currentPrivileges = data?.model?.workflow
+        ? user.privilegesForModelAndWorkflowNode(modelName, data.model.workflow.currentNode)
+        : []
 
     // set initial formData
     useEffect(() => {
@@ -76,18 +79,8 @@ const NewDocumentPage = ({ user }) => {
 
     // save changes to form in localstorage for later retrieval
     useEffect(() => {
-        // make sure at least one field is filled out to save the form data
-        if (localChanges.formData && Object.entries(localChanges.formData).length > 0) {
-            localStorage.setItem(getLocalStorageKey(), JSON.stringify(localChanges))    
-        } else {
-            // if we've previously saved, but user cleared out all the inputs, remove the item
-            localStorage.removeItem(getLocalStorageKey())
-        }       
+        updateUnsavedDocumentInLS(localChanges)
     }, [localChanges])
-
-    function getLocalStorageKey() {
-        return `meditor.${modelName}.${localChanges.localId}`
-    }
 
     function redirectToDocumentEdit(document) {
         let documentName = urlEncode(document[data.model.titleProperty])
@@ -103,8 +96,8 @@ const NewDocumentPage = ({ user }) => {
         try {
             await mEditorApi.putDocument(documentBlob)
 
-            // remove the unsaved changes from localStorage
-            localStorage.removeItem(getLocalStorageKey())
+            // remove the unsaved changes from LS now that the user has saved
+            removeUnsavedDocumentFromLS(localChanges)
 
             setSuccessNotification('Successfully created the document')
             redirectToDocumentEdit(document)
@@ -116,11 +109,14 @@ const NewDocumentPage = ({ user }) => {
 
     function onChange(formData: any) {
         let titleProperty = data?.model?.titleProperty
-        let title = (titleProperty && formData[titleProperty]) ? formData[titleProperty] : UNTITLED_DOCUMENT_TITLE
+        let title = titleProperty && formData[titleProperty] ? formData[titleProperty] : UNTITLED_DOCUMENT_TITLE
 
         setLocalChanges({
             ...localChanges,
-            formData: omitBy(formData, (value) => typeof value === 'undefined' || (Array.isArray(value) && !value.length)),
+            formData: omitBy(
+                formData,
+                (value) => typeof value === 'undefined' || (Array.isArray(value) && !value.length)
+            ),
             title,
         })
     }
@@ -134,7 +130,7 @@ const NewDocumentPage = ({ user }) => {
                 <Breadcrumb title="New" />
             </Breadcrumbs>
 
-            <DocumentHeader model={data?.model} />
+            <DocumentHeader localDocument={localChanges} model={data?.model} />
 
             <RenderResponse
                 loading={loading}
@@ -148,12 +144,17 @@ const NewDocumentPage = ({ user }) => {
                     </Alert>
                 }
             >
-                <Form model={data?.model} document={localChanges?.formData} onUpdateForm={setForm} onChange={onChange} />
-                
+                <Form
+                    model={data?.model}
+                    document={localChanges?.formData}
+                    onUpdateForm={setForm}
+                    onChange={onChange}
+                />
+
                 {form?.state && (
-                    <FormActions  
+                    <FormActions
                         privileges={currentPrivileges}
-                        form={form} 
+                        form={form}
                         formData={localChanges?.formData}
                         onSave={createDocument}
                     />

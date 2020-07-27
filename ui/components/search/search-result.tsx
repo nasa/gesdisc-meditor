@@ -13,7 +13,7 @@ const SearchResult = ({ document, isLocalDocument = false }) => {
                     href={isLocalDocument ? '/meditor/[modelName]/new' : '/meditor/[modelName]/[documentTitle]'}
                     as={
                         isLocalDocument
-                            ? `/meditor/${urlEncode(document.model)}/new?id=${document.localId}`
+                            ? `/meditor/${urlEncode(document.model)}/new?localId=${document.localId}`
                             : `/meditor/${urlEncode(document.model)}/${urlEncode(document.title)}`
                     }
                 >

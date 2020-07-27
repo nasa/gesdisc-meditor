@@ -14,6 +14,7 @@ const FormActions = ({
     formData,
     onSave,
     onUpdateState = (target: string) => {},
+    onDelete = null,
 }) => {
     const saveEl = useRef(null)
     const canSave = privileges.includes('edit') || privileges.includes('create')
@@ -107,26 +108,38 @@ const FormActions = ({
         onUpdateState(target)
     }
 
-    return (
-        <>
-            {canSave && (
-                <Button className={styles.button} variant="secondary" onClick={handleSave} ref={saveEl}>
-                    Save
-                </Button>
-            )}
+    function confirmAndHandleDelete() {
+        if (!confirm('Are you sure you want to delete this document?\n\nThis document will be deleted immediately. You can\'t undo this action.')) {
+            return
+        }
 
-            {showActions &&
-                actions.map((action) => (
-                    <Button
-                        key={action.label}
-                        className={styles.button}
-                        variant="secondary"
-                        onClick={() => handleStateUpdate(action.target)}
-                    >
-                        {action.label}
+        onDelete()
+    }
+
+    return (
+        <div className={`container-fluid shadow-sm ${styles.container}`}>
+            <div>
+                {onDelete && <Button variant="outline-danger">Delete</Button>}
+
+                {canSave && (
+                    <Button className={styles.button} variant="secondary" onClick={handleSave} ref={saveEl}>
+                        Save
                     </Button>
-                ))}
-        </>
+                )}
+
+                {showActions &&
+                    actions.map((action) => (
+                        <Button
+                            key={action.label}
+                            className={styles.button}
+                            variant="secondary"
+                            onClick={() => handleStateUpdate(action.target)}
+                        >
+                            {action.label}
+                        </Button>
+                    ))}
+            </div>
+        </div>
     )
 }
 
