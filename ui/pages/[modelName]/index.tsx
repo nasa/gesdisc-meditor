@@ -76,6 +76,7 @@ const ModelPage = ({ user }) => {
                         documents={data?.documents}
                         onAddNew={addNewDocument}
                         user={user}
+                        modelName={modelName}
                     />
                 </RenderResponse>
             </div>
