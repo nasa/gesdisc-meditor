@@ -4,3 +4,12 @@
     font-weight: normal;
     margin: 0 10px;
 }
+
+.badge-warning {
+    background: #f5d2d3;
+}
+
+.badge-info {
+    background: #17a2b8;
+    color: #fff;
+}

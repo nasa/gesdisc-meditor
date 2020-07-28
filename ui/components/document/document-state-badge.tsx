@@ -1,11 +1,10 @@
-import Badge from 'react-bootstrap/Badge'
-import styles from './document-state-badge.module.css'
+import StateBadge from '../state-badge'
 
 const DocumentStateBadge = ({ document }) => {
     return (
-        <Badge pill className={styles.badge}>
+        <StateBadge>
             {document?.state}
-        </Badge>
+        </StateBadge>
     )
 }
 
