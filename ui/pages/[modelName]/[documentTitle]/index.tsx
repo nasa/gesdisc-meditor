@@ -302,6 +302,7 @@ const EditDocumentPage = ({ user, version = null }) => {
                     onUpdateState={updateDocumentState}
                     actions={modelResponse?.data?.model?.workflow?.currentEdges}
                     showActions={documentResponse?.data?.document?.targetStates?.length > 0}
+                    confirmUnsavedChanges={true}
                 />
             </RenderResponse>
         </div>

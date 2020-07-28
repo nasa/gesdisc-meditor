@@ -74,7 +74,7 @@ const App = ({ Component, pageProps }) => {
 
             <AppStore>
                 <div className="container-fluid">
-                    <section className="page-container">
+                    <section className="page-container shadow-sm">
                         {canLoadPage ? (
                             <Component {...pageProps} user={user} isAuthenticated={isAuthenticated} />
                         ) : (

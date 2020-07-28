@@ -7,6 +7,7 @@ import { HoverableOverlayTrigger, HoverablePopover } from '../hoverable-overlay-
 import { useLazyQuery } from '@apollo/react-hooks'
 import styles from './document-state-badge.module.css'
 import { useEffect } from 'react'
+import StateBadge from '../state-badge'
 
 const QUERY = gql`
     query getDocument($modelName: String!, $title: String!, $version: String) {
@@ -63,7 +64,7 @@ const DocumentStateBadge = ({
     }, [showPublicationStatus])
 
     return (
-        <Badge pill className={styles.badge}>
+        <StateBadge>
             {document?.state}
 
             {isPublishing && (
@@ -81,7 +82,7 @@ const DocumentStateBadge = ({
                     </Badge>
                 </HoverableOverlayTrigger>
             )}
-        </Badge>
+        </StateBadge>
     )
 }
 

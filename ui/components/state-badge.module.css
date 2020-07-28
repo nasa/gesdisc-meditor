@@ -14,3 +14,12 @@
 .spinner {
     margin-left: 5px;
 }
+
+.badge-warning {
+    background: #f5d2d3;
+}
+
+.badge-info {
+    background: #17a2b8;
+    color: #fff;
+}

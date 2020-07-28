@@ -623,7 +623,12 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
         .updateOne({_id: res._id}, {$set: {'x-meditor.states': newStatesArray}});
     })
     .then(res => {
-      const shouldNotify =  _.get(that.currentEdge, 'notify', true) && that.readyNodes.indexOf(that.params.state) === -1;
+      let shouldNotify =  _.get(that.currentEdge, 'notify', true) && that.readyNodes.indexOf(that.params.state) === -1;
+
+      if ('notify' in request.query && (request.query.notify == "false" || request.query.notify == false)) {
+        shouldNotify = false
+      }
+
       return shouldNotify ? mUtils.notifyOfStateChange(DbName, that) : Promise.resolve();
     })
     .then(() => {

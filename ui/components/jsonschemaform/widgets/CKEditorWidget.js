@@ -1,7 +1,19 @@
 import React from 'react'
 import CKEditor from 'ckeditor4-react'
+import * as plugins from './ckeditor-plugins/'
 
-function CKEditorWidget(props) {
+function registerPluginsWithCkEditorInstance(CKEDITOR) {
+    Object.keys(plugins).forEach(key => {
+        CKEDITOR.plugins.add(key, plugins[key])
+
+        // if language file included, set it up
+        if ('en' in plugins[key]) {
+            CKEDITOR.plugins.setLang(key, 'en', plugins[key].en)
+        }
+    })
+}
+
+function CKEditorWidget(props) {    
     const config = {
         mathJaxLib: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_HTML',
         toolbarGroups: [
@@ -30,6 +42,7 @@ function CKEditorWidget(props) {
         autoGrow_bottomSpace: 30,
         filebrowserUploadUrl: props.formContext.imageUploadUrl || '/images/upload',
         filebrowserUploadMethod: 'form',
+        extraPlugins: 'youtube,arcgisstorymap',
     }
 
     // TODO: support disabled/readonly, required?
@@ -47,7 +60,11 @@ function CKEditorWidget(props) {
                 let value = event.editor.getData() || undefined
                 props.onChange(value)
             }}
-            onBeforeLoad={(CKEDITOR) => CKEDITOR.disableAutoInline = true}
+            onBeforeLoad={(CKEDITOR) => {
+                CKEDITOR.disableAutoInline = true
+
+                registerPluginsWithCkEditorInstance(CKEDITOR)
+            }}
         />
     )
 }

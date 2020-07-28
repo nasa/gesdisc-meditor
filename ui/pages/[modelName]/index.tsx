@@ -66,6 +66,7 @@ const ModelPage = ({ user, model, documents }) => {
                         modelName={modelName}
                         onAddNew={addNewDocument}
                         user={user}
+                        modelName={modelName}
                     />
                 )}
             </div>
