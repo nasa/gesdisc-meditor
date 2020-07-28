@@ -10,7 +10,7 @@ const Form = ({ model, document, liveValidate = false, onUpdateForm, onChange = 
     const [expandAll, setExpandAll] = useState(false)
 
     let layout = model?.uiSchema || model?.layout || '{}'
-    let formData = document?.doc || {}
+    let formData = document?.doc || document || {}
 
     let hasSections = JSON.stringify(layout).indexOf('CollapsibleField') >= 0
 

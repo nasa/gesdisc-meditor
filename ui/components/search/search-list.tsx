@@ -46,7 +46,6 @@ const SearchList = ({
     modelName,
     onAddNew,
     user,
-    modelName,
 }) => {
     const { searchTerm, sortDir, filterBy } = useContext(AppContext)
     const [localChanges, setLocalChanges] = useState([])
@@ -80,7 +79,7 @@ const SearchList = ({
             />
 
             {localDocuments.map(localDocument => (
-                <SearchResult key={localDocument.localId} document={localDocument} isLocalDocument={true} />
+                <SearchResult key={localDocument.localId} document={localDocument} isLocalDocument={true} modelName={modelName} />
             ))}
 
             {filteredDocuments.map(document => (
