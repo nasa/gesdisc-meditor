@@ -20,10 +20,12 @@ import {
     getNewUnsavedDocument,
     retrieveUnsavedDocumentFromLS,
     updateUnsavedDocumentInLS,
-    UnsavedDocument,
     removeUnsavedDocumentFromLS,
     UNTITLED_DOCUMENT_TITLE,
 } from '../../../lib/unsaved-changes'
+import Spinner from 'react-bootstrap/Spinner'
+import { AiOutlineCheck } from 'react-icons/ai'
+import format from 'date-fns/format'
 
 const MODEL_QUERY = gql`
     query getModel($modelName: String!) {
@@ -60,6 +62,8 @@ const NewDocumentPage = ({ user }) => {
         localId ? retrieveUnsavedDocumentFromLS(modelName, localId) : getNewUnsavedDocument(modelName, user.uid)
     )
 
+    const [autosavingTimer, setAutosavingTimer] = useState(null)
+
     const hasFormData = localChanges?.formData && Object.keys(localChanges.formData).length
 
     const [form, setForm] = useState(null)
@@ -81,6 +85,14 @@ const NewDocumentPage = ({ user }) => {
 
     // save changes to form in localstorage for later retrieval
     useEffect(() => {
+        // simulate a long save, the real save to local storage happens instantaneously 
+        // but it helps to show user that something is happening in the background
+        clearTimeout(autosavingTimer)
+        setAutosavingTimer(setTimeout(() => {
+            setAutosavingTimer(null)
+        }, 1000))
+
+        // trigger the save to local storage
         updateUnsavedDocumentInLS(localChanges)
     }, [localChanges])
 
@@ -115,6 +127,7 @@ const NewDocumentPage = ({ user }) => {
 
         setLocalChanges({
             ...localChanges,
+            modifiedOn: Date.now(),
             formData: omitBy(
                 formData,
                 (value) => typeof value === 'undefined' || (Array.isArray(value) && !value.length)
@@ -166,6 +179,21 @@ const NewDocumentPage = ({ user }) => {
                         formData={localChanges?.formData}
                         onSave={createDocument}
                         onDelete={hasFormData ? deleteUnsavedDocument : null}
+                        CustomActions={
+                            <span className="ml-5 text-secondary">
+                                {autosavingTimer ? (
+                                    <>
+                                        <Spinner animation="border" variant="secondary" role="status" as="span" size="sm" className="mr-2" />
+                                        Saving your changes...
+                                    </>
+                                ) : (
+                                    <>
+                                        <AiOutlineCheck className="mr-2" /> 
+                                        Saved locally on {format(new Date(localChanges.modifiedOn), 'M/d/yy, h:mm aaa')}
+                                    </>
+                                )}
+                            </span>
+                        }
                     />
                 )}
             </RenderResponse>

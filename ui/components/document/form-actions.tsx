@@ -15,6 +15,7 @@ const FormActions = ({
     onSave,
     onUpdateState = (target: string) => {},
     onDelete = null,
+    CustomActions = null,
 }) => {
     const saveEl = useRef(null)
     const canSave = privileges.includes('edit') || privileges.includes('create')
@@ -146,6 +147,8 @@ const FormActions = ({
                             {action.label}
                         </Button>
                     ))}
+
+                {CustomActions}
             </div>
         </div>
     )
