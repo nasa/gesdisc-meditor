@@ -8,6 +8,7 @@ import { useLazyQuery } from '@apollo/react-hooks'
 import styles from './document-state-badge.module.css'
 import { useEffect } from 'react'
 import StateBadge from '../state-badge'
+import omitBy from 'lodash.omitby'
 
 const QUERY = gql`
     query getDocument($modelName: String!, $title: String!, $version: String) {
@@ -24,13 +25,6 @@ const QUERY = gql`
         }
     }
 `
-
-const PublicationStatusPopover = (
-    <Popover id="publication-status">
-        <Popover.Title as="h3">Popover title</Popover.Title>
-        <Popover.Content>Here's some content</Popover.Content>
-    </Popover>
-)
 
 const PublishingPopover = (
     <Popover id="publishing">
@@ -52,6 +46,15 @@ const DocumentStateBadge = ({
 
     const publicationStatus = response?.data?.document?.publicationStatus
     const isPublishing = publicationStatus && !publicationStatus.length
+
+    // older documents may have an invalid publication status format, filter these out
+    const publicationStatuses = publicationStatus?.filter((status) => {
+        // filter out unneeded keys (null values and typename)
+        let testObj = omitBy(status, (value) => !value)
+        delete testObj.__typename
+
+        return Object.keys(testObj).length > 0
+    })
 
     // if showing publication status, query for it
     useEffect(() => {
@@ -75,10 +78,39 @@ const DocumentStateBadge = ({
                 </OverlayTrigger>
             )}
 
-            {publicationStatus?.length && (
-                <HoverableOverlayTrigger placement="bottom" overlay={PublicationStatusPopover}>
-                    <Badge variant="primary" className={styles.publicationBadge}>
-                        {publicationStatus.length}
+            {publicationStatuses?.length && (
+                <HoverableOverlayTrigger placement="bottom" overlay={(
+                    <Popover id="publishing" style={{ maxWidth: '600px' }}>
+                        <Popover.Title as="h3">Publication Status</Popover.Title>
+                        <Popover.Content>
+                        {publicationStatuses.map((status) => (
+                            <div
+                                key={status.target + (status.failedOn || status.publishedOn)}
+                                className={`mb-2 ${status.failedOn ? 'text-danger' : ''}`}
+                            >
+                                {status.failedOn && (
+                                    <>
+                                        <strong>Failed to publish to {status.target}</strong>
+                                        <br />
+                                    </>
+                                )}
+
+                                {status.message}
+
+                                {status.url && (
+                                    <>
+                                        <p>
+                                            <a href="">{status.url}</a>
+                                        </p>
+                                    </>
+                                )}
+                            </div>
+                        ))}
+                        </Popover.Content>
+                    </Popover>
+                )}>
+                    <Badge variant={publicationStatuses?.filter((status) => status.failedOn).length ? 'danger' : 'primary'} className={styles.publicationBadge}>
+                        {publicationStatuses.length}
                     </Badge>
                 </HoverableOverlayTrigger>
             )}
