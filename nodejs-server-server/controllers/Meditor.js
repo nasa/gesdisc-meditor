@@ -18,9 +18,6 @@ var DbName = "meditor";
 
 var SHARED_MODELS = ['Workflows', 'Users', 'Models'];
 
-// ======================== Register fetch functions with Macro.fetch ==============
-macros.registerFetchers(require('./lib/fetchers').getFetchers());
-
 // subscribe to publication acknowledgements
 nats.subscribeToChannel('meditor-Acknowledge').on('message', handlePublicationAcknowledgements)
 
