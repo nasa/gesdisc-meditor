@@ -2,11 +2,10 @@ import gql from 'graphql-tag'
 import Badge from 'react-bootstrap/Badge'
 import Popover from 'react-bootstrap/Popover'
 import Spinner from 'react-bootstrap/Spinner'
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
-import { HoverableOverlayTrigger } from '../hoverable-overlay-trigger'
+import Overlay from 'react-bootstrap/Overlay'
 import { useLazyQuery } from '@apollo/react-hooks'
 import styles from './document-state-badge.module.css'
-import { useEffect } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import StateBadge from '../state-badge'
 import omitBy from 'lodash.omitby'
 
@@ -26,26 +25,21 @@ const QUERY = gql`
     }
 `
 
-const PublishingPopover = (
-    <Popover id="publishing">
-        <Popover.Title as="h3">In progress</Popover.Title>
-        <Popover.Content>Awaiting response from subscribers</Popover.Content>
-    </Popover>
-)
-
 const DocumentStateBadge = ({
     document,
     modelName = null, // required if showPublicationStatus is true
     version = null,
     showPublicationStatus = false,
-    pollToUpdate = false, // if true and no subscribers have published the document yet (publicationStatus is empty array), will requery every second until there is a response
 }) => {
+    const badgeRef = useRef(null)
+    const [showPublicationStatusOverlay, setShowPublicationStatusOverlay] = useState(false)
+
     const [loadDocument, response] = useLazyQuery(QUERY, {
         fetchPolicy: 'network-only',
     })
 
     const publicationStatus = response?.data?.document?.publicationStatus
-    const isPublishing = publicationStatus && !publicationStatus.length
+    const isPublishing = publicationStatus && publicationStatus.length <= 0
 
     // older documents may have an invalid publication status format, filter these out
     const publicationStatuses = publicationStatus?.filter((status) => {
@@ -67,54 +61,86 @@ const DocumentStateBadge = ({
     }, [showPublicationStatus])
 
     return (
-        <StateBadge>
-            {document?.state}
+        <>
+            <div
+                ref={badgeRef}
+                className={styles.badge}
+                onMouseEnter={() => setShowPublicationStatusOverlay(true)}
+                onMouseLeave={() => setShowPublicationStatusOverlay(false)}
+            >
+                <StateBadge>
+                    {document?.state}
 
-            {isPublishing && (
-                <OverlayTrigger placement="bottom" overlay={PublishingPopover}>
-                    <Spinner animation="border" role="status" size="sm" variant="primary" className={styles.spinner}>
-                        <span className="sr-only">Publishing...please wait</span>
-                    </Spinner>
-                </OverlayTrigger>
-            )}
+                    {isPublishing && (
+                        <Spinner
+                            animation="border"
+                            role="status"
+                            size="sm"
+                            variant="primary"
+                            className={styles.spinner}
+                        >
+                            <span className="sr-only">Publishing...please wait</span>
+                        </Spinner>
+                    )}
 
-            {publicationStatuses?.length && (
-                <HoverableOverlayTrigger placement="bottom" overlay={(
-                    <Popover id="publishing" style={{ maxWidth: '600px' }}>
-                        <Popover.Title as="h3">Publication Status</Popover.Title>
-                        <Popover.Content>
-                        {publicationStatuses.map((status) => (
-                            <div
-                                key={status.target + (status.failedOn || status.publishedOn)}
-                                className={`mb-2 ${status.failedOn ? 'text-danger' : ''}`}
-                            >
-                                {status.failedOn && (
-                                    <>
-                                        <strong>Failed to publish to {status.target}</strong>
-                                        <br />
-                                    </>
-                                )}
+                    {publicationStatuses?.length > 0 && (
+                        <Badge
+                            variant={
+                                publicationStatuses?.filter((status) => status.failedOn).length ? 'danger' : 'primary'
+                            }
+                            className={styles.publicationBadge}
+                        >
+                            {publicationStatuses.length}
+                        </Badge>
+                    )}
+                </StateBadge>
+            </div>
 
-                                {status.message}
+            <Overlay target={badgeRef.current} show={showPublicationStatusOverlay} placement="bottom">
+                {({ show: _show, popper, style, ...props }) => {
+                    return (
+                        <Popover
+                            id="publishing"
+                            style={Object.assign({}, style, { maxWidth: '600px' })}
+                            {...props}
+                            onMouseEnter={() => setShowPublicationStatusOverlay(true)}
+                            onMouseLeave={() => setShowPublicationStatusOverlay(false)}
+                        >
+                            <Popover.Title as="h3">Publication Status</Popover.Title>
 
-                                {status.url && (
-                                    <>
-                                        <p>
-                                            <a href="">{status.url}</a>
-                                        </p>
-                                    </>
-                                )}
-                            </div>
-                        ))}
-                        </Popover.Content>
-                    </Popover>
-                )}>
-                    <Badge variant={publicationStatuses?.filter((status) => status.failedOn).length ? 'danger' : 'primary'} className={styles.publicationBadge}>
-                        {publicationStatuses.length}
-                    </Badge>
-                </HoverableOverlayTrigger>
-            )}
-        </StateBadge>
+                            <Popover.Content>
+                                {isPublishing && <span>Awaiting response from subscribers</span>}
+
+                                {publicationStatuses?.length > 0 &&
+                                    publicationStatuses.map((status) => (
+                                        <div
+                                            key={status.target + (status.failedOn || status.publishedOn)}
+                                            className={`mb-2 ${status.failedOn ? 'text-danger' : ''}`}
+                                        >
+                                            {status.failedOn && (
+                                                <>
+                                                    <strong>Failed to publish to {status.target}</strong>
+                                                    <br />
+                                                </>
+                                            )}
+
+                                            {status.message}
+
+                                            {status.url && (
+                                                <>
+                                                    <p>
+                                                        <a href="">{status.url}</a>
+                                                    </p>
+                                                </>
+                                            )}
+                                        </div>
+                                    ))}
+                            </Popover.Content>
+                        </Popover>
+                    )
+                }}
+            </Overlay>
+        </>
     )
 }
 

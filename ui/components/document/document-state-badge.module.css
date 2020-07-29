@@ -1,3 +1,7 @@
+.badge {
+    cursor: pointer;
+}
+
 .publicationBadge {
     margin-left: 5px;
 }

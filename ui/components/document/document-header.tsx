@@ -50,7 +50,6 @@ const DocumentHeader = ({
                             modelName={model.name}
                             version={version}
                             showPublicationStatus={true}
-                            pollToUpdate={true}
                         />
                     )}
 
