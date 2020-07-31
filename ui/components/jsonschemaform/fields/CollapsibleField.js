@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { deepEquals, getDefaultFormState } from 'react-jsonschema-form'
 import { MdKeyboardArrowUp, MdKeyboardArrowDown  } from 'react-icons/md'
+import { keyExistsInSchema } from '../../../lib/utils'
 
 class CollapseMenuAction extends Component {
     render() {
@@ -285,6 +286,8 @@ class CollapsibleField extends Component {
         title = uiSchema['ui:title'] ? uiSchema['ui:title'] : title ? title : name
         let customizedId = collapsed ? $id : undefined
 
+        let required = keyExistsInSchema('required', this.props.schema)
+
         return (
             <div id={customizedId}>
                 <CollapseMenu
@@ -294,7 +297,7 @@ class CollapsibleField extends Component {
                     formContext={formContext}
                     onAdd={this.handleAdd}
                     onChange={this.handleCollapsed}
-                    required={this.props.required}
+                    required={required}
                 />
                 <div className={`form-group ${collapsed && 'collapsed'}`}>
                     {AddElement && <AddElement />}
