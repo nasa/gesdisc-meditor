@@ -60,6 +60,10 @@ body {
     flex: 1 0 2em;
 }
 
+.form-group {
+    margin-bottom: 2rem;
+}
+
 .form-control {
     color: #000;
 }
@@ -91,17 +95,6 @@ form.rjsf .panel.errors .panel-heading {
 
 form.rjsf button[type="submit"] {
     display: none;
-}
-
-.field-description {
-    text-align: right;
-    color: rgba(0, 0, 0, 0.54);
-    width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 0.75em;
-    margin: 8px 0 !important;
 }
 
 .container-fluid,
@@ -140,25 +133,20 @@ form.rjsf button[type="submit"] {
     text-transform: capitalize;
 }
 
+.form-group.field .control-label-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: .5rem;
+}
+
 .form-group.field .control-label {
     color: rgba(0, 0, 0, 0.6);
-    order: 1;
+    margin-bottom: 0;
+    margin-right: 10px;
 }
 
-.form-group.field .form-control,
-.form-group.field .cke,
-.form-group.field .image-widget-content,
-.form-group.field .form-input-control {
-    order: 2;
-}
-
-.form-group.field .field-description {
-    order: 3;
-}
-
-.form-group.field > div:last-child:not([class]),
-.form-group.field > div[class=""]:last-child {
-    order: 4;
+.form-group.field .control-label ~ svg {
+    fill: rgba(0, 0, 0, 0.6);
 }
 
 .form-group.field legend {

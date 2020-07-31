@@ -1,6 +1,6 @@
 import React from 'react'
 
-function FlexLayoutField({ TitleField, properties, title, description }) {
+function FlexLayoutTemplate({ TitleField, properties, title, description }) {
     return (
         <div className="container-fluid">
             <div className="row">
@@ -20,4 +20,4 @@ function FlexLayoutField({ TitleField, properties, title, description }) {
     )
 }
 
-export default FlexLayoutField
+export default FlexLayoutTemplate
