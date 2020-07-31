@@ -13,7 +13,7 @@ function registerPluginsWithCkEditorInstance(CKEDITOR) {
     })
 }
 
-function CKEditorWidget(props) {    
+function CKEditorWidget(props) {
     const config = {
         mathJaxLib: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_HTML',
         toolbarGroups: [
@@ -45,7 +45,7 @@ function CKEditorWidget(props) {
         extraPlugins: 'youtube,arcgisstorymap',
     }
 
-    // TODO: support disabled/readonly, required?
+    // TODO: support disabled
 
     return (
         <CKEditor 
@@ -60,7 +60,10 @@ function CKEditorWidget(props) {
                 let value = event.editor.getData() || undefined
                 props.onChange(value)
             }}
-            onBeforeLoad={(CKEDITOR) => {
+            onInstanceReady={(event) => {
+                event.editor.setReadOnly(props.readonly || false)
+            }}
+            onBeforeLoad={(CKEDITOR, b) => {
                 CKEDITOR.disableAutoInline = true
 
                 registerPluginsWithCkEditorInstance(CKEDITOR)

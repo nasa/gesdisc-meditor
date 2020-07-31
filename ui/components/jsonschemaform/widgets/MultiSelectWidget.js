@@ -67,7 +67,8 @@ function MultiSelectWidget(props) {
             id={id}
             placeholder={placeholder}
             required={required}
-            disabled={disabled || readonly}
+            disabled={disabled}
+            readOnly={readonly}
             autoFocus={autofocus || false}
             defaultValue={JSON.stringify(filteredValue)}
         />
