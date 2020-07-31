@@ -29,8 +29,8 @@ function ImageWidget(props) {
             body: formData,
         })
             .then(handleResponseErrors)
-            .then(res => res.json())
-            .then(res => {
+            .then((res) => res.json())
+            .then((res) => {
                 setCurrentImagePath(res.location)
                 props.onChange(res.location)
                 setUploadState(UPLOAD_IDLE)
@@ -47,19 +47,23 @@ function ImageWidget(props) {
                 options={props.options}
                 id={props.id}
                 schema={props.schema}
+                readonly={props.readonly}
                 type="text"
             />
-            
-            <IconButton icon="cloud-upload" onClick={() => fileEl.current.click()} style={{ marginTop: 10 }}>
-                Upload {props.label}
-            </IconButton>
 
+            {!props.readonly && (
+                <IconButton icon="cloud-upload" onClick={() => fileEl.current.click()} style={{ marginTop: 10 }}>
+                    Upload {props.label}
+                </IconButton>
+            )}
+            
             <input
                 type="file"
                 accept="image/jpg, image/gif, image/jpeg, image/png"
                 style={{ display: 'none' }}
                 ref={fileEl}
-                onChange={e => handleFileChanged(e.target.files[0])}
+                onChange={(e) => handleFileChanged(e.target.files[0])}
+                readOnly={props.readonly}
             />
 
             {uploadState === UPLOAD_IN_PROGRESS && (
@@ -73,9 +77,7 @@ function ImageWidget(props) {
             {uploadState === UPLOAD_FAILED && (
                 <div>
                     <ul className="error-detail bs-callout bs-callout-info">
-                        <li className="text-danger">
-                            Failed to upload image
-                        </li>
+                        <li className="text-danger">Failed to upload image</li>
                     </ul>
                 </div>
             )}
@@ -83,12 +85,7 @@ function ImageWidget(props) {
             {currentImagePath && (
                 <div style={{ marginTop: 10 }}>
                     <p>Preview:</p>
-                    <img
-                        id="preview"
-                        src={currentImagePath}
-                        alt="Preview"
-                        style={{ maxWidth: '100%' }}
-                    />
+                    <img id="preview" src={currentImagePath} alt="Preview" style={{ maxWidth: '100%' }} />
                 </div>
             )}
         </div>
