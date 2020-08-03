@@ -14,29 +14,37 @@ export class CodeEditor implements ComponentInterface {
   _editor: Editor;
   oldText: string;
 
+  @Prop() autoUpdateContent: boolean = true;
+
+  @Prop() durationBeforeCallback: number = 0;
+
+  @Prop() timeoutSaving: number = 0;
+
+  @Prop() options: any = {};
+
+  @Prop() readOnly: boolean = false;
+
+  @Prop({ reflect: true }) theme: string = "ambiance";
+
+  @Prop({ reflect: true }) mode: string = "javascript";
+
+  @Prop() text: string = "";
+
+
   @Element() elm: HTMLElement;
 
   @Event() textChange: EventEmitter;
 
-  @Prop() autoUpdateContent: boolean = true;
-  @Prop() durationBeforeCallback: number = 0;
-  @Prop() timeoutSaving: number = 0;
-
-  @Prop() options: any = {};
 
   @Watch('options')
   setOptions(options: any) {
     this._editor.setOptions(options || {});
   }
 
-  @Prop() readOnly: boolean = false;
-
   @Watch('readOnly')
   setReadOnly(readOnly: boolean) {
     this._editor.setReadOnly(readOnly);
   }
-
-  @Prop({ reflect: true }) theme: string = "ambiance";
 
   //change theme of an editor inside setTheme().
 
@@ -48,8 +56,6 @@ export class CodeEditor implements ComponentInterface {
     this._editor.setTheme(`ace/theme/monokai`);
   }
 
-  @Prop({ reflect: true }) mode: string = "javascript";
-
   @Watch('mode')
   async setMode(mode: string, dynamicImport = true) {
     if (dynamicImport) {
@@ -59,9 +65,6 @@ export class CodeEditor implements ComponentInterface {
   }
 
   // text we disply in codeeditor
-
-  @Prop() text: string = "";
-
 
   @Watch('text')
 
