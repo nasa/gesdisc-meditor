@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from 'react'
 import Form from 'react-jsonschema-form'
 import fields from './fields/'
 import widgets from './widgets/'
+import templates from './templates/'
 import filter from 'lodash/filter'
 import uniqWith from 'lodash/uniqWith'
 import isEqual from 'lodash/isEqual'
@@ -53,7 +54,8 @@ const JsonSchemaForm = ({
             uiSchema={layout}
             fields={fields}
             widgets={widgets}
-            ObjectFieldTemplate={fields.FlexLayoutField}
+            ObjectFieldTemplate={templates.FlexLayoutTemplate}
+            FieldTemplate={templates.CustomFieldTemplate}
             liveValidate={liveValidate}
             onBlur={onBlur}
             onChange={onChange}

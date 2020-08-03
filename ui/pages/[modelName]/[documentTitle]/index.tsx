@@ -278,6 +278,7 @@ const EditDocumentPage = ({ user, version = null }) => {
                         document={formData}
                         onUpdateForm={setForm}
                         onChange={onChange}
+                        readOnly={!(currentPrivileges?.includes('edit'))}
                     />
 
                     <DocumentPanel title="Comments" open={commentsOpen} onClose={() => setCommentsOpen(false)}>

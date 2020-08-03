@@ -23,7 +23,7 @@ const FormActions = ({
 
     const [initialFormData, setInitialFormData] = useState(null)
     const [isDirty, setIsDirty] = useState(false)
-
+    
     useEffect(() => {
         if (!formData) return
 
@@ -127,6 +127,13 @@ const FormActions = ({
         }
 
         onDelete()
+    }
+
+    /**
+     * if there are no actions on the bar, just hide the bar!
+     */
+    if (!onDelete && !canSave && !showActions && !CustomActions) {
+        return <></>
     }
 
     return (

@@ -1,13 +1,13 @@
-import FlexLayoutField from './FlexLayoutField'
 import CollapsibleField from './CollapsibleField'
 import ArrayField from './ArrayField'
 import StringField from './StringField'
+import DescriptionField from './DescriptionField'
 
 const fields = {
-    FlexLayoutField,
     CollapsibleField,
     ArrayField,
     StringField,
+    DescriptionField,
 }
 
 export default fields
