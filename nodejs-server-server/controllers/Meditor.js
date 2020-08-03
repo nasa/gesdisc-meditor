@@ -532,7 +532,7 @@ module.exports.getDocument = function listDocuments (request, response, next) {
       that.result = res.length > 0 ? res[0] : {};
       return Promise.resolve(null)
     })
-    .then(res => (that.dbo.close(), handleSuccess(response, that.result)))
+    .then(res => (that.dbo.close(), delete that.result.banTransitions, handleSuccess(response, that.result)))
     .catch(err => {
       try {that.dbo.close()} catch (e) {};
       handleError(response, err);
