@@ -1,7 +1,6 @@
 import gql from 'graphql-tag'
 import Badge from 'react-bootstrap/Badge'
 import Popover from 'react-bootstrap/Popover'
-import Spinner from 'react-bootstrap/Spinner'
 import Overlay from 'react-bootstrap/Overlay'
 import { useLazyQuery } from '@apollo/react-hooks'
 import styles from './document-state-badge.module.css'
@@ -60,41 +59,29 @@ const DocumentStateBadge = ({
         })
     }, [showPublicationStatus])
 
+    function canShowPublicationStatusOverlay() {
+        return showPublicationStatus && publicationStatuses?.length
+    }
+
     return (
         <>
-            <div
+            <span
                 ref={badgeRef}
-                className={styles.badge}
-                onMouseEnter={() => setShowPublicationStatusOverlay(true)}
+                className={`${styles.badge} ${canShowPublicationStatusOverlay() ? styles.badgeHoverable : ''}`}
+                onMouseEnter={() => canShowPublicationStatusOverlay() && setShowPublicationStatusOverlay(true)}
                 onMouseLeave={() => setShowPublicationStatusOverlay(false)}
             >
                 <StateBadge>
                     {document?.state}
 
-                    {isPublishing && (
-                        <Spinner
-                            animation="border"
-                            role="status"
-                            size="sm"
-                            variant="primary"
-                            className={styles.spinner}
-                        >
-                            <span className="sr-only">Publishing...please wait</span>
-                        </Spinner>
-                    )}
-
-                    {publicationStatuses?.length > 0 && (
-                        <Badge
-                            variant={
-                                publicationStatuses?.filter((status) => status.failedOn).length ? 'danger' : 'primary'
-                            }
-                            className={styles.publicationBadge}
-                        >
-                            {publicationStatuses.length}
-                        </Badge>
-                    )}
+                    <Badge
+                        variant={publicationStatuses?.filter((status) => status.failedOn).length ? 'danger' : 'primary'}
+                        className={styles.publicationBadge}
+                    >
+                        {publicationStatuses?.length}
+                    </Badge>
                 </StateBadge>
-            </div>
+            </span>
 
             <Overlay target={badgeRef.current} show={showPublicationStatusOverlay} placement="bottom">
                 {({ show: _show, popper, style, ...props }) => {
@@ -103,7 +90,9 @@ const DocumentStateBadge = ({
                             id="publishing"
                             style={Object.assign({}, style, { maxWidth: '600px' })}
                             {...props}
-                            onMouseEnter={() => setShowPublicationStatusOverlay(true)}
+                            onMouseEnter={() =>
+                                canShowPublicationStatusOverlay() && setShowPublicationStatusOverlay(true)
+                            }
                             onMouseLeave={() => setShowPublicationStatusOverlay(false)}
                         >
                             <Popover.Title as="h3">Publication Status</Popover.Title>
