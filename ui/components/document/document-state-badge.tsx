@@ -8,6 +8,8 @@ import { useEffect, useState, useRef } from 'react'
 import StateBadge from '../state-badge'
 import omitBy from 'lodash.omitby'
 
+const POLL_FOR_PUBLICATIONSTATUS_MILLIS = 2000
+
 const QUERY = gql`
     query getDocument($modelName: String!, $title: String!, $version: String) {
         document(modelName: $modelName, title: $title, version: $version) {
@@ -31,27 +33,29 @@ const DocumentStateBadge = ({
     showPublicationStatus = false,
 }) => {
     const badgeRef = useRef(null)
+    const refreshStatusTimer = useRef(null)
+    
+    const [publicationStatus, setPublicationStatus] = useState(null)
     const [showPublicationStatusOverlay, setShowPublicationStatusOverlay] = useState(false)
+
+    /**
+     * a helper variable to avoid seeing a 0 flash by when there are publication statuses to show
+     * 
+     * should only show publication status response if:
+     *      - showPublicationStatus prop is set to true
+     *      - we have a publicationStatus response from the API
+     */
+    const canShowPublicationStatus = showPublicationStatus && publicationStatus != null
 
     const [loadDocument, response] = useLazyQuery(QUERY, {
         fetchPolicy: 'network-only',
     })
 
-    const publicationStatus = response?.data?.document?.publicationStatus
-    const isPublishing = publicationStatus && publicationStatus.length <= 0
-
-    // older documents may have an invalid publication status format, filter these out
-    const publicationStatuses = publicationStatus?.filter((status) => {
-        // filter out unneeded keys (null values and typename)
-        let testObj = omitBy(status, (value) => !value)
-        delete testObj.__typename
-
-        return Object.keys(testObj).length > 0
-    })
-
     // if showing publication status, query for it
     useEffect(() => {
         if (!showPublicationStatus) return
+
+        clearTimeout(refreshStatusTimer.current)
 
         // load the publication status
         loadDocument({
@@ -59,27 +63,60 @@ const DocumentStateBadge = ({
         })
     }, [showPublicationStatus])
 
-    function canShowPublicationStatusOverlay() {
-        return showPublicationStatus && publicationStatuses?.length
-    }
+    // on response from the query, set local publication status state
+    useEffect(() => {
+        // older documents may have an invalid publication status format, filter these out
+        const publicationStatus = response?.data?.document?.publicationStatus?.filter((status) => {
+            // filter out unneeded keys (null values and typename)
+            let testObj = omitBy(status, (value) => !value)
+            delete testObj.__typename
+
+            return Object.keys(testObj).length > 0
+        })
+
+        if (publicationStatus) {
+            setPublicationStatus(publicationStatus)
+        }
+    }, [response])
+
+    // if there are no responses from subscribers yet (empty publicationStatus array)
+    // then set a timeout to check again
+    useEffect(() => {
+        if (publicationStatus && publicationStatus.length <= 0) {
+            refreshStatusTimer.current = setTimeout(() => {
+                // load the publication status
+                loadDocument({
+                    variables: { modelName, title: document.title, version },
+                })
+            }, POLL_FOR_PUBLICATIONSTATUS_MILLIS)
+        }
+
+        return () => {
+            clearTimeout(refreshStatusTimer.current)
+        }
+    }, [publicationStatus])
 
     return (
         <>
             <span
                 ref={badgeRef}
-                className={`${styles.badge} ${canShowPublicationStatusOverlay() ? styles.badgeHoverable : ''}`}
-                onMouseEnter={() => canShowPublicationStatusOverlay() && setShowPublicationStatusOverlay(true)}
+                className={`${styles.badge} ${canShowPublicationStatus ? styles.badgeHoverable : ''}`}
+                onMouseEnter={() => canShowPublicationStatus && setShowPublicationStatusOverlay(true)}
                 onMouseLeave={() => setShowPublicationStatusOverlay(false)}
             >
                 <StateBadge>
                     {document?.state}
 
-                    <Badge
-                        variant={publicationStatuses?.filter((status) => status.failedOn).length ? 'danger' : 'primary'}
-                        className={styles.publicationBadge}
-                    >
-                        {publicationStatuses?.length}
-                    </Badge>
+                    {canShowPublicationStatus && (
+                        <Badge
+                            variant={
+                                publicationStatus?.filter((status) => status.failedOn).length ? 'danger' : 'primary'
+                            }
+                            className={styles.publicationBadge}
+                        >
+                            {publicationStatus?.length || '0'}
+                        </Badge>
+                    )}
                 </StateBadge>
             </span>
 
@@ -90,18 +127,21 @@ const DocumentStateBadge = ({
                             id="publishing"
                             style={Object.assign({}, style, { maxWidth: '600px' })}
                             {...props}
-                            onMouseEnter={() =>
-                                canShowPublicationStatusOverlay() && setShowPublicationStatusOverlay(true)
-                            }
+                            onMouseEnter={() => canShowPublicationStatus && setShowPublicationStatusOverlay(true)}
                             onMouseLeave={() => setShowPublicationStatusOverlay(false)}
                         >
                             <Popover.Title as="h3">Publication Status</Popover.Title>
 
                             <Popover.Content>
-                                {isPublishing && <span>Awaiting response from subscribers</span>}
+                                {publicationStatus && publicationStatus.length <= 0 && (
+                                    <div>
+                                        <p>This document has not been published yet.</p>
+                                        <p>Waiting for a response from subscribers.</p>
+                                    </div>
+                                )}
 
-                                {publicationStatuses?.length > 0 &&
-                                    publicationStatuses.map((status) => (
+                                {publicationStatus?.length > 0 &&
+                                    publicationStatus.map((status) => (
                                         <div
                                             key={status.target + (status.failedOn || status.publishedOn)}
                                             className={`mb-2 ${status.failedOn ? 'text-danger' : ''}`}
