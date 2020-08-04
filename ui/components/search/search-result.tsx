@@ -5,7 +5,7 @@ import styles from './search-result.module.css'
 import { urlEncode } from '../../lib/url'
 import { format } from 'date-fns'
 
-const SearchResult = ({ document, isLocalDocument = false }) => {
+const SearchResult = ({ document, modelName, isLocalDocument = false }) => {
     return (
         <div className={styles.result}>
             <div>
@@ -21,7 +21,7 @@ const SearchResult = ({ document, isLocalDocument = false }) => {
                 </Link>
 
                 {isLocalDocument && <StateBadge variant="warning">Unsaved</StateBadge>}
-                {!isLocalDocument && <DocumentStateBadge document={document} />}
+                {!isLocalDocument && <DocumentStateBadge document={document} modelName={modelName} />}
             </div>
 
             <div>

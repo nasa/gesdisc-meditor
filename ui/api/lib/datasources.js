@@ -56,7 +56,7 @@ class mEditorApi extends RESTDataSource {
     }
 
     async getWorkflow(title) {
-        return (await this.getDocument('Workflows', title)).doc
+        return await this.getDocument('Workflows', title)
     }
 
 }

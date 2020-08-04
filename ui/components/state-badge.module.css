@@ -3,6 +3,16 @@
     font-size: 1em;
     font-weight: normal;
     margin: 0 10px;
+    position: relative;
+    padding: .4em 1.2em;
+}
+
+.publicationBadge {
+    margin-left: 5px;
+}
+
+.spinner {
+    margin-left: 5px;
 }
 
 .badge-warning {

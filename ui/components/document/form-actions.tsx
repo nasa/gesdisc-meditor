@@ -97,7 +97,15 @@ const FormActions = ({
         // don't save a document that has errors!
         if (errors.length) {
             // errors are printed above the save button, pushing it down. scroll it back
-            setTimeout(() => saveEl.current.scrollIntoView(), 10)
+            setTimeout(() => {
+                let errorPanel = document.querySelector('.rjsf > .panel.errors')
+
+                if (!errorPanel) return
+
+                errorPanel.scrollIntoView()
+
+            }, 10)
+            
             return
         }
 

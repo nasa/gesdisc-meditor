@@ -46,6 +46,7 @@
 
 .badge {
     background: #ff6e40;
+    border: 1px solid #fff;
     color: rgba(0, 0, 0, .87);
     position: absolute !important;
     top: -5px !important;

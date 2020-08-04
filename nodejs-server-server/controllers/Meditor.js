@@ -18,9 +18,6 @@ var DbName = "meditor";
 
 var SHARED_MODELS = ['Workflows', 'Users', 'Models'];
 
-// ======================== Register fetch functions with Macro.fetch ==============
-macros.registerFetchers(require('./lib/fetchers').getFetchers());
-
 // subscribe to publication acknowledgements
 nats.subscribeToChannel('meditor-Acknowledge').on('message', handlePublicationAcknowledgements)
 
@@ -188,7 +185,7 @@ function getDocumentModelMetadata(dbo, request, paramsExtra) {
   //   { model: 'Alerts', role: 'Reviewer' } ];
   that.modelName = that.params.model;
   that.modelRoles = _(that.roles).filter({model: that.params.model}).map('role').value();
-  return getModelContent(that.params.model) // The model should be pre-filled with Macro subs
+  return getModelContent(that.params.model, dbo.db(DbName)) // The model should be pre-filled with Macro subs
     .then(res => {
       if (_.isEmpty(res)) throw {message: 'Model for ' + that.params.model + ' not found', status: 400};
       that.model = res;
@@ -412,7 +409,13 @@ module.exports.putDocument = function putDocument (request, response, next) {
     });
   };
 
-  return getModelContent(doc['x-meditor'].model)
+  return MongoClient.connect(MongoUrl)
+    .then(res => {
+      that.dbo = res;
+    })
+    .then(() => {
+      return getModelContent(doc['x-meditor'].model, that.dbo.db(DbName))
+    })
     .then(model => {
       if (!model || !model.schema) throw new Error('Failed to find the requested model')
 
@@ -520,14 +523,8 @@ module.exports.getDocument = function listDocuments (request, response, next) {
         .collection(that.params.model)
         .aggregate(query, {allowDiskUse: true})
         .map(res => {
-          var out = {};
           _.merge(res, getExtraDocumentMetadata(that, res));
-          out["x-meditor"] = res["x-meditor"];
-          delete res["x-meditor"];
-          out["schema"] = that.model.schema;
-          out["layout"] = that.model.layout;
-          out["doc"] = res;
-          return out;
+          return res;
         })
         .toArray();
     })
@@ -535,7 +532,7 @@ module.exports.getDocument = function listDocuments (request, response, next) {
       that.result = res.length > 0 ? res[0] : {};
       return Promise.resolve(null)
     })
-    .then(res => (that.dbo.close(), handleSuccess(response, that.result)))
+    .then(res => (that.dbo.close(), delete that.result.banTransitions, handleSuccess(response, that.result)))
     .catch(err => {
       try {that.dbo.close()} catch (e) {};
       handleError(response, err);
@@ -549,11 +546,13 @@ module.exports.getDocumentPublicationStatus = async function(request, response, 
   try {
     await client.connect()
 
-    const model = await getModelContent(request.query.model)
+    let dbo = await client.db(DbName)
+
+    const model = await getModelContent(request.query.model, dbo)
 
     if (!model) throw new Error('Model not found')
 
-    const results = await client.db(DbName).collection(request.query.model)
+    const results = await dbo.collection(request.query.model)
       .aggregate([
         { $match: { [model.titleProperty]: request.query.title } },
         { $sort: { 'x-meditor.modifiedOn': -1 } },
@@ -630,7 +629,7 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
       return shouldNotify ? mUtils.notifyOfStateChange(DbName, that) : Promise.resolve();
     })
     .then(() => {
-      return getModelContent(that.params.model)
+      return getModelContent(that.params.model, that.dbo.db(DbName))
     })
     .then(model => {
       return mUtils.publishToNats(that.document, model, that.params.state)
@@ -643,92 +642,90 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
 };
 
 // Internal method to list documents
-function getModelContent (name) {
+function getModelContent (name, dbo) {
   return new Promise(function(resolve, reject) {
-    MongoClient.connect(MongoUrl, function(err, db) {
-      if (err) {
+    dbo.collection("Models").find({name:name}).sort({"x-meditor.modifiedOn":-1}).project({_id:0}).toArray(function(err, res) {
+      if (err){
         console.log(err);
-        throw err;
+        reject(err);
       }
-      var dbo = db.db(DbName);
-      dbo.collection("Models").find({name:name}).sort({"x-meditor.modifiedOn":-1}).project({_id:0}).toArray(function(err, res) {
-        if (err){
-          console.log(err);
-          try {db.close()} catch (e) {};
-          reject(err);
-        }
-        // Fill in templates if they exist
 
-        var promiseList = [];
-        if (res[0] && res[0].hasOwnProperty("templates")){
-          res[0].templates.forEach(element => {
-            var macroFields = element.macro.split(/\s+/);
-            promiseList.push( new Promise(
-              function(promiseResolve,promiseReject){
-                if ( typeof macros[macroFields[0]] === "function" ) {
-                  macros[macroFields[0]](dbo,macroFields.slice(1,macroFields.length)).then(function(response){
-                    promiseResolve(response);
-                  }).catch(function(err){
-                      console.log(err);
-                      promiseReject(err);
-                  });
-                } else {
-                  console.log("Macro, '" + macroName + "', not supported");
-                  promiseReject("Macro, '" + macroName + "', not supported");
-                }
+      // Fill in templates if they exist
+      var promiseList = [];
+      if (res[0] && res[0].hasOwnProperty("templates")){
+        res[0].templates.forEach(element => {
+          var macroFields = element.macro.split(/\s+/);
+          promiseList.push( new Promise(
+            function(promiseResolve,promiseReject){
+              if ( typeof macros[macroFields[0]] === "function" ) {
+                macros[macroFields[0]](dbo,macroFields.slice(1,macroFields.length)).then(function(response){
+                  promiseResolve(response);
+                }).catch(function(err){
+                    console.log(err);
+                    promiseReject(err);
+                });
+              } else {
+                console.log("Macro, '" + macroName + "', not supported");
+                promiseReject("Macro, '" + macroName + "', not supported");
               }
-            ));
-          });
-          Promise.all(promiseList).then((response) => {
-            try {
-              var schema = JSON.parse(res[0].schema);
-              var layout = res[0].layout && res[0].layout != "" ? JSON.parse(res[0].layout) : null;
-
-              var i=0;
-              res[0].templates.forEach(element => {
-                let replaceValue = response[i++]
-
-                jsonpath.value(schema, element.jsonpath, replaceValue);
-                
-                if (layout) {
-                  jsonpath.value(layout, element.jsonpath, replaceValue);
-                  res[0].layout = JSON.stringify(layout, null, 2);
-                }
-
-                res[0].schema = JSON.stringify(schema, null, 2);
-              });
-              db.close()
-              resolve(res[0]);
-            } catch (err) {
-              console.error('Failed to parse schema', err)
-              db.close()
-              reject(err)
             }
-          }).catch(
-            function(err){
-              try {db.close()} catch (e) {};
-              reject(err);
-            }
-          );
-        } else {
-          db.close();
-          resolve(res[0]);
-        }
-      });
+          ));
+        });
+        Promise.all(promiseList).then((response) => {
+          try {
+            var schema = JSON.parse(res[0].schema);
+            var layout = res[0].layout && res[0].layout != "" ? JSON.parse(res[0].layout) : null;
+
+            var i=0;
+            res[0].templates.forEach(element => {
+              let replaceValue = response[i++]
+
+              jsonpath.value(schema, element.jsonpath, replaceValue);
+              
+              if (layout) {
+                jsonpath.value(layout, element.jsonpath, replaceValue);
+                res[0].layout = JSON.stringify(layout, null, 2);
+              }
+
+              res[0].schema = JSON.stringify(schema, null, 2);
+            });
+            resolve(res[0]);
+          } catch (err) {
+            console.error('Failed to parse schema', err)
+            reject(err)
+          }
+        }).catch(
+          function(err){
+            reject(err);
+          }
+        );
+      } else {
+        resolve(res[0]);
+      }
     });
-  });
+  })
 }
 
-//Exported method to get a model
-module.exports.getModel = function getModel (req, res, next) {
-  getModelContent (req.swagger.params['name'].value)
-  .then(function (response) {
-    utils.writeJson(res, response);
-  })
-  .catch(function (response) {
-    utils.writeJson(res, response);
-  });
-};
+module.exports.getModel = async function(request, response, next) {
+  let client = new MongoClient(MongoUrl)
+
+  try {
+    await client.connect()
+
+    let dbo = await client.db(DbName)
+
+    const model = await getModelContent(request.query.name, dbo)
+
+    if (!model) throw new Error('Model not found')
+
+    handleSuccess(response, model)
+  } catch (err) {
+    console.error(err)
+    handleError(response, err)
+  } finally {
+    client.close()
+  }
+}
 
 // Internal method to list documents
 function findDocHistory (params) {

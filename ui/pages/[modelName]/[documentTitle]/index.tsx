@@ -252,6 +252,7 @@ const EditDocumentPage = ({ user, version = null }) => {
             <DocumentHeader
                 document={documentResponse?.data?.document}
                 model={modelResponse?.data?.model}
+                version={version}
                 toggleCommentsOpen={() => setCommentsOpen(!commentsOpen)}
                 toggleHistoryOpen={() => setHistoryOpen(!historyOpen)}
                 privileges={currentPrivileges}
@@ -309,4 +310,4 @@ const EditDocumentPage = ({ user, version = null }) => {
     )
 }
 
-export default withApollo({ ssr: true })(withAuthentication(EditDocumentPage))
+export default withApollo({ ssr: true })(withAuthentication()(EditDocumentPage))

@@ -43,9 +43,9 @@ function sortDocuments(sortDir, documentA, documentB) {
  */
 const SearchList = ({
     documents,
+    modelName,
     onAddNew,
     user,
-    modelName,
 }) => {
     const { searchTerm, sortDir, filterBy } = useContext(AppContext)
     const [localChanges, setLocalChanges] = useState([])
@@ -79,11 +79,11 @@ const SearchList = ({
             />
 
             {localDocuments.map(localDocument => (
-                <SearchResult key={localDocument.localId} document={localDocument} isLocalDocument={true} />
+                <SearchResult key={localDocument.localId} document={localDocument} isLocalDocument={true} modelName={modelName} />
             ))}
 
             {filteredDocuments.map(document => (
-                <SearchResult key={document.title} document={document} />
+                <SearchResult key={document.title} document={document} modelName={modelName} />
             ))}
         </div>
     )
