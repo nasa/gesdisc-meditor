@@ -1,5 +1,18 @@
 .result {
     color: #666;
+    display: flex;
+    justify-content: space-between;
     line-height: 1.8;
-    margin-bottom: 10px;
+    padding: 10px;
+    transition: background .15s ease-in-out;
+}
+
+.result:hover {
+    background: #f0f0f0;
+}
+
+.result > div:last-child {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
 }
