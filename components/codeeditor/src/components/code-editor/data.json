@@ -1,0 +1,17 @@
+{
+    "data": [
+        {
+            "name": "big comrporation",
+            "numberofemployes" : 1000,
+            "ceo": "mary",
+            "rating": 3.6
+        },
+        {
+           "name": "small startup",
+           "numberofemployes" : 10,
+           "ceo": null,
+           "rating":3.8
+        }
+    ]
+}
+        
