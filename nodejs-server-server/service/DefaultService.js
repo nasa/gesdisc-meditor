@@ -365,6 +365,28 @@ exports.putDocument = function(file) {
 
 
 /**
+ * Clones a document
+ * Clones a document
+ *
+ * model String Name of the Model
+ * title String Title of the document to clone
+ * newTitle String Title of the new document
+ * returns Object
+ **/
+exports.cloneDocument = function(model,title,newTitle) {
+  return new Promise(function(resolve, reject) {
+    var examples = {};
+    examples['application/json'] = "{}";
+    if (Object.keys(examples).length > 0) {
+      resolve(examples[Object.keys(examples)[0]]);
+    } else {
+      resolve();
+    }
+  });
+}
+
+
+/**
  * Adds a Model
  * Adds a Model object
  *

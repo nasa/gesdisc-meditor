@@ -78,6 +78,10 @@ function handleNotFound(response, res) {
   handleResponse(response, res, 404, 'Not found')
 }
 
+function handleBadRequest(response, res) {
+  handleResponse(response, res, 400, 'Bad Request')
+}
+
 /**
  * handles success/failure messages received from the NATS acknowledgements queue
  * @param {*} message 
@@ -160,6 +164,7 @@ function getDocumentAggregationQuery(meta) {
 
 // Collects various metadata about request and model - to be
 // used in queries and what not
+// TODO: split this method up to make it easier to test
 function getDocumentModelMetadata(dbo, request, paramsExtra) {
   // This is a convenience function that returns a number of
   // parameters needed to work with documents:
@@ -251,6 +256,89 @@ function mapValidationErrorMessage(error) {
     message,
     stack,
   }
+}
+
+function DocumentNotFoundException(documentTitle) {
+  this.message = `Document was not found: '${documentTitle}'`
+  this.toString = function() { return this.message }
+}
+
+function DocumentAlreadyExistsException(documentTitle) {
+  this.message = `A document already exists with the title: '${documentTitle}'`
+  this.toString = function() { return this.message }
+}
+
+/**
+ * retrieves a document
+ * TODO: use explicit parameters, not the whole request object
+ */
+async function retrieveDocument(client, request, includeTitleProperty = false) {
+  // get the model metadata first
+  let modelMetadata = await getDocumentModelMetadata(client, request)
+    
+  // build the getDocument query
+  let query = getDocumentAggregationQuery(modelMetadata)
+  query.push({ $limit: 1 })
+
+  // retrieve the document
+  let results = await client.db(DbName)
+    .collection(request.query.model)
+    .aggregate(query, { allowDiskUse: true })
+    .map(results => {
+      // TODO: move the getExtraDocumentMetadata method contents here and simplify (not clear what it does from here)
+      _.merge(results, getExtraDocumentMetadata(modelMetadata, results))
+      return results
+    })
+    .toArray()
+
+  let document = (results && results.length) ? results[0] : undefined
+
+  if (!document) {
+    throw new DocumentNotFoundException(request.query.title)
+  }
+
+  // remove unneeded fields from the response
+  delete document.banTransitions
+
+  if (includeTitleProperty) {
+    document['x-meditor'].titleProperty = modelMetadata.titleProperty
+  }
+
+  return document
+}
+
+/**
+ * saves a document
+ * TODO: use explicit parameters, not the whole request object
+ * TODO: refactor to not use "that" object
+ */
+async function saveDocument(client, request, document, model) {
+  let that = {}
+  that.model = model || document['x-meditor'].model
+  that.dbo = client
+
+  // get the model metadata first
+  _.assign(that, await getDocumentModelMetadata(client, request, {
+    model: that.model,
+  }))
+
+  let rootState = _.cloneDeep(mUtils.WORKFLOW_ROOT_EDGE)
+  rootState.modifiedOn = document['x-meditor'].modifiedOn
+  document['x-meditor'].modifiedOn = (new Date()).toISOString()
+  document['x-meditor'].modifiedBy = request.user.uid
+  // TODO: replace with actual model init state
+  document['x-meditor'].states = [rootState]
+  document['x-meditor'].publishedTo = []
+
+  // save document
+  await client.db(DbName).collection(that.model.name).insertOne(document)
+
+  // if needed, act on document changes
+  await mUtils.actOnDocumentChanges(that, DbName, document)
+
+  // publish document save
+  let state = document['x-meditor'].states[document['x-meditor'].states.length - 1].target      
+  await mUtils.publishToNats(document, that.model, state)
 }
 
 // ================================= Exported API functions =========================
@@ -436,38 +524,66 @@ module.exports.putDocument = function putDocument (request, response, next) {
       }
     })
     .then(() => {
-      return MongoClient.connect(MongoUrl)
-    })
-    .then(res => {
-      that.dbo = res;
-      return getDocumentModelMetadata(that.dbo, request, {model: doc["x-meditor"]["model"]});
-    })
-    .then(meta => {_.assign(that, meta)})
-    .then(function() {
-      var imageStr = null;
-      var imagePromise = Promise.resolve();
-      var rootState = _.cloneDeep(mUtils.WORKFLOW_ROOT_EDGE);
-      rootState.modifiedOn = doc["x-meditor"]["modifiedOn"];
-      doc["x-meditor"]["modifiedOn"] = (new Date()).toISOString();
-      doc["x-meditor"]["modifiedBy"] = request.user.uid;
-      // TODO: replace with actual model init state
-      doc["x-meditor"]["states"] = [rootState];
-      doc["x-meditor"]["publishedTo"] = []
-      return Promise.all([that.dbo.db(DbName).collection(doc["x-meditor"]["model"]).insertOne(doc), imagePromise]);
-    })
-    .then(function(savedDoc) {
-      return Promise.resolve("Inserted document");
-    })
-    .then(res => {return mUtils.actOnDocumentChanges(that, DbName, doc);})
-    .then(() => {
-      let state = doc['x-meditor'].states[doc['x-meditor'].states.length - 1].target      
-      return mUtils.publishToNats(doc, that.model, state)
+      return saveDocument(that.dbo, request, doc)
     })
     .then(res => (that.dbo.close(), handleSuccess(response, {message: "Inserted document"})))
     .catch(err => {
       try {that.dbo.close()} catch (e) {};
       handleError(response, err);
     });
+};
+
+// Exported method to clone a document
+module.exports.cloneDocument = async function(request, response, next) {
+  let client = new MongoClient(MongoUrl)
+
+  log.debug('Cloning document ', request.query)
+
+  try {
+    await client.connect()
+    
+    let document = await retrieveDocument(client, request, true)
+    let titleProperty = document['x-meditor'].titleProperty
+
+    // make sure the new title doesn't match an existing document
+    try {
+      // attempt to retrieve a document with the new title
+      request.swagger.params.title.value = request.swagger.params.newTitle.value
+      await retrieveDocument(client, request)
+      
+      // if we hit this point, then we found a document matching the new title, throw an error
+      throw new DocumentAlreadyExistsException(request.swagger.params.title.value)
+    } catch(err) {
+      if (err instanceof DocumentNotFoundException) {
+        // we WANT the document not to exist, but rethrow any other errors
+        log.debug('New title does not match any existing documents, proceeding with cloning.')
+      } else {
+        throw err
+      }
+    }
+
+    // change the documents title and make document cloneable
+    delete document._id
+    document[titleProperty || 'title'] = request.query.newTitle
+    
+    let response = await saveDocument(client, request, document, request.query.model)
+   
+    console.log('response is ', response)
+    
+    handleSuccess(response, document)
+  } catch (err) {
+    console.error(err)
+
+    if (err instanceof DocumentNotFoundException) {
+      handleNotFound(response, err.message)
+    } else if (err instanceof DocumentAlreadyExistsException) {
+      handleBadRequest(response, err.message)
+    } else {
+      handleError(response, err)
+    }
+  } finally {
+    client.close()
+  }
 };
 
 // Exported method to list documents
@@ -507,37 +623,29 @@ module.exports.listDocuments = function listDocuments (request, response, next) 
 };
 
 // Exported method to get a document
-module.exports.getDocument = function listDocuments (request, response, next) {
-  var that = {};
-  return MongoClient.connect(MongoUrl)
-    .then(res => {
-      that.dbo = res;
-      return getDocumentModelMetadata(that.dbo, request);
-    })
-    .then(meta => {_.assign(that, meta)})
-    .then(function() {
-      var query = getDocumentAggregationQuery(that);
-      query.push({$limit: 1});
-      return that.dbo
-        .db(DbName)
-        .collection(that.params.model)
-        .aggregate(query, {allowDiskUse: true})
-        .map(res => {
-          _.merge(res, getExtraDocumentMetadata(that, res));
-          return res;
-        })
-        .toArray();
-    })
-    .then(function(res) {
-      that.result = res.length > 0 ? res[0] : {};
-      return Promise.resolve(null)
-    })
-    .then(res => (that.dbo.close(), delete that.result.banTransitions, handleSuccess(response, that.result)))
-    .catch(err => {
-      try {that.dbo.close()} catch (e) {};
-      handleError(response, err);
-    });
-};
+module.exports.getDocument = async function(request, response) {
+  let client = new MongoClient(MongoUrl)
+
+  try {
+    await client.connect()
+    
+    // retrieve the document
+    let document = await retrieveDocument(client, request)
+
+    // respond with document
+    handleSuccess(response, document)
+  } catch (err) {
+    console.error(err)
+
+    if (err instanceof DocumentNotFoundException) {
+      handleNotFound(response, err.message)
+    } else {
+      handleError(response, err)
+    }
+  } finally {
+    client.close()
+  }
+}
 
 // Exported method to get a document's publication status
 module.exports.getDocumentPublicationStatus = async function(request, response, next) {
