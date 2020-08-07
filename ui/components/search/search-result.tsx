@@ -15,6 +15,50 @@ const SearchResult = ({ document, modelName, isLocalDocument = false }) => {
     return (
         <div className={styles.result}>
             <div>
+                <Link
+                    href={isLocalDocument ? '/meditor/[modelName]/new' : '/meditor/[modelName]/[documentTitle]'}
+                    as={
+                        isLocalDocument
+                            ? `/meditor/${urlEncode(document.model)}/new?localId=${document.localId}`
+                            : `/meditor/${urlEncode(document.model)}/${urlEncode(document.title)}`
+                    }
+                >
+                    <a>{document.title}</a>
+                </Link>
+            </div>
+
+            <div>
+                {isLocalDocument && <StateBadge variant="warning">Unsaved</StateBadge>}
+                {!isLocalDocument && <DocumentStateBadge document={document} modelName={modelName} />}
+            </div>
+
+            <div>
+                {isLocalDocument ? format(new Date(document.modifiedOn), 'M/d/yy, h:mm aaa') : document.modifiedOn}
+            </div>
+
+            <div>
+                {document.modifiedBy}
+            </div>
+
+            <div>
+                {!isLocalDocument && (
+                    <IconButton alt="Clone Document" onClick={() => setShowCloneDocumentModal(true)}>
+                        <FaRegClone />
+                    </IconButton>
+                )}
+            </div>
+
+            <CloneDocumentModal
+                modelName={modelName}
+                documentTitle={document.title}
+                show={showCloneDocumentModal}
+                onCancel={() => setShowCloneDocumentModal(false)}
+                onSuccess={() => console.log('success!')}
+            />
+
+            {/* 
+        <div className={styles.result}>
+            <div>
                 <div>
                     <Link
                         href={isLocalDocument ? '/meditor/[modelName]/new' : '/meditor/[modelName]/[documentTitle]'}
@@ -43,13 +87,8 @@ const SearchResult = ({ document, modelName, isLocalDocument = false }) => {
                 </IconButton>
             </div>
 
-            <CloneDocumentModal
-                modelName={modelName}
-                documentTitle={document.title}
-                show={showCloneDocumentModal}
-                onCancel={() => setShowCloneDocumentModal(false)}
-                onSuccess={() => console.log('success!')}
-            />
+            
+                    </div>*/}
         </div>
     )
 }

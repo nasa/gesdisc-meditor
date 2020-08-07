@@ -1,18 +1,19 @@
 .result {
-    color: #666;
+    display: contents;
+}
+
+.result > div {
+    width: 100%;
     display: flex;
-    justify-content: space-between;
-    line-height: 1.8;
+    align-items: center;
     padding: 10px;
     transition: background .15s ease-in-out;
 }
 
-.result:hover {
+.result:hover > div {
     background: #f0f0f0;
 }
 
 .result > div:last-child {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
+    justify-content: center;
 }

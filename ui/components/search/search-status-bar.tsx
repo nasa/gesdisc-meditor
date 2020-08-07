@@ -39,7 +39,7 @@ const SearchStatusBar = ({
     const router = useRouter()
     const { modelName } = router.query
 
-    const { sortDir, setSortDir, filterBy, setFilterBy } = useContext(AppContext)
+    const { filterBy, setFilterBy } = useContext(AppContext)
 
     const { error, data } = useQuery(QUERY, {
         variables: { modelName },
@@ -95,20 +95,6 @@ const SearchStatusBar = ({
                                     </option>
                                 ))}
                             </optgroup>
-                        </select>
-                    </label>
-                </div>
-
-                <div className={styles.action}>
-                    <label>
-                        Sort by:
-                        <select
-                            className="form-control"
-                            value={sortDir}
-                            onChange={e => setSortDir(e.target.value)}
-                        >
-                            <option value="asc">Oldest</option>
-                            <option value="desc">Newest</option>
                         </select>
                     </label>
                 </div>

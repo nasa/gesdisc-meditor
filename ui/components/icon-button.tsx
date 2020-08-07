@@ -11,7 +11,15 @@ function renderTooltip(props: any, alt: string) {
     )
 }
 
-const IconButton = ({ children, alt, variant = 'light', tooltipPlacement = 'top', onClick = () => {}, type = null }) => {
+const IconButton = ({
+    children,
+    alt,
+    variant = 'light',
+    tooltipPlacement = 'top',
+    showTooltip = true,
+    onClick = () => {},
+    type = null,
+}) => {
     let buttonProps: any = {
         variant,
     }
@@ -20,17 +28,27 @@ const IconButton = ({ children, alt, variant = 'light', tooltipPlacement = 'top'
         placement: tooltipPlacement,
     }
 
+    function renderButton() {
+        return (
+            <Button {...buttonProps} className={styles.button} onClick={onClick} type={type}>
+                {children}
+
+                <span className="sr-only">{alt}</span>
+            </Button>
+        )
+    }
+
+    if (!showTooltip) {
+        return renderButton()
+    }
+
     return (
         <OverlayTrigger
             {...overlayProps}
             delay={{ show: 100, hide: 100 }}
             overlay={(props) => renderTooltip(props, alt)}
         >
-            <Button {...buttonProps} className={styles.button} onClick={onClick} type={type}>
-                {children}
-
-                <span className="sr-only">{alt}</span>
-            </Button>
+            {renderButton()}
         </OverlayTrigger>
     )
 }
