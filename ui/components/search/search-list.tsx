@@ -5,6 +5,7 @@ import { AppContext } from '../app-store'
 import { findUnsavedDocumentsByModel } from '../../lib/unsaved-changes'
 import styles from './search-list.module.css'
 import { IoMdArrowDropdown } from 'react-icons/io'
+import Pagination from '../pagination'
 
 interface SortOptions {
     direction: 'desc' | 'asc'
@@ -54,13 +55,9 @@ function sortDocuments(sortOptions: SortOptions, documentA, documentB) {
 /**
  * renders the model page with the model's documents in a searchable/filterable list
  */
-const SearchList = ({
-    documents,
-    modelName,
-    onAddNew,
-    user,
-}) => {
+const SearchList = ({ documents, modelName, onAddNew, user }) => {
     const { searchTerm, filterBy } = useContext(AppContext)
+    const [currentPage, setCurrentPage] = useState(0)
     const [sortOptions, setSortOptions] = useState<SortOptions>({
         direction: 'desc',
         property: 'modifiedOn',
@@ -68,35 +65,42 @@ const SearchList = ({
     })
     const [localChanges, setLocalChanges] = useState([])
 
+    const itemsPerPage = 50
+    const offset = currentPage * itemsPerPage
+
     // look for unsaved documents in local storage
     useEffect(() => {
         setLocalChanges(findUnsavedDocumentsByModel(modelName))
     }, [])
 
-    let localDocuments = localChanges
-        .sort(sortDocuments.bind(this, sortOptions))
+    let localDocuments = localChanges.sort(sortDocuments.bind(this, sortOptions))
 
     let filteredDocuments = documents
-        .filter(document => documentMatchesSearchTerm(document, searchTerm))
-        .filter(document => documentHasState(document, filterBy))
+        .filter((document) => documentMatchesSearchTerm(document, searchTerm))
+        .filter((document) => documentHasState(document, filterBy))
         .sort(sortDocuments.bind(this, sortOptions))
 
+    let listDocuments = [].concat(localDocuments, filteredDocuments)
+
     let documentStates = documents
-        .map(document => document.state)
+        .map((document) => document.state)
         .filter((state, index, states) => states.indexOf(state) === index)
         .sort()
 
     function Header({ text, sortBy = null, isDate = false }) {
         return (
-            <div className={styles.header} onClick={() => {
-                if (!sortBy) return     // this is an unsortable column
+            <div
+                className={styles.header}
+                onClick={() => {
+                    if (!sortBy) return // this is an unsortable column
 
-                setSortOptions({
-                    property: sortBy,
-                    direction: (sortBy == sortOptions.property && sortOptions.direction == 'desc') ? 'asc' : 'desc',
-                    isDate,
-                })
-            }}>
+                    setSortOptions({
+                        property: sortBy,
+                        direction: sortBy == sortOptions.property && sortOptions.direction == 'desc' ? 'asc' : 'desc',
+                        isDate,
+                    })
+                }}
+            >
                 {text}
 
                 {sortBy == sortOptions.property && (
@@ -109,8 +113,10 @@ const SearchList = ({
     return (
         <div>
             <SearchStatusBar
-                documentCount={filteredDocuments.length}
-                totalDocumentCount={documents.length}
+                currentPage={currentPage}
+                itemsPerPage={itemsPerPage}
+                documentCount={offset}
+                totalDocumentCount={listDocuments.length}
                 onAddNew={onAddNew}
                 documentStates={documentStates}
                 user={user}
@@ -122,15 +128,35 @@ const SearchList = ({
                 <Header text="Modified On" sortBy="modifiedOn" isDate={true} />
                 <Header text="Modified By" sortBy="modifiedBy" />
                 <Header text="Actions" />
-                
-                {localDocuments.map(localDocument => (
-                    <SearchResult key={localDocument.localId} document={localDocument} isLocalDocument={true} modelName={modelName} />
-                ))}
 
-                {filteredDocuments.map(document => (
-                    <SearchResult key={document.title} document={document} modelName={modelName} />
-                ))}
+                {listDocuments.slice(offset, offset + itemsPerPage).map((document) => {
+                    if (document.localId) {
+                        return (
+                            <SearchResult
+                                key={document.localId}
+                                document={document}
+                                isLocalDocument={true}
+                                modelName={modelName}
+                            />
+                        )
+                    } else {
+                        return <SearchResult key={document.title} document={document} modelName={modelName} />
+                    }
+                })}
             </div>
+
+            {listDocuments.length > itemsPerPage && (
+                <Pagination
+                    className="mt-4"
+                    currentPage={currentPage}
+                    totalItems={listDocuments.length}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={(pageNum) => {
+                        setCurrentPage(pageNum)
+                        window.scrollTo(0, 0)
+                    }}
+                />
+            )}
         </div>
     )
 }
