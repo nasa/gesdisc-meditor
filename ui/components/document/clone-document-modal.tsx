@@ -1,7 +1,9 @@
 import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
+import { AppContext } from '../app-store'
+import mEditorApi from '../../service/'
 
 const CloneDocumentModal = ({
     modelName,
@@ -11,6 +13,8 @@ const CloneDocumentModal = ({
     show = false,
     modalTitle = 'Clone Document',
 }) => {
+    const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
+    const [busy, setBusy] = useState(false)
     const [isDirty, setIsDirty] = useState(false)
     const [newTitle, setNewTitle] = useState('')
     const isInvalid = isDirty && (!newTitle || newTitle == documentTitle)
@@ -20,16 +24,22 @@ const CloneDocumentModal = ({
         setNewTitle('Copy of ' + documentTitle)
     }, [documentTitle])
 
-    function clone() {
+    async function clone() {
         setIsDirty(true)
 
         if (!newTitle || newTitle == documentTitle) return
 
-        console.log('send request here ', modelName, documentTitle)
-        onSuccess()
+        setBusy(true)
 
-        //if error, show error
-        //else, show success and call, onSuccess
+        try {
+            await mEditorApi.cloneDocument(modelName, documentTitle, newTitle)
+            setSuccessNotification('Successfully cloned document')
+            onSuccess()
+        } catch (err) {
+            setErrorNotification((await err.json()).description)
+        } finally {
+            setBusy(false)
+        }
     }
 
     return (
@@ -58,11 +68,11 @@ const CloneDocumentModal = ({
             </Modal.Body>
 
             <Modal.Footer>
-                <Button variant="secondary" onClick={onCancel}>
+                <Button variant="secondary" onClick={onCancel} disabled={busy}>
                     Cancel
                 </Button>
 
-                <Button variant="primary" onClick={clone} disabled={isInvalid}>
+                <Button variant="primary" onClick={clone} disabled={isInvalid || busy}>
                     Clone
                 </Button>
             </Modal.Footer>

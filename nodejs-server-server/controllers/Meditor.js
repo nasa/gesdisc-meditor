@@ -566,10 +566,8 @@ module.exports.cloneDocument = async function(request, response, next) {
     delete document._id
     document[titleProperty || 'title'] = request.query.newTitle
     
-    let response = await saveDocument(client, request, document, request.query.model)
+    await saveDocument(client, request, document, request.query.model)
    
-    console.log('response is ', response)
-    
     handleSuccess(response, document)
   } catch (err) {
     console.error(err)

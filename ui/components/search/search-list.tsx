@@ -55,7 +55,7 @@ function sortDocuments(sortOptions: SortOptions, documentA, documentB) {
 /**
  * renders the model page with the model's documents in a searchable/filterable list
  */
-const SearchList = ({ documents, modelName, onAddNew, user }) => {
+const SearchList = ({ documents, modelName, onAddNew, onRefreshList, user }) => {
     const { searchTerm, filterBy } = useContext(AppContext)
     const [currentPage, setCurrentPage] = useState(0)
     const [sortOptions, setSortOptions] = useState<SortOptions>({
@@ -140,7 +140,7 @@ const SearchList = ({ documents, modelName, onAddNew, user }) => {
                             />
                         )
                     } else {
-                        return <SearchResult key={document.title} document={document} modelName={modelName} />
+                        return <SearchResult key={document.title} document={document} modelName={modelName} onCloned={onRefreshList} />
                     }
                 })}
             </div>
