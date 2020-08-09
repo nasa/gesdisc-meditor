@@ -12,6 +12,7 @@ var mUtils = require('./lib/meditor-utils');
 var Validator = require('jsonschema').Validator;
 var nats = require('./lib/nats-connection');
 var escape = require('mongo-escape').escape;
+var compile = require('monquery')
 
 var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
 var DbName = "meditor";
@@ -131,6 +132,44 @@ async function handlePublicationAcknowledgements(message) {
   }
 }
 
+/**
+ * given a simplified Lucene query, convert it to the Mongo $match equivalent
+ * ONLY supports AND/OR and field based regex or exact matches
+ * 
+ * TODO: if we need more complex searching, we should use something like ElasticSearch instead
+ * 
+ * @param {string} query 
+ */
+function convertLuceneQueryToMongo(query) {
+  let match = compile(query)
+
+  // brings certain x-meditor fields up to the top level to be filtered
+  let xMeditorFields = ['state']
+  
+  function replacexMeditorFieldInMatch(field, match) {
+    if (match.$and) {
+      match.$and = match.$and.map(andMatch => replacexMeditorFieldInMatch(field, andMatch))
+    }
+
+    if (match.$or) {
+      match.$or = match.$or.map(orMatch => replacexMeditorFieldInMatch(field, orMatch))
+    }
+    
+    if (field in match) {
+      match[`x-meditor.${field}`] = match[field]
+      delete match[field]
+    }
+
+    return match
+  }
+
+  xMeditorFields.forEach(field => {
+    replacexMeditorFieldInMatch(field, match)
+  })
+
+  return match
+}
+ 
 // Builds aggregation pipeline query for a given model (common starting point for most API functions)
 function getDocumentAggregationQuery(meta) {
   var searchQuery = {};
@@ -600,6 +639,18 @@ module.exports.listDocuments = function listDocuments (request, response, next) 
     .then(function() {
       var xmeditorProperties = ["modifiedOn", "modifiedBy", "state", "targetStates"];
       var query = getDocumentAggregationQuery(that);
+
+      if (request.query.filter) {
+        try {
+          // add match to query
+          query.push({
+            '$match': convertLuceneQueryToMongo(request.query.filter)
+          })
+        } catch (err) {
+          throw new Error('Improperly formatted filter ')
+        }
+      }
+      
       return that.dbo
         .db(DbName)
         .collection(that.params.model)
