@@ -122,28 +122,37 @@ const SearchList = ({ documents, modelName, onAddNew, onRefreshList, user }) => 
                 user={user}
             />
 
-            <div className={styles.grid}>
-                <Header text="Title" sortBy="title" />
-                <Header text="State" sortBy="state" />
-                <Header text="Modified On" sortBy="modifiedOn" isDate={true} />
-                <Header text="Modified By" sortBy="modifiedBy" />
-                <Header text="Actions" />
+            {listDocuments.length > 0 && (
+                <div className={styles.grid}>
+                    <Header text="Title" sortBy="title" />
+                    <Header text="State" sortBy="state" />
+                    <Header text="Modified On" sortBy="modifiedOn" isDate={true} />
+                    <Header text="Modified By" sortBy="modifiedBy" />
+                    <Header text="Actions" />
 
-                {listDocuments.slice(offset, offset + itemsPerPage).map((document) => {
-                    if (document.localId) {
-                        return (
-                            <SearchResult
-                                key={document.localId}
-                                document={document}
-                                isLocalDocument={true}
-                                modelName={modelName}
-                            />
-                        )
-                    } else {
-                        return <SearchResult key={document.title} document={document} modelName={modelName} onCloned={onRefreshList} />
-                    }
-                })}
-            </div>
+                    {listDocuments.slice(offset, offset + itemsPerPage).map((document) => {
+                        if (document.localId) {
+                            return (
+                                <SearchResult
+                                    key={document.localId}
+                                    document={document}
+                                    isLocalDocument={true}
+                                    modelName={modelName}
+                                />
+                            )
+                        } else {
+                            return (
+                                <SearchResult
+                                    key={document.title}
+                                    document={document}
+                                    modelName={modelName}
+                                    onCloned={onRefreshList}
+                                />
+                            )
+                        }
+                    })}
+                </div>
+            )}
 
             {listDocuments.length > itemsPerPage && (
                 <Pagination
