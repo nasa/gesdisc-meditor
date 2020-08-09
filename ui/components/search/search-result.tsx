@@ -4,8 +4,31 @@ import StateBadge from '../state-badge'
 import styles from './search-result.module.css'
 import { urlEncode } from '../../lib/url'
 import { format } from 'date-fns'
+import { FaRegClone } from 'react-icons/fa'
+import { IoMdTrash } from 'react-icons/io'
+import IconButton from '../icon-button'
+import CloneDocumentModal from '../document/clone-document-modal'
+import { useContext, useState } from 'react'
+import { AppContext } from '../app-store'
+import { removeUnsavedDocumentFromLS } from '../../lib/unsaved-changes'
 
-const SearchResult = ({ document, modelName, isLocalDocument = false }) => {
+const SearchResult = ({ document, modelName, onCloned = () => {}, isLocalDocument = false }) => {
+    const { setSuccessNotification } = useContext(AppContext)
+    const [showCloneDocumentModal, setShowCloneDocumentModal] = useState(false)
+
+    function removeUnsavedDocument() {
+        if (
+            !confirm(
+                "Are you sure you want to delete this document?\n\nThis document will be deleted immediately. You can't undo this action."
+            )
+        ) {
+            return
+        }
+
+        removeUnsavedDocumentFromLS(document)
+        setSuccessNotification(`Successfully deleted document: '${document.title}'`)
+    }
+
     return (
         <div className={styles.result}>
             <div>
@@ -19,15 +42,43 @@ const SearchResult = ({ document, modelName, isLocalDocument = false }) => {
                 >
                     <a>{document.title}</a>
                 </Link>
+            </div>
 
+            <div>
                 {isLocalDocument && <StateBadge variant="warning">Unsaved</StateBadge>}
                 {!isLocalDocument && <DocumentStateBadge document={document} modelName={modelName} />}
             </div>
 
             <div>
-                {isLocalDocument ? format(new Date(document.modifiedOn), 'M/d/yy, h:mm aaa') : document.modifiedOn} by{' '}
-                {document.modifiedBy}
+                {isLocalDocument ? format(new Date(document.modifiedOn), 'M/d/yy, h:mm aaa') : document.modifiedOn}
             </div>
+
+            <div>{document.modifiedBy}</div>
+
+            <div>
+                {isLocalDocument && (
+                    <IconButton alt="Delete Document" onClick={removeUnsavedDocument}>
+                        <IoMdTrash />
+                    </IconButton>
+                )}
+
+                {!isLocalDocument && (
+                    <IconButton alt="Clone Document" onClick={() => setShowCloneDocumentModal(true)}>
+                        <FaRegClone />
+                    </IconButton>
+                )}
+            </div>
+
+            <CloneDocumentModal
+                modelName={modelName}
+                documentTitle={document.title}
+                show={showCloneDocumentModal}
+                onCancel={() => setShowCloneDocumentModal(false)}
+                onSuccess={(newDocument) => {
+                    setShowCloneDocumentModal(false)
+                    onCloned()
+                }}
+            />
         </div>
     )
 }

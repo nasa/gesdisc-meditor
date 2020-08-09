@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { AppContext } from '../../components/app-store'
 import { useRouter } from 'next/router'
 import Alert from 'react-bootstrap/Alert'
@@ -8,6 +8,9 @@ import SearchList from '../../components/search/search-list'
 import PageTitle from '../../components/page-title'
 import withAuthentication from '../../components/with-authentication'
 import gql from 'graphql-tag'
+import { useLazyQuery } from '@apollo/react-hooks'
+import RenderResponse from '../../components/render-response'
+import Loading from '../../components/loading'
 
 const MODEL_DOCUMENTS_QUERY = gql`
     query getDocuments($modelName: String!) {
@@ -31,11 +34,27 @@ const MODEL_DOCUMENTS_QUERY = gql`
 /**
  * renders the model page with the model's documents in a searchable/filterable list
  */
-const ModelPage = ({ user, model, documents }) => {
+const ModelPage = ({ user, model, ssrDocuments }) => {
     const router = useRouter()
     const { modelName } = router.query
-
     const { searchTerm, setSearchTerm } = useContext(AppContext)
+    const [documents, setDocuments] = useState([])
+
+    const [getDocuments, { loading, error, data }] = useLazyQuery(MODEL_DOCUMENTS_QUERY, {
+        fetchPolicy: 'network-only',
+    })
+
+    const fetchedDocuments = data?.documents
+
+    useEffect(() => {
+        setDocuments(ssrDocuments)
+    }, [ssrDocuments])
+
+    useEffect(() => {
+        if (!fetchedDocuments) return
+        window.scrollTo(0, 0)
+        setDocuments(fetchedDocuments)
+    }, [fetchedDocuments])
 
     function addNewDocument() {
         router.push('/meditor/[modelName]/new', `/meditor/${modelName}/new`)
@@ -49,25 +68,37 @@ const ModelPage = ({ user, model, documents }) => {
                 model={model}
                 modelName={modelName}
                 initialInput={searchTerm}
-                onInput={searchTerm => setSearchTerm(searchTerm)}
+                onInput={(searchTerm) => setSearchTerm(searchTerm)}
             />
 
             <div className="my-4">
-                {!documents && (
-                    <Alert variant="danger">
-                        <p>Failed to retrieve {modelName} documents.</p>
-                        <p>This is most likely temporary, please wait a bit and refresh the page.</p>
-                    </Alert>
-                )}
-
-                {documents && (
-                    <SearchList
-                        documents={documents}
-                        modelName={modelName}
-                        onAddNew={addNewDocument}
-                        user={user}
-                    />
-                )}
+                <RenderResponse
+                    loading={loading}
+                    error={!documents || error}
+                    loadingComponent={<Loading text={`Loading documents...`} />}
+                    errorComponent={
+                        <Alert variant="danger">
+                            <p>Failed to retrieve {modelName} documents.</p>
+                            <p>This is most likely temporary, please wait a bit and refresh the page.</p>
+                        </Alert>
+                    }
+                >
+                    {documents && (
+                        <SearchList
+                            documents={documents}
+                            modelName={modelName}
+                            onAddNew={addNewDocument}
+                            user={user}
+                            onRefreshList={() => {
+                                getDocuments({
+                                    variables: {
+                                        modelName: modelName,
+                                    },
+                                })
+                            }}
+                        />
+                    )}
+                </RenderResponse>
             </div>
         </div>
     )
@@ -76,14 +107,14 @@ const ModelPage = ({ user, model, documents }) => {
 ModelPage.getInitialProps = async (ctx) => {
     let response = await ctx.apolloClient.query({
         query: MODEL_DOCUMENTS_QUERY,
-        variables: { 
+        variables: {
             modelName: ctx.query.modelName,
         },
     })
 
     return {
         model: response?.data?.model,
-        documents: response?.data?.documents,
+        ssrDocuments: response?.data?.documents,
     }
 }
 

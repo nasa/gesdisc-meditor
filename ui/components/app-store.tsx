@@ -14,8 +14,6 @@ const DEFAULTS = {
     setErrorNotification: (_message: String) => {},
     searchTerm: '',
     setSearchTerm: (_searchTerm: string) => {},
-    sortDir: 'desc',
-    setSortDir: (_sortDir: string) => {},
     filterBy: '',
     setFilterBy: (_filterBy: string) => {}
 }
@@ -26,7 +24,6 @@ export default (props) => {
     const [user, setUser] = useState<any>(null)
     const [notification, setNotification] = useState<Notification>(null)
     const [searchTerm, setSearchTerm] = useState<string>(DEFAULTS.searchTerm)
-    const [sortDir, setSortDir] = useState<string>(DEFAULTS.sortDir)
     const [filterBy, setFilterBy] = useState<string>(DEFAULTS.filterBy)
 
     function setSuccessNotification(message) {
@@ -46,8 +43,6 @@ export default (props) => {
         setErrorNotification,
         searchTerm,
         setSearchTerm,
-        sortDir,
-        setSortDir,
         filterBy,
         setFilterBy,
     }

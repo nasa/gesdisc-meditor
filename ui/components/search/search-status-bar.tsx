@@ -30,16 +30,18 @@ const QUERY = gql`
 `
 
 const SearchStatusBar = ({
-    documentCount = 0,
+    currentPage,
+    itemsPerPage,
     totalDocumentCount = 0,
     onAddNew,
     documentStates = [],
     user,
 }) => {
+    const offset = currentPage * itemsPerPage
     const router = useRouter()
     const { modelName } = router.query
 
-    const { sortDir, setSortDir, filterBy, setFilterBy } = useContext(AppContext)
+    const { filterBy, setFilterBy } = useContext(AppContext)
 
     const { error, data } = useQuery(QUERY, {
         variables: { modelName },
@@ -74,7 +76,7 @@ const SearchStatusBar = ({
     return (
         <div className={styles.container}>
             <div className={styles.count}>
-                Showing 1 - {documentCount} of {totalDocumentCount} {modelName} documents
+                Showing {offset + 1} - {(offset + itemsPerPage) > totalDocumentCount ? totalDocumentCount : offset + itemsPerPage} of {totalDocumentCount} {modelName} documents
             </div>
 
             <div className={styles.actions}>
@@ -95,20 +97,6 @@ const SearchStatusBar = ({
                                     </option>
                                 ))}
                             </optgroup>
-                        </select>
-                    </label>
-                </div>
-
-                <div className={styles.action}>
-                    <label>
-                        Sort by:
-                        <select
-                            className="form-control"
-                            value={sortDir}
-                            onChange={e => setSortDir(e.target.value)}
-                        >
-                            <option value="asc">Oldest</option>
-                            <option value="desc">Newest</option>
                         </select>
                     </label>
                 </div>
