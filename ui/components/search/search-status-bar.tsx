@@ -8,6 +8,8 @@ import gql from 'graphql-tag'
 import { withApollo } from '../../lib/apollo'
 import { useContext } from 'react'
 import { AppContext } from '../app-store'
+import pickby from 'lodash.pickby'
+import SearchFilter from './search-filter'
 
 const QUERY = gql`
     query getModel($modelName: String!) {
@@ -30,6 +32,7 @@ const QUERY = gql`
 `
 
 const SearchStatusBar = ({
+    model,
     currentPage,
     itemsPerPage,
     totalDocumentCount = 0,
@@ -47,6 +50,19 @@ const SearchStatusBar = ({
         variables: { modelName },
         fetchPolicy: 'cache-and-network',
     })
+
+    const schema = JSON.parse(model?.schema || '{}')
+    const layout = JSON.parse(model?.uiSchema || model?.layout || '{}')
+
+    // find fields in the layout that are marked as filters
+    let filterFields = pickby(layout, field => 'ui:filter' in field)
+
+    // retrieve the schema information for the field
+    Object.keys(filterFields).forEach(field => {
+        filterFields[field].schema = schema?.properties?.[field]
+    })
+
+    console.log('filter fields ', filterFields)
 
     const currentPrivileges = data?.model?.workflow ? user.privilegesForModelAndWorkflowNode(modelName, data.model.workflow.currentNode) : []
     const currentEdges = data?.model?.workflow?.currentEdges?.filter(edge => {
@@ -80,6 +96,10 @@ const SearchStatusBar = ({
             </div>
 
             <div className={styles.actions}>
+                {Object.keys(filterFields).map(field => (
+                    <SearchFilter key={field} label={field} field={filterFields[field]} />                    
+                ))}
+
                 <div className={styles.action}>
                     <label>
                         Filter by:

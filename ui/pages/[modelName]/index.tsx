@@ -20,6 +20,8 @@ const MODEL_DOCUMENTS_QUERY = gql`
                 name
                 color
             }
+            layout
+            schema
         }
         documents(modelName: $modelName, filter: $filter) {
             title
@@ -86,7 +88,7 @@ const ModelPage = ({ user, model, ssrDocuments }) => {
                     {documents && (
                         <SearchList
                             documents={documents}
-                            modelName={modelName}
+                            model={model}
                             onAddNew={addNewDocument}
                             user={user}
                             onRefreshList={() => {

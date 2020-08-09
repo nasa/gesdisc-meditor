@@ -55,7 +55,7 @@ function sortDocuments(sortOptions: SortOptions, documentA, documentB) {
 /**
  * renders the model page with the model's documents in a searchable/filterable list
  */
-const SearchList = ({ documents, modelName, onAddNew, onRefreshList, user }) => {
+const SearchList = ({ documents, model, onAddNew, onRefreshList, user }) => {
     const { searchTerm, filterBy } = useContext(AppContext)
     const [currentPage, setCurrentPage] = useState(0)
     const [sortOptions, setSortOptions] = useState<SortOptions>({
@@ -70,7 +70,7 @@ const SearchList = ({ documents, modelName, onAddNew, onRefreshList, user }) => 
 
     // look for unsaved documents in local storage
     useEffect(() => {
-        setLocalChanges(findUnsavedDocumentsByModel(modelName))
+        setLocalChanges(findUnsavedDocumentsByModel(model.name))
     }, [])
 
     let localDocuments = localChanges.sort(sortDocuments.bind(this, sortOptions))
@@ -113,6 +113,7 @@ const SearchList = ({ documents, modelName, onAddNew, onRefreshList, user }) => 
     return (
         <div>
             <SearchStatusBar
+                model={model}
                 currentPage={currentPage}
                 itemsPerPage={itemsPerPage}
                 documentCount={offset}
@@ -137,7 +138,7 @@ const SearchList = ({ documents, modelName, onAddNew, onRefreshList, user }) => 
                                     key={document.localId}
                                     document={document}
                                     isLocalDocument={true}
-                                    modelName={modelName}
+                                    modelName={model.name}
                                 />
                             )
                         } else {
@@ -145,7 +146,7 @@ const SearchList = ({ documents, modelName, onAddNew, onRefreshList, user }) => 
                                 <SearchResult
                                     key={document.title}
                                     document={document}
-                                    modelName={modelName}
+                                    modelName={model.name}
                                     onCloned={onRefreshList}
                                 />
                             )

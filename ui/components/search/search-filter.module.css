@@ -1,0 +1,16 @@
+.action {
+    margin-left: 15px;
+}
+
+.action label {
+    display: flex;
+    white-space: nowrap;
+    align-items: center;
+    margin-bottom: 0;
+    text-transform: capitalize;
+}
+
+.action select,
+.action button {
+    margin-left: 8px;
+}
