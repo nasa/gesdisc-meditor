@@ -140,12 +140,9 @@ async function handlePublicationAcknowledgements(message) {
  * 
  * @param {string} query 
  */
-function convertLuceneQueryToMongo(query) {
+function convertLuceneQueryToMongo(query, xmeditorProperties) {
   let match = compile(query)
 
-  // brings certain x-meditor fields up to the top level to be filtered
-  let xMeditorFields = ['state']
-  
   function replacexMeditorFieldInMatch(field, match) {
     if (match.$and) {
       match.$and = match.$and.map(andMatch => replacexMeditorFieldInMatch(field, andMatch))
@@ -163,7 +160,7 @@ function convertLuceneQueryToMongo(query) {
     return match
   }
 
-  xMeditorFields.forEach(field => {
+  xmeditorProperties.forEach(field => {
     replacexMeditorFieldInMatch(field, match)
   })
 
@@ -644,7 +641,7 @@ module.exports.listDocuments = function listDocuments (request, response, next) 
         try {
           // add match to query
           query.push({
-            '$match': convertLuceneQueryToMongo(request.query.filter)
+            '$match': convertLuceneQueryToMongo(request.query.filter, xmeditorProperties)
           })
         } catch (err) {
           throw new Error('Improperly formatted filter ')
