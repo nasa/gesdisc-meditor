@@ -13,7 +13,7 @@ import RenderResponse from '../../components/render-response'
 import Loading from '../../components/loading'
 
 const MODEL_DOCUMENTS_QUERY = gql`
-    query getDocuments($modelName: String!) {
+    query getDocuments($modelName: String!, $filter: String) {
         model(modelName: $modelName) {
             name
             icon {
@@ -21,7 +21,7 @@ const MODEL_DOCUMENTS_QUERY = gql`
                 color
             }
         }
-        documents(modelName: $modelName) {
+        documents(modelName: $modelName, filter: $filter) {
             title
             model
             modifiedBy
@@ -36,7 +36,7 @@ const MODEL_DOCUMENTS_QUERY = gql`
  */
 const ModelPage = ({ user, model, ssrDocuments }) => {
     const router = useRouter()
-    const { modelName } = router.query
+    const { modelName, filter } = router.query
     const { searchTerm, setSearchTerm } = useContext(AppContext)
     const [documents, setDocuments] = useState([])
 
@@ -92,7 +92,8 @@ const ModelPage = ({ user, model, ssrDocuments }) => {
                             onRefreshList={() => {
                                 getDocuments({
                                     variables: {
-                                        modelName: modelName,
+                                        modelName,
+                                        filter,
                                     },
                                 })
                             }}
@@ -109,6 +110,7 @@ ModelPage.getInitialProps = async (ctx) => {
         query: MODEL_DOCUMENTS_QUERY,
         variables: {
             modelName: ctx.query.modelName,
+            filter: ctx.query.filter,
         },
     })
 

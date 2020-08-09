@@ -35,8 +35,12 @@ class mEditorApi extends RESTDataSource {
         return await this.get('listModels')
     }
 
-    async getDocumentsForModel(model) {
-        return await this.get('listDocuments', { model })
+    async getDocumentsForModel(model, filter) {
+        let params = { model }
+
+        if (filter) params.filter = filter
+
+        return await this.get('listDocuments', params)
     }
 
     async getDocument(model, title) {
