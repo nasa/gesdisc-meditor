@@ -44,7 +44,7 @@ const SearchStatusBar = ({
     const router = useRouter()
     const { modelName } = router.query
 
-    const { filterBy, setFilterBy } = useContext(AppContext)
+    const { searchOptions, setSearchOptions } = useContext(AppContext)
 
     const { error, data } = useQuery(QUERY, {
         variables: { modelName },
@@ -105,8 +105,14 @@ const SearchStatusBar = ({
                         Filter by:
                         <select
                             className="form-control"
-                            value={filterBy}
-                            onChange={e => setFilterBy(e.target.value)}
+                            value={searchOptions.filters.state}
+                            onChange={e => setSearchOptions({
+                                ...searchOptions,
+                                filters: {
+                                    ...searchOptions.filters,
+                                    state: e.target.value,
+                                }
+                            })}
                         >
                             <option value=""></option>
 

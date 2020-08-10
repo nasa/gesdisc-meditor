@@ -7,12 +7,6 @@ import styles from './search-list.module.css'
 import { IoMdArrowDropdown } from 'react-icons/io'
 import Pagination from '../pagination'
 
-interface SortOptions {
-    direction: 'desc' | 'asc'
-    property: string
-    isDate: boolean
-}
-
 /**
  * determines if a document contains a given search term
  * @param document
@@ -34,35 +28,32 @@ function documentHasState(document, state) {
 
 /**
  * sorts documents by modified date
- * @param sortOptions
+ * @param direction
+ * @param property
+ * @param isDate
  * @param documentA
  * @param documentB
  */
-function sortDocuments(sortOptions: SortOptions, documentA, documentB) {
-    let a = documentA[sortOptions.property]
-    let b = documentB[sortOptions.property]
+function sortDocuments(direction, property, isDate, documentA, documentB) {
+    let a = documentA[property]
+    let b = documentB[property]
 
-    if (sortOptions.isDate) {
+    if (isDate) {
         a = new Date(a)
         b = new Date(b)
     }
 
     const diff = a > b ? -1 : a < b ? 1 : 0
 
-    return sortOptions.direction == 'asc' ? diff * -1 : diff
+    return direction == 'asc' ? diff * -1 : diff
 }
 
 /**
  * renders the model page with the model's documents in a searchable/filterable list
  */
 const SearchList = ({ documents, model, onAddNew, onRefreshList, user }) => {
-    const { searchTerm, filterBy } = useContext(AppContext)
+    const { searchOptions, setSearchOptions } = useContext(AppContext)
     const [currentPage, setCurrentPage] = useState(0)
-    const [sortOptions, setSortOptions] = useState<SortOptions>({
-        direction: 'desc',
-        property: 'modifiedOn',
-        isDate: true,
-    })
     const [localChanges, setLocalChanges] = useState([])
 
     const itemsPerPage = 50
@@ -73,12 +64,21 @@ const SearchList = ({ documents, model, onAddNew, onRefreshList, user }) => {
         setLocalChanges(findUnsavedDocumentsByModel(model.name))
     }, [])
 
-    let localDocuments = localChanges.sort(sortDocuments.bind(this, sortOptions))
+    let localDocuments = localChanges.sort(
+        sortDocuments.bind(this, searchOptions.sort.direction, searchOptions.sort.property, searchOptions.sort.isDate)
+    )
 
     let filteredDocuments = documents
-        .filter((document) => documentMatchesSearchTerm(document, searchTerm))
-        .filter((document) => documentHasState(document, filterBy))
-        .sort(sortDocuments.bind(this, sortOptions))
+        .filter((document) => documentMatchesSearchTerm(document, searchOptions.term))
+        .filter((document) => documentHasState(document, searchOptions.filters.state))
+        .sort(
+            sortDocuments.bind(
+                this,
+                searchOptions.sort.direction,
+                searchOptions.sort.property,
+                searchOptions.sort.isDate
+            )
+        )
 
     let listDocuments = [].concat(localDocuments, filteredDocuments)
 
@@ -94,17 +94,23 @@ const SearchList = ({ documents, model, onAddNew, onRefreshList, user }) => {
                 onClick={() => {
                     if (!sortBy) return // this is an unsortable column
 
-                    setSortOptions({
-                        property: sortBy,
-                        direction: sortBy == sortOptions.property && sortOptions.direction == 'desc' ? 'asc' : 'desc',
-                        isDate,
+                    setSearchOptions({
+                        ...searchOptions,
+                        sort: {
+                            property: sortBy,
+                            direction:
+                                sortBy == searchOptions.sort.property && searchOptions.sort.direction == 'desc'
+                                    ? 'asc'
+                                    : 'desc',
+                            isDate,
+                        },
                     })
                 }}
             >
                 {text}
 
-                {sortBy == sortOptions.property && (
-                    <IoMdArrowDropdown size="1.5em" className={styles[`sort-${sortOptions.direction}`]} />
+                {sortBy == searchOptions.sort.property && (
+                    <IoMdArrowDropdown size="1.5em" className={styles[`sort-${searchOptions.sort.direction}`]} />
                 )}
             </div>
         )

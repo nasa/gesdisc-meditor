@@ -1,8 +1,20 @@
 import { createContext, useState } from 'react'
 
-interface Notification {
+export interface Notification {
     message: String
     type?: 'ok' | 'error'
+}
+
+export interface SearchOptions {
+    term: string
+    filters: any
+    sort: SortOptions
+}
+
+export interface SortOptions {
+    direction: string
+    property: string
+    isDate: boolean
 }
 
 const DEFAULTS = {
@@ -12,10 +24,19 @@ const DEFAULTS = {
     setNotification: (_notification: Notification) => {},
     setSuccessNotification: (_message: String) => {},
     setErrorNotification: (_message: String) => {},
-    searchTerm: '',
-    setSearchTerm: (_searchTerm: string) => {},
-    filterBy: '',
-    setFilterBy: (_filterBy: string) => {}
+
+    // Why are search options in the app store? So that a user doesn't lose their search options between page changes
+    searchOptions: {
+        term: '',
+        filters: {
+            state: '',
+        },
+        sort: {
+            direction: 'desc',
+            property: 'modifiedOn',
+            isDate: true,
+        }
+    },
 }
 
 export const AppContext = createContext(DEFAULTS)
@@ -23,8 +44,7 @@ export const AppContext = createContext(DEFAULTS)
 export default (props) => {
     const [user, setUser] = useState<any>(null)
     const [notification, setNotification] = useState<Notification>(null)
-    const [searchTerm, setSearchTerm] = useState<string>(DEFAULTS.searchTerm)
-    const [filterBy, setFilterBy] = useState<string>(DEFAULTS.filterBy)
+    const [searchOptions, setSearchOptions] = useState<SearchOptions>(DEFAULTS.searchOptions)
 
     function setSuccessNotification(message) {
         setNotification({ message, type: 'ok' })
@@ -41,10 +61,8 @@ export default (props) => {
         setNotification,
         setSuccessNotification,
         setErrorNotification,
-        searchTerm,
-        setSearchTerm,
-        filterBy,
-        setFilterBy,
+        searchOptions,
+        setSearchOptions,
     }
 
     return (

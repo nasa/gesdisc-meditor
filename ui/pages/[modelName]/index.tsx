@@ -39,7 +39,7 @@ const MODEL_DOCUMENTS_QUERY = gql`
 const ModelPage = ({ user, model, ssrDocuments }) => {
     const router = useRouter()
     const { modelName, filter } = router.query
-    const { searchTerm, setSearchTerm } = useContext(AppContext)
+    const { searchOptions, setSearchOptions } = useContext(AppContext)
     const [documents, setDocuments] = useState([])
 
     const [getDocuments, { loading, error, data }] = useLazyQuery(MODEL_DOCUMENTS_QUERY, {
@@ -69,8 +69,11 @@ const ModelPage = ({ user, model, ssrDocuments }) => {
             <SearchBar
                 model={model}
                 modelName={modelName}
-                initialInput={searchTerm}
-                onInput={(searchTerm) => setSearchTerm(searchTerm)}
+                initialInput={searchOptions.term}
+                onInput={(term) => setSearchOptions({
+                    ...searchOptions,
+                    term,
+                })}
             />
 
             <div className="my-4">
