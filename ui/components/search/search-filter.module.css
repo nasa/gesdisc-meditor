@@ -1,22 +1,6 @@
-.container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 0;
-    margin-bottom: 20px;
-}
-
-.count {
-    color: grey;
-}
-
-.actions {
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-}
-
 .action {
+    display: flex;
+    align-items: center;
     margin-left: 20px;
 }
 
@@ -24,6 +8,11 @@
     display: flex;
     white-space: nowrap;
     align-items: center;
+    margin-bottom: 0;
+    text-transform: capitalize;
+}
+
+.action .alert {
     margin-bottom: 0;
 }
 
