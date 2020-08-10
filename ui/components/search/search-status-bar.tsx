@@ -14,6 +14,9 @@ const QUERY = gql`
         model(modelName: $modelName) {
             name
             workflow {
+                nodes {
+                    id
+                }
                 currentNode {
                     privileges {
                         role
@@ -51,6 +54,8 @@ const SearchStatusBar = ({
 
     const schema = JSON.parse(model?.schema || '{}')
     const layout = JSON.parse(model?.uiSchema || model?.layout || '{}')
+
+    const states = data?.model?.workflow?.nodes?.filter(node => node.id !== 'Init').map(node => node.id).sort() || []
 
     // find fields in the layout that are marked as filters
     let filterFields = pickby(layout, (field) => 'ui:filter' in field)
@@ -110,7 +115,7 @@ const SearchStatusBar = ({
                         >
                             <option value=""></option>
 
-                            {documentStates.map((state) => (
+                            {states.map((state) => (
                                 <option key={state} value={state}>
                                     {state}
                                 </option>

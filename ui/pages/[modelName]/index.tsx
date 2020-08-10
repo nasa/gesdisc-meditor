@@ -25,9 +25,7 @@ interface SortOptions {
 
 const DEFAULT_SEARCH_OPTIONS = {
     term: '',
-    filters: {
-        state: '',
-    },
+    filters: {},
     sort: {
         direction: 'desc',
         property: 'modifiedOn',
@@ -55,6 +53,21 @@ const MODEL_DOCUMENTS_QUERY = gql`
         }
     }
 `
+
+/**
+ * given an object of search filters, turn it into a Lucene style search query
+ * @param searchFilters 
+ */
+function filtersToSearchQuery(searchFilters) {
+    let filters = []
+
+    Object.keys(searchFilters).forEach(key => {
+        let value = searchFilters[key]
+        if (value) filters.push(`${key}:${value}`)
+    })
+
+    return filters.join(' AND ')
+}
 
 /**
  * renders the model page with the model's documents in a searchable/filterable list
@@ -108,17 +121,12 @@ const ModelPage = ({ user, model, ssrDocuments }) => {
         }
 
         let qp = new URLSearchParams(window.location.search)
-        let filters = []
-
-        // handle filters
-        Object.keys(searchOptions.filters).forEach(key => {
-            let value = searchOptions.filters[key]
-            if (value) filters.push(`${key}:${value}`)
-        })
-
+        
         // add or remove query params for each search option type
         searchOptions.term ? qp.set('search', searchOptions.term) : qp.delete('search')
-        filters.length ? qp.set('filter', filters.join(' AND ')) : qp.delete('filter')
+        
+        let filters = filtersToSearchQuery(searchOptions.filters)
+        filters ? qp.set('filter', filters) : qp.delete('filter')
 
         // only add sort options if they differ from the default
         if (searchOptions.sort.property !== DEFAULT_SEARCH_OPTIONS.sort.property || searchOptions.sort.direction !== DEFAULT_SEARCH_OPTIONS.sort.direction) {
@@ -135,6 +143,29 @@ const ModelPage = ({ user, model, ssrDocuments }) => {
 
     function addNewDocument() {
         router.push('/meditor/[modelName]/new', `/meditor/${modelName}/new`)
+    }
+
+    function handleFilterChange(filter, value) {
+        let newFilters = {
+            ...searchOptions.filters,
+            [filter]: value,
+        }
+
+        // trigger a new query
+        getDocuments({
+            variables: {
+                modelName,
+                filter: filtersToSearchQuery(newFilters),
+            },
+        })
+        
+        // update URL params to match filter change
+        setSearchOptions({
+            ...searchOptions,
+            filters: {
+                ...newFilters,
+            },
+        })
     }
 
     return (
@@ -184,15 +215,7 @@ const ModelPage = ({ user, model, ssrDocuments }) => {
                                     sort,
                                 })
                             }}
-                            onFilterChange={(filter, value) => {
-                                setSearchOptions({
-                                    ...searchOptions,
-                                    filters: {
-                                        ...searchOptions.filters,
-                                        [filter]: value,
-                                    },
-                                })
-                            }}
+                            onFilterChange={handleFilterChange}
                         />
                     )}
                 </RenderResponse>

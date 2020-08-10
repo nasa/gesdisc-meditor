@@ -16,16 +16,6 @@ function documentMatchesSearchTerm(document, searchTerm) {
 }
 
 /**
- * determines if a document has a given state
- * @param document
- * @param state
- */
-function documentHasState(document, state) {
-    if (!state) return true // if no state given, all documents should show
-    return document.state == state
-}
-
-/**
  * sorts documents by modified date
  * @param direction
  * @param property
@@ -68,7 +58,6 @@ const SearchList = ({ documents, model, onAddNew, onRefreshList, user, searchOpt
 
     let filteredDocuments = documents
         .filter((document) => documentMatchesSearchTerm(document, searchOptions.term))
-        .filter((document) => documentHasState(document, searchOptions.filters.state))
         .sort(
             sortDocuments.bind(
                 this,
@@ -79,11 +68,6 @@ const SearchList = ({ documents, model, onAddNew, onRefreshList, user, searchOpt
         )
 
     let listDocuments = [].concat(localDocuments, filteredDocuments)
-
-    let documentStates = documents
-        .map((document) => document.state)
-        .filter((state, index, states) => states.indexOf(state) === index)
-        .sort()
 
     function Header({ text, sortBy = null, isDate = false }) {
         return (
@@ -123,7 +107,6 @@ const SearchList = ({ documents, model, onAddNew, onRefreshList, user, searchOpt
                 documentCount={offset}
                 totalDocumentCount={listDocuments.length}
                 onAddNew={onAddNew}
-                documentStates={documentStates}
                 user={user}
                 searchOptions={searchOptions}
                 onFilterChange={onFilterChange}
