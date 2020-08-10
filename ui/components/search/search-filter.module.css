@@ -1,5 +1,7 @@
 .action {
-    margin-left: 15px;
+    display: flex;
+    align-items: center;
+    margin-left: 20px;
 }
 
 .action label {
@@ -8,6 +10,10 @@
     align-items: center;
     margin-bottom: 0;
     text-transform: capitalize;
+}
+
+.action .alert {
+    margin-bottom: 0;
 }
 
 .action select,

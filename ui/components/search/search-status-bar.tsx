@@ -38,7 +38,6 @@ const SearchStatusBar = ({
     itemsPerPage,
     totalDocumentCount = 0,
     onAddNew,
-    documentStates = [],
     user,
     searchOptions,
     onFilterChange,
@@ -55,7 +54,11 @@ const SearchStatusBar = ({
     const schema = JSON.parse(model?.schema || '{}')
     const layout = JSON.parse(model?.uiSchema || model?.layout || '{}')
 
-    const states = data?.model?.workflow?.nodes?.filter(node => node.id !== 'Init').map(node => node.id).sort() || []
+    const states =
+        data?.model?.workflow?.nodes
+            ?.filter((node) => node.id !== 'Init')
+            .map((node) => node.id)
+            .sort() || []
 
     // find fields in the layout that are marked as filters
     let filterFields = pickby(layout, (field) => 'ui:filter' in field)
@@ -102,7 +105,13 @@ const SearchStatusBar = ({
 
             <div className={styles.actions}>
                 {Object.keys(filterFields).map((field) => (
-                    <SearchFilter key={field} label={field} field={filterFields[field]} />
+                    <SearchFilter
+                        key={field}
+                        label={field}
+                        field={filterFields[field]}
+                        value={searchOptions?.filters?.[field] || ''}
+                        onChange={(field, value) => onFilterChange(field, value)}
+                    />
                 ))}
 
                 <div className={styles.action}>
