@@ -1,5 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
-import { AppContext } from '../../components/app-store'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import Alert from 'react-bootstrap/Alert'
 import { withApollo } from '../../lib/apollo'
@@ -11,6 +10,30 @@ import gql from 'graphql-tag'
 import { useLazyQuery } from '@apollo/react-hooks'
 import RenderResponse from '../../components/render-response'
 import Loading from '../../components/loading'
+
+interface SearchOptions {
+    term: string
+    filters: any
+    sort: SortOptions
+}
+
+interface SortOptions {
+    direction: string
+    property: string
+    isDate: boolean
+}
+
+const DEFAULT_SEARCH_OPTIONS = {
+    term: '',
+    filters: {
+        state: '',
+    },
+    sort: {
+        direction: 'desc',
+        property: 'modifiedOn',
+        isDate: true,
+    },
+}
 
 const MODEL_DOCUMENTS_QUERY = gql`
     query getDocuments($modelName: String!, $filter: String) {
@@ -38,9 +61,29 @@ const MODEL_DOCUMENTS_QUERY = gql`
  */
 const ModelPage = ({ user, model, ssrDocuments }) => {
     const router = useRouter()
-    const { modelName, filter } = router.query
-    const { searchOptions, setSearchOptions } = useContext(AppContext)
+    const modelName = router.query.modelName as string
+    const search = router.query.search as string
+    const filter = router.query.filter as string
+    const sort = router.query.sort as string
+
     const [documents, setDocuments] = useState([])
+    const [searchOptions, setSearchOptions] = useState<SearchOptions>({
+        // get search term from query param OR use default
+        term: search || DEFAULT_SEARCH_OPTIONS.term,
+
+        // get search filters from URL params OR use defaults
+        filters: filter ? filter.split(' AND ').reduce((obj, item) => ({
+            ...obj,
+            [item.split(':')[0]]: item.split(':')[1],
+        }), {}) : DEFAULT_SEARCH_OPTIONS.filters,
+
+        // get sort options from URL params or use defaults
+        sort: {
+            property: sort?.split(':')?.[0] || DEFAULT_SEARCH_OPTIONS.sort.property,
+            direction: sort?.split(':')?.[1] || DEFAULT_SEARCH_OPTIONS.sort.direction,
+            isDate: sort ? (sort?.split(':')?.[2] ? true : false) : DEFAULT_SEARCH_OPTIONS.sort.isDate,
+        },
+    })
 
     const [getDocuments, { loading, error, data }] = useLazyQuery(MODEL_DOCUMENTS_QUERY, {
         fetchPolicy: 'network-only',
@@ -57,6 +100,38 @@ const ModelPage = ({ user, model, ssrDocuments }) => {
         window.scrollTo(0, 0)
         setDocuments(fetchedDocuments)
     }, [fetchedDocuments])
+
+    // when changing search term, filters, sorting, etc. modify the URL to make the options bookmarkable
+    useEffect(() => {
+        if (!('URLSearchParams' in window)) {
+            return
+        }
+
+        let qp = new URLSearchParams(window.location.search)
+        let filters = []
+
+        // handle filters
+        Object.keys(searchOptions.filters).forEach(key => {
+            let value = searchOptions.filters[key]
+            if (value) filters.push(`${key}:${value}`)
+        })
+
+        // add or remove query params for each search option type
+        searchOptions.term ? qp.set('search', searchOptions.term) : qp.delete('search')
+        filters.length ? qp.set('filter', filters.join(' AND ')) : qp.delete('filter')
+
+        // only add sort options if they differ from the default
+        if (searchOptions.sort.property !== DEFAULT_SEARCH_OPTIONS.sort.property || searchOptions.sort.direction !== DEFAULT_SEARCH_OPTIONS.sort.direction) {
+            qp.set('sort', `${searchOptions.sort.property}:${searchOptions.sort.direction}`)
+
+            if (searchOptions.sort.isDate) qp.set('sort', `${qp.get('sort')}:date`)
+        } else {
+            qp.delete('sort')
+        }
+
+        // setting location.search directly would cause a page refresh, instead add the change to history
+        history.pushState(null, '', qp.toString() ? window.location.pathname + '?' + qp.toString() : window.location.pathname)
+    }, [searchOptions])
 
     function addNewDocument() {
         router.push('/meditor/[modelName]/new', `/meditor/${modelName}/new`)
@@ -99,6 +174,22 @@ const ModelPage = ({ user, model, ssrDocuments }) => {
                                     variables: {
                                         modelName,
                                         filter,
+                                    },
+                                })
+                            }}
+                            searchOptions={searchOptions}
+                            onSortChange={(sort) => {
+                                setSearchOptions({
+                                    ...searchOptions,
+                                    sort,
+                                })
+                            }}
+                            onFilterChange={(filter, value) => {
+                                setSearchOptions({
+                                    ...searchOptions,
+                                    filters: {
+                                        ...searchOptions.filters,
+                                        [filter]: value,
                                     },
                                 })
                             }}

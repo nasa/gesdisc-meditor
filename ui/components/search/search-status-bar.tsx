@@ -6,8 +6,6 @@ import { MdAdd } from 'react-icons/md'
 import { useRouter } from 'next/router'
 import gql from 'graphql-tag'
 import { withApollo } from '../../lib/apollo'
-import { useContext } from 'react'
-import { AppContext } from '../app-store'
 import pickby from 'lodash.pickby'
 import SearchFilter from './search-filter'
 
@@ -39,12 +37,12 @@ const SearchStatusBar = ({
     onAddNew,
     documentStates = [],
     user,
+    searchOptions,
+    onFilterChange,
 }) => {
     const offset = currentPage * itemsPerPage
     const router = useRouter()
     const { modelName } = router.query
-
-    const { searchOptions, setSearchOptions } = useContext(AppContext)
 
     const { error, data } = useQuery(QUERY, {
         variables: { modelName },
@@ -55,19 +53,20 @@ const SearchStatusBar = ({
     const layout = JSON.parse(model?.uiSchema || model?.layout || '{}')
 
     // find fields in the layout that are marked as filters
-    let filterFields = pickby(layout, field => 'ui:filter' in field)
+    let filterFields = pickby(layout, (field) => 'ui:filter' in field)
 
     // retrieve the schema information for the field
-    Object.keys(filterFields).forEach(field => {
+    Object.keys(filterFields).forEach((field) => {
         filterFields[field].schema = schema?.properties?.[field]
     })
 
-    console.log('filter fields ', filterFields)
-
-    const currentPrivileges = data?.model?.workflow ? user.privilegesForModelAndWorkflowNode(modelName, data.model.workflow.currentNode) : []
-    const currentEdges = data?.model?.workflow?.currentEdges?.filter(edge => {
-        return user.rolesForModel(modelName).includes(edge.role)
-    }) || []
+    const currentPrivileges = data?.model?.workflow
+        ? user.privilegesForModelAndWorkflowNode(modelName, data.model.workflow.currentNode)
+        : []
+    const currentEdges =
+        data?.model?.workflow?.currentEdges?.filter((edge) => {
+            return user.rolesForModel(modelName).includes(edge.role)
+        }) || []
 
     if (error) {
         // something went wrong, but there's nowhere to show the error, log it
@@ -78,8 +77,7 @@ const SearchStatusBar = ({
         return (
             <Alert variant="info">
                 No documents found.
-
-                {(currentPrivileges.includes('create') && currentEdges.length) && (
+                {currentPrivileges.includes('create') && currentEdges.length && (
                     <Button variant="secondary" onClick={onAddNew} style={{ marginLeft: 20 }}>
                         <MdAdd />
                         {currentEdges[0].label}
@@ -92,12 +90,14 @@ const SearchStatusBar = ({
     return (
         <div className={styles.container}>
             <div className={styles.count}>
-                Showing {offset + 1} - {(offset + itemsPerPage) > totalDocumentCount ? totalDocumentCount : offset + itemsPerPage} of {totalDocumentCount} {modelName} documents
+                Showing {offset + 1} -{' '}
+                {offset + itemsPerPage > totalDocumentCount ? totalDocumentCount : offset + itemsPerPage} of{' '}
+                {totalDocumentCount} {modelName} documents
             </div>
 
             <div className={styles.actions}>
-                {Object.keys(filterFields).map(field => (
-                    <SearchFilter key={field} label={field} field={filterFields[field]} />                    
+                {Object.keys(filterFields).map((field) => (
+                    <SearchFilter key={field} label={field} field={filterFields[field]} />
                 ))}
 
                 <div className={styles.action}>
@@ -106,23 +106,15 @@ const SearchStatusBar = ({
                         <select
                             className="form-control"
                             value={searchOptions.filters.state}
-                            onChange={e => setSearchOptions({
-                                ...searchOptions,
-                                filters: {
-                                    ...searchOptions.filters,
-                                    state: e.target.value,
-                                }
-                            })}
+                            onChange={(e) => onFilterChange('state', e.target.value)}
                         >
                             <option value=""></option>
 
-                            <optgroup label="State">
-                                {documentStates.map(state => (
-                                    <option key={state} value={state}>
-                                        {state}
-                                    </option>
-                                ))}
-                            </optgroup>
+                            {documentStates.map((state) => (
+                                <option key={state} value={state}>
+                                    {state}
+                                </option>
+                            ))}
                         </select>
                     </label>
                 </div>

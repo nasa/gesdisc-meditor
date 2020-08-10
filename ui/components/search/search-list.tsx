@@ -1,7 +1,6 @@
 import SearchStatusBar from './search-status-bar'
 import SearchResult from './search-result'
-import { useContext, useEffect, useState } from 'react'
-import { AppContext } from '../app-store'
+import { useEffect, useState } from 'react'
 import { findUnsavedDocumentsByModel } from '../../lib/unsaved-changes'
 import styles from './search-list.module.css'
 import { IoMdArrowDropdown } from 'react-icons/io'
@@ -51,8 +50,7 @@ function sortDocuments(direction, property, isDate, documentA, documentB) {
 /**
  * renders the model page with the model's documents in a searchable/filterable list
  */
-const SearchList = ({ documents, model, onAddNew, onRefreshList, user }) => {
-    const { searchOptions, setSearchOptions } = useContext(AppContext)
+const SearchList = ({ documents, model, onAddNew, onRefreshList, user, searchOptions, onSortChange, onFilterChange }) => {
     const [currentPage, setCurrentPage] = useState(0)
     const [localChanges, setLocalChanges] = useState([])
 
@@ -91,19 +89,19 @@ const SearchList = ({ documents, model, onAddNew, onRefreshList, user }) => {
         return (
             <div
                 className={styles.header}
+                style={{
+                    cursor: sortBy ? 'pointer' : 'default',
+                }}
                 onClick={() => {
                     if (!sortBy) return // this is an unsortable column
 
-                    setSearchOptions({
-                        ...searchOptions,
-                        sort: {
-                            property: sortBy,
-                            direction:
-                                sortBy == searchOptions.sort.property && searchOptions.sort.direction == 'desc'
-                                    ? 'asc'
-                                    : 'desc',
-                            isDate,
-                        },
+                    onSortChange({
+                        property: sortBy,
+                        direction:
+                            sortBy == searchOptions.sort.property && searchOptions.sort.direction == 'desc'
+                                ? 'asc'
+                                : 'desc',
+                        isDate,
                     })
                 }}
             >
@@ -127,6 +125,8 @@ const SearchList = ({ documents, model, onAddNew, onRefreshList, user }) => {
                 onAddNew={onAddNew}
                 documentStates={documentStates}
                 user={user}
+                searchOptions={searchOptions}
+                onFilterChange={onFilterChange}
             />
 
             {listDocuments.length > 0 && (
