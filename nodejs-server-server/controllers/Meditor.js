@@ -381,7 +381,7 @@ async function saveDocument(client, request, document, model) {
 /**
  * "deletes" a document by setting deletedOn/deletedBy properties and removing associated comments
  */
-async function deleteDocument(client, model, title) {
+async function deleteDocument(client, model, title, user) {
   if (!model || !title) throw new Error('Please provide a model and document title')
 
   log.debug(`Handling delete document for ${model.name} - ${title}`)
@@ -396,7 +396,7 @@ async function deleteDocument(client, model, title) {
     }, {
       $set: {
         'x-meditor.deletedOn': new Date().toISOString(),
-        'x-meditor.deletedBy': 'jdcarlso',
+        'x-meditor.deletedBy': user,
       }
     })
     
@@ -823,7 +823,7 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
     })
     .then(model => {
       if (that.params.state == 'Deleted') {
-        return deleteDocument(that.dbo, model, that.document[model.titleProperty])
+        return deleteDocument(that.dbo, model, that.document[model.titleProperty], that.user.uid)
       }
     })
     .then(() => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
