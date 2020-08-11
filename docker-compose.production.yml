@@ -34,7 +34,7 @@ services:
             - node.labels.database == primary
 
   ui:
-    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_ui:0.59.0
+    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_ui:0.60.0
     restart: on-failure
     environment:
       - NODE_ENV=${NODE_ENV}
@@ -46,7 +46,7 @@ services:
           - node.labels.database == primary
  
   server:
-    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_server:0.53.0
+    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_server:0.54.0
     depends_on:
       - database
     restart: on-failure
