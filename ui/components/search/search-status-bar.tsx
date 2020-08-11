@@ -56,7 +56,7 @@ const SearchStatusBar = ({
 
     const states =
         data?.model?.workflow?.nodes
-            ?.filter((node) => node.id !== 'Init')
+            ?.filter((node) => node.id !== 'Init' && node.id !== 'Deleted')
             .map((node) => node.id)
             .sort() || []
 
