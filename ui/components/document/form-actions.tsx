@@ -5,6 +5,10 @@ import styles from './form-actions.module.css'
 import isEqual from 'lodash.isequal'
 import cloneDeep from 'lodash.clonedeep'
 
+const DELETED_STATE = 'Deleted'
+const DELETE_CONFIRMATION =
+    "Are you sure you want to delete this document?\n\nThis document will be deleted immediately. You can't undo this action."
+
 const FormActions = ({
     actions = [],
     showActions = true,
@@ -23,7 +27,7 @@ const FormActions = ({
 
     const [initialFormData, setInitialFormData] = useState(null)
     const [isDirty, setIsDirty] = useState(false)
-    
+
     useEffect(() => {
         if (!formData) return
 
@@ -103,9 +107,8 @@ const FormActions = ({
                 if (!errorPanel) return
 
                 errorPanel.scrollIntoView()
-
             }, 10)
-            
+
             return
         }
 
@@ -114,15 +117,16 @@ const FormActions = ({
     }
 
     function handleStateUpdate(target) {
+        // if this is a deletion, confirm with the user first
+        if (target == DELETED_STATE && !confirm(DELETE_CONFIRMATION)) {
+            return
+        }
+
         onUpdateState(target)
     }
 
     function confirmAndHandleDelete() {
-        if (
-            !confirm(
-                "Are you sure you want to delete this document?\n\nThis document will be deleted immediately. You can't undo this action."
-            )
-        ) {
+        if (!confirm(DELETE_CONFIRMATION)) {
             return
         }
 
@@ -136,6 +140,8 @@ const FormActions = ({
         return <></>
     }
 
+    const deletionActions = actions.filter((action) => action.target == DELETED_STATE)
+
     return (
         <div className={`container-fluid ${styles.container}`}>
             <div>
@@ -145,6 +151,18 @@ const FormActions = ({
                     </Button>
                 )}
 
+                {showActions &&
+                    deletionActions.map((action) => (
+                        <Button
+                            key={action.label}
+                            className={styles.button}
+                            variant="outline-danger"
+                            onClick={() => handleStateUpdate(action.target)}
+                        >
+                            {action.label}
+                        </Button>
+                    ))}
+
                 {canSave && (
                     <Button className={styles.button} variant="secondary" onClick={handleSave} ref={saveEl}>
                         Save
@@ -152,16 +170,18 @@ const FormActions = ({
                 )}
 
                 {showActions &&
-                    actions.map((action) => (
-                        <Button
-                            key={action.label}
-                            className={styles.button}
-                            variant="secondary"
-                            onClick={() => handleStateUpdate(action.target)}
-                        >
-                            {action.label}
-                        </Button>
-                    ))}
+                    actions
+                        .filter((action) => action.target !== DELETED_STATE)
+                        .map((action) => (
+                            <Button
+                                key={action.label}
+                                className={styles.button}
+                                variant="secondary"
+                                onClick={() => handleStateUpdate(action.target)}
+                            >
+                                {action.label}
+                            </Button>
+                        ))}
 
                 {CustomActions}
             </div>
