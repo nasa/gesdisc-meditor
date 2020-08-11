@@ -186,7 +186,8 @@ function getDocumentAggregationQuery(meta) {
       {$addFields: {'x-meditor.states': { $ifNull: [ "$x-meditor.states", [defaultState] ] }}}, // Add default state on docs with no states
       {$addFields: {'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}}}, // Find last state
       {$addFields: {'banTransitions': {"$eq" : [{$cond: {if: {$in: ['$x-meditor.state', meta.exclusiveStates]}, then: meta.user.uid, else: '' }}, {$arrayElemAt: [ "$x-meditor.states.modifiedBy", -1 ]}  ]}}}, // This computes whether a user can transition the edge if he is the modifiedBy of the current state 
-     
+      {$match: { 'x-meditor.deletedOn': { $exists: false } }},    // filter out "deleted" documents
+
       //{$match: {'x-meditor.state': {$in: returnableStates}, 'bannedTransition': false}}, // Filter states based on the role's source states
       //{$match: {'banTransitions': false}}, // Filter states based on the role's source states
     ];
@@ -375,6 +376,37 @@ async function saveDocument(client, request, document, model) {
   // publish document save
   let state = document['x-meditor'].states[document['x-meditor'].states.length - 1].target      
   await mUtils.publishToNats(document, that.model, state)
+}
+
+/**
+ * "deletes" a document by setting deletedOn/deletedBy properties and removing associated comments
+ */
+async function deleteDocument(client, model, title, user) {
+  if (!model || !title) throw new Error('Please provide a model and document title')
+
+  log.debug(`Handling delete document for ${model.name} - ${title}`)
+
+  try {
+    log.debug('Adding deleted properties to documents matching title')
+    await client.db(DbName).collection(model.name).updateMany({
+      [model.titleProperty]: title,
+      'x-meditor.deletedOn': {
+        $exists: false,
+      },
+    }, {
+      $set: {
+        'x-meditor.deletedOn': new Date().toISOString(),
+        'x-meditor.deletedBy': user,
+      }
+    })
+    
+    log.debug('Removing associated comments')
+    await client.db(DbName).collection('Comments').deleteMany({ documentId: title, model: model.name })
+
+    console.log(`Deleted ${model.name} document: ${title}`)
+  } catch (err) {
+    console.error('Failed to delete document ', err)
+  }
 }
 
 // ================================= Exported API functions =========================
@@ -773,7 +805,7 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
         .collection(that.params.model)
         .updateOne({_id: res._id}, {$set: {'x-meditor.states': newStatesArray}});
     })
-    .then(res => {
+    .then(() => {
       let shouldNotify =  _.get(that.currentEdge, 'notify', true) && that.readyNodes.indexOf(that.params.state) === -1;
 
       if ('notify' in request.query && (request.query.notify == "false" || request.query.notify == false)) {
@@ -786,9 +818,15 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
       return getModelContent(that.params.model, that.dbo.db(DbName))
     })
     .then(model => {
-      return mUtils.publishToNats(that.document, model, that.params.state)
+      mUtils.publishToNats(that.document, model, that.params.state)
+      return model
     })
-    .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
+    .then(model => {
+      if (that.params.state == 'Deleted') {
+        return deleteDocument(that.dbo, model, that.document[model.titleProperty], that.user.uid)
+      }
+    })
+    .then(() => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .catch(err => {
       try {that.dbo.close()} catch (e) {};
       handleError(response, err);
@@ -902,7 +940,10 @@ function findDocHistory (params) {
           query["x-meditor.modifiedOn"] = params.version;
         }
         query[titleField]=params.title;
-        
+
+        // filter out deleted documents
+        query["x-meditor.deletedOn"] = { $exists: false }
+
         dbo.collection(params.model)
           .find(query)
           .project({ _id:0 })

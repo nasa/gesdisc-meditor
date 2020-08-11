@@ -199,7 +199,7 @@ const EditDocumentPage = ({ user, version = null }) => {
 
     async function updateDocumentState(state) {
         await mEditorApi.changeDocumentState(modelName, documentTitle, state, documentResponse.data.version)
-        reloadDocument()
+        state == 'Deleted' ? router.push('/meditor/[modelName]', `/meditor/${modelName}`) : reloadDocument()
     }
 
     async function reloadComments() {
