@@ -1,21 +1,10 @@
 #!/usr/bin/env sh
 set -eu
 
-if [[ -n "${SERVER_HOST}" ]]; then
-    envsubst '${SERVER_HOST}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf.template
-fi
+SERVER_HOST="${SERVER_HOST:-meditor_server}" \
+UI_HOST="${UI_HOST:-meditor_ui}" \
+NATS_HOST="${NATS_HOST:-meditor_nats}" \
+MONITOR_HOST="${MONITOR_HOST:-meditor_monitor}" \
+envsubst '${SERVER_HOST} ${UI_HOST} ${NATS_HOST} ${MONITOR_HOST}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf;
 
-if [[ -n "${UI_HOST}" ]]; then
-    envsubst '${UI_HOST}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf.template
-fi
-
-if [[ -n "${NATS_HOST}" ]]; then
-    envsubst '${NATS_HOST}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf.template
-fi
-
-if [[ -n "${MONITOR_HOST}" ]]; then
-    envsubst '${MONITOR_HOST}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf.template
-fi
-
-cp /etc/nginx/nginx.conf.template /etc/nginx/nginx.conf
-nginx -g daemon off;
+nginx -g 'daemon off;';
