@@ -2,7 +2,7 @@ const nats = require('node-nats-streaming')
 
 const CLIENT_ID = 'stub-publisher'
 const CLUSTER_ID = process.env.MEDITOR_NATS_CLUSTER_ID || 'test-cluster'
-const SERVER = process.env.MEDITOR_NATS_SERVER || 'nats://localhost:4222'
+const SERVER = process.env.MEDITOR_NATS_SERVER || 'nats://meditor_nats:4222'
 
 const stan = nats.connect(CLUSTER_ID, CLIENT_ID, SERVER)
 

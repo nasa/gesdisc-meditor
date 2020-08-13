@@ -8,6 +8,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 RUN npm install
+RUN npm run build
 
 COPY . .
 
@@ -16,9 +17,7 @@ EXPOSE 4000
 
 CMD if [ "$NODE_ENV" = "production" ]; \
 	then \
-	npm run build && \
 	npm run start; \
 	else \
-	npm run build && \
 	npm run dev; \
 	fi

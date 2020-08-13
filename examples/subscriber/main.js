@@ -12,7 +12,7 @@ const USE_MANUAL_ACKNOWLEDGEMENTS = false
 
 // connection info
 const CLUSTER_ID = process.env.MEDITOR_NATS_CLUSTER_ID || 'test-cluster'
-const SERVER = process.env.MEDITOR_NATS_SERVER || 'nats://localhost:4222'
+const SERVER = process.env.MEDITOR_NATS_SERVER || 'nats://meditor_nats:4222'
 
 log.notice(`Attempting to connect client (${CLIENT_ID}) to NATS (Cluster: ${CLUSTER_ID}, Server: ${SERVER})`)
 

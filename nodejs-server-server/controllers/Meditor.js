@@ -14,7 +14,7 @@ var nats = require('./lib/nats-connection');
 var escape = require('mongo-escape').escape;
 var compile = require('monquery')
 
-var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
+var MongoUrl = process.env.MONGOURL || "mongodb://meditor_database:27017/";
 var DbName = "meditor";
 
 var SHARED_MODELS = ['Workflows', 'Users', 'Models'];

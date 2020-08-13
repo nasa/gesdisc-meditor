@@ -71,7 +71,7 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
       + he.decode(notificationTemplate),
     "link": {
         label: meta.params.title,
-        url: process.env.APP_UI_URL + "/" + module.exports.serializeParams(meta.params, ['model', 'title','version'])
+        url: process.env.APP_URL + "/" + module.exports.serializeParams(meta.params, ['model', 'title','version'])
     },
     "createdOn": (new Date()).toISOString()
   };
@@ -424,7 +424,7 @@ module.exports.actOnDocumentChanges = function actOnDocumentChanges(meta, DbName
 module.exports.testStub = function() {
   // var defaultStateName = "Unspecified";
   // var defaultState = {target: defaultStateName, source: defaultStateName, modifiedBy: 'Unknown', modifiedOn: (new Date()).toISOString()};
-  var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
+  var MongoUrl = process.env.MONGOURL || "mongodb://meditor_database:27017/";
   var MongoClient = mongo.MongoClient;
   MongoClient.connect(MongoUrl, function(err, db) {
     var DbName = "meditor";
@@ -441,7 +441,7 @@ module.exports.testStub = function() {
 };
 
 module.exports.testNATS = function() {
-  var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
+  var MongoUrl = process.env.MONGOURL || "mongodb://meditor_database:27017/";
   var MongoClient = mongo.MongoClient;
   MongoClient.connect(MongoUrl, function(err, db) {
     var DbName = "meditor";
