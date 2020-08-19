@@ -22,7 +22,7 @@ function getOldUrlMapping() {
 
     const oldUrlKey = Object.keys(OLD_URL_MAPPING).find((prefix) => window.location.hash.includes(prefix))
 
-    return oldUrlKey ? OLD_URL_MAPPING[oldUrlKey] : undefined    
+    return oldUrlKey ? OLD_URL_MAPPING[oldUrlKey] : undefined
 }
 
 /**
@@ -31,11 +31,12 @@ function getOldUrlMapping() {
  * @param props.pageProps if page is using getInitialProps, pageProps will contain those
  */
 const App = ({ Component, pageProps }) => {
-    const [ user, setUser ] = useState()
+    const [user, setUser] = useState()
     const router = useRouter()
 
     const isAuthenticated = typeof user !== 'undefined' && user != null
-    let canLoadPage = typeof user !== 'undefined' || router.pathname == '/'
+    const useLayout = router.pathname != '/installation'
+    let canLoadPage = typeof user !== 'undefined' || router.pathname == '/' || router.pathname == '/installation'
 
     const oldUrlMapping = getOldUrlMapping()
 
@@ -44,17 +45,21 @@ const App = ({ Component, pageProps }) => {
     if (oldUrlMapping) {
         canLoadPage = false
 
-        const hashObj: any = window.location.hash.split('?')[1].split('&').map(v => v.split("=")).reduce( (pre, [key, value]) => ({ ...pre, [key]: value }), {} )
-        
+        const hashObj: any = window.location.hash
+            .split('?')[1]
+            .split('&')
+            .map((v) => v.split('='))
+            .reduce((pre, [key, value]) => ({ ...pre, [key]: value }), {})
+
         let newUrl = oldUrlMapping
 
-        Object.keys(hashObj).forEach(key => newUrl.as = newUrl.as.replace(`{${key}}`, hashObj[key]))
+        Object.keys(hashObj).forEach((key) => (newUrl.as = newUrl.as.replace(`{${key}}`, hashObj[key])))
 
         console.log('using an old URL, redirect to new URL: ', JSON.stringify(newUrl))
 
         router.push(newUrl.href, newUrl.as)
     }
-   
+
     return (
         <>
             <Head>
@@ -66,24 +71,32 @@ const App = ({ Component, pageProps }) => {
                 <meta property="og:url" content="https://lb.gesdisc.eosdis.nasa.gov/meditor" />
 
                 <link rel="icon" type="image/x-icon" href="/meditor/favicon.ico" />
-            
+
                 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" />
             </Head>
 
             <Header user={user} isAuthenticated={isAuthenticated} />
 
             <AppStore>
-                <div className="container-fluid">
-                    <section className="page-container shadow-sm">
-                        {canLoadPage ? (
-                            <Component {...pageProps} user={user} isAuthenticated={isAuthenticated} />
-                        ) : (
-                            <></>
-                        )}
-                    </section>
-                </div>
+                {!useLayout && canLoadPage && (
+                    <Component {...pageProps} user={user} isAuthenticated={isAuthenticated} />
+                )}
 
-                <UserAuthentication onUserUpdate={setUser} user={user} isAuthenticated={isAuthenticated} />
+                {useLayout && (
+                    <div className="container-fluid">
+                        <section className="page-container shadow-sm">
+                            {canLoadPage ? (
+                                <Component {...pageProps} user={user} isAuthenticated={isAuthenticated} />
+                            ) : (
+                                <></>
+                            )}
+                        </section>
+                    </div>
+                )}
+
+                {router.pathname !== '/installation' && (
+                    <UserAuthentication onUserUpdate={setUser} user={user} isAuthenticated={isAuthenticated} />
+                )}
                 <Toast />
             </AppStore>
         </>

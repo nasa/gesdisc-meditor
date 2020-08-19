@@ -229,7 +229,7 @@ function getDocumentModelMetadata(dbo, request, paramsExtra) {
   that.modelRoles = _(that.roles).filter({model: that.params.model}).map('role').value();
   return getModelContent(that.params.model, dbo.db(DbName)) // The model should be pre-filled with Macro subs
     .then(res => {
-      if (_.isEmpty(res)) throw {message: 'Model for ' + that.params.model + ' not found', status: 400};
+      if (_.isEmpty(res)) throw {message: 'Model for ' + that.params.model + ' not found', status: 404};
       that.model = res;
       that.titleProperty = that.model['titleProperty'] || 'title';
     })

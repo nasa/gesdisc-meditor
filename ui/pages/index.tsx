@@ -1,4 +1,3 @@
-import { useQuery } from '@apollo/react-hooks'
 import PageTitle from '../components/page-title'
 import Router from 'next/router'
 import Button from 'react-bootstrap/Button'
@@ -25,16 +24,12 @@ export const MODEL_CATEGORIES_QUERY = gql`
     }
 `
 
-const DashboardPage = ({ user }) => {
-    const { loading, error, data } = useQuery(MODEL_CATEGORIES_QUERY)
-
-    if (error || loading) return <div></div>
-
+const DashboardPage = ({ modelCategories }) => {
     return (
         <div>
             <PageTitle title="" />
 
-            {data.modelCategories.map(category => (
+            {modelCategories?.map(category => (
                 <div key={category.name} className={styles.category}>
                     <h3>{category.name}</h3>
 
@@ -57,6 +52,31 @@ const DashboardPage = ({ user }) => {
             ))}
         </div>
     )
+}
+
+DashboardPage.getInitialProps = async (ctx) => {
+    let modelCategories
+
+    try {
+        let response = await ctx.apolloClient.query({
+            query: MODEL_CATEGORIES_QUERY,
+        })
+
+        modelCategories = response.data.modelCategories
+    } catch (err) {
+        if (err?.graphQLErrors?.[0].extensions?.response?.status == 404) {
+            // database hasn't been setup yet, redirect to installation page!
+            ctx.res.writeHead(301, {
+                Location: '/meditor/installation',
+            })
+    
+            ctx.res.end()
+        }
+    }
+
+    return {
+        modelCategories,
+    }
 }
 
 export default withApollo({ ssr: true })(DashboardPage)
