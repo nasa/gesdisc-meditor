@@ -12,6 +12,9 @@ import Col from 'react-bootstrap/Col'
 import ListGroup from 'react-bootstrap/ListGroup'
 import IconButton from '../components/jsonschemaform/components/IconButton'
 import { FaDatabase } from 'react-icons/fa'
+import mEditorApi from '../service/'
+import Loading from '../components/loading'
+import Alert from 'react-bootstrap/Alert'
 
 interface User {
     name: string
@@ -32,11 +35,12 @@ const QUERY = gql`
  * renders the install page ONLY if there aren't any models created yet (fresh install)
  */
 const InstallationPage = () => {
-    const [step, setStep] = useState(3)
-    const [maxSteps, setMaxSteps] = useState(3)
+    const [step, setStep] = useState(1)
+    const [maxSteps, setMaxSteps] = useState(1)
     const [users, setUsers] = useState<Array<User>>([])
     const [validated, setValidated] = useState<boolean>(false)
     const [newUser, setNewUser] = useState<User>(null)
+    const [setupState, setSetupState] = useState<'not started' | 'in progress' | 'failed' | 'success'>('not started')
 
     useEffect(() => {
         // show add user form by default
@@ -78,10 +82,22 @@ const InstallationPage = () => {
     }
 
     function removeUser(index) {
-        setUsers([
-            ...users.slice(0, index),
-            ...users.slice(index + 1),
-        ])
+        setUsers([...users.slice(0, index), ...users.slice(index + 1)])
+    }
+
+    async function runSetup() {
+        setSetupState('in progress')
+
+        try {
+            await mEditorApi.setup(users)
+            setTimeout(() => {
+                setSetupState('success')
+                goToStep(4)
+            }, 1000)
+        } catch (err) {
+            console.error('Failed to setup ', err)
+            setTimeout(() => setSetupState('failed'), 1000)
+        }
     }
 
     return (
@@ -137,9 +153,14 @@ const InstallationPage = () => {
                                 )}
 
                                 {users.map((user: User, index: number) => (
-                                    <ListGroup.Item key={user.uid} className="d-flex align-items-center justify-content-between">
-                                        <span>{user.name} ({user.uid})</span>
-                                        
+                                    <ListGroup.Item
+                                        key={user.uid}
+                                        className="d-flex align-items-center justify-content-between"
+                                    >
+                                        <span>
+                                            {user.name} ({user.uid})
+                                        </span>
+
                                         <IconButton alt="Remove User" onClick={() => removeUser(index)}>
                                             <MdDelete />
                                         </IconButton>
@@ -214,18 +235,55 @@ const InstallationPage = () => {
 
                     <Accordion.Collapse eventKey={'3'}>
                         <Card.Body>
-                            <p>We have everything we need to populate the database for the first time. We'll be adding the following to the database:</p>
+                            {(setupState == 'in progress' || setupState == 'success') && (
+                                <Loading text="Populating database...please wait" />
+                            )}
 
-                            <ul>
-                                <li>Base mEditor models (Models, Workflows, and Users)</li>
-                                <li>A workflow to start with: Modify-Review-Publish</li>
-                                <li>The {users.length} user(s) that you requested</li>
-                                <li>Two example models: News and News Categories</li>
-                            </ul>
+                            {setupState == 'failed' && (
+                                <Alert variant="danger">
+                                    <p>
+                                        Sorry, but something went wrong while we were trying to populate the database.
+                                    </p>
+                                    <p>Please review the server logs to resolve the issue, then try to run again.</p>
+                                </Alert>
+                            )}
 
-                            <Button variant="primary">
-                                <FaDatabase className="mr-2" />
-                                Populate Database
+                            {setupState == 'not started' && (
+                                <>
+                                    <p>
+                                        We have everything we need to populate the database for the first time. We'll be
+                                        adding the following to the database:
+                                    </p>
+
+                                    <ul>
+                                        <li>Base mEditor models: "Models", "Workflows", and "Users"</li>
+                                        <li>Two workflows to start with: "Edit-Review-Publish" and "Edit"</li>
+                                        <li>The {users.length} user(s) that you requested</li>
+                                        <li>An example model: "News"</li>
+                                    </ul>
+
+                                    <Button variant="primary" onClick={runSetup}>
+                                        <FaDatabase className="mr-2" />
+                                        Populate Database
+                                    </Button>
+                                </>
+                            )}
+                        </Card.Body>
+                    </Accordion.Collapse>
+                </Card>
+
+                <Card className={`shadow-sm mb-3 ${maxSteps < 4 ? 'd-none' : ''}`}>
+                    <Card.Header className={`${styles.cardHeader} ${step == 4 ? 'text-primary' : ''}`}>
+                        Setup Complete!
+                    </Card.Header>
+
+                    <Accordion.Collapse eventKey={'4'}>
+                        <Card.Body>
+                            <p>mEditor was successfully setup!</p>
+                            <p>You can login now and start using mEditor</p>
+
+                            <Button variant="primary" onClick={() => (window.location.href = '/meditor')}>
+                                Login to mEditor
                             </Button>
                         </Card.Body>
                     </Accordion.Collapse>
@@ -239,9 +297,14 @@ InstallationPage.getInitialProps = async (ctx) => {
     let models
 
     try {
-        let response = await ctx.apolloClient.query({
-            query: QUERY,
-        })
+        let response = await ctx.apolloClient.query(
+            {
+                query: QUERY,
+            },
+            {
+                fetchPolicy: 'network-only',
+            }
+        )
 
         models = response.data.models
     } catch (err) {
@@ -249,9 +312,9 @@ InstallationPage.getInitialProps = async (ctx) => {
     }
 
     // there are already models! redirect back to the dashboard
-    if (models && models.length <= 0) {
+    if (models && models.length > 0) {
         ctx.res.writeHead(301, {
-            Location: '/',
+            Location: '/meditor',
         })
 
         ctx.res.end()
