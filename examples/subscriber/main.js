@@ -2,8 +2,9 @@ import log from 'log'
 import nats from 'node-nats-streaming'
 require('log-node')()
 
-const CLIENT_ID = 'meditor_subscriber'          // change this to uniquely identify the subscriber
-const SUBSCRIBED_CHANNELS = ['meditor-FAQs']    // one or more channels to subscribe to
+const CLIENT_ID = 'meditor_example_subscriber'  // change this to uniquely identify the subscriber
+const SUBSCRIBED_CHANNELS = ['meditor-News']    // one or more channels to subscribe to
+const TARGET = "example"                        // some short identifier to describe where the document went (ex. "cmr")
 
 // By default, NATS auto acknowledges on delivery. Set this to true to manually acknowledge instead.
 // NATS will keep resending a message until you acknowledge you received it
@@ -65,11 +66,29 @@ function handleMessage(message) {
     try {
         //
         // Do something with the message here!
+        // For example: push a News item to an external API or publish a collection to CMR
         //
-        
+
+        // now you can send a success or failure acknowledgement back to mEditor
+        let exampleAcknowledgement = {
+            "time": Date.now().getTime(),
+            "id": message.id,
+            "model": message.model,
+            "target": TARGET,
+            "url": "https://disc.gsfc.nasa.gov/information/news?title=Example%20article",
+            "message": "Successfully published news article",
+            "statusCode": "200",
+        }
+
+        log.notice('Acknowledging: ', exampleAcknowledgement);
+
         if (USE_MANUAL_ACKNOWLEDGEMENTS) {
             message.ack()
         }
+
+        stan.publish('meditor-Acknowledge', JSON.stringify(exampleAcknowledgement), () => {
+            log.notice('Successfully published acknowledgement');
+        });
     } catch (err) {
         console.error('Failed to process message', err)
     }
