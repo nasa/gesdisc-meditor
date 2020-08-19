@@ -1,0 +1,209 @@
+[
+    {
+        "name": "Edit",
+        "roles": ["Author"],
+        "nodes": [
+            {
+                "id": "Init",
+                "privileges": [
+                    {
+                        "role": "Author",
+                        "privilege": ["create"]
+                    }
+                ],
+                "readyForUse": false
+            },
+            {
+                "id": "Draft",
+                "privileges": [
+                    {
+                        "role": "Author",
+                        "privilege": ["edit"]
+                    }
+                ],
+                "readyForUse": true
+            }
+        ],
+        "edges": [
+            {
+                "role": "Author",
+                "source": "Init",
+                "target": "Draft",
+                "label": "Add new"
+            }
+        ],
+        "x-meditor": {
+            "model": "Workflows",
+            "modifiedOn": "2020-01-01T00:00:00.000Z",
+            "modifiedBy": "system",
+            "states": [{ "source": "Init", "target": "Draft", "modifiedOn": "2020-00-00T00:00:00.000Z" }]
+        }
+    },
+    {
+        "roles": ["Author", "Reviewer", "Publisher", "Commenter"],
+        "nodes": [
+            {
+                "id": "Init",
+                "privileges": [
+                    {
+                        "role": "Author",
+                        "privilege": ["create"]
+                    }
+                ],
+                "readyForUse": false
+            },
+            {
+                "id": "Draft",
+                "privileges": [
+                    {
+                        "role": "Author",
+                        "privilege": ["edit", "comment"]
+                    },
+                    {
+                        "role": "Commenter",
+                        "privilege": ["comment"]
+                    }
+                ],
+                "readyForUse": false
+            },
+            {
+                "id": "Under Review",
+                "privileges": [
+                    {
+                        "role": "Author",
+                        "privilege": ["comment", "edit"]
+                    },
+                    {
+                        "role": "Reviewer",
+                        "privilege": ["comment"]
+                    },
+                    {
+                        "role": "Commenter",
+                        "privilege": ["comment"]
+                    }
+                ],
+                "readyForUse": false
+            },
+            {
+                "id": "Approved",
+                "privileges": [
+                    {
+                        "role": "Publisher",
+                        "privilege": ["comment"]
+                    }
+                ],
+                "readyForUse": false
+            },
+            {
+                "id": "Published",
+                "privileges": [
+                    {
+                        "role": "Publisher",
+                        "privilege": ["comment"]
+                    },
+                    {
+                        "role": "Author",
+                        "privilege": ["edit"]
+                    }
+                ],
+                "readyForUse": false
+            },
+            {
+                "id": "Hidden",
+                "privileges": [
+                    {
+                        "role": "Publisher",
+                        "privilege": ["comment"]
+                    },
+                    {
+                        "role": "Author",
+                        "privilege": ["edit"]
+                    }
+                ],
+                "readyForUse": false
+            },
+            {
+                "id": "Deleted"
+            }
+        ],
+        "edges": [
+            {
+                "role": "Author",
+                "source": "Init",
+                "target": "Draft",
+                "label": "Create",
+                "notify": false
+            },
+            {
+                "role": "Author",
+                "source": "Draft",
+                "target": "Under Review",
+                "label": "Submit for review",
+                "notify": true
+            },
+            {
+                "role": "Reviewer",
+                "source": "Under Review",
+                "target": "Draft",
+                "label": "Needs more work",
+                "notify": true
+            },
+            {
+                "role": "Reviewer",
+                "source": "Under Review",
+                "target": "Approved",
+                "label": "Approve publication",
+                "notify": true
+            },
+            {
+                "role": "Publisher",
+                "source": "Approved",
+                "target": "Published",
+                "label": "Publish",
+                "notify": true
+            },
+            {
+                "role": "Publisher",
+                "source": "Approved",
+                "target": "Under Review",
+                "label": "I don't like it!",
+                "notify": true
+            },
+            {
+                "role": "Publisher",
+                "source": "Published",
+                "target": "Hidden",
+                "label": "Un-publish",
+                "notify": true
+            },
+            {
+                "role": "Publisher",
+                "source": "Hidden",
+                "target": "Published",
+                "label": "Publish",
+                "notify": true
+            },
+            {
+                "label": "Delete",
+                "notify": false,
+                "role": "Publisher",
+                "source": "Draft",
+                "target": "Deleted"
+            },
+            {
+                "label": "Delete",
+                "notify": false,
+                "role": "Publisher",
+                "source": "Hidden",
+                "target": "Deleted"
+            }
+        ],
+        "name": "Modify-Review-Publish",
+        "x-meditor": {
+            "model": "Workflows",
+            "modifiedOn": "2020-01-01T00:00:00.000Z",
+            "modifiedBy": "system",
+            "states": [{ "source": "Init", "target": "Draft", "modifiedOn": "2020-00-00T00:00:00.000Z" }]
+        }
+    }
+]

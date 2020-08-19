@@ -1,0 +1,17 @@
+[
+    {
+        "x-meditor": {
+            "model": "News",
+            "modifiedOn": "2020-01-01T00:00:00.000Z",
+            "modifiedBy": "system",
+            "states": [{ "source": "Init", "target": "Draft", "modifiedOn": "2020-00-00T00:00:00.000Z" }]
+        },
+        "title": "Fay Slowly Moves, Dumping Rain on Florida",
+        "abstract": "As of this afternoon, around 2pm EST, Tropical Storm Fay increased wind speeds slightly to 60 mph and is located around 29.4 N, 80.8 W. The system is moving ever so slowly to the West/Northwest back to dumping more precipitation on the East and central areas of Florida. ...",
+        "body": "<h3><strong>Disclaimer:</strong></h3>\r\n\r\n<div style=\"background:#eeeeee; border:1px solid #cccccc; padding:5px 10px\">This article from the GES DISC News archive is available here as part of the public record of GES DISC activities. It is maintained for informational and historical reference. Links to defunct data sources and tools have been disabled. To find data in the current GES DISC archive system, go to the <a href=\"https://disc.gsfc.nasa.gov\">GES DISC home page</a>. For additional assistance in finding, accessing, and using data from the GES DISC, please <a href=\"contact\">contact us</a>. Questions of a scientific nature will receive expert assistance on the <a href=\"http://wiki.earthdata.nasa.gov/display/forums/Earthdata+Forums\" target=\"_blank\">Earthdata Forum</a>&nbsp;(requires an <a href=\"https://wiki.earthdata.nasa.gov/display/EL/How+To+Register+For+an+EarthData+Login+Profile\" target=\"_blank\">Earthdata login</a> username and password).</div>\r\n\r\n<p>&nbsp;</p>\r\n\r\n<p>As of this afternoon, around 2pm EST, Tropical Storm Fay increased wind speeds slightly to 60 mph and is located around 29.4 N, 80.8 W. The system is moving ever so slowly to the West/Northwest back to dumping more precipitation on the East and central areas of Florida. Tropical Strom Fay is moving very slowly, around 2 mph, so flooding is expected to continue across Florida with effects from the storm lasting through the weekend. We still need to keep an eye on what happens to the storm after it passes over Florida to see if it moves back over water or if it moves far enough in the Northwest direction to weaken. The image below is generated using the GES DISC TOVAS visualization tool for TRMM 3B42RT Accumulated Rainfall data (https://giovanni.gsfc.nasa.gov/giovanni/#service=TmAvMp&amp;starttime=&amp;endtime=&amp;dataKeyword=tovas).</p>\r\n\r\n<p>https://giovanni.gsfc.nasa.gov/giovanni/#service=TmAvMp&amp;starttime=&amp;endtime=&amp;dataKeyword=tovas</p>\r\n",
+        "type": "News",
+        "imageCaption": "No image available for the document",
+        "notes": "Imported from Plone http://disc.gsfc.nasa.gov/gesNews/fay-slowly-moves-dumping-rain-on-florida",
+        "image": "https://disc.gsfc.nasa.gov/media/image/829c9bf769e940738f6c6a987086b74b/5b6c83ed3f844a1c531b7d7e"
+    }
+]
