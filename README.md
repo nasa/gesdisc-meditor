@@ -1,12 +1,31 @@
-# Meditor
+# mEditor
 
-The Meditor stack is comprised of these projects:
+### Getting Started
 
-* Angular
-* Material Design
-* Node.js
-* Mongo
-* Swagger/OpenAPI
+* Clone the repo and `cd meditor`
+* Copy .env.example, create a **new file** called .env
+* Inside this file, you'll need to modify `AUTH_CLIENT_ID` and `AUTH_CLIENT_SECRET` with the real values (ask someone)
+* Build and run the app: `docker-compose up`
+* Once everything is up and running (may take a few minutes on the first run), you can access mEditor at: `http://localhost/meditor`
+
+### Running production
+
+All meditor images are stored in the registry: registry1.gesdisc.eosdis.nasa.gov
+
+Production mode doesn't use the .env file as described above, it uses environment variables.
+
+* `docker swarm init` (if not already part of a swarm)
+* `printf "ASK_SOMEONE_FOR_THIS" | docker secret create auth_host -`
+* `printf "ASK_SOMEONE_FOR_THIS" | docker secret create auth_client_id -`
+* `printf "ASK_SOMEONE_FOR_THIS" | docker secret create auth_client_secret -`
+* `printf "ASK_SOMEONE_FOR_THIS" | docker secret create UUI_AUTH_CLIENT_ID -`
+* `printf "ASK_SOMEONE_FOR_THIS" | docker secret create URS_USER -`
+* `printf "ASK_SOMEONE_FOR_THIS" | docker secret create URS_PASSWORD -`
+* `docker secret create PFX_FILE .svgsgesdisc.pfx` - you'll need to get this file, securely, from someone else
+* `docker secret create PFX_PASSPHRASE_FILE .pfxpass` - you'll need to get this file, securely, from someone else
+* `docker node ls` - copy node ID for next step
+* `docker node update --label-add database=primary {NODEID}`
+* `env HOST_NAME=``hostname`` docker stack deploy -c docker-compose.production.yml --with-registry-auth meditor`
 
 ### Subscribing to published documents
 
@@ -44,38 +63,6 @@ The clients are expected to publish an acknowledgement message into the 'meditor
 An example subscriber is located in `./examples/subscriber`. Run `npm install` then `npm run start` to see it in action.
 
 To "publish" a test document using the stub, run `node ./examples/subscriber/stubs/publish.js` in a separate terminal. You should see output in both the publisher stub and the subscriber.
-
-### Developing Locally
-
-The easiest way to get up and running is via Docker:
-
-* Clone this repo and do `cd meditor`.
-* Copy .env.example, create a **new file** called .env
-* Inside this file, you'll need to modify `AUTH_CLIENT_ID` and `AUTH_CLIENT_SECRET` with the real values (ask someone)
-* Build and run the app: `docker-compose up`
-* Access parts of the app on these ports:
-    * Frontend: [http://localhost:4000](http://localhost:4000)
-    * Node.js backend: [http://localhost:8081](http://localhost:8081)
-    * Mongo: [http://localhost:27017](http://localhost:27017)
-
-### Running production
-
-All meditor images are stored in the registry: registry1.gesdisc.eosdis.nasa.gov
-
-Production mode doesn't use the .env file as described above, it uses environment variables.
-
-* `docker swarm init` (if not already part of a swarm)
-* `printf "ASK_SOMEONE_FOR_THIS" | docker secret create auth_host -`
-* `printf "ASK_SOMEONE_FOR_THIS" | docker secret create auth_client_id -`
-* `printf "ASK_SOMEONE_FOR_THIS" | docker secret create auth_client_secret -`
-* `printf "ASK_SOMEONE_FOR_THIS" | docker secret create UUI_AUTH_CLIENT_ID -`
-* `printf "ASK_SOMEONE_FOR_THIS" | docker secret create URS_USER -`
-* `printf "ASK_SOMEONE_FOR_THIS" | docker secret create URS_PASSWORD -`
-* `docker secret create PFX_FILE .svgsgesdisc.pfx` - you'll need to get this file, securely, from someone else
-* `docker secret create PFX_PASSPHRASE_FILE .pfxpass` - you'll need to get this file, securely, from someone else
-* `docker node ls` - copy node ID for next step
-* `docker node update --label-add database=primary {NODEID}`
-* `env HOST_NAME=``hostname`` docker stack deploy -c docker-compose.production.yml --with-registry-auth meditor`
 
 ### Releasing a new version
 

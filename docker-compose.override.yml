@@ -42,7 +42,7 @@ services:
     volumes:
       - ./data:/data/db
     ports:
-      - "27017:27017"
+      - "27018:27017"
 
   nats:
     container_name: meditor_nats
