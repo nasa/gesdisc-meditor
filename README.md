@@ -10,6 +10,12 @@
 * Once everything is up and running (may take a few minutes on the first run), you can access mEditor at: `http://localhost/meditor`
 * The first time you load mEditor, it will take you through a step-by-step for setting up the database and initial users.
 
+### Developing in mEditor
+
+* In development, you can make changes in most of the service folders and the service will restart with your changes applied.
+* Out of the box, your IDE will show errors for dependencies and will be missing autocompletion for dependencies. This is due to Docker installing dependencies inside the container, inaccessible to the host. To fix this, you can run `npm install` inside whichever service folder you are working on.
+* Please create a branch for your changes and when you are finished, create a pull request to have them reviewed and merged in.
+
 ### Subscribing to document state changes
 
 When a document in mEditor moves through a workflow (ex. moves to Draft, moves to Published, etc.), mEditor puts that document into a queue (NATS) that can be subscribed to by an external service.

@@ -59,7 +59,7 @@ function getDurableSubscriptionToChannel(channel) {
  * @param {*} message 
  */
 function handleMessage(message) {
-    const parsedMessage = JSON.parse(message.getData())
+    let parsedMessage = JSON.parse(message.getData())
 
     log.debug('Message received, processing now ', parsedMessage)
 
@@ -69,11 +69,16 @@ function handleMessage(message) {
         // For example: push a News item to an external API or publish a collection to CMR
         //
 
+        // fix an issue with older version of mEditor where message was encoded twice
+        if (typeof parsedMessage === 'string') {
+            parsedMessage = JSON.parse(parsedMessage)
+        }
+
         // now you can send a success or failure acknowledgement back to mEditor
         let exampleAcknowledgement = {
-            "time": Date.now().getTime(),
-            "id": message.id,
-            "model": message.model,
+            "time": (new Date()).getTime(),
+            "id": parsedMessage.id,
+            "model": parsedMessage.document['x-meditor'].model,
             "target": TARGET,
             "url": "https://example-website.nasa.gov/news?title=Example%20news%20article",
             "message": "Successfully published news article",
