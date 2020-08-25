@@ -620,7 +620,7 @@ module.exports.setup = async function(request, response) {
     }
 
     // prep users for insert
-    let roles = ["Models", "Workflows", "Users", "News"].map(model => ({ model, role: "Author" }))
+    let roles = ["Models", "Workflows", "Users", "Example News"].map(model => ({ model, role: "Author" }))
     let users = request.body.map(user => ({
       id: user.uid,
       name: user.name,
@@ -639,12 +639,12 @@ module.exports.setup = async function(request, response) {
     // read in seed data
     let models = JSON.parse(await readFile(__dirname + '/../db-seed/models.json'))
     let workflows = JSON.parse(await readFile(__dirname + '/../db-seed/workflows.json'))
-    let news = JSON.parse(await readFile(__dirname + '/../db-seed/news.json'))
+    let news = JSON.parse(await readFile(__dirname + '/../db-seed/example-news.json'))
 
     // insert seed data
     await client.db(DbName).collection('Models').insertMany(models)
     await client.db(DbName).collection('Workflows').insertMany(workflows)
-    await client.db(DbName).collection('News').insertMany(news)
+    await client.db(DbName).collection('Example News').insertMany(news)
    
     handleSuccess(response, {})
   } catch (err) {

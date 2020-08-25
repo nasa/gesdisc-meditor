@@ -259,7 +259,7 @@ const InstallationPage = () => {
                                         <li>Base mEditor models: "Models", "Workflows", and "Users"</li>
                                         <li>Two workflows to start with: "Edit-Review-Publish" and "Edit"</li>
                                         <li>The {users.length} user(s) that you requested</li>
-                                        <li>An example model: "News"</li>
+                                        <li>An example model: "Example News"</li>
                                     </ul>
 
                                     <Button variant="primary" onClick={runSetup}>
