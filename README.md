@@ -6,6 +6,7 @@
 * Copy .env.example, create a **new file** called .env
 * mEditor uses Earthdata Login for authentication, so you will need to update `AUTH_CLIENT_ID` and `AUTH_CLIENT_SECRET` in your .env with the values for your client application.
 * Build and run the app: `docker-compose up`
+  * NOTE: you will see a warning about REGISTRY variable is not set. You can safely ignore this. If you'd like to use a private registry you can set this ENV variable. 
 * Once everything is up and running (may take a few minutes on the first run), you can access mEditor at: `http://localhost/meditor`
 * The first time you load mEditor, it will take you through a step-by-step for setting up the database and initial users.
 

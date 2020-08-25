@@ -15,6 +15,7 @@ services:
       - .env
     volumes:
       - ./notifier:/usr/src/app
+      - ./notifier/node_modules:/usr/src/app/node_modules
  
   ui:
     container_name: meditor_ui
@@ -25,7 +26,7 @@ services:
       - "4000:4000"
     volumes:
       - ./ui:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./ui/node_modules:/usr/src/app/node_modules
   
   server:
     container_name: meditor_server
@@ -35,7 +36,7 @@ services:
       - .env
     volumes:
       - ./nodejs-server-server:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./nodejs-server-server:/node_modules:/usr/src/app/node_modules
 
   database:
     container_name: meditor_database
@@ -63,4 +64,4 @@ services:
       - .env
     volumes:
       - ./examples/subscriber:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./examples/subscriber/node_modules:/usr/src/app/node_modules
