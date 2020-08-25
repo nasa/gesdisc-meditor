@@ -4,33 +4,16 @@
 
 * Clone the repo and `cd meditor`
 * Copy .env.example, create a **new file** called .env
-* Inside this file, you'll need to modify `AUTH_CLIENT_ID` and `AUTH_CLIENT_SECRET` with the real values (ask someone)
+* mEditor uses Earthdata Login for authentication, so you will need to update `AUTH_CLIENT_ID` and `AUTH_CLIENT_SECRET` in your .env with the values for your client application.
 * Build and run the app: `docker-compose up`
 * Once everything is up and running (may take a few minutes on the first run), you can access mEditor at: `http://localhost/meditor`
+* The first time you load mEditor, it will take you through a step-by-step for setting up the database and initial users.
 
-### Running production
+### Subscribing to document state changes
 
-All meditor images are stored in the registry: registry1.gesdisc.eosdis.nasa.gov
+When a document in mEditor moves through a workflow (ex. moves to Draft, moves to Published, etc.), mEditor puts that document into a queue (NATS) that can be subscribed to by an external service.
 
-Production mode doesn't use the .env file as described above, it uses environment variables.
-
-* `docker swarm init` (if not already part of a swarm)
-* `printf "ASK_SOMEONE_FOR_THIS" | docker secret create auth_host -`
-* `printf "ASK_SOMEONE_FOR_THIS" | docker secret create auth_client_id -`
-* `printf "ASK_SOMEONE_FOR_THIS" | docker secret create auth_client_secret -`
-* `printf "ASK_SOMEONE_FOR_THIS" | docker secret create UUI_AUTH_CLIENT_ID -`
-* `printf "ASK_SOMEONE_FOR_THIS" | docker secret create URS_USER -`
-* `printf "ASK_SOMEONE_FOR_THIS" | docker secret create URS_PASSWORD -`
-* `docker secret create PFX_FILE .svgsgesdisc.pfx` - you'll need to get this file, securely, from someone else
-* `docker secret create PFX_PASSPHRASE_FILE .pfxpass` - you'll need to get this file, securely, from someone else
-* `docker node ls` - copy node ID for next step
-* `docker node update --label-add database=primary {NODEID}`
-* `env HOST_NAME=``hostname`` docker stack deploy -c docker-compose.production.yml --with-registry-auth meditor`
-
-### Subscribing to published documents
-
-mEditor pushes published documents into a queue (NATS) that can be subscribed to by an external service.
-Each document type has its own queue, e.g., 'meditor-News' for News and so on.
+A queue is created for each model. For example, documents in the `Example News` model would be pushed to the `meditor-Example-News` queue.
 
 A document in the queue will look similar to this example:
 
@@ -39,38 +22,25 @@ A document in the queue will look similar to this example:
     "id": "",
     "document": {...},
     "model": {...},
-    "target": "uui",            # (optional) if included, this message is only meant for a certain subscriber
+    "target": "example",            # (optional) if included, this message is only meant for a certain subscriber
     "state": "Under Review",
     "time": 1580324162703
 }
 ```
 
-The clients are expected to publish an acknowledgement message into the 'meditor-Acknowledgement' queue:
+The clients are expected to publish an acknowledgement message into the 'meditor-Acknowledgement' queue, with this form:
 
 ```json
 {
     "time": 1580324162703,
-    "id": "Example article",
-    "model": "News",
-    "target": "uui",
-    "url": "https://disc.gsfc.nasa.gov/information/news?title=Example%20article",
-    "message": "Success!",
-    "statusCode": "200",
+    "id": "",                       # the document ID, send this back so mEditor knows which document to update
+    "model": "Example News",        # the model namm
+    "target": "example",            # the website/application that handled the document
+    "url": "https://example.nasa.gov/news?title=Example%20article",     # an optional URL the document was published to
+    "message": "Success!",          # a message to show the user in mEditor (could include a list of errors for failures)
+    "statusCode": "200",            # status code to notify mEditor of success vs failure to publish
     "state": "Under Review"
 }
 ```
 
-An example subscriber is located in `./examples/subscriber`. Run `npm install` then `npm run start` to see it in action.
-
-To "publish" a test document using the stub, run `node ./examples/subscriber/stubs/publish.js` in a separate terminal. You should see output in both the publisher stub and the subscriber.
-
-### Releasing a new version
-
-`./release.sh`
-
-* Builds fresh Docker images
-* Bumps the minor version number (i.e. 0.1.0 -> 0.2.0)
-* Updates the UI to display the new version
-* Updates the docker-compose.production.yml to use the new version
-* Git commits and pushes the version changes
-* Pushes the new Docker images to the registry
+An example subscriber is located in `./examples/subscriber` and shows how to subscribe to a specific model and how to send acknowledgements back to mEditor.
