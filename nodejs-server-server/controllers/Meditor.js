@@ -866,7 +866,14 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
         shouldNotify = false
       }
 
-      return shouldNotify ? mUtils.notifyOfStateChange(DbName, that) : Promise.resolve();
+      if (shouldNotify) {
+        try {
+          mUtils.notifyOfStateChange(DbName, that)
+        } catch (err) {
+          // log the error, but failure to notify should NOT stop the document from changing state
+          console.error(err)
+        }
+      }
     })
     .then(() => {
       return getModelContent(that.params.model, that.dbo.db(DbName))
