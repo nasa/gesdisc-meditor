@@ -69,9 +69,14 @@ DashboardPage.getInitialProps = async (ctx) => {
             ctx.res.writeHead(301, {
                 Location: '/meditor/installation',
             })
-    
-            ctx.res.end()
+        } else {
+            // something else went wrong, redirect to the maintenance page
+            ctx.res.writeHead(301, {
+                Location: '/meditor/maintenance',
+            })
         }
+
+        ctx.res.end()
     }
 
     return {

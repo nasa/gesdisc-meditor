@@ -308,7 +308,11 @@ InstallationPage.getInitialProps = async (ctx) => {
 
         models = response.data.models
     } catch (err) {
-        // swallow the error, we actually WANT this query to error, since that means there are no models in the DB
+        // something went wrong...send to maintenance page
+        ctx.res.writeHead(301, {
+            Location: '/meditor/maintenance',
+        })
+        ctx.res.end()
     }
 
     // there are already models! redirect back to the dashboard

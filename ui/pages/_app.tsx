@@ -36,7 +36,7 @@ const App = ({ Component, pageProps }) => {
 
     const isAuthenticated = typeof user !== 'undefined' && user != null
     const useLayout = router.pathname != '/installation'
-    let canLoadPage = typeof user !== 'undefined' || router.pathname == '/' || router.pathname == '/installation'
+    let canLoadPage = typeof user !== 'undefined' || router.pathname == '/' || router.pathname == '/installation' || router.pathname == '/maintenance'
 
     const oldUrlMapping = getOldUrlMapping()
 
@@ -94,7 +94,7 @@ const App = ({ Component, pageProps }) => {
                     </div>
                 )}
 
-                {router.pathname !== '/installation' && (
+                {(router.pathname !== '/installation' && router.pathname !== '/maintenance') && (
                     <UserAuthentication onUserUpdate={setUser} user={user} isAuthenticated={isAuthenticated} />
                 )}
                 <Toast />
