@@ -44,3 +44,5 @@ The clients are expected to publish an acknowledgement message into the 'meditor
 ```
 
 An example subscriber is located in `./examples/subscriber` and shows how to subscribe to a specific model and how to send acknowledgements back to mEditor.
+
+The built-in notifier, which sends emails to users, is also a subscriber. The notifier subscribes to the `meditor-notifications` queue.
