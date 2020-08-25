@@ -3,7 +3,6 @@ version: "3.3"
 services:
 
   proxy:
-    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_proxy:0.34.0
     ports:
       - "80:8080"
     depends_on:
@@ -13,34 +12,33 @@ services:
       - database
 
   notifier:
-    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_notifier:0.37.0
     depends_on:
       - nats
 
   ui:
-    image: registry1.gesdisc.eosfdis.nasa.gov/meditor/meditor_ui:0.61.0
+    depends_on:
+      - server
     
   server:
-    image: registry1.gesdisc.eosdis.nasa.gov/meditor/meditor_server:0.54.0
     depends_on:
       - database
       - nats
 
   database:
-    image: registry1.gesdisc.eosdis.nasa.gov/certified/mongo:4.1.4
+    image: ${REGISTRY}mongo:4.1.4
 
   nats:
-    image: nats-streaming:0.15.1
+    image: ${REGISTRY}nats-streaming:0.15.1
 
   monitor:
-    image: portainer/portainer:1.20.0
+    image: ${REGISTRY}portainer/portainer:1.20.0
     command: -H unix:///var/run/docker.sock
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - monitor_data:/data
 
   agent:
-    image: portainer/agent:1.1.2
+    image: ${REGISTRY}portainer/agent:1.1.2
     environment:
       AGENT_CLUSTER_ADDR: tasks.agent
     volumes:
