@@ -65,6 +65,8 @@ DashboardPage.getInitialProps = async (ctx) => {
         modelCategories = response.data.modelCategories
     } catch (err) {
         if (err?.graphQLErrors?.[0].extensions?.response?.status == 404) {
+            console.log('Models have not been setup yet! Sending user to installation page')
+            
             // database hasn't been setup yet, redirect to installation page!
             ctx.res.writeHead(301, {
                 Location: '/meditor/installation',

@@ -308,11 +308,15 @@ InstallationPage.getInitialProps = async (ctx) => {
 
         models = response.data.models
     } catch (err) {
-        // something went wrong...send to maintenance page
-        ctx.res.writeHead(301, {
-            Location: '/meditor/maintenance',
-        })
-        ctx.res.end()
+        if (err?.graphQLErrors?.[0].extensions?.response?.status == 404) {
+            // ignore this error, we're expecting a 404 on the installation page
+        } else {
+            // something else went wrong, redirect to the maintenance page
+            ctx.res.writeHead(301, {
+                Location: '/meditor/maintenance',
+            })
+            ctx.res.end()
+        }
     }
 
     // there are already models! redirect back to the dashboard
