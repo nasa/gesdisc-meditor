@@ -71,7 +71,7 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
       + he.decode(notificationTemplate),
     "link": {
         label: meta.params.title,
-        url: process.env.APP_UI_URL + "/" + module.exports.serializeParams(meta.params, ['model', 'title','version'])
+        url: process.env.APP_URL + "/" + module.exports.serializeParams(meta.params, ['model', 'title','version'])
     },
     "createdOn": (new Date()).toISOString()
   };
@@ -419,41 +419,3 @@ module.exports.actOnDocumentChanges = function actOnDocumentChanges(meta, DbName
   if (doc["x-meditor"]["model"] === 'Models') return handleModelChanges(meta, DbName, doc);
   return Promise.resolve();
 };
-
-// This is used for developing / testing purposes
-module.exports.testStub = function() {
-  // var defaultStateName = "Unspecified";
-  // var defaultState = {target: defaultStateName, source: defaultStateName, modifiedBy: 'Unknown', modifiedOn: (new Date()).toISOString()};
-  var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
-  var MongoClient = mongo.MongoClient;
-  MongoClient.connect(MongoUrl, function(err, db) {
-    var DbName = "meditor";
-    if (err) {
-      console.log(err);
-      throw err;
-    }
-    var dbo = db;
-    var meta = {
-      dbo: dbo
-    }
-    module.exports.actOnDocumentChanges(meta, DbName, {name: 'News', 'x-meditor': {model: 'Models'}});
-  });
-};
-
-module.exports.testNATS = function() {
-  var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
-  var MongoClient = mongo.MongoClient;
-  MongoClient.connect(MongoUrl, function(err, db) {
-    var DbName = "meditor";
-    if (err) {
-      console.log(err);
-      throw err;
-    }
-    var dbo = db;
-    var meta = {
-      dbo: dbo
-    }
-});
-};
-
-module.exports.testNATS();

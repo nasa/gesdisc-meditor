@@ -9,22 +9,17 @@ var session = require('express-session');
 var SessionStore = require('connect-mongodb-session')(session);
 var OAuth2Strategy = require('passport-oauth2').Strategy;
 var CustomStrategy = require('passport-custom').Strategy;
-var csrf = require('csurf');
 var utils = require('../utils/writer.js');
-var swaggerTools = require('swagger-tools');
 var fs = require('fs');
 var HttpsProxyAgent = require('https-proxy-agent');
 
 var MongoClient = require('mongodb').MongoClient;
-var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
+var MongoUrl = process.env.MONGOURL || "mongodb://meditor_database:27017/";
 var DbName = "meditor";
 var USERS_COLLECTION_URS = 'users-urs';
 var USERS_COLLECTION_MEDITOR = 'Users';
 
-var ENV_CONFIG = {
-  APP_URL: process.env.APP_URL || 'http://localhost:8081',
-  APP_UI_URL: process.env.APP_UI_URL || process.env.APP_URL || 'http://localhost:8081',
-};
+var APP_URL = process.env.APP_URL || 'http://localhost/meditor'
 
 function fromSecretOrEnv(key) {
   var SECRETS_DIR = '/run/secrets/';
@@ -153,7 +148,7 @@ let oauth2Strategy = new OAuth2Strategy({
   tokenURL: AUTH_PROTOCOL + '//' + AUTH_CONFIG.HOST + '/oauth/token',
   clientID: AUTH_CONFIG.CLIENT_ID,
   clientSecret: AUTH_CONFIG.CLIENT_SECRET,
-  callbackURL: ENV_CONFIG.APP_URL + '/meditor/api/login',
+  callbackURL: APP_URL + '/api/login',
   customHeaders: {
     Authorization: new Buffer(AUTH_CONFIG.CLIENT_ID + ':' + AUTH_CONFIG.CLIENT_SECRET).toString('base64')
   }
@@ -236,7 +231,7 @@ function impersonateUser(req, res, next) {
               }, 500)
           } else {
               res.writeHead(301, {
-                  Location: ENV_CONFIG.APP_UI_URL + '/login',
+                  Location: APP_URL + '/login',
               })
               res.end()
           }
@@ -269,7 +264,7 @@ module.exports.login = function login(req, res, next) {
         }
 
         res.writeHead(301, {
-          Location: ENV_CONFIG.APP_UI_URL + '/login'
+          Location: APP_URL + '/login'
         });
         
         res.end();
@@ -282,7 +277,7 @@ module.exports.login = function login(req, res, next) {
           }, 500);
         } else {
           res.writeHead(301, {
-            Location: ENV_CONFIG.APP_UI_URL + '/login'
+            Location: APP_URL + '/login'
           });
           res.end();
         }*/
@@ -303,7 +298,7 @@ module.exports.logout = function logout(req, res, next) {
   // };
   // if (outCookies.length > 0) res.setHeader('Set-Cookie', outCookies);
   res.writeHead(301, {
-    Location: ENV_CONFIG.APP_UI_URL
+    Location: APP_URL
   });
   res.end();
 };

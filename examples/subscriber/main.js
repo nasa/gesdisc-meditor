@@ -2,8 +2,9 @@ import log from 'log'
 import nats from 'node-nats-streaming'
 require('log-node')()
 
-const CLIENT_ID = 'meditor_subscriber'          // change this to uniquely identify the subscriber
-const SUBSCRIBED_CHANNELS = ['meditor-FAQs']    // one or more channels to subscribe to
+const CLIENT_ID = 'meditor_example_subscriber'      // change this to uniquely identify the subscriber
+const SUBSCRIBED_CHANNELS = ['meditor-Example-News']    // one or more channels to subscribe to
+const TARGET = "example"                        // some short identifier to describe where the document went (ex. "cmr")
 
 // By default, NATS auto acknowledges on delivery. Set this to true to manually acknowledge instead.
 // NATS will keep resending a message until you acknowledge you received it
@@ -12,7 +13,7 @@ const USE_MANUAL_ACKNOWLEDGEMENTS = false
 
 // connection info
 const CLUSTER_ID = process.env.MEDITOR_NATS_CLUSTER_ID || 'test-cluster'
-const SERVER = process.env.MEDITOR_NATS_SERVER || 'nats://localhost:4222'
+const SERVER = process.env.MEDITOR_NATS_SERVER || 'nats://meditor_nats:4222'
 
 log.notice(`Attempting to connect client (${CLIENT_ID}) to NATS (Cluster: ${CLUSTER_ID}, Server: ${SERVER})`)
 
@@ -58,18 +59,41 @@ function getDurableSubscriptionToChannel(channel) {
  * @param {*} message 
  */
 function handleMessage(message) {
-    const parsedMessage = JSON.parse(message.getData())
+    let parsedMessage = JSON.parse(message.getData())
 
     log.debug('Message received, processing now ', parsedMessage)
 
     try {
         //
         // Do something with the message here!
+        // For example: push a News item to an external API or publish a collection to CMR
         //
-        
+
+        // fix an issue with older version of mEditor where message was encoded twice
+        if (typeof parsedMessage === 'string') {
+            parsedMessage = JSON.parse(parsedMessage)
+        }
+
+        // now you can send a success or failure acknowledgement back to mEditor
+        let exampleAcknowledgement = {
+            "time": (new Date()).getTime(),
+            "id": parsedMessage.id,
+            "model": parsedMessage.document['x-meditor'].model,
+            "target": TARGET,
+            "url": "https://example-website.nasa.gov/news?title=Example%20news%20article",
+            "message": "Successfully published news article",
+            "statusCode": "200",
+        }
+
+        log.notice('Acknowledging: ', exampleAcknowledgement);
+
         if (USE_MANUAL_ACKNOWLEDGEMENTS) {
             message.ack()
         }
+
+        stan.publish('meditor-Acknowledge', JSON.stringify(exampleAcknowledgement), () => {
+            log.notice('Successfully published acknowledgement');
+        });
     } catch (err) {
         console.error('Failed to process message', err)
     }

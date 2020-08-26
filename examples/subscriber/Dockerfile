@@ -16,5 +16,3 @@ CMD if [ "$NODE_ENV" = "production" ]; \
 	else \
     npm run dev; \
 	fi
-
-EXPOSE 8081

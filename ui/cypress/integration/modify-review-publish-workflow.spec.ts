@@ -2,7 +2,7 @@
 
 const LoremIpsum = require("lorem-ipsum").LoremIpsum
 
-const TEST_MODEL = 'News'
+const TEST_MODEL = 'Example News'
 const AUTHOR_UID = 'andyauthor'
 const REVIEWER_UID = 'joereviewer'
 const PUBLISHER_UID = 'pattypublisher'

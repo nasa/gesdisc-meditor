@@ -56,12 +56,16 @@ const SearchStatusBar = ({
 
     const states =
         data?.model?.workflow?.nodes
-            ?.filter((node) => node.id !== 'Init')
+            ?.filter((node) => node.id !== 'Init' && node.id !== 'Deleted')
             .map((node) => node.id)
             .sort() || []
 
     // find fields in the layout that are marked as filters
-    let filterFields = pickby(layout, (field) => 'ui:filter' in field)
+    let filterFields = []
+
+    try {
+        filterFields = pickby(layout, (field) => 'ui:filter' in field)
+    } catch(err) {}
 
     // retrieve the schema information for the field
     Object.keys(filterFields).forEach((field) => {

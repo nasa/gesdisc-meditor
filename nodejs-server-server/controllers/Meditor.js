@@ -13,8 +13,12 @@ var Validator = require('jsonschema').Validator;
 var nats = require('./lib/nats-connection');
 var escape = require('mongo-escape').escape;
 var compile = require('monquery')
+var fs = require('fs')
+var { promisify } = require('util')
 
-var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
+const readFile = promisify(fs.readFile)
+
+var MongoUrl = process.env.MONGOURL || "mongodb://meditor_database:27017/";
 var DbName = "meditor";
 
 var SHARED_MODELS = ['Workflows', 'Users', 'Models'];
@@ -229,7 +233,7 @@ function getDocumentModelMetadata(dbo, request, paramsExtra) {
   that.modelRoles = _(that.roles).filter({model: that.params.model}).map('role').value();
   return getModelContent(that.params.model, dbo.db(DbName)) // The model should be pre-filled with Macro subs
     .then(res => {
-      if (_.isEmpty(res)) throw {message: 'Model for ' + that.params.model + ' not found', status: 400};
+      if (_.isEmpty(res)) throw {message: 'Model for ' + that.params.model + ' not found', status: 404};
       that.model = res;
       that.titleProperty = that.model['titleProperty'] || 'title';
     })
@@ -601,6 +605,56 @@ module.exports.putDocument = function putDocument (request, response, next) {
     });
 };
 
+// Exported method to setup mEditor for the first time
+module.exports.setup = async function(request, response) {
+  console.log('Request to setup mEditor received ', request.body)
+
+  let client = new MongoClient(MongoUrl)
+
+  await client.connect()
+
+  try {
+    // verify that there are no models yet
+    if (await client.db(DbName).collection("Models").find().count() > 0) {
+      throw new Error('mEditor has already been setup')
+    }
+
+    // prep users for insert
+    let roles = ["Models", "Workflows", "Users", "Example News"].map(model => ({ model, role: "Author" }))
+    let users = request.body.map(user => ({
+      id: user.uid,
+      name: user.name,
+      roles,
+      "x-meditor": {
+        model: "Users",
+        modifiedOn: (new Date()).toISOString(),
+        modifiedBy: "system",
+        states: [{ source: "Init", target: "Draft", modifiedOn: (new Date()).toISOString() }]
+      }
+    }))
+
+    // insert users
+    await client.db(DbName).collection('Users').insertMany(users)    
+
+    // read in seed data
+    let models = JSON.parse(await readFile(__dirname + '/../db-seed/models.json'))
+    let workflows = JSON.parse(await readFile(__dirname + '/../db-seed/workflows.json'))
+    let news = JSON.parse(await readFile(__dirname + '/../db-seed/example-news.json'))
+
+    // insert seed data
+    await client.db(DbName).collection('Models').insertMany(models)
+    await client.db(DbName).collection('Workflows').insertMany(workflows)
+    await client.db(DbName).collection('Example News').insertMany(news)
+   
+    handleSuccess(response, {})
+  } catch (err) {
+    console.error(err)
+    handleError(response, err)
+  } finally {
+    await client.close()
+  }
+}
+
 // Exported method to clone a document
 module.exports.cloneDocument = async function(request, response, next) {
   let client = new MongoClient(MongoUrl)
@@ -812,7 +866,14 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
         shouldNotify = false
       }
 
-      return shouldNotify ? mUtils.notifyOfStateChange(DbName, that) : Promise.resolve();
+      if (shouldNotify) {
+        try {
+          mUtils.notifyOfStateChange(DbName, that)
+        } catch (err) {
+          // log the error, but failure to notify should NOT stop the document from changing state
+          console.error(err)
+        }
+      }
     })
     .then(() => {
       return getModelContent(that.params.model, that.dbo.db(DbName))
