@@ -1,7 +1,11 @@
 ARG REGISTRY
 FROM ${REGISTRY}nginx:1.14.0-alpine
 
-COPY nginx.conf /etc/nginx/nginx.conf
+WORKDIR /
 
-CMD /docker-entrypoint.sh
+COPY . .
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]
+
 EXPOSE 8080
