@@ -13,10 +13,7 @@ module.exports.publishToNats = function publishToNats(document, model, state = '
   let modelName = typeof model === 'string' ? model : model.name
   let channelName = NATS_QUEUE_PREFIX + modelName.replace(/ /g, '-')
 
-  document.target = 'uui'        // TODO: alter uui-subscriber to ignore target then this can be removed
-
-  // TODO: remove this stringify, need to update subscribers to remove the double JSON parse
-  let message = JSON.stringify({
+  let message = {
     id: document._id,
     document,
     model: {
@@ -24,7 +21,7 @@ module.exports.publishToNats = function publishToNats(document, model, state = '
     },
     state,
     time: Date.now(),
-  })
+  }
 
   console.log(`Publishing message to channel ${channelName}: `, message)
 
@@ -403,7 +400,7 @@ function handleModelChanges(meta, DbName, modelDoc) {
     .then(function(res) {
       console.log('Done updating state history for documents in ' + modelDoc.name);
       // Re-publish documents as necessary, since some of the states could have changed
-      return exports.publishToNats(modelDoc, modelDoc.name); // Take an opportunity to sync with UUI
+      return exports.publishToNats(modelDoc, modelDoc.name);
     })
     .catch(function(e) {
       if (_.isObject(e) && e.result) {

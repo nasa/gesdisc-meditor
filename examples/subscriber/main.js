@@ -69,11 +69,6 @@ function handleMessage(message) {
         // For example: push a News item to an external API or publish a collection to CMR
         //
 
-        // fix an issue with older version of mEditor where message was encoded twice
-        if (typeof parsedMessage === 'string') {
-            parsedMessage = JSON.parse(parsedMessage)
-        }
-
         // now you can send a success or failure acknowledgement back to mEditor
         let exampleAcknowledgement = {
             "time": (new Date()).getTime(),

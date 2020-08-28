@@ -51,12 +51,12 @@ require('oauth').OAuth2.prototype.getOAuthAccessToken = function (code, params, 
   var accessToken;
   var refreshToken;
   params = params || {};
-  // Start of UUI customization
+  // Start of customization
   if (!('Authorization' in this._customHeaders)) {
     params.client_id = this._clientId;
     params.client_secret = this._clientSecret;
   }
-  // End of UUI customization
+  // End of customization
   codeParam = (params.grant_type === 'refresh_token') ? 'refresh_token' : 'code';
   params[codeParam] = code;
   postData = querystring.stringify(params);
