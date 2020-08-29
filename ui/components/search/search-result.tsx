@@ -40,7 +40,7 @@ const SearchResult = ({ document, modelName, onCloned = () => {}, isLocalDocumen
                             : `/meditor/${urlEncode(document.model)}/${urlEncode(document.title)}`
                     }
                 >
-                    <a>{document.title}</a>
+                    <a dangerouslySetInnerHTML={{ __html: document.title }} />
                 </Link>
             </div>
 

@@ -6,12 +6,10 @@ export const Breadcrumb = (props) => {
         <li className={styles.li}>
             {props.href ? (
                 <Link href={props.href} as={props.as}>
-                    <a>{props.title}</a>
+                    <a dangerouslySetInnerHTML={{ __html: props.title }} />
                 </Link>
             ) : (
-                <span>
-                    {props.title}
-                </span>
+                <span dangerouslySetInnerHTML={{ __html: props.title }} />
             )}
         </li>
     )
