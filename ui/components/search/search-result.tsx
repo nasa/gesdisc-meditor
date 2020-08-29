@@ -27,7 +27,7 @@ const SearchResult = ({ document, modelName, onCloned = () => {}, isLocalDocumen
 
         removeUnsavedDocumentFromLS(document)
         setSuccessNotification(`Successfully deleted document: '${document.title}'`)
-    }   
+    }
 
     return (
         <div className={styles.result}>
