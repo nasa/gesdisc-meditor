@@ -10,6 +10,17 @@ import Tooltip from 'react-bootstrap/Tooltip'
  */
 function StringField(props) {
     const [linkIsValid, setLinkIsValid] = useState(null)
+    let fieldProps = { ...props }
+   
+    // force the HtmlTextWidget if the field's value contains HTML (so it can render)
+    try {
+        if (props.formData.indexOf('</') >= 0 && !props?.uiSchema?.['ui:widget']) {
+            fieldProps.uiSchema = {
+                ...fieldProps.uiSchema,
+                'ui:widget': 'htmltext'
+            }
+        }
+    } catch (err) {}
 
     useEffect(() => {
         if (linkIsValid === null) return
@@ -77,7 +88,7 @@ function StringField(props) {
 
     return (
         <>
-            <RJSFStringField {...props} onBlur={handleBlur} />
+            <RJSFStringField {...fieldProps} onBlur={handleBlur} />
 
             {linkIsValid === false && (
                 <div className="field-warning">
