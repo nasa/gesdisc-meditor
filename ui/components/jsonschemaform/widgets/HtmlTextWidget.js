@@ -21,8 +21,8 @@ function HtmlTextWidget(props) {
         inputProps.autoComplete = options.autocomplete
     }
 
-    const _onChange = ({ target: { value } }) => {
-        return props.onChange(value === '' ? options.emptyValue : value)
+    const _onChange = ({ target }) => {
+        return props.onChange(target.innerHTML === '' ? options.emptyValue : target.innerHTML)
     }
 
     return (
@@ -33,9 +33,9 @@ function HtmlTextWidget(props) {
             readOnly={readonly}
             disabled={disabled}
             autoFocus={autofocus}
-            onChange={_onChange}
-            onBlur={onBlur && ((event) => onBlur(inputProps.id, event.target.value))}
-            onFocus={onFocus && ((event) => onFocus(inputProps.id, event.target.value))}
+            onInput={_onChange}
+            onBlur={onBlur && ((event) => onBlur(inputProps.id, event.target.innerHTML))}
+            onFocus={onFocus && ((event) => onFocus(inputProps.id, event.target.innerHTML))}
             dangerouslySetInnerHTML={{ __html: value == null ? '' : value }}
         />
     )

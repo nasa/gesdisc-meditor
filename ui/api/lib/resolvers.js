@@ -18,60 +18,62 @@ function findInitialEdges(edges) {
     if (!edges) return []
 
     // get list of workflow targets (["Draft", "Under Review", "Published"])
-    const targets = edges.map(edge => edge.target)
-    
+    const targets = edges.map((edge) => edge.target)
+
     // only return edges whose source does not exist in any other edges target
     // aka, the initial edges for the workflow
-    return edges.filter(edge => !targets.includes(edge.source))
+    return edges.filter((edge) => !targets.includes(edge.source))
 }
 
 function getDocumentMap(modelName, documentTitle) {
     return {
-        'title': {
+        title: {
             path: '$item',
             required: false,
             formatting: (document) => {
                 try {
-                    return documentTitle || document.title
+                    return (documentTitle || document.title)
+                        .replace(/&lt;/gi, '<')
+                        .replace(/&gt;/gi, '>')
                 } catch (err) {
                     return ''
                 }
-            }
+            },
         },
-        'model': {
+        model: {
             path: 'model',
             required: false,
             formatting: (model) => model || modelName,
         },
-        'doc': {
+        doc: {
             path: 'doc',
             required: false,
         },
-        'modifiedOn': {
+        modifiedOn: {
             path: 'x-meditor.modifiedOn',
             required: false,
         },
-        'modifiedBy': {
+        modifiedBy: {
             path: 'x-meditor.modifiedBy',
             required: false,
         },
-        'state': {
+        state: {
             path: 'x-meditor.state',
             required: false,
         },
-        'states': {
+        states: {
             path: 'x-meditor.states',
             required: false,
         },
-        'targetStates': {
+        targetStates: {
             path: 'x-meditor.targetStates',
             required: false,
         },
-        'publicationStatus': {
+        publicationStatus: {
             path: 'x-meditor.publishedTo',
             required: false,
         },
-        'version': {
+        version: {
             path: '$item',
             required: false,
             formatting: (document) => {
@@ -80,8 +82,8 @@ function getDocumentMap(modelName, documentTitle) {
                 if (modifiedOn) modifiedOn = modifiedOn.toString()
 
                 return document.version || modifiedOn
-            }
-        }
+            },
+        },
     }
 }
 
@@ -89,9 +91,9 @@ module.exports = {
     Date: new GraphQLScalarType({
         name: 'Date',
         description: 'Date custom scalar type',
-        parseValue: value => new Date(value),
-        serialize: value => new Date(value).getTime(),
-        parseLiteral: ast => ast.kind === Kind.INT ? parseInt(ast.value, 10) : null
+        parseValue: (value) => new Date(value),
+        serialize: (value) => new Date(value).getTime(),
+        parseLiteral: (ast) => (ast.kind === Kind.INT ? parseInt(ast.value, 10) : null),
     }),
     Query: {
         model: async (_, params, { dataSources }) => {
@@ -100,8 +102,8 @@ module.exports = {
             model.workflow = await dataSources.mEditorApi.getWorkflow(model.workflow)
 
             if (params.currentState) {
-                model.workflow.currentNode = model.workflow.nodes.find(node => node.id === params.currentState)
-                model.workflow.currentEdges = model.workflow.edges.filter(edge => edge.source === params.currentState)
+                model.workflow.currentNode = model.workflow.nodes.find((node) => node.id === params.currentState)
+                model.workflow.currentEdges = model.workflow.edges.filter((edge) => edge.source === params.currentState)
             } else {
                 model.workflow.currentNode = model.workflow.nodes[0]
                 model.workflow.currentEdges = findInitialEdges(model.workflow.edges)
@@ -117,18 +119,18 @@ module.exports = {
 
             let categories = models
                 // retrieve just the category name
-                .map(model => model.category)
+                .map((model) => model.category)
                 // remove duplicates
                 .filter((category, index, categories) => categories.indexOf(category) === index)
-            
-            return categories.map(category => ({
+
+            return categories.map((category) => ({
                 name: category,
                 models: models
-                    .filter(model => model.category === category)
-                    .map(model => {
+                    .filter((model) => model.category === category)
+                    .map((model) => {
                         model.xMeditor = model['x-meditor']
                         return model
-                    })
+                    }),
             }))
         },
         documents: async (_, params, { dataSources }) => {
@@ -139,7 +141,11 @@ module.exports = {
             let document
 
             if (params.version) {
-                document = await dataSources.mEditorApi.getDocumentVersion(params.modelName, params.title, params.version)
+                document = await dataSources.mEditorApi.getDocumentVersion(
+                    params.modelName,
+                    params.title,
+                    params.version
+                )
             } else {
                 document = await dataSources.mEditorApi.getDocument(params.modelName, params.title)
             }
@@ -164,7 +170,9 @@ module.exports = {
         },
         validLink: async (_, { url }) => {
             try {
-                let regex = new RegExp(/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi)
+                let regex = new RegExp(
+                    /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi
+                )
 
                 if (!url || !url.match(regex)) {
                     throw new Error('Invalid URL')
@@ -188,7 +196,7 @@ module.exports = {
                     message: err.message || 'Invalid URL',
                 }
             }
-        }
+        },
     },
     JSON: GraphQLJSON.GraphQLJSON,
     JSONObject: GraphQLJSON.GraphQLJSONObject,

@@ -23,6 +23,10 @@ function StringField(props) {
     } catch (err) {}
 
     useEffect(() => {
+        validateNoBrokenLinks()
+    }, [])
+
+    useEffect(() => {
         if (linkIsValid === null) return
 
         let brokenLinks = localStorage.getItem('brokenLinks')
@@ -36,6 +40,13 @@ function StringField(props) {
     }, [linkIsValid])
 
     function validateNoBrokenLinks() {
+        let urlFields = ['uri', 'uri-reference', 'url']
+        
+        if (!props?.schema?.format || urlFields.indexOf(props.schema.format) < 0) {
+            // this isn't a URL field
+            return
+        }
+
         if (!props.formData) {
             // user hasn't filled out the field yet
             return
@@ -74,12 +85,7 @@ function StringField(props) {
     }
 
     function handleBlur(args) {
-        let fieldFormat = props.schema.format
-
-        if (fieldFormat && (fieldFormat === 'uri' || fieldFormat === 'url')) {
-            setLinkIsValid(true)
-            validateNoBrokenLinks()
-        }
+        validateNoBrokenLinks()
 
         if (props.onBlur) {
             props.onBlur(args)
