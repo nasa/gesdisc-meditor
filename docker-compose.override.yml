@@ -1,0 +1,67 @@
+version: "3.3"
+
+services:
+
+  proxy:
+    container_name: meditor_proxy
+    build: proxy
+    restart: on-failure
+
+  notifier:
+    container_name: meditor_notifier
+    build: notifier
+    restart: on-failure
+    env_file:
+      - .env
+    volumes:
+      - ./notifier:/usr/src/app
+      - /usr/src/app/node_modules
+ 
+  ui:
+    container_name: meditor_ui
+    build: ui
+    env_file:
+      - .env
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./ui:/usr/src/app
+      - /usr/src/app/node_modules
+  
+  server:
+    container_name: meditor_server
+    build: nodejs-server-server
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./nodejs-server-server:/usr/src/app
+      - /usr/src/app/node_modules
+
+  database:
+    container_name: meditor_database
+    volumes:
+      - ./data:/data/db
+    ports:
+      - "27018:27017"
+
+  nats:
+    container_name: meditor_nats
+    volumes:
+      - ./nats-data:/nats/data
+
+  monitor:
+    container_name: meditor_monitor
+
+  agent:
+    container_name: meditor_agent
+
+  example-subscriber:
+    container_name: meditor_example_subscriber
+    build: examples/subscriber
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./examples/subscriber:/usr/src/app
+      - /usr/src/app/node_modules

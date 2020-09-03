@@ -4,15 +4,17 @@ import * as plugins from './ckeditor-plugins/'
 
 function registerPluginsWithCkEditorInstance(CKEDITOR) {
     Object.keys(plugins).forEach(key => {
-        try {
-            CKEDITOR.plugins.add(key, plugins[key])
+        if (!CKEDITOR.plugins.get(key)) {
+            try {
+                CKEDITOR.plugins.add(key, plugins[key])
 
-            // if language file included, set it up
-            if ('en' in plugins[key]) {
-                CKEDITOR.plugins.setLang(key, 'en', plugins[key].en)
+                // if language file included, set it up
+                if ('en' in plugins[key]) {
+                    CKEDITOR.plugins.setLang(key, 'en', plugins[key].en)
+                }
+            } catch(err) {
+                console.error(err)
             }
-        } catch(err) {
-            console.error(err)
         }
     })
 }

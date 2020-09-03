@@ -50,6 +50,37 @@ paths:
           schema:
             $ref: "#/definitions/error"
       x-swagger-router-controller: "Meditor"
+  /setup:
+    post:
+      operationId: "setup"
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: users
+          schema:
+            type: array
+            minItems: 1
+            items:
+              type: object
+              required:
+                - name
+                - uid
+              properties:
+                name:
+                  type: string
+                uid:
+                  type: string
+      responses:
+        200:
+          description: "Successful response"
+          schema:
+            $ref: "#/definitions/success"
+        404:
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/error"
+      x-swagger-router-controller: "Meditor"
   /putModel:
     post:
       summary: "Adds a Model"

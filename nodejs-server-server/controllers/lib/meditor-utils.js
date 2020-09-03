@@ -13,10 +13,7 @@ module.exports.publishToNats = function publishToNats(document, model, state = '
   let modelName = typeof model === 'string' ? model : model.name
   let channelName = NATS_QUEUE_PREFIX + modelName.replace(/ /g, '-')
 
-  document.target = 'uui'        // TODO: alter uui-subscriber to ignore target then this can be removed
-
-  // TODO: remove this stringify, need to update subscribers to remove the double JSON parse
-  let message = JSON.stringify({
+  let message = {
     id: document._id,
     document,
     model: {
@@ -24,7 +21,7 @@ module.exports.publishToNats = function publishToNats(document, model, state = '
     },
     state,
     time: Date.now(),
-  })
+  }
 
   console.log(`Publishing message to channel ${channelName}: `, message)
 
@@ -71,7 +68,7 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
       + he.decode(notificationTemplate),
     "link": {
         label: meta.params.title,
-        url: process.env.APP_UI_URL + "/" + module.exports.serializeParams(meta.params, ['model', 'title','version'])
+        url: process.env.APP_URL + "/" + module.exports.serializeParams(meta.params, ['model', 'title','version'])
     },
     "createdOn": (new Date()).toISOString()
   };
@@ -403,7 +400,7 @@ function handleModelChanges(meta, DbName, modelDoc) {
     .then(function(res) {
       console.log('Done updating state history for documents in ' + modelDoc.name);
       // Re-publish documents as necessary, since some of the states could have changed
-      return exports.publishToNats(modelDoc, modelDoc.name); // Take an opportunity to sync with UUI
+      return exports.publishToNats(modelDoc, modelDoc.name);
     })
     .catch(function(e) {
       if (_.isObject(e) && e.result) {
@@ -419,41 +416,3 @@ module.exports.actOnDocumentChanges = function actOnDocumentChanges(meta, DbName
   if (doc["x-meditor"]["model"] === 'Models') return handleModelChanges(meta, DbName, doc);
   return Promise.resolve();
 };
-
-// This is used for developing / testing purposes
-module.exports.testStub = function() {
-  // var defaultStateName = "Unspecified";
-  // var defaultState = {target: defaultStateName, source: defaultStateName, modifiedBy: 'Unknown', modifiedOn: (new Date()).toISOString()};
-  var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
-  var MongoClient = mongo.MongoClient;
-  MongoClient.connect(MongoUrl, function(err, db) {
-    var DbName = "meditor";
-    if (err) {
-      console.log(err);
-      throw err;
-    }
-    var dbo = db;
-    var meta = {
-      dbo: dbo
-    }
-    module.exports.actOnDocumentChanges(meta, DbName, {name: 'News', 'x-meditor': {model: 'Models'}});
-  });
-};
-
-module.exports.testNATS = function() {
-  var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
-  var MongoClient = mongo.MongoClient;
-  MongoClient.connect(MongoUrl, function(err, db) {
-    var DbName = "meditor";
-    if (err) {
-      console.log(err);
-      throw err;
-    }
-    var dbo = db;
-    var meta = {
-      dbo: dbo
-    }
-});
-};
-
-module.exports.testNATS();
