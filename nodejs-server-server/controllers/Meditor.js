@@ -980,65 +980,43 @@ module.exports.getModel = async function(request, response, next) {
   }
 }
 
-// Internal method to list documents
-function findDocHistory (params) {
-  return new Promise(function(resolve, reject) {
-    MongoClient.connect(MongoUrl, function(err, db) {
-      if (err) {
-        console.log(err);
-        throw err;
-      }
-      var dbo = db.db(DbName);
-      dbo.collection("Models").find({name:params.model}).project({_id:0}).sort({"x-meditor.modifiedOn":-1}).toArray(function(err, res) {
-        if (err){
-          console.log(err);
-          throw err;
-        }
-        var titleField = res[0]["titleProperty"];
-        var projection = {_id:0};
-        var query = {};
-        if ( params.hasOwnProperty("version") && params.version !== 'latest' ) {
-          query["x-meditor.modifiedOn"] = params.version;
-        }
-        query[titleField]=params.title;
+module.exports.getDocumentHistory = async function (request, response) {
+  let client = new MongoClient(MongoUrl)
 
-        // filter out deleted documents
-        query["x-meditor.deletedOn"] = { $exists: false }
+  try {
+    await client.connect()
 
-        dbo.collection(params.model)
-          .find(query)
-          .project({ _id:0 })
-          .sort({ "x-meditor.modifiedOn":-1 })
-          .map(function(obj){
-            return {
-              modifiedOn:obj["x-meditor"].modifiedOn, 
-              modifiedBy:obj["x-meditor"].modifiedBy,
-              state: _.last(obj['x-meditor'].states).target,
-            }
-          }).toArray(function(err, res) {
-            if (err){
-              console.log(err);
-              throw err;
-            }
-            db.close();
-            resolve(res);
-          });
-      });
-    });
-  });
+    let dbo = await client.db(DbName)
+
+    const model = await getModelContent(request.query.model, dbo)
+
+    if (!model) throw new Error('Model not found')
+
+    const query = {
+      [model.titleProperty]: request.query.title,
+      'x-meditor.deletedOn': { $exists: false },
+        ...(('version' in request.query && request.query.version !== 'latest') && { 'x-meditor.modifiedOn': request.query.version }),
+    }
+
+    const historyItems = await dbo.collection(request.query.model)
+      .find(query)
+      .sort({ "x-meditor.modifiedOn": -1 })
+      .map(item => ({
+        modifiedOn: item['x-meditor'].modifiedOn,
+        modifiedBy: item['x-meditor'].modifiedBy,
+        state: _.last(item['x-meditor'].states).target,
+        states: item['x-meditor'].states,
+      }))
+      .toArray()
+
+    handleSuccess(response, historyItems)
+  } catch (err) {
+    console.error(err)
+    handleError(response, err)
+  } finally {
+    client.close()
+  }
 }
-
-//Exported method to get a model
-module.exports.getDocumentHistory = function getModel (req, res, next) {
-  var params = getSwaggerParams(req);
-  findDocHistory (params)
-  .then(function (response) {
-    utils.writeJson(res, response);
-  })
-  .catch(function (response) {
-    utils.writeJson(res, response);
-  });
-};
 
 
 //Add a Comment
