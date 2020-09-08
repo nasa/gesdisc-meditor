@@ -1005,7 +1005,7 @@ module.exports.getDocumentHistory = async function (request, response) {
         modifiedOn: item['x-meditor'].modifiedOn,
         modifiedBy: item['x-meditor'].modifiedBy,
         state: _.last(item['x-meditor'].states).target,
-        states: item['x-meditor'].states,
+        states: item['x-meditor'].states.filter(state => state.source !== 'Init'),
       }))
       .toArray()
 
