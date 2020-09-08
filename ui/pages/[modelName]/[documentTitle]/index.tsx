@@ -87,6 +87,12 @@ const HISTORY_QUERY = gql`
             modifiedOn
             modifiedBy
             state
+            states {
+                source
+                target
+                modifiedBy
+                modifiedOn(format: "M/dd/yyyy, h:mm a")
+            }
         }
     }
 `

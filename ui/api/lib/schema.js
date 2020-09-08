@@ -71,6 +71,7 @@ const typeDefs = gql`
         source: String!
         target: String!
         modifiedOn: Date! @date
+        modifiedBy: String
     }
 
     type WorkflowPrivilege {
@@ -104,6 +105,7 @@ const typeDefs = gql`
         modifiedOn: String!
         modifiedBy: String!
         state: String!
+        states: [WorkflowState]
     }
 
     type Comment {
