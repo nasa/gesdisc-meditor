@@ -15,8 +15,8 @@ const LoginPage = ({ user }) => {
 
         redirectUrl = JSON.parse(redirectUrl)
 
-        // don't follow redirects for maintenance or installation pages
-        if (redirectUrl.as == '/meditor/maintenance' || redirectUrl.as == '/meditor/installation') {
+        // don't follow redirects for installation page
+        if (redirectUrl.as == '/meditor/installation') {
             throw new Error()
         }
 
