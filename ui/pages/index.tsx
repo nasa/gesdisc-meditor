@@ -1,4 +1,5 @@
 import PageTitle from '../components/page-title'
+import UnderMaintenance from '../components/under-maintenance'
 import Router from 'next/router'
 import Button from 'react-bootstrap/Button'
 import { withApollo } from '../lib/apollo'
@@ -28,6 +29,8 @@ const DashboardPage = ({ modelCategories }) => {
     return (
         <div>
             <PageTitle title="" />
+
+            {(!modelCategories || modelCategories.length < 0) && <UnderMaintenance />}
 
             {modelCategories?.map(category => (
                 <div key={category.name} className={styles.category}>
@@ -71,14 +74,12 @@ DashboardPage.getInitialProps = async (ctx) => {
             ctx.res.writeHead(301, {
                 Location: '/meditor/installation',
             })
-        } else {
-            // something else went wrong, redirect to the maintenance page
-            ctx.res.writeHead(301, {
-                Location: '/meditor/maintenance',
-            })
-        }
 
-        ctx.res.end()
+            ctx.res.end()
+        } else {
+            // something else went wrong, log the error but allow the page to render
+            console.error(err)
+        }
     }
 
     return {

@@ -311,10 +311,8 @@ InstallationPage.getInitialProps = async (ctx) => {
         if (err?.graphQLErrors?.[0].extensions?.response?.status == 404) {
             // ignore this error, we're expecting a 404 on the installation page
         } else {
-            // something else went wrong, redirect to the maintenance page
-            ctx.res.writeHead(301, {
-                Location: '/meditor/maintenance',
-            })
+            // something else went wrong, log the error and stop rendering the page
+            console.error(err)
             ctx.res.end()
         }
     }
