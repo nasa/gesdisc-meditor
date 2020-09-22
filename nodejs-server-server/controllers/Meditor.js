@@ -132,7 +132,9 @@ async function handlePublicationAcknowledgements(message) {
 
     message.ack()
   } catch (err) {
+    // whoops, the message must be improperly formatted, throw an error and acknowledge so that NATS won't try to resend
     console.error('Failed to process message', err)
+    message.ack()
   }
 }
 
