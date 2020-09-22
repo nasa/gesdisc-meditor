@@ -68,7 +68,7 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
       + he.decode(notificationTemplate),
     "link": {
         label: meta.params.title,
-        url: process.env.APP_URL + "/" + module.exports.serializeParams(meta.params, ['model', 'title','version'])
+        url: process.env.APP_URL + "/meditor/" + module.exports.serializeParams(meta.params, ['model', 'title','version'])
     },
     "createdOn": (new Date()).toISOString()
   };

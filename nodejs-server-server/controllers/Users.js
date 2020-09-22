@@ -19,7 +19,7 @@ var DbName = "meditor";
 var USERS_COLLECTION_URS = 'users-urs';
 var USERS_COLLECTION_MEDITOR = 'Users';
 
-var APP_URL = process.env.APP_URL || 'http://localhost/meditor'
+var APP_URL = (process.env.APP_URL || 'http://localhost') + '/meditor'
 
 function fromSecretOrEnv(key) {
   var SECRETS_DIR = '/run/secrets/';
@@ -268,19 +268,6 @@ module.exports.login = function login(req, res, next) {
         });
         
         res.end();
-
-        /*
-        if (err) {
-          utils.writeJson(res, {
-            code: 500,
-            message: err
-          }, 500);
-        } else {
-          res.writeHead(301, {
-            Location: APP_URL + '/login'
-          });
-          res.end();
-        }*/
       });
     }
   )(req, res, next);
