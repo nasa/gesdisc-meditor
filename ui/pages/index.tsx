@@ -1,5 +1,5 @@
-import { useQuery } from '@apollo/react-hooks'
 import PageTitle from '../components/page-title'
+import UnderMaintenance from '../components/under-maintenance'
 import Router from 'next/router'
 import Button from 'react-bootstrap/Button'
 import { withApollo } from '../lib/apollo'
@@ -25,16 +25,14 @@ export const MODEL_CATEGORIES_QUERY = gql`
     }
 `
 
-const DashboardPage = ({ user }) => {
-    const { loading, error, data } = useQuery(MODEL_CATEGORIES_QUERY)
-
-    if (error || loading) return <div></div>
-
+const DashboardPage = ({ modelCategories }) => {
     return (
         <div>
             <PageTitle title="" />
 
-            {data.modelCategories.map(category => (
+            {(!modelCategories || modelCategories.length < 0) && <UnderMaintenance />}
+
+            {modelCategories?.map(category => (
                 <div key={category.name} className={styles.category}>
                     <h3>{category.name}</h3>
 
@@ -57,6 +55,36 @@ const DashboardPage = ({ user }) => {
             ))}
         </div>
     )
+}
+
+DashboardPage.getInitialProps = async (ctx) => {
+    let modelCategories
+
+    try {
+        let response = await ctx.apolloClient.query({
+            query: MODEL_CATEGORIES_QUERY,
+        })
+
+        modelCategories = response.data.modelCategories
+    } catch (err) {
+        if (err?.graphQLErrors?.[0].extensions?.response?.status == 404) {
+            console.log('Models have not been setup yet! Sending user to installation page')
+            
+            // database hasn't been setup yet, redirect to installation page!
+            ctx.res.writeHead(301, {
+                Location: '/meditor/installation',
+            })
+
+            ctx.res.end()
+        } else {
+            // something else went wrong, log the error but allow the page to render
+            console.error(err)
+        }
+    }
+
+    return {
+        modelCategories,
+    }
 }
 
 export default withApollo({ ssr: true })(DashboardPage)

@@ -5,7 +5,22 @@ import styles from './form-actions.module.css'
 import isEqual from 'lodash.isequal'
 import cloneDeep from 'lodash.clonedeep'
 
-const FormActions = ({ actions = [], showActions = true, privileges, form, formData, onSave, onUpdateState = (target: string) => {} }) => {
+const DELETED_STATE = 'Deleted'
+const DELETE_CONFIRMATION =
+    "Are you sure you want to delete this document?\n\nThis document will be deleted immediately. You can't undo this action."
+
+const FormActions = ({
+    actions = [],
+    showActions = true,
+    confirmUnsavedChanges = false,
+    privileges,
+    form,
+    formData,
+    onSave,
+    onUpdateState = (target: string) => {},
+    onDelete = null,
+    CustomActions = null,
+}) => {
     const saveEl = useRef(null)
     const canSave = privileges.includes('edit') || privileges.includes('create')
     const router = useRouter()
@@ -22,30 +37,31 @@ const FormActions = ({ actions = [], showActions = true, privileges, form, formD
         }
 
         let data = cloneDeep(formData)
-        Object.keys(data).forEach(key => (data[key] === undefined ? delete data[key] : ''))
+        Object.keys(data).forEach((key) => (data[key] === undefined ? delete data[key] : ''))
 
         setIsDirty(!isEqual(initialFormData, data))
     }, [formData])
 
-    // subscribe to route change so we can 
+    // subscribe to route change so we can
     useEffect(() => {
         router.events.on('routeChangeStart', handleUnsavedChanges)
 
         window.addEventListener('beforeunload', handleUnsavedChanges)
-        
+
         return () => {
             router.events.off('routeChangeStart', handleUnsavedChanges)
 
             window.removeEventListener('beforeunload', handleUnsavedChanges)
         }
-    })
+    }, [])
 
     // TODO: add a test for this as the NextJS Router API has changed in the past
     function handleUnsavedChanges(event) {
-        if (!isDirty) return
+        if (!isDirty || !confirmUnsavedChanges) return
 
-        let confirmationMessage = 'You have unsaved changes on this page. Press Cancel to go back and save these changes, or OK to lose these changes.'
-        
+        let confirmationMessage =
+            'You have unsaved changes on this page. Press Cancel to go back and save these changes, or OK to lose these changes.'
+
         if (typeof event === 'string') {
             // this is a routechange coming from NextJS
             if (!confirm(confirmationMessage)) {
@@ -74,7 +90,7 @@ const FormActions = ({ actions = [], showActions = true, privileges, form, formD
 
     function handleSave() {
         let brokenLinks = localStorage.getItem('brokenLinks')
-        let hasBrokenLinks = brokenLinks && Object.values(JSON.parse(brokenLinks)).includes("false")
+        let hasBrokenLinks = brokenLinks && Object.values(JSON.parse(brokenLinks)).includes('false')
 
         if (hasBrokenLinks && !confirm('There are broken links in your document, are you sure you want to save?')) {
             return
@@ -85,7 +101,14 @@ const FormActions = ({ actions = [], showActions = true, privileges, form, formD
         // don't save a document that has errors!
         if (errors.length) {
             // errors are printed above the save button, pushing it down. scroll it back
-            setTimeout(() => saveEl.current.scrollIntoView(), 10)
+            setTimeout(() => {
+                let errorPanel = document.querySelector('.rjsf > .panel.errors')
+
+                if (!errorPanel) return
+
+                errorPanel.scrollIntoView()
+            }, 10)
+
             return
         }
 
@@ -94,23 +117,75 @@ const FormActions = ({ actions = [], showActions = true, privileges, form, formD
     }
 
     function handleStateUpdate(target) {
+        // if this is a deletion, confirm with the user first
+        if (target == DELETED_STATE && !confirm(DELETE_CONFIRMATION)) {
+            return
+        }
+
         onUpdateState(target)
     }
 
-    return (
-        <>
-            {canSave && (
-                <Button className={styles.button} variant="secondary" onClick={handleSave} ref={saveEl}>
-                    Save
-                </Button>
-            )}
+    function confirmAndHandleDelete() {
+        if (!confirm(DELETE_CONFIRMATION)) {
+            return
+        }
 
-            {showActions && actions.map(action => (
-                <Button key={action.label} className={styles.button} variant="secondary" onClick={() => handleStateUpdate(action.target)}>   
-                    {action.label}
-                </Button>
-            ))}
-        </>
+        onDelete()
+    }
+
+    /**
+     * if there are no actions on the bar, just hide the bar!
+     */
+    if (!onDelete && !canSave && !showActions && !CustomActions) {
+        return <></>
+    }
+
+    const deletionActions = actions.filter((action) => action.target == DELETED_STATE)
+
+    return (
+        <div className={`container-fluid ${styles.container}`}>
+            <div>
+                {onDelete && (
+                    <Button variant="outline-danger" onClick={confirmAndHandleDelete}>
+                        Delete
+                    </Button>
+                )}
+
+                {showActions &&
+                    deletionActions.map((action) => (
+                        <Button
+                            key={action.label}
+                            className={styles.button}
+                            variant="outline-danger"
+                            onClick={() => handleStateUpdate(action.target)}
+                        >
+                            {action.label}
+                        </Button>
+                    ))}
+
+                {canSave && (
+                    <Button className={styles.button} variant="secondary" onClick={handleSave} ref={saveEl}>
+                        Save
+                    </Button>
+                )}
+
+                {showActions &&
+                    actions
+                        .filter((action) => action.target !== DELETED_STATE)
+                        .map((action) => (
+                            <Button
+                                key={action.label}
+                                className={styles.button}
+                                variant="secondary"
+                                onClick={() => handleStateUpdate(action.target)}
+                            >
+                                {action.label}
+                            </Button>
+                        ))}
+
+                {CustomActions}
+            </div>
+        </div>
     )
 }
 

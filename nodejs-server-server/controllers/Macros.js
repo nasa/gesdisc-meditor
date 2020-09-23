@@ -1,6 +1,3 @@
-var _ = require('lodash');
-var fetchers = {}; // A registry of various fetch functions
-
 Array.prototype.unique = function() {
     return this.filter(function (value, index, self) { 
       return self.indexOf(value) === index;
@@ -57,22 +54,4 @@ exports.userRoles = function (dbo){
             }
         });
     } );
-};
-
-// 'Fetchers' are functions registered by name in the 'fetchers' array
-// The first element of 'param' should specify the name of a fetcher,
-// while the remainder of the param elements are passed to the fetcher
-// function
-// Fetcher functions can be registered with the module using registerFetchers
-exports.fetch = function(dbo, param) {
-    var fetcherName;
-    if (_.isEmpty(param) || param.length < 1) return Promise.reject('The fetch macro expects one or more parameteres');
-    fetcherName = param.shift();
-    if (!(fetcherName in fetchers)) return Promise.reject('Unknown fetcher name');
-    return fetchers[fetcherName](param);
-};
-// Registers fetcher functions with the module. Expected format is
-// {fetcherName1: fetcherFunctionReference1, fetcherName2: fetcherFunctionReference2, ...}
-exports.registerFetchers = function registerFetchers(fetchersParam) {
-    _.assign(fetchers, fetchersParam);
 };

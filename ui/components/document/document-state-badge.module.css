@@ -1,6 +1,11 @@
-.badge {
-    background-color: #e0e0e0;
-    font-size: 1em;
-    font-weight: normal;
-    margin: 0 10px;
+.badgeHoverable {
+    cursor: pointer;
+}
+
+.publicationBadge {
+    margin-left: 5px;
+}
+
+.spinner {
+    margin-left: 5px;
 }

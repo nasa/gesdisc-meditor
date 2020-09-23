@@ -1,29 +1,11 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
 # compiled output
-/dist
-/dist-server
-/tmp
-/out-tsc
-/ui/dist
-/ui/dist-server
-/ui/tmp
-/ui/out-tsc
 /data/
 /data2/
 
 # dependencies
-/notifier/node_modules
-/notifier/package-lock.json
-/node_modules
-/ui/node_modules
-/ui/package-lock.json
-/nodejs-server-server/node_modules
-/nodejs-server-server/package-lock.json
-/mongo-replicaset/node_modules
-/mongo-replicaset/package-lock.json
-*.node_modules
-*.package-lock.json
+node_modules
 
 # IDEs and editors
 /.idea

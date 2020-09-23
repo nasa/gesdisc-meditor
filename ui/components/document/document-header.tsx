@@ -8,6 +8,7 @@ import { MdHistory, MdComment, MdCode } from 'react-icons/md'
 const DocumentHeader = ({
     document = null,
     model,
+    version = null,
     toggleCommentsOpen = () => {},
     toggleHistoryOpen = () => {},
     toggleSourceOpen = () => {},

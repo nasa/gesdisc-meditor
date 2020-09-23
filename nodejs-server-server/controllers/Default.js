@@ -162,6 +162,19 @@ module.exports.putDocument = function putDocument (req, res, next) {
     });
 };
 
+module.exports.cloneDocument = function cloneDocument (req, res, next) {
+  var model = req.swagger.params['model'].value;
+  var title = req.swagger.params['title'].value;
+  var newTitle = req.swagger.params['newTitle'].value;
+  Default.cloneDocument(model,title,newTitle)
+    .then(function (response) {
+      utils.writeJson(res, response);
+    })
+    .catch(function (response) {
+      utils.writeJson(res, response);
+    });
+};
+
 module.exports.putModel = function putModel (req, res, next) {
   var file = req.swagger.params['file'].value;
   Default.putModel(file)

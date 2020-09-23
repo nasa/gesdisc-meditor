@@ -50,6 +50,37 @@ paths:
           schema:
             $ref: "#/definitions/error"
       x-swagger-router-controller: "Meditor"
+  /setup:
+    post:
+      operationId: "setup"
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: users
+          schema:
+            type: array
+            minItems: 1
+            items:
+              type: object
+              required:
+                - name
+                - uid
+              properties:
+                name:
+                  type: string
+                uid:
+                  type: string
+      responses:
+        200:
+          description: "Successful response"
+          schema:
+            $ref: "#/definitions/success"
+        404:
+          description: "Not found"
+          schema:
+            $ref: "#/definitions/error"
+      x-swagger-router-controller: "Meditor"
   /putModel:
     post:
       summary: "Adds a Model"
@@ -197,6 +228,48 @@ paths:
           description: "Service not available"
           schema:
             $ref: "#/definitions/error"
+      x-swagger-router-controller: "Meditor"
+  /cloneDocument:
+    post:
+      summary: "Clones a document"
+      description: "Clones a document"
+      operationId: "cloneDocument"
+      parameters:
+      - name: "model"
+        in: "query"
+        description: "Name of the Model"
+        required: true
+        type: "string"
+      - name: "title"
+        in: "query"
+        description: "Title of the document to clone"
+        required: true
+        type: "string"
+      - name: "newTitle"
+        in: "query"
+        description: "Title of the new document"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Successful response"
+          schema:
+            type: "object"
+            title: "Document Status"
+            properties: {}
+        400:
+          description: "Bad request"
+          schema:
+            $ref: "#/definitions/error"
+        500:
+          description: "Server error"
+          schema:
+            $ref: "#/definitions/error"
+        503:
+          description: "Service not available"
+          schema:
+            $ref: "#/definitions/error"
+      security: []
       x-swagger-router-controller: "Meditor"
   /getDocument:
     get:

@@ -10,6 +10,21 @@ import Tooltip from 'react-bootstrap/Tooltip'
  */
 function StringField(props) {
     const [linkIsValid, setLinkIsValid] = useState(null)
+    let fieldProps = { ...props }
+   
+    // force the HtmlTextWidget if the field's value contains HTML (so it can render)
+    try {
+        if (props.formData.indexOf('</') >= 0 && !props?.uiSchema?.['ui:widget']) {
+            fieldProps.uiSchema = {
+                ...fieldProps.uiSchema,
+                'ui:widget': 'htmltext'
+            }
+        }
+    } catch (err) {}
+
+    useEffect(() => {
+        validateNoBrokenLinks()
+    }, [])
 
     useEffect(() => {
         if (linkIsValid === null) return
@@ -25,6 +40,13 @@ function StringField(props) {
     }, [linkIsValid])
 
     function validateNoBrokenLinks() {
+        let urlFields = ['uri', 'uri-reference', 'url']
+        
+        if (!props?.schema?.format || urlFields.indexOf(props.schema.format) < 0) {
+            // this isn't a URL field
+            return
+        }
+
         if (!props.formData) {
             // user hasn't filled out the field yet
             return
@@ -63,12 +85,7 @@ function StringField(props) {
     }
 
     function handleBlur(args) {
-        let fieldFormat = props.schema.format
-
-        if (fieldFormat && (fieldFormat === 'uri' || fieldFormat === 'url')) {
-            setLinkIsValid(true)
-            validateNoBrokenLinks()
-        }
+        validateNoBrokenLinks()
 
         if (props.onBlur) {
             props.onBlur(args)
@@ -77,7 +94,7 @@ function StringField(props) {
 
     return (
         <>
-            <RJSFStringField {...props} onBlur={handleBlur} />
+            <RJSFStringField {...fieldProps} onBlur={handleBlur} />
 
             {linkIsValid === false && (
                 <div className="field-warning">

@@ -1,0 +1,1 @@
+This folder contains the API specification. The API code can be found in /nodejs-server-server

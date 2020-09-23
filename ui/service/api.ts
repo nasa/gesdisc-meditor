@@ -538,6 +538,26 @@ export interface User {
     name?: string;
 }
 
+/**
+ * 
+ * @export
+ * @interface Users
+ */
+export interface Users {
+    /**
+     * 
+     * @type {string}
+     * @memberof Users
+     */
+    name: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Users
+     */
+    uid: string;
+}
+
 
 /**
  * DefaultApi - fetch parameter creator
@@ -588,6 +608,58 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
 
             if (state !== undefined) {
                 localVarQueryParameter['state'] = state;
+            }
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+
+            localVarRequestOptions.credentials = 'include'
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * Clones a document
+         * @summary Clones a document
+         * @param {string} model Name of the Model
+         * @param {string} title Title of the document to clone
+         * @param {string} newTitle Title of the new document
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cloneDocument(model: string, title: string, newTitle: string, options: any = {}): FetchArgs {
+            // verify required parameter 'model' is not null or undefined
+            if (model === null || model === undefined) {
+                throw new RequiredError('model','Required parameter model was null or undefined when calling cloneDocument.');
+            }
+            // verify required parameter 'title' is not null or undefined
+            if (title === null || title === undefined) {
+                throw new RequiredError('title','Required parameter title was null or undefined when calling cloneDocument.');
+            }
+            // verify required parameter 'newTitle' is not null or undefined
+            if (newTitle === null || newTitle === undefined) {
+                throw new RequiredError('newTitle','Required parameter newTitle was null or undefined when calling cloneDocument.');
+            }
+            const localVarPath = `/cloneDocument`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            if (model !== undefined) {
+                localVarQueryParameter['model'] = model;
+            }
+
+            if (title !== undefined) {
+                localVarQueryParameter['title'] = title;
+            }
+
+            if (newTitle !== undefined) {
+                localVarQueryParameter['newTitle'] = newTitle;
             }
 
             localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
@@ -1180,6 +1252,42 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
                 options: localVarRequestOptions,
             };
         },
+        /**
+         * 
+         * @param {Array<Users>} [users] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        setup(users?: Array<Users>, options: any = {}): FetchArgs {
+            const localVarPath = `/setup`;
+            const localVarUrlObj = url.parse(localVarPath, true);
+            const localVarRequestOptions = Object.assign({ method: 'POST' }, options);
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication URS4 required
+            // oauth required
+            if (configuration && configuration.accessToken) {
+				const localVarAccessTokenValue = typeof configuration.accessToken === 'function'
+					? configuration.accessToken("URS4", ["read", "write"])
+					: configuration.accessToken;
+                localVarHeaderParameter["Authorization"] = "Bearer " + localVarAccessTokenValue;
+    }
+
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            localVarUrlObj.query = Object.assign({}, localVarUrlObj.query, localVarQueryParameter, options.query);
+            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
+            delete localVarUrlObj.search;
+            localVarRequestOptions.headers = Object.assign({}, localVarHeaderParameter, options.headers);
+            const needsSerialization = (<any>"Array&lt;Users&gt;" !== "string") || localVarRequestOptions.headers['Content-Type'] === 'application/json';
+            localVarRequestOptions.body =  needsSerialization ? JSON.stringify(users || {}) : (users || "");
+
+            return {
+                url: url.format(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
     }
 };
 
@@ -1201,6 +1309,27 @@ export const DefaultApiFp = function(configuration?: Configuration) {
          */
         changeDocumentState(model: string, title: string, state: string, version?: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
             const localVarFetchArgs = DefaultApiFetchParamCreator(configuration).changeDocumentState(model, title, state, version, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return configuration.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
+        /**
+         * Clones a document
+         * @summary Clones a document
+         * @param {string} model Name of the Model
+         * @param {string} title Title of the document to clone
+         * @param {string} newTitle Title of the new document
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cloneDocument(model: string, title: string, newTitle: string, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
+            const localVarFetchArgs = DefaultApiFetchParamCreator(configuration).cloneDocument(model, title, newTitle, options);
             return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
                 return configuration.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
                     if (response.status >= 200 && response.status < 300) {
@@ -1499,6 +1628,24 @@ export const DefaultApiFp = function(configuration?: Configuration) {
                 });
             };
         },
+        /**
+         * 
+         * @param {Array<Users>} [users] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        setup(users?: Array<Users>, options?: any): (fetch?: FetchAPI, basePath?: string) => Promise<Success> {
+            const localVarFetchArgs = DefaultApiFetchParamCreator(configuration).setup(users, options);
+            return (fetch: FetchAPI = portableFetch, basePath: string = BASE_PATH) => {
+                return configuration.fetch(basePath + localVarFetchArgs.url, localVarFetchArgs.options).then((response) => {
+                    if (response.status >= 200 && response.status < 300) {
+                        return response.json();
+                    } else {
+                        throw response;
+                    }
+                });
+            };
+        },
     }
 };
 
@@ -1520,6 +1667,18 @@ export const DefaultApiFactory = function (configuration?: Configuration, fetch?
          */
         changeDocumentState(model: string, title: string, state: string, version?: string, options?: any) {
             return DefaultApiFp(configuration).changeDocumentState(model, title, state, version, options)(fetch, basePath);
+        },
+        /**
+         * Clones a document
+         * @summary Clones a document
+         * @param {string} model Name of the Model
+         * @param {string} title Title of the document to clone
+         * @param {string} newTitle Title of the new document
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        cloneDocument(model: string, title: string, newTitle: string, options?: any) {
+            return DefaultApiFp(configuration).cloneDocument(model, title, newTitle, options)(fetch, basePath);
         },
         /**
          * Edit comment
@@ -1674,6 +1833,15 @@ export const DefaultApiFactory = function (configuration?: Configuration, fetch?
         resolveComment(id: string, resolvedBy: string, options?: any) {
             return DefaultApiFp(configuration).resolveComment(id, resolvedBy, options)(fetch, basePath);
         },
+        /**
+         * 
+         * @param {Array<Users>} [users] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        setup(users?: Array<Users>, options?: any) {
+            return DefaultApiFp(configuration).setup(users, options)(fetch, basePath);
+        },
     };
 };
 
@@ -1697,6 +1865,20 @@ export class DefaultApi extends BaseAPI {
      */
     public changeDocumentState(model: string, title: string, state: string, version?: string, options?: any) {
         return DefaultApiFp(this.configuration).changeDocumentState(model, title, state, version, options)(this.fetch, this.basePath);
+    }
+
+    /**
+     * Clones a document
+     * @summary Clones a document
+     * @param {string} model Name of the Model
+     * @param {string} title Title of the document to clone
+     * @param {string} newTitle Title of the new document
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public cloneDocument(model: string, title: string, newTitle: string, options?: any) {
+        return DefaultApiFp(this.configuration).cloneDocument(model, title, newTitle, options)(this.fetch, this.basePath);
     }
 
     /**
@@ -1882,5 +2064,15 @@ export class DefaultApi extends BaseAPI {
         return DefaultApiFp(this.configuration).resolveComment(id, resolvedBy, options)(this.fetch, this.basePath);
     }
 
+    /**
+     * 
+     * @param {Array<Users>} [users] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof DefaultApi
+     */
+    public setup(users?: Array<Users>, options?: any) {
+        return DefaultApiFp(this.configuration).setup(users, options)(this.fetch, this.basePath);
 }
 
+}

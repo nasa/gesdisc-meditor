@@ -13,7 +13,7 @@ const typeDefs = gql`
         modelCategories: [ModelCategory!]!
         models: [Model!]!
         model(modelName: String!, currentState: String): Model!
-        documents(modelName: String!): [Document!]!
+        documents(modelName: String!, filter: String): [Document!]!
         document(modelName: String!, title: String!, version: String): Document!
         documentComments(modelName: String!, title: String!): [Comment]!
         documentHistory(modelName: String!, title: String!): [History]!
@@ -64,12 +64,14 @@ const typeDefs = gql`
         states: [WorkflowState]
         targetStates: [String]
         version: String
+        publicationStatus: [PublicationStatus]
     }
 
     type WorkflowState {
         source: String!
         target: String!
         modifiedOn: Date! @date
+        modifiedBy: String
     }
 
     type WorkflowPrivilege {
@@ -103,6 +105,7 @@ const typeDefs = gql`
         modifiedOn: String!
         modifiedBy: String!
         state: String!
+        states: [WorkflowState]
     }
 
     type Comment {
@@ -122,6 +125,15 @@ const typeDefs = gql`
     type ValidLinkResponse {
         isValid: Boolean!
         message: String
+    }
+
+    type PublicationStatus {
+        url: String
+        message: String
+        target: String
+        statusCode: Int
+        publishedOn: Date @date
+        failedOn: Date @date
     }
 `
 

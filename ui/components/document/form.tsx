@@ -6,13 +6,24 @@ import { useState, useEffect } from 'react'
 // as the server side doesn't have a window!
 const JsonSchemaForm = dynamic(() => import('../jsonschemaform/jsonschemaform'), { ssr: false })
 
-const Form = ({ model, document, liveValidate = false, onUpdateForm, onChange = (data: any) => {} }) => {
+const Form = ({
+    model,
+    document,
+    liveValidate = false,
+    readOnly = false,
+    onUpdateForm,
+    onChange = (data: any) => {},
+}) => {
     const [expandAll, setExpandAll] = useState(false)
 
-    let layout = model?.uiSchema || model?.layout || '{}'
+    let layout = JSON.parse(model?.uiSchema || model?.layout || '{}')
     let formData = document?.doc || document || {}
 
     let hasSections = JSON.stringify(layout).indexOf('CollapsibleField') >= 0
+
+    if (readOnly) {
+        layout['ui:readonly'] = true
+    }
 
     function toggleExpandAll() {
         let sectionsExpanded = !expandAll
@@ -33,12 +44,12 @@ const Form = ({ model, document, liveValidate = false, onUpdateForm, onChange = 
             <JsonSchemaForm
                 schema={model ? JSON.parse(model.schema) : {}}
                 formData={formData}
-                layout={JSON.parse(layout)}
+                layout={layout}
                 liveValidate={liveValidate}
                 onInit={onUpdateForm}
                 onChange={(event: any) => onChange(event?.formData)}
                 imageUploadUrl={process.env.NEXT_PUBLIC_IMAGE_UPLOAD_URL}
-                linkCheckerUrl={process.env.APP_URL + process.env.NEXT_PUBLIC_LINK_CHECKER_URL}
+                linkCheckerUrl="/meditor/graphql"
             />
         </>
     )

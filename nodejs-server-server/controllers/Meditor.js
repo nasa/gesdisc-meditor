@@ -12,14 +12,16 @@ var mUtils = require('./lib/meditor-utils');
 var Validator = require('jsonschema').Validator;
 var nats = require('./lib/nats-connection');
 var escape = require('mongo-escape').escape;
+var compile = require('monquery')
+var fs = require('fs')
+var { promisify } = require('util')
 
-var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
+const readFile = promisify(fs.readFile)
+
+var MongoUrl = process.env.MONGOURL || "mongodb://meditor_database:27017/";
 var DbName = "meditor";
 
 var SHARED_MODELS = ['Workflows', 'Users', 'Models'];
-
-// ======================== Register fetch functions with Macro.fetch ==============
-macros.registerFetchers(require('./lib/fetchers').getFetchers());
 
 // subscribe to publication acknowledgements
 nats.subscribeToChannel('meditor-Acknowledge').on('message', handlePublicationAcknowledgements)
@@ -81,6 +83,10 @@ function handleNotFound(response, res) {
   handleResponse(response, res, 404, 'Not found')
 }
 
+function handleBadRequest(response, res) {
+  handleResponse(response, res, 400, 'Bad Request')
+}
+
 /**
  * handles success/failure messages received from the NATS acknowledgements queue
  * @param {*} message 
@@ -126,10 +132,47 @@ async function handlePublicationAcknowledgements(message) {
 
     message.ack()
   } catch (err) {
+    // whoops, the message must be improperly formatted, throw an error and acknowledge so that NATS won't try to resend
     console.error('Failed to process message', err)
+    message.ack()
   }
 }
 
+/**
+ * given a simplified Lucene query, convert it to the Mongo $match equivalent
+ * ONLY supports AND/OR and field based regex or exact matches
+ * 
+ * TODO: if we need more complex searching, we should use something like ElasticSearch instead
+ * 
+ * @param {string} query 
+ */
+function convertLuceneQueryToMongo(query, xmeditorProperties) {
+  let match = compile(query)
+
+  function replacexMeditorFieldInMatch(field, match) {
+    if (match.$and) {
+      match.$and = match.$and.map(andMatch => replacexMeditorFieldInMatch(field, andMatch))
+    }
+
+    if (match.$or) {
+      match.$or = match.$or.map(orMatch => replacexMeditorFieldInMatch(field, orMatch))
+    }
+    
+    if (field in match) {
+      match[`x-meditor.${field}`] = match[field]
+      delete match[field]
+    }
+
+    return match
+  }
+
+  xmeditorProperties.forEach(field => {
+    replacexMeditorFieldInMatch(field, match)
+  })
+
+  return match
+}
+ 
 // Builds aggregation pipeline query for a given model (common starting point for most API functions)
 function getDocumentAggregationQuery(meta) {
   var searchQuery = {};
@@ -149,7 +192,8 @@ function getDocumentAggregationQuery(meta) {
       {$addFields: {'x-meditor.states': { $ifNull: [ "$x-meditor.states", [defaultState] ] }}}, // Add default state on docs with no states
       {$addFields: {'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}}}, // Find last state
       {$addFields: {'banTransitions': {"$eq" : [{$cond: {if: {$in: ['$x-meditor.state', meta.exclusiveStates]}, then: meta.user.uid, else: '' }}, {$arrayElemAt: [ "$x-meditor.states.modifiedBy", -1 ]}  ]}}}, // This computes whether a user can transition the edge if he is the modifiedBy of the current state 
-     
+      {$match: { 'x-meditor.deletedOn': { $exists: false } }},    // filter out "deleted" documents
+
       //{$match: {'x-meditor.state': {$in: returnableStates}, 'bannedTransition': false}}, // Filter states based on the role's source states
       //{$match: {'banTransitions': false}}, // Filter states based on the role's source states
     ];
@@ -163,6 +207,7 @@ function getDocumentAggregationQuery(meta) {
 
 // Collects various metadata about request and model - to be
 // used in queries and what not
+// TODO: split this method up to make it easier to test
 function getDocumentModelMetadata(dbo, request, paramsExtra) {
   // This is a convenience function that returns a number of
   // parameters needed to work with documents:
@@ -188,9 +233,9 @@ function getDocumentModelMetadata(dbo, request, paramsExtra) {
   //   { model: 'Alerts', role: 'Reviewer' } ];
   that.modelName = that.params.model;
   that.modelRoles = _(that.roles).filter({model: that.params.model}).map('role').value();
-  return getModelContent(that.params.model) // The model should be pre-filled with Macro subs
+  return getModelContent(that.params.model, dbo.db(DbName)) // The model should be pre-filled with Macro subs
     .then(res => {
-      if (_.isEmpty(res)) throw {message: 'Model for ' + that.params.model + ' not found', status: 400};
+      if (_.isEmpty(res)) throw {message: 'Model for ' + that.params.model + ' not found', status: 404};
       that.model = res;
       that.titleProperty = that.model['titleProperty'] || 'title';
     })
@@ -253,6 +298,120 @@ function mapValidationErrorMessage(error) {
     argument: error.argument && error.argument.length <= 100 ? error.argument : [],
     message,
     stack,
+  }
+}
+
+function DocumentNotFoundException(documentTitle) {
+  this.message = `Document was not found: '${documentTitle}'`
+  this.toString = function() { return this.message }
+}
+
+function DocumentAlreadyExistsException(documentTitle) {
+  this.message = `A document already exists with the title: '${documentTitle}'`
+  this.toString = function() { return this.message }
+}
+
+/**
+ * retrieves a document
+ * TODO: use explicit parameters, not the whole request object
+ */
+async function retrieveDocument(client, request, includeTitleProperty = false) {
+  // get the model metadata first
+  let modelMetadata = await getDocumentModelMetadata(client, request)
+    
+  // build the getDocument query
+  let query = getDocumentAggregationQuery(modelMetadata)
+  query.push({ $limit: 1 })
+
+  // retrieve the document
+  let results = await client.db(DbName)
+    .collection(request.query.model)
+    .aggregate(query, { allowDiskUse: true })
+    .map(results => {
+      // TODO: move the getExtraDocumentMetadata method contents here and simplify (not clear what it does from here)
+      _.merge(results, getExtraDocumentMetadata(modelMetadata, results))
+      return results
+    })
+    .toArray()
+
+  let document = (results && results.length) ? results[0] : undefined
+
+  if (!document) {
+    throw new DocumentNotFoundException(request.query.title)
+  }
+
+  // remove unneeded fields from the response
+  delete document.banTransitions
+
+  if (includeTitleProperty) {
+    document['x-meditor'].titleProperty = modelMetadata.titleProperty
+  }
+
+  return document
+}
+
+/**
+ * saves a document
+ * TODO: use explicit parameters, not the whole request object
+ * TODO: refactor to not use "that" object
+ */
+async function saveDocument(client, request, document, model) {
+  let that = {}
+  that.model = model || document['x-meditor'].model
+  that.dbo = client
+
+  // get the model metadata first
+  _.assign(that, await getDocumentModelMetadata(client, request, {
+    model: that.model,
+  }))
+
+  let rootState = _.cloneDeep(mUtils.WORKFLOW_ROOT_EDGE)
+  rootState.modifiedOn = document['x-meditor'].modifiedOn
+  document['x-meditor'].modifiedOn = (new Date()).toISOString()
+  document['x-meditor'].modifiedBy = request.user.uid
+  // TODO: replace with actual model init state
+  document['x-meditor'].states = [rootState]
+  document['x-meditor'].publishedTo = []
+
+  // save document
+  await client.db(DbName).collection(that.model.name).insertOne(document)
+
+  // if needed, act on document changes
+  await mUtils.actOnDocumentChanges(that, DbName, document)
+
+  // publish document save
+  let state = document['x-meditor'].states[document['x-meditor'].states.length - 1].target      
+  await mUtils.publishToNats(document, that.model, state)
+}
+
+/**
+ * "deletes" a document by setting deletedOn/deletedBy properties and removing associated comments
+ */
+async function deleteDocument(client, model, title, user) {
+  if (!model || !title) throw new Error('Please provide a model and document title')
+
+  log.debug(`Handling delete document for ${model.name} - ${title}`)
+
+  try {
+    log.debug('Adding deleted properties to documents matching title')
+    await client.db(DbName).collection(model.name).updateMany({
+      [model.titleProperty]: title,
+      'x-meditor.deletedOn': {
+        $exists: false,
+      },
+    }, {
+      $set: {
+        'x-meditor.deletedOn': new Date().toISOString(),
+        'x-meditor.deletedBy': user,
+      }
+    })
+    
+    log.debug('Removing associated comments')
+    await client.db(DbName).collection('Comments').deleteMany({ documentId: title, model: model.name })
+
+    console.log(`Deleted ${model.name} document: ${title}`)
+  } catch (err) {
+    console.error('Failed to delete document ', err)
   }
 }
 
@@ -412,7 +571,13 @@ module.exports.putDocument = function putDocument (request, response, next) {
     });
   };
 
-  return getModelContent(doc['x-meditor'].model)
+  return MongoClient.connect(MongoUrl)
+    .then(res => {
+      that.dbo = res;
+    })
+    .then(() => {
+      return getModelContent(doc['x-meditor'].model, that.dbo.db(DbName))
+    })
     .then(model => {
       if (!model || !model.schema) throw new Error('Failed to find the requested model')
 
@@ -433,38 +598,114 @@ module.exports.putDocument = function putDocument (request, response, next) {
       }
     })
     .then(() => {
-      return MongoClient.connect(MongoUrl)
-    })
-    .then(res => {
-      that.dbo = res;
-      return getDocumentModelMetadata(that.dbo, request, {model: doc["x-meditor"]["model"]});
-    })
-    .then(meta => {_.assign(that, meta)})
-    .then(function() {
-      var imageStr = null;
-      var imagePromise = Promise.resolve();
-      var rootState = _.cloneDeep(mUtils.WORKFLOW_ROOT_EDGE);
-      rootState.modifiedOn = doc["x-meditor"]["modifiedOn"];
-      doc["x-meditor"]["modifiedOn"] = (new Date()).toISOString();
-      doc["x-meditor"]["modifiedBy"] = request.user.uid;
-      // TODO: replace with actual model init state
-      doc["x-meditor"]["states"] = [rootState];
-      doc["x-meditor"]["publishedTo"] = []
-      return Promise.all([that.dbo.db(DbName).collection(doc["x-meditor"]["model"]).insertOne(doc), imagePromise]);
-    })
-    .then(function(savedDoc) {
-      return Promise.resolve("Inserted document");
-    })
-    .then(res => {return mUtils.actOnDocumentChanges(that, DbName, doc);})
-    .then(() => {
-      let state = doc['x-meditor'].states[doc['x-meditor'].states.length - 1].target      
-      return mUtils.publishToNats(doc, that.model, state)
+      return saveDocument(that.dbo, request, doc)
     })
     .then(res => (that.dbo.close(), handleSuccess(response, {message: "Inserted document"})))
     .catch(err => {
       try {that.dbo.close()} catch (e) {};
       handleError(response, err);
     });
+};
+
+// Exported method to setup mEditor for the first time
+module.exports.setup = async function(request, response) {
+  console.log('Request to setup mEditor received ', request.body)
+
+  let client = new MongoClient(MongoUrl)
+
+  await client.connect()
+
+  try {
+    // verify that there are no models yet
+    if (await client.db(DbName).collection("Models").find().count() > 0) {
+      throw new Error('mEditor has already been setup')
+    }
+
+    // prep users for insert
+    let roles = ["Models", "Workflows", "Users", "Example News"].map(model => ({ model, role: "Author" }))
+    let users = request.body.map(user => ({
+      id: user.uid,
+      name: user.name,
+      roles,
+      "x-meditor": {
+        model: "Users",
+        modifiedOn: (new Date()).toISOString(),
+        modifiedBy: "system",
+        states: [{ source: "Init", target: "Draft", modifiedOn: (new Date()).toISOString() }]
+      }
+    }))
+
+    // insert users
+    await client.db(DbName).collection('Users').insertMany(users)    
+
+    // read in seed data
+    let models = JSON.parse(await readFile(__dirname + '/../db-seed/models.json'))
+    let workflows = JSON.parse(await readFile(__dirname + '/../db-seed/workflows.json'))
+    let news = JSON.parse(await readFile(__dirname + '/../db-seed/example-news.json'))
+
+    // insert seed data
+    await client.db(DbName).collection('Models').insertMany(models)
+    await client.db(DbName).collection('Workflows').insertMany(workflows)
+    await client.db(DbName).collection('Example News').insertMany(news)
+   
+    handleSuccess(response, {})
+  } catch (err) {
+    console.error(err)
+    handleError(response, err)
+  } finally {
+    await client.close()
+  }
+}
+
+// Exported method to clone a document
+module.exports.cloneDocument = async function(request, response, next) {
+  let client = new MongoClient(MongoUrl)
+
+  log.debug('Cloning document ', request.query)
+
+  try {
+    await client.connect()
+    
+    let document = await retrieveDocument(client, request, true)
+    let titleProperty = document['x-meditor'].titleProperty
+
+    // make sure the new title doesn't match an existing document
+    try {
+      // attempt to retrieve a document with the new title
+      request.swagger.params.title.value = request.swagger.params.newTitle.value
+      await retrieveDocument(client, request)
+      
+      // if we hit this point, then we found a document matching the new title, throw an error
+      throw new DocumentAlreadyExistsException(request.swagger.params.title.value)
+    } catch(err) {
+      if (err instanceof DocumentNotFoundException) {
+        // we WANT the document not to exist, but rethrow any other errors
+        log.debug('New title does not match any existing documents, proceeding with cloning.')
+      } else {
+        throw err
+      }
+    }
+
+    // change the documents title and make document cloneable
+    delete document._id
+    document[titleProperty || 'title'] = request.query.newTitle
+    
+    await saveDocument(client, request, document, request.query.model)
+   
+    handleSuccess(response, document)
+  } catch (err) {
+    console.error(err)
+
+    if (err instanceof DocumentNotFoundException) {
+      handleNotFound(response, err.message)
+    } else if (err instanceof DocumentAlreadyExistsException) {
+      handleBadRequest(response, err.message)
+    } else {
+      handleError(response, err)
+    }
+  } finally {
+    client.close()
+  }
 };
 
 // Exported method to list documents
@@ -483,6 +724,18 @@ module.exports.listDocuments = function listDocuments (request, response, next) 
     .then(function() {
       var xmeditorProperties = ["modifiedOn", "modifiedBy", "state", "targetStates"];
       var query = getDocumentAggregationQuery(that);
+
+      if (request.query.filter) {
+        try {
+          // add match to query
+          query.push({
+            '$match': convertLuceneQueryToMongo(request.query.filter, xmeditorProperties)
+          })
+        } catch (err) {
+          throw new Error('Improperly formatted filter ')
+        }
+      }
+      
       return that.dbo
         .db(DbName)
         .collection(that.params.model)
@@ -504,43 +757,29 @@ module.exports.listDocuments = function listDocuments (request, response, next) 
 };
 
 // Exported method to get a document
-module.exports.getDocument = function listDocuments (request, response, next) {
-  var that = {};
-  return MongoClient.connect(MongoUrl)
-    .then(res => {
-      that.dbo = res;
-      return getDocumentModelMetadata(that.dbo, request);
-    })
-    .then(meta => {_.assign(that, meta)})
-    .then(function() {
-      var query = getDocumentAggregationQuery(that);
-      query.push({$limit: 1});
-      return that.dbo
-        .db(DbName)
-        .collection(that.params.model)
-        .aggregate(query, {allowDiskUse: true})
-        .map(res => {
-          var out = {};
-          _.merge(res, getExtraDocumentMetadata(that, res));
-          out["x-meditor"] = res["x-meditor"];
-          delete res["x-meditor"];
-          out["schema"] = that.model.schema;
-          out["layout"] = that.model.layout;
-          out["doc"] = res;
-          return out;
-        })
-        .toArray();
-    })
-    .then(function(res) {
-      that.result = res.length > 0 ? res[0] : {};
-      return Promise.resolve(null)
-    })
-    .then(res => (that.dbo.close(), handleSuccess(response, that.result)))
-    .catch(err => {
-      try {that.dbo.close()} catch (e) {};
-      handleError(response, err);
-    });
-};
+module.exports.getDocument = async function(request, response) {
+  let client = new MongoClient(MongoUrl)
+
+  try {
+    await client.connect()
+    
+    // retrieve the document
+    let document = await retrieveDocument(client, request)
+
+    // respond with document
+    handleSuccess(response, document)
+  } catch (err) {
+    console.error(err)
+
+    if (err instanceof DocumentNotFoundException) {
+      handleNotFound(response, err.message)
+    } else {
+      handleError(response, err)
+    }
+  } finally {
+    client.close()
+  }
+}
 
 // Exported method to get a document's publication status
 module.exports.getDocumentPublicationStatus = async function(request, response, next) {
@@ -549,11 +788,13 @@ module.exports.getDocumentPublicationStatus = async function(request, response, 
   try {
     await client.connect()
 
-    const model = await getModelContent(request.query.model)
+    let dbo = await client.db(DbName)
+
+    const model = await getModelContent(request.query.model, dbo)
 
     if (!model) throw new Error('Model not found')
 
-    const results = await client.db(DbName).collection(request.query.model)
+    const results = await dbo.collection(request.query.model)
       .aggregate([
         { $match: { [model.titleProperty]: request.query.title } },
         { $sort: { 'x-meditor.modifiedOn': -1 } },
@@ -620,17 +861,35 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
         .collection(that.params.model)
         .updateOne({_id: res._id}, {$set: {'x-meditor.states': newStatesArray}});
     })
-    .then(res => {
-      const shouldNotify =  _.get(that.currentEdge, 'notify', true) && that.readyNodes.indexOf(that.params.state) === -1;
-      return shouldNotify ? mUtils.notifyOfStateChange(DbName, that) : Promise.resolve();
+    .then(() => {
+      let shouldNotify =  _.get(that.currentEdge, 'notify', true) && that.readyNodes.indexOf(that.params.state) === -1;
+
+      if ('notify' in request.query && (request.query.notify == "false" || request.query.notify == false)) {
+        shouldNotify = false
+      }
+
+      if (shouldNotify) {
+        try {
+          mUtils.notifyOfStateChange(DbName, that)
+        } catch (err) {
+          // log the error, but failure to notify should NOT stop the document from changing state
+          console.error(err)
+        }
+      }
     })
     .then(() => {
-      return getModelContent(that.params.model)
+      return getModelContent(that.params.model, that.dbo.db(DbName))
     })
     .then(model => {
-      return mUtils.publishToNats(that.document, model, that.params.state)
+      mUtils.publishToNats(that.document, model, that.params.state)
+      return model
     })
-    .then(res => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
+    .then(model => {
+      if (that.params.state == 'Deleted') {
+        return deleteDocument(that.dbo, model, that.document[model.titleProperty], that.user.uid)
+      }
+    })
+    .then(() => (that.dbo.close(), handleSuccess(response, {message: "Success"})))
     .catch(err => {
       try {that.dbo.close()} catch (e) {};
       handleError(response, err);
@@ -638,149 +897,128 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
 };
 
 // Internal method to list documents
-function getModelContent (name) {
+function getModelContent (name, dbo) {
   return new Promise(function(resolve, reject) {
-    MongoClient.connect(MongoUrl, function(err, db) {
-      if (err) {
+    dbo.collection("Models").find({name:name}).sort({"x-meditor.modifiedOn":-1}).project({_id:0}).toArray(function(err, res) {
+      if (err){
         console.log(err);
-        throw err;
+        reject(err);
       }
-      var dbo = db.db(DbName);
-      dbo.collection("Models").find({name:name}).sort({"x-meditor.modifiedOn":-1}).project({_id:0}).toArray(function(err, res) {
-        if (err){
-          console.log(err);
-          try {db.close()} catch (e) {};
-          reject(err);
-        }
-        // Fill in templates if they exist
 
-        var promiseList = [];
-        if (res[0] && res[0].hasOwnProperty("templates")){
-          res[0].templates.forEach(element => {
-            var macroFields = element.macro.split(/\s+/);
-            promiseList.push( new Promise(
-              function(promiseResolve,promiseReject){
-                if ( typeof macros[macroFields[0]] === "function" ) {
-                  macros[macroFields[0]](dbo,macroFields.slice(1,macroFields.length)).then(function(response){
-                    promiseResolve(response);
-                  }).catch(function(err){
-                      console.log(err);
-                      promiseReject(err);
-                  });
-                } else {
-                  console.log("Macro, '" + macroName + "', not supported");
-                  promiseReject("Macro, '" + macroName + "', not supported");
-                }
+      // Fill in templates if they exist
+      var promiseList = [];
+      if (res[0] && res[0].hasOwnProperty("templates")){
+        res[0].templates.forEach(element => {
+          var macroFields = element.macro.split(/\s+/);
+          promiseList.push( new Promise(
+            function(promiseResolve,promiseReject){
+              if ( typeof macros[macroFields[0]] === "function" ) {
+                macros[macroFields[0]](dbo,macroFields.slice(1,macroFields.length)).then(function(response){
+                  promiseResolve(response);
+                }).catch(function(err){
+                    console.log(err);
+                    promiseReject(err);
+                });
+              } else {
+                console.log("Macro, '" + macroName + "', not supported");
+                promiseReject("Macro, '" + macroName + "', not supported");
               }
-            ));
-          });
-          Promise.all(promiseList).then((response) => {
-            try {
-              var schema = JSON.parse(res[0].schema);
-              var layout = res[0].layout && res[0].layout != "" ? JSON.parse(res[0].layout) : null;
-
-              var i=0;
-              res[0].templates.forEach(element => {
-                let replaceValue = response[i++]
-
-                jsonpath.value(schema, element.jsonpath, replaceValue);
-                
-                if (layout) {
-                  jsonpath.value(layout, element.jsonpath, replaceValue);
-                  res[0].layout = JSON.stringify(layout, null, 2);
-                }
-
-                res[0].schema = JSON.stringify(schema, null, 2);
-              });
-              db.close()
-              resolve(res[0]);
-            } catch (err) {
-              console.error('Failed to parse schema', err)
-              db.close()
-              reject(err)
             }
-          }).catch(
-            function(err){
-              try {db.close()} catch (e) {};
-              reject(err);
-            }
-          );
-        } else {
-          db.close();
-          resolve(res[0]);
-        }
-      });
-    });
-  });
-}
+          ));
+        });
+        Promise.all(promiseList).then((response) => {
+          try {
+            var schema = JSON.parse(res[0].schema);
+            var layout = res[0].layout && res[0].layout != "" ? JSON.parse(res[0].layout) : null;
 
-//Exported method to get a model
-module.exports.getModel = function getModel (req, res, next) {
-  getModelContent (req.swagger.params['name'].value)
-  .then(function (response) {
-    utils.writeJson(res, response);
-  })
-  .catch(function (response) {
-    utils.writeJson(res, response);
-  });
-};
+            var i=0;
+            res[0].templates.forEach(element => {
+              let replaceValue = response[i++]
 
-// Internal method to list documents
-function findDocHistory (params) {
-  return new Promise(function(resolve, reject) {
-    MongoClient.connect(MongoUrl, function(err, db) {
-      if (err) {
-        console.log(err);
-        throw err;
+              jsonpath.value(schema, element.jsonpath, replaceValue);
+              
+              if (layout) {
+                jsonpath.value(layout, element.jsonpath, replaceValue);
+                res[0].layout = JSON.stringify(layout, null, 2);
+              }
+
+              res[0].schema = JSON.stringify(schema, null, 2);
+            });
+            resolve(res[0]);
+          } catch (err) {
+            console.error('Failed to parse schema', err)
+            reject(err)
+          }
+        }).catch(
+          function(err){
+            reject(err);
+          }
+        );
+      } else {
+        resolve(res[0]);
       }
-      var dbo = db.db(DbName);
-      dbo.collection("Models").find({name:params.model}).project({_id:0}).sort({"x-meditor.modifiedOn":-1}).toArray(function(err, res) {
-        if (err){
-          console.log(err);
-          throw err;
-        }
-        var titleField = res[0]["titleProperty"];
-        var projection = {_id:0};
-        var query = {};
-        if ( params.hasOwnProperty("version") && params.version !== 'latest' ) {
-          query["x-meditor.modifiedOn"] = params.version;
-        }
-        query[titleField]=params.title;
-        
-        dbo.collection(params.model)
-          .find(query)
-          .project({ _id:0 })
-          .sort({ "x-meditor.modifiedOn":-1 })
-          .map(function(obj){
-            return {
-              modifiedOn:obj["x-meditor"].modifiedOn, 
-              modifiedBy:obj["x-meditor"].modifiedBy,
-              state: _.last(obj['x-meditor'].states).target,
-            }
-          }).toArray(function(err, res) {
-            if (err){
-              console.log(err);
-              throw err;
-            }
-            db.close();
-            resolve(res);
-          });
-      });
     });
-  });
+  })
 }
 
-//Exported method to get a model
-module.exports.getDocumentHistory = function getModel (req, res, next) {
-  var params = getSwaggerParams(req);
-  findDocHistory (params)
-  .then(function (response) {
-    utils.writeJson(res, response);
-  })
-  .catch(function (response) {
-    utils.writeJson(res, response);
-  });
-};
+module.exports.getModel = async function(request, response, next) {
+  let client = new MongoClient(MongoUrl)
+
+  try {
+    await client.connect()
+
+    let dbo = await client.db(DbName)
+
+    const model = await getModelContent(request.query.name, dbo)
+
+    if (!model) throw new Error('Model not found')
+
+    handleSuccess(response, model)
+  } catch (err) {
+    console.error(err)
+    handleError(response, err)
+  } finally {
+    client.close()
+  }
+}
+
+module.exports.getDocumentHistory = async function (request, response) {
+  let client = new MongoClient(MongoUrl)
+
+  try {
+    await client.connect()
+
+    let dbo = await client.db(DbName)
+
+    const model = await getModelContent(request.query.model, dbo)
+
+    if (!model) throw new Error('Model not found')
+
+    const query = {
+      [model.titleProperty]: request.query.title,
+      'x-meditor.deletedOn': { $exists: false },
+        ...(('version' in request.query && request.query.version !== 'latest') && { 'x-meditor.modifiedOn': request.query.version }),
+    }
+
+    const historyItems = await dbo.collection(request.query.model)
+      .find(query)
+      .sort({ "x-meditor.modifiedOn": -1 })
+      .map(item => ({
+        modifiedOn: item['x-meditor'].modifiedOn,
+        modifiedBy: item['x-meditor'].modifiedBy,
+        state: _.last(item['x-meditor'].states).target,
+        states: item['x-meditor'].states.filter(state => state.source !== 'Init'),
+      }))
+      .toArray()
+
+    handleSuccess(response, historyItems)
+  } catch (err) {
+    console.error(err)
+    handleError(response, err)
+  } finally {
+    client.close()
+  }
+}
 
 
 //Add a Comment

@@ -1,5 +1,23 @@
 import React from 'react'
 import CKEditor from 'ckeditor4-react'
+import * as plugins from './ckeditor-plugins/'
+
+function registerPluginsWithCkEditorInstance(CKEDITOR) {
+    Object.keys(plugins).forEach(key => {
+        if (!CKEDITOR.plugins.get(key)) {
+            try {
+                CKEDITOR.plugins.add(key, plugins[key])
+
+                // if language file included, set it up
+                if ('en' in plugins[key]) {
+                    CKEDITOR.plugins.setLang(key, 'en', plugins[key].en)
+                }
+            } catch(err) {
+                console.error(err)
+            }
+        }
+    })
+}
 
 function CKEditorWidget(props) {
     const config = {
@@ -30,9 +48,10 @@ function CKEditorWidget(props) {
         autoGrow_bottomSpace: 30,
         filebrowserUploadUrl: props.formContext.imageUploadUrl || '/images/upload',
         filebrowserUploadMethod: 'form',
+        extraPlugins: 'youtube,arcgisstorymap',
     }
 
-    // TODO: support disabled/readonly, required?
+    // TODO: support disabled
 
     return (
         <CKEditor 
@@ -47,7 +66,14 @@ function CKEditorWidget(props) {
                 let value = event.editor.getData() || undefined
                 props.onChange(value)
             }}
-            onBeforeLoad={(CKEDITOR) => CKEDITOR.disableAutoInline = true}
+            onInstanceReady={(event) => {
+                event.editor.setReadOnly(props.readonly || false)
+            }}
+            onBeforeLoad={(CKEDITOR, b) => {
+                CKEDITOR.disableAutoInline = true
+
+                registerPluginsWithCkEditorInstance(CKEDITOR)
+            }}
         />
     )
 }

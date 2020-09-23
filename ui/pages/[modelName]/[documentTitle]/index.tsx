@@ -88,6 +88,12 @@ const HISTORY_QUERY = gql`
             modifiedOn
             modifiedBy
             state
+            states {
+                source
+                target
+                modifiedBy
+                modifiedOn(format: "M/dd/yyyy, h:mm a")
+            }
         }
     }
 `
@@ -217,7 +223,7 @@ const EditDocumentPage = ({ user, version = null }) => {
 
     async function updateDocumentState(state) {
         await mEditorApi.changeDocumentState(modelName, documentTitle, state, documentResponse.data.version)
-        reloadDocument()
+        state == 'Deleted' ? router.push('/meditor/[modelName]', `/meditor/${modelName}`) : reloadDocument()
     }
 
     async function reloadComments() {
@@ -270,6 +276,7 @@ const EditDocumentPage = ({ user, version = null }) => {
             <DocumentHeader
                 document={documentResponse?.data?.document}
                 model={modelResponse?.data?.model}
+                version={version}
                 toggleCommentsOpen={() => setCommentsOpen(!commentsOpen)}
                 toggleHistoryOpen={() => setHistoryOpen(!historyOpen)}
                 toggleSourceOpen={() => setSourceOpen(!historyOpen)}
@@ -296,6 +303,7 @@ const EditDocumentPage = ({ user, version = null }) => {
                         document={formData}
                         onUpdateForm={setForm}
                         onChange={onChange}
+                        readOnly={!(currentPrivileges?.includes('edit'))}
                     />
 
                     <DocumentPanel title="Comments" open={commentsOpen} onClose={() => setCommentsOpen(false)}>
@@ -325,10 +333,11 @@ const EditDocumentPage = ({ user, version = null }) => {
                     onUpdateState={updateDocumentState}
                     actions={modelResponse?.data?.model?.workflow?.currentEdges}
                     showActions={documentResponse?.data?.document?.targetStates?.length > 0}
+                    confirmUnsavedChanges={true}
                 />
             </RenderResponse>
         </div>
     )
 }
 
-export default withApollo({ ssr: true })(withAuthentication(EditDocumentPage))
+export default withApollo({ ssr: true })(withAuthentication()(EditDocumentPage))
