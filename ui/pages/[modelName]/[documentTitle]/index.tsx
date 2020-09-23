@@ -14,6 +14,7 @@ import DocumentHeader from '../../../components/document/document-header'
 import DocumentPanel from '../../../components/document/document-panel'
 import DocumentComments from '../../../components/document/document-comments'
 import DocumentHistory from '../../../components/document/document-history'
+import SourceDialog from '../../../components/document/source-dialog'
 import withAuthentication from '../../../components/with-authentication'
 import FormActions from '../../../components/document/form-actions'
 import mEditorApi from '../../../service/'
@@ -90,6 +91,14 @@ const HISTORY_QUERY = gql`
         }
     }
 `
+const SOURCE_QUERY = gql`
+query getSource($modelName: String!, $title: String!) {
+    sourceDialog(modelName: $modelName, title: $title) {
+        modifiedOn
+        modifiedBy
+    }
+ }
+`
 
 const EditDocumentPage = ({ user, version = null }) => {
     const router = useRouter()
@@ -102,6 +111,7 @@ const EditDocumentPage = ({ user, version = null }) => {
     const [commentsOpen, setCommentsOpen] = useState(false)
     const [treeifiedComments, setTreeifiedComments] = useState([])
     const [historyOpen, setHistoryOpen] = useState(false)
+    const [sourceOpen, setSourceOpen] = useState(false)
     const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
 
     const [loadDocument, documentResponse] = useLazyQuery(DOCUMENT_QUERY, {
@@ -117,6 +127,10 @@ const EditDocumentPage = ({ user, version = null }) => {
     })
 
     const [loadHistory, historyResponse] = useLazyQuery(HISTORY_QUERY, {
+        fetchPolicy: 'network-only',
+    })
+
+    const [loadSouce, sourceResponse] = useLazyQuery(SOURCE_QUERY, {
         fetchPolicy: 'network-only',
     })
 
@@ -163,6 +177,10 @@ const EditDocumentPage = ({ user, version = null }) => {
     useEffect(() => {
         if (historyOpen) setCommentsOpen(false)
     }, [historyOpen])
+
+    useEffect(() => {
+        if (sourceOpen) setHistoryOpen(false)
+    }, [sourceOpen])
 
     const currentPrivileges = modelResponse?.data?.model?.workflow
         ? user.privilegesForModelAndWorkflowNode(modelName, modelResponse.data.model.workflow.currentNode)
@@ -254,6 +272,7 @@ const EditDocumentPage = ({ user, version = null }) => {
                 model={modelResponse?.data?.model}
                 toggleCommentsOpen={() => setCommentsOpen(!commentsOpen)}
                 toggleHistoryOpen={() => setHistoryOpen(!historyOpen)}
+                toggleSourceOpen={() => setSourceOpen(!historyOpen)}
                 privileges={currentPrivileges}
                 comments={commentsResponse?.data?.documentComments}
                 history={historyResponse?.data?.documentHistory}
@@ -291,6 +310,11 @@ const EditDocumentPage = ({ user, version = null }) => {
                     <DocumentPanel title="History" open={historyOpen} onClose={() => setHistoryOpen(false)}>
                         <DocumentHistory history={historyResponse?.data?.documentHistory} onVersionChange={loadDocumentVersion} />
                     </DocumentPanel>
+
+                    <DocumentPanel title="JSONEditor" open={sourceOpen} onClose={() => setSourceOpen(false)}>
+                        <SourceDialog source = {documentResponse?.data?.document} />
+                    </DocumentPanel>
+
                 </div>
 
                 <FormActions

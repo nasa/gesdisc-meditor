@@ -3,16 +3,18 @@ import ModelIcon from '../model-icon'
 import DocumentStateBadge from './document-state-badge'
 import Button from 'react-bootstrap/Button'
 import Badge from 'react-bootstrap/Badge'
-import { MdHistory, MdComment } from 'react-icons/md'
+import { MdHistory, MdComment, MdCode } from 'react-icons/md'
 
 const DocumentHeader = ({
     document = null,
     model,
     toggleCommentsOpen = () => {},
     toggleHistoryOpen = () => {},
+    toggleSourceOpen = () => {},
     privileges = [],
     comments = [],
     history = [],
+    source = []
 }) => {
     return (
         <div>
@@ -43,7 +45,19 @@ const DocumentHeader = ({
                         <span className="sr-only">history items</span>
                     </Button>
 
-                    <DocumentStateBadge document={document} />
+                    <Button variant="primary" onClick={toggleSourceOpen}>
+                        <MdCode />
+                        <span className="sr-only">Source</span>
+                    </Button>
+
+                    {model?.name && (
+                        <DocumentStateBadge
+                            document={document}
+                            modelName={model.name}
+                            version={version}
+                            showPublicationStatus={true}
+                        />
+                    )}
 
                     <div>
                         <em>
