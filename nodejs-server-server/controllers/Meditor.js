@@ -96,6 +96,10 @@ async function handlePublicationAcknowledgements(message) {
 
   log.debug('Acknowledgement received, processing now ', acknowledgement)
 
+  let client = new MongoClient(MongoUrl)
+
+  await client.connect()
+
   try {
     const publicationStatus = {
       ...acknowledgement.url && { url: acknowledgement.url },
@@ -105,8 +109,7 @@ async function handlePublicationAcknowledgements(message) {
       ...acknowledgement.statusCode && { [acknowledgement.statusCode == 200 ? 'publishedOn' : 'failedOn']: Date.now() },
     }
 
-    const dbo = await MongoClient.connect(MongoUrl)
-    const db = dbo.db(DbName).collection(acknowledgement.model)
+    const db = client.db(DbName).collection(acknowledgement.model)
 
     // remove any existing publication statuses for this target (for example: past failures)
     await db.updateOne({
@@ -135,6 +138,8 @@ async function handlePublicationAcknowledgements(message) {
     // whoops, the message must be improperly formatted, throw an error and acknowledge so that NATS won't try to resend
     console.error('Failed to process message', err)
     message.ack()
+  } finally {
+    await client.close()
   }
 }
 
