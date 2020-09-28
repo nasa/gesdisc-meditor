@@ -15,7 +15,7 @@ const SourceDialog = ({ source }) => {
                            {JSON.stringify(source)}
                        </div>
                        <div>
-                           <Button>Save</Button>
+                           <Button className={styles.button} variant="secondary">Save</Button>
                        </div>
                     </Card.Body>
                 </Card>
