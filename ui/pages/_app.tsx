@@ -4,8 +4,23 @@ import AppStore from '../components/app-store'
 import Toast from '../components/toast'
 import UserAuthentication from '../components/user-authentication'
 import '../styles.css'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
+import { applyPolyfills, defineCustomElements } from '@gesdisc/meditor-components/loader'
+
+let customElementsRegistered = false
+
+function registerCustomElements() {
+    if (customElementsRegistered || typeof window == 'undefined') {
+        return
+    }
+
+    customElementsRegistered = true
+
+    applyPolyfills().then(() => {
+        defineCustomElements(window)
+    })
+}
 
 /**
  * mEditor previously used hashes for routes, but hashes aren't passed into the server, so now it's using normal URLs.
@@ -37,6 +52,10 @@ const App = ({ Component, pageProps }) => {
     const isAuthenticated = typeof user !== 'undefined' && user != null
     const useLayout = router.pathname != '/installation'
     let canLoadPage = typeof user !== 'undefined' || router.pathname == '/' || router.pathname == '/installation'
+
+    useEffect(() => {
+        registerCustomElements()
+    }, [])
 
     const oldUrlMapping = getOldUrlMapping()
 
