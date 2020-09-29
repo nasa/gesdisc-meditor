@@ -13,6 +13,12 @@
     overflow-y: auto;
 }
 
+.panelLarge {
+    flex: 0 auto 860px;
+    width: 860px;
+    transform: translateX(875px);
+}
+
 .panel h3 {
     margin-bottom: 30px;
 }

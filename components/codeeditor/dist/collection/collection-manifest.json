@@ -1,0 +1,13 @@
+{
+  "entries": [
+    "./components/code-editor/code-editor.js",
+    "./components/code-editor-demo/code-editor-demo.js"
+  ],
+  "compiler": {
+    "name": "@stencil/core",
+    "version": "1.12.2",
+    "typescriptVersion": "3.8.3"
+  },
+  "collections": [],
+  "bundles": []
+}
