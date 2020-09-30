@@ -319,8 +319,8 @@ const EditDocumentPage = ({ user, version = null }) => {
                         <DocumentHistory history={historyResponse?.data?.documentHistory} onVersionChange={loadDocumentVersion} />
                     </DocumentPanel>
 
-                    <DocumentPanel title="JSONEditor" open={sourceOpen} onClose={() => setSourceOpen(false)} large={true}>
-                        <SourceDialog source = {documentResponse?.data?.document} />
+                    <DocumentPanel title="JSONEditor" open={sourceOpen} onClose={() => setSourceOpen(false)}>
+                        <SourceDialog source = {documentResponse?.data?.document} title={documentTitle} />
                     </DocumentPanel>
 
                 </div>

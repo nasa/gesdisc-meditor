@@ -3,7 +3,7 @@ import React from 'react'
 import styles from './source-dialog.module.css'
 import Button from 'react-bootstrap/Button'
 
-const SourceDialog = ({ source }) => {
+const SourceDialog = ({ source, title }) => {
     return (
         <div>
             <Card className={styles.card}>
