@@ -2,18 +2,32 @@ import Card from 'react-bootstrap/Card'
 import React from 'react'
 import styles from './source-dialog.module.css'
 import Button from 'react-bootstrap/Button'
+import { useState, useEffect } from 'react'
 
-const SourceDialog = ({ source, title }) => {
+const SourceDialog = ({ source, title, }) => {
+    const [newSource, setNewSource] = useState('')
+    
+    /*
+    useEffect(() => {
+        setNewSource(source.text)
+    },[source])*/
+
+    const handleClick = (event) => {
+        event.preventDefault()
+        console.log("Updated Source");
+    }
+
     return (
         <div>
             <Card className={styles.card}>
                 <Card.Body>
                     <code-editor
                         text={JSON.stringify(source, null, 2)}
-                        style={{ width: '780px', height: '500px', display: 'block' }}
+                        style={{ width: '350px', height: '400px', display: 'block' }}
+                        onTextChange={(source) => setNewSource(source)}
                     />
                     <div>
-                        <Button>Save</Button>
+                    <Button className={styles.button} variant="secondary" onClick={handleClick}>Save</Button>
                     </div>
                 </Card.Body>
             </Card>
