@@ -2,10 +2,18 @@ import Card from 'react-bootstrap/Card'
 import React from 'react'
 import styles from './source-dialog.module.css'
 import Button from 'react-bootstrap/Button'
-import { useState, useEffect } from 'react'
+import { useState} from 'react'
 
-const SourceDialog = ({ source, title}) => {
-    //const [newSource, setNewSource] = useState('')
+const SourceDialog = ({ source, title, onSave}) => {
+    const [newSource, setNewSource] = useState(() => {
+        if(!source){
+            return {}
+        }
+        let newSource = source
+        delete newSource['x-meditor']
+        delete newSource._id
+        return newSource
+    })
     
     /*
     useEffect(() => {
@@ -14,7 +22,8 @@ const SourceDialog = ({ source, title}) => {
 
     const handleClick = (event) => {
         event.preventDefault()
-        console.log("Updated Source");
+        onSave(newSource)
+        console.log(newSource);
     }
 
     return (
@@ -24,7 +33,8 @@ const SourceDialog = ({ source, title}) => {
                     <code-editor
                         text={JSON.stringify(source, null, 2)}
                         style={{ width: '350px', height: '400px', display: 'block' }}
-                        //onTextChange={(source) => console.log("source",source)}
+                        onTextChange={(source) => setNewSource(source)}
+                        //onChange={(e) => setNewSource(e.target.value)}
                     />
                     <div>
                     <Button className={styles.button} variant="secondary" onClick={handleClick}>Save</Button>

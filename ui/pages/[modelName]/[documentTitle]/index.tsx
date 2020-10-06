@@ -320,7 +320,7 @@ const EditDocumentPage = ({ user, version = null }) => {
                     </DocumentPanel>
 
                     <DocumentPanel title="JSONEditor" open={sourceOpen} onClose={() => setSourceOpen(false)}>
-                        <SourceDialog source = {documentResponse?.data?.document} title={documentTitle}/>
+                        <SourceDialog source = {documentResponse?.data?.document?.doc} title={documentTitle} onSave={saveDocument}/>
                     </DocumentPanel>
 
                 </div>
