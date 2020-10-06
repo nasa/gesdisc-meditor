@@ -4,8 +4,8 @@ import styles from './source-dialog.module.css'
 import Button from 'react-bootstrap/Button'
 import { useState, useEffect } from 'react'
 
-const SourceDialog = ({ source, title, }) => {
-    const [newSource, setNewSource] = useState('')
+const SourceDialog = ({ source, title}) => {
+    //const [newSource, setNewSource] = useState('')
     
     /*
     useEffect(() => {
@@ -24,7 +24,7 @@ const SourceDialog = ({ source, title, }) => {
                     <code-editor
                         text={JSON.stringify(source, null, 2)}
                         style={{ width: '350px', height: '400px', display: 'block' }}
-                        onTextChange={(source) => setNewSource(source)}
+                        //onTextChange={(source) => console.log("source",source)}
                     />
                     <div>
                     <Button className={styles.button} variant="secondary" onClick={handleClick}>Save</Button>
