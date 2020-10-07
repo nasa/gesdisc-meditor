@@ -3,6 +3,8 @@ import ModelIcon from '../model-icon'
 import DocumentStateBadge from './document-state-badge'
 import Button from 'react-bootstrap/Button'
 import Badge from 'react-bootstrap/Badge'
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
+import Tooltip from 'react-bootstrap/Tooltip'
 import { MdHistory, MdComment, MdCode } from 'react-icons/md'
 
 const DocumentHeader = ({
@@ -29,27 +31,51 @@ const DocumentHeader = ({
             {document && (
                 <div className={styles.subheader}>
                     {privileges.includes('comment') && (
-                        <Button variant="primary" onClick={toggleCommentsOpen}>
-                            <MdComment />
-                            <Badge className={styles.badge} variant="light">
-                                {comments.length}
-                            </Badge>
-                            <span className="sr-only">comments</span>
-                        </Button>
+                         <OverlayTrigger
+                            overlay={
+                                <Tooltip id="comments-tooltip">
+                                    Show Comments Panel
+                                </Tooltip>
+                            }
+                        >
+                            <Button variant="primary" onClick={toggleCommentsOpen}>
+                                <MdComment />
+                                <Badge className={styles.badge} variant="light">
+                                    {comments.length}
+                                </Badge>
+                                <span className="sr-only">comments</span>
+                            </Button>
+                        </OverlayTrigger>
                     )}
 
-                    <Button variant="primary" onClick={toggleHistoryOpen}>
-                        <MdHistory />
-                        <Badge className={styles.badge} variant="light">
-                            {history.length}
-                        </Badge>
-                        <span className="sr-only">history items</span>
-                    </Button>
+                    <OverlayTrigger
+                        overlay={
+                            <Tooltip id="history-tooltip">
+                                Show History Panel
+                            </Tooltip>
+                        }
+                    >
+                        <Button variant="primary" onClick={toggleHistoryOpen}>
+                            <MdHistory />
+                            <Badge className={styles.badge} variant="light">
+                                {history.length}
+                            </Badge>
+                            <span className="sr-only">history items</span>
+                        </Button>
+                    </OverlayTrigger>
 
-                    <Button variant="primary" onClick={toggleSourceOpen}>
-                        <MdCode />
-                        <span className="sr-only">Source</span>
-                    </Button>
+                    <OverlayTrigger
+                        overlay={
+                            <Tooltip id="source-tooltip">
+                                Show Document Source
+                            </Tooltip>
+                        }
+                    >
+                        <Button variant="primary" onClick={toggleSourceOpen}>
+                            <MdCode />
+                            <span className="sr-only">Source</span>
+                        </Button>
+                    </OverlayTrigger>
 
                     {model?.name && (
                         <DocumentStateBadge
