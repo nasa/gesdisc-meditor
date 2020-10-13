@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button'
 import Badge from 'react-bootstrap/Badge'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Tooltip from 'react-bootstrap/Tooltip'
-import { MdHistory, MdComment, MdCode } from 'react-icons/md'
+import { MdHistory, MdComment, MdCode} from 'react-icons/md'
 
 const DocumentHeader = ({
     document = null,
