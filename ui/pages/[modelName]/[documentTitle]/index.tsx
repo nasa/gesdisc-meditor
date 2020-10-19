@@ -21,8 +21,7 @@ import mEditorApi from '../../../service/'
 import styles from './document-edit.module.css'
 import { treeify } from '../../../lib/treeify'
 import { urlDecode } from '../../../lib/url'
-
-type Panel = 'comments' | 'history' | 'source'
+import { useLocalStorage } from '../../../lib/use-localstorage.hook'
 
 const DOCUMENT_QUERY = gql`
     query getDocument($modelName: String!, $title: String!, $version: String) {
@@ -116,7 +115,7 @@ const EditDocumentPage = ({ user, version = null }) => {
 
     const [form, setForm] = useState(null)
     const [formData, setFormData] = useState(null)
-    const [activePanel, setActivePanel] = useState<Panel>(null)
+    const [activePanel, setActivePanel] = useLocalStorage('documentEditActivePanel', null)
     const [treeifiedComments, setTreeifiedComments] = useState([])
     const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
 
@@ -252,7 +251,7 @@ const EditDocumentPage = ({ user, version = null }) => {
         setFormData(formData)
     }
 
-    function togglePanel(panel: Panel) {
+    function togglePanel(panel) {
         setActivePanel(panel === activePanel ? null : panel)
     }
 
