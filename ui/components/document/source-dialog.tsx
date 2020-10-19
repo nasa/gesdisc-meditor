@@ -5,6 +5,7 @@ import Button from 'react-bootstrap/Button'
 import { useState, useEffect } from 'react'
 import CodeEditor from '../code-editor'
 
+
 function isValidJSON(str) {
     try {
         JSON.parse(str)
@@ -61,7 +62,7 @@ const SourceDialog = ({ source, title, onSave }) => {
                     {source && <>
                         <CodeEditor
                             text={source ? JSON.stringify(source, null, 2) : ""}
-                            style={{ width: '350px', height: '400px', display: 'block' }}
+                            style={{ width: '100%' , height: '400px', display: 'block' }}
                             onTextChange={handleSourceChange}
                         />
 
@@ -83,6 +84,9 @@ const SourceDialog = ({ source, title, onSave }) => {
                             >
                                 <Button className={styles.button} variant="secondary" style={{ float: 'right' }}> Download </Button>
                             </a>
+                        </div>
+                        <div className={styles.note}>
+                            <p><b>Note:</b> To undo an action press Ctrl+Z</p>
                         </div>
                     </>}
                 </Card.Body>
