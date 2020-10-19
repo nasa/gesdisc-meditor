@@ -75,6 +75,15 @@ const SourceDialog = ({ source, title, onSave }) => {
                             >
                                 Save
                             </Button>
+
+                            <a
+                                href={`data:text/json;charset=uft-8,${encodeURIComponent(
+                                    JSON.stringify(source, null, 2)
+                                )}`}
+                                download={`${title}.json`}
+                            >
+                                <Button className={styles.button} variant="secondary" style={{ float: 'right' }}> Download </Button>
+                            </a>
                         </div>
                         <div className={styles.note}>
                             <p><b>Note:</b> To undo an action press Ctrl+Z</p>
