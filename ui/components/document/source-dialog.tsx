@@ -61,7 +61,7 @@ const SourceDialog = ({ source, title, onSave }) => {
                     {source && <>
                         <CodeEditor
                             text={source ? JSON.stringify(source, null, 2) : ""}
-                            style={{ width: '350px', height: '400px', display: 'block' }}
+                            style={{ width: '100%' , height: '400px', display: 'block' }}
                             onTextChange={handleSourceChange}
                         />
 
@@ -74,6 +74,9 @@ const SourceDialog = ({ source, title, onSave }) => {
                             >
                                 Save
                             </Button>
+                        </div>
+                        <div className={styles.note}>
+                            <p><b>Note:</b> To undo an action press Ctrl+Z</p>
                         </div>
                     </>}
                 </Card.Body>
