@@ -27,3 +27,11 @@
 .button{
     margin-top: 10px;
 }
+
+.note{
+    background-color: lightblue;
+    border-left: 2px solid blue;
+    border-radius: 2px;
+    width: 40%;
+    
+}

@@ -5,7 +5,8 @@ import Button from 'react-bootstrap/Button'
 import Badge from 'react-bootstrap/Badge'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Tooltip from 'react-bootstrap/Tooltip'
-import { MdHistory, MdComment, MdCode } from 'react-icons/md'
+import { MdHistory, MdComment } from 'react-icons/md'
+import { BsBraces } from 'react-icons/bs'
 
 const DocumentHeader = ({
     document = null,
@@ -69,7 +70,7 @@ const DocumentHeader = ({
                         }
                     >
                         <Button variant="primary" onClick={() => togglePanelOpen('source')}>
-                            <MdCode />
+                            <BsBraces />
                             <span className="sr-only">Source</span>
                         </Button>
                     </OverlayTrigger>
