@@ -22,6 +22,7 @@ import styles from './document-edit.module.css'
 import { treeify } from '../../../lib/treeify'
 import { urlDecode } from '../../../lib/url'
 import { useLocalStorage } from '../../../lib/use-localstorage.hook'
+import cloneDeep from 'lodash.clonedeep'
 
 const DOCUMENT_QUERY = gql`
     query getDocument($modelName: String!, $title: String!, $version: String) {
@@ -259,6 +260,15 @@ const EditDocumentPage = ({ user, version = null }) => {
         setActivePanel(null)
     }
 
+    function handleSourceChange(newSource) {
+        let formData = cloneDeep(documentResponse.data.document)
+        
+        newSource._id = formData.doc._id
+        formData.doc = newSource
+
+        setFormData(formData)
+    }
+
     return (
         <div>
             <PageTitle title={[documentTitle, modelName]} />
@@ -313,7 +323,7 @@ const EditDocumentPage = ({ user, version = null }) => {
                     </DocumentPanel>
 
                     <DocumentPanel title="JSONEditor" open={activePanel == 'source'} onClose={closePanel} large={true}>
-                        <SourceDialog source={documentResponse?.data?.document?.doc} title={documentTitle} onSave={saveDocument} />
+                        <SourceDialog source={formData} title={documentTitle} onChange={handleSourceChange} />
                     </DocumentPanel>
                 </div>
 
