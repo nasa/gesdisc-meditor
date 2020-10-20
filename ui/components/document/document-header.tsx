@@ -12,13 +12,10 @@ const DocumentHeader = ({
     document = null,
     model,
     version = null,
-    toggleCommentsOpen = () => {},
-    toggleHistoryOpen = () => {},
-    toggleSourceOpen = () => {},
+    togglePanelOpen,
     privileges = [],
     comments = [],
     history = [],
-    source = []
 }) => {
     return (
         <div>
@@ -39,7 +36,7 @@ const DocumentHeader = ({
                                 </Tooltip>
                             }
                         >
-                            <Button variant="primary" onClick={toggleCommentsOpen}>
+                            <Button variant="primary" onClick={() => togglePanelOpen('comments')}>
                                 <MdComment />
                                 <Badge className={styles.badge} variant="light">
                                     {comments.length}
@@ -56,7 +53,7 @@ const DocumentHeader = ({
                             </Tooltip>
                         }
                     >
-                        <Button variant="primary" onClick={toggleHistoryOpen}>
+                        <Button variant="primary" onClick={() => togglePanelOpen('history')}>
                             <MdHistory />
                             <Badge className={styles.badge} variant="light">
                                 {history.length}
@@ -72,7 +69,7 @@ const DocumentHeader = ({
                             </Tooltip>
                         }
                     >
-                        <Button variant="primary" onClick={toggleSourceOpen}>
+                        <Button variant="primary" onClick={() => togglePanelOpen('source')}>
                             <BsBraces />
                             <span className="sr-only">Source</span>
                         </Button>

@@ -21,6 +21,7 @@ import mEditorApi from '../../../service/'
 import styles from './document-edit.module.css'
 import { treeify } from '../../../lib/treeify'
 import { urlDecode } from '../../../lib/url'
+import { useLocalStorage } from '../../../lib/use-localstorage.hook'
 
 const DOCUMENT_QUERY = gql`
     query getDocument($modelName: String!, $title: String!, $version: String) {
@@ -114,10 +115,8 @@ const EditDocumentPage = ({ user, version = null }) => {
 
     const [form, setForm] = useState(null)
     const [formData, setFormData] = useState(null)
-    const [commentsOpen, setCommentsOpen] = useState(false)
+    const [activePanel, setActivePanel] = useLocalStorage('documentEditActivePanel', null)
     const [treeifiedComments, setTreeifiedComments] = useState([])
-    const [historyOpen, setHistoryOpen] = useState(false)
-    const [sourceOpen, setSourceOpen] = useState(false)
     const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
 
     const [loadDocument, documentResponse] = useLazyQuery(DOCUMENT_QUERY, {
@@ -175,18 +174,6 @@ const EditDocumentPage = ({ user, version = null }) => {
     useEffect(() => {
         setTreeifiedComments(treeify(commentsResponse?.data?.documentComments))
     }, [commentsResponse.data])
-
-    useEffect(() => {
-        if (commentsOpen) setHistoryOpen(false)
-    }, [commentsOpen])
-
-    useEffect(() => {
-        if (historyOpen) setCommentsOpen(false)
-    }, [historyOpen])
-
-    useEffect(() => {
-        if (sourceOpen) setHistoryOpen(false)
-    }, [sourceOpen])
 
     const currentPrivileges = modelResponse?.data?.model?.workflow
         ? user.privilegesForModelAndWorkflowNode(modelName, modelResponse.data.model.workflow.currentNode)
@@ -264,6 +251,14 @@ const EditDocumentPage = ({ user, version = null }) => {
         setFormData(formData)
     }
 
+    function togglePanel(panel) {
+        setActivePanel(panel === activePanel ? null : panel)
+    }
+
+    function closePanel() {
+        setActivePanel(null)
+    }
+
     return (
         <div>
             <PageTitle title={[documentTitle, modelName]} />
@@ -277,9 +272,7 @@ const EditDocumentPage = ({ user, version = null }) => {
                 document={documentResponse?.data?.document}
                 model={modelResponse?.data?.model}
                 version={version}
-                toggleCommentsOpen={() => setCommentsOpen(!commentsOpen)}
-                toggleHistoryOpen={() => setHistoryOpen(!historyOpen)}
-                toggleSourceOpen={() => setSourceOpen(!historyOpen)}
+                togglePanelOpen={togglePanel}
                 privileges={currentPrivileges}
                 comments={commentsResponse?.data?.documentComments}
                 history={historyResponse?.data?.documentHistory}
@@ -297,7 +290,7 @@ const EditDocumentPage = ({ user, version = null }) => {
                     </Alert>
                 }
             >
-                <div className={styles.stage} style={{ paddingRight: commentsOpen || historyOpen ? 430 : 0 }}>
+                <div className={styles.stage} style={{ paddingRight: activePanel ? 430 : 0 }}>
                     <Form
                         model={modelResponse?.data?.model}
                         document={formData}
@@ -306,7 +299,7 @@ const EditDocumentPage = ({ user, version = null }) => {
                         readOnly={!(currentPrivileges?.includes('edit'))}
                     />
 
-                    <DocumentPanel title="Comments" open={commentsOpen} onClose={() => setCommentsOpen(false)}>
+                    <DocumentPanel title="Comments" open={activePanel == 'comments'} onClose={closePanel}>
                         <DocumentComments
                             user={user}
                             comments={treeifiedComments}
@@ -315,14 +308,13 @@ const EditDocumentPage = ({ user, version = null }) => {
                         />
                     </DocumentPanel>
 
-                    <DocumentPanel title="History" open={historyOpen} onClose={() => setHistoryOpen(false)}>
+                    <DocumentPanel title="History" open={activePanel == 'history'} onClose={closePanel}>
                         <DocumentHistory history={historyResponse?.data?.documentHistory} onVersionChange={loadDocumentVersion} />
                     </DocumentPanel>
 
-                    <DocumentPanel title="JSONEditor" open={sourceOpen} onClose={() => setSourceOpen(false)} large={true}>
+                    <DocumentPanel title="JSONEditor" open={activePanel == 'source'} onClose={closePanel} large={true}>
                         <SourceDialog source={documentResponse?.data?.document?.doc} title={documentTitle} onSave={saveDocument} />
                     </DocumentPanel>
-
                 </div>
 
                 <FormActions
