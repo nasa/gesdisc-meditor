@@ -62,7 +62,7 @@ const SourceDialog = ({ source, title, onSave }) => {
                     {source && <>
                         <CodeEditor
                             text={source ? JSON.stringify(source, null, 2) : ""}
-                            style={{ width: '100%' , height: '400px', display: 'block' }}
+                            style={{ width: '100%', height: '400px', display: 'block' }}
                             onTextChange={handleSourceChange}
                         />
 

@@ -313,9 +313,8 @@ const EditDocumentPage = ({ user, version = null }) => {
                     </DocumentPanel>
 
                     <DocumentPanel title="JSONEditor" open={activePanel == 'source'} onClose={closePanel} large={true}>
-                        <SourceDialog source = {documentResponse?.data?.document?.doc} title={documentTitle} onSave={saveDocument}/>
+                        <SourceDialog source={documentResponse?.data?.document?.doc} title={documentTitle} onSave={saveDocument} />
                     </DocumentPanel>
-
                 </div>
 
                 <FormActions

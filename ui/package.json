@@ -23,6 +23,7 @@
     "apollo-server-express": "^2.15.0",
     "apollo-server-plugin-response-cache": "^0.4.1",
     "bootstrap": "^4.5.0",
+    "brace": "^0.11.1",
     "ckeditor4-react": "^1.1.0",
     "concurrently": "^5.2.0",
     "cookie-parser": "^1.4.5",
