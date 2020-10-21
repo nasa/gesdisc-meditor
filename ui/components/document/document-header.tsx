@@ -29,7 +29,7 @@ const DocumentHeader = ({
             {document && (
                 <div className={styles.subheader}>
                     {privileges.includes('comment') && (
-                         <OverlayTrigger
+                        <OverlayTrigger
                             overlay={
                                 <Tooltip id="comments-tooltip">
                                     Show Comments Panel

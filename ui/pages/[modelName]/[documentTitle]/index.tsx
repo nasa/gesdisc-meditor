@@ -262,7 +262,7 @@ const EditDocumentPage = ({ user, version = null }) => {
 
     function handleSourceChange(newSource) {
         let formData = cloneDeep(documentResponse.data.document)
-        
+
         newSource._id = formData.doc._id
         formData.doc = newSource
 
