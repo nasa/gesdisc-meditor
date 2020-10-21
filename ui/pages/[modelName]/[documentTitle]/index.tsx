@@ -99,14 +99,6 @@ const HISTORY_QUERY = gql`
         }
     }
 `
-const SOURCE_QUERY = gql`
-query getSource($modelName: String!, $title: String!) {
-    sourceDialog(modelName: $modelName, title: $title) {
-        modifiedOn
-        modifiedBy
-    }
- }
-`
 
 const EditDocumentPage = ({ user, version = null }) => {
     const router = useRouter()
@@ -133,10 +125,6 @@ const EditDocumentPage = ({ user, version = null }) => {
     })
 
     const [loadHistory, historyResponse] = useLazyQuery(HISTORY_QUERY, {
-        fetchPolicy: 'network-only',
-    })
-
-    const [loadSouce, sourceResponse] = useLazyQuery(SOURCE_QUERY, {
         fetchPolicy: 'network-only',
     })
 
