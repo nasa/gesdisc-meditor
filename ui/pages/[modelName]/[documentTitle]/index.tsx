@@ -128,6 +128,7 @@ const EditDocumentPage = ({ user, version = null }) => {
         fetchPolicy: 'network-only',
     })
 
+
     useEffect(() => {
         loadDocument({
             variables: {
