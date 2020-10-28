@@ -151,7 +151,7 @@ const NewDocumentPage = ({ user }) => {
                 <Breadcrumb title="New" />
             </Breadcrumbs>
 
-            <DocumentHeader model={data?.model} />
+           <DocumentHeader model={data?.model} togglePanelOpen />
 
             <RenderResponse
                 loading={loading}

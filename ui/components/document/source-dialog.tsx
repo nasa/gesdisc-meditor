@@ -71,6 +71,7 @@ const SourceDialog = ({ source, title, onChange }) => {
                             style={{ width: '100%', height: '400px', display: 'block' }}
                             onTextChange={handleSourceChange}
                             onBlur={handleBlur}
+                            theme="solarized_light"
                         />
 
                         {!validJson && <Alert variant="danger">Invalid JSON, please review and fix any JSON errors.</Alert>}
