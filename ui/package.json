@@ -13,7 +13,7 @@
   "dependencies": {
     "@apollo/react-hooks": "^3.1.5",
     "@apollo/react-ssr": "^3.1.5",
-    "@gesdisc/meditor-components": "^1.0.6",
+    "@gesdisc/meditor-components": "^1.0.9",
     "@yaireo/tagify": "^3.8.0",
     "apollo-cache-inmemory": "^1.6.6",
     "apollo-client": "^2.6.10",

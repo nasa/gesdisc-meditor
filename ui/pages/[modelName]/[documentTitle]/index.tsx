@@ -237,10 +237,6 @@ const EditDocumentPage = ({ user, version = null }) => {
         reloadComments()
     }
 
-    function onChange(formData: any) {
-        setFormData(formData)
-    }
-
     function togglePanel(panel) {
         setActivePanel(panel === activePanel ? null : panel)
     }
@@ -253,7 +249,7 @@ const EditDocumentPage = ({ user, version = null }) => {
         let formData = cloneDeep(documentResponse.data.document)
 
         newSource._id = formData.doc._id
-        formData.doc = newSource
+        formData.doc = newSource.doc || newSource
 
         setFormData(formData)
     }
@@ -294,7 +290,7 @@ const EditDocumentPage = ({ user, version = null }) => {
                         model={modelResponse?.data?.model}
                         document={formData}
                         onUpdateForm={setForm}
-                        onChange={onChange}
+                        onChange={handleSourceChange}
                         readOnly={!(currentPrivileges?.includes('edit'))}
                     />
 
