@@ -1,4 +1,4 @@
-import { ApolloClient } from 'apollo-client'
+import ApolloClient from 'apollo-client'
 import { InMemoryCache, defaultDataIdFromObject } from 'apollo-cache-inmemory'
 import { HttpLink } from 'apollo-link-http'
 import fetch from 'isomorphic-unfetch'
