@@ -86,11 +86,16 @@
 }
 
 .pastState:last-child:after {
-    display: none; 
+    display: none;
 }
 
 .pastState svg {
     position: absolute;
     top: 10px;
     left: 0;
+}
+
+.activeHistory {
+    border: 1px solid #343a40;
+    background: #eee;
 }

@@ -1,0 +1,19 @@
+.jsonToolBar {
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    background-color: #eeeeee;
+    padding: 10px;
+}
+
+.textAlign {
+    text-align: right;
+}
+
+.versionItem {
+    display: flex;
+    justify-content: space-between;
+}
+
+.versionItem div {
+    display: flex;
+    flex-direction: column;
+}
