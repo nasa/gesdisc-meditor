@@ -73,7 +73,7 @@ const Header = ({ user, isAuthenticated }) => {
                         variant="link"
                         style={{ color: 'grey', marginLeft: 10 }}
                         as="a"
-                        href="https://docs.google.com/document/d/e/2PACX-1vSNC0fvXJ6rbOuuOcAGarA1s4ys3l0mKZ608RgPPlHVvBAYAktxoUWUIsVZqY_QQYN4OvPR6xppz7mI/pub"
+                        href={process.env.HELP_DOCUMENT_LOCATION || process.env.NEXT_PUBLIC_HELP_DOCUMENT_LOCATION}
                         target="_blank"
                     >
                         <MdHelp style={{ fontSize: '1.6em' }} />
