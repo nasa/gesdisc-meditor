@@ -886,7 +886,6 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
       return getModelContent(that.params.model, that.dbo.db(DbName))
     })
     .then(model => {
-      console.log('publish to nats ', model, that.workflow)
       mUtils.publishToNats(that.dbo, that.document, model, that.params.state)
       return model
     })
