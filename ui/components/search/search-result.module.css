@@ -1,0 +1,19 @@
+.result {
+    display: contents;
+}
+
+.result > div {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    transition: background .15s ease-in-out;
+}
+
+.result:hover > div {
+    background: #f0f0f0;
+}
+
+.result > div:last-child {
+    justify-content: center;
+}

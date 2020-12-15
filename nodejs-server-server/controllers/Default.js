@@ -52,6 +52,18 @@ module.exports.getDocument = function getDocument (req, res, next) {
     });
 };
 
+module.exports.getDocumentPublicationStatus = function getDocumentPublicationStatus (req, res, next) {
+  var model = req.swagger.params['model'].value;
+  var title = req.swagger.params['title'].value;
+  Default.getDocumentPublicationStatus(model,title)
+    .then(function (response) {
+      utils.writeJson(res, response);
+    })
+    .catch(function (response) {
+      utils.writeJson(res, response);
+    });
+};
+
 module.exports.getDocumentHistory = function getDocumentHistory (req, res, next) {
   var model = req.swagger.params['model'].value;
   var title = req.swagger.params['title'].value;
@@ -142,6 +154,19 @@ module.exports.postComment = function postComment (req, res, next) {
 module.exports.putDocument = function putDocument (req, res, next) {
   var file = req.swagger.params['file'].value;
   Default.putDocument(file)
+    .then(function (response) {
+      utils.writeJson(res, response);
+    })
+    .catch(function (response) {
+      utils.writeJson(res, response);
+    });
+};
+
+module.exports.cloneDocument = function cloneDocument (req, res, next) {
+  var model = req.swagger.params['model'].value;
+  var title = req.swagger.params['title'].value;
+  var newTitle = req.swagger.params['newTitle'].value;
+  Default.cloneDocument(model,title,newTitle)
     .then(function (response) {
       utils.writeJson(res, response);
     })

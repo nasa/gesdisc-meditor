@@ -1,92 +1,20 @@
 var _ = require('lodash');
-var transliteration = require('transliteration');
 var mongo = require('mongodb');
-var stream = require('stream');
 var mustache = require('mustache');
 var he = require('he');
-var ObjectID = mongo.ObjectID;
-var mFile = require('./meditor-mongo-file');
 var nats = require('./nats-connection');
 
 const NATS_QUEUE_PREFIX = 'meditor-'
-const NotificationQueueCollectionName = 'queue-notifications';
 module.exports.WORKFLOW_ROOT = 'Init';
 module.exports.WORKFLOW_ROOT_EDGE = {source: 'Init', target: 'Draft'};
-
-// For a given document and metadata, returns a unique file name,
-// to be used when storing the file on the file system
-module.exports.getFSFileName = function getFileName(modelMeta, doc) {
-  var fileName = [modelMeta.titleProperty, doc[modelMeta.titleProperty], _.get(doc, "x-meditor.modifiedOn", (new ObjectID()).toString())].join('_');
-  fileName == transliteration.slugify(fileName); // Unused for now
-  return (new ObjectID).toString();
-};
-
-// Stores a string 'data' attribute witha a given 'metadata' object on GridFS
-// If a file with a given 'filename' already exists on FS - the original file
-// is removed and replaced with the new one
-module.exports.putFileSystemItem = function putFileSystemItem(dbo, filename, data, meta) {
-  var options = meta ? {
-    metadata: meta
-  } : null;
-  var putItemHelper = function (bucket, resolve, reject) {
-    var writeStream = bucket.openUploadStreamWithId(filename, filename, options);
-    var s = new stream.Readable();
-    s.push(data);
-    s.push(null); // Push null to end stream
-    s.pipe(writeStream);
-    writeStream.on('finish', resolve);
-    writeStream.on('error', reject);
-  };
-  return new Promise(function (resolve, reject) {
-    var bucket = new mongo.GridFSBucket(dbo);
-    bucket.find({_id: filename}).count(function (err, count) {
-      if (err) return reject(err);
-      if (count > 0) {
-        bucket.delete(filename, function (err) {
-          if (err) {
-            reject(err);
-          } else {
-              putItemHelper(bucket, resolve, reject);
-          }
-        })
-      } else {
-        putItemHelper(bucket, resolve, reject);
-      }
-    }, reject);
-  });
-};
-
-// A test driver for FS storage functions
-function testFs() {
-  var MongoClient = mongo.MongoClient;
-  var MongoUrl = 'mongodb://localhost:27017';
-  var DbName = 'test';
-  MongoClient.connect(MongoUrl, function(err, db) {
-    if (err) throw err;
-    var dbo = db.db(DbName);
-    putFileSystemItem(dbo, 'test', 'this is a test')
-    .then(function(a) {
-      console.log('Wrote a gridFS file with metadata:', a);
-      return mFile.getFileSystemItem(dbo, 'test')
-    })
-    .then(function(a) {
-      console.log('Got data back from a gridFS file:', a);
-      db.close();
-    })
-    .catch(function(e) {
-      console.log(e);
-      db.close();
-    })
-  });
-}
 
 // Inserts a data message into a NATS channel
 module.exports.publishToNats = function publishToNats(document, model, state = '') {
   let modelName = typeof model === 'string' ? model : model.name
-  let channelName = NATS_QUEUE_PREFIX + modelName
+  let channelName = NATS_QUEUE_PREFIX + modelName.replace(/ /g, '-')
   let workflowName = typeof model === 'string' ? '' : model.workflow
 
-  let message = JSON.stringify({
+  let message = {
     id: document._id,
     document,
     model: {
@@ -94,8 +22,8 @@ module.exports.publishToNats = function publishToNats(document, model, state = '
     },
     state,
     time: Date.now(),
-  })
-  
+  }
+
   if (workflowName) {
     var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
     var MongoClient = mongo.MongoClient;
@@ -110,7 +38,9 @@ module.exports.publishToNats = function publishToNats(document, model, state = '
           if (workflowState && workflowState.length && workflowState[0].publishable) {
             // Publish message to channel (meditor-Alerts)
             console.log(`Publishing message to channel ${channelName}: `, message)
-            nats.stan.publish(NATS_QUEUE_PREFIX + modelName, JSON.stringify(message), function(err, guid) {
+
+            // Publish message to channel (meditor-Alerts)
+            nats.stan.publish(channelName, JSON.stringify(message), function(err, guid) {
               if (err) {
                 console.log('publish failed: ' + err);
               }
@@ -129,8 +59,10 @@ module.exports.publishToNats = function publishToNats(document, model, state = '
 // Converts dictionary params back into URL params
 module.exports.serializeParams = function serializeParams(params, keys) {
   return _(params)
-  .pickBy(function(val,key) {return (!!keys ? keys.indexOf(key) !== -1 : true) && !_.isNil(val);})
-  .map(function(val, key) {return key + "=" + encodeURIComponent(val);}).value().join('&')
+    .pickBy(function(val,key) {return (!!keys ? keys.indexOf(key) !== -1 : true) && !_.isNil(val);})
+    .map((val) => encodeURIComponent(val))
+    .value()
+    .join('/')
 }
 
 // Create a DB message for the notifier daemon to mail to relevant users
@@ -156,7 +88,7 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
       + he.decode(notificationTemplate),
     "link": {
         label: meta.params.title,
-        url: process.env.APP_UI_URL + "/#/document/edit?" + module.exports.serializeParams(meta.params, ['title', 'model', 'version'])
+        url: process.env.APP_URL + "/meditor/" + module.exports.serializeParams(meta.params, ['model', 'title','version'])
     },
     "createdOn": (new Date()).toISOString()
   };
@@ -173,7 +105,7 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
           {$unwind: '$roles'},
           {$match: {'roles.model': meta.params.model, 'roles.role': {$in: targetRoles}}},
           {$group: {_id: null, ids: {$addToSet: "$id"}}}
-        ])
+        ], {allowDiskUse: true})
         .toArray();
     })
     .then(function(users) {
@@ -392,7 +324,7 @@ function handleModelChanges(meta, DbName, modelDoc) {
             {$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
             {$addFields: {'x-meditor.state': { $arrayElemAt: [ "$x-meditor.states.target", -1 ]}}}, // Find last state
             {$limit: 2}
-        ])
+        ], {allowDiskUse: true})
         .toArray();
     })
     .then(function(res) {
@@ -409,7 +341,7 @@ function handleModelChanges(meta, DbName, modelDoc) {
           {$sort: {"x-meditor.modifiedOn": -1}}, // Sort descending by version (date)
           {$group: {_id: '$name', doc: {$first: '$$ROOT'}}}, // Grab all fields in the most recent version
           {$replaceRoot: { newRoot: "$doc"}} // Put all fields of the most recent doc back into root of the document
-        ])
+        ], {allowDiskUse: true})
         .sort({'x-meditor.modifiedOn': -1})
         .toArray();
     })
@@ -488,7 +420,7 @@ function handleModelChanges(meta, DbName, modelDoc) {
     .then(function(res) {
       console.log('Done updating state history for documents in ' + modelDoc.name);
       // Re-publish documents as necessary, since some of the states could have changed
-      return exports.publishToNats(modelDoc, modelDoc.name); // Take an opportunity to sync with UUI
+      return exports.publishToNats(modelDoc, modelDoc.name);
     })
     .catch(function(e) {
       if (_.isObject(e) && e.result) {
@@ -504,41 +436,3 @@ module.exports.actOnDocumentChanges = function actOnDocumentChanges(meta, DbName
   if (doc["x-meditor"]["model"] === 'Models') return handleModelChanges(meta, DbName, doc);
   return Promise.resolve();
 };
-
-// This is used for developing / testing purposes
-module.exports.testStub = function() {
-  // var defaultStateName = "Unspecified";
-  // var defaultState = {target: defaultStateName, source: defaultStateName, modifiedBy: 'Unknown', modifiedOn: (new Date()).toISOString()};
-  var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
-  var MongoClient = mongo.MongoClient;
-  MongoClient.connect(MongoUrl, function(err, db) {
-    var DbName = "meditor";
-    if (err) {
-      console.log(err);
-      throw err;
-    }
-    var dbo = db;
-    var meta = {
-      dbo: dbo
-    }
-    module.exports.actOnDocumentChanges(meta, DbName, {name: 'News', 'x-meditor': {model: 'Models'}});
-  });
-};
-
-module.exports.testNATS = function() {
-  var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
-  var MongoClient = mongo.MongoClient;
-  MongoClient.connect(MongoUrl, function(err, db) {
-    var DbName = "meditor";
-    if (err) {
-      console.log(err);
-      throw err;
-    }
-    var dbo = db;
-    var meta = {
-      dbo: dbo
-    }
-});
-};
-
-module.exports.testNATS();

@@ -30,7 +30,7 @@ nats.stan.on('connect', function() {
   // Initialize the Swagger middleware
   swaggerTools.initializeMiddleware(swaggerDoc, function (middleware) {
     if (process.env.NODE_ENV === 'development') {
-      app.use(cors({credentials: true, origin: 'http://localhost:4200'}));
+      app.use(cors({credentials: true, origin: 'http://localhost:4000'}));
     }
 
     // Init authentication

@@ -2,7 +2,7 @@
 
 const LoremIpsum = require("lorem-ipsum").LoremIpsum
 
-const TEST_MODEL = 'News'
+const TEST_MODEL = 'Example News'
 const AUTHOR_UID = 'andyauthor'
 const REVIEWER_UID = 'joereviewer'
 const PUBLISHER_UID = 'pattypublisher'
@@ -25,23 +25,28 @@ describe('Edit-Review-Publish Workflow', () => {
 			// visit homepage
 			cy.visit(Cypress.env('appUrl'))
 
+			console.log('made it through')
+
 			// find and visit model
 			cy.contains(new RegExp(`^${TEST_MODEL}`)).parent().click()
-			cy.url().should('contain', `search?model=${TEST_MODEL}`)
+			cy.url().should('contain', `/${TEST_MODEL}`)
 
 			// click create button
 			cy.contains('button', 'Create').click()
-			cy.url().should('contain', `new?model=${TEST_MODEL}`)
+			cy.url().should('contain', `/${TEST_MODEL}/new`)
 
 			// fill out required fields (with random title)
-			cy.get('input[name="title"]').type(`Automated '${TEST_MODEL}' model test ${new Date().getTime()}`)
-			cy.get('input[name="abstract"]').type(lorem.generateWords(5))
-			cy.get('ck-editor').typeCKEditor(lorem.generateParagraphs(2))
-			cy.get('material-image-widget input').uploadImage('soil.png')
-			cy.get('input[name="imageCaption"]').type(lorem.generateWords(5))
+			cy.get('input[id="root_title"]').type(`Automated '${TEST_MODEL}' model test ${new Date().getTime()}`)
+			cy.get('input[id="root_abstract"]').type(lorem.generateWords(5))
+			cy.get('div[id="cke_editor1"]').typeCKEditor(lorem.generateParagraphs(2))
+			cy.get('input[type="file"]').uploadImage('soil.png')
+			cy.get('input[id="root_imageCaption"]').type(lorem.generateWords(5))
 
-			// submit new document, then submit it for review
+			// attempt to save and make sure it didn't fail to save due to validation errors
 			cy.contains('button', 'Save').click()
+			cy.get('.panel-danger').should('not.exist')
+
+			// submit it for review
 			cy.contains('button', 'Submit for review').click()
 
 			cy.logout()
@@ -64,8 +69,8 @@ describe('Edit-Review-Publish Workflow', () => {
 
 			// navigate to model page, find new document, and approve it
 			cy.contains(new RegExp(`^${TEST_MODEL}`)).parent().click()
-			cy.get('med-search-result:first-child a').click()
-			cy.get('mat-card-content mat-chip').should("contain", "Under Review")
+			cy.get('div[class^="search-result_result"] a').first().click()
+			cy.get('span[class^="document-state-badge"]').should("contain", "Under Review")
 			cy.contains('button', 'Approve publication').click()
 		})
 	})
@@ -86,8 +91,8 @@ describe('Edit-Review-Publish Workflow', () => {
 
 			// navigate to model page, find new document, and approve it
 			cy.contains(new RegExp(`^${TEST_MODEL}`)).parent().click()
-			cy.get('med-search-result:first-child a').click()
-			cy.get('mat-card-content mat-chip').should("contain", "Approved")
+			cy.get('div[class^="search-result_result"] a').first().click()
+			cy.get('span[class^="document-state-badge"]').should("contain", "Under Review")
 			cy.contains('button', 'Publish').click()
 		})
 	})

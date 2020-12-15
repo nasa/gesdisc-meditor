@@ -1,17 +1,26 @@
-# Meditor
+# mEditor
 
-The Meditor stack is comprised of these projects:
+### Getting Started
 
-* Angular
-* Material Design
-* Node.js
-* Mongo
-* Swagger/OpenAPI
+* Clone the repo and `cd meditor`
+* Copy .env.example, create a **new file** called .env
+* mEditor uses Earthdata Login for authentication, so you will need to update `AUTH_CLIENT_ID` and `AUTH_CLIENT_SECRET` in your .env with the values for your client application.
+* Build and run the app: `docker-compose up`
+  * NOTE: you will see a warning about REGISTRY variable is not set. You can safely ignore this. If you'd like to use a private registry you can set this ENV variable. 
+* Once everything is up and running (may take a few minutes on the first run), you can access mEditor at: `http://localhost/meditor`
+* The first time you load mEditor, it will take you through a step-by-step for setting up the database and initial users.
 
-### Subscribing to published documents
+### Developing in mEditor
 
-mEditor pushes published documents into a queue (NATS) that can be subscribed to by an external service.
-Each document type has its own queue, e.g., 'meditor-News' for News and so on.
+* In development, you can make changes in most of the service folders and the service will restart with your changes applied.
+* Out of the box, your IDE will show errors for dependencies and will be missing autocompletion for dependencies. This is due to Docker installing dependencies inside the container, inaccessible to the host. To fix this, you can run `npm install` inside whichever service folder you are working on.
+* Please create a branch for your changes and when you are finished, create a pull request to have them reviewed and merged in.
+
+### Subscribing to document state changes
+
+When a document in mEditor moves through a workflow (ex. moves to Draft, moves to Published, etc.), mEditor puts that document into a queue (NATS) that can be subscribed to by an external service.
+
+A queue is created for each model. For example, documents in the `Example News` model would be pushed to the `meditor-Example-News` queue.
 
 A document in the queue will look similar to this example:
 
@@ -20,65 +29,27 @@ A document in the queue will look similar to this example:
     "id": "",
     "document": {...},
     "model": {...},
-    "target": "uui",            # (optional) if included, this message is only meant for a certain subscriber
+    "target": "example",            # (optional) if included, this message is only meant for a certain subscriber
     "state": "Under Review",
     "time": 1580324162703
 }
 ```
 
-The clients are expected to publish an acknowledgement message into the 'meditor-Acknowledgement' queue:
+The clients are expected to publish an acknowledgement message into the 'meditor-Acknowledgement' queue, with this form:
 
 ```json
 {
     "time": 1580324162703,
-    "id": "Example article",
-    "model": "News",
-    "target": "uui",
-    "url": "https://disc.gsfc.nasa.gov/information/news?title=Example%20article",
-    "message": "Success!",
-    "statusCode": "200",
+    "id": "",                       # the document ID, send this back so mEditor knows which document to update
+    "model": "Example News",        # the model namm
+    "target": "example",            # the website/application that handled the document
+    "url": "https://example.nasa.gov/news?title=Example%20article",     # an optional URL the document was published to
+    "message": "Success!",          # a message to show the user in mEditor (could include a list of errors for failures)
+    "statusCode": "200",            # status code to notify mEditor of success vs failure to publish
     "state": "Under Review"
 }
 ```
 
-An example subscriber is located in `./examples/subscriber`. Run `npm install` then `npm run start` to see it in action.
+An example subscriber is located in `./examples/subscriber` and shows how to subscribe to a specific model and how to send acknowledgements back to mEditor.
 
-To "publish" a test document using the stub, run `node ./examples/subscriber/stubs/publish.js` in a separate terminal. You should see output in both the publisher stub and the subscriber.
-
-### Developing Locally
-
-The easiest way to get up and running is via Docker:
-
-* Clone this repo and do `cd meditor`.
-* Copy .env.example, create a **new file** called .env
-* Inside this file, you'll need to modify `AUTH_CLIENT_ID` and `AUTH_CLIENT_SECRET` with the real values (ask someone)
-* Build and run the app: `docker-compose up`
-* Access parts of the app on these ports:
-    * Frontend: [http://localhost:4200](http://localhost:4200)
-    * Node.js backend: [http://localhost:8081](http://localhost:8081)
-    * Mongo: [http://localhost:27017](http://localhost:27017)
-
-### Running production
-
-All meditor images are stored in the registry: registry1.gesdisc.eosdis.nasa.gov
-
-Production mode doesn't use the .env file as described above, it uses environment variables.
-
-* `docker swarm init` (if not already part of a swarm)
-* `printf "ASK_SOMEONE_FOR_THIS" | docker secret create auth_host -`
-* `printf "ASK_SOMEONE_FOR_THIS" | docker secret create auth_client_id -`
-* `printf "ASK_SOMEONE_FOR_THIS" | docker secret create auth_client_secret -`
-* `docker node ls` - copy node ID for next step
-* `docker node update --label-add database=primary {NODEID}`
-* `env HOST_NAME=``hostname`` docker stack deploy -c docker-compose.production.yml --with-registry-auth meditor`
-
-### Releasing a new version
-
-`./release.sh`
-
-* Builds fresh Docker images
-* Bumps the minor version number (i.e. 0.1.0 -> 0.2.0)
-* Updates the UI to display the new version
-* Updates the docker-compose.production.yml to use the new version
-* Git commits and pushes the version changes
-* Pushes the new Docker images to the registry
+The built-in notifier, which sends emails to users, is also a subscriber. The notifier subscribes to the `meditor-notifications` queue.

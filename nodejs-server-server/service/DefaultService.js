@@ -87,6 +87,25 @@ exports.getDocument = function(model,title,version) {
   });
 }
 
+/**
+ * Gets a document's publication status
+ * Gets a document's publication status
+ *
+ * model String Name of the Model
+ * title String Title of the document
+ * returns Object
+ **/
+exports.getDocumentPublicationStatus = function(model,title) {
+  return new Promise(function(resolve, reject) {
+    var examples = {};
+    examples['application/json'] = "{}";
+    if (Object.keys(examples).length > 0) {
+      resolve(examples[Object.keys(examples)[0]]);
+    } else {
+      resolve();
+    }
+  });
+}
 
 /**
  * Gets a document
@@ -336,6 +355,28 @@ exports.putDocument = function(file) {
   "code" : 0,
   "description" : "description"
 };
+    if (Object.keys(examples).length > 0) {
+      resolve(examples[Object.keys(examples)[0]]);
+    } else {
+      resolve();
+    }
+  });
+}
+
+
+/**
+ * Clones a document
+ * Clones a document
+ *
+ * model String Name of the Model
+ * title String Title of the document to clone
+ * newTitle String Title of the new document
+ * returns Object
+ **/
+exports.cloneDocument = function(model,title,newTitle) {
+  return new Promise(function(resolve, reject) {
+    var examples = {};
+    examples['application/json'] = "{}";
     if (Object.keys(examples).length > 0) {
       resolve(examples[Object.keys(examples)[0]]);
     } else {

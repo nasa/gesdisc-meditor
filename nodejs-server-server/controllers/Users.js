@@ -9,22 +9,17 @@ var session = require('express-session');
 var SessionStore = require('connect-mongodb-session')(session);
 var OAuth2Strategy = require('passport-oauth2').Strategy;
 var CustomStrategy = require('passport-custom').Strategy;
-var csrf = require('csurf');
 var utils = require('../utils/writer.js');
-var swaggerTools = require('swagger-tools');
 var fs = require('fs');
 var HttpsProxyAgent = require('https-proxy-agent');
 
 var MongoClient = require('mongodb').MongoClient;
-var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
+var MongoUrl = process.env.MONGOURL || "mongodb://meditor_database:27017/";
 var DbName = "meditor";
 var USERS_COLLECTION_URS = 'users-urs';
 var USERS_COLLECTION_MEDITOR = 'Users';
 
-var ENV_CONFIG = {
-  APP_URL: process.env.APP_URL || 'http://localhost:8081',
-  APP_UI_URL: process.env.APP_UI_URL || process.env.APP_URL || 'http://localhost:8081',
-};
+var APP_URL = (process.env.APP_URL || 'http://localhost') + '/meditor'
 
 function fromSecretOrEnv(key) {
   var SECRETS_DIR = '/run/secrets/';
@@ -56,12 +51,12 @@ require('oauth').OAuth2.prototype.getOAuthAccessToken = function (code, params, 
   var accessToken;
   var refreshToken;
   params = params || {};
-  // Start of UUI customization
+  // Start of customization
   if (!('Authorization' in this._customHeaders)) {
     params.client_id = this._clientId;
     params.client_secret = this._clientSecret;
   }
-  // End of UUI customization
+  // End of customization
   codeParam = (params.grant_type === 'refresh_token') ? 'refresh_token' : 'code';
   params[codeParam] = code;
   postData = querystring.stringify(params);
@@ -111,7 +106,7 @@ passport.deserializeUser(function (userId, done) {
       })
       .then(function (res) {
         user = res;
-        user.roles = {};
+        user.roles = [];
         return dbo.collection(USERS_COLLECTION_MEDITOR).findOne({
           id: userId
         }, {sort : {"x-meditor.modifiedOn": -1}});
@@ -153,7 +148,7 @@ let oauth2Strategy = new OAuth2Strategy({
   tokenURL: AUTH_PROTOCOL + '//' + AUTH_CONFIG.HOST + '/oauth/token',
   clientID: AUTH_CONFIG.CLIENT_ID,
   clientSecret: AUTH_CONFIG.CLIENT_SECRET,
-  callbackURL: ENV_CONFIG.APP_URL + '/meditor/api/login',
+  callbackURL: APP_URL + '/api/login',
   customHeaders: {
     Authorization: new Buffer(AUTH_CONFIG.CLIENT_ID + ':' + AUTH_CONFIG.CLIENT_SECRET).toString('base64')
   }
@@ -236,7 +231,7 @@ function impersonateUser(req, res, next) {
               }, 500)
           } else {
               res.writeHead(301, {
-                  Location: ENV_CONFIG.APP_UI_URL + '/#/auth/getuser',
+                  Location: APP_URL + '/login',
               })
               res.end()
           }
@@ -269,23 +264,10 @@ module.exports.login = function login(req, res, next) {
         }
 
         res.writeHead(301, {
-          Location: ENV_CONFIG.APP_UI_URL + '/#/auth/getuser'
+          Location: APP_URL + '/login'
         });
         
         res.end();
-
-        /*
-        if (err) {
-          utils.writeJson(res, {
-            code: 500,
-            message: err
-          }, 500);
-        } else {
-          res.writeHead(301, {
-            Location: ENV_CONFIG.APP_UI_URL + '/#/auth/getuser'
-          });
-          res.end();
-        }*/
       });
     }
   )(req, res, next);
@@ -303,7 +285,7 @@ module.exports.logout = function logout(req, res, next) {
   // };
   // if (outCookies.length > 0) res.setHeader('Set-Cookie', outCookies);
   res.writeHead(301, {
-    Location: ENV_CONFIG.APP_UI_URL + '/#/'
+    Location: APP_URL
   });
   res.end();
 };

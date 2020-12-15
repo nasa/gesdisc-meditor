@@ -1,0 +1,96 @@
+.buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48%;
+}
+
+.button svg {
+    font-size: 1.2em;
+    margin-right: 5px;
+}
+
+.card {
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.card:hover {
+    background: #eee;
+}
+
+.body {
+    display: flex;
+    justify-content: space-between;
+}
+
+.body a,
+.body a:hover {
+    text-decoration: underline;
+    text-decoration-color: #00f;
+    color: #00f;
+}
+
+.meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.pastStates {
+    margin-top: 10px;
+    display: none;
+}
+
+.pastStates.visible {
+    display: block;
+}
+
+.pastState {
+    color: grey;
+    display: flex;
+    padding-top: 10px;
+    padding-left: 20px;
+    position: relative;
+}
+
+.pastState > div {
+    align-items: center;
+    display: flex;
+    position: relative;
+    line-height: 1.2;
+    padding-left: 30px;
+}
+
+.pastState:after {
+    content: "";
+    border-left: 1px solid grey;
+    position: absolute;
+    bottom: -16px;
+    height: 20px;
+    left: 26px;
+}
+
+.pastState:first-child:before {
+    content: "";
+    border-left: 1px solid grey;
+    position: absolute;
+    top: -4px;
+    height: 20px;
+    left: 26px;
+}
+
+.pastState:last-child:after {
+    display: none; 
+}
+
+.pastState svg {
+    position: absolute;
+    top: 10px;
+    left: 0;
+}

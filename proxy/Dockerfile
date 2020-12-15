@@ -1,7 +1,9 @@
-FROM registry1.gesdisc.eosdis.nasa.gov/certified/nginx:1.14.0-alpine
+ARG REGISTRY
+FROM ${REGISTRY}nginx:1.14.0-alpine
 
-COPY nginx.conf.template /etc/nginx/nginx.conf.template
-COPY docker-entrypoint.sh /
+WORKDIR /
+
+COPY . .
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["nginx", "-g", "daemon off;"]

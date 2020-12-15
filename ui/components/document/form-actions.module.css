@@ -1,0 +1,17 @@
+.container {
+    background: #fff;
+    box-shadow: 0 -0.125rem .25rem rgba(0, 0, 0, .075);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 50px;
+    width: 100%;
+    z-index: 200;
+}
+
+.button {
+    margin-left: 10px;
+}
