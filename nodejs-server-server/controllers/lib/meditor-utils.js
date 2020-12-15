@@ -9,11 +9,12 @@ module.exports.WORKFLOW_ROOT = 'Init';
 module.exports.WORKFLOW_ROOT_EDGE = {source: 'Init', target: 'Draft'};
 
 // Inserts a data message into a NATS channel
-module.exports.publishToNats = function publishToNats(document, model, state = '') {
+module.exports.publishToNats = async function publishToNats(client, document, model, state = '') {
   let modelName = typeof model === 'string' ? model : model.name
   let channelName = NATS_QUEUE_PREFIX + modelName.replace(/ /g, '-')
-  let workflowName = typeof model === 'string' ? '' : model.workflow
-
+  let canPublish = true
+  let db = client.db('meditor')
+  
   let message = {
     id: document._id,
     document,
@@ -24,36 +25,67 @@ module.exports.publishToNats = function publishToNats(document, model, state = '
     time: Date.now(),
   }
 
-  if (workflowName) {
-    var MongoUrl = process.env.MONGOURL || "mongodb://localhost:27017/";
-    var MongoClient = mongo.MongoClient;
-    MongoClient.connect(MongoUrl, function(err, db) {
-      db.db(DbName)
-        .collection('Workflows')
-        .findOne({name: {$eq: workflowName}})
-        .then((workflow) => {
-          // Get node from workflow based on state passed
-          var workflowState = workflow ? workflow.nodes.filter(node => node.id === state) : null;
-          // If got workflow node and publishable flag is true for node
-          if (workflowState && workflowState.length && workflowState[0].publishable) {
-            // Publish message to channel (meditor-Alerts)
-            console.log(`Publishing message to channel ${channelName}: `, message)
+  // attempt to find if the current state is publishable
+  try {
+    let modelResult = await db
+      .collection('Models')
+      .find({ name: modelName })
+      .sort({ 'x-meditor.modifiedOn': -1 })
+      .limit(1)
+      .toArray()
 
-            // Publish message to channel (meditor-Alerts)
-            nats.stan.publish(channelName, JSON.stringify(message), function(err, guid) {
-              if (err) {
-                console.log('publish failed: ' + err);
-              }
-              else {
-                console.log('published message with guid: ' + guid);
-              }
-            });
-          }
-        })
-    });
-  } else {
-    // Default if no workflow?
+    if (!modelResult || !modelResult.length) {
+      throw new Error('Unable to find the model ' + modelName)
+    }
+
+    let workflowResult = await client
+      .db('meditor')
+      .collection('Workflows')
+      .find({ name: modelResult[0].workflow })
+      .sort({ 'x-meditor.modifiedOn': -1 })
+      .limit(1)
+      .toArray()
+
+    if (!workflowResult || !workflowResult.length) {
+      throw new Error('Unable to find the workflow ' + modelResult[0].workflow)
+    }
+
+    // first check if workflow has ANY publishable nodes
+    // if it doesn't, it hasn't been migrated to publishable yet
+    if (!workflowResult[0].nodes.find(node => node.publishable == true)) {
+      throw new Error('Workflow does not support publishable yet')
+    }
+
+    // check this state
+    let workflowState = workflowResult[0].nodes.find(node => node.id === state)
+
+    if (!workflowState) {
+      throw new Error('Workflow state was not found ' + state)
+    }
+
+    // finally, set canPublish to publishable state of node
+    canPublish = 'publishable' in workflowState && workflowState.publishable
+  } catch (err) {
+    // something went wrong or this workflow doesn't have any publishable states
+    // either way, we'll default to publishing
+    console.log(err)
   }
+
+  if (!canPublish) {
+    console.log('State is not publishable, skipping NATS')
+  }
+
+  console.log(`Publishing message to channel ${channelName}: `, message)
+
+  // Publish message to channel (meditor-Alerts)
+  nats.stan.publish(channelName, JSON.stringify(message), function(err, guid) {
+    if (err) {
+      console.log('publish failed: ' + err);
+    }
+    else {
+      console.log('published message with guid: ' + guid);
+    }
+  });
 };
 
 // Converts dictionary params back into URL params
@@ -420,7 +452,7 @@ function handleModelChanges(meta, DbName, modelDoc) {
     .then(function(res) {
       console.log('Done updating state history for documents in ' + modelDoc.name);
       // Re-publish documents as necessary, since some of the states could have changed
-      return exports.publishToNats(modelDoc, modelDoc.name);
+      return exports.publishToNats(meta.dbo, modelDoc, modelDoc.name);
     })
     .catch(function(e) {
       if (_.isObject(e) && e.result) {
