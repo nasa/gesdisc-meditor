@@ -211,7 +211,7 @@ const EditDocumentPage = ({ user, version = null }) => {
             modelName,
             documentTitle,
             state,
-            documentResponse.data.version
+            documentResponse.data.document.version
         )
         state == "Deleted"
             ? router.push("/meditor/[modelName]", `/meditor/${modelName}`)
