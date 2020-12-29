@@ -1,11 +1,10 @@
-import Card from "react-bootstrap/Card"
-import DocumentStateBadge from "./document-state-badge"
-import { FaRegDotCircle } from "react-icons/fa"
-import styles from "./document-history.module.css"
-import { IoMdEye, IoMdEyeOff } from "react-icons/io"
-import Button from "react-bootstrap/Button"
-import { useLocalStorage } from "../../lib/use-localstorage.hook"
-import { useEffect, useState } from "react"
+import Card from 'react-bootstrap/Card'
+import DocumentStateBadge from './document-state-badge'
+import { FaRegDotCircle } from 'react-icons/fa'
+import styles from './document-history.module.css'
+import { IoMdEye, IoMdEyeOff } from 'react-icons/io'
+import Button from 'react-bootstrap/Button'
+import { useLocalStorage } from '../../lib/use-localstorage.hook'
 
 const sortByLastModifiedDesc = (a, b) => {
     let dateA = new Date(a.modifiedOn)
@@ -38,7 +37,7 @@ const DocumentHistory = ({
     showJSONView
 }) => {
     const [historyPreferences, setHistoryPreferences] = useLocalStorage(
-        "historyPreferences",
+        'historyPreferences',
         {
             showDetails: false
         }
@@ -53,14 +52,14 @@ const DocumentHistory = ({
 
     function toggleActiveHistory(ev) {
         document
-            .querySelectorAll(".document-history_card__1EVRh.card")
+            .querySelectorAll('.document-history_card__1EVRh.card')
             .forEach(item => {
-                item.classList.remove("document-history_activeHistory__5aP_p")
+                item.classList.remove('document-history_activeHistory__5aP_p')
             })
 
         ev.target
-            .closest(".card")
-            .classList.add("document-history_activeHistory__5aP_p")
+            .closest('.card')
+            .classList.add('document-history_activeHistory__5aP_p')
     }
 
     return (
@@ -97,7 +96,7 @@ const DocumentHistory = ({
                 <Card
                     key={item.modifiedOn}
                     className={`${styles.card} ${
-                        index === 0 ? "document-history_activeHistory__5aP_p" : ""
+                        index === 0 ? 'document-history_activeHistory__5aP_p' : ''
                     }`}
                     onClick={ev => {
                         onVersionChange(item.modifiedOn)
@@ -121,7 +120,7 @@ const DocumentHistory = ({
                                 className={`${styles.pastStates} ${
                                     historyPreferences.showDetails
                                         ? styles.visible
-                                        : ""
+                                        : ''
                                 }`}
                             >
                                 {item.states

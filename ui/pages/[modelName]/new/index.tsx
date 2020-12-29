@@ -1,31 +1,31 @@
-import { useContext, useState, useEffect } from "react"
-import { AppContext } from "../../../components/app-store"
-import { useQuery } from "@apollo/react-hooks"
-import { useRouter } from "next/router"
-import { withApollo } from "../../../lib/apollo"
-import Alert from "react-bootstrap/Alert"
-import RenderResponse from "../../../components/render-response"
-import Loading from "../../../components/loading"
-import PageTitle from "../../../components/page-title"
-import Form from "../../../components/document/form"
-import { Breadcrumbs, Breadcrumb } from "../../../components/breadcrumbs"
-import DocumentHeader from "../../../components/document/document-header"
-import mEditorApi from "../../../service"
-import withAuthentication from "../../../components/with-authentication"
-import FormActions from "../../../components/document/form-actions"
-import gql from "graphql-tag"
-import { urlEncode } from "../../../lib/url"
-import omitBy from "lodash.omitby"
+import { useContext, useState, useEffect } from 'react'
+import { AppContext } from '../../../components/app-store'
+import { useQuery } from '@apollo/react-hooks'
+import { useRouter } from 'next/router'
+import { withApollo } from '../../../lib/apollo'
+import Alert from 'react-bootstrap/Alert'
+import RenderResponse from '../../../components/render-response'
+import Loading from '../../../components/loading'
+import PageTitle from '../../../components/page-title'
+import Form from '../../../components/document/form'
+import { Breadcrumbs, Breadcrumb } from '../../../components/breadcrumbs'
+import DocumentHeader from '../../../components/document/document-header'
+import mEditorApi from '../../../service'
+import withAuthentication from '../../../components/with-authentication'
+import FormActions from '../../../components/document/form-actions'
+import gql from 'graphql-tag'
+import { urlEncode } from '../../../lib/url'
+import omitBy from 'lodash.omitby'
 import {
     getNewUnsavedDocument,
     retrieveUnsavedDocumentFromLS,
     updateUnsavedDocumentInLS,
     removeUnsavedDocumentFromLS,
     UNTITLED_DOCUMENT_TITLE
-} from "../../../lib/unsaved-changes"
-import Spinner from "react-bootstrap/Spinner"
-import { AiOutlineCheck } from "react-icons/ai"
-import format from "date-fns/format"
+} from '../../../lib/unsaved-changes'
+import Spinner from 'react-bootstrap/Spinner'
+import { AiOutlineCheck } from 'react-icons/ai'
+import format from 'date-fns/format'
 
 const MODEL_QUERY = gql`
     query getModel($modelName: String!) {
@@ -107,14 +107,14 @@ const NewDocumentPage = ({ user }) => {
     function redirectToDocumentEdit(document) {
         let documentName = urlEncode(document[data.model.titleProperty])
         router.push(
-            "/meditor/[modelName]/[documentTitle]",
+            '/meditor/[modelName]/[documentTitle]',
             `/meditor/${urlEncode(modelName)}/${documentName}`
         )
     }
 
     async function createDocument(document) {
-        document["x-meditor"] = {}
-        document["x-meditor"].model = modelName
+        document['x-meditor'] = {}
+        document['x-meditor'].model = modelName
 
         let documentBlob = new Blob([JSON.stringify(document)])
 
@@ -124,11 +124,11 @@ const NewDocumentPage = ({ user }) => {
             // remove the unsaved changes from LS now that the user has saved
             removeUnsavedDocumentFromLS(localChanges)
 
-            setSuccessNotification("Successfully created the document")
+            setSuccessNotification('Successfully created the document')
             redirectToDocumentEdit(document)
         } catch (err) {
-            console.error("Failed to create document ", err)
-            setErrorNotification("Failed to create the document")
+            console.error('Failed to create document ', err)
+            setErrorNotification('Failed to create the document')
         }
     }
 
@@ -145,7 +145,7 @@ const NewDocumentPage = ({ user }) => {
             formData: omitBy(
                 formData,
                 value =>
-                    typeof value === "undefined" ||
+                    typeof value === 'undefined' ||
                     (Array.isArray(value) && !value.length)
             ),
             title
@@ -157,12 +157,12 @@ const NewDocumentPage = ({ user }) => {
         setSuccessNotification(
             `Successfully deleted document: '${localChanges.title}'`
         )
-        router.push("/meditor/[modelName]", `/meditor/${urlEncode(modelName)}`)
+        router.push('/meditor/[modelName]', `/meditor/${urlEncode(modelName)}`)
     }
 
     return (
         <div>
-            <PageTitle title={["Add New", modelName]} />
+            <PageTitle title={['Add New', modelName]} />
 
             <Breadcrumbs>
                 <Breadcrumb
@@ -224,10 +224,10 @@ const NewDocumentPage = ({ user }) => {
                                 ) : (
                                     <>
                                         <AiOutlineCheck className="mr-2" />
-                                        Saved locally on{" "}
+                                        Saved locally on{' '}
                                         {format(
                                             new Date(localChanges.modifiedOn),
-                                            "M/d/yy, h:mm aaa"
+                                            'M/d/yy, h:mm aaa'
                                         )}
                                     </>
                                 )}

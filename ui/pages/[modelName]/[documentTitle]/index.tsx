@@ -1,26 +1,26 @@
-import gql from "graphql-tag"
-import { useContext, useState, useEffect } from "react"
-import { AppContext } from "../../../components/app-store"
-import { useLazyQuery } from "@apollo/react-hooks"
-import { useRouter } from "next/router"
-import { withApollo } from "../../../lib/apollo"
-import PageTitle from "../../../components/page-title"
-import DocumentForm from "../../../components/document/form"
-import { Breadcrumbs, Breadcrumb } from "../../../components/breadcrumbs"
-import DocumentHeader from "../../../components/document/document-header"
-import DocumentPanel from "../../../components/document/document-panel"
-import DocumentComments from "../../../components/document/document-comments"
-import DocumentHistory from "../../../components/document/document-history"
-import SourceDialog from "../../../components/document/source-dialog"
-import withAuthentication from "../../../components/with-authentication"
-import FormActions from "../../../components/document/form-actions"
-import mEditorApi from "../../../service/"
-import styles from "./document-edit.module.css"
-import { treeify } from "../../../lib/treeify"
-import { urlDecode } from "../../../lib/url"
-import JsonDiffViewer from "../../../components/json-diff-viewer"
-import { useLocalStorage } from "../../../lib/use-localstorage.hook"
-import cloneDeep from "lodash.clonedeep"
+import gql from 'graphql-tag'
+import { useContext, useState, useEffect } from 'react'
+import { AppContext } from '../../../components/app-store'
+import { useLazyQuery } from '@apollo/react-hooks'
+import { useRouter } from 'next/router'
+import { withApollo } from '../../../lib/apollo'
+import PageTitle from '../../../components/page-title'
+import DocumentForm from '../../../components/document/form'
+import { Breadcrumbs, Breadcrumb } from '../../../components/breadcrumbs'
+import DocumentHeader from '../../../components/document/document-header'
+import DocumentPanel from '../../../components/document/document-panel'
+import DocumentComments from '../../../components/document/document-comments'
+import DocumentHistory from '../../../components/document/document-history'
+import SourceDialog from '../../../components/document/source-dialog'
+import withAuthentication from '../../../components/with-authentication'
+import FormActions from '../../../components/document/form-actions'
+import mEditorApi from '../../../service/'
+import styles from './document-edit.module.css'
+import { treeify } from '../../../lib/treeify'
+import { urlDecode } from '../../../lib/url'
+import JsonDiffViewer from '../../../components/json-diff-viewer'
+import { useLocalStorage } from '../../../lib/use-localstorage.hook'
+import cloneDeep from 'lodash.clonedeep'
 
 const DOCUMENT_QUERY = gql`
     query getDocument($modelName: String!, $title: String!, $version: String) {
@@ -107,26 +107,26 @@ const EditDocumentPage = ({ user, version = null }) => {
     const [form, setForm] = useState(null)
     const [formData, setFormData] = useState(null)
     const [activePanel, setActivePanel] = useLocalStorage(
-        "documentEditActivePanel",
+        'documentEditActivePanel',
         null
     )
     const [treeifiedComments, setTreeifiedComments] = useState([])
     const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
 
     const [loadDocument, documentResponse] = useLazyQuery(DOCUMENT_QUERY, {
-        fetchPolicy: "network-only"
+        fetchPolicy: 'network-only'
     })
 
     const [loadModel, modelResponse] = useLazyQuery(MODEL_QUERY, {
-        fetchPolicy: "network-only"
+        fetchPolicy: 'network-only'
     })
 
     const [loadComments, commentsResponse] = useLazyQuery(COMMENTS_QUERY, {
-        fetchPolicy: "network-only"
+        fetchPolicy: 'network-only'
     })
 
     const [loadHistory, historyResponse] = useLazyQuery(HISTORY_QUERY, {
-        fetchPolicy: "network-only"
+        fetchPolicy: 'network-only'
     })
 
     useEffect(() => {
@@ -190,19 +190,19 @@ const EditDocumentPage = ({ user, version = null }) => {
     async function saveDocument(document) {
         delete document._id
         delete document.banTransitions
-        document["x-meditor"] = {}
-        document["x-meditor"].model = modelName
+        document['x-meditor'] = {}
+        document['x-meditor'].model = modelName
 
         let documentBlob = new Blob([JSON.stringify(document)])
 
         try {
             await mEditorApi.putDocument(documentBlob)
 
-            setSuccessNotification("Successfully updated the document")
+            setSuccessNotification('Successfully updated the document')
             reloadDocument()
         } catch (err) {
-            console.error("Failed to create document ", err)
-            setErrorNotification("Failed to create the document")
+            console.error('Failed to create document ', err)
+            setErrorNotification('Failed to create the document')
         }
     }
 
@@ -213,8 +213,8 @@ const EditDocumentPage = ({ user, version = null }) => {
             state,
             documentResponse.data.document.version
         )
-        state == "Deleted"
-            ? router.push("/meditor/[modelName]", `/meditor/${modelName}`)
+        state == 'Deleted'
+            ? router.push('/meditor/[modelName]', `/meditor/${modelName}`)
             : reloadDocument()
     }
 
@@ -228,13 +228,13 @@ const EditDocumentPage = ({ user, version = null }) => {
     }
 
     async function saveComment(comment) {
-        if (!("_id" in comment)) {
+        if (!('_id' in comment)) {
             comment.documentId = documentTitle
             comment.model = modelName
             comment.version = documentResponse.data.document.version
 
             // TODO: move to the API
-            comment.createdBy = user.firstName + " " + user.lastName
+            comment.createdBy = user.firstName + ' ' + user.lastName
             comment.userUid = user.uid
 
             const commentBlob = new Blob([JSON.stringify(comment)])
@@ -349,12 +349,12 @@ const EditDocumentPage = ({ user, version = null }) => {
                     document={formData}
                     onUpdateForm={setForm}
                     onChange={handleSourceChange}
-                    readOnly={!currentPrivileges?.includes("edit")}
+                    readOnly={!currentPrivileges?.includes('edit')}
                 />
 
                 <DocumentPanel
                     title="Comments"
-                    open={activePanel == "comments"}
+                    open={activePanel == 'comments'}
                     onClose={closePanel}
                 >
                     <DocumentComments
@@ -367,7 +367,7 @@ const EditDocumentPage = ({ user, version = null }) => {
 
                 <DocumentPanel
                     title="History"
-                    open={activePanel == "history"}
+                    open={activePanel == 'history'}
                     onClose={closePanel}
                 >
                     <DocumentHistory
@@ -380,7 +380,7 @@ const EditDocumentPage = ({ user, version = null }) => {
 
                 <DocumentPanel
                     title="JSONEditor"
-                    open={activePanel == "source"}
+                    open={activePanel == 'source'}
                     onClose={closePanel}
                     large={true}
                 >

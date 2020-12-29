@@ -1,14 +1,14 @@
-import ReactDiffViewer from "react-diff-viewer"
-import gql from "graphql-tag"
-import { useQuery } from "@apollo/react-hooks"
-import Form from "react-bootstrap/Form"
-import Col from "react-bootstrap/Col"
-import { useEffect, useState } from "react"
-import PropTypes from "prop-types"
-import styles from "./json-diff-viewer.module.css"
-import Button from "react-bootstrap/Button"
-import { Container, DropdownButton, Dropdown, Row } from "react-bootstrap"
-import DocumentStateBadge from "./document/document-state-badge"
+import ReactDiffViewer from 'react-diff-viewer'
+import gql from 'graphql-tag'
+import { useQuery } from '@apollo/react-hooks'
+import Form from 'react-bootstrap/Form'
+import Col from 'react-bootstrap/Col'
+import { useEffect, useState } from 'react'
+import PropTypes from 'prop-types'
+import styles from './json-diff-viewer.module.css'
+import Button from 'react-bootstrap/Button'
+import { Container, DropdownButton, Dropdown, Row } from 'react-bootstrap'
+import DocumentStateBadge from './document/document-state-badge'
 
 const VERSIONDOCUMENT_QUERY = gql`
     query getDocument($modelName: String!, $title: String!, $version: String) {
@@ -31,7 +31,7 @@ const JsonDiffViewer = ({
         error: currentError,
         data: currentDocument
     } = useQuery(VERSIONDOCUMENT_QUERY, {
-        fetchPolicy: "no-cache",
+        fetchPolicy: 'no-cache',
         variables: {
             modelName,
             title: documentTitle,
@@ -41,7 +41,7 @@ const JsonDiffViewer = ({
     const { loading: loadingOld, error: oldError, data: oldDocument } = useQuery(
         VERSIONDOCUMENT_QUERY,
         {
-            fetchPolicy: "no-cache",
+            fetchPolicy: 'no-cache',
             variables: {
                 modelName,
                 title: documentTitle,
@@ -81,10 +81,10 @@ const JsonDiffViewer = ({
             'div[aria-labelledby="jsonDiffSelect"] .dropdown-item'
         )
         listOfOptions.forEach(item => {
-            item.classList.remove("active")
+            item.classList.remove('active')
         })
 
-        e.target.closest(".dropdown-item").classList.add("active")
+        e.target.closest('.dropdown-item').classList.add('active')
     }
 
     function cleanDocument(doc = { _id: null }) {
