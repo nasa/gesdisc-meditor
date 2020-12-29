@@ -16,7 +16,7 @@ const DocumentHeader = ({
     togglePanelOpen,
     privileges = [],
     comments = [],
-    history = []
+    history = [],
 }) => {
     return (
         <div>

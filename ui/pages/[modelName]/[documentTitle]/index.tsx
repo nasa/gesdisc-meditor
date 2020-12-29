@@ -114,19 +114,19 @@ const EditDocumentPage = ({ user, version = null }) => {
     const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
 
     const [loadDocument, documentResponse] = useLazyQuery(DOCUMENT_QUERY, {
-        fetchPolicy: 'network-only'
+        fetchPolicy: 'network-only',
     })
 
     const [loadModel, modelResponse] = useLazyQuery(MODEL_QUERY, {
-        fetchPolicy: 'network-only'
+        fetchPolicy: 'network-only',
     })
 
     const [loadComments, commentsResponse] = useLazyQuery(COMMENTS_QUERY, {
-        fetchPolicy: 'network-only'
+        fetchPolicy: 'network-only',
     })
 
     const [loadHistory, historyResponse] = useLazyQuery(HISTORY_QUERY, {
-        fetchPolicy: 'network-only'
+        fetchPolicy: 'network-only',
     })
 
     useEffect(() => {
@@ -134,8 +134,8 @@ const EditDocumentPage = ({ user, version = null }) => {
             variables: {
                 modelName,
                 title: documentTitle,
-                version
-            }
+                version,
+            },
         })
     }, [])
 
@@ -148,8 +148,8 @@ const EditDocumentPage = ({ user, version = null }) => {
             loadModel({
                 variables: {
                     modelName,
-                    currentState: documentResponse.data.document.state
-                }
+                    currentState: documentResponse.data.document.state,
+                },
             })
         }
 
@@ -158,8 +158,8 @@ const EditDocumentPage = ({ user, version = null }) => {
             loadHistory({
                 variables: {
                     modelName,
-                    title: documentTitle
-                }
+                    title: documentTitle,
+                },
             })
         }
     }, [documentResponse.data])
@@ -181,7 +181,7 @@ const EditDocumentPage = ({ user, version = null }) => {
 
     function loadDocumentVersion(version) {
         loadDocument({
-            variables: { modelName, title: documentTitle, version }
+            variables: { modelName, title: documentTitle, version },
         })
 
         getOldAndNewVersion(version)
@@ -222,8 +222,8 @@ const EditDocumentPage = ({ user, version = null }) => {
         loadComments({
             variables: {
                 modelName,
-                title: documentTitle
-            }
+                title: documentTitle,
+            },
         })
     }
 

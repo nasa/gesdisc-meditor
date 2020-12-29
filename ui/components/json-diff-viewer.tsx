@@ -24,19 +24,19 @@ const JsonDiffViewer = ({
     documentTitle,
     modelName,
     history,
-    onVersionSelected
+    onVersionSelected,
 }) => {
     const {
         loading: loadingCurrent,
         error: currentError,
-        data: currentDocument
+        data: currentDocument,
     } = useQuery(VERSIONDOCUMENT_QUERY, {
         fetchPolicy: 'no-cache',
         variables: {
             modelName,
             title: documentTitle,
-            version: currentVersion
-        }
+            version: currentVersion,
+        },
     })
     const { loading: loadingOld, error: oldError, data: oldDocument } = useQuery(
         VERSIONDOCUMENT_QUERY,
@@ -45,8 +45,8 @@ const JsonDiffViewer = ({
             variables: {
                 modelName,
                 title: documentTitle,
-                version: oldVersion
-            }
+                version: oldVersion,
+            },
         }
     )
 
@@ -165,7 +165,7 @@ JsonDiffViewer.propTypes = {
     documentTitle: PropTypes.string,
     modelName: PropTypes.string,
     history: PropTypes.array,
-    onVersionSelected: PropTypes.func
+    onVersionSelected: PropTypes.func,
 }
 
 export default JsonDiffViewer

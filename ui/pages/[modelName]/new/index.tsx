@@ -21,7 +21,7 @@ import {
     retrieveUnsavedDocumentFromLS,
     updateUnsavedDocumentInLS,
     removeUnsavedDocumentFromLS,
-    UNTITLED_DOCUMENT_TITLE
+    UNTITLED_DOCUMENT_TITLE,
 } from '../../../lib/unsaved-changes'
 import Spinner from 'react-bootstrap/Spinner'
 import { AiOutlineCheck } from 'react-icons/ai'
@@ -73,7 +73,7 @@ const NewDocumentPage = ({ user }) => {
     const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
 
     const { loading, error, data } = useQuery(MODEL_QUERY, {
-        variables: { modelName }
+        variables: { modelName },
     })
 
     const currentPrivileges = data?.model?.workflow
@@ -148,7 +148,7 @@ const NewDocumentPage = ({ user }) => {
                     typeof value === 'undefined' ||
                     (Array.isArray(value) && !value.length)
             ),
-            title
+            title,
         })
     }
 
