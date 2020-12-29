@@ -52,14 +52,12 @@ const DocumentHistory = ({
 
     function toggleActiveHistory(ev) {
         document
-            .querySelectorAll('.document-history_card__1EVRh.card')
+            .querySelectorAll('div[class^="document-history_card"]')
             .forEach(item => {
-                item.classList.remove('document-history_activeHistory__5aP_p')
+                item.classList.remove(`${styles.activeHistory}`)
             })
 
-        ev.target
-            .closest('.card')
-            .classList.add('document-history_activeHistory__5aP_p')
+        ev.target.closest('.card').classList.add(`${styles.activeHistory}`)
     }
 
     return (
@@ -96,7 +94,7 @@ const DocumentHistory = ({
                 <Card
                     key={item.modifiedOn}
                     className={`${styles.card} ${
-                        index === 0 ? 'document-history_activeHistory__5aP_p' : ''
+                        index === 0 ? styles.activeHistory : ''
                     }`}
                     onClick={ev => {
                         onVersionChange(item.modifiedOn)
@@ -128,7 +126,7 @@ const DocumentHistory = ({
                                     .map(state => (
                                         <PastState
                                             state={state}
-                                            key={state.source + state.modifiiedOn}
+                                            key={state.source + state.modifiedOn}
                                         />
                                     ))}
                             </div>
