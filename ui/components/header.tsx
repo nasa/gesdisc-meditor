@@ -16,7 +16,7 @@ const Header = ({ user, isAuthenticated }) => {
                 className={styles.navbar}
                 style={{
                     justifyContent: 'space-between',
-                    padding: '0 20px'
+                    padding: '0 20px',
                 }}
             >
                 <Navbar.Brand href="/meditor">

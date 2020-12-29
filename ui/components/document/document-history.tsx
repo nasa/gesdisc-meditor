@@ -34,19 +34,19 @@ const DocumentHistory = ({
     history = [],
     onVersionChange,
     onJSONDiffChange,
-    showJSONView
+    showJSONView,
 }) => {
     const [historyPreferences, setHistoryPreferences] = useLocalStorage(
         'historyPreferences',
         {
-            showDetails: false
+            showDetails: false,
         }
     )
 
     const toggleShowDetails = () => {
         setHistoryPreferences({
             ...historyPreferences,
-            showDetails: !historyPreferences.showDetails
+            showDetails: !historyPreferences.showDetails,
         })
     }
 
