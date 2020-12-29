@@ -1,12 +1,12 @@
-import styles from "./document-header.module.css"
-import ModelIcon from "../model-icon"
-import DocumentStateBadge from "./document-state-badge"
-import Button from "react-bootstrap/Button"
-import Badge from "react-bootstrap/Badge"
-import OverlayTrigger from "react-bootstrap/OverlayTrigger"
-import Tooltip from "react-bootstrap/Tooltip"
-import { MdHistory, MdComment, MdCompare } from "react-icons/md"
-import { BsBraces } from "react-icons/bs"
+import styles from './document-header.module.css'
+import ModelIcon from '../model-icon'
+import DocumentStateBadge from './document-state-badge'
+import Button from 'react-bootstrap/Button'
+import Badge from 'react-bootstrap/Badge'
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
+import Tooltip from 'react-bootstrap/Tooltip'
+import { MdHistory, MdComment, MdCompare } from 'react-icons/md'
+import { BsBraces } from 'react-icons/bs'
 
 const DocumentHeader = ({
     document = null,
@@ -29,7 +29,7 @@ const DocumentHeader = ({
 
             {document && (
                 <div className={styles.subheader}>
-                    {privileges.includes("comment") && (
+                    {privileges.includes('comment') && (
                         <OverlayTrigger
                             overlay={
                                 <Tooltip id="comments-tooltip">
@@ -39,7 +39,7 @@ const DocumentHeader = ({
                         >
                             <Button
                                 variant="primary"
-                                onClick={() => togglePanelOpen("comments")}
+                                onClick={() => togglePanelOpen('comments')}
                             >
                                 <MdComment />
                                 <Badge className={styles.badge} variant="light">
@@ -57,7 +57,7 @@ const DocumentHeader = ({
                     >
                         <Button
                             variant="primary"
-                            onClick={() => togglePanelOpen("history")}
+                            onClick={() => togglePanelOpen('history')}
                         >
                             <MdHistory />
                             <Badge className={styles.badge} variant="light">
@@ -81,7 +81,7 @@ const DocumentHeader = ({
                                 toggleJsonDiffer()
                             }}
                         >
-                            <MdCompare style={{ fontSize: "1.6em" }} />
+                            <MdCompare style={{ fontSize: '1.6em' }} />
                         </Button>
                     </OverlayTrigger>
 
@@ -94,7 +94,7 @@ const DocumentHeader = ({
                     >
                         <Button
                             variant="primary"
-                            onClick={() => togglePanelOpen("source")}
+                            onClick={() => togglePanelOpen('source')}
                         >
                             <BsBraces />
                             <span className="sr-only">Source</span>
@@ -112,7 +112,7 @@ const DocumentHeader = ({
 
                     <div>
                         <em>
-                            (edited by {document?.modifiedBy} on{" "}
+                            (edited by {document?.modifiedBy} on{' '}
                             {document?.modifiedOn})
                         </em>
                     </div>
