@@ -1,0 +1,38 @@
+.panel-container {
+    display: flex;
+    min-height: 300px;
+  }
+  
+  .panel {
+    background: white;
+    border: 1px solid gray;
+    padding: 15px;
+  }
+  
+  .resizer {
+    width: 8px;
+    background: darkGray;
+    position: relative;
+    cursor: col-resize;
+    flex-shrink: 0;
+    -webkit-user-select: none; 
+    -moz-user-select: none;     
+    -ms-user-select: none;      
+    user-select: none;           
+  }
+  
+  .resizer::after,
+  .resizer::before {
+    content: "";
+    border-left: 1px solid #333;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-100%);
+    right: 0;
+    display: inline-block;
+    height: 20px;
+    margin: 0 2px;
+  }
+  .resizer::before {
+    left: 0;
+  }
