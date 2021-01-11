@@ -63,7 +63,6 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
         })
         .uniq()
         .value()
-    console.log(meta)
     var targetNodes = _(targetEdges).map('target').uniq().value()
     var targetRoles = _(targetEdges).map('role').uniq().value()
     var tos
