@@ -94,15 +94,16 @@ const JsonDiffViewer = ({
 
     return (
         <>
-            <h4>JSON Diff Viewer</h4>
+            <h4 className={styles.jsonDiffHeader}>JSON Diff Viewer</h4>
             <div className={styles.jsonToolBar}>
-                <Container>
-                    <Row>
-                        <Col md={4}>
+                <Row>
+                    <Col md={4}>
+                        <label className={styles.jsonDropDown}>
+                            Select Version:&nbsp;
                             <DropdownButton
                                 variant="outline-dark"
                                 id="jsonDiffSelect"
-                                title="Select version"
+                                title={oldVersion}
                                 onSelect={onVersionSelected}
                             >
                                 {history.map((item, index) => (
@@ -128,18 +129,18 @@ const JsonDiffViewer = ({
                                     </Dropdown.Item>
                                 ))}
                             </DropdownButton>
-                        </Col>
-                        <Col md={{ span: 4, offset: 4 }} className={styles.textAlign}>
-                            <Button
-                                variant="outline-dark"
-                                active={splitView}
-                                onClick={changeSplitView}
-                            >
-                                Side-by-side diff view
-                            </Button>
-                        </Col>
-                    </Row>
-                </Container>
+                        </label>
+                    </Col>
+                    <Col md={{ span: 3 }}>
+                        <Button
+                            variant="outline-dark"
+                            active={splitView}
+                            onClick={changeSplitView}
+                        >
+                            Side-by-side diff view
+                        </Button>
+                    </Col>
+                </Row>
             </div>
             <ReactDiffViewer
                 oldValue={`${JSON.stringify(
