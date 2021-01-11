@@ -50,7 +50,6 @@ module.exports.constructEmailMessage = function constructEmailMessage(
     emailTemplate = null,
     templateParams
 ) {
-    console.log(templateParams)
     return mustache.render(emailTemplate, { ...templateParams })
 }
 
