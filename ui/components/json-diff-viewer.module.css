@@ -1,0 +1,29 @@
+.jsonToolBar {
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    background-color: #eeeeee;
+    padding: 10px;
+}
+
+.textAlign {
+    text-align: right;
+}
+
+.versionItem {
+    display: flex;
+    justify-content: space-between;
+}
+
+.versionItem div {
+    display: flex;
+    flex-direction: column;
+}
+
+.jsonDropDown {
+    display: inline-flex;
+    align-items: center;
+}
+
+.jsonDiffHeader {
+    margin-bottom: 1rem;
+    margin-top: 1.5rem;
+}
