@@ -19,6 +19,11 @@
 }
 
 .jsonDropDown {
+    margin-bottom: 0px;
+}
+
+.jsonDropDown,
+.buttonContainer {
     display: inline-flex;
     align-items: center;
 }
@@ -26,4 +31,8 @@
 .jsonDiffHeader {
     margin-bottom: 1rem;
     margin-top: 1.5rem;
+}
+
+.buttonContainer {
+    margin-left: 20px;
 }

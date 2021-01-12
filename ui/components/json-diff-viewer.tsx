@@ -97,7 +97,7 @@ const JsonDiffViewer = ({
             <h4 className={styles.jsonDiffHeader}>JSON Diff Viewer</h4>
             <div className={styles.jsonToolBar}>
                 <Row>
-                    <Col md={4}>
+                    <Col>
                         <label className={styles.jsonDropDown}>
                             Select Version:&nbsp;
                             <DropdownButton
@@ -130,15 +130,15 @@ const JsonDiffViewer = ({
                                 ))}
                             </DropdownButton>
                         </label>
-                    </Col>
-                    <Col md={{ span: 3 }}>
-                        <Button
-                            variant="outline-dark"
-                            active={splitView}
-                            onClick={changeSplitView}
-                        >
-                            Side-by-side diff view
-                        </Button>
+                        <div className={styles.buttonContainer}>
+                            <Button
+                                variant="outline-dark"
+                                active={splitView}
+                                onClick={changeSplitView}
+                            >
+                                Side-by-side diff view
+                            </Button>
+                        </div>
                     </Col>
                 </Row>
             </div>
