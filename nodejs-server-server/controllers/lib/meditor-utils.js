@@ -41,6 +41,7 @@ module.exports.serializeParams = function serializeParams(params, keys) {
         .pickBy(function (val, key) {
             return (!!keys ? keys.indexOf(key) !== -1 : true) && !_.isNil(val)
         })
+        .map((val) => val.replace(/\//g, '%252F'))  // replace /'s in URL (will be double encoded and break links if not encoded ahead of time)
         .map((val) => encodeURIComponent(val))
         .value()
         .join('/')
