@@ -9,9 +9,11 @@ module.exports.WORKFLOW_ROOT = 'Init'
 module.exports.WORKFLOW_ROOT_EDGE = { source: 'Init', target: 'Draft' }
 
 // Inserts a data message into a NATS channel
-module.exports.publishToNats = function publishToNats(document, model, state = '') {
+module.exports.publishToNats = async function publishToNats(client, document, model, state = '') {
     let modelName = typeof model === 'string' ? model : model.name
     let channelName = NATS_QUEUE_PREFIX + modelName.replace(/ /g, '-')
+    let canPublish = true
+    let db = client.db('meditor')
 
     let message = {
         id: document._id,
@@ -21,6 +23,56 @@ module.exports.publishToNats = function publishToNats(document, model, state = '
         },
         state,
         time: Date.now(),
+    }
+
+    // attempt to find if the current state is publishable
+    try {
+        let modelResult = await db
+            .collection('Models')
+            .find({ name: modelName })
+            .sort({ 'x-meditor.modifiedOn': -1 })
+            .limit(1)
+            .toArray()
+
+        if (!modelResult || !modelResult.length) {
+            throw new Error('Unable to find the model ' + modelName)
+        }
+
+        let workflowResult = await client
+            .db('meditor')
+            .collection('Workflows')
+            .find({ name: modelResult[0].workflow })
+            .sort({ 'x-meditor.modifiedOn': -1 })
+            .limit(1)
+            .toArray()
+
+        if (!workflowResult || !workflowResult.length) {
+            throw new Error('Unable to find the workflow ' + modelResult[0].workflow)
+        }
+
+        // first check if workflow has ANY publishable nodes
+        // if it doesn't, it hasn't been migrated to publishable yet
+        if (!workflowResult[0].nodes.find((node) => node.publishable == true)) {
+            throw new Error('Workflow does not support publishable yet')
+        }
+
+        // check this state
+        let workflowState = workflowResult[0].nodes.find((node) => node.id === state)
+
+        if (!workflowState) {
+            throw new Error('Workflow state was not found ' + state)
+        }
+
+        // finally, set canPublish to publishable state of node
+        canPublish = 'publishable' in workflowState && workflowState.publishable
+    } catch (err) {
+        // something went wrong or this workflow doesn't have any publishable states
+        // either way, we'll default to publishing
+        console.log(err)
+    }
+
+    if (!canPublish) {
+        console.log('State is not publishable, skipping NATS')
     }
 
     console.log(`Publishing message to channel ${channelName}: `, message)
@@ -47,10 +99,7 @@ module.exports.serializeParams = function serializeParams(params, keys) {
         .join('/')
 }
 
-module.exports.constructEmailMessage = function constructEmailMessage(
-    emailTemplate = null,
-    templateParams
-) {
+module.exports.constructEmailMessage = function constructEmailMessage(emailTemplate = null, templateParams) {
     return mustache.render(emailTemplate, { ...templateParams })
 }
 
@@ -68,10 +117,7 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
     var tos
     var tosusers
     // User: who sent action, including emailAddress, firstName, lastName
-    var notificationTemplate = mustache.render(
-        meta.model.notificationTemplate || '',
-        meta.document
-    )
+    var notificationTemplate = mustache.render(meta.model.notificationTemplate || '', meta.document)
 
     var currentNode = meta.workflow.nodes.find((item) => {
         return item.id === meta.currentEdge.target
@@ -128,11 +174,7 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
             url:
                 process.env.APP_URL +
                 '/meditor/' +
-                module.exports.serializeParams(meta.params, [
-                    'model',
-                    'title',
-                    'version',
-                ]),
+                module.exports.serializeParams(meta.params, ['model', 'title', 'version']),
         },
         createdOn: new Date().toISOString(),
     }
@@ -164,8 +206,7 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
             // TOs are all users that have a right to transition the document into a new state
             if (users.length === 0)
                 throw {
-                    message:
-                        'Could not find addressees to notify of the status change',
+                    message: 'Could not find addressees to notify of the status change',
                     status: 400,
                 }
             tos = _(users[0].ids).uniq().value()
@@ -184,27 +225,14 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
         })
         .then((users) => {
             // ccs are the original author and the person who just made the state change, unless they are already in TO
-            var ccs = _([meta.user.uid, meta.document['x-meditor'].modifiedBy])
-                .uniq()
-                .difference(tos)
-                .value()
+            var ccs = _([meta.user.uid, meta.document['x-meditor'].modifiedBy]).uniq().difference(tos).value()
             tosusers = users
             notification.to = _.uniq(
-                users.map(
-                    (u) =>
-                        '"' +
-                        u.firstName +
-                        ' ' +
-                        u.lastName +
-                        '" <' +
-                        u.emailAddress +
-                        '>'
-                )
+                users.map((u) => '"' + u.firstName + ' ' + u.lastName + '" <' + u.emailAddress + '>')
             )
             if (notification.to.length === 0)
                 throw {
-                    message:
-                        'Could not find addressees to notify of the status change',
+                    message: 'Could not find addressees to notify of the status change',
                     status: 400,
                 }
             return meta.dbo
@@ -237,27 +265,13 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
                     })[0]
                 )
             } else {
-                notification.body = notification.body.replace(
-                    'drafted by ###AUTHOR### ',
-                    ''
-                ) // Should not be here, but just in case...
+                notification.body = notification.body.replace('drafted by ###AUTHOR### ', '') // Should not be here, but just in case...
             }
             notification.cc = _.uniq(
-                users.map(
-                    (u) =>
-                        '"' +
-                        u.firstName +
-                        ' ' +
-                        u.lastName +
-                        '" <' +
-                        u.emailAddress +
-                        '>'
-                )
+                users.map((u) => '"' + u.firstName + ' ' + u.lastName + '" <' + u.emailAddress + '>')
             )
 
-            const channel =
-                process.env.MEDITOR_NATS_NOTIFICATIONS_CHANNEL ||
-                'meditor-notifications'
+            const channel = process.env.MEDITOR_NATS_NOTIFICATIONS_CHANNEL || 'meditor-notifications'
 
             console.log('Publishing notification to NATS channel: ', channel)
 
@@ -385,11 +399,7 @@ function computeAndAddEdgeMapping(meta, workflowRoot, oldEdge) {
     var i
     var newEdge = {}
     // Compute shortest path in the old workflow between Init and old Source
-    var path = getWorkflowPath(
-        meta.workflows[meta.oldModel.workflow].paths,
-        workflowRoot,
-        oldEdge.source
-    )
+    var path = getWorkflowPath(meta.workflows[meta.oldModel.workflow].paths, workflowRoot, oldEdge.source)
     // Find mapping from old Source to the new Source, basically a node that
     // exists in both workflows and appears earlier or the same in the 'approval
     // sequence' of the old workflow as the old Source
@@ -410,11 +420,7 @@ function computeAndAddEdgeMapping(meta, workflowRoot, oldEdge) {
         }
     }
     // Compute shortest path in the new workflow between new Source and new Target
-    path = getWorkflowPath(
-        meta.workflows[meta.newModel.workflow].paths,
-        newEdge.source,
-        newEdge.target
-    )
+    path = getWorkflowPath(meta.workflows[meta.newModel.workflow].paths, newEdge.source, newEdge.target)
     // Init mapping dictionary
     if (!meta.edgeMapping[oldEdge.source]) meta.edgeMapping[oldEdge.source] = {}
     meta.edgeMapping[oldEdge.source][oldEdge.target] = []
@@ -471,8 +477,7 @@ function handleModelChanges(meta, DbName, modelDoc) {
         })
         .then(function (res) {
             if (res.length < 2) return Promise.reject({ result: {} })
-            if (res[0].workflow === res[1].workflow)
-                return Promise.reject({ result: {} })
+            if (res[0].workflow === res[1].workflow) return Promise.reject({ result: {} })
             var workflowNames = res.map((r) => r.workflow)
             meta.newModel = res[0]
             meta.oldModel = res[1]
@@ -501,11 +506,9 @@ function handleModelChanges(meta, DbName, modelDoc) {
             }, {})
             meta.edgeMapping = {} // Mapping is a two-level dictionary, e.g., {Draft: {Review: {from: Draft, to: Published}}
             // console.log(getWorkflowPath(workflows['Edit-Publish'].paths,'Draft', 'Published' ));
-            meta.workflows[meta.oldModel.workflow].workflow.edges.forEach(
-                (oldEdge) => {
-                    computeAndAddEdgeMapping(meta, workflowRoot, oldEdge)
-                }
-            )
+            meta.workflows[meta.oldModel.workflow].workflow.edges.forEach((oldEdge) => {
+                computeAndAddEdgeMapping(meta, workflowRoot, oldEdge)
+            })
             return meta.dbo.db(DbName).collection(modelDoc.name).find().toArray()
         })
         .then(function (res) {
@@ -518,55 +521,33 @@ function handleModelChanges(meta, DbName, modelDoc) {
                 doc['x-meditor']['states'].forEach((oldEdge) => {
                     // Some edges might not be in the old workflow, e.g., a result of a botched import etc,
                     // see if we can still compute a mapping
-                    if (
-                        !meta.edgeMapping[oldEdge.source] ||
-                        !meta.edgeMapping[oldEdge.source][oldEdge.target]
-                    )
+                    if (!meta.edgeMapping[oldEdge.source] || !meta.edgeMapping[oldEdge.source][oldEdge.target])
                         computeAndAddEdgeMapping(meta, workflowRoot, oldEdge)
                     // Discard an edge if there is no mapping
-                    if (
-                        !meta.edgeMapping[oldEdge.source] ||
-                        !meta.edgeMapping[oldEdge.source][oldEdge.target]
-                    )
-                        return
+                    if (!meta.edgeMapping[oldEdge.source] || !meta.edgeMapping[oldEdge.source][oldEdge.target]) return
                     // Add all edges from the mapping edge chain to the history, preserving extraneous attributes
                     // and discarding duplicate edges
-                    meta.edgeMapping[oldEdge.source][oldEdge.target].forEach(
-                        (edge) => {
-                            var historyLast = null
-                            var mappedEdge
-                            if (newStateHistory.length !== 0)
-                                historyLast =
-                                    newStateHistory[newStateHistory.length - 1]
-                            if (
-                                !historyLast ||
-                                !(
-                                    historyLast.source === edge.source &&
-                                    historyLast.target === edge.target
-                                )
-                            ) {
-                                if (
-                                    edge.source === oldEdge.source &&
-                                    edge.target === oldEdge.target
-                                ) {
-                                    // The old edge is exactly the same as the new edge, just push it as-is
-                                    newStateHistory.push(oldEdge)
-                                } else {
-                                    // Otherwise, copy attributes from the old edge to the new edge
-                                    mappedEdge = _.cloneDeep(oldEdge)
-                                    mappedEdge.source = edge.source
-                                    mappedEdge.target = edge.target
-                                    mappedEdge.notes =
-                                        'Mapped from [' +
-                                        oldEdge.source +
-                                        ', ' +
-                                        oldEdge.target +
-                                        ']'
-                                    newStateHistory.push(mappedEdge)
-                                }
+                    meta.edgeMapping[oldEdge.source][oldEdge.target].forEach((edge) => {
+                        var historyLast = null
+                        var mappedEdge
+                        if (newStateHistory.length !== 0) historyLast = newStateHistory[newStateHistory.length - 1]
+                        if (
+                            !historyLast ||
+                            !(historyLast.source === edge.source && historyLast.target === edge.target)
+                        ) {
+                            if (edge.source === oldEdge.source && edge.target === oldEdge.target) {
+                                // The old edge is exactly the same as the new edge, just push it as-is
+                                newStateHistory.push(oldEdge)
+                            } else {
+                                // Otherwise, copy attributes from the old edge to the new edge
+                                mappedEdge = _.cloneDeep(oldEdge)
+                                mappedEdge.source = edge.source
+                                mappedEdge.target = edge.target
+                                mappedEdge.notes = 'Mapped from [' + oldEdge.source + ', ' + oldEdge.target + ']'
+                                newStateHistory.push(mappedEdge)
                             }
                         }
-                    )
+                    })
                     return oldEdge
                 })
                 // If the new state history came back empty - set it to the default Init->Draft edge
@@ -598,9 +579,7 @@ function handleModelChanges(meta, DbName, modelDoc) {
             return Promise.all(updateQueue)
         })
         .then(function (res) {
-            console.log(
-                'Done updating state history for documents in ' + modelDoc.name
-            )
+            console.log('Done updating state history for documents in ' + modelDoc.name)
             // Re-publish documents as necessary, since some of the states could have changed
             return exports.publishToNats(modelDoc, modelDoc.name)
         })
@@ -614,12 +593,7 @@ function handleModelChanges(meta, DbName, modelDoc) {
         })
 }
 
-module.exports.actOnDocumentChanges = function actOnDocumentChanges(
-    meta,
-    DbName,
-    doc
-) {
-    if (doc['x-meditor']['model'] === 'Models')
-        return handleModelChanges(meta, DbName, doc)
+module.exports.actOnDocumentChanges = function actOnDocumentChanges(meta, DbName, doc) {
+    if (doc['x-meditor']['model'] === 'Models') return handleModelChanges(meta, DbName, doc)
     return Promise.resolve()
 }

@@ -36,13 +36,17 @@ class User {
         let privileges = []
         let roles = this.rolesForModel(modelName)
 
-        roles.forEach((role) => {
+        roles.forEach(role => {
             privileges = privileges.concat(
                 node.privileges
                     // only retrieve privilege matching the current role (ex. Author)
-                    .filter((nodePrivilege) => nodePrivilege.role == role)
+                    .filter(nodePrivilege => nodePrivilege.role == role)
                     // return a list of privileges for the current role (ex. ["edit", "comment"])
-                    .reduce((nodePrivileges, nodePrivilege) => nodePrivileges.concat(nodePrivilege.privilege), [])
+                    .reduce(
+                        (nodePrivileges, nodePrivilege) =>
+                            nodePrivileges.concat(nodePrivilege.privilege),
+                        []
+                    )
             )
         })
 
@@ -54,7 +58,11 @@ class User {
  * handles app-wide user authentication, logging in the user and updating the state when the user
  * changes
  */
-const UserAuthentication = ({ onUserUpdate = (_user: any) => {}, user, isAuthenticated }) => {
+const UserAuthentication = ({
+    onUserUpdate = (_user: any) => {},
+    user,
+    isAuthenticated,
+}) => {
     async function fetchUser() {
         try {
             handleLoggedInUser(await mEditorAPI.getMe())
@@ -75,7 +83,10 @@ const UserAuthentication = ({ onUserUpdate = (_user: any) => {}, user, isAuthent
             localStorage.setItem(
                 'redirectUrl',
                 JSON.stringify({
-                    href: Router.pathname.indexOf('/meditor') >= 0 ? Router.pathname : `/meditor${Router.pathname}`,
+                    href:
+                        Router.pathname.indexOf('/meditor') >= 0
+                            ? Router.pathname
+                            : `/meditor${Router.pathname}`,
                     as: Router.asPath,
                 })
             )
@@ -100,7 +111,9 @@ const UserAuthentication = ({ onUserUpdate = (_user: any) => {}, user, isAuthent
 
     return (
         <>
-            <LoginDialog show={typeof user !== 'undefined' && isAuthenticated === false} />
+            <LoginDialog
+                show={typeof user !== 'undefined' && isAuthenticated === false}
+            />
         </>
     )
 }

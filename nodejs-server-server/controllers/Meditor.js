@@ -386,7 +386,7 @@ async function saveDocument(client, request, document, model) {
 
   // publish document save
   let state = document['x-meditor'].states[document['x-meditor'].states.length - 1].target      
-  await mUtils.publishToNats(document, that.model, state)
+  await mUtils.publishToNats(client, document, that.model, state)
 }
 
 /**
@@ -886,7 +886,7 @@ module.exports.changeDocumentState = function changeDocumentState (request, resp
       return getModelContent(that.params.model, that.dbo.db(DbName))
     })
     .then(model => {
-      mUtils.publishToNats(that.document, model, that.params.state)
+      mUtils.publishToNats(that.dbo, that.document, model, that.params.state)
       return model
     })
     .then(model => {
