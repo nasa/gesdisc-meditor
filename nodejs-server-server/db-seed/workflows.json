@@ -36,7 +36,13 @@
             "model": "Workflows",
             "modifiedOn": "2020-01-01T00:00:00.000Z",
             "modifiedBy": "system",
-            "states": [{ "source": "Init", "target": "Draft", "modifiedOn": "2020-00-00T00:00:00.000Z" }]
+            "states": [
+                {
+                    "source": "Init",
+                    "target": "Draft",
+                    "modifiedOn": "2020-00-00T00:00:00.000Z"
+                }
+            ]
         }
     },
     {
@@ -203,7 +209,13 @@
             "model": "Workflows",
             "modifiedOn": "2020-01-01T00:00:00.000Z",
             "modifiedBy": "system",
-            "states": [{ "source": "Init", "target": "Draft", "modifiedOn": "2020-00-00T00:00:00.000Z" }]
+            "states": [
+                {
+                    "source": "Init",
+                    "target": "Draft",
+                    "modifiedOn": "2020-00-00T00:00:00.000Z"
+                }
+            ]
         }
     }
 ]
