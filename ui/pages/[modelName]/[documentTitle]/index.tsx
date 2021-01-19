@@ -24,6 +24,7 @@ import { urlDecode } from '../../../lib/url'
 import { useLocalStorage } from '../../../lib/use-localstorage.hook'
 import cloneDeep from 'lodash.clonedeep'
 
+
 const DOCUMENT_QUERY = gql`
     query getDocument($modelName: String!, $title: String!, $version: String) {
         document(modelName: $modelName, title: $title, version: $version) {
@@ -306,10 +307,13 @@ const EditDocumentPage = ({ user, version = null }) => {
                     <DocumentPanel title="History" open={activePanel == 'history'} onClose={closePanel}>
                         <DocumentHistory history={historyResponse?.data?.documentHistory} onVersionChange={loadDocumentVersion} />
                     </DocumentPanel>
-
+                    
+                    
                     <DocumentPanel title="JSONEditor" open={activePanel == 'source'} onClose={closePanel} large={true}>
                         <SourceDialog source={formData} title={documentTitle} onChange={handleSourceChange} />
                     </DocumentPanel>
+                    
+                    
                 </div>
 
                 <FormActions

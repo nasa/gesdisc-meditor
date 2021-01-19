@@ -32,17 +32,4 @@
     top: 20px;
     right: 20px;
 }
-/*
-.divider {
-    width: 2px;
-    height: 100%;
-    margin: 1rem;
-    border: 2px solid #808080;
-}*/
 
-.split_bar{
-    background-color: grey;
-    width: 15px;
-    height: 100%;
-    cursor: col-resize;
-}
