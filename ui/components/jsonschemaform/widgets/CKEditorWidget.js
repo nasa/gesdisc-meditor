@@ -48,7 +48,7 @@ function CKEditorWidget(props) {
         autoGrow_bottomSpace: 30,
         filebrowserUploadUrl: props.formContext.imageUploadUrl || '/images/upload',
         filebrowserUploadMethod: 'form',
-        extraPlugins: 'youtube,arcgisstorymap',
+        extraPlugins: 'youtube,arcgisstorymap,indentblock',
     }
 
     // TODO: support disabled
