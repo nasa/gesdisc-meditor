@@ -1,22 +1,17 @@
 .panel {
     border: 1px solid rgba(0, 0, 0, .12);
-    flex: 0 auto 430px;
-    width: 430px;
-    position: fixed;
-    top: 80px;
-    right: 15px;
     background: #fff;
-    height: calc(100% - 80px);
     padding: 20px;
-    transform: translateX(445px);
-    transition: transform .1s linear;
+    height: calc(100% - 80px);
     overflow-y: auto;
+    top: 80px;
+    flex: 0 auto 430px;
+    right: 15px;
 }
 
 .panelLarge {
     flex: 0 auto 860px;
     width: 50%;
-    transform: translateX(875px);
 }
 
 .panel h3 {

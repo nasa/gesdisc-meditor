@@ -309,7 +309,7 @@ const EditDocumentPage = ({ user, version = null }) => {
                     </DocumentPanel>
                     
                     
-                    <DocumentPanel title="JSONEditor" open={activePanel == 'source'} onClose={closePanel} large={true}>
+                    <DocumentPanel title="JSONEditor" open={activePanel == 'source'} onClose={closePanel}>
                         <SourceDialog source={formData} title={documentTitle} onChange={handleSourceChange} />
                     </DocumentPanel>
                     
