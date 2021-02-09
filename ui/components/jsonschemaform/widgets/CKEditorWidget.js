@@ -12,7 +12,7 @@ function registerPluginsWithCkEditorInstance(CKEDITOR) {
                 if ('en' in plugins[key]) {
                     CKEDITOR.plugins.setLang(key, 'en', plugins[key].en)
                 }
-            } catch(err) {
+            } catch (err) {
                 console.error(err)
             }
         }
@@ -48,16 +48,16 @@ function CKEditorWidget(props) {
         autoGrow_bottomSpace: 30,
         filebrowserUploadUrl: props.formContext.imageUploadUrl || '/images/upload',
         filebrowserUploadMethod: 'form',
-        extraPlugins: 'youtube,arcgisstorymap',
+        extraPlugins: 'youtube,arcgisstorymap,indentblock',
     }
 
     // TODO: support disabled
 
     return (
-        <CKEditor 
+        <CKEditor
             className="form-control"
             config={config}
-            data={props.value} 
+            data={props.value}
             onBlur={(event) => {
                 let value = event.editor.getData() || undefined
                 props.onBlur(props.id, value)
