@@ -25,6 +25,7 @@ import { useLocalStorage } from '../../../lib/use-localstorage.hook'
 import cloneDeep from 'lodash.clonedeep'
 
 
+
 const DOCUMENT_QUERY = gql`
     query getDocument($modelName: String!, $title: String!, $version: String) {
         document(modelName: $modelName, title: $title, version: $version) {
@@ -294,7 +295,8 @@ const EditDocumentPage = ({ user, version = null }) => {
                         onChange={handleSourceChange}
                         readOnly={!(currentPrivileges?.includes('edit'))}
                     />
-
+                    
+          
                     <DocumentPanel title="Comments" open={activePanel == 'comments'} onClose={closePanel}>
                         <DocumentComments
                             user={user}
@@ -303,6 +305,7 @@ const EditDocumentPage = ({ user, version = null }) => {
                             resolveComment={resolveComment}
                         />
                     </DocumentPanel>
+                   
 
                     <DocumentPanel title="History" open={activePanel == 'history'} onClose={closePanel}>
                         <DocumentHistory history={historyResponse?.data?.documentHistory} onVersionChange={loadDocumentVersion} />
@@ -312,7 +315,6 @@ const EditDocumentPage = ({ user, version = null }) => {
                     <DocumentPanel title="JSONEditor" open={activePanel == 'source'} onClose={closePanel}>
                         <SourceDialog source={formData} title={documentTitle} onChange={handleSourceChange} />
                     </DocumentPanel>
-                    
                     
                 </div>
 

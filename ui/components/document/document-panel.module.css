@@ -7,6 +7,8 @@
     top: 80px;
     flex: 0 auto 430px;
     right: 15px;
+    transform: translateX(1000px);
+    transition: transform .1s linear;
 }
 
 .panelLarge {
@@ -19,7 +21,7 @@
 }
 
 .panelOpen {
-    transform: translateX(15px);
+    transform: translateX(0px);
 }
 
 .close {
