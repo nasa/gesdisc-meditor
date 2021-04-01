@@ -14,6 +14,7 @@ const DocumentPanel = ({ title, children, onClose, open = false, large = false }
         height: 800 ,
       }}
       disableDragging
+      //style={{display: "show" && "none"}}
       >
         <div className={`${styles.panel} ${open ? styles.panelOpen : ''} ${large ? styles.panelLarge : ''}`}>
           
