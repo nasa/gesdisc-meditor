@@ -6,47 +6,45 @@ import { useState, useEffect } from 'react'
 
 
 const DocumentPanel = ({ title, children, onClose, open = false, large = false }) => {
-    const [showRnd , setShowRnd] = useState(false)
-    
-    console.log("open ", open)
-    console.log("showRnd ", showRnd)
-    useEffect (() => {
-        if(open) {
-            setShowRnd(true)
-        }else {
-            setShowRnd(false)
-        }
-    },[open])
+    const [showRnd, setShowRnd] = useState(false)
 
-    //if(showRnd) style.display = "none"
-    //style={showRnd ? null : { display: "none"}}
+    useEffect(() => {
+        if (open) {
+            setShowRnd(true)
+        } else {
+            setTimeout(() => {
+                setShowRnd(false)
+            }, 100);
+        }
+    }, [open])
 
     return (
-        <Rnd 
-        default={{
-        x: 1030,
-        y: -130,
-        width: 430,
-        height: 800 ,
-      }}
-      disableDragging
-      style={{display: showRnd ? "block" : "none"}}
-     // show={showRnd}
-      >
-        <div className={`${styles.panel} ${open ? styles.panelOpen : ''} ${large ? styles.panelLarge : ''}`}>
-          
-            <h3>{title}</h3>
-        
-            {children}
+        <Rnd
+            default={{
+                x: 1030,
+                y: -130,
+                width: 430,
+                height: 800,
+            }}
+            disableDragging
+            minHeight="100vh"
+            maxHeight="100vh"
+            style={{ visibility: showRnd ? "visible" : "hidden", position: "fixed" }}
+        >
+            <div className={`${styles.panel} ${open ? styles.panelOpen : ''} ${large ? styles.panelLarge : ''}`}>
 
-            <div className={styles.close}>
-                <IconButton alt="Close" tooltipPlacement="left">
-                    <MdClose onClick={onClose} />
-                </IconButton>
+                <h3>{title}</h3>
+
+                {children}
+
+                <div className={styles.close}>
+                    <IconButton alt="Close" tooltipPlacement="left">
+                        <MdClose onClick={onClose} />
+                    </IconButton>
+                </div>
+
             </div>
-           
-        </div> 
-       </Rnd>
+        </Rnd>
     )
 }
 
