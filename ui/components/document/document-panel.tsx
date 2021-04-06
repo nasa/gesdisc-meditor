@@ -29,7 +29,7 @@ const DocumentPanel = ({ title, children, onClose, open = false, large = false }
             disableDragging
             minHeight="100vh"
             maxHeight="100vh"
-            style={{ visibility: showRnd ? "visible" : "hidden", position: "fixed" }}
+            style={{ visibility: showRnd ? "visible" : "hidden", position: "fixed"}}
         >
             <div className={`${styles.panel} ${open ? styles.panelOpen : ''} ${large ? styles.panelLarge : ''}`}>
 
