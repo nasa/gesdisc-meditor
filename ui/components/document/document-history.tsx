@@ -20,16 +20,28 @@ const PastState = ({ state }) => (
 
             <div>
                 <div>{state.source}</div>
-                <div><em>{state.modifiedBy} on {state.modifiedOn}</em></div>
+                <div>
+                    <em>
+                        {state.modifiedBy} on {state.modifiedOn}
+                    </em>
+                </div>
             </div>
         </div>
     </div>
 )
 
-const DocumentHistory = ({ history = [], onVersionChange }) => {
-    const [historyPreferences, setHistoryPreferences] = useLocalStorage('historyPreferences', {
-        showDetails: false,
-    })
+const DocumentHistory = ({
+    history = [],
+    onVersionChange,
+    onJSONDiffChange,
+    showJSONView,
+}) => {
+    const [historyPreferences, setHistoryPreferences] = useLocalStorage(
+        'historyPreferences',
+        {
+            showDetails: false,
+        }
+    )
 
     const toggleShowDetails = () => {
         setHistoryPreferences({
@@ -37,11 +49,25 @@ const DocumentHistory = ({ history = [], onVersionChange }) => {
             showDetails: !historyPreferences.showDetails,
         })
     }
-    
+
+    function toggleActiveHistory(ev) {
+        document
+            .querySelectorAll('div[class^="document-history_card"]')
+            .forEach(item => {
+                item.classList.remove(`${styles.activeHistory}`)
+            })
+
+        ev.target.closest('.card').classList.add(`${styles.activeHistory}`)
+    }
+
     return (
         <div>
             <div className={styles.buttons}>
-                <Button className={styles.button} variant="outline-dark" onClick={toggleShowDetails}>
+                <Button
+                    className={styles.button}
+                    variant="outline-dark"
+                    onClick={toggleShowDetails}
+                >
                     {historyPreferences.showDetails ? (
                         <>
                             <IoMdEyeOff />
@@ -54,10 +80,27 @@ const DocumentHistory = ({ history = [], onVersionChange }) => {
                         </>
                     )}
                 </Button>
+                <Button
+                    className={styles.button}
+                    variant="outline-dark"
+                    active={showJSONView}
+                    onClick={onJSONDiffChange}
+                >
+                    Show JSON Diff
+                </Button>
             </div>
 
-            {history.map((item) => (
-                <Card key={item.modifiedOn} className={styles.card} onClick={() => onVersionChange(item.modifiedOn)}>
+            {history.map((item, index) => (
+                <Card
+                    key={item.modifiedOn}
+                    className={`${styles.card} ${
+                        index === 0 ? styles.activeHistory : ''
+                    }`}
+                    onClick={ev => {
+                        onVersionChange(item.modifiedOn)
+                        toggleActiveHistory(ev)
+                    }}
+                >
                     <Card.Body>
                         <div className={styles.body}>
                             <div className={styles.meta}>
@@ -70,11 +113,24 @@ const DocumentHistory = ({ history = [], onVersionChange }) => {
                             </div>
                         </div>
 
-                        {item.states?.length > 0 && 
-                            <div className={`${styles.pastStates} ${historyPreferences.showDetails ? styles.visible : ''}`}>
-                                {item.states?.sort(sortByLastModifiedDesc).map(state => <PastState state={state} key={state.source + state.modifiiedOn} />)}
+                        {item.states?.length > 0 && (
+                            <div
+                                className={`${styles.pastStates} ${
+                                    historyPreferences.showDetails
+                                        ? styles.visible
+                                        : ''
+                                }`}
+                            >
+                                {item.states
+                                    ?.sort(sortByLastModifiedDesc)
+                                    .map(state => (
+                                        <PastState
+                                            state={state}
+                                            key={state.source + state.modifiedOn}
+                                        />
+                                    ))}
                             </div>
-                        }
+                        )}
                     </Card.Body>
                 </Card>
             ))}

@@ -106,7 +106,7 @@ passport.deserializeUser(function (userId, done) {
       })
       .then(function (res) {
         user = res;
-        user.roles = {};
+        user.roles = [];
         return dbo.collection(USERS_COLLECTION_MEDITOR).findOne({
           id: userId
         }, {sort : {"x-meditor.modifiedOn": -1}});

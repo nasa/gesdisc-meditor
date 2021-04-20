@@ -10,7 +10,7 @@ import PageTitle from '../../../components/page-title'
 import Form from '../../../components/document/form'
 import { Breadcrumbs, Breadcrumb } from '../../../components/breadcrumbs'
 import DocumentHeader from '../../../components/document/document-header'
-import mEditorApi from '../../../service/'
+import mEditorApi from '../../../service'
 import withAuthentication from '../../../components/with-authentication'
 import FormActions from '../../../components/document/form-actions'
 import gql from 'graphql-tag'
@@ -59,12 +59,15 @@ const NewDocumentPage = ({ user }) => {
     const localId = params.localId as string
 
     const [localChanges, setLocalChanges] = useState(
-        localId ? retrieveUnsavedDocumentFromLS(modelName, localId) : getNewUnsavedDocument(modelName, user.uid)
+        localId
+            ? retrieveUnsavedDocumentFromLS(modelName, localId)
+            : getNewUnsavedDocument(modelName, user.uid)
     )
 
     const [autosavingTimer, setAutosavingTimer] = useState(null)
 
-    const hasFormData = localChanges?.formData && Object.keys(localChanges.formData).length
+    const hasFormData =
+        localChanges?.formData && Object.keys(localChanges.formData).length
 
     const [form, setForm] = useState(null)
     const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
@@ -74,7 +77,10 @@ const NewDocumentPage = ({ user }) => {
     })
 
     const currentPrivileges = data?.model?.workflow
-        ? user.privilegesForModelAndWorkflowNode(modelName, data.model.workflow.currentNode)
+        ? user.privilegesForModelAndWorkflowNode(
+              modelName,
+              data.model.workflow.currentNode
+          )
         : []
 
     // set initial formData
@@ -85,12 +91,14 @@ const NewDocumentPage = ({ user }) => {
 
     // save changes to form in localstorage for later retrieval
     useEffect(() => {
-        // simulate a long save, the real save to local storage happens instantaneously 
+        // simulate a long save, the real save to local storage happens instantaneously
         // but it helps to show user that something is happening in the background
         clearTimeout(autosavingTimer)
-        setAutosavingTimer(setTimeout(() => {
-            setAutosavingTimer(null)
-        }, 1000))
+        setAutosavingTimer(
+            setTimeout(() => {
+                setAutosavingTimer(null)
+            }, 1000)
+        )
 
         // trigger the save to local storage
         updateUnsavedDocumentInLS(localChanges)
@@ -98,7 +106,10 @@ const NewDocumentPage = ({ user }) => {
 
     function redirectToDocumentEdit(document) {
         let documentName = urlEncode(document[data.model.titleProperty])
-        router.push('/meditor/[modelName]/[documentTitle]', `/meditor/${urlEncode(modelName)}/${documentName}`)
+        router.push(
+            '/meditor/[modelName]/[documentTitle]',
+            `/meditor/${urlEncode(modelName)}/${documentName}`
+        )
     }
 
     async function createDocument(document) {
@@ -123,14 +134,19 @@ const NewDocumentPage = ({ user }) => {
 
     function onChange(formData: any) {
         let titleProperty = data?.model?.titleProperty
-        let title = titleProperty && formData[titleProperty] ? formData[titleProperty] : UNTITLED_DOCUMENT_TITLE
+        let title =
+            titleProperty && formData[titleProperty]
+                ? formData[titleProperty]
+                : UNTITLED_DOCUMENT_TITLE
 
         setLocalChanges({
             ...localChanges,
             modifiedOn: Date.now(),
             formData: omitBy(
                 formData,
-                (value) => typeof value === 'undefined' || (Array.isArray(value) && !value.length)
+                value =>
+                    typeof value === 'undefined' ||
+                    (Array.isArray(value) && !value.length)
             ),
             title,
         })
@@ -138,7 +154,9 @@ const NewDocumentPage = ({ user }) => {
 
     function deleteUnsavedDocument() {
         removeUnsavedDocumentFromLS(localChanges)
-        setSuccessNotification(`Successfully deleted document: '${localChanges.title}'`)
+        setSuccessNotification(
+            `Successfully deleted document: '${localChanges.title}'`
+        )
         router.push('/meditor/[modelName]', `/meditor/${urlEncode(modelName)}`)
     }
 
@@ -147,11 +165,15 @@ const NewDocumentPage = ({ user }) => {
             <PageTitle title={['Add New', modelName]} />
 
             <Breadcrumbs>
-                <Breadcrumb title={modelName} href="/meditor/[modelName]" as={`/meditor/${modelName}`} />
+                <Breadcrumb
+                    title={modelName}
+                    href="/meditor/[modelName]"
+                    as={`/meditor/${modelName}`}
+                />
                 <Breadcrumb title="New" />
             </Breadcrumbs>
 
-           <DocumentHeader model={data?.model} togglePanelOpen />
+            <DocumentHeader model={data?.model} togglePanelOpen toggleJsonDiffer />
 
             <RenderResponse
                 loading={loading}
@@ -160,8 +182,14 @@ const NewDocumentPage = ({ user }) => {
                 errorComponent={
                     <Alert variant="danger">
                         <p>Failed to load the page.</p>
-                        <p>This is most likely temporary, please wait a bit and refresh the page.</p>
-                        <p>If the error continues to occur, please open a support ticket.</p>
+                        <p>
+                            This is most likely temporary, please wait a bit and
+                            refresh the page.
+                        </p>
+                        <p>
+                            If the error continues to occur, please open a support
+                            ticket.
+                        </p>
                     </Alert>
                 }
             >
@@ -183,13 +211,24 @@ const NewDocumentPage = ({ user }) => {
                             <span className="ml-5 text-secondary">
                                 {autosavingTimer ? (
                                     <>
-                                        <Spinner animation="border" variant="secondary" role="status" as="span" size="sm" className="mr-2" />
+                                        <Spinner
+                                            animation="border"
+                                            variant="secondary"
+                                            role="status"
+                                            as="span"
+                                            size="sm"
+                                            className="mr-2"
+                                        />
                                         Saving your changes...
                                     </>
                                 ) : (
                                     <>
-                                        <AiOutlineCheck className="mr-2" /> 
-                                        Saved locally on {format(new Date(localChanges.modifiedOn), 'M/d/yy, h:mm aaa')}
+                                        <AiOutlineCheck className="mr-2" />
+                                        Saved locally on{' '}
+                                        {format(
+                                            new Date(localChanges.modifiedOn),
+                                            'M/d/yy, h:mm aaa'
+                                        )}
                                     </>
                                 )}
                             </span>

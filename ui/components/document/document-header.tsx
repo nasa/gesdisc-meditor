@@ -5,13 +5,14 @@ import Button from 'react-bootstrap/Button'
 import Badge from 'react-bootstrap/Badge'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Tooltip from 'react-bootstrap/Tooltip'
-import { MdHistory, MdComment } from 'react-icons/md'
+import { MdHistory, MdComment, MdCompare } from 'react-icons/md'
 import { BsBraces } from 'react-icons/bs'
 
 const DocumentHeader = ({
     document = null,
     model,
     version = null,
+    toggleJsonDiffer,
     togglePanelOpen,
     privileges = [],
     comments = [],
@@ -36,7 +37,10 @@ const DocumentHeader = ({
                                 </Tooltip>
                             }
                         >
-                            <Button variant="primary" onClick={() => togglePanelOpen('comments')}>
+                            <Button
+                                variant="primary"
+                                onClick={() => togglePanelOpen('comments')}
+                            >
                                 <MdComment />
                                 <Badge className={styles.badge} variant="light">
                                     {comments.length}
@@ -48,12 +52,13 @@ const DocumentHeader = ({
 
                     <OverlayTrigger
                         overlay={
-                            <Tooltip id="history-tooltip">
-                                Show History Panel
-                            </Tooltip>
+                            <Tooltip id="history-tooltip">Show History Panel</Tooltip>
                         }
                     >
-                        <Button variant="primary" onClick={() => togglePanelOpen('history')}>
+                        <Button
+                            variant="primary"
+                            onClick={() => togglePanelOpen('history')}
+                        >
                             <MdHistory />
                             <Badge className={styles.badge} variant="light">
                                 {history.length}
@@ -64,12 +69,33 @@ const DocumentHeader = ({
 
                     <OverlayTrigger
                         overlay={
+                            <Tooltip id="compare-tooltip">
+                                Compare Document Versions
+                            </Tooltip>
+                        }
+                    >
+                        <Button
+                            className="d-flex align-items-center"
+                            variant="primary"
+                            onClick={() => {
+                                toggleJsonDiffer()
+                            }}
+                        >
+                            <MdCompare style={{ fontSize: '1.6em' }} />
+                        </Button>
+                    </OverlayTrigger>
+
+                    <OverlayTrigger
+                        overlay={
                             <Tooltip id="source-tooltip">
                                 Show Document Source
                             </Tooltip>
                         }
                     >
-                        <Button variant="primary" onClick={() => togglePanelOpen('source')}>
+                        <Button
+                            variant="primary"
+                            onClick={() => togglePanelOpen('source')}
+                        >
                             <BsBraces />
                             <span className="sr-only">Source</span>
                         </Button>
@@ -86,7 +112,8 @@ const DocumentHeader = ({
 
                     <div>
                         <em>
-                            (edited by {document?.modifiedBy} on {document?.modifiedOn})
+                            (edited by {document?.modifiedBy} on{' '}
+                            {document?.modifiedOn})
                         </em>
                     </div>
                 </div>

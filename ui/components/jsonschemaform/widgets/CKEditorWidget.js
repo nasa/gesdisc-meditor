@@ -12,7 +12,7 @@ function registerPluginsWithCkEditorInstance(CKEDITOR) {
                 if ('en' in plugins[key]) {
                     CKEDITOR.plugins.setLang(key, 'en', plugins[key].en)
                 }
-            } catch(err) {
+            } catch (err) {
                 console.error(err)
             }
         }
@@ -21,7 +21,8 @@ function registerPluginsWithCkEditorInstance(CKEDITOR) {
 
 function CKEditorWidget(props) {
     const config = {
-        mathJaxLib: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_HTML',
+        mathJaxLib:
+            'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_HTML',
         toolbarGroups: [
             { name: 'clipboard', groups: ['clipboard', 'undo'] },
             { name: 'editing', groups: ['find', 'selection', 'spellchecker'] },
@@ -48,25 +49,27 @@ function CKEditorWidget(props) {
         autoGrow_bottomSpace: 30,
         filebrowserUploadUrl: props.formContext.imageUploadUrl || '/images/upload',
         filebrowserUploadMethod: 'form',
-        extraPlugins: 'youtube,arcgisstorymap',
+        extraPlugins: 'youtube,arcgisstorymap,indentblock',
+        extraAllowedContent: 'iframe(*)',
+        allowedContent: true,
     }
 
     // TODO: support disabled
 
     return (
-        <CKEditor 
+        <CKEditor
             className="form-control"
             config={config}
-            data={props.value} 
-            onBlur={(event) => {
+            data={props.value}
+            onBlur={event => {
                 let value = event.editor.getData() || undefined
                 props.onBlur(props.id, value)
             }}
-            onChange={(event) => {
+            onChange={event => {
                 let value = event.editor.getData() || undefined
                 props.onChange(value)
             }}
-            onInstanceReady={(event) => {
+            onInstanceReady={event => {
                 event.editor.setReadOnly(props.readonly || false)
             }}
             onBeforeLoad={(CKEDITOR, b) => {
