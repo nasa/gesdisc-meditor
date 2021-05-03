@@ -189,7 +189,6 @@ let oauth2Strategy = new OAuth2Strategy(
     },
   },
   function (accessToken, refreshToken, authResp, profile, cb) {
-    console.log("profile: ", profile);
     https
       .get(
         {
