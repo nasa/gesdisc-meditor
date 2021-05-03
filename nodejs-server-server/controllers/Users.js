@@ -277,12 +277,7 @@ let cognitoOptions = {
 
 function verifyCognitoAuth(accessToken, refreshToken, profile, done) {
   let user = { ...profile };
-  console.log(user);
-  if (process.env.COGNITO_USER_IDENTIFIER.toUpperCase() === "UID") {
-    done(null, user.uid);
-  } else {
-    done(null, user.username);
-  }
+  done(null, user[process.env.COGNITO_USER_IDENTIFIER.toLowerCase()]);
 }
 
 if (process.env.PROXY_REQUEST_URL) {
@@ -330,7 +325,6 @@ module.exports.login = function login(req, res, next) {
   }
 
   let authenticateErrorHandler = function (err, user) {
-    console.log("user: ", user);
     if (err) {
       console.log("hit this error ", err);
       return next(err);
