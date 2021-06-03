@@ -284,7 +284,7 @@ if (process.env.PROXY_REQUEST_URL) {
   oauth2Strategy._oauth2.setAgent(httpsProxyAgent);
 }
 
-if (process.env.COGNITO_USER_POOL_ID) {
+if (process.env.COGNITO_CLIENT_ID) {
   passport.use(new CognitoOAuth2Strategy(cognitoOptions, verifyCognitoAuth));
 } else {
   passport.use(oauth2Strategy);
@@ -350,7 +350,7 @@ module.exports.login = function login(req, res, next) {
     });
   };
 
-  if (process.env.COGNITO_USER_POOL_ID) {
+  if (process.env.COGNITO_CLIENT_ID) {
     passport.authenticate("cognito-oauth2", authenticateErrorHandler)(
       req,
       res,
