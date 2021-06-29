@@ -22,8 +22,6 @@ import JsonDiffViewer from '../../../components/json-diff-viewer'
 import { useLocalStorage } from '../../../lib/use-localstorage.hook'
 import cloneDeep from 'lodash.clonedeep'
 
-
-
 const DOCUMENT_QUERY = gql`
     query getDocument($modelName: String!, $title: String!, $version: String) {
         document(modelName: $modelName, title: $title, version: $version) {
@@ -384,7 +382,6 @@ const EditDocumentPage = ({ user, version = null }) => {
                     title="JSONEditor"
                     open={activePanel == 'source'}
                     onClose={closePanel}
-                    large={true}
                 >
                     <SourceDialog
                         source={formData}

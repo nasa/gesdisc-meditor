@@ -1,5 +1,5 @@
 .panel {
-    border: 1px solid rgba(0, 0, 0, .12);
+    border: 1px solid rgba(0, 0, 0, 0.12);
     background: #fff;
     padding: 20px;
     height: calc(100% - 80px);
@@ -7,7 +7,8 @@
     top: 80px;
     flex: 0 auto 430px;
     right: 15px;
-    transition: transform .1s linear;
+    transition: transform 0.1s linear;
+    margin-top: 40px;
 }
 
 .panelLarge {
@@ -28,4 +29,3 @@
     top: 20px;
     right: 20px;
 }
-
