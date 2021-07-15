@@ -330,7 +330,7 @@ const EditDocumentPage = ({ user, version = null }) => {
 
             <div
                 className={styles.stage}
-                style={{ paddingRight: activePanel ? 430 : 0 }}
+                style={{ paddingRight: activePanel ? 400 : 0 }}
             >
                 {currentVersion && oldVersion && toggleJSON && (
                     <div className={styles.jsonDiffView}>
@@ -382,7 +382,6 @@ const EditDocumentPage = ({ user, version = null }) => {
                     title="JSONEditor"
                     open={activePanel == 'source'}
                     onClose={closePanel}
-                    large={true}
                 >
                     <SourceDialog
                         source={formData}

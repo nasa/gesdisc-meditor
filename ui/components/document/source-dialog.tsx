@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react'
 import CodeEditor from '../code-editor'
 import cloneDeep from 'lodash.clonedeep'
 
+
 function isValidJSON(str) {
     try {
         JSON.parse(str)
@@ -58,7 +59,7 @@ const SourceDialog = ({ source, title, onChange }) => {
     }
 
     return (
-        <div>
+
             <Card className={styles.card}>
                 <Card.Body>
                     <div className={styles.note}>
@@ -89,7 +90,7 @@ const SourceDialog = ({ source, title, onChange }) => {
                     </>}
                 </Card.Body>
             </Card>
-        </div>
+        
     )
 }
 
