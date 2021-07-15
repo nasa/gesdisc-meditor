@@ -4,7 +4,6 @@ import { MdClose } from 'react-icons/md'
 import { Rnd } from 'react-rnd'
 import { useState, useEffect } from 'react'
 
-
 const DocumentPanel = ({ title, children, onClose, open = false, large = false }) => {
     const [showRnd, setShowRnd] = useState(false)
 
@@ -14,14 +13,14 @@ const DocumentPanel = ({ title, children, onClose, open = false, large = false }
         } else {
             setTimeout(() => {
                 setShowRnd(false)
-            }, 100);
+            }, 100)
         }
     }, [open])
 
     return (
         <Rnd
             default={{
-                x: 1030,
+                x: 1060,
                 y: -130,
                 width: 430,
                 height: 800,
@@ -29,10 +28,13 @@ const DocumentPanel = ({ title, children, onClose, open = false, large = false }
             disableDragging
             minHeight="100vh"
             maxHeight="100vh"
-            style={{ visibility: showRnd ? "visible" : "hidden", position: "fixed" }}
+            style={{ visibility: showRnd ? 'visible' : 'hidden', position: 'fixed' }}
         >
-            <div className={`${styles.panel} ${open ? styles.panelOpen : ''} ${large ? styles.panelLarge : ''}`}>
-
+            <div
+                className={`${styles.panel} ${open ? styles.panelOpen : ''} ${
+                    large ? styles.panelLarge : ''
+                }`}
+            >
                 <h3>{title}</h3>
 
                 {children}
@@ -42,7 +44,6 @@ const DocumentPanel = ({ title, children, onClose, open = false, large = false }
                         <MdClose onClick={onClose} />
                     </IconButton>
                 </div>
-
             </div>
         </Rnd>
     )
