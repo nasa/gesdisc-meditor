@@ -1,9 +1,7 @@
 const { gql } = require('apollo-server')
 
 const typeDefs = gql`
-    directive @date(
-        defaultFormat: String = "mmmm d, yyyy"
-    ) on FIELD_DEFINITION
+    directive @date(defaultFormat: String = "mmmm d, yyyy") on FIELD_DEFINITION
 
     scalar Date
     scalar JSON
@@ -129,6 +127,7 @@ const typeDefs = gql`
 
     type PublicationStatus {
         url: String
+        redirectToUrl: Boolean
         message: String
         target: String
         statusCode: Int
