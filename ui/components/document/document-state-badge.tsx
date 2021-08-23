@@ -142,7 +142,14 @@ const DocumentStateBadge = ({
             status => status.url && status.redirectToUrl
         )
 
-        if (!publicationStatusWithRedirectUrl) return
+        // only redirect after a "save" or document state change (ex. "Publish", "Approve", etc.)
+        // if the user visits the page directly we won't redirect
+        if (
+            !publicationStatusWithRedirectUrl ||
+            window.location.search.indexOf('reload=true') == -1
+        ) {
+            return
+        }
 
         // set url to redirect to
         setRedirectToUrl(publicationStatusWithRedirectUrl.url)
