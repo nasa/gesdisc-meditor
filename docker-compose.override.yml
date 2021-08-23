@@ -1,7 +1,6 @@
 version: "3.3"
 
 services:
-
   proxy:
     container_name: meditor_proxy
     build: proxy
@@ -16,7 +15,7 @@ services:
     volumes:
       - ./notifier:/usr/src/app
       - /usr/src/app/node_modules
- 
+
   ui:
     container_name: meditor_ui
     build: ui
@@ -27,7 +26,7 @@ services:
     volumes:
       - ./ui:/usr/src/app
       - /usr/src/app/node_modules
-  
+
   server:
     container_name: meditor_server
     build: nodejs-server-server
@@ -64,4 +63,14 @@ services:
       - .env
     volumes:
       - ./examples/subscriber:/usr/src/app
+      - /usr/src/app/node_modules
+
+  example-subscriber-with-redirect:
+    container_name: meditor_example_subscriber_with_redirect
+    build: examples/subscriber-with-redirect
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./examples/subscriber-with-redirect:/usr/src/app
       - /usr/src/app/node_modules

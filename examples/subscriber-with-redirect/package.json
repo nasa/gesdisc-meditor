@@ -1,0 +1,24 @@
+{
+  "name": "subscriber-with-redirect",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "LOG_LEVEL=debug  nodemon -L --exec npm run start",
+    "prod": "npm run start"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "log": "^6.0.0",
+    "log-node": "^7.0.0",
+    "node-nats-streaming": "^0.2.6",
+    "nodemon": "^2.0.2"
+  },
+  "devDependencies": {
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-register": "^6.26.0"
+  }
+}

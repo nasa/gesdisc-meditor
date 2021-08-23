@@ -2,19 +2,19 @@
 
 ### Getting Started
 
-* Clone the repo and `cd meditor`
-* Copy .env.example, create a **new file** called .env
-* mEditor uses Earthdata Login for authentication, so you will need to update `AUTH_CLIENT_ID` and `AUTH_CLIENT_SECRET` in your .env with the values for your client application.
-* Build and run the app: `docker-compose up`
-  * NOTE: you will see a warning about REGISTRY variable is not set. You can safely ignore this. If you'd like to use a private registry you can set this ENV variable. 
-* Once everything is up and running (may take a few minutes on the first run), you can access mEditor at: `http://localhost/meditor`
-* The first time you load mEditor, it will take you through a step-by-step for setting up the database and initial users.
+- Clone the repo and `cd meditor`
+- Copy .env.example, create a **new file** called .env
+- mEditor uses Earthdata Login for authentication, so you will need to update `AUTH_CLIENT_ID` and `AUTH_CLIENT_SECRET` in your .env with the values for your client application.
+- Build and run the app: `docker-compose up`
+  - NOTE: you will see a warning about REGISTRY variable is not set. You can safely ignore this. If you'd like to use a private registry you can set this ENV variable.
+- Once everything is up and running (may take a few minutes on the first run), you can access mEditor at: `http://localhost/meditor`
+- The first time you load mEditor, it will take you through a step-by-step for setting up the database and initial users.
 
 ### Developing in mEditor
 
-* In development, you can make changes in most of the service folders and the service will restart with your changes applied.
-* Out of the box, your IDE will show errors for dependencies and will be missing autocompletion for dependencies. This is due to Docker installing dependencies inside the container, inaccessible to the host. To fix this, you can run `npm install` inside whichever service folder you are working on.
-* Please create a branch for your changes and when you are finished, create a pull request to have them reviewed and merged in.
+- In development, you can make changes in most of the service folders and the service will restart with your changes applied.
+- Out of the box, your IDE will show errors for dependencies and will be missing autocompletion for dependencies. This is due to Docker installing dependencies inside the container, inaccessible to the host. To fix this, you can run `npm install` inside whichever service folder you are working on.
+- Please create a branch for your changes and when you are finished, create a pull request to have them reviewed and merged in.
 
 ### Subscribing to document state changes
 
@@ -53,3 +53,9 @@ The clients are expected to publish an acknowledgement message into the 'meditor
 An example subscriber is located in `./examples/subscriber` and shows how to subscribe to a specific model and how to send acknowledgements back to mEditor.
 
 The built-in notifier, which sends emails to users, is also a subscriber. The notifier subscribes to the `meditor-notifications` queue.
+
+**Note:**
+
+If mEditor is embedded in another application and you'd like to redirect back to the application after a document has been published: include `"redirectToUrl": true` in the acknowledgement message
+
+There is an example of this redirect in examples/subscriber-with-redirect
