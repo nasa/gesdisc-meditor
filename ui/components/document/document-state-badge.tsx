@@ -7,8 +7,11 @@ import styles from './document-state-badge.module.css'
 import { useEffect, useState, useRef } from 'react'
 import StateBadge from '../state-badge'
 import omitBy from 'lodash.omitby'
+import Modal from 'react-bootstrap/Modal'
+import Button from 'react-bootstrap/Button'
 
 const POLL_FOR_PUBLICATIONSTATUS_MILLIS = 2000
+const REDIRECT_TO_URL_DELAY_MILLIS = 10000
 
 const QUERY = gql`
     query getDocument($modelName: String!, $title: String!, $version: String) {
@@ -40,6 +43,9 @@ const DocumentStateBadge = ({
     const [showPublicationStatusOverlay, setShowPublicationStatusOverlay] = useState(
         false
     )
+
+    const [redirectToUrl, setRedirectToUrl] = useState(null)
+    const redirectToUrlTimer = useRef(null)
 
     /**
      * a helper variable to avoid seeing a 0 flash by when there are publication statuses to show
@@ -95,12 +101,52 @@ const DocumentStateBadge = ({
                     variables: { modelName, title: document.title, version },
                 })
             }, POLL_FOR_PUBLICATIONSTATUS_MILLIS)
+        } else {
+            redirectToUrlIfRequired()
         }
 
         return () => {
             clearTimeout(refreshStatusTimer.current)
         }
     }, [publicationStatus])
+
+    /**
+     * if a redirectToUrl is set, this useEffect will start a timer to automatically redirect
+     */
+    useEffect(() => {
+        if (!redirectToUrl) {
+            // if url has been cleared, clear any existing timers
+            clearTimeout(redirectToUrlTimer.current)
+            return
+        }
+
+        // set a timer to automatically redirect after the specified delay
+        redirectToUrlTimer.current = setTimeout(() => {
+            window.location.href = redirectToUrl
+        }, REDIRECT_TO_URL_DELAY_MILLIS)
+
+        return () => {
+            clearTimeout(redirectToUrlTimer.current)
+        }
+    }, [redirectToUrl])
+
+    /**
+     * looks at each publication status for a url to redirect to
+     * if found will start a timer to redirect
+     *
+     * NOTE: will redirect to the first url it finds
+     */
+    function redirectToUrlIfRequired() {
+        // find publication status requiring redirect
+        let publicationStatusWithRedirectUrl = publicationStatus?.find(
+            status => status.url && status.redirectToUrl
+        )
+
+        if (!publicationStatusWithRedirectUrl) return
+
+        // set url to redirect to
+        setRedirectToUrl(publicationStatusWithRedirectUrl.url)
+    }
 
     return (
         <>
@@ -204,6 +250,37 @@ const DocumentStateBadge = ({
                     )
                 }}
             </Overlay>
+
+            {redirectToUrl && (
+                <Modal show={true} backdrop="static" keyboard={false} centered>
+                    <Modal.Header>
+                        <Modal.Title>Redirecting</Modal.Title>
+                    </Modal.Header>
+
+                    <Modal.Body>
+                        <p>
+                            The document was updated successfully and you will be
+                            automatically redirected to{' '}
+                            <a href={redirectToUrl}>{redirectToUrl}</a> in{' '}
+                            {REDIRECT_TO_URL_DELAY_MILLIS / 1000} sec.
+                        </p>
+
+                        <p>
+                            If you'd rather stay in mEditor, you can click "Go Back"
+                            below to return to the document.
+                        </p>
+                    </Modal.Body>
+
+                    <Modal.Footer>
+                        <Button
+                            variant="secondary"
+                            onClick={() => setRedirectToUrl(null)}
+                        >
+                            Go Back
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+            )}
         </>
     )
 }
