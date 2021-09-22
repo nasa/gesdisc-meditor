@@ -1,0 +1,14 @@
+.workflow.currentNode {
+    background: #222;
+    color: #fff;
+}
+
+.workflow.label {
+    border: none;
+    background: #fff;
+    padding: 0.25rem 0.125rem;
+}
+
+.workflow.label > div {
+    background: #fff;
+}

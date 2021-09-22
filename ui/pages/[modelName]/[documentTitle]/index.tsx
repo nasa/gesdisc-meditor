@@ -21,6 +21,9 @@ import { urlDecode } from '../../../lib/url'
 import JsonDiffViewer from '../../../components/json-diff-viewer'
 import { useLocalStorage } from '../../../lib/use-localstorage.hook'
 import cloneDeep from 'lodash.clonedeep'
+import DocumentWorkflow from '../../../components/document/document-workflow'
+
+export type DocumentPanels = 'comments' | 'history' | 'source' | 'workflow'
 
 const DOCUMENT_QUERY = gql`
     query getDocument($modelName: String!, $title: String!, $version: String) {
@@ -49,18 +52,25 @@ const MODEL_QUERY = gql`
             layout
             titleProperty
             workflow {
+                name
                 currentNode {
                     id
-                    privileges {
-                        role
-                        privilege
-                    }
                 }
                 currentEdges {
                     role
                     source
                     target
                     label
+                }
+                edges {
+                    role
+                    source
+                    target
+                    label
+                    notify
+                }
+                nodes {
+                    id
                 }
             }
         }
@@ -106,7 +116,7 @@ const EditDocumentPage = ({ user, version = null }) => {
 
     const [form, setForm] = useState(null)
     const [formData, setFormData] = useState(null)
-    const [activePanel, setActivePanel] = useLocalStorage(
+    const [activePanel, setActivePanel] = useLocalStorage<DocumentPanels>(
         'documentEditActivePanel',
         null
     )
@@ -318,6 +328,8 @@ const EditDocumentPage = ({ user, version = null }) => {
             </Breadcrumbs>
 
             <DocumentHeader
+                activePanel={activePanel}
+                isJsonPanelOpen={toggleJSON}
                 document={documentResponse?.data?.document}
                 model={modelResponse?.data?.model}
                 version={version}
@@ -387,6 +399,16 @@ const EditDocumentPage = ({ user, version = null }) => {
                         source={formData}
                         title={documentTitle}
                         onChange={handleSourceChange}
+                    />
+                </DocumentPanel>
+
+                <DocumentPanel
+                    onClose={closePanel}
+                    open={activePanel == 'workflow'}
+                    title="Workflow"
+                >
+                    <DocumentWorkflow
+                        workflow={modelResponse.data?.model?.workflow}
                     />
                 </DocumentPanel>
             </div>
