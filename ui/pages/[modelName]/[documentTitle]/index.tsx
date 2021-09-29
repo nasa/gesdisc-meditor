@@ -55,6 +55,10 @@ const MODEL_QUERY = gql`
                 name
                 currentNode {
                     id
+                    privileges {
+                        role
+                        privilege
+                    }
                 }
                 currentEdges {
                     role
