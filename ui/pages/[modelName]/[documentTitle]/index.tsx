@@ -52,7 +52,6 @@ const MODEL_QUERY = gql`
             layout
             titleProperty
             workflow {
-                name
                 currentNode {
                     id
                     privileges {
@@ -65,16 +64,6 @@ const MODEL_QUERY = gql`
                     source
                     target
                     label
-                }
-                edges {
-                    role
-                    source
-                    target
-                    label
-                    notify
-                }
-                nodes {
-                    id
                 }
             }
         }
