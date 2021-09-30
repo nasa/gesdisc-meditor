@@ -50,8 +50,9 @@ function initNodesAndEdges({
 }): Elements {
     // * Modify workflow nodes to match react-flow's options.
     const workflowNodes = nodes.map(node => {
-        const isInSource = edges.some(edge => edge.source?.includes(node.id))
-        const isInTarget = edges.some(edge => edge.target?.includes(node.id))
+        const id = node.id || ' '
+        const isInSource = edges.some(edge => edge.source?.includes(id))
+        const isInTarget = edges.some(edge => edge.target?.includes(id))
         const isOnlyInSource = isInSource && !isInTarget
         const isOnlyInTarget = !isInSource && isInTarget
         const nodeType: WorkflowNodeType = isOnlyInSource
@@ -61,9 +62,9 @@ function initNodesAndEdges({
             : 'default'
 
         return {
-            ...node,
+            id,
             connectable: false,
-            data: { label: node.id },
+            data: { label: id },
             selectable: false,
             type: nodeType,
         }
@@ -73,35 +74,41 @@ function initNodesAndEdges({
     const labelNodes = edges
         .filter(edge => !!edge.label)
         .map(edge => {
+            const label = edge.label || ' '
+            const source = edge.source || ' '
+            const target = edge.target || ' '
+
             return {
                 __typename: null,
                 className: `${styles.workflow} ${styles.label}`,
                 connectable: false,
-                data: { label: edge.label, isLabelNode: true },
-                id: `${edge.source} to ${edge.target}`,
+                data: { label, isLabelNode: true },
+                id: `${source} to ${target}`,
                 selectable: false,
             }
         })
 
     // * Create two edges from the list of current edges, pointing the first from the original source to the new label node, and the second from the new label node to the original target node.
     const workflowEdges = edges.flatMap(edge => {
-        const idRef = `${edge.source} to ${edge.target}`
+        const source = edge.source || ' '
+        const target = edge.target || ' '
+        const idRef = `${source} to ${target}`
         const label = null // * Label nodes, not edges, now contain the label.
         const type = 'smoothstep'
 
         const firstEdge = {
-            ...edge,
             id: `${idRef} First Edge`,
             label,
+            source,
             target: idRef,
             type,
         }
         const secondEdge = {
-            ...edge,
             arrowHeadType: 'arrowclosed',
             id: `${idRef} Second Edge`,
             label,
             source: idRef,
+            target,
             type,
         }
 
@@ -114,7 +121,10 @@ function initNodesAndEdges({
 function layoutDagreGraph(elements: Elements) {
     elements.forEach(element => {
         if (isNode(element)) {
-            dagreGraph.setNode(element.id, { width: NODE_WIDTH, height: NODE_HEIGHT })
+            dagreGraph.setNode(element.id, {
+                width: NODE_WIDTH,
+                height: NODE_HEIGHT,
+            })
         } else {
             dagreGraph.setEdge(element.source, element.target)
         }
@@ -164,13 +174,7 @@ const DocumentWorkflow = ({ workflow }) => {
         <>
             <p className="h4 text-muted">{workflow?.name}</p>
             <ReactFlow elements={elements}>
-                <Controls
-                    onInteractiveChange={event => {
-                        console.log(event)
-                        initNodesAndEdgesMemoized(workflowElements)
-                    }}
-                    className={`${styles.workflow} ${styles.controls}`}
-                />
+                <Controls className={`${styles.workflow} ${styles.controls}`} />
                 <Background color="#aaa" gap={16} />
             </ReactFlow>
         </>
