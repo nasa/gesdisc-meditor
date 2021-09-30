@@ -115,25 +115,30 @@ const DocumentHeader = ({
                         </Button>
                     </OverlayTrigger>
 
-                    <OverlayTrigger
-                        overlay={
-                            <Tooltip id="workflow-tooltip">
-                                {activePanel === 'workflow' ? `Hide ` : `Show `}
-                                Document Workflow
-                            </Tooltip>
-                        }
-                    >
-                        <Button
-                            aria-pressed={activePanel === 'workflow'}
-                            variant="primary"
-                            onClick={() => {
-                                togglePanelOpen('workflow')
-                            }}
+                    {model?.name?.toLowerCase() === 'workflows' && (
+                        <OverlayTrigger
+                            overlay={
+                                <Tooltip id="workflow-tooltip">
+                                    {activePanel === 'workflow' ? `Hide ` : `Show `}
+                                    Document Workflow
+                                </Tooltip>
+                            }
                         >
-                            <FcFlowChart className={styles.flowChartIcon} />
-                            <span className="sr-only">Show Document Workflow</span>
-                        </Button>
-                    </OverlayTrigger>
+                            <Button
+                                aria-pressed={activePanel === 'workflow'}
+                                variant="primary"
+                                onClick={() => {
+                                    togglePanelOpen('workflow')
+                                }}
+                            >
+                                <FcFlowChart className={styles.flowChartIcon} />
+                                <span className="sr-only">
+                                    Show Document Workflow
+                                </span>
+                            </Button>
+                        </OverlayTrigger>
+                    )}
+
                     {model?.name && (
                         <DocumentStateBadge
                             document={document}

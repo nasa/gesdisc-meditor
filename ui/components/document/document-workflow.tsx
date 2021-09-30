@@ -2,10 +2,9 @@ import dagre from 'dagre'
 import React, { useCallback, useEffect } from 'react'
 import ReactFlow, {
     Background,
-    Edge,
+    Controls,
     Elements,
     isNode,
-    Node,
 } from 'react-flow-renderer'
 import { useImmer } from 'use-immer'
 import styles from './document-workflow.module.css'
@@ -33,7 +32,6 @@ const NODE_HEIGHT = 36
 const dagreGraph = new dagre.graphlib.Graph()
 
 // * https://github.com/dagrejs/dagre/wiki#configuring-the-layout
-dagreGraph.setDefaultEdgeLabel(() => ({}))
 dagreGraph.setGraph({
     rankdir: 'TB',
     align: 'UL',
@@ -41,26 +39,19 @@ dagreGraph.setGraph({
     edgesep: NODE_WIDTH / 3,
     ranksep: NODE_HEIGHT,
 })
-
-function edgeMatchesCurrent(currentEdges: WorkflowEdge[], edge: WorkflowEdge) {
-    return !!currentEdges.find(currentEdge => currentEdge.source === edge.source)
-}
+dagreGraph.setDefaultEdgeLabel(() => ({}))
 
 function initNodesAndEdges({
     edges = [],
     nodes = [],
-    currentNode,
-    currentEdges = [],
 }: {
     edges: WorkflowEdge[]
     nodes: WorkflowNode[]
-    currentNode: WorkflowNode
-    currentEdges: WorkflowEdge[]
 }): Elements {
     // * Modify workflow nodes to match react-flow's options.
     const workflowNodes = nodes.map(node => {
-        const isInSource = edges.some(edge => edge.source.includes(node.id))
-        const isInTarget = edges.some(edge => edge.target.includes(node.id))
+        const isInSource = edges.some(edge => edge.source?.includes(node.id))
+        const isInTarget = edges.some(edge => edge.target?.includes(node.id))
         const isOnlyInSource = isInSource && !isInTarget
         const isOnlyInTarget = !isInSource && isInTarget
         const nodeType: WorkflowNodeType = isOnlyInSource
@@ -69,42 +60,37 @@ function initNodesAndEdges({
             ? 'output'
             : 'default'
 
-        return ({
+        return {
             ...node,
-            className:
-                node.id === currentNode?.id
-                    ? `${styles.workflow} ${styles.currentNode}`
-                    : null,
             connectable: false,
             data: { label: node.id },
             selectable: false,
             type: nodeType,
-        } as unknown) as Node
+        }
     })
 
     // * Remove edges without a label, then create a new node to hold a label so that the label (a node) can be moved.
     const labelNodes = edges
         .filter(edge => !!edge.label)
         .map(edge => {
-            return ({
+            return {
                 __typename: null,
                 className: `${styles.workflow} ${styles.label}`,
                 connectable: false,
                 data: { label: edge.label, isLabelNode: true },
                 id: `${edge.source} to ${edge.target}`,
                 selectable: false,
-            } as unknown) as Node
+            }
         })
 
     // * Create two edges from the list of current edges, pointing the first from the original source to the new label node, and the second from the new label node to the original target node.
     const workflowEdges = edges.flatMap(edge => {
         const idRef = `${edge.source} to ${edge.target}`
-        const type = 'smoothstep'
         const label = null // * Label nodes, not edges, now contain the label.
+        const type = 'smoothstep'
 
         const firstEdge = {
             ...edge,
-            animated: edgeMatchesCurrent(currentEdges, edge),
             id: `${idRef} First Edge`,
             label,
             target: idRef,
@@ -112,7 +98,6 @@ function initNodesAndEdges({
         }
         const secondEdge = {
             ...edge,
-            animated: edgeMatchesCurrent(currentEdges, edge),
             arrowHeadType: 'arrowclosed',
             id: `${idRef} Second Edge`,
             label,
@@ -120,10 +105,10 @@ function initNodesAndEdges({
             type,
         }
 
-        return ([firstEdge, secondEdge] as unknown) as Edge[]
+        return [firstEdge, secondEdge]
     })
 
-    return [...workflowNodes, ...labelNodes, ...workflowEdges]
+    return [...workflowNodes, ...labelNodes, ...workflowEdges] as Elements
 }
 
 function layoutDagreGraph(elements: Elements) {
@@ -160,13 +145,9 @@ const DocumentWorkflow = ({ workflow }) => {
     const workflowElements: {
         edges: WorkflowEdge[]
         nodes: WorkflowNode[]
-        currentEdges: WorkflowEdge[]
-        currentNode: WorkflowNode
     } = {
         edges: workflow?.edges,
         nodes: workflow?.nodes,
-        currentEdges: workflow?.currentEdges,
-        currentNode: workflow?.currentNode,
     }
     const initNodesAndEdgesMemoized = useCallback(
         workflowElements => layoutDagreGraph(initNodesAndEdges(workflowElements)),
@@ -182,11 +163,14 @@ const DocumentWorkflow = ({ workflow }) => {
     return (
         <>
             <p className="h4 text-muted">{workflow?.name}</p>
-            <p className="text-muted">
-                The workflow represents the document&rsquo;s workflow and may not
-                reflect your own permissions.
-            </p>
             <ReactFlow elements={elements}>
+                <Controls
+                    onInteractiveChange={event => {
+                        console.log(event)
+                        initNodesAndEdgesMemoized(workflowElements)
+                    }}
+                    className={`${styles.workflow} ${styles.controls}`}
+                />
                 <Background color="#aaa" gap={16} />
             </ReactFlow>
         </>

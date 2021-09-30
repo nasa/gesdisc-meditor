@@ -1,6 +1,6 @@
-.workflow.currentNode {
-    background: #222;
-    color: #fff;
+.workflow.controls {
+    bottom: unset;
+    top: 1rem;
 }
 
 .workflow.label {
