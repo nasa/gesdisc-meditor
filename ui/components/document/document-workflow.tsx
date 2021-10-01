@@ -2,10 +2,12 @@ import dagre from 'dagre'
 import React, { useCallback, useEffect } from 'react'
 import ReactFlow, {
     Background,
+    ControlButton,
     Controls,
     Elements,
     isNode,
 } from 'react-flow-renderer'
+import { MdRefresh } from 'react-icons/md'
 import { useImmer } from 'use-immer'
 import styles from './document-workflow.module.css'
 
@@ -27,16 +29,16 @@ export interface WorkflowEdge {
     target: string
 }
 
-const NODE_WIDTH = 172
+const NODE_WIDTH = 116
 const NODE_HEIGHT = 36
 const dagreGraph = new dagre.graphlib.Graph()
 
 // * https://github.com/dagrejs/dagre/wiki#configuring-the-layout
 dagreGraph.setGraph({
     rankdir: 'TB',
-    align: 'UL',
-    nodesep: NODE_WIDTH / 3,
-    edgesep: NODE_WIDTH / 3,
+    align: 'DL',
+    nodesep: NODE_HEIGHT,
+    edgesep: NODE_HEIGHT / 3,
     ranksep: NODE_HEIGHT,
 })
 dagreGraph.setDefaultEdgeLabel(() => ({}))
@@ -134,15 +136,9 @@ function layoutDagreGraph(elements: Elements) {
 
     return elements.map(element => {
         if (isNode(element)) {
-            const nodeWithPosition = dagreGraph.node(element.id)
-            const position = {
-                x: element.data.isLabelNode
-                    ? nodeWithPosition.x - NODE_WIDTH / 4
-                    : nodeWithPosition.x,
-                y: nodeWithPosition.y,
-            }
+            const { x, y } = dagreGraph.node(element.id)
 
-            element.position = position
+            element.position = { x, y }
         }
 
         return element
@@ -165,7 +161,7 @@ const DocumentWorkflow = ({ workflow }) => {
     )
 
     useEffect(() => {
-        const elements: Elements = initNodesAndEdgesMemoized(workflowElements)
+        const elements = initNodesAndEdgesMemoized(workflowElements)
 
         setElements(elements)
     }, [workflow])
@@ -173,8 +169,25 @@ const DocumentWorkflow = ({ workflow }) => {
     return (
         <>
             <p className="h4 text-muted">{workflow?.name}</p>
-            <ReactFlow elements={elements}>
-                <Controls className={`${styles.workflow} ${styles.controls}`} />
+            <ReactFlow
+                elements={elements}
+                nodeExtent={[
+                    [0, 0],
+                    [768, 1920],
+                ]}
+            >
+                <Controls className={`${styles.workflow} ${styles.controls}`}>
+                    <ControlButton
+                        onClick={() =>
+                            setElements(initNodesAndEdgesMemoized(workflowElements))
+                        }
+                    >
+                        <span className="sr-only">Refresh Workflow Layout</span>
+                        <MdRefresh
+                            className={`${styles.workflow} ${styles.refreshIcon}`}
+                        />
+                    </ControlButton>
+                </Controls>
                 <Background color="#aaa" gap={16} />
             </ReactFlow>
         </>

@@ -3,12 +3,18 @@
     top: 1rem;
 }
 
+.workflow.refreshIcon {
+    max-height: 1rem;
+    max-width: 1rem;
+}
+
 .workflow.label {
     border: none;
     background: #fff;
-    padding: 0.25rem 0.125rem;
+    padding: 0;
 }
 
 .workflow.label > div {
-    background: #fff;
+    background: transparent;
+    border: none;
 }
