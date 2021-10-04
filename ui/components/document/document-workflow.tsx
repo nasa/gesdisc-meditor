@@ -33,15 +33,46 @@ const NODE_WIDTH = 116
 const NODE_HEIGHT = 36
 const dagreGraph = new dagre.graphlib.Graph()
 
-// * https://github.com/dagrejs/dagre/wiki#configuring-the-layout
+//* https://github.com/dagrejs/dagre/wiki#configuring-the-layout
 dagreGraph.setGraph({
     rankdir: 'TB',
     align: 'DL',
-    nodesep: NODE_HEIGHT,
-    edgesep: NODE_HEIGHT / 3,
-    ranksep: NODE_HEIGHT,
+    nodesep: NODE_HEIGHT * 2, //* Number of pixels that separate nodes horizontally in the layout.
+    edgesep: NODE_HEIGHT / 3, //* Number of pixels that separate edges horizontally in the layout.
+    ranksep: NODE_HEIGHT, //* Number of pixels between each rank in the layout.
 })
 dagreGraph.setDefaultEdgeLabel(() => ({}))
+
+const nodeIsReferencedByEdgeSource = (edges: WorkflowEdge[], id: string) =>
+    edges.some(edge => edge.source === id)
+const nodeIsReferencedByEdgeTarget = (edges: WorkflowEdge[], id: string) =>
+    edges.some(edge => edge.target === id)
+
+function filterInvalidWorkflowNodes({
+    edges = [],
+    nodes = [],
+}: {
+    edges: WorkflowEdge[]
+    nodes: WorkflowNode[]
+}) {
+    return nodes
+        .filter(node => !!node.id)
+        .filter(
+            node =>
+                nodeIsReferencedByEdgeSource(edges, node.id) ||
+                nodeIsReferencedByEdgeTarget(edges, node.id)
+        )
+}
+
+function filterInvalidWorkflowEdges({
+    edges = [],
+    nodes = [],
+}: {
+    edges: WorkflowEdge[]
+    nodes: WorkflowNode[]
+}) {
+    return edges.filter(edge => !!edge.label && !!edge.source && !!edge.target)
+}
 
 function initNodesAndEdges({
     edges = [],
@@ -50,11 +81,14 @@ function initNodesAndEdges({
     edges: WorkflowEdge[]
     nodes: WorkflowNode[]
 }): Elements {
-    // * Modify workflow nodes to match react-flow's options.
-    const workflowNodes = nodes.map(node => {
-        const id = node.id || ' '
-        const isInSource = edges.some(edge => edge.source?.includes(id))
-        const isInTarget = edges.some(edge => edge.target?.includes(id))
+    const safeNodes = filterInvalidWorkflowNodes({ edges, nodes })
+    const safeEdges = filterInvalidWorkflowEdges({ edges, nodes })
+
+    //* Modify workflow nodes to match react-flow's options.
+    const workflowNodes = safeNodes.map(node => {
+        const id = node.id
+        const isInSource = nodeIsReferencedByEdgeSource(edges, id)
+        const isInTarget = nodeIsReferencedByEdgeTarget(edges, id)
         const isOnlyInSource = isInSource && !isInTarget
         const isOnlyInTarget = !isInSource && isInTarget
         const nodeType: WorkflowNodeType = isOnlyInSource
@@ -72,49 +106,72 @@ function initNodesAndEdges({
         }
     })
 
-    // * Remove edges without a label, then create a new node to hold a label so that the label (a node) can be moved.
-    const labelNodes = edges
-        .filter(edge => !!edge.label)
-        .map(edge => {
-            const label = edge.label || ' '
-            const source = edge.source || ' '
-            const target = edge.target || ' '
+    //* Remove edges without a label, then create a new node to hold a label so that the label (a node) can be moved.
+    const labelNodes = safeEdges.flatMap(edge => {
+        const source = edge.source
+        const target = edge.target
+        const sourceExistsInWorkflowNodes = workflowNodes.some(
+            workflowNode => workflowNode.id === source
+        )
+        const targetExistsInWorkflowNodes = workflowNodes.some(
+            workflowNode => workflowNode.id === target
+        )
+        const isValid = sourceExistsInWorkflowNodes && targetExistsInWorkflowNodes
 
-            return {
-                __typename: null,
-                className: `${styles.workflow} ${styles.label}`,
-                connectable: false,
-                data: { label, isLabelNode: true },
-                id: `${source} to ${target}`,
-                selectable: false,
-            }
-        })
+        return isValid
+            ? [
+                  {
+                      __typename: null,
+                      className: `${styles.workflow} ${styles.label}`,
+                      connectable: false,
+                      data: { label: edge.label, isLabelNode: true },
+                      id: `${source} to ${target}`,
+                      selectable: false,
+                  },
+              ]
+            : []
+    })
 
-    // * Create two edges from the list of current edges, pointing the first from the original source to the new label node, and the second from the new label node to the original target node.
-    const workflowEdges = edges.flatMap(edge => {
-        const source = edge.source || ' '
-        const target = edge.target || ' '
+    //* Create two edges from the list of current edges, pointing the first from the original source to the new label node, and the second from the new label node to the original target node.
+    const workflowEdges = safeEdges.flatMap(edge => {
+        const source = edge.source
+        const target = edge.target
         const idRef = `${source} to ${target}`
-        const label = null // * Label nodes, not edges, now contain the label.
+        const label = null //* Label nodes, not edges, now contain the label.
         const type = 'smoothstep'
+        const idRefExistsInLabelNodes = labelNodes.some(
+            labelNode => labelNode.id === idRef
+        )
+        const sourceExistsInWorkflowNodes = workflowNodes.some(
+            workflowNode => workflowNode.id === source
+        )
+        const targetExistsInWorkflowNodes = workflowNodes.some(
+            workflowNode => workflowNode.id === target
+        )
+        const isValid =
+            idRefExistsInLabelNodes &&
+            sourceExistsInWorkflowNodes &&
+            targetExistsInWorkflowNodes
 
-        const firstEdge = {
-            id: `${idRef} First Edge`,
-            label,
-            source,
-            target: idRef,
-            type,
-        }
-        const secondEdge = {
-            arrowHeadType: 'arrowclosed',
-            id: `${idRef} Second Edge`,
-            label,
-            source: idRef,
-            target,
-            type,
-        }
-
-        return [firstEdge, secondEdge]
+        return isValid
+            ? [
+                  {
+                      id: `${idRef} First Edge`,
+                      label,
+                      source,
+                      target: idRef,
+                      type,
+                  },
+                  {
+                      arrowHeadType: 'arrowclosed',
+                      id: `${idRef} Second Edge`,
+                      label,
+                      source: idRef,
+                      target,
+                      type,
+                  },
+              ]
+            : []
     })
 
     return [...workflowNodes, ...labelNodes, ...workflowEdges] as Elements
@@ -146,7 +203,7 @@ function layoutDagreGraph(elements: Elements) {
 }
 
 const DocumentWorkflow = ({ workflow }) => {
-    // * `useImmer` prevents accidental state mutation (though in this case a shallow clone would work fine). Unlike cloneDeep, allows for memoization (https://github.com/immerjs/immer/issues/619).
+    //* `useImmer` prevents accidental state mutation (though in this case a shallow clone would work fine). Unlike cloneDeep, allows for memoization (https://github.com/immerjs/immer/issues/619).
     const [elements, setElements] = useImmer<Elements>([])
     const workflowElements: {
         edges: WorkflowEdge[]
