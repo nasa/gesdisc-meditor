@@ -395,15 +395,14 @@ const EditDocumentPage = ({ user, version = null }) => {
                     />
                 </DocumentPanel>
 
-                {modelResponse.data?.model?.name?.toLowerCase() === 'workflows' && (
-                    <DocumentPanel
-                        onClose={closePanel}
-                        open={activePanel == 'workflow'}
-                        title="Workflow"
-                    >
-                        <DocumentWorkflow workflow={formData?.doc} />
-                    </DocumentPanel>
-                )}
+                <DocumentPanel
+                    onClose={closePanel}
+                    open={activePanel == 'workflow'}
+                    title="Workflow"
+                >
+                    {modelResponse.data?.model?.name?.toLowerCase() ===
+                        'workflows' && <DocumentWorkflow workflow={formData?.doc} />}
+                </DocumentPanel>
             </div>
 
             <FormActions

@@ -20,9 +20,9 @@ const DocumentPanel = ({ title, children, onClose, open = false, large = false }
     return (
         <Rnd
             default={{
-                x: 1060,
+                x: 1300,
                 y: -130,
-                width: 430,
+                width: 450,
                 height: 800,
             }}
             disableDragging
