@@ -21,6 +21,9 @@ import { urlDecode } from '../../../lib/url'
 import JsonDiffViewer from '../../../components/json-diff-viewer'
 import { useLocalStorage } from '../../../lib/use-localstorage.hook'
 import cloneDeep from 'lodash.clonedeep'
+import DocumentWorkflow from '../../../components/document/document-workflow'
+
+export type DocumentPanels = 'comments' | 'history' | 'source' | 'workflow'
 
 const DOCUMENT_QUERY = gql`
     query getDocument($modelName: String!, $title: String!, $version: String) {
@@ -106,7 +109,7 @@ const EditDocumentPage = ({ user, version = null }) => {
 
     const [form, setForm] = useState(null)
     const [formData, setFormData] = useState(null)
-    const [activePanel, setActivePanel] = useLocalStorage(
+    const [activePanel, setActivePanel] = useLocalStorage<DocumentPanels>(
         'documentEditActivePanel',
         null
     )
@@ -304,6 +307,9 @@ const EditDocumentPage = ({ user, version = null }) => {
         setToggleJSON(!toggleJSON)
     }
 
+    const workflowShouldShow =
+        modelResponse.data?.model?.name?.toLowerCase() === 'workflows'
+
     return (
         <div>
             <PageTitle title={[documentTitle, modelName]} />
@@ -318,6 +324,8 @@ const EditDocumentPage = ({ user, version = null }) => {
             </Breadcrumbs>
 
             <DocumentHeader
+                activePanel={activePanel}
+                isJsonPanelOpen={toggleJSON}
                 document={documentResponse?.data?.document}
                 model={modelResponse?.data?.model}
                 version={version}
@@ -388,6 +396,16 @@ const EditDocumentPage = ({ user, version = null }) => {
                         title={documentTitle}
                         onChange={handleSourceChange}
                     />
+                </DocumentPanel>
+
+                <DocumentPanel
+                    onClose={closePanel}
+                    open={activePanel == 'workflow' && workflowShouldShow}
+                    title="Workflow"
+                >
+                    {workflowShouldShow && (
+                        <DocumentWorkflow workflow={formData?.doc} />
+                    )}
                 </DocumentPanel>
             </div>
 

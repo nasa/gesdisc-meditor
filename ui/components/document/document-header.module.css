@@ -6,8 +6,8 @@
 }
 
 .title span {
-    box-shadow: 0 2px 5px 0 rgba(0,0,0,.26);
-    font-size: .7em;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+    font-size: 0.7em;
     margin-right: 10px;
 }
 
@@ -16,7 +16,7 @@
 }
 
 .description {
-    color: rgba(0, 0, 0, .54);
+    color: rgba(0, 0, 0, 0.54);
     margin-top: 5px;
 }
 
@@ -47,9 +47,17 @@
 .badge {
     background: #ff6e40;
     border: 1px solid #fff;
-    color: rgba(0, 0, 0, .87);
+    color: rgba(0, 0, 0, 0.87);
     position: absolute !important;
     top: -5px !important;
     border-radius: 100% !important;
     right: -5px !important;
+}
+
+.flowChartIcon > polygon {
+    fill: #e0e0e0;
+}
+
+.flowChartIcon > rect {
+    fill: #fff;
 }
