@@ -307,6 +307,9 @@ const EditDocumentPage = ({ user, version = null }) => {
         setToggleJSON(!toggleJSON)
     }
 
+    const workflowShouldShow =
+        modelResponse.data?.model?.name?.toLowerCase() === 'workflows'
+
     return (
         <div>
             <PageTitle title={[documentTitle, modelName]} />
@@ -397,11 +400,12 @@ const EditDocumentPage = ({ user, version = null }) => {
 
                 <DocumentPanel
                     onClose={closePanel}
-                    open={activePanel == 'workflow'}
+                    open={activePanel == 'workflow' && workflowShouldShow}
                     title="Workflow"
                 >
-                    {modelResponse.data?.model?.name?.toLowerCase() ===
-                        'workflows' && <DocumentWorkflow workflow={formData?.doc} />}
+                    {workflowShouldShow && (
+                        <DocumentWorkflow workflow={formData?.doc} />
+                    )}
                 </DocumentPanel>
             </div>
 
