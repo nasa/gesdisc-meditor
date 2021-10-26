@@ -2,7 +2,7 @@
 
 # compiled output
 /data/
-/data2/
+/backup/
 
 # dependencies
 node_modules

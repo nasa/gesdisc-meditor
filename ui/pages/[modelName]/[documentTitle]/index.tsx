@@ -179,7 +179,9 @@ const EditDocumentPage = ({ user, version = null }) => {
         : []
 
     function reloadDocument() {
-        location.reload()
+        const parser = new URL(window.location.href)
+        parser.searchParams.set('reload', 'true')
+        window.location.href = parser.href
     }
 
     function loadDocumentVersion(version) {
