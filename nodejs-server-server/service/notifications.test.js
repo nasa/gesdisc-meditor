@@ -1,53 +1,59 @@
-const { getTargetEdges, getTargetRoles } = require("./notifications");
+const { NotificationsService } = require("./notifications");
 const modifyReviewPublishWorkflow = require("./__test__/modify-review-publish.workflow.json");
 
-describe("getTargetRoles", () => {
-  it("returns empty array for invalid state", () => {
-    expect(getTargetRoles(modifyReviewPublishWorkflow.edges, "Foo")).toEqual(
-      []
-    );
+describe("NotificationsService", () => {
+  let notifications = new NotificationsService();
+
+  it("getTargetRoles() returns empty array for invalid state", () => {
+    expect(
+      notifications.getTargetRoles(modifyReviewPublishWorkflow.edges, "Foo")
+    ).toEqual([]);
   });
 
-  it("returns roles that can transition from a state", () => {
+  it("getTargetRoles() returns roles that can transition from a state", () => {
     expect(
-      getTargetRoles(modifyReviewPublishWorkflow.edges, "Under Review")
+      notifications.getTargetRoles(
+        modifyReviewPublishWorkflow.edges,
+        "Under Review"
+      )
     ).toEqual(["Reviewer"]);
   });
 
-  it('returns roles that can transition from "Published" state', () => {
+  it('getTargetRoles() returns roles that can transition from "Published" state', () => {
     expect(
-      getTargetRoles(modifyReviewPublishWorkflow.edges, "Published")
+      notifications.getTargetRoles(
+        modifyReviewPublishWorkflow.edges,
+        "Published"
+      )
     ).toEqual(["Publisher"]);
   });
 
-  it('returns roles that can transition from "Init" state', () => {
-    expect(getTargetRoles(modifyReviewPublishWorkflow.edges, "Init")).toEqual([
-      "Author",
-    ]);
-  });
-});
-
-describe("getTargetEdges", () => {
-  it("returns empty array for invalid state", () => {
-    expect(getTargetEdges(modifyReviewPublishWorkflow.edges, "Foo")).toEqual(
-      []
-    );
+  it('getTargetRoles() returns roles that can transition from "Init" state', () => {
+    expect(
+      notifications.getTargetRoles(modifyReviewPublishWorkflow.edges, "Init")
+    ).toEqual(["Author"]);
   });
 
-  it("returns first edge for initial state", () => {
-    expect(getTargetEdges(modifyReviewPublishWorkflow.edges, "Init")).toEqual([
-      modifyReviewPublishWorkflow.edges[0],
-    ]);
+  it("getTargetEdges() returns empty array for invalid state", () => {
+    expect(
+      notifications.getTargetEdges(modifyReviewPublishWorkflow.edges, "Foo")
+    ).toEqual([]);
   });
 
-  it("returns empty array for final/end state", () => {
-    expect(getTargetEdges(modifyReviewPublishWorkflow.edges, "Hidden")).toEqual(
-      []
-    );
+  it("getTargetEdges() returns first edge for initial state", () => {
+    expect(
+      notifications.getTargetEdges(modifyReviewPublishWorkflow.edges, "Init")
+    ).toEqual([modifyReviewPublishWorkflow.edges[0]]);
   });
 
-  it("returns applicable edges for inner workflow state", () => {
-    let targetEdges = getTargetEdges(
+  it("getTargetEdges() returns empty array for final/end state", () => {
+    expect(
+      notifications.getTargetEdges(modifyReviewPublishWorkflow.edges, "Hidden")
+    ).toEqual([]);
+  });
+
+  it("getTargetEdges() returns applicable edges for inner workflow state", () => {
+    let targetEdges = notifications.getTargetEdges(
       modifyReviewPublishWorkflow.edges,
       "Under Review"
     );
