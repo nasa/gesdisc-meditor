@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "sleep 20 && nodemon --exitcrash -L --exec npm run start",
     "prod": "sleep 20 && npm run start",
-    "start": "node index.js --hostname 0.0.0.0"
+    "start": "node index.js --hostname 0.0.0.0",
+    "test": "jest"
   },
   "keywords": [
     "swagger"
@@ -46,6 +47,7 @@
     "uuid": "3.3.3"
   },
   "devDependencies": {
+    "jest": "^27.3.1",
     "nodemon": "^2.0.7",
     "passport-custom": "^1.0.5"
   }
