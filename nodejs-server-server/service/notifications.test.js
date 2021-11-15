@@ -1,8 +1,35 @@
+const { MongoClient } = require('mongodb')
 const { NotificationsService } = require('./notifications')
 const modifyReviewPublishWorkflow = require('./__test__/modify-review-publish.workflow.json')
 
 describe('NotificationsService', () => {
     let notifications = new NotificationsService()
+    let connection
+    let db
+
+    beforeAll(async () => {
+        // connect to the mock Jest mongo client
+        connection = await MongoClient.connect(global.__MONGO_URI__, {
+            useNewUrlParser: true,
+        })
+
+        db = await connection.db(global.__MONGO_DB_NAME__)
+
+        // insert some test users
+        const users = db.collection('Users')
+
+        await users.insertOne({
+            id: 'foo',
+            name: 'Foo',
+            roles: [
+                //{ "model": "Users", "role": "Author" },
+            ],
+        })
+    })
+
+    afterAll(async () => {
+        await connection.close()
+    })
 
     it('getTargetRoles() returns empty array for invalid state', () => {
         expect(

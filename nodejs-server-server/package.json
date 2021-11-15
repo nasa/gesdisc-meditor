@@ -48,6 +48,7 @@
     },
     "devDependencies": {
         "@gesdisc/prettier-config": "^1.0.1",
+        "@shelf/jest-mongodb": "^2.1.0",
         "husky": "^7.0.4",
         "jest": "^27.3.1",
         "nodemon": "^2.0.7",
