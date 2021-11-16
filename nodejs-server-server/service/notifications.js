@@ -1,8 +1,38 @@
 const { onlyUnique } = require('../utils/array')
+const { aggregations } = require('../utils/mongo')
 
 class NotificationsService {
     constructor(db) {
         this.db = db
+    }
+
+    /**
+     * finds all users that have the requested roles for the given model
+     * ex. "give me all News reviewers" = getUsersWithModelRole('News', ['Reviewer'])
+     * @param {*} model
+     * @param {*} roles
+     * @returns
+     */
+    async getUsersWithModelRoles(model, roles) {
+        const results = await this.db
+            .collection('Users')
+            .aggregate(
+                [].concat(aggregations.latestVersionOfDocument, [
+                    { $unwind: '$roles' },
+                    {
+                        $match: {
+                            'roles.model': model,
+                            'roles.role': { $in: roles },
+                        },
+                    },
+                    { $group: { _id: null, ids: { $addToSet: '$id' } } },
+                ]),
+                { allowDiskUse: true }
+            )
+            .toArray()
+
+        // return only the user ids from the response
+        return results[0].ids
     }
 
     /**

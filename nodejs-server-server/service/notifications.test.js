@@ -3,7 +3,7 @@ const { NotificationsService } = require('./notifications')
 const modifyReviewPublishWorkflow = require('./__test__/modify-review-publish.workflow.json')
 
 describe('NotificationsService', () => {
-    let notifications = new NotificationsService()
+    let notifications
     let connection
     let db
 
@@ -15,16 +15,25 @@ describe('NotificationsService', () => {
 
         db = await connection.db(global.__MONGO_DB_NAME__)
 
-        // insert some test users
-        const users = db.collection('Users')
+        // setup the notifications service
+        notifications = new NotificationsService(db)
 
-        await users.insertOne({
-            id: 'foo',
-            name: 'Foo',
-            roles: [
-                //{ "model": "Users", "role": "Author" },
-            ],
-        })
+        // small helper function to add users to the mock database
+        const addUser = async (id, name, roles) => {
+            await db.collection('Users').insertOne({ id, name, roles })
+        }
+
+        // add some fake users to test with
+        addUser('bacon', 'Bacon', [{ model: 'Breakfast', role: 'Author' }])
+        addUser('eggs', 'Eggs', [{ model: 'Breakfast', role: 'Author' }])
+        addUser('hashbrowns', 'Hashbrowns', [
+            { model: 'Breakfast', role: 'Author' },
+            { model: 'Breakfast', role: 'Post-Publish Reviewer' },
+        ])
+        addUser('grits', 'Grits', [
+            { model: 'Breakfast', role: 'Author' },
+            { model: 'Breakfast', role: 'Post-Publish Reviewer' },
+        ])
     })
 
     afterAll(async () => {
@@ -90,5 +99,27 @@ describe('NotificationsService', () => {
             'Needs more work',
             'Approve publication',
         ])
+    })
+
+    it('getUsersWithModelRoles(Breakfast, Author) returns only Breakfast authors', async () => {
+        const users = await notifications.getUsersWithModelRoles('Breakfast', [
+            'Author',
+        ])
+        expect(users.sort()).toEqual(['bacon', 'eggs', 'hashbrowns', 'grits'].sort())
+    })
+
+    it('getUsersWithModelRoles(Breakfast, Post-Publish Reviewer) returns only Breakfast post publish reviewers', async () => {
+        const users = await notifications.getUsersWithModelRoles('Breakfast', [
+            'Post-Publish Reviewer',
+        ])
+        expect(users.sort()).toEqual(['hashbrowns', 'grits'].sort())
+    })
+
+    it('getUsersWithModelRoles(Breakfast, [Author, Post-Publish Reviewer]) returns all Breakfast users', async () => {
+        const users = await notifications.getUsersWithModelRoles('Breakfast', [
+            'Author',
+            'Post-Publish Reviewer',
+        ])
+        expect(users.sort()).toEqual(['bacon', 'eggs', 'hashbrowns', 'grits'].sort())
     })
 })
