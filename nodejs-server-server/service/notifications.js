@@ -48,7 +48,9 @@ class NotificationsService {
     getTargetRoles(edges, state, currentEdge) {
         if (currentEdge && 'notifyRoles' in currentEdge) {
             // the current edge has specific roles set, return those instead of trying to figure it out dynamically
-            return currentEdge.notifyRoles
+            return typeof currentEdge.notifyRoles === 'string'
+                ? currentEdge.notifyRoles.split(',')
+                : currentEdge.notifyRoles
         }
 
         // roles are based on edges, so get edges that branch from the state
