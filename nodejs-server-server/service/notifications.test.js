@@ -40,13 +40,13 @@ describe('NotificationsService', () => {
         await connection.close()
     })
 
-    it('getTargetRoles() returns empty array for invalid state', () => {
+    it('getTargetRoles: returns empty array for an invalid state', () => {
         expect(
             notifications.getTargetRoles(modifyReviewPublishWorkflow.edges, 'Foo')
         ).toEqual([])
     })
 
-    it('getTargetRoles() returns roles that can transition from a state', () => {
+    it('getTargetRoles: returns Reviewer role for documents in a Modify-Review-Publish workflow that have moved to the Under Review state', () => {
         expect(
             notifications.getTargetRoles(
                 modifyReviewPublishWorkflow.edges,
@@ -55,7 +55,7 @@ describe('NotificationsService', () => {
         ).toEqual(['Reviewer'])
     })
 
-    it('getTargetRoles() returns roles that can transition from "Published" state', () => {
+    it('getTargetRoles: returns Publisher role for documents in a Modify-Review-Publish workflow that have moved to the Published state', () => {
         expect(
             notifications.getTargetRoles(
                 modifyReviewPublishWorkflow.edges,
@@ -64,31 +64,25 @@ describe('NotificationsService', () => {
         ).toEqual(['Publisher'])
     })
 
-    it('getTargetRoles() returns roles that can transition from "Init" state', () => {
+    it('getTargetRoles: returns Author role for documents in a Modify-Review-Publish workflow that can transition from "Init" state', () => {
         expect(
             notifications.getTargetRoles(modifyReviewPublishWorkflow.edges, 'Init')
         ).toEqual(['Author'])
     })
 
-    it('getTargetEdges() returns empty array for invalid state', () => {
-        expect(
-            notifications.getTargetEdges(modifyReviewPublishWorkflow.edges, 'Foo')
-        ).toEqual([])
-    })
-
-    it('getTargetEdges() returns first edge for initial state', () => {
+    it('getTargetEdges: returns first edge for initial state', () => {
         expect(
             notifications.getTargetEdges(modifyReviewPublishWorkflow.edges, 'Init')
         ).toEqual([modifyReviewPublishWorkflow.edges[0]])
     })
 
-    it('getTargetEdges() returns empty array for final/end state', () => {
+    it('getTargetEdges: returns empty array for final/end state', () => {
         expect(
             notifications.getTargetEdges(modifyReviewPublishWorkflow.edges, 'Hidden')
         ).toEqual([])
     })
 
-    it('getTargetEdges() returns applicable edges for inner workflow state', () => {
+    it('getTargetEdges: returns applicable edges for inner workflow state', () => {
         let targetEdges = notifications.getTargetEdges(
             modifyReviewPublishWorkflow.edges,
             'Under Review'
