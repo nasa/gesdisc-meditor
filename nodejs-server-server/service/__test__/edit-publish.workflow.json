@@ -62,7 +62,8 @@
             "source": "Draft",
             "target": "Published",
             "label": "Publish",
-            "notify": true
+            "notify": true,
+            "notifyRoles": ["Post-Publish Reviewer"]
         },
         {
             "label": "Delete Permanently",

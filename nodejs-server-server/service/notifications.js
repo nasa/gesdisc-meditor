@@ -38,11 +38,19 @@ class NotificationsService {
     /**
      * given a list of edges and a state, will return a list of roles that can transition from this state
      *
+     * if the currentEdge has a notifyRoles property set, we'll use that specified role instead
+     *
      * @param {*} edges
      * @param {*} state
+     * @param {*} currentEdge
      * @returns
      */
-    getTargetRoles(edges, state) {
+    getTargetRoles(edges, state, currentEdge) {
+        if (currentEdge && 'notifyRoles' in currentEdge) {
+            // the current edge has specific roles set, return those instead of trying to figure it out dynamically
+            return currentEdge.notifyRoles
+        }
+
         // roles are based on edges, so get edges that branch from the state
         const targetEdges = this.getTargetEdges(edges, state)
 

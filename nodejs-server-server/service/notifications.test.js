@@ -1,6 +1,7 @@
 const { MongoClient } = require('mongodb')
 const { NotificationsService } = require('./notifications')
 const modifyReviewPublishWorkflow = require('./__test__/modify-review-publish.workflow.json')
+const editPublishWorkflow = require('./__test__/edit-publish.workflow.json')
 
 describe('NotificationsService', () => {
     let notifications
@@ -68,6 +69,27 @@ describe('NotificationsService', () => {
         expect(
             notifications.getTargetRoles(modifyReviewPublishWorkflow.edges, 'Init')
         ).toEqual(['Author'])
+    })
+
+    it('getTargetRoles: returns Author role for documents in a Edit-Publish workflow that have moved to the Published state', () => {
+        expect(
+            notifications.getTargetRoles(editPublishWorkflow.edges, 'Published')
+        ).toEqual(['Author'])
+    })
+
+    it('getTargetRoles: returns the value of "notifyRoles" in the currentEdge', () => {
+        expect(
+            notifications.getTargetRoles(
+                editPublishWorkflow.edges,
+                'Published',
+                editPublishWorkflow.edges.find(
+                    edge =>
+                        edge.role == 'Author' &&
+                        edge.source == 'Draft' &&
+                        edge.target == 'Published'
+                )
+            )
+        ).toEqual(['Post-Publish Reviewer'])
     })
 
     it('getTargetEdges: returns first edge for initial state', () => {
