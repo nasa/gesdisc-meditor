@@ -13,6 +13,34 @@ function ConcatenatedWidget(props) {
     // update our local store from the passed in value
     useEffect(() => setConcatenatedValue(props.value), [props.value])
 
+    /**
+     * finds a field's value
+     * 
+     * a field's value can be in one of 3 states (using 3rd party widgets so we can't enforce a specific standard):
+     * - "foo": a plain string
+     * - "{"label": "field label", "value": "foo"}": a JSON stringifed label/value
+     * - {"label": "field label", "value": "foo"}: an object label/value
+     * @param {*} field 
+     */
+    function getFieldValue(field) {
+        let fieldValue
+        
+        try {
+            // parse embedded JSON string
+            fieldValue = JSON.parse(field.value)
+        } catch(err) {
+            // value is not JSON, grab it directly
+            fieldValue = field.value
+        }
+    
+        if (typeof fieldValue === 'object' && 'value' in fieldValue) {
+            // value is an object that contains a value property
+            fieldValue = fieldValue.value
+        }
+
+        return fieldValue
+    }
+
     // if fields are provided, listen for the blur on each, then concatenate all the values of the fields together
     // and that will be the value of THIS field
     if (props.options.fields) {
@@ -30,7 +58,7 @@ function ConcatenatedWidget(props) {
                 fields.push(el)
 
                 el.onblur = function (e) {
-                    let newValue = fields.map((field) => field.value).join(delimeter)
+                    let newValue = fields.map(getFieldValue).join(delimeter)
 
                     // finally, set the value to the concatenated value of all the fields!
                     setConcatenatedValue(newValue)
