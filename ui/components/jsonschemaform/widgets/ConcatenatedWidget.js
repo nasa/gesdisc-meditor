@@ -16,10 +16,11 @@ function ConcatenatedWidget(props) {
     /**
      * finds a field's value
      * 
-     * a field's value can be in one of 3 states (using 3rd party widgets so we can't enforce a specific standard):
+     * a field's value can be in one of 4 states (using 3rd party widgets so we can't enforce a specific standard):
      * - "foo": a plain string
      * - "{"label": "field label", "value": "foo"}": a JSON stringifed label/value
      * - {"label": "field label", "value": "foo"}: an object label/value
+     * - [{"label": "field label", "value": "foo"}]: an array containing the same object
      * @param {*} field 
      */
     function getFieldValue(field) {
@@ -32,7 +33,12 @@ function ConcatenatedWidget(props) {
             // value is not JSON, grab it directly
             fieldValue = field.value
         }
-    
+  
+        if (Array.isArray(fieldValue) && fieldValue.length) {
+            // field value is an array so we'll need to grab the first item
+            fieldValue = fieldValue[0]
+        }
+
         if (typeof fieldValue === 'object' && 'value' in fieldValue) {
             // value is an object that contains a value property
             fieldValue = fieldValue.value
