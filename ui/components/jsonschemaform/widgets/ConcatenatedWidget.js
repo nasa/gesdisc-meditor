@@ -15,25 +15,24 @@ function ConcatenatedWidget(props) {
 
     /**
      * finds a field's value
-     * 
+     *
      * a field's value can be in one of 4 states (using 3rd party widgets so we can't enforce a specific standard):
      * - "foo": a plain string
      * - "{"label": "field label", "value": "foo"}": a JSON stringifed label/value
      * - {"label": "field label", "value": "foo"}: an object label/value
      * - [{"label": "field label", "value": "foo"}]: an array containing the same object
-     * @param {*} field 
+     * @param {*} field
      */
     function getFieldValue(field) {
-        let fieldValue
-        
-        try {
-            // parse embedded JSON string
-            fieldValue = JSON.parse(field.value)
-        } catch(err) {
-            // value is not JSON, grab it directly
-            fieldValue = field.value
+        let fieldValue = field.value
+
+        if (fieldValue.includes('{') || fieldValue.includes('[')) {
+            // field value COULD be a JSON string, lets try to parse it
+            try {
+                fieldValue = JSON.parse(fieldValue)
+            } catch (err) {}
         }
-  
+
         if (Array.isArray(fieldValue) && fieldValue.length) {
             // field value is an array so we'll need to grab the first item
             fieldValue = fieldValue[0]
@@ -69,7 +68,9 @@ function ConcatenatedWidget(props) {
                 let el = document.getElementById(ID_PREFIX + field)
 
                 if (!el) {
-                    console.error(`Cannot concatenate using field: '${field}'. That field was not found in this document.`)
+                    console.error(
+                        `Cannot concatenate using field: '${field}'. That field was not found in this document.`
+                    )
                     return
                 }
 
@@ -83,13 +84,7 @@ function ConcatenatedWidget(props) {
         }, 500)
     }
 
-    return (
-        <BaseInput
-            {...props}
-            value={concatenatedValue}
-            readonly={true}
-        />
-    )
+    return <BaseInput {...props} value={concatenatedValue} readonly={true} />
 }
 
 export default ConcatenatedWidget
