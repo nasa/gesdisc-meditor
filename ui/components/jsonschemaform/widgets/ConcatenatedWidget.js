@@ -47,6 +47,18 @@ function ConcatenatedWidget(props) {
         return fieldValue
     }
 
+    /**
+     * retrieves field values from the fields defined in ui:options
+     * then concatenates them together and sets this field to that concatenated value
+     */
+    function updateConcatenatedFieldValueFromFields(fields) {
+        let newValue = fields.map(getFieldValue).join(delimeter)
+
+        // finally, set the value to the concatenated value of all the fields!
+        setConcatenatedValue(newValue)
+        props.onChange(newValue)
+    }
+
     // if fields are provided, listen for the blur on each, then concatenate all the values of the fields together
     // and that will be the value of THIS field
     if (props.options.fields) {
@@ -63,13 +75,10 @@ function ConcatenatedWidget(props) {
 
                 fields.push(el)
 
-                el.onblur = function (e) {
-                    let newValue = fields.map(getFieldValue).join(delimeter)
-
-                    // finally, set the value to the concatenated value of all the fields!
-                    setConcatenatedValue(newValue)
-                    props.onChange(newValue)
-                }
+                // update the concatenated value anytime this field blurs or changes
+                el.onblur = () => updateConcatenatedFieldValueFromFields(fields)
+                el.onchange = () => updateConcatenatedFieldValueFromFields(fields)
+                el.onkeyup = () => updateConcatenatedFieldValueFromFields(fields)
             })
         }, 500)
     }
