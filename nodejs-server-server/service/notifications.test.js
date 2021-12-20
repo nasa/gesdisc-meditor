@@ -21,7 +21,16 @@ describe('NotificationsService', () => {
 
         // small helper function to add users to the mock database
         const addUser = async (id, name, roles) => {
+            // insert mEditor user
             await db.collection('Users').insertOne({ id, name, roles })
+
+            // insert Earthdata record
+            await db.collection('users-urs').insertOne({
+                uid: id,
+                firstName: name,
+                lastName: 'User',
+                emailAddress: name.toLowerCase() + '@mock.nasa.gov',
+            })
         }
 
         // add some fake users to test with
@@ -40,6 +49,22 @@ describe('NotificationsService', () => {
     afterAll(async () => {
         await connection.close()
     })
+
+    /*
+    it('getListOfUsersToNotifyOfStateChange', async () => {
+        let toUsers = await notifications.getListOfUsersToNotifyOfStateChange('Breakfast', modifyReviewPublishWorkflow.edges, 'Init')
+        console.log(toUsers)
+    })
+
+    it('getListOfUsersToNotifyOfStateChange', async () => {
+        let toUsers = await notifications.getListOfUsersToNotifyOfStateChange('Breakfast', modifyReviewPublishWorkflow.edges, 'Draft')
+        console.log(toUsers)
+    })
+
+    it('getListOfUsersToNotifyOfStateChange', async () => {
+        let toUsers = await notifications.getListOfUsersToNotifyOfStateChange('Breakfast', modifyReviewPublishWorkflow.edges, 'Under Review')
+        console.log(toUsers)
+    })*/
 
     it('getTargetRoles: returns empty array for an invalid state', () => {
         expect(
@@ -91,6 +116,26 @@ describe('NotificationsService', () => {
             )
         ).toEqual(['Post-Publish Reviewer'])
     })
+
+    test.each`
+        documentState     | workflow                       | expectedNodes
+        ${'Init'}         | ${modifyReviewPublishWorkflow} | ${['Draft']}
+        ${'Draft'}        | ${modifyReviewPublishWorkflow} | ${['Under Review', 'Deleted']}
+        ${'Under Review'} | ${modifyReviewPublishWorkflow} | ${['Draft', 'Approved']}
+        ${'Approved'}     | ${modifyReviewPublishWorkflow} | ${['Published', 'Under Review']}
+        ${'Published'}    | ${modifyReviewPublishWorkflow} | ${['Hidden']}
+        ${'FakeState'}    | ${modifyReviewPublishWorkflow} | ${[]}
+        ${'Init'}         | ${editPublishWorkflow}         | ${['Draft']}
+        ${'Draft'}        | ${editPublishWorkflow}         | ${['Published', 'Deleted']}
+        ${'Published'}    | ${editPublishWorkflow}         | ${['Hidden']}
+        ${'FakeState'}    | ${editPublishWorkflow}         | ${[]}
+    `(
+        'getNodesFromEdges: document state of `$documentState` returns target nodes: `$expectedNodes`, for workflow: `$workflow.name`',
+        ({ documentState, workflow, expectedNodes }) => {
+            const edges = notifications.getTargetEdges(workflow.edges, documentState)
+            expect(notifications.getNodesFromEdges(edges)).toEqual(expectedNodes)
+        }
+    )
 
     it('getTargetEdges: returns first edge for initial state', () => {
         expect(

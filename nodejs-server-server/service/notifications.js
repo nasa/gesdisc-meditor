@@ -69,6 +69,15 @@ class NotificationsService {
     }
 
     /**
+     * retrieves a list of target nodes a document can move into, given a list of target edges
+     * @param {*} edges
+     * @returns
+     */
+    getNodesFromEdges(edges) {
+        return edges.map(edge => edge.target).filter(onlyUnique)
+    }
+
+    /**
      * given a list of edges and a state, get a list of edges that the document can move into
      * ex. a document in "Under Review" state could have target edges: ["Approve", "Reject"]
      *
