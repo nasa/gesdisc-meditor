@@ -218,12 +218,10 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
                 }
             }
 
-            tos = _(users.ids).uniq().value()
-
             return meta.dbo
                 .db(DbName)
                 .collection('users-urs')
-                .find({ uid: { $in: tos } })
+                .find({ uid: { $in: users } })
                 .project({
                     _id: 0,
                     emailAddress: 1,
@@ -320,6 +318,8 @@ module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) 
 
                 console.log('Successfully published notification: ', guid)
             })
+        }).catch(err => {
+            console.error(err)
         })
 }
 

@@ -14,6 +14,10 @@ class NotificationsService {
      * @returns
      */
     async getUsersWithModelRoles(model, roles) {
+        if (!roles.length) {
+            return []
+        }
+
         const results = await this.db
             .collection('Users')
             .aggregate(
@@ -30,6 +34,10 @@ class NotificationsService {
                 { allowDiskUse: true }
             )
             .toArray()
+
+        if (!results.length) {
+            return []
+        }
 
         // return only the user ids from the response
         return results[0].ids
