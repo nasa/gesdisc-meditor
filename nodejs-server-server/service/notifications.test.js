@@ -136,6 +136,21 @@ describe('NotificationsService', () => {
         }
     )
 
+    test.each`
+        uids                             | expectedEmails
+        ${undefined}                     | ${[]}
+        ${[]}                            | ${[]}
+        ${['bacon']}                     | ${['bacon@mock.nasa.gov']}
+        ${['bacon', 'eggs']}             | ${['bacon@mock.nasa.gov', 'eggs@mock.nasa.gov']}
+        ${['bacon', 'eggs', 'fakeuser']} | ${['bacon@mock.nasa.gov', 'eggs@mock.nasa.gov']}
+    `(
+        'getContactInformationForUsers($uids) returns expected email addresses: $expectedEmails',
+        async ({ uids, expectedEmails }) => {
+            const users = await notifications.getContactInformationForUsers(uids)
+            expect(users.map(user => user.emailAddress)).toEqual(expectedEmails)
+        }
+    )
+
     /*
     it('getListOfUsersToNotifyOfStateChange', async () => {
         let toUsers = await notifications.getListOfUsersToNotifyOfStateChange('Breakfast', modifyReviewPublishWorkflow.edges, 'Init')
