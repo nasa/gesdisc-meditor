@@ -50,72 +50,71 @@ describe('NotificationsService', () => {
         await connection.close()
     })
 
-    /*
-    it('getListOfUsersToNotifyOfStateChange', async () => {
-        let toUsers = await notifications.getListOfUsersToNotifyOfStateChange('Breakfast', modifyReviewPublishWorkflow.edges, 'Init')
-        console.log(toUsers)
-    })
-
-    it('getListOfUsersToNotifyOfStateChange', async () => {
-        let toUsers = await notifications.getListOfUsersToNotifyOfStateChange('Breakfast', modifyReviewPublishWorkflow.edges, 'Draft')
-        console.log(toUsers)
-    })
-
-    it('getListOfUsersToNotifyOfStateChange', async () => {
-        let toUsers = await notifications.getListOfUsersToNotifyOfStateChange('Breakfast', modifyReviewPublishWorkflow.edges, 'Under Review')
-        console.log(toUsers)
-    })*/
-
-    it('getTargetRoles: returns empty array for an invalid state', () => {
-        expect(
-            notifications.getTargetRoles(modifyReviewPublishWorkflow.edges, 'Foo')
-        ).toEqual([])
-    })
-
-    it('getTargetRoles: returns Reviewer role for documents in a Modify-Review-Publish workflow that have moved to the Under Review state', () => {
-        expect(
-            notifications.getTargetRoles(
-                modifyReviewPublishWorkflow.edges,
-                'Under Review'
-            )
-        ).toEqual(['Reviewer'])
-    })
-
-    it('getTargetRoles: returns Publisher role for documents in a Modify-Review-Publish workflow that have moved to the Published state', () => {
-        expect(
-            notifications.getTargetRoles(
-                modifyReviewPublishWorkflow.edges,
-                'Published'
-            )
-        ).toEqual(['Publisher'])
-    })
-
-    it('getTargetRoles: returns Author role for documents in a Modify-Review-Publish workflow that can transition from "Init" state', () => {
-        expect(
-            notifications.getTargetRoles(modifyReviewPublishWorkflow.edges, 'Init')
-        ).toEqual(['Author'])
-    })
-
-    it('getTargetRoles: returns Author role for documents in a Edit-Publish workflow that have moved to the Published state', () => {
-        expect(
-            notifications.getTargetRoles(editPublishWorkflow.edges, 'Published')
-        ).toEqual(['Author'])
-    })
+    test.each`
+        documentState     | workflow                       | expectedRoles
+        ${'FakeState'}    | ${modifyReviewPublishWorkflow} | ${[]}
+        ${'Init'}         | ${modifyReviewPublishWorkflow} | ${['Author']}
+        ${'Under Review'} | ${modifyReviewPublishWorkflow} | ${['Reviewer']}
+        ${'Published'}    | ${modifyReviewPublishWorkflow} | ${['Publisher']}
+        ${'Published'}    | ${editPublishWorkflow}         | ${['Author']}
+    `(
+        'getTargetRoles: document state of `$documentState` returns target roles: `$expectedRoles`, for workflow: `$workflow.name`',
+        ({ documentState, workflow, expectedRoles }) => {
+            expect(
+                notifications.getTargetRoles(workflow.edges, documentState)
+            ).toEqual(expectedRoles)
+        }
+    )
 
     it('getTargetRoles: returns the value of "notifyRoles" in the currentEdge', () => {
+        const currentEdge = editPublishWorkflow.edges.find(
+            edge =>
+                edge.role == 'Author' &&
+                edge.source == 'Draft' &&
+                edge.target == 'Published'
+        )
+
         expect(
             notifications.getTargetRoles(
                 editPublishWorkflow.edges,
                 'Published',
-                editPublishWorkflow.edges.find(
-                    edge =>
-                        edge.role == 'Author' &&
-                        edge.source == 'Draft' &&
-                        edge.target == 'Published'
-                )
+                currentEdge
             )
         ).toEqual(['Post-Publish Reviewer'])
     })
+
+    test.each`
+        documentState     | workflow                       | expectedEdges
+        ${'FakeState'}    | ${modifyReviewPublishWorkflow} | ${[]}
+        ${'Init'}         | ${modifyReviewPublishWorkflow} | ${[modifyReviewPublishWorkflow.edges[0].label]}
+        ${'Hidden'}       | ${modifyReviewPublishWorkflow} | ${[]}
+        ${'Under Review'} | ${modifyReviewPublishWorkflow} | ${['Needs more work', 'Approve publication']}
+    `(
+        'getTargetEdges: document state of `$documentState` returns target edges: `$expectedEdges`, for workflow: `$workflow.name`',
+        ({ documentState, workflow, expectedEdges }) => {
+            const targetEdges = notifications.getTargetEdges(
+                workflow.edges,
+                documentState
+            )
+            expect(targetEdges.map(edge => edge.label)).toEqual(expectedEdges)
+        }
+    )
+
+    test.each`
+        modelName      | userRoles                              | expectedUsers
+        ${'Breakfast'} | ${['Author']}                          | ${['bacon', 'eggs', 'hashbrowns', 'grits']}
+        ${'Breakfast'} | ${['Post-Publish Reviewer']}           | ${['hashbrowns', 'grits']}
+        ${'Breakfast'} | ${['Author', 'Post-Publish Reviewer']} | ${['bacon', 'eggs', 'hashbrowns', 'grits']}
+    `(
+        'getUsersWithModelRoles($modelName, $userRoles) returns only users with $userRoles in $modelName',
+        async ({ modelName, userRoles, expectedUsers }) => {
+            const users = await notifications.getUsersWithModelRoles(
+                modelName,
+                userRoles
+            )
+            expect(users.sort()).toEqual(expectedUsers.sort())
+        }
+    )
 
     test.each`
         documentState     | workflow                       | expectedNodes
@@ -137,50 +136,19 @@ describe('NotificationsService', () => {
         }
     )
 
-    it('getTargetEdges: returns first edge for initial state', () => {
-        expect(
-            notifications.getTargetEdges(modifyReviewPublishWorkflow.edges, 'Init')
-        ).toEqual([modifyReviewPublishWorkflow.edges[0]])
+    /*
+    it('getListOfUsersToNotifyOfStateChange', async () => {
+        let toUsers = await notifications.getListOfUsersToNotifyOfStateChange('Breakfast', modifyReviewPublishWorkflow.edges, 'Init')
+        console.log(toUsers)
     })
 
-    it('getTargetEdges: returns empty array for final/end state', () => {
-        expect(
-            notifications.getTargetEdges(modifyReviewPublishWorkflow.edges, 'Hidden')
-        ).toEqual([])
+    it('getListOfUsersToNotifyOfStateChange', async () => {
+        let toUsers = await notifications.getListOfUsersToNotifyOfStateChange('Breakfast', modifyReviewPublishWorkflow.edges, 'Draft')
+        console.log(toUsers)
     })
 
-    it('getTargetEdges: returns applicable edges for inner workflow state', () => {
-        let targetEdges = notifications.getTargetEdges(
-            modifyReviewPublishWorkflow.edges,
-            'Under Review'
-        )
-
-        // just check the labels for equality
-        expect(targetEdges.map(edge => edge.label)).toEqual([
-            'Needs more work',
-            'Approve publication',
-        ])
-    })
-
-    it('getUsersWithModelRoles(Breakfast, Author) returns only Breakfast authors', async () => {
-        const users = await notifications.getUsersWithModelRoles('Breakfast', [
-            'Author',
-        ])
-        expect(users.sort()).toEqual(['bacon', 'eggs', 'hashbrowns', 'grits'].sort())
-    })
-
-    it('getUsersWithModelRoles(Breakfast, Post-Publish Reviewer) returns only Breakfast post publish reviewers', async () => {
-        const users = await notifications.getUsersWithModelRoles('Breakfast', [
-            'Post-Publish Reviewer',
-        ])
-        expect(users.sort()).toEqual(['hashbrowns', 'grits'].sort())
-    })
-
-    it('getUsersWithModelRoles(Breakfast, [Author, Post-Publish Reviewer]) returns all Breakfast users', async () => {
-        const users = await notifications.getUsersWithModelRoles('Breakfast', [
-            'Author',
-            'Post-Publish Reviewer',
-        ])
-        expect(users.sort()).toEqual(['bacon', 'eggs', 'hashbrowns', 'grits'].sort())
-    })
+    it('getListOfUsersToNotifyOfStateChange', async () => {
+        let toUsers = await notifications.getListOfUsersToNotifyOfStateChange('Breakfast', modifyReviewPublishWorkflow.edges, 'Under Review')
+        console.log(toUsers)
+    })*/
 })
