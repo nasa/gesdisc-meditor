@@ -228,4 +228,23 @@ describe('NotificationsService', () => {
             expect(ccUsers.map(user => user.uid).sort()).toEqual(expectedCcs.sort())
         }
     )
+
+    test.each`
+        firstName    | lastName     | emailAddress                | expectedEmail
+        ${'John'}    | ${'Snow'}    | ${'johnsnow@mock.nasa.gov'} | ${'"John Snow" <johnsnow@mock.nasa.gov>'}
+        ${undefined} | ${'Snow'}    | ${'johnsnow@mock.nasa.gov'} | ${'" Snow" <johnsnow@mock.nasa.gov>'}
+        ${'John'}    | ${undefined} | ${'johnsnow@mock.nasa.gov'} | ${'"John " <johnsnow@mock.nasa.gov>'}
+        ${'John'}    | ${'Snow'}    | ${undefined}                | ${''}
+    `(
+        'formatUserForEmail should return $expectedEmail for $firstName, $lastName, $emailAddress',
+        async ({ firstName, lastName, emailAddress, expectedEmail }) => {
+            expect(
+                notifications.formatUserForEmail({
+                    ...(firstName && { firstName }),
+                    ...(lastName && { lastName }),
+                    ...(emailAddress && { emailAddress }),
+                })
+            ).toEqual(expectedEmail)
+        }
+    )
 })

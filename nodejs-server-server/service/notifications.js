@@ -212,6 +212,18 @@ class NotificationsService {
             .filter(edge => edge.source === state) // retrieve edges that branch off the current state
             .filter(onlyUnique) // remove duplicates
     }
+
+    /**
+     * returns an email formatted user (ex. '"John Snow" <johnsnow@mock.nasa.gov>')
+     * @param {*} user
+     */
+    formatUserForEmail(user) {
+        return user.emailAddress
+            ? `"${user.firstName || ''} ${user.lastName || ''}" <${
+                  user.emailAddress
+              }>`
+            : ''
+    }
 }
 
 module.exports = {
