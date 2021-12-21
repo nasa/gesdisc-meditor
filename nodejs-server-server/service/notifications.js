@@ -88,6 +88,25 @@ class NotificationsService {
     }
 
     /**
+     * returns a list of users to CC on the email, typically the original author of the document
+     * and the user who changed the document state (i.e. a reviewer who has reviewed and "Approved")
+     *
+     * if ignoreUsers array is included, will remove those users from the list of CCs
+     *
+     * @param {*} originalAuthorUid
+     * @param {*} loggedInUserUid
+     * @param {*} ignoreUsers
+     */
+    async getUsersToCc(originalAuthorUid, loggedInUserUid, ignoreUsers = []) {
+        let ccs = [loggedInUserUid, originalAuthorUid]
+            // remove any users in the ignore users array (or the users already in the TO: list)
+            .filter(uid => !ignoreUsers.find(user => user.uid == uid))
+
+        // fetch and return the users contact info
+        return await this.getContactInformationForUsers(ccs)
+    }
+
+    /**
      * finds all users that have the requested roles for the given model
      * ex. "give me all News reviewers" = getUsersWithModelRole('News', ['Reviewer'])
      * @param {*} model

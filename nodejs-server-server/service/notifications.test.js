@@ -210,4 +210,22 @@ describe('NotificationsService', () => {
             expect(users.map(user => user.uid).sort()).toEqual(expectedUids.sort())
         }
     )
+
+    test.each`
+        author     | user         | toUsers     | expectedCcs
+        ${'bacon'} | ${'eggs'}    | ${[]}       | ${['bacon', 'eggs']}
+        ${'bacon'} | ${'eggs'}    | ${['eggs']} | ${['bacon']}
+        ${'bacon'} | ${undefined} | ${['eggs']} | ${['bacon']}
+    `(
+        'getUsersToCc($author, $user, $toUsers) should return CCs of $expectedCcs',
+        async ({ author, user, toUsers, expectedCcs }) => {
+            const ccUsers = await notifications.getUsersToCc(
+                author,
+                user,
+                toUsers.map(user => ({ uid: user }))
+            )
+
+            expect(ccUsers.map(user => user.uid).sort()).toEqual(expectedCcs.sort())
+        }
+    )
 })
