@@ -26,7 +26,7 @@ class NotificationsService {
      * @param {*} currentEdge
      * @returns
      */
-    async getListOfUsersToNotifyOfStateChange(
+    async getUsersToNotifyOfStateChange(
         modelName,
         workflow,
         documentState,

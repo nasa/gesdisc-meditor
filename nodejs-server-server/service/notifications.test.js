@@ -185,7 +185,7 @@ describe('NotificationsService', () => {
         ${'Deleted'}      | ${'Hidden'}       | ${'Breakfast'} | ${editPublishWorkflow}         | ${[]}
         ${'FakeState'}    | ${'Draft'}        | ${'Breakfast'} | ${editPublishWorkflow}         | ${[]}
     `(
-        'getListOfUsersToNotifyOfStateChange for $workflow.name workflow and $documentState state, should return $expectedEmails',
+        'getUsersToNotifyOfStateChange for $workflow.name workflow and $documentState state, should return $expectedEmails',
         async ({
             documentState,
             previousState,
@@ -200,7 +200,7 @@ describe('NotificationsService', () => {
                   )
                 : undefined
 
-            const users = await notifications.getListOfUsersToNotifyOfStateChange(
+            const users = await notifications.getUsersToNotifyOfStateChange(
                 modelName,
                 workflow,
                 documentState,
@@ -222,7 +222,7 @@ describe('NotificationsService', () => {
             const ccUsers = await notifications.getUsersToCc(
                 author,
                 user,
-                toUsers.map(user => ({ uid: user }))
+                toUsers.map(user => ({ uid: user })) // turn it back into a "user" object
             )
 
             expect(ccUsers.map(user => user.uid).sort()).toEqual(expectedCcs.sort())
