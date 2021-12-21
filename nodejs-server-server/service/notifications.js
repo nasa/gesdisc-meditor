@@ -1,6 +1,9 @@
 const { onlyUnique } = require('../utils/array')
 const { aggregations } = require('../utils/mongo')
-const { HttpNotFoundException } = require('./errors')
+const log = require('log')
+
+// if a state is in this list, no notifications will be sent
+const DISABLE_NOTIFICATIONS_FOR_STATES = ['Init', 'Draft']
 
 class NotificationsService {
     constructor(db) {
@@ -18,7 +21,7 @@ class NotificationsService {
      * so we look for users that have the "Reviewer" role for a given model
      *
      * @param {*} modelName
-     * @param {*} workflowEdges
+     * @param {*} workflow
      * @param {*} documentState
      * @param {*} currentEdge
      * @returns
@@ -29,9 +32,30 @@ class NotificationsService {
         documentState,
         currentEdge
     ) {
+        if (DISABLE_NOTIFICATIONS_FOR_STATES.includes(documentState)) {
+            log.debug(
+                'Skipping notifications, document is in an initial state: ',
+                documentState
+            )
+            // we only notify when a document moves beyond the initial states
+            return []
+        }
+
+        if (currentEdge && !currentEdge.notify) {
+            // don't notify if current edge has the "notify" property set to false
+            log.debug(
+                'Skipping notifications, current edge is set to not notify: ',
+                currentEdge
+            )
+            return []
+        }
+
         // get list of workflow edges the document can follow. For example. a document in "Under Review" state
         // can be "Approved" or "Rejecte", so the target edges would be ["Approve", "Reject"]
         const targetEdges = this.getTargetEdges(workflow.edges, documentState)
+
+        log.debug('Target edges ', targetEdges)
+        log.debug('Current edge ', currentEdge)
 
         // get roles that can transition the document into the next state
         const targetRoles = await this.getTargetRoles(
@@ -40,10 +64,17 @@ class NotificationsService {
             currentEdge
         )
 
+        log.debug('Target roles ', targetRoles)
+
         // get users that have that role
         const usersWithMatchingRoles = await this.getUsersWithModelRoles(
             modelName,
             targetRoles
+        )
+
+        log.debug(
+            `There are ${usersWithMatchingRoles.length} users with matching roles: `,
+            usersWithMatchingRoles
         )
 
         // get contact information for users
@@ -51,14 +82,9 @@ class NotificationsService {
             usersWithMatchingRoles
         )
 
-        if (!usersToNotify || usersToNotify.length <= 0) {
-            // no matching users found
-            throw new HttpNotFoundException(
-                'Could not find users to notify of the status change'
-            )
-        }
+        log.debug('Users with contact info', usersToNotify.length)
 
-        return usersToNotify
+        return usersToNotify || []
     }
 
     /**

@@ -34,15 +34,27 @@ describe('NotificationsService', () => {
         }
 
         // add some fake users to test with
-        addUser('bacon', 'Bacon', [{ model: 'Breakfast', role: 'Author' }])
-        addUser('eggs', 'Eggs', [{ model: 'Breakfast', role: 'Author' }])
+        addUser('bacon', 'Bacon', [
+            { model: 'Breakfast', role: 'Author' },
+            { model: 'Lunch', role: 'Author' },
+        ])
+        addUser('eggs', 'Eggs', [
+            { model: 'Breakfast', role: 'Author' },
+            { model: 'Lunch', role: 'Reviewer' },
+        ])
         addUser('hashbrowns', 'Hashbrowns', [
             { model: 'Breakfast', role: 'Author' },
             { model: 'Breakfast', role: 'Post-Publish Reviewer' },
+            { model: 'Lunch', role: 'Reviewer' },
         ])
         addUser('grits', 'Grits', [
             { model: 'Breakfast', role: 'Author' },
             { model: 'Breakfast', role: 'Post-Publish Reviewer' },
+            { model: 'Lunch', role: 'Publisher' },
+        ])
+        addUser('gravy', 'Gravy', [
+            { model: 'Breakfast', role: 'Author' },
+            { model: 'Lunch', role: 'Publisher' },
         ])
     })
 
@@ -102,9 +114,9 @@ describe('NotificationsService', () => {
 
     test.each`
         modelName      | userRoles                              | expectedUsers
-        ${'Breakfast'} | ${['Author']}                          | ${['bacon', 'eggs', 'hashbrowns', 'grits']}
+        ${'Breakfast'} | ${['Author']}                          | ${['bacon', 'eggs', 'hashbrowns', 'grits', 'gravy']}
         ${'Breakfast'} | ${['Post-Publish Reviewer']}           | ${['hashbrowns', 'grits']}
-        ${'Breakfast'} | ${['Author', 'Post-Publish Reviewer']} | ${['bacon', 'eggs', 'hashbrowns', 'grits']}
+        ${'Breakfast'} | ${['Author', 'Post-Publish Reviewer']} | ${['bacon', 'eggs', 'hashbrowns', 'grits', 'gravy']}
     `(
         'getUsersWithModelRoles($modelName, $userRoles) returns only users with $userRoles in $modelName',
         async ({ modelName, userRoles, expectedUsers }) => {
@@ -147,23 +159,55 @@ describe('NotificationsService', () => {
         'getContactInformationForUsers($uids) returns expected email addresses: $expectedEmails',
         async ({ uids, expectedEmails }) => {
             const users = await notifications.getContactInformationForUsers(uids)
-            expect(users.map(user => user.emailAddress)).toEqual(expectedEmails)
+            expect(users.map(user => user.emailAddress).sort()).toEqual(
+                expectedEmails.sort()
+            )
         }
     )
 
-    /*
-    it('getListOfUsersToNotifyOfStateChange', async () => {
-        let toUsers = await notifications.getListOfUsersToNotifyOfStateChange('Breakfast', modifyReviewPublishWorkflow.edges, 'Init')
-        console.log(toUsers)
-    })
+    test.each`
+        documentState     | previousState     | modelName      | workflow                       | expectedUids
+        ${'Init'}         | ${''}             | ${'Lunch'}     | ${modifyReviewPublishWorkflow} | ${[]}
+        ${'Draft'}        | ${'Init'}         | ${'Lunch'}     | ${modifyReviewPublishWorkflow} | ${[]}
+        ${'Under Review'} | ${'Draft'}        | ${'Lunch'}     | ${modifyReviewPublishWorkflow} | ${['eggs', 'hashbrowns']}
+        ${'Draft'}        | ${'Under Review'} | ${'Lunch'}     | ${modifyReviewPublishWorkflow} | ${[]}
+        ${'Approved'}     | ${'Under Review'} | ${'Lunch'}     | ${modifyReviewPublishWorkflow} | ${['grits', 'gravy']}
+        ${'Under Review'} | ${'Approved'}     | ${'Lunch'}     | ${modifyReviewPublishWorkflow} | ${['eggs', 'hashbrowns']}
+        ${'Published'}    | ${'Approved'}     | ${'Lunch'}     | ${modifyReviewPublishWorkflow} | ${['grits', 'gravy']}
+        ${'Hidden'}       | ${'Published'}    | ${'Lunch'}     | ${modifyReviewPublishWorkflow} | ${[]}
+        ${'Deleted'}      | ${'Draft'}        | ${'Lunch'}     | ${modifyReviewPublishWorkflow} | ${[]}
+        ${'FakeState'}    | ${'Draft'}        | ${'Lunch'}     | ${modifyReviewPublishWorkflow} | ${[]}
+        ${'Init'}         | ${''}             | ${'Breakfast'} | ${editPublishWorkflow}         | ${[]}
+        ${'Draft'}        | ${'Init'}         | ${'Breakfast'} | ${editPublishWorkflow}         | ${[]}
+        ${'Published'}    | ${'Draft'}        | ${'Breakfast'} | ${editPublishWorkflow}         | ${['grits', 'hashbrowns']}
+        ${'Hidden'}       | ${'Published'}    | ${'Breakfast'} | ${editPublishWorkflow}         | ${['grits', 'hashbrowns']}
+        ${'Deleted'}      | ${'Draft'}        | ${'Breakfast'} | ${editPublishWorkflow}         | ${[]}
+        ${'Deleted'}      | ${'Hidden'}       | ${'Breakfast'} | ${editPublishWorkflow}         | ${[]}
+        ${'FakeState'}    | ${'Draft'}        | ${'Breakfast'} | ${editPublishWorkflow}         | ${[]}
+    `(
+        'getListOfUsersToNotifyOfStateChange for $workflow.name workflow and $documentState state, should return $expectedEmails',
+        async ({
+            documentState,
+            previousState,
+            modelName,
+            workflow,
+            expectedUids,
+        }) => {
+            const currentEdge = previousState
+                ? workflow.edges.find(
+                      edge =>
+                          edge.source == previousState && edge.target == documentState
+                  )
+                : undefined
 
-    it('getListOfUsersToNotifyOfStateChange', async () => {
-        let toUsers = await notifications.getListOfUsersToNotifyOfStateChange('Breakfast', modifyReviewPublishWorkflow.edges, 'Draft')
-        console.log(toUsers)
-    })
+            const users = await notifications.getListOfUsersToNotifyOfStateChange(
+                modelName,
+                workflow,
+                documentState,
+                currentEdge
+            )
 
-    it('getListOfUsersToNotifyOfStateChange', async () => {
-        let toUsers = await notifications.getListOfUsersToNotifyOfStateChange('Breakfast', modifyReviewPublishWorkflow.edges, 'Under Review')
-        console.log(toUsers)
-    })*/
+            expect(users.map(user => user.uid).sort()).toEqual(expectedUids.sort())
+        }
+    )
 })
