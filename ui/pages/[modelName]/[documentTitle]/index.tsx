@@ -340,7 +340,7 @@ const EditDocumentPage = ({ user, version = null }) => {
 
             <div
                 className={styles.stage}
-                style={{ paddingRight: activePanel ? 400 : 0 }}
+                style={{ paddingRight: activePanel ? 450 : 0 }}
             >
                 {currentVersion && oldVersion && toggleJSON && (
                     <div className={styles.jsonDiffView}>
