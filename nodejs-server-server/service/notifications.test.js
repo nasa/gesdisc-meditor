@@ -99,7 +99,7 @@ describe('NotificationsService', () => {
         documentState     | workflow                       | expectedEdges
         ${'FakeState'}    | ${modifyReviewPublishWorkflow} | ${[]}
         ${'Init'}         | ${modifyReviewPublishWorkflow} | ${[modifyReviewPublishWorkflow.edges[0].label]}
-        ${'Hidden'}       | ${modifyReviewPublishWorkflow} | ${[]}
+        ${'Hidden'}       | ${modifyReviewPublishWorkflow} | ${['Delete Permanently', 'Delete Permanently']}
         ${'Under Review'} | ${modifyReviewPublishWorkflow} | ${['Needs more work', 'Approve publication']}
     `(
         'getTargetEdges: document state of `$documentState` returns target edges: `$expectedEdges`, for workflow: `$workflow.name`',
@@ -134,7 +134,7 @@ describe('NotificationsService', () => {
         ${'Draft'}        | ${modifyReviewPublishWorkflow} | ${['Under Review', 'Deleted']}
         ${'Under Review'} | ${modifyReviewPublishWorkflow} | ${['Draft', 'Approved']}
         ${'Approved'}     | ${modifyReviewPublishWorkflow} | ${['Published', 'Under Review']}
-        ${'Published'}    | ${modifyReviewPublishWorkflow} | ${['Hidden']}
+        ${'Published'}    | ${modifyReviewPublishWorkflow} | ${['Hidden', 'Deleted']}
         ${'FakeState'}    | ${modifyReviewPublishWorkflow} | ${[]}
         ${'Init'}         | ${editPublishWorkflow}         | ${['Draft']}
         ${'Draft'}        | ${editPublishWorkflow}         | ${['Published', 'Deleted']}

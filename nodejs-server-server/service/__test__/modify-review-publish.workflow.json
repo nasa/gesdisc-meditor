@@ -1,162 +1,183 @@
 {
-  "roles": ["Author", "Reviewer", "Publisher", "Commenter"],
-  "nodes": [
-    {
-      "id": "Init",
-      "privileges": [
+    "roles": ["Author", "Reviewer", "Publisher", "Commenter"],
+    "nodes": [
         {
-          "role": "Author",
-          "privilege": ["create"]
-        }
-      ],
-      "readyForUse": false
-    },
-    {
-      "id": "Draft",
-      "privileges": [
-        {
-          "role": "Author",
-          "privilege": ["edit", "comment"]
+            "id": "Init",
+            "privileges": [
+                {
+                    "role": "Author",
+                    "privilege": ["create"]
+                }
+            ],
+            "readyForUse": false
         },
         {
-          "role": "Commenter",
-          "privilege": ["comment"]
-        }
-      ],
-      "readyForUse": false
-    },
-    {
-      "id": "Under Review",
-      "privileges": [
-        {
-          "role": "Author",
-          "privilege": ["comment", "edit"]
+            "id": "Draft",
+            "privileges": [
+                {
+                    "role": "Author",
+                    "privilege": ["edit", "comment"]
+                },
+                {
+                    "role": "Commenter",
+                    "privilege": ["comment"]
+                }
+            ],
+            "readyForUse": false
         },
         {
-          "role": "Reviewer",
-          "privilege": ["comment"]
+            "id": "Under Review",
+            "privileges": [
+                {
+                    "role": "Author",
+                    "privilege": ["comment", "edit"]
+                },
+                {
+                    "role": "Reviewer",
+                    "privilege": ["comment"]
+                },
+                {
+                    "role": "Commenter",
+                    "privilege": ["comment"]
+                }
+            ],
+            "readyForUse": false
         },
         {
-          "role": "Commenter",
-          "privilege": ["comment"]
-        }
-      ],
-      "readyForUse": false
-    },
-    {
-      "id": "Approved",
-      "privileges": [
-        {
-          "role": "Publisher",
-          "privilege": ["comment"]
-        }
-      ],
-      "readyForUse": false
-    },
-    {
-      "id": "Published",
-      "privileges": [
-        {
-          "role": "Publisher",
-          "privilege": ["comment"]
+            "id": "Approved",
+            "privileges": [
+                {
+                    "role": "Publisher",
+                    "privilege": ["comment"]
+                }
+            ],
+            "readyForUse": false
         },
         {
-          "role": "Author",
-          "privilege": ["edit"]
-        }
-      ],
-      "readyForUse": false
-    },
-    {
-      "id": "Hidden",
-      "privileges": [
-        {
-          "role": "Publisher",
-          "privilege": ["comment"]
+            "id": "Published",
+            "privileges": [
+                {
+                    "role": "Publisher",
+                    "privilege": ["comment"]
+                },
+                {
+                    "role": "Author",
+                    "privilege": ["edit"]
+                }
+            ],
+            "readyForUse": false
         },
         {
-          "role": "Author",
-          "privilege": ["edit"]
+            "id": "Hidden",
+            "privileges": [
+                {
+                    "role": "Publisher",
+                    "privilege": ["comment"]
+                },
+                {
+                    "role": "Author",
+                    "privilege": ["edit"]
+                }
+            ],
+            "readyForUse": false
+        },
+        {
+            "id": "Deleted"
         }
-      ],
-      "readyForUse": false
-    },
-    {
-      "id": "Deleted"
-    }
-  ],
-  "edges": [
-    {
-      "role": "Author",
-      "source": "Init",
-      "target": "Draft",
-      "label": "Create",
-      "notify": false
-    },
-    {
-      "role": "Author",
-      "source": "Draft",
-      "target": "Under Review",
-      "label": "Submit for review",
-      "notify": true
-    },
-    {
-      "role": "Reviewer",
-      "source": "Under Review",
-      "target": "Draft",
-      "label": "Needs more work",
-      "notify": true
-    },
-    {
-      "role": "Reviewer",
-      "source": "Under Review",
-      "target": "Approved",
-      "label": "Approve publication",
-      "notify": true
-    },
-    {
-      "role": "Publisher",
-      "source": "Approved",
-      "target": "Published",
-      "label": "Publish",
-      "notify": true
-    },
-    {
-      "role": "Publisher",
-      "source": "Approved",
-      "target": "Under Review",
-      "label": "I don't like it!",
-      "notify": true
-    },
-    {
-      "role": "Publisher",
-      "source": "Published",
-      "target": "Hidden",
-      "label": "Un-publish",
-      "notify": false
-    },
-    {
-      "label": "Delete Permanently",
-      "notify": false,
-      "role": "Author",
-      "source": "Draft",
-      "target": "Deleted"
-    }
-  ],
-  "name": "Modify-Review-Publish",
-  "x-meditor": {
-    "model": "Workflows",
-    "modifiedOn": "2021-04-20T14:05:29.366Z",
-    "modifiedBy": "jdcarlso",
-    "states": [
-      {
-        "source": "Init",
-        "target": "Draft",
-        "modifiedOn": null
-      }
     ],
-    "publishedTo": [],
-    "state": "Draft",
-    "targetStates": []
-  }
+    "edges": [
+        {
+            "role": "Author",
+            "source": "Init",
+            "target": "Draft",
+            "label": "Create",
+            "notify": false
+        },
+        {
+            "role": "Author",
+            "source": "Draft",
+            "target": "Under Review",
+            "label": "Submit for review",
+            "notify": true
+        },
+        {
+            "role": "Reviewer",
+            "source": "Under Review",
+            "target": "Draft",
+            "label": "Needs more work",
+            "notify": true
+        },
+        {
+            "role": "Reviewer",
+            "source": "Under Review",
+            "target": "Approved",
+            "label": "Approve publication",
+            "notify": true
+        },
+        {
+            "role": "Publisher",
+            "source": "Approved",
+            "target": "Published",
+            "label": "Publish",
+            "notify": true
+        },
+        {
+            "role": "Publisher",
+            "source": "Approved",
+            "target": "Under Review",
+            "label": "I don't like it!",
+            "notify": true
+        },
+        {
+            "role": "Publisher",
+            "source": "Published",
+            "target": "Hidden",
+            "label": "Un-publish",
+            "notify": false
+        },
+        {
+            "label": "Delete Permanently",
+            "notify": false,
+            "role": "Author",
+            "source": "Draft",
+            "target": "Deleted"
+        },
+        {
+            "label": "Delete Permanently",
+            "notify": false,
+            "role": "Author",
+            "source": "Hidden",
+            "target": "Deleted"
+        },
+        {
+            "label": "Delete Permanently",
+            "notify": false,
+            "role": "Publisher",
+            "source": "Hidden",
+            "target": "Deleted"
+        },
+        {
+            "label": "Delete Permanently",
+            "notify": false,
+            "role": "Publisher",
+            "source": "Published",
+            "target": "Deleted"
+        }
+    ],
+    "name": "Modify-Review-Publish",
+    "x-meditor": {
+        "model": "Workflows",
+        "modifiedOn": "2021-04-20T14:05:29.366Z",
+        "modifiedBy": "jdcarlso",
+        "states": [
+            {
+                "source": "Init",
+                "target": "Draft",
+                "modifiedOn": null
+            }
+        ],
+        "publishedTo": [],
+        "state": "Draft",
+        "targetStates": []
+    }
 }

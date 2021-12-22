@@ -67,7 +67,7 @@
         },
         {
             "label": "Delete Permanently",
-            "notify": true,
+            "notify": false,
             "role": "Author",
             "source": "Draft",
             "target": "Deleted"
