@@ -7,17 +7,22 @@ import filter from 'lodash/filter'
 import uniqWith from 'lodash/uniqWith'
 import isEqual from 'lodash/isEqual'
 
-const JsonSchemaForm = ({ 
-    schema, 
-    formData, 
+const JsonSchemaForm = ({
+    schema,
+    formData,
     imageUploadUrl = null,
     linkCheckerUrl = null,
-    layout, 
+    layout,
     liveValidate = false,
     onInit = (form: any) => {},
     onChange = (event: any) => {},
 }) => {
     const formEl: any = useRef(null)
+
+    useEffect(() => {
+        // on form load, clear out any broken links first
+        localStorage?.removeItem('brokenLinks')
+    }, [])
 
     useEffect(() => {
         onInit(formEl?.current)
@@ -31,9 +36,15 @@ const JsonSchemaForm = ({
 
             const { formData, errors, errorSchema } = formEl.current.state
 
-            const { errors: _errors, errorSchema: _errorSchema } = formEl.current.validate(formData)
+            const {
+                errors: _errors,
+                errorSchema: _errorSchema,
+            } = formEl.current.validate(formData)
 
-            const prevOtherFieldErrors = filter(errors, error => error['property'] !== `.${field}`)
+            const prevOtherFieldErrors = filter(
+                errors,
+                error => error['property'] !== `.${field}`
+            )
 
             const fieldErrors = filter(_errors, ['property', `.${field}`])
 
@@ -41,15 +52,15 @@ const JsonSchemaForm = ({
 
             formEl.current.setState({
                 errors: uniqWith([...prevOtherFieldErrors, ...fieldErrors], isEqual),
-                errorSchema: { ...errorSchema, [field]: fieldErrorSchema }
+                errorSchema: { ...errorSchema, [field]: fieldErrorSchema },
             })
         }, 10)
     }
 
     return (
-        <Form 
+        <Form
             ref={formEl}
-            schema={schema} 
+            schema={schema}
             formData={formData}
             uiSchema={layout}
             fields={fields}
@@ -59,9 +70,11 @@ const JsonSchemaForm = ({
             liveValidate={liveValidate}
             onBlur={onBlur}
             onChange={onChange}
-            formContext={{ 
+            formContext={{
                 // use the configured image upload url or default to LB if none found
-                imageUploadUrl: imageUploadUrl || 'https://lb.gesdisc.eosdis.nasa.gov/images/upload', 
+                imageUploadUrl:
+                    imageUploadUrl ||
+                    'https://lb.gesdisc.eosdis.nasa.gov/images/upload',
                 linkCheckerApiUrl: linkCheckerUrl,
             }}
         />
