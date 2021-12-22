@@ -136,6 +136,13 @@
             "notify": false
         },
         {
+            "role": "Publisher",
+            "source": "Hidden",
+            "target": "Published",
+            "label": "Publish",
+            "notify": true
+        },
+        {
             "label": "Delete Permanently",
             "notify": false,
             "role": "Author",

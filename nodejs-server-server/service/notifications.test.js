@@ -99,7 +99,7 @@ describe('NotificationsService', () => {
         documentState     | workflow                       | expectedEdges
         ${'FakeState'}    | ${modifyReviewPublishWorkflow} | ${[]}
         ${'Init'}         | ${modifyReviewPublishWorkflow} | ${[modifyReviewPublishWorkflow.edges[0].label]}
-        ${'Hidden'}       | ${modifyReviewPublishWorkflow} | ${['Delete Permanently', 'Delete Permanently']}
+        ${'Hidden'}       | ${modifyReviewPublishWorkflow} | ${['Publish', 'Delete Permanently', 'Delete Permanently']}
         ${'Under Review'} | ${modifyReviewPublishWorkflow} | ${['Needs more work', 'Approve publication']}
     `(
         'getTargetEdges: document state of `$documentState` returns target edges: `$expectedEdges`, for workflow: `$workflow.name`',
