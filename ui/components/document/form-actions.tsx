@@ -37,7 +37,9 @@ const FormActions = ({
         }
 
         let data = cloneDeep(formData)
-        Object.keys(data).forEach((key) => (data[key] === undefined ? delete data[key] : ''))
+        Object.keys(data).forEach(key =>
+            data[key] === undefined ? delete data[key] : ''
+        )
 
         setIsDirty(!isEqual(initialFormData, data))
     }, [formData])
@@ -90,9 +92,15 @@ const FormActions = ({
 
     function handleSave() {
         let brokenLinks = localStorage.getItem('brokenLinks')
-        let hasBrokenLinks = brokenLinks && Object.values(JSON.parse(brokenLinks)).includes('false')
+        let hasBrokenLinks =
+            brokenLinks && Object.values(JSON.parse(brokenLinks)).includes('false')
 
-        if (hasBrokenLinks && !confirm('There are broken links in your document, are you sure you want to save?')) {
+        if (
+            hasBrokenLinks &&
+            !confirm(
+                'There are broken links in your document, are you sure you want to save?'
+            )
+        ) {
             return
         }
 
@@ -134,13 +142,30 @@ const FormActions = ({
     }
 
     /**
+     * a filter function for returning only unique actions, matches unique label and target combinations
+     * (example action: { label: "Delete", target: "Deleted" })
+     *
+     * @param { label, target }
+     * @param index
+     * @param actions
+     * @returns
+     */
+    function uniqueAction({ label, target }, index, actions) {
+        return (
+            actions.findIndex(
+                action => action.label === label && action.target === target
+            ) === index
+        )
+    }
+
+    /**
      * if there are no actions on the bar, just hide the bar!
      */
     if (!onDelete && !canSave && !showActions && !CustomActions) {
         return <></>
     }
 
-    const deletionActions = actions.filter((action) => action.target == DELETED_STATE)
+    const deletionActions = actions.filter(action => action.target == DELETED_STATE)
 
     return (
         <div className={`container-fluid ${styles.container}`}>
@@ -152,7 +177,7 @@ const FormActions = ({
                 )}
 
                 {showActions &&
-                    deletionActions.map((action) => (
+                    deletionActions.filter(uniqueAction).map(action => (
                         <Button
                             key={action.label}
                             className={styles.button}
@@ -164,15 +189,20 @@ const FormActions = ({
                     ))}
 
                 {canSave && (
-                    <Button className={styles.button} variant="secondary" onClick={handleSave} ref={saveEl}>
+                    <Button
+                        className={styles.button}
+                        variant="secondary"
+                        onClick={handleSave}
+                        ref={saveEl}
+                    >
                         Save
                     </Button>
                 )}
 
                 {showActions &&
                     actions
-                        .filter((action) => action.target !== DELETED_STATE)
-                        .map((action) => (
+                        .filter(action => action.target !== DELETED_STATE)
+                        .map(action => (
                             <Button
                                 key={action.label}
                                 className={styles.button}
