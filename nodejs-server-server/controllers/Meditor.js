@@ -1126,7 +1126,7 @@ module.exports.changeDocumentState = function changeDocumentState(
           { $set: { "x-meditor.states": newStatesArray } }
         );
     })
-    .then(() => {
+    .then(async () => {
       let shouldNotify =
         _.get(that.currentEdge, "notify", true) &&
         that.readyNodes.indexOf(that.params.state) === -1;
@@ -1140,7 +1140,7 @@ module.exports.changeDocumentState = function changeDocumentState(
 
       if (shouldNotify) {
         try {
-          mUtils.notifyOfStateChange(DbName, that);
+          await mUtils.notifyOfStateChange(DbName, that);
         } catch (err) {
           // log the error, but failure to notify should NOT stop the document from changing state
           console.error(err);
@@ -1150,8 +1150,8 @@ module.exports.changeDocumentState = function changeDocumentState(
     .then(() => {
       return getModelContent(that.params.model, that.dbo.db(DbName));
     })
-    .then((model) => {
-      mUtils.publishToNats(that.dbo, that.document, model, that.params.state);
+    .then(async (model) => {
+      await mUtils.publishToNats(that.dbo, that.document, model, that.params.state);
       return model;
     })
     .then((model) => {
@@ -1164,9 +1164,10 @@ module.exports.changeDocumentState = function changeDocumentState(
         );
       }
     })
-    .then(
-      () => (that.dbo.close(), handleSuccess(response, { message: "Success" }))
-    )
+    .then(() => {
+        that.dbo.close() 
+        handleSuccess(response, { message: "Success" })
+    })
     .catch((err) => {
       try {
         that.dbo.close();

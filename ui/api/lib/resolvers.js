@@ -18,11 +18,11 @@ function findInitialEdges(edges) {
     if (!edges) return []
 
     // get list of workflow targets (["Draft", "Under Review", "Published"])
-    const targets = edges.map((edge) => edge.target)
+    const targets = edges.map(edge => edge.target)
 
     // only return edges whose source does not exist in any other edges target
     // aka, the initial edges for the workflow
-    return edges.filter((edge) => !targets.includes(edge.source))
+    return edges.filter(edge => !targets.includes(edge.source))
 }
 
 function getDocumentMap(modelName, documentTitle) {
@@ -30,7 +30,7 @@ function getDocumentMap(modelName, documentTitle) {
         title: {
             path: '$item',
             required: false,
-            formatting: (document) => {
+            formatting: document => {
                 try {
                     return (documentTitle || document.title)
                         .replace(/&lt;/gi, '<')
@@ -43,7 +43,7 @@ function getDocumentMap(modelName, documentTitle) {
         model: {
             path: 'model',
             required: false,
-            formatting: (model) => model || modelName,
+            formatting: model => model || modelName,
         },
         doc: {
             path: 'doc',
@@ -76,7 +76,7 @@ function getDocumentMap(modelName, documentTitle) {
         version: {
             path: '$item',
             required: false,
-            formatting: (document) => {
+            formatting: document => {
                 let modifiedOn = document['x-meditor'].modifiedOn
 
                 if (modifiedOn) modifiedOn = modifiedOn.toString()
@@ -91,9 +91,9 @@ module.exports = {
     Date: new GraphQLScalarType({
         name: 'Date',
         description: 'Date custom scalar type',
-        parseValue: (value) => new Date(value),
-        serialize: (value) => new Date(value).getTime(),
-        parseLiteral: (ast) => (ast.kind === Kind.INT ? parseInt(ast.value, 10) : null),
+        parseValue: value => new Date(value),
+        serialize: value => new Date(value).getTime(),
+        parseLiteral: ast => (ast.kind === Kind.INT ? parseInt(ast.value, 10) : null),
     }),
     Query: {
         model: async (_, params, { dataSources }) => {
@@ -102,8 +102,12 @@ module.exports = {
             model.workflow = await dataSources.mEditorApi.getWorkflow(model.workflow)
 
             if (params.currentState) {
-                model.workflow.currentNode = model.workflow.nodes.find((node) => node.id === params.currentState)
-                model.workflow.currentEdges = model.workflow.edges.filter((edge) => edge.source === params.currentState)
+                model.workflow.currentNode = model.workflow.nodes.find(
+                    node => node.id === params.currentState
+                )
+                model.workflow.currentEdges = model.workflow.edges.filter(
+                    edge => edge.source === params.currentState
+                )
             } else {
                 model.workflow.currentNode = model.workflow.nodes[0]
                 model.workflow.currentEdges = findInitialEdges(model.workflow.edges)
@@ -119,22 +123,28 @@ module.exports = {
 
             let categories = models
                 // retrieve just the category name
-                .map((model) => model.category)
+                .map(model => model.category)
                 // remove duplicates
-                .filter((category, index, categories) => categories.indexOf(category) === index)
+                .filter(
+                    (category, index, categories) =>
+                        categories.indexOf(category) === index
+                )
 
-            return categories.map((category) => ({
+            return categories.map(category => ({
                 name: category,
                 models: models
-                    .filter((model) => model.category === category)
-                    .map((model) => {
+                    .filter(model => model.category === category)
+                    .map(model => {
                         model.xMeditor = model['x-meditor']
                         return model
                     }),
             }))
         },
         documents: async (_, params, { dataSources }) => {
-            let documents = await dataSources.mEditorApi.getDocumentsForModel(params.modelName, params.filter)
+            let documents = await dataSources.mEditorApi.getDocumentsForModel(
+                params.modelName,
+                params.filter
+            )
             return await jsonMapper(documents, getDocumentMap(params.modelName))
         },
         document: async (_, params, { dataSources }) => {
@@ -147,7 +157,10 @@ module.exports = {
                     params.version
                 )
             } else {
-                document = await dataSources.mEditorApi.getDocument(params.modelName, params.title)
+                document = await dataSources.mEditorApi.getDocument(
+                    params.modelName,
+                    params.title
+                )
             }
 
             // the original API response had a separate "doc" property
@@ -160,13 +173,22 @@ module.exports = {
                 doc,
             }
 
-            return await jsonMapper(document, getDocumentMap(params.modelName, params.title))
+            return await jsonMapper(
+                document,
+                getDocumentMap(params.modelName, params.title)
+            )
         },
         documentComments: async (_, params, { dataSources }) => {
-            return dataSources.mEditorApi.getDocumentComments(params.modelName, params.title)
+            return dataSources.mEditorApi.getDocumentComments(
+                params.modelName,
+                params.title
+            )
         },
         documentHistory: async (_, params, { dataSources }) => {
-            return dataSources.mEditorApi.getDocumentHistory(params.modelName, params.title)
+            return dataSources.mEditorApi.getDocumentHistory(
+                params.modelName,
+                params.title
+            )
         },
         validLink: async (_, { url }) => {
             try {
@@ -178,11 +200,27 @@ module.exports = {
                     throw new Error('Invalid URL')
                 }
 
+                // try a HEAD request first
+                // this is the fastest way to check as we don't get the whole page back and most servers support this
                 let response = await fetch(url, {
                     method: 'HEAD',
                 })
 
+                if (response.status >= 400 && response.status !== 404) {
+                    // servers SHOULD respond with a 404 if the page doesn't exist
+                    // this one didn't, so let's fallback to using the GET request method
+                    response = await fetch(url, {
+                        method: 'GET',
+                    })
+                }
+
+                if (response.status === 404) {
+                    // page 404'ed, link is invalid
+                    throw new Error('Invalid URL')
+                }
+
                 if (response.status >= 400) {
+                    // some other response came back, set link as invalid
                     throw new Error('Bad response from server')
                 }
 

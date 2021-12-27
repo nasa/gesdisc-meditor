@@ -63,28 +63,29 @@
             "target": "Published",
             "label": "Publish",
             "notify": true,
-            "notifyRoles": ["Post-Publish Reviewer"]
+            "notifyRoles": "Post-Publish Reviewer"
         },
         {
             "label": "Delete Permanently",
-            "notify": true,
+            "notify": false,
             "role": "Author",
             "source": "Draft",
             "target": "Deleted"
         },
         {
             "label": "Delete Permanently",
-            "notify": true,
+            "notify": false,
             "role": "Author",
             "source": "Hidden",
             "target": "Deleted"
         },
         {
             "label": "Un-publish",
-            "notify": false,
+            "notify": true,
             "role": "Author",
             "source": "Published",
-            "target": "Hidden"
+            "target": "Hidden",
+            "notifyRoles": "Post-Publish Reviewer"
         }
     ],
     "name": "Edit-Publish",

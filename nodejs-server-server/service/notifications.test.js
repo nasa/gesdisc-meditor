@@ -21,19 +21,40 @@ describe('NotificationsService', () => {
 
         // small helper function to add users to the mock database
         const addUser = async (id, name, roles) => {
+            // insert mEditor user
             await db.collection('Users').insertOne({ id, name, roles })
+
+            // insert Earthdata record
+            await db.collection('users-urs').insertOne({
+                uid: id,
+                firstName: name,
+                lastName: 'User',
+                emailAddress: name.toLowerCase() + '@mock.nasa.gov',
+            })
         }
 
         // add some fake users to test with
-        addUser('bacon', 'Bacon', [{ model: 'Breakfast', role: 'Author' }])
-        addUser('eggs', 'Eggs', [{ model: 'Breakfast', role: 'Author' }])
-        addUser('hashbrowns', 'Hashbrowns', [
+        await addUser('bacon', 'Bacon', [
             { model: 'Breakfast', role: 'Author' },
-            { model: 'Breakfast', role: 'Post-Publish Reviewer' },
+            { model: 'Lunch', role: 'Author' },
         ])
-        addUser('grits', 'Grits', [
+        await addUser('eggs', 'Eggs', [
+            { model: 'Breakfast', role: 'Author' },
+            { model: 'Lunch', role: 'Reviewer' },
+        ])
+        await addUser('hashbrowns', 'Hashbrowns', [
             { model: 'Breakfast', role: 'Author' },
             { model: 'Breakfast', role: 'Post-Publish Reviewer' },
+            { model: 'Lunch', role: 'Reviewer' },
+        ])
+        await addUser('grits', 'Grits', [
+            { model: 'Breakfast', role: 'Author' },
+            { model: 'Breakfast', role: 'Post-Publish Reviewer' },
+            { model: 'Lunch', role: 'Publisher' },
+        ])
+        await addUser('gravy', 'Gravy', [
+            { model: 'Breakfast', role: 'Author' },
+            { model: 'Lunch', role: 'Publisher' },
         ])
     })
 
@@ -41,101 +62,103 @@ describe('NotificationsService', () => {
         await connection.close()
     })
 
-    it('getTargetRoles: returns empty array for an invalid state', () => {
-        expect(
-            notifications.getTargetRoles(modifyReviewPublishWorkflow.edges, 'Foo')
-        ).toEqual([])
-    })
+    test.each`
+        documentState     | previousState     | modelName      | workflow                       | expectedUids
+        ${'Init'}         | ${''}             | ${'Lunch'}     | ${modifyReviewPublishWorkflow} | ${[]}
+        ${'Draft'}        | ${'Init'}         | ${'Lunch'}     | ${modifyReviewPublishWorkflow} | ${[]}
+        ${'Under Review'} | ${'Draft'}        | ${'Lunch'}     | ${modifyReviewPublishWorkflow} | ${['eggs', 'hashbrowns']}
+        ${'Draft'}        | ${'Under Review'} | ${'Lunch'}     | ${modifyReviewPublishWorkflow} | ${[]}
+        ${'Approved'}     | ${'Under Review'} | ${'Lunch'}     | ${modifyReviewPublishWorkflow} | ${['grits', 'gravy']}
+        ${'Under Review'} | ${'Approved'}     | ${'Lunch'}     | ${modifyReviewPublishWorkflow} | ${['eggs', 'hashbrowns']}
+        ${'Published'}    | ${'Approved'}     | ${'Lunch'}     | ${modifyReviewPublishWorkflow} | ${['grits', 'gravy']}
+        ${'Hidden'}       | ${'Published'}    | ${'Lunch'}     | ${modifyReviewPublishWorkflow} | ${[]}
+        ${'Deleted'}      | ${'Draft'}        | ${'Lunch'}     | ${modifyReviewPublishWorkflow} | ${[]}
+        ${'FakeState'}    | ${'Draft'}        | ${'Lunch'}     | ${modifyReviewPublishWorkflow} | ${[]}
+        ${'Init'}         | ${''}             | ${'Breakfast'} | ${editPublishWorkflow}         | ${[]}
+        ${'Draft'}        | ${'Init'}         | ${'Breakfast'} | ${editPublishWorkflow}         | ${[]}
+        ${'Published'}    | ${'Draft'}        | ${'Breakfast'} | ${editPublishWorkflow}         | ${['grits', 'hashbrowns']}
+        ${'Hidden'}       | ${'Published'}    | ${'Breakfast'} | ${editPublishWorkflow}         | ${['grits', 'hashbrowns']}
+        ${'Deleted'}      | ${'Draft'}        | ${'Breakfast'} | ${editPublishWorkflow}         | ${[]}
+        ${'Deleted'}      | ${'Hidden'}       | ${'Breakfast'} | ${editPublishWorkflow}         | ${[]}
+        ${'FakeState'}    | ${'Draft'}        | ${'Breakfast'} | ${editPublishWorkflow}         | ${[]}
+    `(
+        'getUsersToNotifyOfStateChange for $workflow.name workflow and $documentState state, should return $expectedEmails',
+        async ({
+            documentState,
+            previousState,
+            modelName,
+            workflow,
+            expectedUids,
+        }) => {
+            const currentEdge = previousState
+                ? workflow.edges.find(
+                      edge =>
+                          edge.source == previousState && edge.target == documentState
+                  )
+                : undefined
 
-    it('getTargetRoles: returns Reviewer role for documents in a Modify-Review-Publish workflow that have moved to the Under Review state', () => {
-        expect(
-            notifications.getTargetRoles(
-                modifyReviewPublishWorkflow.edges,
-                'Under Review'
+            const users = await notifications.getUsersToNotifyOfStateChange(
+                modelName,
+                workflow,
+                documentState,
+                currentEdge
             )
-        ).toEqual(['Reviewer'])
-    })
 
-    it('getTargetRoles: returns Publisher role for documents in a Modify-Review-Publish workflow that have moved to the Published state', () => {
-        expect(
-            notifications.getTargetRoles(
-                modifyReviewPublishWorkflow.edges,
-                'Published'
+            expect(users.map(user => user.uid).sort()).toEqual(expectedUids.sort())
+        }
+    )
+
+    test.each`
+        author     | user         | toUsers     | expectedCcs
+        ${'bacon'} | ${'eggs'}    | ${[]}       | ${['bacon', 'eggs']}
+        ${'bacon'} | ${'eggs'}    | ${['eggs']} | ${['bacon']}
+        ${'bacon'} | ${undefined} | ${['eggs']} | ${['bacon']}
+    `(
+        'getUsersToCc($author, $user, $toUsers) should return CCs of $expectedCcs',
+        async ({ author, user, toUsers, expectedCcs }) => {
+            const ccUsers = await notifications.getUsersToCc(
+                author,
+                user,
+                toUsers.map(user => ({ uid: user })) // turn it back into a "user" object
             )
-        ).toEqual(['Publisher'])
-    })
 
-    it('getTargetRoles: returns Author role for documents in a Modify-Review-Publish workflow that can transition from "Init" state', () => {
-        expect(
-            notifications.getTargetRoles(modifyReviewPublishWorkflow.edges, 'Init')
-        ).toEqual(['Author'])
-    })
+            expect(ccUsers.map(user => user.uid).sort()).toEqual(expectedCcs.sort())
+        }
+    )
 
-    it('getTargetRoles: returns Author role for documents in a Edit-Publish workflow that have moved to the Published state', () => {
-        expect(
-            notifications.getTargetRoles(editPublishWorkflow.edges, 'Published')
-        ).toEqual(['Author'])
-    })
+    test.each`
+        firstName    | lastName     | emailAddress                | expectedEmail
+        ${'John'}    | ${'Snow'}    | ${'johnsnow@mock.nasa.gov'} | ${'"John Snow" <johnsnow@mock.nasa.gov>'}
+        ${undefined} | ${'Snow'}    | ${'johnsnow@mock.nasa.gov'} | ${'" Snow" <johnsnow@mock.nasa.gov>'}
+        ${'John'}    | ${undefined} | ${'johnsnow@mock.nasa.gov'} | ${'"John " <johnsnow@mock.nasa.gov>'}
+        ${'John'}    | ${'Snow'}    | ${undefined}                | ${''}
+    `(
+        'formatUserForEmail should return $expectedEmail for $firstName, $lastName, $emailAddress',
+        async ({ firstName, lastName, emailAddress, expectedEmail }) => {
+            expect(
+                notifications.formatUserForEmail({
+                    ...(firstName && { firstName }),
+                    ...(lastName && { lastName }),
+                    ...(emailAddress && { emailAddress }),
+                })
+            ).toEqual(expectedEmail)
+        }
+    )
 
-    it('getTargetRoles: returns the value of "notifyRoles" in the currentEdge', () => {
-        expect(
-            notifications.getTargetRoles(
-                editPublishWorkflow.edges,
-                'Published',
-                editPublishWorkflow.edges.find(
-                    edge =>
-                        edge.role == 'Author' &&
-                        edge.source == 'Draft' &&
-                        edge.target == 'Published'
-                )
+    test.each`
+        uids                             | expectedEmails
+        ${undefined}                     | ${[]}
+        ${[]}                            | ${[]}
+        ${['bacon']}                     | ${['bacon@mock.nasa.gov']}
+        ${['bacon', 'eggs']}             | ${['bacon@mock.nasa.gov', 'eggs@mock.nasa.gov']}
+        ${['bacon', 'eggs', 'fakeuser']} | ${['bacon@mock.nasa.gov', 'eggs@mock.nasa.gov']}
+    `(
+        'getContactInformationForUsers($uids) returns expected email addresses: $expectedEmails',
+        async ({ uids, expectedEmails }) => {
+            const users = await notifications.getContactInformationForUsers(uids)
+            expect(users.map(user => user.emailAddress).sort()).toEqual(
+                expectedEmails.sort()
             )
-        ).toEqual(['Post-Publish Reviewer'])
-    })
-
-    it('getTargetEdges: returns first edge for initial state', () => {
-        expect(
-            notifications.getTargetEdges(modifyReviewPublishWorkflow.edges, 'Init')
-        ).toEqual([modifyReviewPublishWorkflow.edges[0]])
-    })
-
-    it('getTargetEdges: returns empty array for final/end state', () => {
-        expect(
-            notifications.getTargetEdges(modifyReviewPublishWorkflow.edges, 'Hidden')
-        ).toEqual([])
-    })
-
-    it('getTargetEdges: returns applicable edges for inner workflow state', () => {
-        let targetEdges = notifications.getTargetEdges(
-            modifyReviewPublishWorkflow.edges,
-            'Under Review'
-        )
-
-        // just check the labels for equality
-        expect(targetEdges.map(edge => edge.label)).toEqual([
-            'Needs more work',
-            'Approve publication',
-        ])
-    })
-
-    it('getUsersWithModelRoles(Breakfast, Author) returns only Breakfast authors', async () => {
-        const users = await notifications.getUsersWithModelRoles('Breakfast', [
-            'Author',
-        ])
-        expect(users.sort()).toEqual(['bacon', 'eggs', 'hashbrowns', 'grits'].sort())
-    })
-
-    it('getUsersWithModelRoles(Breakfast, Post-Publish Reviewer) returns only Breakfast post publish reviewers', async () => {
-        const users = await notifications.getUsersWithModelRoles('Breakfast', [
-            'Post-Publish Reviewer',
-        ])
-        expect(users.sort()).toEqual(['hashbrowns', 'grits'].sort())
-    })
-
-    it('getUsersWithModelRoles(Breakfast, [Author, Post-Publish Reviewer]) returns all Breakfast users', async () => {
-        const users = await notifications.getUsersWithModelRoles('Breakfast', [
-            'Author',
-            'Post-Publish Reviewer',
-        ])
-        expect(users.sort()).toEqual(['bacon', 'eggs', 'hashbrowns', 'grits'].sort())
-    })
+        }
+    )
 })

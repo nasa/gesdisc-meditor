@@ -2,9 +2,11 @@ var _ = require('lodash')
 var mongo = require('mongodb')
 var mustache = require('mustache')
 var he = require('he')
+var log = require('log')
 var nats = require('./nats-connection')
 var { NotificationsService } = require('../../service/notifications')
 
+const APP_URL = (process.env.APP_URL || 'http://localhost') + '/meditor'
 const NATS_QUEUE_PREFIX = 'meditor-'
 module.exports.WORKFLOW_ROOT = 'Init'
 module.exports.WORKFLOW_ROOT_EDGE = { source: 'Init', target: 'Draft' }
@@ -113,214 +115,147 @@ module.exports.constructEmailMessage = function constructEmailMessage(
 }
 
 // Create a DB message for the notifier daemon to mail to relevant users
-module.exports.notifyOfStateChange = function notifyOfStateChange(DbName, meta) {
-    const notificationsService = new NotificationsService(meta.dbo.db(DbName))
+module.exports.notifyOfStateChange = async function notifyOfStateChange(
+    DbName,
+    meta
+) {
+    try {
+        const notificationsService = new NotificationsService(meta.dbo.db(DbName))
 
-    const targetEdges = notificationsService.getTargetEdges(
-        meta.workflow.edges,
-        meta.params.state
-    )
-    var targetNodes = _(targetEdges).map('target').uniq().value()
-    var tos
-    var tosusers
-    // User: who sent action, including emailAddress, firstName, lastName
-    var notificationTemplate = mustache.render(
-        meta.model.notificationTemplate || '',
-        meta.document
-    )
+        let toUsers = await notificationsService.getUsersToNotifyOfStateChange(
+            meta.params.model,
+            meta.workflow,
+            meta.params.state,
+            meta.currentEdge
+        )
+        let ccUsers = await notificationsService.getUsersToCc(
+            meta.document['x-meditor'].modifiedBy,
+            meta.user.uid,
+            toUsers
+        )
 
-    var currentNode = meta.workflow.nodes.find(item => {
-        return item.id === meta.currentEdge.target
-    })
-    var currentTargetNodes = []
-    meta.workflow.nodes.forEach((item, index) => {
-        if (item.id === meta.currentEdge.target) {
-            currentTargetNodes.push(meta.workflow.nodes[index - 1].id)
-            currentTargetNodes.push(meta.workflow.nodes[index + 1].id)
+        if (!toUsers.length && !ccUsers.length) {
+            // need at least one user to notify
+            throw new Error('Could not find users to notify of the state change')
         }
-    })
 
-    var customEmailMessage = currentNode.emailMessage
-    var defaultEmailMessage =
-        'An ' +
-        meta.params.model +
-        ' document drafted by ###AUTHOR### has been marked by ' +
-        meta.currentEdge.role +
-        ' ' +
-        meta.user.firstName +
-        ' ' +
-        meta.user.lastName +
-        " as '" +
-        meta.currentEdge.label +
-        "' and is now in a '" +
-        meta.currentEdge.target +
-        "' state." +
-        ' An action is required to transition the document to one of the [' +
-        targetNodes.join(', ') +
-        '] states.' +
-        he.decode(notificationTemplate)
+        if (!toUsers.length) {
+            // no "to" users, copy the "ccUsers"
+            toUsers = [].concat(ccUsers)
+            ccUsers = []
+            log.debug('No "to" users found, using "cc" users instead ', ccUsers)
+        }
 
-    var emailMessage = customEmailMessage
-        ? module.exports.constructEmailMessage(customEmailMessage, {
-              ...meta.params,
-              userFirstName: meta.user.firstName,
-              userLastName: meta.user.lastName,
-              author: meta.document['x-meditor'].modifiedBy,
-              role: meta.currentEdge.role,
-              label: meta.currentEdge.label,
-              target: currentNode.id,
-              previousNode: currentTargetNodes[0],
-              nextNode: currentTargetNodes[1],
-          })
-        : module.exports.constructEmailMessage(defaultEmailMessage, meta.params)
+        const targetEdges = notificationsService.getTargetEdges(
+            meta.workflow.edges,
+            meta.params.state
+        )
+        const targetNodes = notificationsService.getNodesFromEdges(targetEdges)
 
-    var notification = {
-        to: [], // This is set later
-        cc: [], // This is set later
-        subject: meta.params.model + ' document is now ' + meta.params.state,
-        body: emailMessage,
-        link: {
-            label: meta.params.title,
-            url:
-                process.env.APP_URL +
-                '/meditor/' +
-                module.exports.serializeParams(meta.params, [
-                    'model',
-                    'title',
-                    'version',
-                ]),
-        },
-        createdOn: new Date().toISOString(),
-    }
+        var notificationTemplate = mustache.render(
+            meta.model.notificationTemplate || '',
+            meta.document
+        )
 
-    return Promise.resolve()
-        .then(async () => {
-            // get target roles, or roles that can transition the document to the next state
-            const targetRoles = await notificationsService.getTargetRoles(
-                targetEdges,
-                meta.params.state,
-                meta.currentEdge
-            )
-
-            // retrieve users matching the given roles
-            return notificationsService.getUsersWithModelRoles(
-                meta.params.model,
-                targetRoles
-            )
+        var currentNode = meta.workflow.nodes.find(item => {
+            return item.id === meta.currentEdge.target
         })
-        .then(function (users) {
-            // TOs are all users that have a right to transition the document into a new state
-            if (users.length === 0) {
-                throw {
-                    message:
-                        'Could not find addressees to notify of the status change',
-                    status: 400,
-                }
-            }
 
-            tos = _(users.ids).uniq().value()
+        var customEmailMessage = currentNode.emailMessage
+        var defaultEmailMessage =
+            'An ' +
+            meta.params.model +
+            ' document drafted by ###AUTHOR### has been marked by ' +
+            meta.currentEdge.role +
+            ' ' +
+            meta.user.firstName +
+            ' ' +
+            meta.user.lastName +
+            " as '" +
+            meta.currentEdge.label +
+            "' and is now in a '" +
+            meta.currentEdge.target +
+            "' state." +
+            ' An action is required to transition the document to one of the [' +
+            targetNodes.join(', ') +
+            '] states.' +
+            he.decode(notificationTemplate)
 
-            return meta.dbo
-                .db(DbName)
-                .collection('users-urs')
-                .find({ uid: { $in: tos } })
-                .project({
-                    _id: 0,
-                    emailAddress: 1,
-                    firstName: 1,
-                    lastName: 1,
-                    uid: 1,
-                })
-                .toArray()
+        var emailMessage = customEmailMessage
+            ? module.exports.constructEmailMessage(customEmailMessage, {
+                  ...meta.params,
+                  userFirstName: meta.user.firstName,
+                  userLastName: meta.user.lastName,
+                  author: meta.document['x-meditor'].modifiedBy,
+                  role: meta.currentEdge.role,
+                  label: meta.currentEdge.label,
+                  target: currentNode.id,
+              })
+            : module.exports.constructEmailMessage(defaultEmailMessage, meta.params)
+
+        var notification = {
+            to: toUsers.map(user => notificationsService.formatUserForEmail(user)),
+            cc: ccUsers.map(user => notificationsService.formatUserForEmail(user)),
+            subject: meta.params.model + ' document is now ' + meta.params.state,
+            body: emailMessage,
+            link: {
+                label: meta.params.title,
+                url:
+                    APP_URL +
+                    '/meditor/' +
+                    module.exports.serializeParams(meta.params, [
+                        'model',
+                        'title',
+                        'version',
+                    ]),
+            },
+            createdOn: new Date().toISOString(),
+        }
+
+        var author = _.filter(ccUsers, {
+            uid: meta.document['x-meditor'].modifiedBy,
         })
-        .then(users => {
-            // ccs are the original author and the person who just made the state change, unless they are already in TO
-            var ccs = _([meta.user.uid, meta.document['x-meditor'].modifiedBy])
-                .uniq()
-                .difference(tos)
-                .value()
-            tosusers = users
-            notification.to = _.uniq(
-                users.map(
-                    u =>
-                        '"' +
-                        u.firstName +
-                        ' ' +
-                        u.lastName +
-                        '" <' +
-                        u.emailAddress +
-                        '>'
-                )
-            )
-            if (notification.to.length === 0)
-                throw {
-                    message:
-                        'Could not find addressees to notify of the status change',
-                    status: 400,
-                }
-            return meta.dbo
-                .db(DbName)
-                .collection('users-urs')
-                .find({ uid: { $in: ccs } })
-                .project({
-                    _id: 0,
-                    emailAddress: 1,
-                    firstName: 1,
-                    lastName: 1,
-                    uid: 1,
-                })
-                .toArray()
-        })
-        .then(users => {
-            // Replace author's name placeholder with an actual name (find it in either users or tosusers)
-            var author = _.filter(users, {
+
+        if (author.length === 0) {
+            author = _.filter(toUsers, {
                 uid: meta.document['x-meditor'].modifiedBy,
             })
-            if (author.length === 0)
-                author = _.filter(tosusers, {
-                    uid: meta.document['x-meditor'].modifiedBy,
-                })
-            if (author.length > 0) {
-                notification.body = notification.body.replace(
-                    '###AUTHOR###',
-                    _.map(author, function (u) {
-                        return u.firstName + ' ' + u.lastName
-                    })[0]
-                )
-            } else {
-                notification.body = notification.body.replace(
-                    'drafted by ###AUTHOR### ',
-                    ''
-                ) // Should not be here, but just in case...
-            }
-            notification.cc = _.uniq(
-                users.map(
-                    u =>
-                        '"' +
-                        u.firstName +
-                        ' ' +
-                        u.lastName +
-                        '" <' +
-                        u.emailAddress +
-                        '>'
-                )
+        }
+
+        if (author.length > 0) {
+            notification.body = notification.body.replace(
+                '###AUTHOR###',
+                _.map(author, function (u) {
+                    return u.firstName + ' ' + u.lastName
+                })[0]
             )
+        } else {
+            notification.body = notification.body.replace(
+                'drafted by ###AUTHOR### ',
+                ''
+            ) // Should not be here, but just in case...
+        }
 
-            const channel =
-                process.env.MEDITOR_NATS_NOTIFICATIONS_CHANNEL ||
-                'meditor-notifications'
+        const channel =
+            process.env.MEDITOR_NATS_NOTIFICATIONS_CHANNEL || 'meditor-notifications'
 
-            console.log('Publishing notification to NATS channel: ', channel)
+        console.log('Publishing notification to NATS channel: ', channel)
 
-            nats.stan.publish(channel, JSON.stringify(notification), (err, guid) => {
-                if (err) {
-                    console.error('Failed to publish notification ', err)
-                    return
-                }
+        log.debug(JSON.stringify(notification))
 
-                console.log('Successfully published notification: ', guid)
-            })
+        nats.stan.publish(channel, JSON.stringify(notification), (err, guid) => {
+            if (err) {
+                console.error('Failed to publish notification ', err)
+                return
+            }
+
+            console.log('Successfully published notification: ', guid)
         })
+    } catch (err) {
+        // notification failures should not block normal execution of document state change
+        // so JUST print the error to the log for debugging
+        console.error(err)
+    }
 }
 
 // Finds a shortest path between all nodes of a given graph

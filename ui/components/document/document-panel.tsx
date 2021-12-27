@@ -4,8 +4,25 @@ import { MdClose } from 'react-icons/md'
 import { Rnd } from 'react-rnd'
 import { useState, useEffect } from 'react'
 
+const DEFAULT_DIMENSIONS = {
+    x: 1300,
+    y: -130,
+    width: 450,
+    height: 800,
+}
+
 const DocumentPanel = ({ title, children, onClose, open = false, large = false }) => {
     const [showRnd, setShowRnd] = useState(false)
+    const [defaultDimensions, setDefaultDimensions] = useState(null)
+
+    useEffect(() => {
+        setDefaultDimensions({
+            ...DEFAULT_DIMENSIONS,
+            ...(typeof window !== undefined && {
+                x: window.innerWidth - DEFAULT_DIMENSIONS.width - 30,
+            }),
+        })
+    }, [])
 
     useEffect(() => {
         if (open) {
@@ -17,14 +34,14 @@ const DocumentPanel = ({ title, children, onClose, open = false, large = false }
         }
     }, [open])
 
+    if (!defaultDimensions) {
+        // render an empty div until we have the default dimensions for the panel
+        return <div />
+    }
+
     return (
         <Rnd
-            default={{
-                x: 1300,
-                y: -130,
-                width: 450,
-                height: 800,
-            }}
+            default={defaultDimensions}
             disableDragging
             minHeight="100vh"
             maxHeight="100vh"
