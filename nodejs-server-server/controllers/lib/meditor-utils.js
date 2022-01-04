@@ -6,7 +6,6 @@ var log = require('log')
 var nats = require('./nats-connection')
 var { NotificationsService } = require('../../service/notifications')
 
-const APP_URL = (process.env.APP_URL || 'http://localhost') + '/meditor'
 const NATS_QUEUE_PREFIX = 'meditor-'
 module.exports.WORKFLOW_ROOT = 'Init'
 module.exports.WORKFLOW_ROOT_EDGE = { source: 'Init', target: 'Draft' }
@@ -201,7 +200,7 @@ module.exports.notifyOfStateChange = async function notifyOfStateChange(
             link: {
                 label: meta.params.title,
                 url:
-                    APP_URL +
+                    (process.env.APP_URL || 'http://localhost') +
                     '/meditor/' +
                     module.exports.serializeParams(meta.params, [
                         'model',
