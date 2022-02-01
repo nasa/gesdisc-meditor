@@ -1,0 +1,48 @@
+:root {
+    /* sets intent scale to 1.500 / perfect fifth */
+    --toc-indent--0: none;
+    --toc-indent--1: 1em;
+    --toc-indent--2: 2.25em;
+    --toc-indent--3: 3.375em;
+    --toc-indent--4: 5.063em;
+    --toc-indent--5: 7.594em;
+}
+
+.H1,
+.H2,
+.H3,
+.H4,
+.H5,
+.H6 {
+    text-indent: var(--toc-indent--0);
+}
+
+.H1 ~ .H2,
+.H2 ~ .H3,
+.H3 ~ .H4,
+.H4 ~ .H5,
+.H5 ~ .H6 {
+    text-indent: var(--toc-indent--1);
+}
+
+.H1 ~ .H2 ~ .H3,
+.H2 ~ .H3 ~ .H4,
+.H3 ~ .H4 ~ .H5,
+.H4 ~ .H5 ~ .H6 {
+    text-indent: var(--toc-indent--2);
+}
+
+.H1 ~ .H2 ~ .H3 ~ .H4,
+.H2 ~ .H3 ~ .H4 ~ .H5,
+.H3 ~ .H4 ~ .H5 ~ .H6 {
+    text-indent: var(--toc-indent--3);
+}
+
+.H1 ~ .H2 ~ .H3 ~ .H4 ~ .H5,
+.H2 ~ .H3 ~ .H4 ~ .H5 ~ .H6 {
+    text-indent: var(--toc-indent--4);
+}
+
+.H1 ~ .H2 ~ .H3 ~ .H4 ~ .H5 ~ .H6 {
+    text-indent: var(--toc-indent--5);
+}

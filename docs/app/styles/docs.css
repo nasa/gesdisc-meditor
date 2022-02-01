@@ -1,0 +1,20 @@
+:root {
+    --header-offset: 8rem;
+}
+
+.docs {
+    padding-top: var(--header-offset);
+}
+
+h2[id]::before,
+h3[id]::before,
+h4[id]::before,
+h5[id]::before,
+h6[id]::before {
+    display: block;
+    visibility: hidden;
+    margin-top: calc(var(--header-offset) * -1);
+    height: var(--header-offset);
+    pointer-events: none;
+    content: ' ';
+}

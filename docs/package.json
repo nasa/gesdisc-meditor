@@ -1,0 +1,40 @@
+{
+    "dependencies": {
+        "@ngsctt/remark-smartypants": "^0.2.0",
+        "@react-hook/window-scroll": "^1.3.0",
+        "@remix-run/react": "^1.1.3",
+        "@remix-run/serve": "^1.1.3",
+        "bootstrap": "^5.1.3",
+        "dotenv": "^14.2.0",
+        "react": "^17.0.2",
+        "react-bootstrap": "^2.1.1",
+        "react-dom": "^17.0.2",
+        "react-icons": "^4.3.1",
+        "rehype-autolink-headings": "^6.1.1",
+        "rehype-slug": "^5.0.1",
+        "remix": "^1.1.3"
+    },
+    "description": "",
+    "devDependencies": {
+        "@gesdisc/prettier-config": "^1.0.1",
+        "@remix-run/dev": "^1.1.3",
+        "@types/react": "^17.0.24",
+        "@types/react-dom": "^17.0.9",
+        "prettier-plugin-css-order": "^1.1.0",
+        "typescript": "^4.1.2"
+    },
+    "engines": {
+        "node": ">=14"
+    },
+    "license": "",
+    "name": "remix-app-template",
+    "prettier": "@gesdisc/prettier-config",
+    "private": true,
+    "scripts": {
+        "build": "remix build",
+        "dev": "node -r dotenv/config node_modules/.bin/remix dev",
+        "postinstall": "remix setup node",
+        "start": "remix-serve build"
+    },
+    "sideEffects": false
+}
