@@ -1,5 +1,5 @@
-import Modal from 'react-bootstrap/Modal'
 import Button from 'react-bootstrap/Button'
+import Modal from 'react-bootstrap/Modal'
 import { MdPerson } from 'react-icons/md'
 import styles from './login-dialog.module.css'
 
@@ -23,7 +23,7 @@ const LoginDialog = ({
                     Login
                 </Button>
 
-                <small>No account? Please <a href="https://urs.earthdata.nasa.gov">register</a></small>
+                <small>No account? Please <a href="https://urs.earthdata.nasa.gov">register</a>. Not sure how to do that? View the <a href="/docs/user-guide">User Guide</a>.</small>
             </Modal.Body>
         </Modal>
     )
