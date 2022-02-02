@@ -1,4 +1,4 @@
-import type { MetaFunction } from 'remix'
+import type { LinksFunction, MetaFunction } from 'remix'
 import {
     links as tableOfContentsLinks,
     TableOfContents,
@@ -9,6 +9,7 @@ import UsingComments from '~/documentation/user-guide/using-comments.mdx'
 import VersionsAndHistory from '~/documentation/user-guide/versions-and-history.mdx'
 import WorkflowsAndRoles from '~/documentation/user-guide/workflows-and-roles.mdx'
 import WorkingWithDocuments from '~/documentation/user-guide/working-with-documents.mdx'
+import styles from '~/styles/user-guide.css'
 
 export const meta: MetaFunction = () => {
     return {
@@ -17,8 +18,8 @@ export const meta: MetaFunction = () => {
     }
 }
 
-export function links() {
-    return [...tableOfContentsLinks()]
+export const links: LinksFunction = () => {
+    return [...tableOfContentsLinks(), { rel: 'stylesheet', href: styles }]
 }
 
 export default function UserGuide() {

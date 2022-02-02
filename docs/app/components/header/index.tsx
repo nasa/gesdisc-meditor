@@ -70,7 +70,7 @@ export const Header = ({ user }: HeaderProps) => {
                                 <MdFeedback className="me-1" size={'1.3em'} />
                                 Feedback
                             </Nav.Link>
-                            <Link to="/docs/user-guide" className="nav-link">
+                            <Link to="meditor/docs/user-guide" className="nav-link">
                                 <MdHelp className="me-1" size={'1.3em'} />
                                 Help
                             </Link>

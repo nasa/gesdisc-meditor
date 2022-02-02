@@ -1,9 +1,5 @@
-:root {
-    --header-offset: 8rem;
-}
-
 .docs {
-    padding-top: var(--header-offset);
+    padding-top: var(--fifth-scale--5);
 }
 
 h2[id]::before,
@@ -13,8 +9,12 @@ h5[id]::before,
 h6[id]::before {
     display: block;
     visibility: hidden;
-    margin-top: calc(var(--header-offset) * -1);
-    height: var(--header-offset);
+    margin-top: calc(var(--fifth-scale--5) * -1);
+    height: var(--fifth-scale--5);
     pointer-events: none;
     content: ' ';
+}
+
+img {
+    max-width: 100%;
 }

@@ -1,7 +1,8 @@
-import styles from 'bootstrap/dist/css/bootstrap.min.css'
+import bootstrap from 'bootstrap/dist/css/bootstrap.min.css'
 import type { LinksFunction, MetaFunction } from 'remix'
 import { Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration } from 'remix'
 import { Header, links as headerLinks } from '~/components/header'
+import styles from '~/styles/shared.css'
 
 export const meta: MetaFunction = () => {
     return { title: 'mEditor | Documentation' }
@@ -10,6 +11,10 @@ export const meta: MetaFunction = () => {
 export const links: LinksFunction = () => {
     return [
         ...headerLinks(),
+        {
+            rel: 'stylesheet',
+            href: bootstrap,
+        },
         {
             rel: 'stylesheet',
             href: styles,
