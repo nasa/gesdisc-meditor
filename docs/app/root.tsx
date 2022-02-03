@@ -5,7 +5,7 @@ import { Header, links as headerLinks } from '~/components/header'
 import styles from '~/styles/shared.css'
 
 export const meta: MetaFunction = () => {
-    return { title: 'mEditor | Documentation' }
+    return { title: 'User Guide | mEditor' }
 }
 
 export const links: LinksFunction = () => {

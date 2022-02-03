@@ -23,7 +23,7 @@ const LoginDialog = ({
                     Login
                 </Button>
 
-                <small>No account? Please <a href="https://urs.earthdata.nasa.gov">register</a>. Not sure how to do that? View the <a href="/docs/user-guide">User Guide</a>.</small>
+                <small>No account? Please <a href="https://urs.earthdata.nasa.gov">register</a>.<br />Not sure how to register? View the <a href="/meditor/docs/user-guide">User Guide</a>.</small>
             </Modal.Body>
         </Modal>
     )

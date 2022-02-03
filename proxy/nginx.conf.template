@@ -16,10 +16,6 @@ http {
         server ${UI_HOST}:3000;
     }
 
-    upstream docs {
-        server ${DOCS_HOST}:3030;
-    }
-
     upstream graphql {
         server ${UI_HOST}:4000;
     }
@@ -43,14 +39,8 @@ http {
             proxy_set_header   X-Forwarded-Host $server_name;
         }
 
-        location /meditor/docs {
-            proxy_pass         http://docs/;
-            proxy_redirect     off;
-            proxy_buffering    off;
-            proxy_set_header   Host $host;
-            proxy_set_header   X-Real-IP $remote_addr;
-            proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header   X-Forwarded-Host $server_name;
+        location /meditor/docs/ {
+            proxy_pass         http://${DOCS_HOST}:3030/;
         }
 
         location /meditor/graphql {
