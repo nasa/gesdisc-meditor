@@ -1,76 +1,90 @@
 version: "3.3"
 
 services:
-  proxy:
-    container_name: meditor_proxy
-    build: proxy
-    restart: on-failure
+    proxy:
+        container_name: meditor_proxy
+        build: proxy
+        restart: on-failure
 
-  notifier:
-    container_name: meditor_notifier
-    build: notifier
-    restart: on-failure
-    env_file:
-      - .env
-    volumes:
-      - ./notifier:/usr/src/app
-      - /usr/src/app/node_modules
+    notifier:
+        container_name: meditor_notifier
+        build: notifier
+        restart: on-failure
+        env_file:
+            - .env
+        volumes:
+            - ./notifier:/usr/src/app
+            - /usr/src/app/node_modules
 
-  ui:
-    container_name: meditor_ui
-    build: ui
-    env_file:
-      - .env
-    ports:
-      - "4000:4000"
-    volumes:
-      - ./ui:/usr/src/app
-      - /usr/src/app/node_modules
+    ui:
+        container_name: meditor_ui
+        build: ui
+        env_file:
+            - .env
+        ports:
+            - "4000:4000"
+        volumes:
+            - ./ui:/usr/src/app
+            - /usr/src/app/node_modules
 
-  server:
-    container_name: meditor_server
-    build: nodejs-server-server
-    restart: always
-    env_file:
-      - .env
-    volumes:
-      - ./nodejs-server-server:/usr/src/app
-      - /usr/src/app/node_modules
+    docs:
+        container_name: meditor_docs
+        build: docs
+        env_file:
+            - .env
+        environment:
+            - API_ORIGIN=http://host.docker.internal
+        ports:
+            - "3030:3030"
+            - "8002:8002"
+        volumes:
+            - ./docs:/usr/src/app
+            - /usr/src/app/node_modules
 
-  database:
-    container_name: meditor_database
-    volumes:
-      - ./data:/data/db
-    ports:
-      - "27018:27017"
+    server:
+        container_name: meditor_server
+        build: nodejs-server-server
+        restart: always
+        env_file:
+            - .env
+        volumes:
+            - ./nodejs-server-server:/usr/src/app
+            - /usr/src/app/node_modules
 
-  nats:
-    container_name: meditor_nats
-    volumes:
-      - ./nats-data:/nats/data
+    database:
+        container_name: meditor_database
+        volumes:
+            - ./data:/data/db
+        ports:
+            - "27018:27017"
 
-  monitor:
-    container_name: meditor_monitor
+    nats:
+        container_name: meditor_nats
+        volumes:
+            - ./nats-data:/nats/data
 
-  agent:
-    container_name: meditor_agent
+    monitor:
+        container_name: meditor_monitor
 
-  example-subscriber:
-    container_name: meditor_example_subscriber
-    build: examples/subscriber
-    restart: always
-    env_file:
-      - .env
-    volumes:
-      - ./examples/subscriber:/usr/src/app
-      - /usr/src/app/node_modules
+    agent:
+        container_name: meditor_agent
 
-  example-subscriber-with-redirect:
-    container_name: meditor_example_subscriber_with_redirect
-    build: examples/subscriber-with-redirect
-    restart: always
-    env_file:
-      - .env
-    volumes:
-      - ./examples/subscriber-with-redirect:/usr/src/app
-      - /usr/src/app/node_modules
+    example-subscriber:
+        container_name: meditor_example_subscriber
+        build: examples/subscriber
+        restart: always
+        env_file:
+            - .env
+        volumes:
+            - ./examples/subscriber:/usr/src/app
+            - /usr/src/app/node_modules
+
+    example-subscriber-with-redirect:
+        container_name: meditor_example_subscriber_with_redirect
+        build: examples/subscriber-with-redirect
+        restart: always
+        env_file:
+            - .env
+        volumes:
+            - ./examples/subscriber-with-redirect:/usr/src/app
+            - /usr/src/app/node_modules

@@ -1,0 +1,42 @@
+## Workflows and Roles
+
+Workflows and roles determine how a document is created, refined and published, and who can work on these documents, and in what capacity. Below is a diagram of the standard workflow showing document states and the roles responsible for states and transitions between states.
+
+![Diagram of the standard workflow](/meditor/docs/images/user-guide/workflows-and-roles__uui-workflow.png)
+
+Figure 8: Diagram of the standard workflow
+
+### Workflows
+
+The term workflow refers to the procession of states through which a document passes on it's way to publication. It also defines how those states are achieved. Each model type can have it's own workflow. However, the standard workflow for a mEditor model document will generally flow through the following states: draft (initial creation and the edited version), under review, approved, and published. While the document is under review, **authors**, **reviewers**, and **publishers** may communicate through the use of [comments](#using-comments) on the document. Note that any changes to a document subsequent to initial publication will start the whole process over again. UUI documents follow the standard workflow for web site content publication, unless otherwise requested.
+
+### Roles
+
+Roles are used to determine your privileges and therefore what you see and what you can do with a document given its state. There are, so far, three roles defined in mEditor: author, reviewer, publisher.
+
+NOTE: Roles are assigned per model type so that, by configuration, it is likely you will not have the same privileges for all model types. For example, you may be an author for news articles, but a reviewer for howto documents.
+
+#### Author
+
+If you are an author, you may:
+
+-   Add new documents. This will be indicated by an "\+ Add New" button in the upper right corner of the [document listings page](#viewing-documents).
+-   Edit existing documents. Simply click on the link of an existing document within the model listings page to begin editing it.
+-   Submit documents for review. Click "Submit for Review" on the edit form to indicate review readiness.
+-   Respond to comments issued by the reviewer(s). This is done via the [comments](#using-comments) feature.
+
+#### Reviewer
+
+If you are a reviewer, you may:
+
+-   Make comments on documents that are "Under Review". Once notified, via an email prompted by an author indicating review readiness, you will need to conducted an editorial review the document, making comments using the [comments](#using-comments) feature as needed.
+-   Resolve comments. Close out comments that have been addressed.
+-   Submit a document for publication. Click "Ready to Publish" on the edit form AFTER all comments have been resolved.
+
+#### Publisher
+
+If you are a publisher, you may:
+
+-   Make comments on document that are "Under Review" and "Approved". This should only happen if, as a publisher, you see something about the document that prevents it from being published.
+-   Publish a document. Click "Publish". You may be prompted with a choice of target application (e.g., UUI - Test, UUI - OPS). If so, select a target to proceed.
+-   Reject a document. Click "I don't like it" to prevent the document from going public and placing it back into the "Under Review" state.

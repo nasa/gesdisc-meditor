@@ -1,0 +1,6 @@
+node_modules
+
+/.cache
+meditor/docs/build
+public/meditor/docs/build
+.env

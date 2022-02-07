@@ -2,7 +2,6 @@ worker_processes 1;
 
 events { worker_connections 1024; }
 
-
 http {
 
     log_format compression '$remote_addr - $remote_user [$time_local] '
@@ -15,6 +14,10 @@ http {
 
     upstream web {
         server ${UI_HOST}:3000;
+    }
+
+    upstream docs {
+        server ${DOCS_HOST}:3030;
     }
 
     upstream graphql {
@@ -32,6 +35,16 @@ http {
 
         location /meditor/ {
             proxy_pass         http://web/;
+            proxy_redirect     off;
+            proxy_buffering    off;
+            proxy_set_header   Host $host;
+            proxy_set_header   X-Real-IP $remote_addr;
+            proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header   X-Forwarded-Host $server_name;
+        }
+
+        location /meditor/docs/ {
+            proxy_pass         http://docs;
             proxy_redirect     off;
             proxy_buffering    off;
             proxy_set_header   Host $host;

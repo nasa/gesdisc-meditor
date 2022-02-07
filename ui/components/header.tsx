@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import Router from 'next/router'
-import Dropdown from 'react-bootstrap/Dropdown'
 import Button from 'react-bootstrap/Button'
+import Dropdown from 'react-bootstrap/Dropdown'
 import Navbar from 'react-bootstrap/Navbar'
-import { MdPerson, MdHome, MdFeedback, MdHelp } from 'react-icons/md'
+import { MdFeedback, MdHelp, MdHome, MdPerson } from 'react-icons/md'
 import styles from './header.module.css'
 
 const Header = ({ user, isAuthenticated }) => {
@@ -83,10 +82,7 @@ const Header = ({ user, isAuthenticated }) => {
                         variant="link"
                         style={{ color: 'grey', marginLeft: 10 }}
                         as="a"
-                        href={
-                            process.env.HELP_DOCUMENT_LOCATION ||
-                            process.env.NEXT_PUBLIC_HELP_DOCUMENT_LOCATION
-                        }
+                        href={process.env.HELP_DOCUMENT_LOCATION || "/meditor/docs/user-guide"}
                         target="_blank"
                     >
                         <MdHelp style={{ fontSize: '1.6em' }} />
