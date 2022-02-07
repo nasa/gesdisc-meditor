@@ -1,16 +1,20 @@
 import bootstrap from 'bootstrap/dist/css/bootstrap.min.css'
-import type { LinksFunction, MetaFunction } from 'remix'
-import { Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration } from 'remix'
+import type { LinksFunction, LoaderFunction } from 'remix'
+import {
+    Links,
+    LiveReload,
+    Meta,
+    Outlet,
+    Scripts,
+    ScrollRestoration,
+    useLoaderData,
+} from 'remix'
 import { Header, links as headerLinks } from '~/components/header'
 import styles from '~/styles/shared.css'
 
-export const meta: MetaFunction = () => {
-    return { title: 'User Guide | mEditor' }
-}
-
 export const links: LinksFunction = () => {
     return [
-        ...headerLinks(),
+        { rel: 'icon', href: '/meditor/docs/favicon.ico', type: 'image/x-icon' },
         {
             rel: 'stylesheet',
             href: bootstrap,
@@ -19,10 +23,36 @@ export const links: LinksFunction = () => {
             rel: 'stylesheet',
             href: styles,
         },
+        ...headerLinks(),
     ]
 }
 
+export const loader: LoaderFunction = async ({ request }) => {
+    try {
+        const response = await fetch(`${process.env.API_ORIGIN}/meditor/api/me`, {
+            //* Pass through the authentication cookie from the initial request to load the page.
+            //? Not sure why "credentials: 'include'" does not work here.
+            headers: {
+                Cookie: request.headers.get('Cookie') || '',
+            },
+        })
+        const { firstName } = await response.json()
+
+        return {
+            ENV: {
+                HELP_DOCUMENT_LOCATION:
+                    process.env.HELP_DOCUMENT_LOCATION || '/meditor/docs/user-guide',
+            },
+            firstName,
+        }
+    } catch (error) {
+        console.error(error)
+    }
+}
+
 export default function App() {
+    const { ENV, firstName } = useLoaderData()
+
     return (
         <html lang="en">
             <head>
@@ -32,7 +62,7 @@ export default function App() {
                 <Links />
             </head>
             <body>
-                <Header />
+                <Header docsUrl={ENV.HELP_DOCUMENT_LOCATION} firstName={firstName} />
                 <Outlet />
                 <ScrollRestoration />
                 <Scripts />

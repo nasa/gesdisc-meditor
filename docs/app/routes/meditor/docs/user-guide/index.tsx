@@ -1,5 +1,4 @@
-import type { LinksFunction } from 'remix'
-import { links as scrollToTopLinks, ScrollToTop } from '~/components/scroll-to-top'
+import type { LinksFunction, MetaFunction } from 'remix'
 import {
     links as tableOfContentsLinks,
     TableOfContents,
@@ -12,36 +11,35 @@ import WorkflowsAndRoles from '~/documentation/user-guide/workflows-and-roles.md
 import WorkingWithDocuments from '~/documentation/user-guide/working-with-documents.mdx'
 import styles from '~/styles/user-guide.css'
 
+export const meta: MetaFunction = () => {
+    return { title: 'User Guide | mEditor' }
+}
+
 export const links: LinksFunction = () => {
-    return [
-        ...tableOfContentsLinks(),
-        ...scrollToTopLinks(),
-        { rel: 'stylesheet', href: styles },
-    ]
+    return [...tableOfContentsLinks(), { rel: 'stylesheet', href: styles }]
 }
 
 export default function UserGuide() {
     return (
-        <main className="user-guide px-5 container">
-            <ScrollToTop />
+        <>
             <Introduction />
             <TableOfContents includeHeadings={['h2', 'h3']}>
-                <article>
+                <article className="user-guide__article">
                     <QuickStart />
                 </article>
-                <article>
+                <article className="user-guide__article">
                     <WorkingWithDocuments />
                 </article>
-                <article>
+                <article className="user-guide__article">
                     <WorkflowsAndRoles />
                 </article>
-                <article>
+                <article className="user-guide__article">
                     <UsingComments />
                 </article>
-                <article>
+                <article className="user-guide__article">
                     <VersionsAndHistory />
                 </article>
             </TableOfContents>
-        </main>
+        </>
     )
 }

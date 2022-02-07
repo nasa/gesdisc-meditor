@@ -31,9 +31,12 @@ services:
         container_name: meditor_docs
         build: docs
         env_file:
-            - ./docs/.env
+            - .env
+        environment:
+            - API_ORIGIN=http://host.docker.internal
         ports:
             - "3030:3030"
+            - "8002:8002"
         volumes:
             - ./docs:/usr/src/app
             - /usr/src/app/node_modules

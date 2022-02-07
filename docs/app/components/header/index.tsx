@@ -6,12 +6,10 @@ import { MdFeedback, MdHelp, MdHome, MdPerson } from 'react-icons/md'
 import { Link, LinksFunction } from 'remix'
 
 type HeaderProps = {
-    user?: { firstName: string }
+    firstName?: string
+    docsUrl: string
 }
 
-// todo: loader to check /me api to see what comes back for header
-
-// todo: Even though this component might eventually be used outside of /meditor/docs, right now the nginx proxy directs traffic from /meditor/docs to this app so these URLs need to mirror that base path (or another solution needs to be created).
 export const links: LinksFunction = () => {
     return [
         {
@@ -22,7 +20,7 @@ export const links: LinksFunction = () => {
     ]
 }
 
-export const Header = ({ user }: HeaderProps) => {
+export const Header = ({ firstName, docsUrl }: HeaderProps) => {
     return (
         <header>
             <Navbar
@@ -45,7 +43,7 @@ export const Header = ({ user }: HeaderProps) => {
                     <Navbar.Toggle aria-controls="responsive-navbar-nav" />
                     <Navbar.Collapse id="responsive-navbar-nav">
                         <Nav className="ms-auto">
-                            {user && (
+                            {firstName && (
                                 <NavDropdown
                                     title={
                                         <>
@@ -53,7 +51,7 @@ export const Header = ({ user }: HeaderProps) => {
                                                 className="me-1"
                                                 size={'1.3em'}
                                             />
-                                            Hi, {user?.firstName}
+                                            Hi, {firstName}
                                         </>
                                     }
                                 >
@@ -62,15 +60,15 @@ export const Header = ({ user }: HeaderProps) => {
                                     </NavDropdown.Item>
                                 </NavDropdown>
                             )}
-                            <Link to="/meditor" className="nav-link">
+                            <Nav.Link href="/meditor">
                                 <MdHome className="me-1" size={'1.3em'} />
                                 Home
-                            </Link>
+                            </Nav.Link>
                             <Nav.Link href="mailto:gsfc-uui-dev-disc@lists.nasa.gov">
                                 <MdFeedback className="me-1" size={'1.3em'} />
                                 Feedback
                             </Nav.Link>
-                            <Link to="meditor/docs/user-guide" className="nav-link">
+                            <Link to={docsUrl} className="nav-link">
                                 <MdHelp className="me-1" size={'1.3em'} />
                                 Help
                             </Link>

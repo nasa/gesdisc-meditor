@@ -11,6 +11,7 @@ COPY . .
 RUN npm run build
 
 EXPOSE 3030
+EXPOSE 8002
 
 CMD if [ "$NODE_ENV" = "production" ]; \
     then \

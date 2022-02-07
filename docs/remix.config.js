@@ -18,12 +18,9 @@ const remixMdxConfigFunction = async filename => {
  */
 module.exports = {
     appDirectory: 'app',
-    assetsBuildDirectory: 'public/build',
-    // assetsBuildDirectory: 'meditor/docs/public/build',
-    // publicPath: '/build/',
+    assetsBuildDirectory: 'public/meditor/docs/build',
     publicPath: '/meditor/docs/build/',
-    serverBuildDirectory: 'build',
-    // serverBuildDirectory: 'meditor/docs/build',
+    serverBuildDirectory: 'meditor/docs/build',
     devServerPort: 8002,
     ignoredRouteFiles: ['.*'],
     mdx: remixMdxConfigFunction,

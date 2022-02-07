@@ -82,7 +82,8 @@ const Header = ({ user, isAuthenticated }) => {
                         variant="link"
                         style={{ color: 'grey', marginLeft: 10 }}
                         as="a"
-                        href="/meditor/docs"
+                        href={process.env.HELP_DOCUMENT_LOCATION || "/meditor/docs/user-guide"}
+                        target="_blank"
                     >
                         <MdHelp style={{ fontSize: '1.6em' }} />
                         Help
