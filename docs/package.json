@@ -34,7 +34,7 @@
         "build": "remix build",
         "dev": "cross-env PORT=3030 remix dev",
         "postinstall": "remix setup node",
-        "start": "cross-env PORT=3030 remix-serve build"
+        "start": "cross-env PORT=3030 remix-serve meditor/docs/build"
     },
     "sideEffects": false
 }
