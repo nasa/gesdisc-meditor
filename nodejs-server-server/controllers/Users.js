@@ -38,6 +38,14 @@ var AUTH_CONFIG = {
   CLIENT_SECRET: fromSecretOrEnv("auth_client_secret"),
 };
 
+const COGNITO_OPTIONS = {
+  callbackURL: APP_URL + "/api/login",
+  clientDomain: fromSecretOrEnv("COGNITO_CLIENT_DOMAIN"),
+  clientID: fromSecretOrEnv("COGNITO_CLIENT_ID"),
+  clientSecret: fromSecretOrEnv("COGNITO_CLIENT_SECRET"),
+  region: fromSecretOrEnv("COGNITO_REGION"),
+};
+
 var AUTH_PROTOCOL = "https:";
 var URS_FIELDS = [
   "uid",
@@ -174,106 +182,6 @@ if (process.env.NODE_ENV === "development") {
   );
 }
 
-let oauth2Strategy = new OAuth2Strategy(
-  {
-    authorizationURL:
-      AUTH_PROTOCOL + "//" + AUTH_CONFIG.HOST + "/oauth/authorize",
-    tokenURL: AUTH_PROTOCOL + "//" + AUTH_CONFIG.HOST + "/oauth/token",
-    clientID: AUTH_CONFIG.CLIENT_ID,
-    clientSecret: AUTH_CONFIG.CLIENT_SECRET,
-    callbackURL: APP_URL + "/api/login",
-    customHeaders: {
-      Authorization: new Buffer(
-        AUTH_CONFIG.CLIENT_ID + ":" + AUTH_CONFIG.CLIENT_SECRET
-      ).toString("base64"),
-    },
-  },
-  function (accessToken, refreshToken, authResp, profile, cb) {
-    https
-      .get(
-        {
-          protocol: AUTH_PROTOCOL,
-          hostname: AUTH_CONFIG.HOST,
-          path: authResp.endpoint,
-          headers: {
-            Authorization: "Bearer " + accessToken,
-          },
-        },
-        function (res) {
-          var resp = "";
-
-          res.on("data", function (data) {
-            resp += data;
-          });
-
-          res.on("end", function () {
-            var updatedModel = {
-              lastAccessed: _.now(),
-            };
-            try {
-              resp = JSON.parse(resp);
-              _.forEach(URS_FIELDS, function (field) {
-                updatedModel[field] = resp[_.snakeCase(field)];
-              });
-              MongoClient.connect(MongoUrl, function (err, db) {
-                if (err) {
-                  cb(err);
-                  throw err;
-                }
-                var dbo = db.db(DbName);
-                dbo
-                  .collection(USERS_COLLECTION_URS)
-                  .findOne({
-                    uid: resp.uid,
-                  })
-                  .then(function (model) {
-                    if (_.isNil(model)) {
-                      updatedModel.created = _.now();
-                      model = updatedModel;
-                    }
-                    return dbo
-                      .collection(USERS_COLLECTION_URS)
-                      .findOneAndUpdate(
-                        {
-                          uid: resp.uid,
-                        },
-                        {
-                          $set: model,
-                        },
-                        {
-                          upsert: true,
-                        }
-                      );
-                  })
-                  .then(function () {
-                    cb(null, resp.uid);
-                    db.close();
-                  })
-                  .catch(function (e) {
-                    cb(e);
-                    db.close();
-                  });
-              });
-            } catch (e) {
-              cb(e);
-            }
-          });
-        }
-      )
-      .on("error", function (err) {
-        cb(err);
-      });
-  }
-);
-
-let cognitoOptions = {
-  callbackURL: APP_URL + "/api/login",
-  clientDomain: process.env.COGNITO_CLIENT_DOMAIN,
-  clientID: process.env.COGNITO_CLIENT_ID,
-  clientSecret: process.env.COGNITO_CLIENT_SECRET,
-  region: process.env.COGNITO_REGION,
-};
-
 function verifyCognitoAuth(accessToken, refreshToken, profile, done) {
   let user = { ...profile };
   done(null, user[process.env.COGNITO_USER_IDENTIFIER.toLowerCase()]);
@@ -284,9 +192,101 @@ if (process.env.PROXY_REQUEST_URL) {
   oauth2Strategy._oauth2.setAgent(httpsProxyAgent);
 }
 
-if (process.env.COGNITO_CLIENT_ID) {
-  passport.use(new CognitoOAuth2Strategy(cognitoOptions, verifyCognitoAuth));
+if (COGNITO_OPTIONS.clientID) {
+  passport.use(new CognitoOAuth2Strategy(COGNITO_OPTIONS, verifyCognitoAuth));
 } else {
+  let oauth2Strategy = new OAuth2Strategy(
+    {
+      authorizationURL:
+        AUTH_PROTOCOL + "//" + AUTH_CONFIG.HOST + "/oauth/authorize",
+      tokenURL: AUTH_PROTOCOL + "//" + AUTH_CONFIG.HOST + "/oauth/token",
+      clientID: AUTH_CONFIG.CLIENT_ID,
+      clientSecret: AUTH_CONFIG.CLIENT_SECRET,
+      callbackURL: APP_URL + "/api/login",
+      customHeaders: {
+        Authorization: new Buffer(
+          AUTH_CONFIG.CLIENT_ID + ":" + AUTH_CONFIG.CLIENT_SECRET
+        ).toString("base64"),
+      },
+    },
+    function (accessToken, refreshToken, authResp, profile, cb) {
+      https
+        .get(
+          {
+            protocol: AUTH_PROTOCOL,
+            hostname: AUTH_CONFIG.HOST,
+            path: authResp.endpoint,
+            headers: {
+              Authorization: "Bearer " + accessToken,
+            },
+          },
+          function (res) {
+            var resp = "";
+  
+            res.on("data", function (data) {
+              resp += data;
+            });
+  
+            res.on("end", function () {
+              var updatedModel = {
+                lastAccessed: _.now(),
+              };
+              try {
+                resp = JSON.parse(resp);
+                _.forEach(URS_FIELDS, function (field) {
+                  updatedModel[field] = resp[_.snakeCase(field)];
+                });
+                MongoClient.connect(MongoUrl, function (err, db) {
+                  if (err) {
+                    cb(err);
+                    throw err;
+                  }
+                  var dbo = db.db(DbName);
+                  dbo
+                    .collection(USERS_COLLECTION_URS)
+                    .findOne({
+                      uid: resp.uid,
+                    })
+                    .then(function (model) {
+                      if (_.isNil(model)) {
+                        updatedModel.created = _.now();
+                        model = updatedModel;
+                      }
+                      return dbo
+                        .collection(USERS_COLLECTION_URS)
+                        .findOneAndUpdate(
+                          {
+                            uid: resp.uid,
+                          },
+                          {
+                            $set: model,
+                          },
+                          {
+                            upsert: true,
+                          }
+                        );
+                    })
+                    .then(function () {
+                      cb(null, resp.uid);
+                      db.close();
+                    })
+                    .catch(function (e) {
+                      cb(e);
+                      db.close();
+                    });
+                });
+              } catch (e) {
+                cb(e);
+              }
+            });
+          }
+        )
+        .on("error", function (err) {
+          cb(err);
+        });
+    }
+  );
+
   passport.use(oauth2Strategy);
 }
 
@@ -412,7 +412,7 @@ module.exports.init = function (app) {
   app.use(
     session({
       name: "__mEditor",
-      secret: AUTH_CONFIG.CLIENT_SECRET,
+      secret: COGNITO_OPTIONS.clientSecret || AUTH_CONFIG.CLIENT_SECRET,
       resave: false,
       /* do not automatically write to the session store, even if the session was never modified during the request */
       saveUninitialized: true,
