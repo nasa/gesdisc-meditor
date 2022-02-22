@@ -269,7 +269,7 @@ if (COGNITO_OPTIONS.clientID) {
             res.on("end", function () {
               log.debug('URS: authentication response ', resp)
 
-              updateOrCreateUser(JSON.parse(profile))
+              updateOrCreateUser(JSON.parse(resp))
                 .then(user => {
                   log.debug('URS: updated user ', user)
                   cb(null, user.uid)
