@@ -269,17 +269,16 @@ if (COGNITO_OPTIONS.clientID) {
             res.on("end", function () {
               log.debug('URS: authentication response ', resp)
 
-              try {
-                const user = await updateOrCreateUser(JSON.parse(profile))
-
-                log.debug('URS: updated user ', user)
-
-                cb(null, user.uid)
-              } catch(err) {
-                log.error('URS: failed to update user')
-                log.error(err)
-                cb(err)
-              }      
+              updateOrCreateUser(JSON.parse(profile))
+                .then(user => {
+                  log.debug('URS: updated user ', user)
+                  cb(null, user.uid)
+                })
+                .catch(err => {
+                  log.error('URS: failed to update user')
+                  log.error(err)
+                  cb(err)
+                })     
             });
           }
         )
