@@ -178,9 +178,9 @@ const InstallationPage = () => {
                                 {newUser && (
                                     <ListGroup.Item>
                                         <Form noValidate validated={validated} onSubmit={handleAddNewUser}>
-                                            <Form.Row className="align-items-end">
+                                            <Form.Row>
                                                 <Form.Group as={Col} md="4" controlId="validationCustom01">
-                                                    <Form.Label>EarthData Login ID</Form.Label>
+                                                    <Form.Label>Username</Form.Label>
                                                     <Form.Control
                                                         required
                                                         name="uid"
@@ -188,6 +188,9 @@ const InstallationPage = () => {
                                                         value={newUser.uid}
                                                         onChange={handleNewUserChange}
                                                     />
+                                                    <Form.Text className="text-muted">
+                                                    Should match the username in your chosen auth provider (ex. Earthdata login UID)
+                                                    </Form.Text>
                                                 </Form.Group>
 
                                                 <Form.Group as={Col} md="4" controlId="validationCustom01">
@@ -202,6 +205,7 @@ const InstallationPage = () => {
                                                 </Form.Group>
 
                                                 <Form.Group as={Col} md="4">
+                                                    <Form.Label className="d-block" ariaHidden={true}>&nbsp;</Form.Label>
                                                     <Button variant="secondary" type="submit">
                                                         Add User
                                                     </Button>
