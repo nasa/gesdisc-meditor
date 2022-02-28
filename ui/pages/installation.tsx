@@ -205,7 +205,7 @@ const InstallationPage = () => {
                                                 </Form.Group>
 
                                                 <Form.Group as={Col} md="4">
-                                                    <Form.Label className="d-block" ariaHidden={true}>&nbsp;</Form.Label>
+                                                    <Form.Label className="d-block">&nbsp;</Form.Label>
                                                     <Button variant="secondary" type="submit">
                                                         Add User
                                                     </Button>
