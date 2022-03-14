@@ -1,5 +1,5 @@
 ARG REGISTRY
-FROM ${REGISTRY}nginx:1.14.0-alpine
+FROM ${REGISTRY}nginx:1.21.6-alpine
 
 WORKDIR /
 
