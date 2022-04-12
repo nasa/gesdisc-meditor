@@ -176,17 +176,15 @@ const FormActions = ({
                     </Button>
                 )}
 
-                {showActions &&
-                    deletionActions.filter(uniqueAction).map(action => (
-                        <Button
-                            key={action.label}
-                            className={styles.button}
-                            variant="outline-danger"
-                            onClick={() => handleStateUpdate(action.target)}
-                        >
-                            {action.label}
-                        </Button>
-                    ))}
+                {showActions && deletionActions.length && (
+                    <Button
+                        className={styles.button}
+                        variant="outline-danger"
+                        onClick={() => handleStateUpdate(DELETED_STATE)}
+                    >
+                        Delete Permanently
+                    </Button>
+                )}
 
                 {canSave && (
                     <Button
