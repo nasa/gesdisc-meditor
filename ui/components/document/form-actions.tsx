@@ -182,7 +182,7 @@ const FormActions = ({
                         variant="outline-danger"
                         onClick={() => handleStateUpdate(DELETED_STATE)}
                     >
-                        Delete Permanently
+                        {deletionActions[0]?.label}
                     </Button>
                 )}
 
