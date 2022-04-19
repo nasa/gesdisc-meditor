@@ -27,7 +27,7 @@ function CKEditorWidget(props) {
             { name: 'clipboard', groups: ['clipboard', 'undo'] },
             { name: 'editing', groups: ['find', 'selection', 'spellchecker'] },
             { name: 'links' },
-            { name: 'insert'},
+            { name: 'insert' },
             { name: 'forms' },
             { name: 'tools' },
             { name: 'document', groups: ['mode', 'document', 'doctools'] },
@@ -49,7 +49,7 @@ function CKEditorWidget(props) {
         autoGrow_bottomSpace: 30,
         filebrowserUploadUrl: props.formContext.imageUploadUrl || '/images/upload',
         filebrowserUploadMethod: 'form',
-        extraPlugins: 'youtube,arcgisstorymap,indentblock,worldview',
+        extraPlugins: 'youtube,arcgisstorymap,indentblock,worldview,jupyterNotebook',
         extraAllowedContent: 'iframe(*)',
         allowedContent: true,
     }
