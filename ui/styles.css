@@ -12,7 +12,6 @@ body {
 }
 
 body {
-    padding-top: 80px;  /* for the fixed header */
     padding-bottom: 20px;
 }
 
@@ -93,7 +92,7 @@ form.rjsf .panel.errors .panel-heading {
     display: none;
 }
 
-form.rjsf button[type="submit"] {
+form.rjsf button[type='submit'] {
     display: none;
 }
 
@@ -136,7 +135,7 @@ form.rjsf button[type="submit"] {
 .form-group.field .control-label-container {
     display: flex;
     align-items: center;
-    margin-bottom: .5rem;
+    margin-bottom: 0.5rem;
 }
 
 .form-group.field .control-label {
@@ -171,7 +170,7 @@ fieldset.field-array fieldset.field-array {
     background: none;
     border: none;
     box-shadow: none;
-    color: rgba(0, 0, 0, .3);
+    color: rgba(0, 0, 0, 0.3);
     flex: 0 1 40px !important;
     opacity: 0;
 }
@@ -187,7 +186,8 @@ fieldset.field-array fieldset.field-array {
 .btn-info:active {
     color: #fff;
     background: #607d8b !important;
-    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+    box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+        0 1px 5px 0 rgba(0, 0, 0, 0.12);
 }
 
 .btn-info:hover,
@@ -197,7 +197,8 @@ fieldset.field-array fieldset.field-array {
 
 .dashboard-model {
     background: #eee;
-    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+    box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+        0 1px 5px 0 rgba(0, 0, 0, 0.12);
     display: flex;
     flex-direction: column;
     align-items: center;

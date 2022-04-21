@@ -1,6 +1,6 @@
 # mEditor
 
-### Getting Started
+## Getting Started
 
 - Clone the repo and `cd meditor`
 - Copy .env.example, create a **new file** called .env
@@ -10,13 +10,13 @@
 - Once everything is up and running (may take a few minutes on the first run), you can access mEditor at: `http://localhost/meditor`
 - The first time you load mEditor, it will take you through a step-by-step for setting up the database and initial users.
 
-### Developing in mEditor
+## Developing in mEditor
 
 - In development, you can make changes in most of the service folders and the service will restart with your changes applied.
 - Out of the box, your IDE will show errors for dependencies and will be missing autocompletion for dependencies. This is due to Docker installing dependencies inside the container, inaccessible to the host. To fix this, you can run `npm install` inside whichever service folder you are working on.
 - Please create a branch for your changes and when you are finished, create a pull request to have them reviewed and merged in.
 
-### Subscribing to document state changes
+## Subscribing to document state changes
 
 When a document in mEditor moves through a workflow (ex. moves to Draft, moves to Published, etc.), mEditor puts that document into a queue (NATS) that can be subscribed to by an external service.
 
@@ -59,3 +59,39 @@ The built-in notifier, which sends emails to users, is also a subscriber. The no
 If mEditor is embedded in another application and you'd like to redirect back to the application after a document has been published: include `"redirectToUrl": true` in the acknowledgement message
 
 There is an example of this redirect in examples/subscriber-with-redirect
+
+## Themes
+
+mEditor will change parts of its user interface based on the current theme. The theme defaults to "default" and can be adjusted to other values through the URL query parameter `theme` or the environment variable `UI_THEME`. Available themes are listed in the file `_app.tsx` under the `THEMES` constant.
+
+### Conflict Resolution
+
+In case of a conflict between an allowed value for the `theme` URL query param, and the environment variable `UI_THEME`, the URL query param wins. Because the URL query param requires allow-listing a value before use (via the `UI_ALLOWED_URL_THEME` environment variable), it can be disabled at the environment variable level (by removing it or changing its value) to allow `UI_THEME` to take precedence. These environment variables allows mEditor to switch, enable, or disable themes without redeployment.
+
+### URL Query Parameters
+
+To be enabled via a URL query param, a theme must first be allow-listed through the environment varaiable `UI_ALLOWED_URL_THEME`, which should be set to an avialable theme.
+
+#### Example Usage
+
+Set the allowed theme.
+
+```bash
+echo 'UI_ALLOWED_URL_THEME=EDPub' >> ./.env
+```
+
+`http://localhost/meditor?theme=EDPub` or `http://localhost/meditor?theme=edpub` will enable mEditor's EDPub theme.
+
+### `UI_THEME` Environment Variable
+
+To be set the theme via the `UI_THEME` environment variable, set the variable's value to an avaiable theme.
+
+#### Example Usage
+
+Set the allowed theme.
+
+```bash
+echo 'UI_THEME=EDPub' >> ./.env
+```
+
+The theme is now set. If you also have `UI_ALLOWED_URL_THEME` set, please note Themes' Conflict Resolution section.
