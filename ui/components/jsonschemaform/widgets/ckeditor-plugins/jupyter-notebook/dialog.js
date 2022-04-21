@@ -1,4 +1,4 @@
-import { isValidNotebookUrl } from './utils'
+import { isValidNotebookUrl, convertUrlToNbViewerUrl } from './utils'
 
 /**
  * the dialog that appears when the user clicks the "Embed Jupyter Notebook" toolbar button
@@ -18,7 +18,7 @@ export function jupyterNotebookDialog(instance) {
                         widths: ['70%', '15%', '15%'],
                         children: [
                             {
-                                id: 'txtUrl',
+                                id: 'notebookUrl',
                                 type: 'text',
                                 label: 'Jupyter Notebook URL (.ipynb)',
                                 placeholder:
@@ -39,7 +39,7 @@ export function jupyterNotebookDialog(instance) {
                             },
                             {
                                 type: 'text',
-                                id: 'txtWidth',
+                                id: 'notebookWidth',
                                 width: '60px',
                                 label: 'Width',
                                 default: '640',
@@ -57,7 +57,7 @@ export function jupyterNotebookDialog(instance) {
                             },
                             {
                                 type: 'text',
-                                id: 'txtHeight',
+                                id: 'notebookHeight',
                                 width: '60px',
                                 label: 'Height',
                                 default: '500',
@@ -80,7 +80,7 @@ export function jupyterNotebookDialog(instance) {
                         widths: ['55%', '45%'],
                         children: [
                             {
-                                id: 'chkResponsive',
+                                id: 'isResponsive',
                                 type: 'checkbox',
                                 label:
                                     'Make Responsive (ignore width and height, fit to width)',
@@ -92,43 +92,51 @@ export function jupyterNotebookDialog(instance) {
             },
         ],
         onOk: function () {
-            const width = this.getValueOf('jupyterNotebookPlugin', 'txtWidth')
-            const height = this.getValueOf('jupyterNotebookPlugin', 'txtHeight')
+            const width = this.getValueOf('jupyterNotebookPlugin', 'notebookWidth')
+            const height = this.getValueOf('jupyterNotebookPlugin', 'notebookHeight')
             const isResponsive =
                 this.getContentElement(
                     'jupyterNotebookPlugin',
-                    'chkResponsive'
+                    'isResponsive'
                 ).getValue() === true
 
-            // TODO: convert url to nbviewer
-            let url = this.getValueOf('jupyterNotebookPlugin', 'txtUrl')
+            // get a nbviewer url to the provided notebook
+            const url = convertUrlToNbViewerUrl(
+                this.getValueOf('jupyterNotebookPlugin', 'notebookUrl')
+            )
 
-            // TODO: wrap if responsive
-            /* 
-                if () {
-                    content +=
-                        '<div class="youtube-embed-wrapper" style="position:relative;padding-bottom:56.25%;padding-top:30px;height:0;overflow:hidden">'
-                    responsiveStyle = 'style="position:absolute;top:0;left:0;width:100%;height:100%"'
-                }*/
+            // setup the iframe with responsive style if needed
+            const iframeContent = `<iframe 
+                src="${url}"
+                ${!isResponsive && `width="${width}"`}
+                ${!isResponsive && `height="${height}"`}
+                ${
+                    isResponsive &&
+                    `style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"`
+                }
+                frameborder="0" 
+                allowfullscreen
+            ></iframe>`
 
-            let iframeContent = `<div>
-                <iframe 
-                    src="${url}"
-                    width="${width}"
-                    height="${height}"
-                    frameborder="0" 
-                    allowfullscreen
-                ></iframe>
+            // the responsive container for the iframe, if needed
+            // styles intentionally included inline as mEditor does not share a stylesheet with the documents consumer (e.g. the website)
+            const responsiveIframe = `
+                <div style="display: flex; flex-wrap: wrap;">
+                    <div style="flex: 0 0 50%;">
+                        <div style="width: 100%; overflow: hidden; position: relative; padding-bottom: 56.25%; height: 0;">
+                            ${iframeContent}
+                        </div>
+                    </div>
+                </div>
             </div>`
 
-            console.log('got all the way here ', iframeContent)
-
             // add iframe to the body at the users cursor location
-            const element = CKEDITOR.dom.element.createFromHtml(iframeContent)
+            const element = CKEDITOR.dom.element
+                .createFromHtml(`<div class="jupyter-notebook">
+                ${isResponsive ? responsiveIframe : iframeContent}
+            </div>`)
+
             const instance = this.getParentEditor()
-
-            console.log('about to insert ', instance, element)
-
             instance.insertElement(element)
         },
     }
