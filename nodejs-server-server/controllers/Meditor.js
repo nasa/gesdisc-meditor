@@ -95,7 +95,18 @@ function handleBadRequest(response, res) {
  * @param {*} message
  */
 async function handlePublicationAcknowledgements(message) {
-    const acknowledgement = escape(JSON.parse(message.getData()))
+    let acknowledgement
+
+    try {
+        acknowledgement = escape(JSON.parse(message.getData()))
+    } catch (err) {
+        // the subscriber sent us a message that wasn't JSON parseable
+        log.error('Failed to parse the following publication acknowledgement:')
+        log.error(message.getData())
+
+        message.ack() // acknowledge the message so NATS doesn't keep trying to send it
+        return
+    }
 
     log.debug('Acknowledgement received, processing now ', acknowledgement)
 
