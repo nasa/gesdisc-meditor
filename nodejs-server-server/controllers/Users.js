@@ -19,6 +19,7 @@ const fetch = require('node-fetch')
 var MongoClient = require('mongodb').MongoClient
 var MongoUrl = process.env.MONGOURL || 'mongodb://meditor_database:27017/'
 var DbName = 'meditor'
+// todo: Figure out why there are multiple user collections; decouple EDL/URS & Cognito from authN users.
 var USERS_COLLECTION_URS = 'users-urs'
 var USERS_COLLECTION_MEDITOR = 'Users'
 
@@ -44,8 +45,9 @@ const COGNITO_OPTIONS = {
     callbackURL: APP_URL + '/api/login',
     clientDomain: fromSecretOrEnv('COGNITO_CLIENT_DOMAIN'),
     clientID: fromSecretOrEnv('COGNITO_CLIENT_ID'),
-    nonSRPclientID: fromSecretOrEnv('COGNITO_NON_SRP_CLIENT_ID'),
     clientSecret: fromSecretOrEnv('COGNITO_CLIENT_SECRET'),
+    cognitoUserIdentifier: fromSecretOrEnv('COGNITO_USER_IDENTIFIER'),
+    nonSRPclientID: fromSecretOrEnv('COGNITO_NON_SRP_CLIENT_ID'),
     region: fromSecretOrEnv('COGNITO_REGION'),
 }
 
@@ -222,7 +224,9 @@ async function updateOrCreateUser(profile, uidField = 'uid') {
 async function verifyCognitoAuth(_accessToken, _refreshToken, profile, done) {
     log.debug('Cognito: authentication response ', profile)
 
-    const uidField = process.env.COGNITO_USER_IDENTIFIER.toLowerCase() || 'username'
+    const uidField = COGNITO_OPTIONS.cognitoUserIdentifier
+        ? COGNITO_OPTIONS.cognitoUserIdentifier.toLowerCase()
+        : 'username'
 
     try {
         const user = await updateOrCreateUser(profile, uidField)
@@ -390,10 +394,6 @@ module.exports.loginPost = async function loginPost(req, res, next) {
         AuthFlow: 'USER_PASSWORD_AUTH',
         ClientId: COGNITO_OPTIONS.nonSRPclientID,
     }
-    if (process.env.NODE_ENV === 'development' && 'username' in req.body) {
-        console.log('I work!')
-        console.log(req.body)
-    }
 
     const requestOptions = {
         method: 'POST',
@@ -410,10 +410,36 @@ module.exports.loginPost = async function loginPost(req, res, next) {
         requestOptions
     )
 
-    const authData = await response.json()
+    /* save cookie from response in var
+    decode idToken and get username
+    save username to DB
+    send response w/ set-cookie header (status, message)
+*/
 
-    utils.writeJson(res, authData, 200)
-    // res.end()
+    if (!response.ok) {
+        utils.writeJson(res, await response.json(), 401)
+
+        return res.end()
+    }
+
+    // { username: 'aadebayo', email: 'adebayoamos@gmail.com', sub: '934ba980-8c67-4d57-8b48-9a76d146ff0a' }
+
+    const authResponse = await response.json()
+
+    let idTokenPayload = authResponse.AuthenticationResult.IdToken.split('.')[1]
+    idTokenPayload = JSON.parse(
+        Buffer.from(idTokenPayload, 'base64').toString('utf-8')
+    )
+
+    const { ['cognito:username']: username, email } = idTokenPayload
+
+    await verifyCognitoAuth(null, null, { email, username }, () => {})
+
+    // {"passport" : { "user" : "aadebayo" }}
+
+    utils.writeJson(res, { email, username }, 200)
+
+    res.end()
 }
 
 // Exported method to logout
