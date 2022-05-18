@@ -615,7 +615,7 @@ paths:
     /login:
         get:
             summary: 'Login'
-            description: 'Logs in a user  '
+            description: 'Redirect to configured identity provider for login'
             operationId: 'login'
             parameters:
                 - name: 'code'
@@ -648,7 +648,7 @@ paths:
             x-swagger-router-controller: 'Users'
         post:
             summary: 'Login Post'
-            description: 'Login post with username and password'
+            description: 'Log in with username and password to Cognito'
             operationId: 'loginPost'
             parameters:
                 - name: 'loginInfo'

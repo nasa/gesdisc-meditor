@@ -47,11 +47,13 @@ const COGNITO_OPTIONS = {
     clientID: fromSecretOrEnv('COGNITO_CLIENT_ID'),
     clientSecret: fromSecretOrEnv('COGNITO_CLIENT_SECRET'),
     initiateAuthClientID: fromSecretOrEnv('COGNITO_INITIATE_AUTH_CLIENT_ID'),
-    initiateAuthUrl: fromSecretOrEnv('COGNITO_INITIATE_AUTH_URL'),
     region: fromSecretOrEnv('COGNITO_REGION'),
     userIdentifier: fromSecretOrEnv('COGNITO_USER_IDENTIFIER')
         ? fromSecretOrEnv('COGNITO_USER_IDENTIFIER').toLowerCase()
         : 'username',
+    get initiateAuthUrl() {
+        return `https://cognito-idp.${this.region}.amazonaws.com/`
+    },
 }
 
 var AUTH_PROTOCOL = 'https:'
@@ -373,12 +375,6 @@ module.exports.login = function login(req, res, next) {
     }
 }
 
-/**
- * TODO:
- *  Document the need for 2 client ids (api auth flow with no secret)
- *  Test by interacting w/ api over curl w/ cookie.
- *  support more than form data (probably not submitting via form if programmatic)
- */
 //* Not yet set up for URS/EDL login. POST to this EP could throw errors if Cognito is not configured in the environment.
 module.exports.loginPost = async function loginPost(req, res, _next) {
     try {
@@ -415,7 +411,7 @@ module.exports.loginPost = async function loginPost(req, res, _next) {
 
         const { ['cognito:username']: username, email } = idTokenPayload
 
-        const { uid } = await updateOrCreateUser(
+        const { uid, ...user } = await updateOrCreateUser(
             { email, username },
             COGNITO_OPTIONS.userIdentifier
         )
@@ -427,7 +423,7 @@ module.exports.loginPost = async function loginPost(req, res, _next) {
             }
         })
 
-        return utils.writeJson(res, user, 200)
+        utils.writeJson(res, { uid, ...user }, 200)
     } catch (error) {
         log.error(error)
     } finally {
