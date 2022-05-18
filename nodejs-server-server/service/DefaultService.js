@@ -272,7 +272,7 @@ exports.listModels = function (properties) {
 
 /**
  * Login
- * Logs in a user
+ * Redirect to configured identity provider for login
  *
  * code String URS authentication code (optional)
  * returns success
@@ -294,9 +294,9 @@ exports.login = function (code) {
 
 /**
  * Login Post
- * Login post with username and password
+ * Log in with username and password to Cognito
  *
- * loginInfo LoginPost login information
+ *
  * returns success
  **/
 exports.loginPost = function (loginInfo) {

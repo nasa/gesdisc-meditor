@@ -78,7 +78,7 @@ To log in through mEditor's API, first (and only once) set up a new AWS Cognito 
 Send a POST request to `meditor/api/login` similar to this:
 
 ```sh
-curl -Lv -X POST 'localhost/meditor/api/login' \
+curl -v -X POST 'localhost/meditor/api/login' \
      -H 'Content-Type: application/json' \
      -d '{ "username": "your-username", "password": "your-password" }'
 ```
@@ -86,6 +86,17 @@ curl -Lv -X POST 'localhost/meditor/api/login' \
 The API will send back a reply with either an error or user, and a `set-cookie` header containing a session cookie. If the API response contained a user, that user is now logged in and can interact with the API when requests contain the session cookie. E.g.,
 
 ```sh
-curl -X GET 'localhost/meditor/api/cloneDocument?model=Example%20News&title=Lorem%20ipsum%20dolor%20sit%20amet&newTitle=New%20Document' \
+curl -X POST 'localhost/meditor/api/cloneDocument?model=Example%20News&title=Lorem%20ipsum%20dolor%20sit%20amet&newTitle=New%20Document' \
      -H 'Cookie: __mEditor=s%3AlxPdaElW5qwzWlDiWmQFPYHFGt5k9U5w.qSei3cxoV3Yj4F9KnBaA7wZMXAC3%2FelBcM7UuMjgPfE'
 ```
+
+Please note that the mEditor API will optimistically establish a session and sends a `set-cookie` header for every request that doesn't include a `Cookie` header with a `__mEditor` cookie. That optimistically-established session will not be tied to an authenticated user through the API.
+
+To check the status of your existing session, send the following request:
+
+```sh
+curl -X GET 'localhost/meditor/api/me' \
+     -H 'Cookie: __mEditor=s%3A97VTrwKZklddMtoZu__qwmAs6kavLYcX.UPa8esHs9kpCbyEWFLrn6LBIv9yqgeSim5bTQLR9cfM'
+```
+
+A user will be returned if your session is still active.
