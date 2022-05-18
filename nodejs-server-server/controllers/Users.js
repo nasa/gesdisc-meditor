@@ -46,9 +46,12 @@ const COGNITO_OPTIONS = {
     clientDomain: fromSecretOrEnv('COGNITO_CLIENT_DOMAIN'),
     clientID: fromSecretOrEnv('COGNITO_CLIENT_ID'),
     clientSecret: fromSecretOrEnv('COGNITO_CLIENT_SECRET'),
-    cognitoUserIdentifier: fromSecretOrEnv('COGNITO_USER_IDENTIFIER'),
-    nonSRPclientID: fromSecretOrEnv('COGNITO_NON_SRP_CLIENT_ID'),
+    initiateAuthClientID: fromSecretOrEnv('COGNITO_INITIATE_AUTH_CLIENT_ID'),
+    initiateAuthUrl: fromSecretOrEnv('COGNITO_INITIATE_AUTH_URL'),
     region: fromSecretOrEnv('COGNITO_REGION'),
+    userIdentifier: fromSecretOrEnv('COGNITO_USER_IDENTIFIER')
+        ? fromSecretOrEnv('COGNITO_USER_IDENTIFIER').toLowerCase()
+        : 'username',
 }
 
 var AUTH_PROTOCOL = 'https:'
@@ -224,12 +227,8 @@ async function updateOrCreateUser(profile, uidField = 'uid') {
 async function verifyCognitoAuth(_accessToken, _refreshToken, profile, done) {
     log.debug('Cognito: authentication response ', profile)
 
-    const uidField = COGNITO_OPTIONS.cognitoUserIdentifier
-        ? COGNITO_OPTIONS.cognitoUserIdentifier.toLowerCase()
-        : 'username'
-
     try {
-        const user = await updateOrCreateUser(profile, uidField)
+        const user = await updateOrCreateUser(profile, COGNITO_OPTIONS.userIdentifier)
 
         log.debug('Cognito: updated user ', user)
 
@@ -376,70 +375,64 @@ module.exports.login = function login(req, res, next) {
 
 /**
  * TODO:
- *    make cognito endpoint env variable
- *    Document the need for 2 client ids (api auth flow with no secret)
- *    Set Cookie header on response
+ *  Document the need for 2 client ids (api auth flow with no secret)
+ *  Test by interacting w/ api over curl w/ cookie.
+ *  support more than form data (probably not submitting via form if programmatic)
  */
-// Login post
-module.exports.loginPost = async function loginPost(req, res, next) {
-    //   curl -X POST --data @auth.json \
-    // -H 'X-Amz-Target: AWSCognitoIdentityProviderService.InitiateAuth' \
-    // -H 'Content-Type: application/x-amz-json-1.1' \
-    // https://cognito-idp.us-east-1.amazonaws.com/
-    const AuthFlow = {
-        AuthParameters: {
-            USERNAME: req.body.username,
-            PASSWORD: req.body.password,
-        },
-        AuthFlow: 'USER_PASSWORD_AUTH',
-        ClientId: COGNITO_OPTIONS.nonSRPclientID,
+//* Not yet set up for URS/EDL login. POST to this EP could throw errors if Cognito is not configured in the environment.
+module.exports.loginPost = async function loginPost(req, res, _next) {
+    try {
+        const response = await fetch(COGNITO_OPTIONS.initiateAuthUrl, {
+            method: 'POST',
+            body: JSON.stringify({
+                AuthParameters: {
+                    USERNAME: req.body.username,
+                    PASSWORD: req.body.password,
+                },
+                AuthFlow: 'USER_PASSWORD_AUTH',
+                ClientId: COGNITO_OPTIONS.initiateAuthClientID,
+            }),
+            redirect: 'follow',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/x-amz-json-1.1',
+                'X-Amz-Target': 'AWSCognitoIdentityProviderService.InitiateAuth',
+            },
+        })
+
+        if (!response.ok) {
+            return utils.writeJson(res, await response.json(), 401)
+        }
+
+        const authResponse = await response.json()
+
+        const idTokenPayload = JSON.parse(
+            Buffer.from(
+                authResponse.AuthenticationResult.IdToken.split('.')[1],
+                'base64'
+            ).toString('utf-8')
+        )
+
+        const { ['cognito:username']: username, email } = idTokenPayload
+
+        const { uid } = await updateOrCreateUser(
+            { email, username },
+            COGNITO_OPTIONS.userIdentifier
+        )
+
+        req.session.passport = { user: uid }
+        req.session.save(error => {
+            if (error) {
+                log.error(error)
+            }
+        })
+
+        return utils.writeJson(res, user, 200)
+    } catch (error) {
+        log.error(error)
+    } finally {
+        res.end()
     }
-
-    const requestOptions = {
-        method: 'POST',
-        body: JSON.stringify(AuthFlow),
-        redirect: 'follow',
-        headers: {
-            'X-Amz-Target': 'AWSCognitoIdentityProviderService.InitiateAuth',
-            'Content-Type': 'application/x-amz-json-1.1',
-        },
-    }
-
-    const response = await fetch(
-        'https://cognito-idp.us-east-1.amazonaws.com/',
-        requestOptions
-    )
-
-    /* save cookie from response in var
-    decode idToken and get username
-    save username to DB
-    send response w/ set-cookie header (status, message)
-*/
-
-    if (!response.ok) {
-        utils.writeJson(res, await response.json(), 401)
-
-        return res.end()
-    }
-
-    // { username: 'aadebayo', email: 'adebayoamos@gmail.com', sub: '934ba980-8c67-4d57-8b48-9a76d146ff0a' }
-
-    const authResponse = await response.json()
-
-    let idTokenPayload = authResponse.AuthenticationResult.IdToken.split('.')[1]
-    idTokenPayload = JSON.parse(
-        Buffer.from(idTokenPayload, 'base64').toString('utf-8')
-    )
-
-    const { ['cognito:username']: username, email } = idTokenPayload
-
-    await verifyCognitoAuth(null, null, { email, username }, () => {})
-
-    // {"passport" : { "user" : "aadebayo" }}
-
-    utils.writeJson(res, { email, username }, 200)
-
-    res.end()
 }
 
 // Exported method to logout
