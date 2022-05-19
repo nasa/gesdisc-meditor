@@ -493,16 +493,12 @@ paths:
       description: "Log in with username and password to Cognito"
       operationId: "loginPost"
       parameters:
-        - name: "username"
+        - name: "loginInfo"
           in: "body"
-          description: "user name"
+          description: "login information"
           required: true
-          type: "string"
-        - name: "password"
-          in: "body"
-          description: "password"
-          required: true
-          type: "string"
+          schema:
+            $ref: "#/definitions/LoginPost"
       responses:
         200:
           description: "Successful response"
