@@ -15,6 +15,7 @@ var fs = require('fs')
 var HttpsProxyAgent = require('https-proxy-agent')
 var log = require('log')
 const fetch = require('node-fetch')
+const { enforceAuthentication, PROTECTED_URLS } = require('../service/auth.js')
 
 var MongoClient = require('mongodb').MongoClient
 var MongoUrl = process.env.MONGOURL || 'mongodb://meditor_database:27017/'
@@ -501,6 +502,8 @@ module.exports.init = function (app) {
 
     // Protect all PUT requests with cookie-based csrf
     // app.use('/meditor/api/', csrf({cookie: true}));
+
+    app.use(enforceAuthentication(PROTECTED_URLS))
 }
 
 function getMongoUrlWithDatabase(db) {
