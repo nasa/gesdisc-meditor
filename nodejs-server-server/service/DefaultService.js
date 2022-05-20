@@ -1,5 +1,4 @@
-'use strict';
-
+'use strict'
 
 /**
  * Change the state of a document
@@ -11,18 +10,17 @@
  * version String Version of the document (optional)
  * returns Object
  **/
-exports.changeDocumentState = function(model,title,state,version) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = "{}";
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
+exports.changeDocumentState = function (model, title, state, version) {
+    return new Promise(function (resolve, reject) {
+        var examples = {}
+        examples['application/json'] = '{}'
+        if (Object.keys(examples).length > 0) {
+            resolve(examples[Object.keys(examples)[0]])
+        } else {
+            resolve()
+        }
+    })
 }
-
 
 /**
  * Gets comments for document
@@ -32,18 +30,17 @@ exports.changeDocumentState = function(model,title,state,version) {
  * model String Model of the document
  * returns Object
  **/
-exports.getComments = function(title,model) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = "{}";
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
+exports.getComments = function (title, model) {
+    return new Promise(function (resolve, reject) {
+        var examples = {}
+        examples['application/json'] = '{}'
+        if (Object.keys(examples).length > 0) {
+            resolve(examples[Object.keys(examples)[0]])
+        } else {
+            resolve()
+        }
+    })
 }
-
 
 /**
  * Gets a new csrf token
@@ -51,20 +48,19 @@ exports.getComments = function(title,model) {
  *
  * returns csrf
  **/
-exports.getCsrfToken = function() {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "csrfToken" : "SFfkaSD-dksfjfjsSKJ33DN-fdS-fSf"
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
+exports.getCsrfToken = function () {
+    return new Promise(function (resolve, reject) {
+        var examples = {}
+        examples['application/json'] = {
+            csrfToken: 'SFfkaSD-dksfjfjsSKJ33DN-fdS-fSf',
+        }
+        if (Object.keys(examples).length > 0) {
+            resolve(examples[Object.keys(examples)[0]])
+        } else {
+            resolve()
+        }
+    })
 }
-
 
 /**
  * Gets a document
@@ -75,16 +71,16 @@ exports.getCsrfToken = function() {
  * version String Version of the document (optional)
  * returns Object
  **/
-exports.getDocument = function(model,title,version) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = "{}";
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
+exports.getDocument = function (model, title, version) {
+    return new Promise(function (resolve, reject) {
+        var examples = {}
+        examples['application/json'] = '{}'
+        if (Object.keys(examples).length > 0) {
+            resolve(examples[Object.keys(examples)[0]])
+        } else {
+            resolve()
+        }
+    })
 }
 
 /**
@@ -95,16 +91,16 @@ exports.getDocument = function(model,title,version) {
  * title String Title of the document
  * returns Object
  **/
-exports.getDocumentPublicationStatus = function(model,title) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = "{}";
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
+exports.getDocumentPublicationStatus = function (model, title) {
+    return new Promise(function (resolve, reject) {
+        var examples = {}
+        examples['application/json'] = '{}'
+        if (Object.keys(examples).length > 0) {
+            resolve(examples[Object.keys(examples)[0]])
+        } else {
+            resolve()
+        }
+    })
 }
 
 /**
@@ -115,18 +111,17 @@ exports.getDocumentPublicationStatus = function(model,title) {
  * title String Title of the document
  * returns Object
  **/
-exports.getDocumentHistory = function(model,title) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = "{}";
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
+exports.getDocumentHistory = function (model, title) {
+    return new Promise(function (resolve, reject) {
+        var examples = {}
+        examples['application/json'] = '{}'
+        if (Object.keys(examples).length > 0) {
+            resolve(examples[Object.keys(examples)[0]])
+        } else {
+            resolve()
+        }
+    })
 }
-
 
 /**
  * Gets user info
@@ -134,20 +129,19 @@ exports.getDocumentHistory = function(model,title) {
  *
  * returns user
  **/
-exports.getMe = function() {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "name" : "John Doe"
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
+exports.getMe = function () {
+    return new Promise(function (resolve, reject) {
+        var examples = {}
+        examples['application/json'] = {
+            name: 'John Doe',
+        }
+        if (Object.keys(examples).length > 0) {
+            resolve(examples[Object.keys(examples)[0]])
+        } else {
+            resolve()
+        }
+    })
 }
-
 
 /**
  * Gets a Model
@@ -156,36 +150,35 @@ exports.getMe = function() {
  * name String Name of the model
  * returns model
  **/
-exports.getModel = function(name) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "schema" : "schema",
-  "layout" : "layout",
-  "titleField" : "titleField",
-  "documentation" : "documentation",
-  "name" : "name",
-  "icon" : {
-    "color" : "color",
-    "name" : "name"
-  },
-  "x-meditor" : {
-    "modifiedOn" : "modifiedOn",
-    "count" : "count",
-    "modifiedBy" : "modifiedBy",
-    "title" : "title"
-  },
-  "description" : "description",
-  "tag" : [ "tag", "tag" ]
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
+exports.getModel = function (name) {
+    return new Promise(function (resolve, reject) {
+        var examples = {}
+        examples['application/json'] = {
+            schema: 'schema',
+            layout: 'layout',
+            titleField: 'titleField',
+            documentation: 'documentation',
+            name: 'name',
+            icon: {
+                color: 'color',
+                name: 'name',
+            },
+            'x-meditor': {
+                modifiedOn: 'modifiedOn',
+                count: 'count',
+                modifiedBy: 'modifiedBy',
+                title: 'title',
+            },
+            description: 'description',
+            tag: ['tag', 'tag'],
+        }
+        if (Object.keys(examples).length > 0) {
+            resolve(examples[Object.keys(examples)[0]])
+        } else {
+            resolve()
+        }
+    })
 }
-
 
 /**
  * Lists documents of a given Model
@@ -194,30 +187,32 @@ exports.getModel = function(name) {
  * model String Name of the Model
  * returns List
  **/
-exports.listDocuments = function(model) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = [ {
-  "x-meditor" : {
-    "modifiedOn" : "modifiedOn",
-    "modifiedBy" : "modifiedBy"
-  },
-  "title" : "title"
-}, {
-  "x-meditor" : {
-    "modifiedOn" : "modifiedOn",
-    "modifiedBy" : "modifiedBy"
-  },
-  "title" : "title"
-} ];
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
+exports.listDocuments = function (model) {
+    return new Promise(function (resolve, reject) {
+        var examples = {}
+        examples['application/json'] = [
+            {
+                'x-meditor': {
+                    modifiedOn: 'modifiedOn',
+                    modifiedBy: 'modifiedBy',
+                },
+                title: 'title',
+            },
+            {
+                'x-meditor': {
+                    modifiedOn: 'modifiedOn',
+                    modifiedBy: 'modifiedBy',
+                },
+                title: 'title',
+            },
+        ]
+        if (Object.keys(examples).length > 0) {
+            resolve(examples[Object.keys(examples)[0]])
+        } else {
+            resolve()
+        }
+    })
 }
-
 
 /**
  * Lists Models
@@ -226,75 +221,95 @@ exports.listDocuments = function(model) {
  * properties List Comma-separated list of fields to be returned (optional)
  * returns List
  **/
-exports.listModels = function(properties) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = [ {
-  "schema" : "schema",
-  "documentation\"" : "documentation\"",
-  "name" : "name",
-  "icon" : {
-    "color" : "color",
-    "name" : "name"
-  },
-  "description" : "description",
-  "x-meditor" : {
-    "modifiedOn" : "modifiedOn",
-    "count" : 1,
-    "modifiedBy" : "modifiedBy",
-    "title" : "title",
-    "version" : "version"
-  },
-  "tag" : [ "tag", "tag" ]
-}, {
-  "schema" : "schema",
-  "documentation\"" : "documentation\"",
-  "name" : "name",
-  "icon" : {
-    "color" : "color",
-    "name" : "name"
-  },
-  "description" : "description",
-  "x-meditor" : {
-    "modifiedOn" : "modifiedOn",
-    "count" : 1,
-    "modifiedBy" : "modifiedBy",
-    "title" : "title",
-    "version" : "version"
-  },
-  "tag" : [ "tag", "tag" ]
-} ];
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
+exports.listModels = function (properties) {
+    return new Promise(function (resolve, reject) {
+        var examples = {}
+        examples['application/json'] = [
+            {
+                schema: 'schema',
+                'documentation"': 'documentation"',
+                name: 'name',
+                icon: {
+                    color: 'color',
+                    name: 'name',
+                },
+                description: 'description',
+                'x-meditor': {
+                    modifiedOn: 'modifiedOn',
+                    count: 1,
+                    modifiedBy: 'modifiedBy',
+                    title: 'title',
+                    version: 'version',
+                },
+                tag: ['tag', 'tag'],
+            },
+            {
+                schema: 'schema',
+                'documentation"': 'documentation"',
+                name: 'name',
+                icon: {
+                    color: 'color',
+                    name: 'name',
+                },
+                description: 'description',
+                'x-meditor': {
+                    modifiedOn: 'modifiedOn',
+                    count: 1,
+                    modifiedBy: 'modifiedBy',
+                    title: 'title',
+                    version: 'version',
+                },
+                tag: ['tag', 'tag'],
+            },
+        ]
+        if (Object.keys(examples).length > 0) {
+            resolve(examples[Object.keys(examples)[0]])
+        } else {
+            resolve()
+        }
+    })
 }
-
 
 /**
  * Login
- * Logs in a user  
+ * Redirect to configured identity provider for login
  *
  * code String URS authentication code (optional)
  * returns success
  **/
-exports.login = function(code) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "code" : 0,
-  "description" : "description"
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
+exports.login = function (code) {
+    return new Promise(function (resolve, reject) {
+        var examples = {}
+        examples['application/json'] = {
+            code: 0,
+            description: 'description',
+        }
+        if (Object.keys(examples).length > 0) {
+            resolve(examples[Object.keys(examples)[0]])
+        } else {
+            resolve()
+        }
+    })
 }
 
+/**
+ * Login Post
+ * Log in with username and password to Cognito
+ *
+ *
+ * returns success
+ **/
+exports.loginPost = function (loginInfo) {
+    return new Promise(function (resolve, reject) {
+        var examples = {}
+        examples['application/json'] = {}
+        if (Object.keys(examples).length > 0) {
+            resolve(examples[Object.keys(examples)[0]])
+        } else {
+            resolve()
+        }
+    })
+}
 
 /**
  * Logout
@@ -302,21 +317,20 @@ exports.login = function(code) {
  *
  * returns success
  **/
-exports.logout = function() {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "code" : 0,
-  "description" : "description"
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
+exports.logout = function () {
+    return new Promise(function (resolve, reject) {
+        var examples = {}
+        examples['application/json'] = {
+            code: 0,
+            description: 'description',
+        }
+        if (Object.keys(examples).length > 0) {
+            resolve(examples[Object.keys(examples)[0]])
+        } else {
+            resolve()
+        }
+    })
 }
-
 
 /**
  * Puts comment for document
@@ -325,21 +339,20 @@ exports.logout = function() {
  * file File Uploaded document file (JSON)
  * returns success
  **/
-exports.postComment = function(file) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "code" : 0,
-  "description" : "description"
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
+exports.postComment = function (file) {
+    return new Promise(function (resolve, reject) {
+        var examples = {}
+        examples['application/json'] = {
+            code: 0,
+            description: 'description',
+        }
+        if (Object.keys(examples).length > 0) {
+            resolve(examples[Object.keys(examples)[0]])
+        } else {
+            resolve()
+        }
+    })
 }
-
 
 /**
  * Puts a document
@@ -348,21 +361,20 @@ exports.postComment = function(file) {
  * file File Uploaded document file (JSON)
  * returns success
  **/
-exports.putDocument = function(file) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "code" : 0,
-  "description" : "description"
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
+exports.putDocument = function (file) {
+    return new Promise(function (resolve, reject) {
+        var examples = {}
+        examples['application/json'] = {
+            code: 0,
+            description: 'description',
+        }
+        if (Object.keys(examples).length > 0) {
+            resolve(examples[Object.keys(examples)[0]])
+        } else {
+            resolve()
+        }
+    })
 }
-
 
 /**
  * Clones a document
@@ -373,18 +385,17 @@ exports.putDocument = function(file) {
  * newTitle String Title of the new document
  * returns Object
  **/
-exports.cloneDocument = function(model,title,newTitle) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = "{}";
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
+exports.cloneDocument = function (model, title, newTitle) {
+    return new Promise(function (resolve, reject) {
+        var examples = {}
+        examples['application/json'] = '{}'
+        if (Object.keys(examples).length > 0) {
+            resolve(examples[Object.keys(examples)[0]])
+        } else {
+            resolve()
+        }
+    })
 }
-
 
 /**
  * Adds a Model
@@ -393,21 +404,20 @@ exports.cloneDocument = function(model,title,newTitle) {
  * file File Uploaded model file (JSON)
  * returns success
  **/
-exports.putModel = function(file) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "code" : 0,
-  "description" : "description"
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
+exports.putModel = function (file) {
+    return new Promise(function (resolve, reject) {
+        var examples = {}
+        examples['application/json'] = {
+            code: 0,
+            description: 'description',
+        }
+        if (Object.keys(examples).length > 0) {
+            resolve(examples[Object.keys(examples)[0]])
+        } else {
+            resolve()
+        }
+    })
 }
-
 
 /**
  * Resolves comment
@@ -416,19 +426,19 @@ exports.putModel = function(file) {
  * id String Comment id
  * returns success
  **/
-exports.resolveComment = function(id) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "code" : 0,
-  "description" : "description"
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
+exports.resolveComment = function (id) {
+    return new Promise(function (resolve, reject) {
+        var examples = {}
+        examples['application/json'] = {
+            code: 0,
+            description: 'description',
+        }
+        if (Object.keys(examples).length > 0) {
+            resolve(examples[Object.keys(examples)[0]])
+        } else {
+            resolve()
+        }
+    })
 }
 
 /**
@@ -438,18 +448,17 @@ exports.resolveComment = function(id) {
  * id String Comment id
  * returns success
  **/
-exports.editComment = function(id) {
-  return new Promise(function(resolve, reject) {
-    var examples = {};
-    examples['application/json'] = {
-  "code" : 0,
-  "description" : "description"
-};
-    if (Object.keys(examples).length > 0) {
-      resolve(examples[Object.keys(examples)[0]]);
-    } else {
-      resolve();
-    }
-  });
+exports.editComment = function (id) {
+    return new Promise(function (resolve, reject) {
+        var examples = {}
+        examples['application/json'] = {
+            code: 0,
+            description: 'description',
+        }
+        if (Object.keys(examples).length > 0) {
+            resolve(examples[Object.keys(examples)[0]])
+        } else {
+            resolve()
+        }
+    })
 }
-

@@ -1,1024 +1,1068 @@
 ---
-swagger: "2.0"
+swagger: '2.0'
 info:
-  version: "0.0.1"
-  title: "Model Editor API"
-host: "localhost:8081"
-basePath: "/meditor/api"
+    version: '0.0.1'
+    title: 'Model Editor API'
+host: 'localhost:8081'
+basePath: '/meditor/api'
 schemes:
-- "http"
+    - 'http'
 security:
-  - URS4: [read, write]
+    - URS4: [read, write]
 paths:
-  /listModels:
-    get:
-      summary: "Lists Models"
-      description: "Lists 'Model' objects each with an icon, description and count\
-        \ of number of instances of an object."
-      operationId: "listModels"
-      parameters:
-      - name: "properties"
-        in: "query"
-        description: "Comma-separated list of fields to be returned"
-        required: false
-        type: "array"
-        items:
-          type: "string"
-        collectionFormat: "csv"
-      responses:
-        200:
-          description: "Successful response"
-          schema:
-            type: "array"
-            title: "ArrayOfModels"
-            items:
-              $ref: "#/definitions/modelCatalogEntry"
-        400:
-          description: "Bad request"
-          schema:
-            $ref: "#/definitions/error"
-        422:
-          description: "Invalid syntax"
-          schema:
-            $ref: "#/definitions/error"
-        500:
-          description: "Server error"
-          schema:
-            $ref: "#/definitions/error"
-        503:
-          description: "Service not available"
-          schema:
-            $ref: "#/definitions/error"
-      x-swagger-router-controller: "Meditor"
-  /setup:
-    post:
-      operationId: "setup"
-      consumes:
-        - application/json
-      parameters:
-        - in: body
-          name: users
-          schema:
-            type: array
-            minItems: 1
-            items:
-              type: object
-              required:
-                - name
-                - uid
-              properties:
-                name:
-                  type: string
-                uid:
-                  type: string
-      responses:
-        200:
-          description: "Successful response"
-          schema:
-            $ref: "#/definitions/success"
-        404:
-          description: "Not found"
-          schema:
-            $ref: "#/definitions/error"
-      x-swagger-router-controller: "Meditor"
-  /putModel:
-    post:
-      summary: "Adds a Model"
-      description: "Adds a Model object"
-      operationId: "putModel"
-      consumes:
-      - "multipart/form-data"
-      parameters:
-      - name: "file"
-        in: "formData"
-        description: "Uploaded model file (JSON)"
-        required: true
-        type: "file"
-      responses:
-        200:
-          description: "Successful response"
-          schema:
-            $ref: "#/definitions/success"
-        400:
-          description: "Bad request"
-          schema:
-            $ref: "#/definitions/error"
-        422:
-          description: "Invalid syntax"
-          schema:
-            $ref: "#/definitions/error"
-        403:
-          description: "Access denied"
-          schema:
-            $ref: "#/definitions/error"        
-        500:
-          description: "Server error"
-          schema:
-            $ref: "#/definitions/error"
-        503:
-          description: "Service not available"
-          schema:
-            $ref: "#/definitions/error"
-      x-swagger-router-controller: "Meditor"
-  /getModel:
-    get:
-      summary: "Gets a Model"
-      description: "Gets a Model object"
-      operationId: "getModel"
-      parameters:
-      - name: "name"
-        in: "query"
-        description: "Name of the model"
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "Successful response"
-          schema:
-            $ref: "#/definitions/model"
-        400:
-          description: "Bad request"
-          schema:
-            $ref: "#/definitions/error"
-        422:
-          description: "Invalid syntax"
-          schema:
-            $ref: "#/definitions/error"
-        500:
-          description: "Server error"
-          schema:
-            $ref: "#/definitions/error"
-        503:
-          description: "Service not available"
-          schema:
-            $ref: "#/definitions/error"
-      x-swagger-router-controller: "Meditor"
-  /listDocuments:
-    get:
-      summary: "Lists documents of a given Model"
-      description: "Lists documents of a given Model"
-      operationId: "listDocuments"
-      parameters:
-      - name: "model"
-        in: "query"
-        description: "Name of the Model"
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "Successful response"
-          schema:
-            type: "array"
-            title: "ArrayOfDocuments"
-            items:
-              $ref: "#/definitions/docCatalogEntry"
-        400:
-          description: "Bad request"
-          schema:
-            $ref: "#/definitions/error"
-        422:
-          description: "Invalid syntax"
-          schema:
-            $ref: "#/definitions/error"
-        500:
-          description: "Server error"
-          schema:
-            $ref: "#/definitions/error"
-        503:
-          description: "Service not available"
-          schema:
-            $ref: "#/definitions/error"
-      security: []
-      x-swagger-router-controller: "Meditor"
-  /putDocument:
-    post:
-      summary: "Puts a document"
-      description: "Puts a document"
-      operationId: "putDocument"
-      consumes:
-      - "multipart/form-data"
-      parameters:
-      - name: "file"
-        in: "formData"
-        description: "Uploaded document file (JSON)"
-        required: true
-        type: "file"
-      responses:
-        200:
-          description: "Successful response"
-          schema:
-            $ref: "#/definitions/success"
-        400:
-          description: "Bad request"
-          schema:
-            $ref: "#/definitions/error"
-        403:
-          description: "Access denied"
-          schema:
-            $ref: "#/definitions/error"
-        422:
-          description: "Invalid syntax"
-          schema:
-            $ref: "#/definitions/error"
-        500:
-          description: "Server error"
-          schema:
-            $ref: "#/definitions/error"
-        503:
-          description: "Service not available"
-          schema:
-            $ref: "#/definitions/error"
-      x-swagger-router-controller: "Meditor"
-  /cloneDocument:
-    post:
-      summary: "Clones a document"
-      description: "Clones a document"
-      operationId: "cloneDocument"
-      parameters:
-      - name: "model"
-        in: "query"
-        description: "Name of the Model"
-        required: true
-        type: "string"
-      - name: "title"
-        in: "query"
-        description: "Title of the document to clone"
-        required: true
-        type: "string"
-      - name: "newTitle"
-        in: "query"
-        description: "Title of the new document"
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "Successful response"
-          schema:
-            type: "object"
-            title: "Document Status"
-            properties: {}
-        400:
-          description: "Bad request"
-          schema:
-            $ref: "#/definitions/error"
-        500:
-          description: "Server error"
-          schema:
-            $ref: "#/definitions/error"
-        503:
-          description: "Service not available"
-          schema:
-            $ref: "#/definitions/error"
-      security: []
-      x-swagger-router-controller: "Meditor"
-  /getDocument:
-    get:
-      summary: "Gets a document"
-      description: "Gets a document"
-      operationId: "getDocument"
-      parameters:
-      - name: "model"
-        in: "query"
-        description: "Name of the Model"
-        required: true
-        type: "string"
-      - name: "title"
-        in: "query"
-        description: "Title of the document"
-        required: true
-        type: "string"
-      - name: "version"
-        in: "query"
-        description: "Version of the document"
-        required: false
-        type: "string"
-        default: "latest"
-      responses:
-        200:
-          description: "Successful response"
-          schema:
-            type: "object"
-            title: "Document"
-            properties: {}
-        400:
-          description: "Bad request"
-          schema:
-            $ref: "#/definitions/error"
-        422:
-          description: "Invalid syntax"
-          schema:
-            $ref: "#/definitions/error"
-        500:
-          description: "Server error"
-          schema:
-            $ref: "#/definitions/error"
-        503:
-          description: "Service not available"
-          schema:
-            $ref: "#/definitions/error"
-      security: []
-      x-swagger-router-controller: "Meditor"
-  /getDocumentPublicationStatus:
-    get:
-      summary: "Gets a document's publication status"
-      description: "Gets a document's publication status"
-      operationId: "getDocumentPublicationStatus"
-      parameters:
-      - name: "model"
-        in: "query"
-        description: "Name of the Model"
-        required: true
-        type: "string"
-      - name: "title"
-        in: "query"
-        description: "Title of the document"
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "Successful response"
-          schema:
-            type: "object"
-            title: "Document Status"
-            properties: {}
-        400:
-          description: "Bad request"
-          schema:
-            $ref: "#/definitions/error"
-        422:
-          description: "Invalid syntax"
-          schema:
-            $ref: "#/definitions/error"
-        500:
-          description: "Server error"
-          schema:
-            $ref: "#/definitions/error"
-        503:
-          description: "Service not available"
-          schema:
-            $ref: "#/definitions/error"
-      security: []
-      x-swagger-router-controller: "Meditor"
-  /getDocumentHistory:
-    get:
-      summary: "Gets a document"
-      description: "Gets a document's history"
-      operationId: "getDocumentHistory"
-      parameters:
-      - name: "model"
-        in: "query"
-        description: "Name of the Model"
-        required: true
-        type: "string"
-      - name: "title"
-        in: "query"
-        description: "Title of the document"
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "Successful response"
-          schema:
-            type: "object"
-            title: "Document"
-            properties: {}
-        400:
-          description: "Bad request"
-          schema:
-            $ref: "#/definitions/error"
-        422:
-          description: "Invalid syntax"
-          schema:
-            $ref: "#/definitions/error"
-        500:
-          description: "Server error"
-          schema:
-            $ref: "#/definitions/error"
-        503:
-          description: "Service not available"
-          schema:
-            $ref: "#/definitions/error"
-      security: []
-      x-swagger-router-controller: "Meditor"
-  /changeDocumentState:
-    get:
-      summary: "Change the state of a document"
-      description: "Change the state of a document; modifies the state of a document by a privileged user"
-      operationId: "changeDocumentState"
-      parameters:
-      - name: "model"
-        in: "query"
-        description: "Name of the Model"
-        required: true
-        type: "string"
-      - name: "title"
-        in: "query"
-        description: "Title of the document"
-        required: true
-        type: "string"
-      - name: "version"
-        in: "query"
-        description: "Version of the document"
-        required: false
-        type: "string"
-        default: "latest"
-      - name: "state"
-        in: "query"
-        description: "Target state of the document"
-        type: "string"
-        required: true
-      responses:
-        200:
-          description: "Successful response"
-          schema:
-            type: "object"
-            title: "Document"
-            properties: {}
-        400:
-          description: "Bad request"
-          schema:
-            $ref: "#/definitions/error"
-        403:
-          description: "Access denied"
-          schema:
-            $ref: "#/definitions/error"
-        422:
-          description: "Invalid syntax"
-          schema:
-            $ref: "#/definitions/error"
-        500:
-          description: "Server error"
-          schema:
-            $ref: "#/definitions/error"
-        503:
-          description: "Service not available"
-          schema:
-            $ref: "#/definitions/error"
-      security: []
-      x-swagger-router-controller: "Meditor"
-  /getComments:
-    get:
-      summary: "Gets comments for document"
-      description: "Gets comments for document"
-      operationId: "getComments"
-      parameters:
-      - name: "title"
-        in: "query"
-        description: "Title of the document"
-        required: true
-        type: "string"
-      - name: "model"
-        in: "query"
-        description: "Model of the document"
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "Successful response"
-          schema:
-            type: "object"
-            title: "Comment"
-            properties: {}
-        400:
-          description: "Bad request"
-          schema:
-            $ref: "#/definitions/error"
-        422:
-          description: "Invalid syntax"
-          schema:
-            $ref: "#/definitions/error"
-        500:
-          description: "Server error"
-          schema:
-            $ref: "#/definitions/error"
-        503:
-          description: "Service not available"
-          schema:
-            $ref: "#/definitions/error"
-      security: []
-      x-swagger-router-controller: "Meditor"
-  /postComment:
-    post:
-      summary: "Puts comment for document"
-      description: "Puts comment for document"
-      operationId: "postComment"
-      consumes:
-      - "multipart/form-data"
-      parameters:
-      - name: "file"
-        in: "formData"
-        description: "Uploaded comment (JSON)"
-        required: true
-        type: "file"
-      responses:
-        200:
-          description: "Successful response"
-          schema:
-            $ref: "#/definitions/success"
-        400:
-          description: "Bad request"
-          schema:
-            $ref: "#/definitions/error"
-        422:
-          description: "Invalid syntax"
-          schema:
-            $ref: "#/definitions/error"
-        500:
-          description: "Server error"
-          schema:
-            $ref: "#/definitions/error"
-        503:
-          description: "Service not available"
-          schema:
-            $ref: "#/definitions/error"
-      security: []
-      x-swagger-router-controller: "Meditor"
-  /resolveComment:
-    post:
-      summary: "Resolves comment"
-      description: "Resolves comment"
-      operationId: "resolveComment"
-      parameters:
-      - name: "id"
-        in: "query"
-        description: "Comment id"
-        required: true
-        type: "string"
-      - name: "resolvedBy"
-        in: "query"
-        description: "Resolved by"
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "Successful response"
-          schema:
-            $ref: "#/definitions/success"
-        400:
-          description: "Bad request"
-          schema:
-            $ref: "#/definitions/error"
-        422:
-          description: "Invalid syntax"
-          schema:
-            $ref: "#/definitions/error"
-        500:
-          description: "Server error"
-          schema:
-            $ref: "#/definitions/error"
-        503:
-          description: "Service not available"
-          schema:
-            $ref: "#/definitions/error"
-      security: []
-      x-swagger-router-controller: "Meditor"
-  /editComment:
-    post:
-      summary: "Edit comment"
-      description: "Edit comment"
-      operationId: "editComment"
-      parameters:
-      - name: "id"
-        in: "query"
-        description: "Comment id"
-        required: true
-        type: "string"
-      - name: "text"
-        in: "query"
-        description: "New text"
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "Successful response"
-          schema:
-            $ref: "#/definitions/success"
-        400:
-          description: "Bad request"
-          schema:
-            $ref: "#/definitions/error"
-        422:
-          description: "Invalid syntax"
-          schema:
-            $ref: "#/definitions/error"
-        500:
-          description: "Server error"
-          schema:
-            $ref: "#/definitions/error"
-        503:
-          description: "Service not available"
-          schema:
-            $ref: "#/definitions/error"
-      security: []
-      x-swagger-router-controller: "Meditor"
-  /login:
-    get:
-      summary: "Login"
-      description: "Logs in a user  "
-      operationId: "login"
-      parameters:
-      - name: "code"
-        in: "query"
-        description: "URS authentication code"
-        required: false
-        type: "string"
-      responses:
-        200:
-          description: "Successful response"
-          schema:
-            $ref: "#/definitions/success"
-        400:
-          description: "Bad request"
-          schema:
-            $ref: "#/definitions/error"
-        422:
-          description: "Invalid syntax"
-          schema:
-            $ref: "#/definitions/error"
-        500:
-          description: "Server error"
-          schema:
-            $ref: "#/definitions/error"
-        503:
-          description: "Service not available"
-          schema:
-            $ref: "#/definitions/error"
-      security: []
-      x-swagger-router-controller: "Users"
-  /logout:
-    get:
-      summary: "Logout"
-      description: "Logs out the user"
-      operationId: "logout"
-      parameters: []
-      responses:
-        200:
-          description: "Successful response"
-          schema:
-            $ref: "#/definitions/success"
-        400:
-          description: "Bad request"
-          schema:
-            $ref: "#/definitions/error"
-        422:
-          description: "Invalid syntax"
-          schema:
-            $ref: "#/definitions/error"
-        500:
-          description: "Server error"
-          schema:
-            $ref: "#/definitions/error"
-        503:
-          description: "Service not available"
-          schema:
-            $ref: "#/definitions/error"
-      security: []
-      x-swagger-router-controller: "Users"
-  /me:
-    get:
-      summary: "Gets user info"
-      description: "Gets user info"
-      operationId: "getMe"
-      parameters: []
-      responses:
-        200:
-          description: "Successful response"
-          schema:
-            $ref: "#/definitions/user"
-        400:
-          description: "Bad request"
-          schema:
-            $ref: "#/definitions/error"
-        422:
-          description: "Invalid syntax"
-          schema:
-            $ref: "#/definitions/error"
-        500:
-          description: "Server error"
-          schema:
-            $ref: "#/definitions/error"
-        503:
-          description: "Service not available"
-          schema:
-            $ref: "#/definitions/error"
-      x-swagger-router-controller: "Users"
-  /getCsrfToken:
-    get:
-      summary: "Gets a new csrf token"
-      description: "Gets a new csrf token"
-      operationId: "getCsrfToken"
-      parameters: []
-      responses:
-        200:
-          description: "Successful response"
-          schema:
-            $ref: "#/definitions/csrf"
-        400:
-          description: "Bad request"
-          schema:
-            $ref: "#/definitions/error"
-        422:
-          description: "Invalid syntax"
-          schema:
-            $ref: "#/definitions/error"
-        500:
-          description: "Server error"
-          schema:
-            $ref: "#/definitions/error"
-        503:
-          description: "Service not available"
-          schema:
-            $ref: "#/definitions/error"
-      x-swagger-router-controller: "Users"
+    /listModels:
+        get:
+            summary: 'Lists Models'
+            description:
+                "Lists 'Model' objects each with an icon, description and count\
+                \ of number of instances of an object."
+            operationId: 'listModels'
+            parameters:
+                - name: 'properties'
+                  in: 'query'
+                  description: 'Comma-separated list of fields to be returned'
+                  required: false
+                  type: 'array'
+                  items:
+                      type: 'string'
+                  collectionFormat: 'csv'
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        type: 'array'
+                        title: 'ArrayOfModels'
+                        items:
+                            $ref: '#/definitions/modelCatalogEntry'
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                422:
+                    description: 'Invalid syntax'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            x-swagger-router-controller: 'Meditor'
+    /setup:
+        post:
+            operationId: 'setup'
+            consumes:
+                - application/json
+            parameters:
+                - in: body
+                  name: users
+                  schema:
+                      type: array
+                      minItems: 1
+                      items:
+                          type: object
+                          required:
+                              - name
+                              - uid
+                          properties:
+                              name:
+                                  type: string
+                              uid:
+                                  type: string
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        $ref: '#/definitions/success'
+                404:
+                    description: 'Not found'
+                    schema:
+                        $ref: '#/definitions/error'
+            x-swagger-router-controller: 'Meditor'
+    /putModel:
+        post:
+            summary: 'Adds a Model'
+            description: 'Adds a Model object'
+            operationId: 'putModel'
+            consumes:
+                - 'multipart/form-data'
+            parameters:
+                - name: 'file'
+                  in: 'formData'
+                  description: 'Uploaded model file (JSON)'
+                  required: true
+                  type: 'file'
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        $ref: '#/definitions/success'
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                422:
+                    description: 'Invalid syntax'
+                    schema:
+                        $ref: '#/definitions/error'
+                403:
+                    description: 'Access denied'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            x-swagger-router-controller: 'Meditor'
+    /getModel:
+        get:
+            summary: 'Gets a Model'
+            description: 'Gets a Model object'
+            operationId: 'getModel'
+            parameters:
+                - name: 'name'
+                  in: 'query'
+                  description: 'Name of the model'
+                  required: true
+                  type: 'string'
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        $ref: '#/definitions/model'
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                422:
+                    description: 'Invalid syntax'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            x-swagger-router-controller: 'Meditor'
+    /listDocuments:
+        get:
+            summary: 'Lists documents of a given Model'
+            description: 'Lists documents of a given Model'
+            operationId: 'listDocuments'
+            parameters:
+                - name: 'model'
+                  in: 'query'
+                  description: 'Name of the Model'
+                  required: true
+                  type: 'string'
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        type: 'array'
+                        title: 'ArrayOfDocuments'
+                        items:
+                            $ref: '#/definitions/docCatalogEntry'
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                422:
+                    description: 'Invalid syntax'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            security: []
+            x-swagger-router-controller: 'Meditor'
+    /putDocument:
+        post:
+            summary: 'Puts a document'
+            description: 'Puts a document'
+            operationId: 'putDocument'
+            consumes:
+                - 'multipart/form-data'
+            parameters:
+                - name: 'file'
+                  in: 'formData'
+                  description: 'Uploaded document file (JSON)'
+                  required: true
+                  type: 'file'
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        $ref: '#/definitions/success'
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                403:
+                    description: 'Access denied'
+                    schema:
+                        $ref: '#/definitions/error'
+                422:
+                    description: 'Invalid syntax'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            x-swagger-router-controller: 'Meditor'
+    /cloneDocument:
+        post:
+            summary: 'Clones a document'
+            description: 'Clones a document'
+            operationId: 'cloneDocument'
+            parameters:
+                - name: 'model'
+                  in: 'query'
+                  description: 'Name of the Model'
+                  required: true
+                  type: 'string'
+                - name: 'title'
+                  in: 'query'
+                  description: 'Title of the document to clone'
+                  required: true
+                  type: 'string'
+                - name: 'newTitle'
+                  in: 'query'
+                  description: 'Title of the new document'
+                  required: true
+                  type: 'string'
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        type: 'object'
+                        title: 'Document Status'
+                        properties: {}
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            security: []
+            x-swagger-router-controller: 'Meditor'
+    /getDocument:
+        get:
+            summary: 'Gets a document'
+            description: 'Gets a document'
+            operationId: 'getDocument'
+            parameters:
+                - name: 'model'
+                  in: 'query'
+                  description: 'Name of the Model'
+                  required: true
+                  type: 'string'
+                - name: 'title'
+                  in: 'query'
+                  description: 'Title of the document'
+                  required: true
+                  type: 'string'
+                - name: 'version'
+                  in: 'query'
+                  description: 'Version of the document'
+                  required: false
+                  type: 'string'
+                  default: 'latest'
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        type: 'object'
+                        title: 'Document'
+                        properties: {}
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                422:
+                    description: 'Invalid syntax'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            security: []
+            x-swagger-router-controller: 'Meditor'
+    /getDocumentPublicationStatus:
+        get:
+            summary: "Gets a document's publication status"
+            description: "Gets a document's publication status"
+            operationId: 'getDocumentPublicationStatus'
+            parameters:
+                - name: 'model'
+                  in: 'query'
+                  description: 'Name of the Model'
+                  required: true
+                  type: 'string'
+                - name: 'title'
+                  in: 'query'
+                  description: 'Title of the document'
+                  required: true
+                  type: 'string'
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        type: 'object'
+                        title: 'Document Status'
+                        properties: {}
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                422:
+                    description: 'Invalid syntax'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            security: []
+            x-swagger-router-controller: 'Meditor'
+    /getDocumentHistory:
+        get:
+            summary: 'Gets a document'
+            description: "Gets a document's history"
+            operationId: 'getDocumentHistory'
+            parameters:
+                - name: 'model'
+                  in: 'query'
+                  description: 'Name of the Model'
+                  required: true
+                  type: 'string'
+                - name: 'title'
+                  in: 'query'
+                  description: 'Title of the document'
+                  required: true
+                  type: 'string'
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        type: 'object'
+                        title: 'Document'
+                        properties: {}
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                422:
+                    description: 'Invalid syntax'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            security: []
+            x-swagger-router-controller: 'Meditor'
+    /changeDocumentState:
+        get:
+            summary: 'Change the state of a document'
+            description: 'Change the state of a document; modifies the state of a document by a privileged user'
+            operationId: 'changeDocumentState'
+            parameters:
+                - name: 'model'
+                  in: 'query'
+                  description: 'Name of the Model'
+                  required: true
+                  type: 'string'
+                - name: 'title'
+                  in: 'query'
+                  description: 'Title of the document'
+                  required: true
+                  type: 'string'
+                - name: 'version'
+                  in: 'query'
+                  description: 'Version of the document'
+                  required: false
+                  type: 'string'
+                  default: 'latest'
+                - name: 'state'
+                  in: 'query'
+                  description: 'Target state of the document'
+                  type: 'string'
+                  required: true
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        type: 'object'
+                        title: 'Document'
+                        properties: {}
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                403:
+                    description: 'Access denied'
+                    schema:
+                        $ref: '#/definitions/error'
+                422:
+                    description: 'Invalid syntax'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            security: []
+            x-swagger-router-controller: 'Meditor'
+    /getComments:
+        get:
+            summary: 'Gets comments for document'
+            description: 'Gets comments for document'
+            operationId: 'getComments'
+            parameters:
+                - name: 'title'
+                  in: 'query'
+                  description: 'Title of the document'
+                  required: true
+                  type: 'string'
+                - name: 'model'
+                  in: 'query'
+                  description: 'Model of the document'
+                  required: true
+                  type: 'string'
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        type: 'object'
+                        title: 'Comment'
+                        properties: {}
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                422:
+                    description: 'Invalid syntax'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            security: []
+            x-swagger-router-controller: 'Meditor'
+    /postComment:
+        post:
+            summary: 'Puts comment for document'
+            description: 'Puts comment for document'
+            operationId: 'postComment'
+            consumes:
+                - 'multipart/form-data'
+            parameters:
+                - name: 'file'
+                  in: 'formData'
+                  description: 'Uploaded comment (JSON)'
+                  required: true
+                  type: 'file'
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        $ref: '#/definitions/success'
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                422:
+                    description: 'Invalid syntax'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            security: []
+            x-swagger-router-controller: 'Meditor'
+    /resolveComment:
+        post:
+            summary: 'Resolves comment'
+            description: 'Resolves comment'
+            operationId: 'resolveComment'
+            parameters:
+                - name: 'id'
+                  in: 'query'
+                  description: 'Comment id'
+                  required: true
+                  type: 'string'
+                - name: 'resolvedBy'
+                  in: 'query'
+                  description: 'Resolved by'
+                  required: true
+                  type: 'string'
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        $ref: '#/definitions/success'
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                422:
+                    description: 'Invalid syntax'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            security: []
+            x-swagger-router-controller: 'Meditor'
+    /editComment:
+        post:
+            summary: 'Edit comment'
+            description: 'Edit comment'
+            operationId: 'editComment'
+            parameters:
+                - name: 'id'
+                  in: 'query'
+                  description: 'Comment id'
+                  required: true
+                  type: 'string'
+                - name: 'text'
+                  in: 'query'
+                  description: 'New text'
+                  required: true
+                  type: 'string'
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        $ref: '#/definitions/success'
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                422:
+                    description: 'Invalid syntax'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            security: []
+            x-swagger-router-controller: 'Meditor'
+    /login:
+        get:
+            summary: 'Login'
+            description: 'Redirect to configured identity provider for login'
+            operationId: 'login'
+            parameters:
+                - name: 'code'
+                  in: 'query'
+                  description: 'URS authentication code'
+                  required: false
+                  type: 'string'
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        $ref: '#/definitions/success'
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                422:
+                    description: 'Invalid syntax'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            security: []
+            x-swagger-router-controller: 'Users'
+        post:
+            summary: 'Login Post'
+            description: 'Log in with username and password to Cognito'
+            operationId: 'loginPost'
+            parameters:
+                - name: 'loginInfo'
+                  in: 'body'
+                  description: 'login information'
+                  required: true
+                  schema:
+                      $ref: '#/definitions/LoginPost'
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        $ref: '#/definitions/success'
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                422:
+                    description: 'Invalid syntax'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            security: []
+            x-swagger-router-controller: 'Users'
+    /logout:
+        get:
+            summary: 'Logout'
+            description: 'Logs out the user'
+            operationId: 'logout'
+            parameters: []
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        $ref: '#/definitions/success'
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                422:
+                    description: 'Invalid syntax'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            security: []
+            x-swagger-router-controller: 'Users'
+    /me:
+        get:
+            summary: 'Gets user info'
+            description: 'Gets user info'
+            operationId: 'getMe'
+            parameters: []
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        $ref: '#/definitions/user'
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                422:
+                    description: 'Invalid syntax'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            x-swagger-router-controller: 'Users'
+    /getCsrfToken:
+        get:
+            summary: 'Gets a new csrf token'
+            description: 'Gets a new csrf token'
+            operationId: 'getCsrfToken'
+            parameters: []
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        $ref: '#/definitions/csrf'
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                422:
+                    description: 'Invalid syntax'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            x-swagger-router-controller: 'Users'
 securityDefinitions:
-  URS4:
-    type: "oauth2"
-    authorizationUrl: "https://example.com/oauth/authorize"
-    tokenUrl: "https://example.com/oauth/token"
-    flow: "accessCode"
-    scopes:
-      read: "Grants read access"
-      write: "Grants write access"
-      admin: "Grants read and write access to administrative information"
+    URS4:
+        type: 'oauth2'
+        authorizationUrl: 'https://example.com/oauth/authorize'
+        tokenUrl: 'https://example.com/oauth/token'
+        flow: 'accessCode'
+        scopes:
+            read: 'Grants read access'
+            write: 'Grants write access'
+            admin: 'Grants read and write access to administrative information'
 definitions:
-  error:
-    type: "object"
-    properties:
-      code:
-        type: "integer"
-      description:
-        type: "string"
-    title: "ServerError"
-  success:
-    type: "object"
-    properties:
-      code:
-        type: "integer"
-      description:
-        type: "string"
-    title: "ServerSuccess"
-    example:
-      code: 0
-      description: "description"
-  model:
-    type: "object"
-    required:
-    - "description"
-    - "icon"
-    - "layout"
-    - "name"
-    - "schema"
-    properties:
-      x-meditor:
-        $ref: "#/definitions/model_xmeditor"
-      name:
-        type: "string"
-        description: "Name of the model"
-      description:
-        type: "string"
-        description: "Model's description"
-      category:
-        type: "string"
-        description: "Display category"
-      workflow:
-        type: "string"
-        description: "Name of the workflow to use with the model's documents"     
-      icon:
-        $ref: "#/definitions/model_icon"
-      schema:
-        type: "string"
-        description: "Model's schema"
-      layout:
-        type: "string"
-        description: "Model layout based on Angular JSON Schema form"
-      titleProperty:
-        type: "string"
-        description: "Property name in the Model's schema for using as title of the\
-          \ document instance of the model"
-      documentation:
-        type: "string"
-        description: "Any documentation (text) for the Model"
-      tag:
-        type: "array"
-        items:
-          type: "string"
-    example:
-      schema: "schema"
-      layout: "layout"
-      titleField: "titleField"
-      documentation: "documentation"
-      name: "name"
-      icon:
-        color: "color"
-        name: "name"
-      x-meditor:
-        modifiedOn: "modifiedOn"
-        count: "count"
-        modifiedBy: "modifiedBy"
-        title: "title"
-      description: "description"
-      tag:
-      - "tag"
-      - "tag"
-  modelCatalogEntry:
-    type: "object"
-    required:
-    - "description"
-    - "name"
-    properties:
-      x-meditor:
-        $ref: "#/definitions/modelCatalogEntry_xmeditor"
-      name:
-        type: "string"
-        description: "Name of the model (ex: FAQ, Alert, Collection etc.,): displayed\
-          \ to the user in UI"
-      description:
-        type: "string"
-        description: "Description of the model (ex: FAQ, Alert, Collection etc.,):\
-          \ description of the model; might be shown to user as a tooltip"
-      category:
-        type: "string"
-        description: "Category/group to which the model belongs; to be used for display purposes only"
-      workflow:
-        type: "string"
-        description: "Workflow to be used in processing documents belonging to the model"
-      icon:
-        $ref: "#/definitions/model_icon"
-      schema:
-        type: "string"
-        description: "JSON Schema of the model itself"
-      documentation":
-        type: "string"
-        description: "Link to model's documentation"
-      tag:
-        type: "array"
-        description: "An array of tags associated with the model: can be used for\
-          \ searching models"
-        items:
-          type: "string"
-    example:
-      schema: "schema"
-      documentation": "documentation\""
-      name: "name"
-      icon:
-        color: "color"
-        name: "name"
-      description: "description"
-      x-meditor:
-        modifiedOn: "modifiedOn"
-        count: 1
-        modifiedBy: "modifiedBy"
-        title: "title"
-        version: "version"
-      tag:
-      - "tag"
-      - "tag"
-  model_icon:
-    properties:
-      name:
-        type: "string"
-        description: "Name of the Font Awesome icon (ex: )"
-      color:
-        type: "string"
-        description: "Background color to be used for the Font Awesome icon (ex: )"
-    description: "Icon for the model: currently limited to Font Awesome"
-    example:
-      color: "color"
-      name: "name"
-  docCatalogEntry:
-    properties:
-      title:
-        type: "string"
-        description: "Title for the document"
-      x-meditor:
-        $ref: "#/definitions/docCatalogEntry_xmeditor"
-    example:
-      x-meditor:
-        modifiedOn: "modifiedOn"
-        modifiedBy: "modifiedBy"
-      title: "title"
-  document:
-    properties:
-      x-meditor:
-        $ref: "#/definitions/docCatalogEntry_xmeditor"
-      schema:
-        type: "string"
-      layout:
-        type: "string"
-      doc:
-        type: "string"
-  docHistory:
-    required:
-    - "modifiedBy"
-    - "modifiedOn"
-    properties:
-      modifiedBy:
-        type: "string"
-      modifiedOn:
-        type: "string"
-        format: "date-time"
-  comment:
-    required:
-    - "createdBy"
-    - "createdOn"
-    - "documentId"
-    - "model"
-    - "id"
-    - "parentId"
-    - "resolved"
-    - "resolvedBy"
-    - "text"
-    properties:
-      id:
-        type: "string"
-      createdOn:
-        type: "string"
-      createdBy:
-        type: "string"
-      text:
-        type: "string"
-      resolved:
-        type: "boolean"
-      resolvedBy:
-        type: "string"
-      parentId:
-        type: "string"
-      documentId:
-        type: "string"
-      model:
-        type: "string"
-      lastEdited:
-        type: "string"
-  model_xmeditor:
-    properties:
-      title:
-        type: "string"
-        description: "Name of the field in the model to be used as a title"
-      modifiedOn:
-        type: "string"
-        description: "Date when a last document edit was made"
-      modifiedBy:
-        type: "string"
-        description: "Author who last modified a document belonging to the model"
-      count:
-        type: "string"
-        format: "Number"
-        description: "Number of documents belonging to the model"
-    example:
-      modifiedOn: "modifiedOn"
-      count: "count"
-      modifiedBy: "modifiedBy"
-      title: "title"
-  modelCatalogEntry_xmeditor:
-    properties:
-      title:
-        type: "string"
-        description: "JSON path to the field in the Model to be used as title in displays"
-      modifiedOn:
-        type: "string"
-        description: "Date-time of modification"
-      modifiedBy:
-        type: "string"
-        description: "Modifier's user name"
-      version:
-        type: "string"
-        description: "Version of the model represented by date-time of modification"
-      count:
-        type: "integer"
-        description: "Number of instances of the model"
-        minimum: 1
-    example:
-      modifiedOn: "modifiedOn"
-      count: 1
-      modifiedBy: "modifiedBy"
-      title: "title"
-      version: "version"
-  docCatalogEntry_xmeditor:
-    properties:
-      modifiedOn:
-        type: "string"
-        description: "Date-time of modification"
-      modifiedBy:
-        type: "string"
-        description: "Modifier's user name"
-      state:
-        type: "string"
-        description: "State of the document wrt document workflow"
-    example:
-      modifiedOn: "modifiedOn"
-      modifiedBy: "modifiedBy"
-  user:
-    properties:
-      name:
-        type: "string"
-        description: "Name of the user"
-    example:
-      name: "John Doe"
-  csrf:
-    properties:
-      csrfToken:
-        type: "string"
-        description: "CSRF token"
-    example:
-      csrfToken: "SFfkaSD-dksfjfjsSKJ33DN-fdS-fSf"
-
+    error:
+        type: 'object'
+        properties:
+            code:
+                type: 'integer'
+            description:
+                type: 'string'
+        title: 'ServerError'
+    success:
+        type: 'object'
+        properties:
+            code:
+                type: 'integer'
+            description:
+                type: 'string'
+        title: 'ServerSuccess'
+        example:
+            code: 0
+            description: 'description'
+    model:
+        type: 'object'
+        required:
+            - 'description'
+            - 'icon'
+            - 'layout'
+            - 'name'
+            - 'schema'
+        properties:
+            x-meditor:
+                $ref: '#/definitions/model_xmeditor'
+            name:
+                type: 'string'
+                description: 'Name of the model'
+            description:
+                type: 'string'
+                description: "Model's description"
+            category:
+                type: 'string'
+                description: 'Display category'
+            workflow:
+                type: 'string'
+                description: "Name of the workflow to use with the model's documents"
+            icon:
+                $ref: '#/definitions/model_icon'
+            schema:
+                type: 'string'
+                description: "Model's schema"
+            layout:
+                type: 'string'
+                description: 'Model layout based on Angular JSON Schema form'
+            titleProperty:
+                type: 'string'
+                description:
+                    "Property name in the Model's schema for using as title of the\
+                    \ document instance of the model"
+            documentation:
+                type: 'string'
+                description: 'Any documentation (text) for the Model'
+            tag:
+                type: 'array'
+                items:
+                    type: 'string'
+        example:
+            schema: 'schema'
+            layout: 'layout'
+            titleField: 'titleField'
+            documentation: 'documentation'
+            name: 'name'
+            icon:
+                color: 'color'
+                name: 'name'
+            x-meditor:
+                modifiedOn: 'modifiedOn'
+                count: 'count'
+                modifiedBy: 'modifiedBy'
+                title: 'title'
+            description: 'description'
+            tag:
+                - 'tag'
+                - 'tag'
+    modelCatalogEntry:
+        type: 'object'
+        required:
+            - 'description'
+            - 'name'
+        properties:
+            x-meditor:
+                $ref: '#/definitions/modelCatalogEntry_xmeditor'
+            name:
+                type: 'string'
+                description:
+                    "Name of the model (ex: FAQ, Alert, Collection etc.,): displayed\
+                    \ to the user in UI"
+            description:
+                type: 'string'
+                description:
+                    "Description of the model (ex: FAQ, Alert, Collection etc.,):\
+                    \ description of the model; might be shown to user as a tooltip"
+            category:
+                type: 'string'
+                description: 'Category/group to which the model belongs; to be used for display purposes only'
+            workflow:
+                type: 'string'
+                description: 'Workflow to be used in processing documents belonging to the model'
+            icon:
+                $ref: '#/definitions/model_icon'
+            schema:
+                type: 'string'
+                description: 'JSON Schema of the model itself'
+            documentation":
+                type: 'string'
+                description: "Link to model's documentation"
+            tag:
+                type: 'array'
+                description:
+                    "An array of tags associated with the model: can be used for\
+                    \ searching models"
+                items:
+                    type: 'string'
+        example:
+            schema: 'schema'
+            documentation": 'documentation"'
+            name: 'name'
+            icon:
+                color: 'color'
+                name: 'name'
+            description: 'description'
+            x-meditor:
+                modifiedOn: 'modifiedOn'
+                count: 1
+                modifiedBy: 'modifiedBy'
+                title: 'title'
+                version: 'version'
+            tag:
+                - 'tag'
+                - 'tag'
+    model_icon:
+        properties:
+            name:
+                type: 'string'
+                description: 'Name of the Font Awesome icon (ex: )'
+            color:
+                type: 'string'
+                description: 'Background color to be used for the Font Awesome icon (ex: )'
+        description: 'Icon for the model: currently limited to Font Awesome'
+        example:
+            color: 'color'
+            name: 'name'
+    docCatalogEntry:
+        properties:
+            title:
+                type: 'string'
+                description: 'Title for the document'
+            x-meditor:
+                $ref: '#/definitions/docCatalogEntry_xmeditor'
+        example:
+            x-meditor:
+                modifiedOn: 'modifiedOn'
+                modifiedBy: 'modifiedBy'
+            title: 'title'
+    document:
+        properties:
+            x-meditor:
+                $ref: '#/definitions/docCatalogEntry_xmeditor'
+            schema:
+                type: 'string'
+            layout:
+                type: 'string'
+            doc:
+                type: 'string'
+    docHistory:
+        required:
+            - 'modifiedBy'
+            - 'modifiedOn'
+        properties:
+            modifiedBy:
+                type: 'string'
+            modifiedOn:
+                type: 'string'
+                format: 'date-time'
+    comment:
+        required:
+            - 'createdBy'
+            - 'createdOn'
+            - 'documentId'
+            - 'model'
+            - 'id'
+            - 'parentId'
+            - 'resolved'
+            - 'resolvedBy'
+            - 'text'
+        properties:
+            id:
+                type: 'string'
+            createdOn:
+                type: 'string'
+            createdBy:
+                type: 'string'
+            text:
+                type: 'string'
+            resolved:
+                type: 'boolean'
+            resolvedBy:
+                type: 'string'
+            parentId:
+                type: 'string'
+            documentId:
+                type: 'string'
+            model:
+                type: 'string'
+            lastEdited:
+                type: 'string'
+    model_xmeditor:
+        properties:
+            title:
+                type: 'string'
+                description: 'Name of the field in the model to be used as a title'
+            modifiedOn:
+                type: 'string'
+                description: 'Date when a last document edit was made'
+            modifiedBy:
+                type: 'string'
+                description: 'Author who last modified a document belonging to the model'
+            count:
+                type: 'string'
+                format: 'Number'
+                description: 'Number of documents belonging to the model'
+        example:
+            modifiedOn: 'modifiedOn'
+            count: 'count'
+            modifiedBy: 'modifiedBy'
+            title: 'title'
+    modelCatalogEntry_xmeditor:
+        properties:
+            title:
+                type: 'string'
+                description: 'JSON path to the field in the Model to be used as title in displays'
+            modifiedOn:
+                type: 'string'
+                description: 'Date-time of modification'
+            modifiedBy:
+                type: 'string'
+                description: "Modifier's user name"
+            version:
+                type: 'string'
+                description: 'Version of the model represented by date-time of modification'
+            count:
+                type: 'integer'
+                description: 'Number of instances of the model'
+                minimum: 1
+        example:
+            modifiedOn: 'modifiedOn'
+            count: 1
+            modifiedBy: 'modifiedBy'
+            title: 'title'
+            version: 'version'
+    docCatalogEntry_xmeditor:
+        properties:
+            modifiedOn:
+                type: 'string'
+                description: 'Date-time of modification'
+            modifiedBy:
+                type: 'string'
+                description: "Modifier's user name"
+            state:
+                type: 'string'
+                description: 'State of the document wrt document workflow'
+        example:
+            modifiedOn: 'modifiedOn'
+            modifiedBy: 'modifiedBy'
+    user:
+        properties:
+            name:
+                type: 'string'
+                description: 'Name of the user'
+        example:
+            name: 'John Doe'
+    csrf:
+        properties:
+            csrfToken:
+                type: 'string'
+                description: 'CSRF token'
+        example:
+            csrfToken: 'SFfkaSD-dksfjfjsSKJ33DN-fdS-fSf'
+    LoginPost:
+        properties:
+            username:
+                type: 'string'
+            password:
+                type: 'string'
