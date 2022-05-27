@@ -95,3 +95,44 @@ echo 'UI_THEME=EDPub' >> ./.env
 ```
 
 The theme is now set. If you also have `UI_ALLOWED_URL_THEME` set, please note Themes' Conflict Resolution section.
+
+## Authentication
+
+mEditor allows a user to log in through its user interface or through a POST request to its login endpoint. Earthdata Login and AWS Cognito are both supported for login through the UI, but only AWS Cognito is supported for login through the API. This guide assumes that you know how to set up AWS Cognito for login through the UI.
+
+### Login through UI
+
+To learn more about logging in through mEditor's UI, see [Logging In](https://docs.google.com/document/d/e/2PACX-1vSNC0fvXJ6rbOuuOcAGarA1s4ys3l0mKZ608RgPPlHVvBAYAktxoUWUIsVZqY_QQYN4OvPR6xppz7mI/pub#h.bpeuduphpjz8) within the User Guide.
+
+### Login through API
+
+To log in through mEditor's API, first (and only once) set up a new AWS Cognito App Client within your existing User Pool. Set the environment variable `COGNITO_INITIATE_AUTH_CLIENT_ID` to the value of this new Cognito Client ID.
+
+- Ensure that `ALLOW_USER_PASSWORD_AUTH` is enabled in your Authentication Flow.
+- Ensure no client secret is set for the App Client.
+
+Send a POST request to `meditor/api/login` similar to this:
+
+```sh
+curl -v -X POST 'localhost/meditor/api/login' \
+     -H 'Content-Type: application/json' \
+     -d '{ "username": "your-username", "password": "your-password" }'
+```
+
+The API will send back a reply with either an error or user, and a `set-cookie` header containing a session cookie. If the API response contained a user, that user is now logged in and can interact with the API when requests contain the session cookie. E.g.,
+
+```sh
+curl -X POST 'localhost/meditor/api/cloneDocument?model=Example%20News&title=Lorem%20ipsum%20dolor%20sit%20amet&newTitle=New%20Document' \
+     -H 'Cookie: __mEditor=s%3AlxPdaElW5qwzWlDiWmQFPYHFGt5k9U5w.qSei3cxoV3Yj4F9KnBaA7wZMXAC3%2FelBcM7UuMjgPfE'
+```
+
+Please note that the mEditor API will optimistically establish a session and sends a `set-cookie` header for every request that doesn't include a `Cookie` header with a `__mEditor` cookie. That optimistically-established session will not be tied to an authenticated user through the API.
+
+To check the status of your existing session, send the following request:
+
+```sh
+curl -X GET 'localhost/meditor/api/me' \
+     -H 'Cookie: __mEditor=s%3A97VTrwKZklddMtoZu__qwmAs6kavLYcX.UPa8esHs9kpCbyEWFLrn6LBIv9yqgeSim5bTQLR9cfM'
+```
+
+A user will be returned if your session is still active.
