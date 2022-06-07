@@ -69,7 +69,6 @@ function validateUserOnRequest(request) {
 
 function enforceAuthentication(protectedEndpoints) {
     return async function enforceUserOnRequest(request, response, next) {
-        console.log(request.url)
         try {
             const isProtected = isRequestUrlProtected(protectedEndpoints, request.url)
 
