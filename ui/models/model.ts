@@ -1,5 +1,47 @@
 import mongoClient from '../lib/mongodb'
-import { Model } from './types'
+import { sortModels } from '../utils/sort'
+
+export type ModelCategory = {
+    name: string
+    models: Model[]
+}
+
+export type Model = {
+    _id: string
+    name: string
+    description: string
+    icon: ModelIcon
+    titleProperty: string
+    schema: string
+    layout: string
+    'x-meditor'?: any // TODO: review
+    category?: string
+    workflow?: string
+}
+
+export type ModelIcon = {
+    name: string
+    color: string
+}
+
+export async function getModelCategories(): Promise<ModelCategory[]> {
+    // get all models
+    const models = (await getModelsWithDocumentCount()).sort(sortModels)
+
+    // get a unique list of category names
+    const categories: string[] = models
+        // retrieve just the category name
+        .map(model => model.category)
+        // remove duplicates
+        .filter(
+            (category, index, categories) => categories.indexOf(category) === index
+        )
+
+    return categories.map(category => ({
+        name: category,
+        models: models.filter(model => model.category === category),
+    }))
+}
 
 export async function getModels(): Promise<Model[]> {
     const client = await mongoClient
@@ -42,6 +84,10 @@ export async function getModelsWithDocumentCount(): Promise<Model[]> {
                 ...model,
                 'x-meditor': {
                     ...model['x-meditor'],
+                    countAll: countResult[0]?.count || 0,
+
+                    // this was originally a role-based count, but any role can see any document so it's always the same as countAll
+                    // was able to greatly improve performance by just reusing the full count
                     count: countResult[0]?.count || 0,
                 },
             } as Model

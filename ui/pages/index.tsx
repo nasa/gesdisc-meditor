@@ -2,30 +2,17 @@ import PageTitle from '../components/page-title'
 import UnderMaintenance from '../components/under-maintenance'
 import Router from 'next/router'
 import Button from 'react-bootstrap/Button'
-import { withApollo } from '../lib/apollo'
 import ModelIcon from '../components/model-icon'
 import styles from './dashboard.module.css'
-import gql from 'graphql-tag'
+import { getModelCategories } from '../models/model'
+import type { ModelCategory } from '../models/model'
+import { NextPageContext } from 'next'
 
-export const MODEL_CATEGORIES_QUERY = gql`
-    {
-        modelCategories {
-            name
-            models {
-                name
-                icon {
-                    name
-                    color
-                }
-                xMeditor {
-                    count
-                }
-            }
-        }
-    }
-`
+type DashboardPageProps = {
+    modelCategories: ModelCategory[]
+}
 
-const DashboardPage = ({ modelCategories }) => {
+const DashboardPage = ({ modelCategories }: DashboardPageProps) => {
     return (
         <div>
             <PageTitle title="" />
@@ -37,19 +24,29 @@ const DashboardPage = ({ modelCategories }) => {
                     <h3>{category.name}</h3>
 
                     <div className={styles.models}>
-                        {category.models.sort((a, b) => a.name.localeCompare(b.name)).map(model => (
-                            <div key={model.name} className={styles.model}>
-                                <Button
-                                    variant="light"
-                                    onClick={() => Router.push('/meditor/[modelName]', `/meditor/${model.name}`)}
-                                    className="dashboard-model"
-                                >
-                                    <ModelIcon name={model?.icon?.name} color={model?.icon?.color} />
-                                    <span>{model?.name}</span>
-                                    <span>({model?.xMeditor?.count})</span>
-                                </Button>
-                            </div>
-                        ))}
+                        {category.models
+                            .sort((a, b) => a.name.localeCompare(b.name))
+                            .map(model => (
+                                <div key={model.name} className={styles.model}>
+                                    <Button
+                                        variant="light"
+                                        onClick={() =>
+                                            Router.push(
+                                                '/meditor/[modelName]',
+                                                `/meditor/${model.name}`
+                                            )
+                                        }
+                                        className="dashboard-model"
+                                    >
+                                        <ModelIcon
+                                            name={model?.icon?.name}
+                                            color={model?.icon?.color}
+                                        />
+                                        <span>{model?.name}</span>
+                                        <span>({model?.['x-meditor']?.count})</span>
+                                    </Button>
+                                </div>
+                            ))}
                     </div>
                 </div>
             ))}
@@ -57,34 +54,23 @@ const DashboardPage = ({ modelCategories }) => {
     )
 }
 
-DashboardPage.getInitialProps = async (ctx) => {
-    let modelCategories
+export async function getServerSideProps(context: NextPageContext) {
+    const modelCategories = await getModelCategories()
 
-    try {
-        let response = await ctx.apolloClient.query({
-            query: MODEL_CATEGORIES_QUERY,
+    if (!modelCategories?.length) {
+        // database hasn't been setup yet, redirect to installation page!
+        context.res.writeHead(301, {
+            Location: '/meditor/installation',
         })
 
-        modelCategories = response.data.modelCategories
-    } catch (err) {
-        if (err?.graphQLErrors?.[0].extensions?.response?.status == 404) {
-            console.log('Models have not been setup yet! Sending user to installation page')
-            
-            // database hasn't been setup yet, redirect to installation page!
-            ctx.res.writeHead(301, {
-                Location: '/meditor/installation',
-            })
-
-            ctx.res.end()
-        } else {
-            // something else went wrong, log the error but allow the page to render
-            console.error(err)
-        }
+        context.res.end()
     }
 
     return {
-        modelCategories,
+        props: {
+            modelCategories: JSON.parse(JSON.stringify(modelCategories)), // TODO: fix this hack
+        },
     }
 }
 
-export default withApollo({ ssr: true })(DashboardPage)
+export default DashboardPage
