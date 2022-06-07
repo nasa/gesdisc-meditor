@@ -1,46 +1,41 @@
 import Router from 'next/router'
-import { useQuery } from '@apollo/react-hooks'
 import { useState, useEffect } from 'react'
-import gql from 'graphql-tag'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Select from 'react-select'
 import styles from './search-bar.module.css'
-import { withApollo } from '../../lib/apollo'
 import ModelIcon from '../model-icon'
 import { MdSearch } from 'react-icons/md'
 import { useInput } from '../../lib/use-input.hook'
 import { useDebounce } from '../../lib/use-debounce.hook'
-
-/**
- * queries all models for display in the select dropdown
- */
-const ALL_MODELS_QUERY = gql`
-    {
-        models {
-            name
-            icon {
-                name
-                color
-            }
-        }
-    }
-`
+import { Model } from '../../models/model'
 
 /**
  * returns an option to be rendered in the Model list
  * @param model
  */
-const formatOptionLabel = (model) => (
+const formatOptionLabel = model => (
     <div style={{ display: 'flex', alignItems: 'center' }}>
         <ModelIcon name={model.icon.name} color={model.icon.color} />
-        <div style={{ marginLeft: 5 }}>{ model?.name }</div>
+        <div style={{ marginLeft: 5 }}>{model?.name}</div>
     </div>
 )
 
-const SearchBar = ({ model, modelName, initialInput = '', onInput }) => {
-    const { data } = useQuery(ALL_MODELS_QUERY)
+type SearchBarProps = {
+    allModels: Model[]
+    model: Model
+    modelName: string
+    initialInput: string
+    onInput?: Function
+}
 
+const SearchBar = ({
+    allModels,
+    model,
+    modelName,
+    initialInput = '',
+    onInput,
+}: SearchBarProps) => {
     const { value, bind, reset } = useInput(initialInput)
     const [selectedModel, setSelectedModel] = useState(null)
     const [options, setOptions] = useState([])
@@ -48,7 +43,7 @@ const SearchBar = ({ model, modelName, initialInput = '', onInput }) => {
 
     /**
      * set models as selectable options in the dropdown and then select the matching model
-     * @param models 
+     * @param models
      */
     function updateSelectedModelsDropdown(models) {
         if (!models) return
@@ -65,13 +60,13 @@ const SearchBar = ({ model, modelName, initialInput = '', onInput }) => {
 
         updateSelectedModelsDropdown([model])
     }, [model, options])
- 
+
     /**
      * when models are returned from the API, set them in the dropdown
      */
     useEffect(() => {
-        updateSelectedModelsDropdown(data?.models || [])
-    }, [data])
+        updateSelectedModelsDropdown(allModels || [])
+    }, [allModels])
 
     /**
      * notify when search changes
@@ -82,7 +77,7 @@ const SearchBar = ({ model, modelName, initialInput = '', onInput }) => {
 
     /**
      * route to the requested model when a different one is selected
-     * @param selectedModel 
+     * @param selectedModel
      */
     function handleModelChange(selectedModel) {
         setSelectedModel(selectedModel)
@@ -121,4 +116,4 @@ const SearchBar = ({ model, modelName, initialInput = '', onInput }) => {
     )
 }
 
-export default withApollo({ ssr: true })(SearchBar)
+export default SearchBar
