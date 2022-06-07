@@ -215,62 +215,6 @@ exports.listDocuments = function (model) {
 }
 
 /**
- * Lists Models
- * Lists 'Model' objects each with an icon, description and count of number of instances of an object.
- *
- * properties List Comma-separated list of fields to be returned (optional)
- * returns List
- **/
-exports.listModels = function (properties) {
-    return new Promise(function (resolve, reject) {
-        var examples = {}
-        examples['application/json'] = [
-            {
-                schema: 'schema',
-                'documentation"': 'documentation"',
-                name: 'name',
-                icon: {
-                    color: 'color',
-                    name: 'name',
-                },
-                description: 'description',
-                'x-meditor': {
-                    modifiedOn: 'modifiedOn',
-                    count: 1,
-                    modifiedBy: 'modifiedBy',
-                    title: 'title',
-                    version: 'version',
-                },
-                tag: ['tag', 'tag'],
-            },
-            {
-                schema: 'schema',
-                'documentation"': 'documentation"',
-                name: 'name',
-                icon: {
-                    color: 'color',
-                    name: 'name',
-                },
-                description: 'description',
-                'x-meditor': {
-                    modifiedOn: 'modifiedOn',
-                    count: 1,
-                    modifiedBy: 'modifiedBy',
-                    title: 'title',
-                    version: 'version',
-                },
-                tag: ['tag', 'tag'],
-            },
-        ]
-        if (Object.keys(examples).length > 0) {
-            resolve(examples[Object.keys(examples)[0]])
-        } else {
-            resolve()
-        }
-    })
-}
-
-/**
  * Login
  * Redirect to configured identity provider for login
  *

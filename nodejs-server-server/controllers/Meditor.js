@@ -115,9 +115,8 @@ async function handlePublicationAcknowledgements(message) {
                 statusCode: acknowledgement.statusCode,
             }),
             ...(acknowledgement.statusCode && {
-                [acknowledgement.statusCode == 200
-                    ? 'publishedOn'
-                    : 'failedOn']: Date.now(),
+                [acknowledgement.statusCode == 200 ? 'publishedOn' : 'failedOn']:
+                    Date.now(),
             }),
         }
 
@@ -570,124 +569,6 @@ function addModel(model) {
             })
         })
     })
-}
-
-// Exported method to list Models
-module.exports.listModels = function listModels(request, response, next) {
-    var that = {}
-    return MongoClient.connect(MongoUrl)
-        .then(res => {
-            that.dbo = res
-            return getDocumentModelMetadata(that.dbo, request, { model: 'Models' })
-        })
-        .then(meta => {
-            _.assign(that, meta)
-        })
-        .then(function () {
-            // Start by getting a list of models
-            var properties = that.params.properties
-            var projection = { _id: 0 }
-            if (properties === undefined) {
-                properties = ['name', 'description', 'icon', 'x-meditor', 'category']
-            }
-            if (!Array.isArray(properties)) properties = [properties]
-            if (Array.isArray(properties)) {
-                properties.forEach(function (element) {
-                    projection[element] = '$' + element
-                })
-            }
-            // Get list of models ...
-            return that.dbo
-                .db(DbName)
-                .collection('Models')
-                .aggregate(
-                    [
-                        { $sort: { 'x-meditor.modifiedOn': -1 } }, // Sort descending by version (date)
-                        { $group: { _id: '$name', doc: { $first: '$$ROOT' } } }, // Grab all fields in the most recent version
-                        { $replaceRoot: { newRoot: '$doc' } }, // Put all fields of the most recent doc back into root of the document
-                        { $project: projection },
-                    ],
-                    { allowDiskUse: true }
-                )
-                .toArray()
-        })
-        .then(function (res) {
-            // Collect roles, target states, and other metadata for each model
-            that.models = res
-            var defers = _.map(that.models, function (model) {
-                var modelMeta = {}
-                return getDocumentModelMetadata(
-                    that.dbo,
-                    { user: request.user },
-                    { model: model.name }
-                )
-            })
-            return Promise.all(defers)
-        })
-        .then(function (modelMetas) {
-            that.modelMetas = modelMetas
-            // Based on collected metadata, query each model for unique items
-            // as appropriate for user's role and count the results
-            return Promise.all(
-                modelMetas.map(modelMeta => {
-                    var query = getDocumentAggregationQuery(modelMeta)
-                    query.push({ $group: { _id: null, count: { $sum: 1 } } })
-                    query.push({ $addFields: { name: modelMeta.modelName } })
-                    return that.dbo
-                        .db(DbName)
-                        .collection(modelMeta.modelName)
-                        .aggregate(query, { allowDiskUse: true })
-                        .toArray()
-                })
-            )
-        })
-        .then(function (res) {
-            that.countsRoleAware = res.reduce(function (accumulator, currentValue) {
-                if (currentValue.length !== 1) return accumulator
-                accumulator[currentValue[0].name] = currentValue[0].count
-                return accumulator
-            }, {})
-            // Count all items regardless of the model
-            return Promise.all(
-                that.modelMetas.map(modelMeta => {
-                    return that.dbo
-                        .db(DbName)
-                        .collection(modelMeta.modelName)
-                        .aggregate(
-                            [
-                                { $group: { _id: '$' + modelMeta.titleProperty } },
-                                { $group: { _id: null, count: { $sum: 1 } } },
-                                { $addFields: { name: modelMeta.modelName } },
-                            ],
-                            { allowDiskUse: true }
-                        )
-                        .toArray()
-                })
-            )
-        })
-        .then(function (res) {
-            that.countsTotal = res.reduce(function (accumulator, currentValue) {
-                if (currentValue.length !== 1) return accumulator
-                accumulator[currentValue[0].name] = currentValue[0].count
-                return accumulator
-            }, {})
-        })
-        .then(function () {
-            that.models.forEach(m => {
-                m['x-meditor'].count = that.countsRoleAware[m.name] || 0
-            })
-            that.models.forEach(m => {
-                m['x-meditor'].countAll = that.countsTotal[m.name] || 0
-            })
-            return that.models
-        })
-        .then(res => (that.dbo.close(), handleSuccess(response, res)))
-        .catch(err => {
-            try {
-                that.dbo.close()
-            } catch (e) {}
-            handleError(response, err)
-        })
 }
 
 //Exported method to add a Model

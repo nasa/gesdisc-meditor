@@ -1,24 +1,30 @@
 const { RESTDataSource } = require('apollo-datasource-rest')
 
 class mEditorApi extends RESTDataSource {
-
     constructor() {
         super()
 
         let isTest = false
 
         if (typeof window !== 'undefined') {
-            isTest = window.location.origin.indexOf('uat.gesdisc.eosdis.nasa.gov') >= 0
+            isTest =
+                window.location.origin.indexOf('uat.gesdisc.eosdis.nasa.gov') >= 0
         } else {
-            isTest = process.env.APP_URL && process.env.APP_URL.indexOf('uat.gesdisc.eosdis.nasa.gov') >= 0
+            isTest =
+                process.env.APP_URL &&
+                process.env.APP_URL.indexOf('uat.gesdisc.eosdis.nasa.gov') >= 0
         }
 
-        this.baseURL = `http://${isTest ? 'meditor_test_server' : 'meditor_server'}:8081/meditor/api`
+        this.baseURL = `http://${
+            isTest ? 'meditor_test_server' : 'meditor_server'
+        }:8081/meditor/api`
     }
 
     getCookiesHeaderValue() {
         let cookies = this.context.cookies
-        return Object.keys(cookies).map(key => `${key}=${cookies[key]}`).join(';')
+        return Object.keys(cookies)
+            .map(key => `${key}=${cookies[key]}`)
+            .join(';')
     }
 
     willSendRequest(request) {
@@ -29,10 +35,6 @@ class mEditorApi extends RESTDataSource {
 
     async getModel(name) {
         return await this.get('getModel', { name })
-    }
-
-    async getModels() {
-        return await this.get('listModels')
     }
 
     async getDocumentsForModel(model, filter) {
@@ -62,7 +64,6 @@ class mEditorApi extends RESTDataSource {
     async getWorkflow(title) {
         return await this.getDocument('Workflows', title)
     }
-
 }
 
 module.exports.mEditorApi = mEditorApi

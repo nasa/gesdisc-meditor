@@ -105,9 +105,6 @@ module.exports = {
 
             return model
         },
-        models: async (_, _params, { dataSources }) => {
-            return dataSources.mEditorApi.getModels()
-        },
         documents: async (_, params, { dataSources }) => {
             let documents = await dataSources.mEditorApi.getDocumentsForModel(
                 params.modelName,

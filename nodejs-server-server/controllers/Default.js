@@ -112,17 +112,6 @@ module.exports.listDocuments = function listDocuments(req, res, next) {
         })
 }
 
-module.exports.listModels = function listModels(req, res, next) {
-    var properties = req.swagger.params['properties'].value
-    Default.listModels(properties)
-        .then(function (response) {
-            utils.writeJson(res, response)
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response)
-        })
-}
-
 module.exports.login = function login(req, res, next) {
     var code = req.swagger.params['code'].value
     Default.login(code)
