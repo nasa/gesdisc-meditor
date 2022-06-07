@@ -16,7 +16,7 @@ const DEFAULTS = {
 
 export const AppContext = createContext(DEFAULTS)
 
-export default (props) => {
+const AppStore = props => {
     const [user, setUser] = useState<any>(null)
     const [notification, setNotification] = useState<Notification>(null)
 
@@ -37,9 +37,7 @@ export default (props) => {
         setErrorNotification,
     }
 
-    return (
-        <AppContext.Provider value={store}>
-            {props.children}
-        </AppContext.Provider>
-    )
+    return <AppContext.Provider value={store}>{props.children}</AppContext.Provider>
 }
+
+export default AppStore
