@@ -60,6 +60,42 @@ If mEditor is embedded in another application and you'd like to redirect back to
 
 There is an example of this redirect in examples/subscriber-with-redirect
 
+## Themes
+
+mEditor will change parts of its user interface based on the current theme. The theme defaults to "default" and can be adjusted to other values through the URL query parameter `theme` or the environment variable `UI_THEME`. Available themes are listed in the file `_app.tsx` under the `THEMES` constant.
+
+### Conflict Resolution
+
+In case of a conflict between an allowed value for the `theme` URL query param, and the environment variable `UI_THEME`, the URL query param wins. Because the URL query param requires allow-listing a value before use (via the `UI_ALLOWED_URL_THEME` environment variable), it can be disabled at the environment variable level (by removing it or changing its value) to allow `UI_THEME` to take precedence. These environment variables allows mEditor to switch, enable, or disable themes without redeployment.
+
+### URL Query Parameters
+
+To be enabled via a URL query param, a theme must first be allow-listed through the environment varaiable `UI_ALLOWED_URL_THEME`, which should be set to an avialable theme.
+
+#### Example Usage
+
+Set the allowed theme.
+
+```bash
+echo 'UI_ALLOWED_URL_THEME=EDPub' >> ./.env
+```
+
+`http://localhost/meditor?theme=EDPub` or `http://localhost/meditor?theme=edpub` will enable mEditor's EDPub theme.
+
+### `UI_THEME` Environment Variable
+
+To be set the theme via the `UI_THEME` environment variable, set the variable's value to an avaiable theme.
+
+#### Example Usage
+
+Set the allowed theme.
+
+```bash
+echo 'UI_THEME=EDPub' >> ./.env
+```
+
+The theme is now set. If you also have `UI_ALLOWED_URL_THEME` set, please note Themes' Conflict Resolution section.
+
 ## Authentication
 
 mEditor allows a user to log in through its user interface or through a POST request to its login endpoint. Earthdata Login and AWS Cognito are both supported for login through the UI, but only AWS Cognito is supported for login through the API. This guide assumes that you know how to set up AWS Cognito for login through the UI.

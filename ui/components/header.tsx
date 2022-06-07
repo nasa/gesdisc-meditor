@@ -9,7 +9,7 @@ const Header = ({ user, isAuthenticated }) => {
     const [userMenuOpen, setUserMenuOpen] = useState(false)
 
     return (
-        <>
+        <header className={styles.header}>
             <Navbar
                 fixed="top"
                 className={styles.navbar}
@@ -82,7 +82,10 @@ const Header = ({ user, isAuthenticated }) => {
                         variant="link"
                         style={{ color: 'grey', marginLeft: 10 }}
                         as="a"
-                        href={process.env.HELP_DOCUMENT_LOCATION || "/meditor/docs/user-guide"}
+                        href={
+                            process.env.HELP_DOCUMENT_LOCATION ||
+                            '/meditor/docs/user-guide'
+                        }
                         target="_blank"
                     >
                         <MdHelp style={{ fontSize: '1.6em' }} />
@@ -90,7 +93,7 @@ const Header = ({ user, isAuthenticated }) => {
                     </Button>
                 </div>
             </Navbar>
-        </>
+        </header>
     )
 }
 
