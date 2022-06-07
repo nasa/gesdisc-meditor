@@ -1,4 +1,4 @@
-import { Model } from '../models/model'
+import { Model } from '../models/types'
 
 export function sortModels(modelA: Model, modelB: Model) {
     if (modelA.category < modelB.category) return 1

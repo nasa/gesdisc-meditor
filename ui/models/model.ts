@@ -1,27 +1,5 @@
 import mongoClient from '../lib/mongodb'
-
-export type ModelCategory = {
-    name: string
-    models: Model[]
-}
-
-export type Model = {
-    _id: string
-    name: string
-    description: string
-    icon: ModelIcon
-    titleProperty: string
-    schema: string
-    layout: string
-    'x-meditor'?: any // TODO: review
-    category?: string
-    workflow?: string
-}
-
-export type ModelIcon = {
-    name: string
-    color: string
-}
+import type { Model } from './types'
 
 export async function getModels(): Promise<Model[]> {
     const client = await mongoClient

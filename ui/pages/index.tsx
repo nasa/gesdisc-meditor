@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button'
 import ModelIcon from '../components/model-icon'
 import styles from './dashboard.module.css'
 import { getModelsWithDocumentCount } from '../models/model'
-import type { ModelCategory } from '../models/model'
+import type { ModelCategory } from '../models/types'
 import { NextPageContext } from 'next'
 import { sortModels } from '../utils/sort'
 
