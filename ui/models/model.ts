@@ -1,5 +1,4 @@
 import mongoClient from '../lib/mongodb'
-import { sortModels } from '../utils/sort'
 
 export type ModelCategory = {
     name: string
@@ -22,25 +21,6 @@ export type Model = {
 export type ModelIcon = {
     name: string
     color: string
-}
-
-export async function getModelCategories(): Promise<ModelCategory[]> {
-    // get all models
-    const models = (await getModelsWithDocumentCount()).sort(sortModels)
-
-    // get a unique list of category names
-    const categories: string[] = models
-        // retrieve just the category name
-        .map(model => model.category)
-        // remove duplicates
-        .filter(
-            (category, index, categories) => categories.indexOf(category) === index
-        )
-
-    return categories.map(category => ({
-        name: category,
-        models: models.filter(model => model.category === category),
-    }))
 }
 
 export async function getModels(): Promise<Model[]> {

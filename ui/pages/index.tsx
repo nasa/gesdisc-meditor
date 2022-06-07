@@ -4,9 +4,10 @@ import Router from 'next/router'
 import Button from 'react-bootstrap/Button'
 import ModelIcon from '../components/model-icon'
 import styles from './dashboard.module.css'
-import { getModelCategories } from '../models/model'
+import { getModelsWithDocumentCount } from '../models/model'
 import type { ModelCategory } from '../models/model'
 import { NextPageContext } from 'next'
+import { sortModels } from '../utils/sort'
 
 type DashboardPageProps = {
     modelCategories: ModelCategory[]
@@ -55,9 +56,9 @@ const DashboardPage = ({ modelCategories }: DashboardPageProps) => {
 }
 
 export async function getServerSideProps(context: NextPageContext) {
-    const modelCategories = await getModelCategories()
+    const models = (await getModelsWithDocumentCount()).sort(sortModels)
 
-    if (!modelCategories?.length) {
+    if (!models.length) {
         // database hasn't been setup yet, redirect to installation page!
         context.res.writeHead(301, {
             Location: '/meditor/installation',
@@ -66,9 +67,24 @@ export async function getServerSideProps(context: NextPageContext) {
         context.res.end()
     }
 
+    // get a unique list of category names from the models
+    const categories: string[] = models
+        .map(model => model.category) // retrieve just the category name
+        .filter(
+            (category, index, categories) => categories.indexOf(category) === index
+        ) // remove duplicates
+
+    const modelCategories: ModelCategory[] = categories.map(category => ({
+        name: category,
+        models: models.filter(model => model.category === category),
+    }))
+
     return {
         props: {
-            modelCategories: JSON.parse(JSON.stringify(modelCategories)), // TODO: fix this hack
+            // Next doesn't know how to process the _id property, as it's an object, not a string. So this hack parses ahead of time
+            // https://github.com/vercel/next.js/issues/11993
+            // TODO: review the about issue for solutions
+            modelCategories: JSON.parse(JSON.stringify(modelCategories)),
         },
     }
 }
