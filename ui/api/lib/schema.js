@@ -8,7 +8,6 @@ const typeDefs = gql`
     scalar JSONObject
 
     type Query {
-        modelCategories: [ModelCategory!]!
         models: [Model!]!
         model(modelName: String!, currentState: String): Model!
         documents(modelName: String!, filter: String): [Document!]!
@@ -30,11 +29,6 @@ const typeDefs = gql`
         modifiedBy: String!
         count: String!
         states: [WorkflowState!]!
-    }
-
-    type ModelCategory {
-        name: String
-        models: [Model!]!
     }
 
     type Model {
