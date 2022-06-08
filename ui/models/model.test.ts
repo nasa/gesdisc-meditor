@@ -1,7 +1,9 @@
 import mongoClient from '../lib/mongodb'
-import { getModels } from './model'
+import { getModels, getModelsWithDocumentCount } from './model'
 import alertsModel from './__test__/fixtures/models/alerts.json'
 import collectionMetadataModel from './__test__/fixtures/models/collection-metadata.json'
+import GLDAS_CLM10SUBP_3H_001 from './__test__/fixtures/collection-metadata/GLDAS_CLM10SUBP_3H_001.json'
+import OML1BRVG_003 from './__test__/fixtures/collection-metadata/OML1BRVG_003.json'
 
 describe('Model', () => {
     let client
@@ -41,6 +43,46 @@ describe('Model', () => {
                 models.find(model => model.name == 'Collection Metadata')['x-meditor']
                     .modifiedOn
             ).toEqual(collectionMetadataModel['x-meditor'].modifiedOn)
+        })
+    })
+
+    describe('getModelsWithDocumentCount', () => {
+        beforeEach(async () => {
+            await db
+                .collection('Collection Metadata')
+                .insertOne(GLDAS_CLM10SUBP_3H_001)
+            await db.collection('Collection Metadata').insertOne(OML1BRVG_003)
+        })
+
+        test('returns zero count for models without documents', async () => {
+            // we want to test with no documents, so clear the collection metadata out
+            await db.collection('Collection Metadata').deleteMany({})
+
+            const models = await getModelsWithDocumentCount()
+            const alerts = models.find(model => model.name == 'Alerts')
+            const collectionMetadata = models.find(
+                model => model.name == 'Collection Metadata'
+            )
+
+            expect(models.length).toBe(2)
+            expect(alerts['x-meditor'].count).toEqual(0)
+            expect(alerts['x-meditor'].countAll).toEqual(0)
+            expect(collectionMetadata['x-meditor'].count).toEqual(0)
+            expect(collectionMetadata['x-meditor'].countAll).toEqual(0)
+        })
+
+        test('returns a document count for models with documents', async () => {
+            const models = await getModelsWithDocumentCount()
+            const alerts = models.find(model => model.name == 'Alerts')
+            const collectionMetadata = models.find(
+                model => model.name == 'Collection Metadata'
+            )
+
+            expect(models.length).toBe(2)
+            expect(alerts['x-meditor'].count).toEqual(0)
+            expect(alerts['x-meditor'].countAll).toEqual(0)
+            expect(collectionMetadata['x-meditor'].count).toEqual(2)
+            expect(collectionMetadata['x-meditor'].countAll).toEqual(2)
         })
     })
 })
