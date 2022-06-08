@@ -48,10 +48,24 @@ http {
             include /etc/nginx/proxy.conf;
         }
 
+        ###
+        ### by default all routes under /meditor/api go to the nodejs-server API
+        ### the following routes go to the Next API
+        ###
+        ### as we near the finish for migration, we should flip this and have old routes individually defined instead of new
+        ###
         location /meditor/api/listModels {
             proxy_pass         http://web/api/listModels;
             include /etc/nginx/proxy.conf;
         }
+
+        location /meditor/api/listDocuments {
+            proxy_pass         http://web/api/listDocuments;
+            include /etc/nginx/proxy.conf;
+        }
+        ###
+        ### end of Next route migration
+        ###
 
         location /meditor/api {
             proxy_pass         http://api/meditor/api;

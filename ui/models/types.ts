@@ -1,9 +1,9 @@
-export type ModelCategory = {
+export interface ModelCategory {
     name: string
     models: Model[]
 }
 
-export type Model = {
+export interface Model {
     _id: string
     name: string
     description: string
@@ -16,7 +16,7 @@ export type Model = {
     workflow?: string
 }
 
-export type ModelIcon = {
+export interface ModelIcon {
     name: string
     color: string
 }
@@ -36,13 +36,22 @@ export interface DocumentMetadata {
     publishedTo?: PublishedTo[]
 }
 
-export type WorkflowState = {
+export interface Document {
+    _id: string
+    'x-meditor'?: DocumentMetadata
+
+    // a document is dynamically built up from a model, so it doesn't have compile-time properties
+    // so instead we'll allow any additional properties
+    [key: string]: any
+}
+
+export interface WorkflowState {
     source: string
     target: string
     modifiedOn: string | null
 }
 
-export type PublishedTo = {
+export interface PublishedTo {
     message: string
     statusCode: number
     publishedOn?: number
