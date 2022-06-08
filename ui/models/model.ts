@@ -1,13 +1,90 @@
 import mongoClient from '../lib/mongodb'
 import type { Model } from './types'
 
+const MODELS_COLLECTION = 'Models'
+const TITLE_PROPERTY = 'name'
+
+type getModelOptions = {
+    populateMacroTemplates?: boolean
+    includeId?: boolean
+}
+
+/*
+export async function getModel(
+    modelName: string,
+    options: getModelOptions = { includeId: true }
+): Promise<Model> {
+    const client = await mongoClient
+    const db = client.db(process.env.DB_NAME)
+
+    let query = db
+        .collection(MODELS_COLLECTION)
+        .find({ [TITLE_PROPERTY]: modelName })
+        .sort({ 'x-meditor.modifiedOn': -1 })
+
+    // remove the id, if requested
+    if (!options.includeId) {
+        query = query.project({ _id: 0 })
+    }
+
+    let results = await query.toArray()
+
+    if (!results.length) {
+        throw new Exceptions.NotFoundException(`Model not found: ${modelName}`)
+    }
+
+        let model = results[0] as Model
+
+        if (options.populateMacroTemplates) {
+            // validate the model's schema before continuing
+            if (!this.isJson(model.schema)) {
+                throw new Exceptions.BadRequestException(`The schema for model, ${modelName}, contains invalid JSON`)
+            }
+
+            // execute the macro templates for this model and get their values
+            let populatedTemplates = await this.getPopulatedModelTemplates(model)
+
+            // parse the schema into an object
+            let schema = typeof model.schema === 'string' ? JSON.parse(model.schema) : model.schema
+
+            // can also set macro templates for the layout, parse it's JSON as well if this model has a layout
+            let layout = null
+
+            if (model.layout && this.isJson(model.layout)) {
+                layout = typeof model.layout === 'string' ? JSON.parse(model.layout) : model.layout
+            }
+
+            // loop through each macro template and update any matching fields in the model
+            populatedTemplates.forEach((template) => {
+                // update any jsonpath matches in the schema with the template values
+                jsonpath.value(schema, template.jsonpath, template.result)
+
+                // if model has a layout, check in the layout for any matching jsonpath to update
+                if (layout && jsonpath.paths(layout, template.jsonpath).length) {
+                    jsonpath.value(layout, template.jsonpath, template.result)
+                }
+            })
+
+            // set the schema and layout back to JSON strings
+            model.schema = JSON.stringify(schema, null, 2)
+            if (layout) {
+                model.layout = JSON.stringify(layout, null, 2)
+            }
+        }
+
+        return model
+
+    return await db.collection(MODELS_COLLECTION).findOne({})
+}
+*/
+
 export async function getModels(): Promise<Model[]> {
     const client = await mongoClient
-    const db = client.db('meditor')
+    const db = client.db(process.env.DB_NAME)
 
     // get a list of all models
     return (await db
-        .collection('Models')
+        .collection(MODELS_COLLECTION)
         .aggregate(
             [
                 { $sort: { 'x-meditor.modifiedOn': -1 } }, // Sort descending by version (date)
@@ -21,7 +98,7 @@ export async function getModels(): Promise<Model[]> {
 
 export async function getModelsWithDocumentCount(): Promise<Model[]> {
     const client = await mongoClient
-    const db = client.db('meditor')
+    const db = client.db(process.env.DB_NAME)
     const models = await getModels()
 
     // get a count of documents in each model

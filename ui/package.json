@@ -8,7 +8,8 @@
         "start": "concurrently \"npm run graphql:start\" \"next start\"",
         "graphql:dev": "nodemon -L --watch api api/graphql.js",
         "graphql:start": "node api/graphql.js",
-        "test": "cypress open"
+        "test": "jest --detectOpenHandles",
+        "test:cypress": "cypress open"
     },
     "dependencies": {
         "@apollo/react-hooks": "^3.1.5",
@@ -34,6 +35,7 @@
         "graphql-type-json": "^0.3.1",
         "immer": "^9.0.6",
         "isomorphic-unfetch": "^3.0.0",
+        "jest": "^28.1.1",
         "json-mapper-json": "^1.3.3",
         "jsonschema": "^1.2.11",
         "lodash.clonedeep": "^4.5.0",
@@ -62,6 +64,8 @@
     },
     "devDependencies": {
         "@gesdisc/prettier-config": "^1.0.1",
+        "@shelf/jest-mongodb": "^3.0.1",
+        "@types/jest": "^28.1.1",
         "@types/mongodb": "^3.6.6",
         "@types/node": "^13.13.6",
         "@types/react": "^16.9.35",
@@ -78,6 +82,7 @@
         "nodemon": "^2.0.4",
         "prettier": "^2.0.4",
         "pretty-quick": "^3.0.0",
+        "ts-jest": "^28.0.4",
         "typescript": "^4.4.0",
         "webpack": "^4.43.0"
     },
