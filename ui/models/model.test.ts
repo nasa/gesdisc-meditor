@@ -1,4 +1,4 @@
-import mongoClient from '../lib/mongodb'
+import { getDb } from '../lib/mongodb'
 import { getModels, getModelsWithDocumentCount } from './model'
 import alertsModel from './__test__/fixtures/models/alerts.json'
 import collectionMetadataModel from './__test__/fixtures/models/collection-metadata.json'
@@ -6,12 +6,10 @@ import GLDAS_CLM10SUBP_3H_001 from './__test__/fixtures/collection-metadata/GLDA
 import OML1BRVG_003 from './__test__/fixtures/collection-metadata/OML1BRVG_003.json'
 
 describe('Model', () => {
-    let client
     let db
 
     beforeAll(async () => {
-        client = await mongoClient
-        db = client.db(process.env.DB_NAME)
+        db = await getDb()
 
         // create an old version of the collection metadata model
         // we'll use this to make sure we're getting latest versions only
@@ -30,7 +28,9 @@ describe('Model', () => {
     })
 
     afterAll(async () => {
-        await db.collection('Models').deleteMany({}) // cleanup
+        // cleanup
+        await db.collection('Models').deleteMany({})
+        await db.collection('Collection Metadata').deleteMany({})
     })
 
     describe('getModels', () => {

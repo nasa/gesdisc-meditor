@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { getDocumentsForModel } from '../../models/document'
 import { apiError } from '../../utils/errors'
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
         const documents = await getDocumentsForModel(req.query.model as string)
 
@@ -11,5 +11,3 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         return apiError(res, err)
     }
 }
-
-export default handler

@@ -1,8 +1,8 @@
-import mongoClient from '../lib/mongodb'
+import { getDb } from '../lib/mongodb'
 import type { Model } from './types'
 
-const MODELS_COLLECTION = 'Models'
-const TITLE_PROPERTY = 'name'
+export const MODELS_COLLECTION = 'Models'
+export const MODELS_TITLE_PROPERTY = 'name'
 
 type getModelOptions = {
     populateMacroTemplates?: boolean
@@ -14,12 +14,11 @@ export async function getModel(
     modelName: string,
     options: getModelOptions = { includeId: true }
 ): Promise<Model> {
-    const client = await mongoClient
-    const db = client.db(process.env.DB_NAME)
+    const db = await getDb()
 
     let query = db
         .collection(MODELS_COLLECTION)
-        .find({ [TITLE_PROPERTY]: modelName })
+        .find({ [MODELS_TITLE_PROPERTY]: modelName })
         .sort({ 'x-meditor.modifiedOn': -1 })
 
     // remove the id, if requested
@@ -79,8 +78,7 @@ export async function getModel(
 */
 
 export async function getModels(): Promise<Model[]> {
-    const client = await mongoClient
-    const db = client.db(process.env.DB_NAME)
+    const db = await getDb()
 
     // get a list of all models
     return (await db
@@ -97,8 +95,7 @@ export async function getModels(): Promise<Model[]> {
 }
 
 export async function getModelsWithDocumentCount(): Promise<Model[]> {
-    const client = await mongoClient
-    const db = client.db(process.env.DB_NAME)
+    const db = await getDb()
     const models = await getModels()
 
     // get a count of documents in each model
