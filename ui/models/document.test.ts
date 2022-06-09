@@ -54,6 +54,12 @@ describe('Documents', () => {
         expect(collections.length).toBe(1)
     })
 
+    it('should throw for an improperly formatted filter', async () => {
+        await expect(async () =>
+            getDocumentsForModel('Collection Metadata', 'Improper query here')
+        ).rejects.toThrowErrorMatchingInlineSnapshot(`"Improperly formatted filter"`)
+    })
+
     it('should only return the latest version of a document', async () => {
         // create an old version
         let oldVersion = JSON.parse(JSON.stringify(GLDAS_CLM10SUBP_3H_001))
