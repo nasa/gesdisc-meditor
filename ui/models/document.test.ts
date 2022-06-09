@@ -42,6 +42,18 @@ describe('Documents', () => {
         expect(collections.length).toBe(2)
     })
 
+    it('should filter out documents if a Lucene query is passed in', async () => {
+        await db.collection('Collection Metadata').insertOne(GLDAS_CLM10SUBP_3H_001)
+        await db.collection('Collection Metadata').insertOne(OML1BRVG_003)
+
+        const collections = await getDocumentsForModel(
+            'Collection Metadata',
+            'Combined_EntryID:GLDAS_CLM10SUBP_3H_001'
+        )
+
+        expect(collections.length).toBe(1)
+    })
+
     it('should only return the latest version of a document', async () => {
         // create an old version
         let oldVersion = JSON.parse(JSON.stringify(GLDAS_CLM10SUBP_3H_001))

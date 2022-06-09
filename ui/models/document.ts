@@ -3,6 +3,7 @@ import { getDb } from '../lib/mongodb'
 import { BadRequestException } from '../utils/errors'
 import { getModel } from './model'
 import type { Document } from './types'
+import { convertLuceneQueryToMongo } from '../utils/search'
 
 // TODO: add OPTIONAL pagination (don't break existing scripts)
 export async function getDocumentsForModel(
@@ -29,33 +30,28 @@ export async function getDocumentsForModel(
         latestVersionOfDocument(model.titleProperty)
     )
 
+    // if the user is searching the documents, we'll convert their query to the mongo equivalent
+    if (luceneQuery) {
+        try {
+            const filterMatch = convertLuceneQueryToMongo(luceneQuery)
+
+            // add filter to existing query
+            query[0].$match = {
+                ...query[0].$match,
+                ...filterMatch,
+            }
+        } catch (err) {
+            throw new BadRequestException('Improperly formatted filter')
+        }
+    }
+
     // retrieve the documents
     const documents = await db
         .collection(modelName)
         .aggregate(query, { allowDiskUse: true })
         .toArray()
 
-    // user is requesting to filter the results further
-    // we'll need to parse the passed in Lucene query into Mongo
-    //let query
-
     /* 
-        // if the user is searching the documents, we'll convert their query to the mongo equivalent
-        if (luceneQuery) {
-            try {
-                // add match to Mongo query
-                query.push({
-                    $match: convertLuceneQueryToMongo(luceneQuery, xmeditorProperties),
-                })
-            } catch (err) {
-                throw new Exceptions.BadRequestException('Improperly formatted filter')
-            }
-        }
-
-        
-
-        // TODO: add target states
-        
         .map(function(doc) {
             var res = {"title": _.get(doc, that.titleProperty)};
             res["x-meditor"] = _.pickBy(doc['x-meditor'], function(value, key) {return xmeditorProperties.indexOf(key) !== -1;});
@@ -63,10 +59,6 @@ export async function getDocumentsForModel(
             _.merge(res, getExtraDocumentMetadata(that, doc));
             return res
         })
-        
-
-        return results
-    }
 */
 
     return documents
