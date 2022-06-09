@@ -1,5 +1,5 @@
-const UNSPECIFIED_STATE_NAME = 'Unspecified'
-const UNKNOWN_USER = 'Unknown'
+export const UNSPECIFIED_STATE_NAME = 'Unspecified'
+export const UNKNOWN_USER = 'Unknown'
 
 /**
  * a commonly used query for retrieving the latest version of a document

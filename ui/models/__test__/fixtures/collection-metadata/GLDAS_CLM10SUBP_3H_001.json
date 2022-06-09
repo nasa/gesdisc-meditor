@@ -301,7 +301,6 @@
                 "publishedOn": 1649077649852
             }
         ],
-        "state": "Published",
-        "targetStates": ["Deleted"]
+        "state": "Published"
     }
 }

@@ -1,4 +1,4 @@
-import { latestVersionOfDocument } from '../lib/aggregations'
+import { latestVersionOfDocument, UNSPECIFIED_STATE_NAME } from '../lib/aggregations'
 import { getDb } from '../lib/mongodb'
 import { BadRequestException } from '../utils/errors'
 import { getModel } from './model'
@@ -51,15 +51,43 @@ export async function getDocumentsForModel(
         .aggregate(query, { allowDiskUse: true })
         .toArray()
 
-    /* 
-        .map(function(doc) {
-            var res = {"title": _.get(doc, that.titleProperty)};
-            res["x-meditor"] = _.pickBy(doc['x-meditor'], function(value, key) {return xmeditorProperties.indexOf(key) !== -1;});
-            if ('state' in res["x-meditor"] && !res["x-meditor"].state) res["x-meditor"].state = 'Unspecified';
-            _.merge(res, getExtraDocumentMetadata(that, doc));
-            return res
-        })
-*/
+    // returns just the titles and basic metadata fields of the documents
+    // TODO: after we get pagination we can remove this and just return the full documents
+    return documents.map(document => {
+        let simplifiedDocument = {
+            [model.titleProperty]: document[model.titleProperty],
+            title: document[model.titleProperty], // legacy property or for simplicity of scripting
+            'x-meditor': document['x-meditor'],
+        }
 
-    return documents
+        // make sure we have a state
+        if (!simplifiedDocument['x-meditor'].state) {
+            simplifiedDocument['x-meditor'].state = UNSPECIFIED_STATE_NAME
+        }
+
+        return simplifiedDocument
+    })
+
+    // filtering the list, get title, xmeditor properties and state
+    /*
+        that.sourceToTargetStateMap = that.workflow.edges.reduce(function (collector, e) {
+            if (that.modelRoles.indexOf(e.role) !== -1) {
+                if (!collector[e.source]) collector[e.source] = []
+                collector[e.source].push(e.target)
+            }
+            return collector
+        },
+        {})
+
+        var extraMeta = {
+        'x-meditor': {
+            targetStates: doc.banTransitions
+                ? []
+                : _.get(
+                      meta.sourceToTargetStateMap,
+                      _.get(doc, 'x-meditor.state', 'Unknown'),
+                      []
+                  ),
+        },
+    }*/
 }

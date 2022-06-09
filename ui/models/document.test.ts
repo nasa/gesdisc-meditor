@@ -42,6 +42,26 @@ describe('Documents', () => {
         expect(collections.length).toBe(2)
     })
 
+    it('returned documents should include fields by default', async () => {
+        await db.collection('Collection Metadata').insertOne(GLDAS_CLM10SUBP_3H_001)
+        const collections = await getDocumentsForModel('Collection Metadata')
+
+        expect(collections[0].Combined_EntryID).toEqual(
+            GLDAS_CLM10SUBP_3H_001.Combined_EntryID
+        )
+        expect(collections[0].title).toEqual(GLDAS_CLM10SUBP_3H_001.Combined_EntryID)
+
+        /*"title": "CAR_ARCTAS_L1C_1",
+        "x-meditor": {
+        "modifiedOn": "2022-04-02T23:01:29.875Z",
+        "modifiedBy": "cloeser",
+        "state": "Published",
+        "targetStates": [
+        "Deleted"
+        ]
+        }*/
+    })
+
     it('should filter out documents if a Lucene query is passed in', async () => {
         await db.collection('Collection Metadata').insertOne(GLDAS_CLM10SUBP_3H_001)
         await db.collection('Collection Metadata').insertOne(OML1BRVG_003)

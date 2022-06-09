@@ -4,7 +4,7 @@ export interface ModelCategory {
 }
 
 export interface Model {
-    _id: string
+    _id?: string
     name: string
     description: string
     icon: ModelIcon
@@ -37,7 +37,7 @@ export interface DocumentMetadata {
 }
 
 export interface Document {
-    _id: string
+    _id?: string
     'x-meditor'?: DocumentMetadata
 
     // a document is dynamically built up from a model, so it doesn't have compile-time properties
