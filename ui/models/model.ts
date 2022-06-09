@@ -1,5 +1,7 @@
 import { getDb } from '../lib/mongodb'
+import { BadRequestException, NotFoundException } from '../utils/errors'
 import type { Model } from './types'
+import jsonpath from 'jsonpath'
 
 export const MODELS_COLLECTION = 'Models'
 export const MODELS_TITLE_PROPERTY = 'name'
@@ -9,7 +11,16 @@ type getModelOptions = {
     includeId?: boolean
 }
 
-/*
+/**
+ * retrieves a model, optionally including macro templates
+ *
+ * Macro templates are a way to populate a model's schema at runtime with values from a different model
+ *
+ * For example, a model of "News" would have a field called "tags", tags is an enum.
+ *
+ * Instead of hardcoding tags in the "News" model, we set it to "enum": ["placeholder"] and replace that
+ * with a list of all "Tags" model titles at runtime, so it becomes "enum": ["science", "space", ...]
+ */
 export async function getModel(
     modelName: string,
     options: getModelOptions = { includeId: true }
@@ -29,53 +40,60 @@ export async function getModel(
     let results = await query.toArray()
 
     if (!results.length) {
-        throw new Exceptions.NotFoundException(`Model not found: ${modelName}`)
+        throw new NotFoundException(`Model not found: ${modelName}`)
     }
 
-        let model = results[0] as Model
+    let model = results[0] as Model
 
-        if (options.populateMacroTemplates) {
-            // validate the model's schema before continuing
-            if (!this.isJson(model.schema)) {
-                throw new Exceptions.BadRequestException(`The schema for model, ${modelName}, contains invalid JSON`)
-            }
-
-            // execute the macro templates for this model and get their values
-            let populatedTemplates = await this.getPopulatedModelTemplates(model)
-
-            // parse the schema into an object
-            let schema = typeof model.schema === 'string' ? JSON.parse(model.schema) : model.schema
-
-            // can also set macro templates for the layout, parse it's JSON as well if this model has a layout
-            let layout = null
-
-            if (model.layout && this.isJson(model.layout)) {
-                layout = typeof model.layout === 'string' ? JSON.parse(model.layout) : model.layout
-            }
-
-            // loop through each macro template and update any matching fields in the model
-            populatedTemplates.forEach((template) => {
-                // update any jsonpath matches in the schema with the template values
-                jsonpath.value(schema, template.jsonpath, template.result)
-
-                // if model has a layout, check in the layout for any matching jsonpath to update
-                if (layout && jsonpath.paths(layout, template.jsonpath).length) {
-                    jsonpath.value(layout, template.jsonpath, template.result)
-                }
-            })
-
-            // set the schema and layout back to JSON strings
-            model.schema = JSON.stringify(schema, null, 2)
-            if (layout) {
-                model.layout = JSON.stringify(layout, null, 2)
-            }
+    // see top level documentation for description of macro templates
+    if (options.populateMacroTemplates) {
+        // validate the model's schema before continuing
+        if (!this.isJson(model.schema)) {
+            throw new BadRequestException(
+                `The schema for model, ${modelName}, contains invalid JSON`
+            )
         }
 
-        return model
+        // execute the macro templates for this model and get their values
+        // TODO: add support for macros
+        //let populatedTemplates = await this.getPopulatedModelTemplates(model)
+        let populatedTemplates = []
 
-    return await db.collection(MODELS_COLLECTION).findOne({})
+        // parse the schema into an object
+        let schema =
+            typeof model.schema === 'string' ? JSON.parse(model.schema) : model.schema
+
+        // can also set macro templates for the layout, parse it's JSON as well if this model has a layout
+        let layout = null
+
+        if (model.layout && this.isJson(model.layout)) {
+            layout =
+                typeof model.layout === 'string'
+                    ? JSON.parse(model.layout)
+                    : model.layout
+        }
+
+        // loop through each macro template and update any matching fields in the model
+        populatedTemplates.forEach(template => {
+            // update any jsonpath matches in the schema with the template values
+            jsonpath.value(schema, template.jsonpath, template.result)
+
+            // if model has a layout, check in the layout for any matching jsonpath to update
+            if (layout && jsonpath.paths(layout, template.jsonpath).length) {
+                jsonpath.value(layout, template.jsonpath, template.result)
+            }
+        })
+
+        // set the schema and layout back to JSON strings
+        model.schema = JSON.stringify(schema, null, 2)
+
+        if (layout) {
+            model.layout = JSON.stringify(layout, null, 2)
+        }
+    }
+
+    return model
 }
-*/
 
 export async function getModels(): Promise<Model[]> {
     const db = await getDb()

@@ -39,12 +39,3 @@ export const getDb = async (dbName?: string) => {
 // Export a module-scoped MongoClient promise. By doing this in a
 // separate module, the client can be shared across functions.
 export default mongoClientPromise
-
-/**
- * a commonly used query for retrieving the latest version of a document
- */
-export const getLatestVersionOfDocumentAggregation = [
-    { $sort: { 'x-meditor.modifiedOn': -1 } }, // Sort descending by version (date)
-    { $group: { _id: '$name', doc: { $first: '$$ROOT' } } }, // Grab all fields in the most recent version
-    { $replaceRoot: { newRoot: '$doc' } }, // Put all fields of the most recent doc back into root of the document
-]

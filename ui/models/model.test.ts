@@ -13,13 +13,11 @@ describe('Model', () => {
 
         // create an old version of the collection metadata model
         // we'll use this to make sure we're getting latest versions only
-        const oldCollectionMetadataVersion = {
-            ...collectionMetadataModel,
-            'x-meditor': {
-                ...collectionMetadataModel['x-meditor'],
-                modifiedOn: '2018-01-01T00:00:00.000Z',
-            },
-        }
+        let oldCollectionMetadataVersion = JSON.parse(
+            JSON.stringify(collectionMetadataModel)
+        )
+        oldCollectionMetadataVersion['x-meditor'].modifiedOn =
+            '2018-01-01T00:00:00.000Z'
 
         // insert test models
         await db.collection('Models').insertOne(alertsModel)
