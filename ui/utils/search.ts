@@ -1,14 +1,19 @@
 import compile from 'monquery'
 
+const searchableXMeditorProperties = [
+    'modifiedOn',
+    'modifiedBy',
+    'state',
+    'targetStates',
+]
+
 /**
  * given a simplified Lucene query, convert it to the Mongo $match equivalent
  * ONLY supports AND/OR and field based regex or exact matches
  *
  * TODO: if we need more complex searching, we should use something like ElasticSearch instead
- *
- * @param {string} query
  */
-export function convertLuceneQueryToMongo(query, xmeditorProperties) {
+export function convertLuceneQueryToMongo(query) {
     let match = compile(query)
 
     function replacexMeditorFieldInMatch(field, match) {
@@ -32,7 +37,7 @@ export function convertLuceneQueryToMongo(query, xmeditorProperties) {
         return match
     }
 
-    xmeditorProperties.forEach(field => {
+    searchableXMeditorProperties.forEach(field => {
         replacexMeditorFieldInMatch(field, match)
     })
 
