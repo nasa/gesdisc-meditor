@@ -1,0 +1,53 @@
+{
+    "severity": "normal",
+    "title": "Spatial Search Issue",
+    "start": "2022-04-05 12:47:46-04:00",
+    "expiration": "2022-04-22 12:00:00-04:00",
+    "body": "<pre id=\"comment_text_4\">\nAn issue has been reported for several level 1 and level 2 data collections residing in AWS. When performing spatial searching of these data through CMR or Earthdata Search, granules outside the area of interest are included in the result. The problem is being investigated.</pre>\n",
+    "datasets": [
+        "OMSO2_003",
+        "OMNO2_003",
+        "OMTO3_003",
+        "SNDRSNIML2CCPRET_2",
+        "SNDRSNIML2CCPRETN_2",
+        "SNDRJ1IML2CCPRET_2",
+        "SNDRAQIML2CCPRET_2",
+        "SNDR13CHRP1_2",
+        "SNDR13CHRP1AQCal_2",
+        "SNDR13CHRP1SNCal_2",
+        "SNDR13CHRP1J1Cal_2",
+        "OMPS_NPP_NMTO3_L2_2",
+        "OMPS_NPP_NMSO2_L2_2",
+        "OMPS_NPP_NMEV_L1B_2",
+        "OMPS_NPP_NMNO2_L2_2"
+    ],
+    "x-meditor": {
+        "model": "Alerts",
+        "modifiedOn": "2022-04-15T18:10:14.774Z",
+        "modifiedBy": "lena.iredell",
+        "states": [
+            {
+                "source": "Init",
+                "target": "Draft",
+                "modifiedOn": null
+            },
+            {
+                "source": "Draft",
+                "target": "Published",
+                "modifiedOn": "2022-04-15T18:10:18.157Z",
+                "modifiedBy": "lena.iredell"
+            }
+        ],
+        "publishedTo": [
+            {
+                "url": "https://disc.gsfc.nasa.gov/information/alerts?title=Spatial%20Search%20Issue",
+                "message": "Document was successfully published to UUI-OPS",
+                "target": "uui",
+                "statusCode": 200,
+                "publishedOn": 1650046219082
+            }
+        ],
+        "state": "Published",
+        "targetStates": ["Hidden"]
+    }
+}
