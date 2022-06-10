@@ -25,6 +25,10 @@ export async function getModel(
     modelName: string,
     options: getModelOptions = { includeId: true }
 ): Promise<Model> {
+    if (!modelName) {
+        throw new BadRequestException('Model name is required')
+    }
+
     const db = await getDb()
 
     let query = db

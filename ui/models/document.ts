@@ -10,10 +10,6 @@ export async function getDocumentsForModel(
     modelName: string,
     luceneQuery?: string
 ): Promise<Document[]> {
-    if (!modelName) {
-        throw new BadRequestException('Model name is required')
-    }
-
     const db = await getDb()
     const model = await getModel(modelName) // need the model to get the related workflow and title property
 

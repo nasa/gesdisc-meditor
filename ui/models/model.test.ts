@@ -1,5 +1,5 @@
 import { getDb } from '../lib/mongodb'
-import { getModels, getModelsWithDocumentCount } from './model'
+import { getModel, getModels, getModelsWithDocumentCount } from './model'
 import alertsModel from './__test__/fixtures/models/alerts.json'
 import collectionMetadataModel from './__test__/fixtures/models/collection-metadata.json'
 import GLDAS_CLM10SUBP_3H_001 from './__test__/fixtures/collection-metadata/GLDAS_CLM10SUBP_3H_001.json'
@@ -29,6 +29,21 @@ describe('Model', () => {
         // cleanup
         await db.collection('Models').deleteMany({})
         await db.collection('Collection Metadata').deleteMany({})
+    })
+
+    describe('getModel', () => {
+        it('should throw if model not passed in', async () => {
+            await expect(async () =>
+                // @ts-ignore intentionally ignore, we're testing runtime validation here
+                getModel()
+            ).rejects.toThrowErrorMatchingInlineSnapshot(`"Model name is required"`)
+        })
+
+        it('should throw for a model that does not exist', async () => {
+            await expect(async () =>
+                getModel('Foo')
+            ).rejects.toThrowErrorMatchingInlineSnapshot(`"Model not found: Foo"`)
+        })
     })
 
     describe('getModels', () => {
