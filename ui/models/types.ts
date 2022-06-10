@@ -26,6 +26,34 @@ export interface ModelMetadata extends DocumentMetadata {
     countAll?: number
 }
 
+export interface Workflow {
+    _id?: string
+    name: string
+    roles: string[]
+    nodes: WorkflowNode[]
+    'x-meditor': DocumentMetadata
+}
+
+export interface WorkflowNode {
+    id: string
+    privileges?: WorkflowPrivilege[]
+    readyForUse?: boolean
+}
+
+export interface WorkflowPrivilege {
+    role: string
+    privilege: string[]
+}
+
+export interface WorkflowEdge {
+    role: string
+    source: string
+    target: string
+    label: string
+    notify?: boolean
+    notifyRoles?: string
+}
+
 export interface DocumentMetadata {
     model: string
     modifiedOn: string
