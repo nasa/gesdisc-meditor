@@ -32,6 +32,13 @@ describe('Model', () => {
     })
 
     describe('getModel', () => {
+        it('should return the requested models', async () => {
+            expect(await getModel('Alerts')).toEqual(alertsModel)
+            expect(await getModel('Collection Metadata')).toEqual(
+                collectionMetadataModel
+            )
+        })
+
         it('should throw if model not passed in', async () => {
             await expect(async () =>
                 // @ts-ignore intentionally ignore, we're testing runtime validation here
