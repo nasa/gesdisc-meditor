@@ -8,7 +8,7 @@ import ModelIcon from '../model-icon'
 import { MdSearch } from 'react-icons/md'
 import { useInput } from '../../lib/use-input.hook'
 import { useDebounce } from '../../lib/use-debounce.hook'
-import { Model } from '../../models/model'
+import type { Model } from '../../models/types'
 
 /**
  * returns an option to be rendered in the Model list

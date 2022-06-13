@@ -80,24 +80,24 @@
             "target": "Deleted"
         },
         {
-            "label": "Delete Permanently",
-            "notify": false,
+            "label": "Un-publish",
+            "notify": true,
             "role": "Author",
             "source": "Published",
-            "target": "Deleted",
+            "target": "Hidden",
             "notifyRoles": "Post-Publish Reviewer"
         }
     ],
-    "name": "Edit-Publish-CMR",
+    "name": "Edit-Publish",
     "x-meditor": {
         "model": "Workflows",
-        "modifiedOn": "2022-02-18T16:50:26.174Z",
-        "modifiedBy": "jdcarlso",
+        "modifiedOn": "2021-12-27T19:48:07.975Z",
+        "modifiedBy": "meditor_dev",
         "states": [
             {
                 "source": "Init",
                 "target": "Draft",
-                "modifiedOn": null
+                "modifiedOn": "2021-05-10T17:03:44.341Z"
             }
         ],
         "publishedTo": [],

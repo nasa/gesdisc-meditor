@@ -33,7 +33,6 @@
             }
         ],
         "publishedTo": [],
-        "state": "Draft",
-        "targetStates": ["Under Review"]
+        "state": "Draft"
     }
 }

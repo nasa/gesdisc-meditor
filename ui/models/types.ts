@@ -31,6 +31,7 @@ export interface Workflow {
     name: string
     roles: string[]
     nodes: WorkflowNode[]
+    edges: WorkflowEdge[]
     'x-meditor': DocumentMetadata
 }
 

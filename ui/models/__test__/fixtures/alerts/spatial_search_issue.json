@@ -24,7 +24,7 @@
     "x-meditor": {
         "model": "Alerts",
         "modifiedOn": "2022-04-15T18:10:14.774Z",
-        "modifiedBy": "lena.iredell",
+        "modifiedBy": "jdoe",
         "states": [
             {
                 "source": "Init",
@@ -35,7 +35,7 @@
                 "source": "Draft",
                 "target": "Published",
                 "modifiedOn": "2022-04-15T18:10:18.157Z",
-                "modifiedBy": "lena.iredell"
+                "modifiedBy": "jdoe"
             }
         ],
         "publishedTo": [
@@ -47,7 +47,6 @@
                 "publishedOn": 1650046219082
             }
         ],
-        "state": "Published",
-        "targetStates": ["Hidden"]
+        "state": "Published"
     }
 }

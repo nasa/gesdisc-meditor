@@ -430,7 +430,7 @@
     "x-meditor": {
         "model": "Collection Metadata",
         "modifiedOn": "2022-04-04T01:56:57.894Z",
-        "modifiedBy": "cloeser",
+        "modifiedBy": "jdoe",
         "states": [
             {
                 "source": "Init",
@@ -441,7 +441,7 @@
                 "source": "Draft",
                 "target": "Published",
                 "modifiedOn": "2022-04-05T00:43:26.755Z",
-                "modifiedBy": "cloeser"
+                "modifiedBy": "jdoe"
             }
         ],
         "publishedTo": [
@@ -459,7 +459,6 @@
                 "publishedOn": 1649119408806
             }
         ],
-        "state": "Published",
-        "targetStates": ["Deleted"]
+        "state": "Published"
     }
 }
