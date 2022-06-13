@@ -113,43 +113,6 @@ paths:
                     schema:
                         $ref: '#/definitions/error'
             x-swagger-router-controller: 'Meditor'
-    /listDocuments:
-        get:
-            summary: 'Lists documents of a given Model'
-            description: 'Lists documents of a given Model'
-            operationId: 'listDocuments'
-            parameters:
-                - name: 'model'
-                  in: 'query'
-                  description: 'Name of the Model'
-                  required: true
-                  type: 'string'
-            responses:
-                200:
-                    description: 'Successful response'
-                    schema:
-                        type: 'array'
-                        title: 'ArrayOfDocuments'
-                        items:
-                            $ref: '#/definitions/docCatalogEntry'
-                400:
-                    description: 'Bad request'
-                    schema:
-                        $ref: '#/definitions/error'
-                422:
-                    description: 'Invalid syntax'
-                    schema:
-                        $ref: '#/definitions/error'
-                500:
-                    description: 'Server error'
-                    schema:
-                        $ref: '#/definitions/error'
-                503:
-                    description: 'Service not available'
-                    schema:
-                        $ref: '#/definitions/error'
-            security: []
-            x-swagger-router-controller: 'Meditor'
     /putDocument:
         post:
             summary: 'Puts a document'

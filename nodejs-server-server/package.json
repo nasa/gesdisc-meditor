@@ -33,7 +33,6 @@
         "log-node": "^7.0.0",
         "mongo-escape": "^2.0.6",
         "mongodb": "^3.6.6",
-        "monquery": "^0.2.0",
         "mustache": "^3.0.1",
         "node-fetch": "^2.6.7",
         "node-nats-streaming": "^0.2.6",

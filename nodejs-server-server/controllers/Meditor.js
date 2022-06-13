@@ -12,7 +12,6 @@ var mUtils = require('./lib/meditor-utils')
 var Validator = require('jsonschema').Validator
 var nats = require('./lib/nats-connection')
 var escape = require('mongo-escape').escape
-var compile = require('monquery')
 var fs = require('fs')
 var { promisify } = require('util')
 
@@ -161,45 +160,6 @@ async function handlePublicationAcknowledgements(message) {
     } finally {
         await client.close()
     }
-}
-
-/**
- * given a simplified Lucene query, convert it to the Mongo $match equivalent
- * ONLY supports AND/OR and field based regex or exact matches
- *
- * TODO: if we need more complex searching, we should use something like ElasticSearch instead
- *
- * @param {string} query
- */
-function convertLuceneQueryToMongo(query, xmeditorProperties) {
-    let match = compile(query)
-
-    function replacexMeditorFieldInMatch(field, match) {
-        if (match.$and) {
-            match.$and = match.$and.map(andMatch =>
-                replacexMeditorFieldInMatch(field, andMatch)
-            )
-        }
-
-        if (match.$or) {
-            match.$or = match.$or.map(orMatch =>
-                replacexMeditorFieldInMatch(field, orMatch)
-            )
-        }
-
-        if (field in match) {
-            match[`x-meditor.${field}`] = match[field]
-            delete match[field]
-        }
-
-        return match
-    }
-
-    xmeditorProperties.forEach(field => {
-        replacexMeditorFieldInMatch(field, match)
-    })
-
-    return match
 }
 
 // Builds aggregation pipeline query for a given model (common starting point for most API functions)
@@ -779,72 +739,6 @@ module.exports.cloneDocument = async function (request, response, next) {
     } finally {
         client.close()
     }
-}
-
-// Exported method to list documents
-module.exports.listDocuments = function listDocuments(request, response, next) {
-    // Function - wide variables are stored here
-    // 1. Get Model to learn about workflow and title field
-    // 2. Find workflow to learn about states
-    // 3. Find latest version of the documents according to roles
-    var that = {}
-    return MongoClient.connect(MongoUrl)
-        .then(res => {
-            that.dbo = res
-            return getDocumentModelMetadata(that.dbo, request)
-        })
-        .then(meta => {
-            _.assign(that, meta)
-        })
-        .then(function () {
-            var xmeditorProperties = [
-                'modifiedOn',
-                'modifiedBy',
-                'state',
-                'targetStates',
-            ]
-            var query = getDocumentAggregationQuery(that)
-
-            if (request.query.filter) {
-                try {
-                    // add match to query
-                    query.push({
-                        $match: convertLuceneQueryToMongo(
-                            request.query.filter,
-                            xmeditorProperties
-                        ),
-                    })
-                } catch (err) {
-                    throw new Error('Improperly formatted filter ')
-                }
-            }
-
-            return that.dbo
-                .db(DbName)
-                .collection(that.params.model)
-                .aggregate(query, { allowDiskUse: true })
-                .map(function (doc) {
-                    var res = { title: _.get(doc, that.titleProperty) }
-                    res['x-meditor'] = _.pickBy(
-                        doc['x-meditor'],
-                        function (value, key) {
-                            return xmeditorProperties.indexOf(key) !== -1
-                        }
-                    )
-                    if ('state' in res['x-meditor'] && !res['x-meditor'].state)
-                        res['x-meditor'].state = 'Unspecified'
-                    _.merge(res, getExtraDocumentMetadata(that, doc))
-                    return res
-                })
-                .toArray()
-        })
-        .then(res => (that.dbo.close(), handleSuccess(response, res)))
-        .catch(err => {
-            try {
-                that.dbo.close()
-            } catch (e) {}
-            handleError(response, err)
-        })
 }
 
 // Exported method to get a document

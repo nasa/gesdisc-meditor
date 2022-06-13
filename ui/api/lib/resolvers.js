@@ -105,13 +105,6 @@ module.exports = {
 
             return model
         },
-        documents: async (_, params, { dataSources }) => {
-            let documents = await dataSources.mEditorApi.getDocumentsForModel(
-                params.modelName,
-                params.filter
-            )
-            return await jsonMapper(documents, getDocumentMap(params.modelName))
-        },
         document: async (_, params, { dataSources }) => {
             let document
 

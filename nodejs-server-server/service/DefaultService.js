@@ -181,40 +181,6 @@ exports.getModel = function (name) {
 }
 
 /**
- * Lists documents of a given Model
- * Lists documents of a given Model
- *
- * model String Name of the Model
- * returns List
- **/
-exports.listDocuments = function (model) {
-    return new Promise(function (resolve, reject) {
-        var examples = {}
-        examples['application/json'] = [
-            {
-                'x-meditor': {
-                    modifiedOn: 'modifiedOn',
-                    modifiedBy: 'modifiedBy',
-                },
-                title: 'title',
-            },
-            {
-                'x-meditor': {
-                    modifiedOn: 'modifiedOn',
-                    modifiedBy: 'modifiedBy',
-                },
-                title: 'title',
-            },
-        ]
-        if (Object.keys(examples).length > 0) {
-            resolve(examples[Object.keys(examples)[0]])
-        } else {
-            resolve()
-        }
-    })
-}
-
-/**
  * Login
  * Redirect to configured identity provider for login
  *
