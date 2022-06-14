@@ -3,6 +3,7 @@ import { getModel } from './model'
 import type { Document, DocumentsSearchOptions, Workflow } from './types'
 import { getWorkflow } from './workflow'
 import { getDocumentsForModelQuery } from './document.queries'
+import { createIndex } from './shared.queries'
 
 // TODO: add OPTIONAL pagination (don't break existing scripts, perhaps the existence of pagination query params changes the output?)
 export async function getDocumentsForModel(
@@ -13,6 +14,11 @@ export async function getDocumentsForModel(
     const model = await getModel(modelName) // need the model to get the related workflow and title property
     const workflow = await getWorkflow(model.workflow)
     const query = getDocumentsForModelQuery(model.titleProperty, searchOptions) // fetch a document search query
+
+    if (searchOptions?.searchTerm) {
+        // ensure we have a searchable index before proceeding
+        await createIndex(modelName, model.titleProperty)
+    }
 
     // retrieve the documents
     const documents = (await db

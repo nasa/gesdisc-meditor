@@ -8,12 +8,12 @@ const DEFAULT_SORT = '-x-meditor.modifiedOn'
 export function getDocumentsForModelQuery(
     titleProperty: string,
     searchOptions: DocumentsSearchOptions
-): any[] {
+) {
     // parse out what we'll sort on, or fall back to the default
-    let sortProperty = (searchOptions?.sort || DEFAULT_SORT).replace(/^-/, '')
-    let sortDir = (searchOptions?.sort || DEFAULT_SORT).charAt(0) == '-' ? -1 : 1
+    const sortProperty = (searchOptions?.sort || DEFAULT_SORT).replace(/^-/, '')
+    const sortDir = (searchOptions?.sort || DEFAULT_SORT).charAt(0) == '-' ? -1 : 1
 
-    let query = [
+    let query: any[] = [
         // filter out deleted documents
         {
             $match: {
@@ -45,6 +45,12 @@ export function getDocumentsForModelQuery(
             },
         },
     ]
+
+    // add search query if user is searching documents
+    // according to Mongo this must be the first pipeline stage
+    if (searchOptions?.searchTerm) {
+        query.unshift({ $match: { $text: { $search: searchOptions.searchTerm } } })
+    }
 
     // if the user is searching the documents, we'll convert their query to the mongo equivalent
     if (searchOptions?.luceneFilters) {

@@ -172,6 +172,8 @@ describe('Documents', () => {
             expect(collections.length).toBe(1)
         })
 
+        it.todo('should search for documents if a search term is passed in') // tests fail, upgrade Mongo to newer version
+
         it('should sort documents by modifiedOn desc if no sort is passed in', async () => {
             await db.collection('Collection Metadata').insertOne({
                 ...GLDAS_CLM10SUBP_3H_001,
