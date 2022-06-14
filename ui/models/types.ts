@@ -1,3 +1,9 @@
+export interface DocumentsSearchOptions {
+    searchTerm?: string
+    luceneFilters?: string // ex. state:Draft
+    sort?: string // ex. modifiedOn | -modifiedOn
+}
+
 export interface ModelCategory {
     name: string
     models: Model[]

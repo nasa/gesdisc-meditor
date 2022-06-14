@@ -165,17 +165,88 @@ describe('Documents', () => {
                 .insertOne(GLDAS_CLM10SUBP_3H_001)
             await db.collection('Collection Metadata').insertOne(OML1BRVG_003)
 
-            const collections = await getDocumentsForModel(
-                'Collection Metadata',
-                'Combined_EntryID:GLDAS_CLM10SUBP_3H_001'
-            )
+            const collections = await getDocumentsForModel('Collection Metadata', {
+                luceneFilters: 'Combined_EntryID:GLDAS_CLM10SUBP_3H_001',
+            })
 
             expect(collections.length).toBe(1)
         })
 
+        it('should sort documents by modifiedOn desc if no sort is passed in', async () => {
+            await db.collection('Collection Metadata').insertOne({
+                ...GLDAS_CLM10SUBP_3H_001,
+                'x-meditor': {
+                    ...GLDAS_CLM10SUBP_3H_001['x-meditor'],
+                    modifiedOn: '2000-01-01T00:00:00.000Z',
+                },
+            })
+
+            await db.collection('Collection Metadata').insertOne({
+                ...OML1BRVG_003,
+                'x-meditor': {
+                    ...OML1BRVG_003['x-meditor'],
+                    modifiedOn: '2000-02-01T00:00:00.000Z',
+                },
+            })
+
+            const collections = await getDocumentsForModel('Collection Metadata')
+
+            expect(collections.map(collection => collection.title)).toEqual([
+                'OML1BRVG_003',
+                'GLDAS_CLM10SUBP_3H_001',
+            ])
+        })
+
+        interface DocumentSortToExpected {
+            collection: string
+            sort: string
+            expectedTitlesInOrder: string[]
+        }
+
+        test.each`
+            collection               | sort                       | expectedTitlesInOrder
+            ${'Collection Metadata'} | ${'-x-meditor.modifiedOn'} | ${['OML1BRVG_003', 'GLDAS_CLM10SUBP_3H_001']}
+            ${'Collection Metadata'} | ${'x-meditor.modifiedOn'}  | ${['GLDAS_CLM10SUBP_3H_001', 'OML1BRVG_003']}
+            ${'Collection Metadata'} | ${'-Combined_EntryID'}     | ${['OML1BRVG_003', 'GLDAS_CLM10SUBP_3H_001']}
+            ${'Collection Metadata'} | ${'Combined_EntryID'}      | ${['GLDAS_CLM10SUBP_3H_001', 'OML1BRVG_003']}
+        `(
+            'should return target states of `$expectedTargetStates` for a document in `$documentState` state of the workflow `$workflowName`',
+            async ({
+                collection,
+                sort,
+                expectedTitlesInOrder,
+            }: DocumentSortToExpected) => {
+                await db.collection('Collection Metadata').insertOne({
+                    ...GLDAS_CLM10SUBP_3H_001,
+                    'x-meditor': {
+                        ...GLDAS_CLM10SUBP_3H_001['x-meditor'],
+                        modifiedOn: '2000-01-01T00:00:00.000Z',
+                    },
+                })
+
+                await db.collection('Collection Metadata').insertOne({
+                    ...OML1BRVG_003,
+                    'x-meditor': {
+                        ...OML1BRVG_003['x-meditor'],
+                        modifiedOn: '2000-02-01T00:00:00.000Z',
+                    },
+                })
+
+                const collections = await getDocumentsForModel(collection, {
+                    sort,
+                })
+
+                expect(collections.map(collection => collection.title)).toEqual(
+                    expectedTitlesInOrder
+                )
+            }
+        )
+
         it('should throw for an improperly formatted filter', async () => {
             await expect(async () =>
-                getDocumentsForModel('Collection Metadata', 'Improper query here')
+                getDocumentsForModel('Collection Metadata', {
+                    luceneFilters: 'Improper query here',
+                })
             ).rejects.toThrowErrorMatchingInlineSnapshot(
                 `"Improperly formatted filter"`
             )

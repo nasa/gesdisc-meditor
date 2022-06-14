@@ -1,58 +1,18 @@
-import { latestVersionOfDocument, UNSPECIFIED_STATE_NAME } from '../lib/aggregations'
 import { getDb } from '../lib/mongodb'
-import { BadRequestException } from '../utils/errors'
 import { getModel } from './model'
-import type { Document, Workflow } from './types'
-import { convertLuceneQueryToMongo } from '../utils/search'
+import type { Document, DocumentsSearchOptions, Workflow } from './types'
 import { getWorkflow } from './workflow'
+import { getDocumentsForModelQuery } from './document.queries'
 
 // TODO: add OPTIONAL pagination (don't break existing scripts, perhaps the existence of pagination query params changes the output?)
 export async function getDocumentsForModel(
     modelName: string,
-    luceneQuery?: string
+    searchOptions?: DocumentsSearchOptions
 ): Promise<Document[]> {
     const db = await getDb()
     const model = await getModel(modelName) // need the model to get the related workflow and title property
     const workflow = await getWorkflow(model.workflow)
-
-    // build the initial query
-    let query = [].concat(
-        [
-            // filter out deleted documents
-            {
-                $match: {
-                    'x-meditor.deletedOn': { $exists: false },
-                },
-            },
-            // since documents can be so large, only include a handful of needed fields
-            // TODO: once pagination is added to the API, this shouldn't be needed anymore
-            {
-                $project: {
-                    _id: 0,
-                    title: `$${model.titleProperty}`, // add a title field that matches the document[model.titleProperty] field
-                    [model.titleProperty]: 1,
-                    'x-meditor': 1,
-                },
-            },
-        ],
-        latestVersionOfDocument(model.titleProperty),
-        [{ $sort: { 'x-meditor.modifiedOn': -1 } }] // sort the result
-    )
-
-    // if the user is searching the documents, we'll convert their query to the mongo equivalent
-    if (luceneQuery) {
-        try {
-            const filterMatch = convertLuceneQueryToMongo(luceneQuery)
-
-            // add filter to existing query
-            query[0].$match = {
-                ...query[0].$match,
-                ...filterMatch,
-            }
-        } catch (err) {
-            throw new BadRequestException('Improperly formatted filter')
-        }
-    }
+    const query = getDocumentsForModelQuery(model.titleProperty, searchOptions) // fetch a document search query
 
     // retrieve the documents
     const documents = (await db
@@ -65,8 +25,6 @@ export async function getDocumentsForModel(
         ...document,
         'x-meditor': {
             ...document['x-meditor'],
-
-            state: document['x-meditor'].state || UNSPECIFIED_STATE_NAME, // make sure state is populated
             targetStates: getTargetStatesFromWorkflow(document, workflow), // populate document with states it can transition into
         },
     }))
