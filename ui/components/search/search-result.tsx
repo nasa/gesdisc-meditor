@@ -12,7 +12,12 @@ import { useContext, useState } from 'react'
 import { AppContext } from '../app-store'
 import { removeUnsavedDocumentFromLS } from '../../lib/unsaved-changes'
 
-const SearchResult = ({ document, modelName, onCloned = () => {}, isLocalDocument = false }) => {
+const SearchResult = ({
+    document,
+    modelName,
+    onCloned = () => {},
+    isLocalDocument = false,
+}) => {
     const { setSuccessNotification } = useContext(AppContext)
     const [showCloneDocumentModal, setShowCloneDocumentModal] = useState(false)
 
@@ -33,11 +38,19 @@ const SearchResult = ({ document, modelName, onCloned = () => {}, isLocalDocumen
         <div className={styles.result}>
             <div>
                 <Link
-                    href={isLocalDocument ? '/meditor/[modelName]/new' : '/meditor/[modelName]/[documentTitle]'}
+                    href={
+                        isLocalDocument
+                            ? '/meditor/[modelName]/new'
+                            : '/meditor/[modelName]/[documentTitle]'
+                    }
                     as={
                         isLocalDocument
-                            ? `/meditor/${urlEncode(document.model)}/new?localId=${document.localId}`
-                            : `/meditor/${urlEncode(document.model)}/${urlEncode(document.title)}`
+                            ? `/meditor/${urlEncode(document.model)}/new?localId=${
+                                  document.localId
+                              }`
+                            : `/meditor/${urlEncode(document.model)}/${urlEncode(
+                                  document.title
+                              )}`
                     }
                 >
                     <a dangerouslySetInnerHTML={{ __html: document.title }} />
@@ -45,13 +58,15 @@ const SearchResult = ({ document, modelName, onCloned = () => {}, isLocalDocumen
             </div>
 
             <div>
-                {isLocalDocument && <StateBadge variant="warning">Unsaved</StateBadge>}
-                {!isLocalDocument && <DocumentStateBadge document={document} modelName={modelName} />}
+                {isLocalDocument && (
+                    <StateBadge variant="warning">Unsaved</StateBadge>
+                )}
+                {!isLocalDocument && (
+                    <DocumentStateBadge document={document} modelName={modelName} />
+                )}
             </div>
 
-            <div>
-                {isLocalDocument ? format(new Date(document.modifiedOn), 'M/d/yy, h:mm aaa') : document.modifiedOn}
-            </div>
+            <div>{format(new Date(document.modifiedOn), 'M/d/yy, h:mm aaa')}</div>
 
             <div>{document.modifiedBy}</div>
 
@@ -63,7 +78,10 @@ const SearchResult = ({ document, modelName, onCloned = () => {}, isLocalDocumen
                 )}
 
                 {!isLocalDocument && (
-                    <IconButton alt="Clone Document" onClick={() => setShowCloneDocumentModal(true)}>
+                    <IconButton
+                        alt="Clone Document"
+                        onClick={() => setShowCloneDocumentModal(true)}
+                    >
                         <FaRegClone />
                     </IconButton>
                 )}
@@ -74,7 +92,7 @@ const SearchResult = ({ document, modelName, onCloned = () => {}, isLocalDocumen
                 documentTitle={document.title}
                 show={showCloneDocumentModal}
                 onCancel={() => setShowCloneDocumentModal(false)}
-                onSuccess={(newDocument) => {
+                onSuccess={newDocument => {
                     setShowCloneDocumentModal(false)
                     onCloned()
                 }}

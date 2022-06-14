@@ -80,12 +80,14 @@ export async function getServerSideProps(context: NextPageContext) {
     }))
 
     return {
-        props: {
-            // Next doesn't know how to process the _id property, as it's an object, not a string. So this hack parses ahead of time
-            // https://github.com/vercel/next.js/issues/11993
-            // TODO: review the about issue for solutions
-            modelCategories: JSON.parse(JSON.stringify(modelCategories)),
-        },
+        // Next doesn't know how to process the Mongo _id property, as it's an object, not a string. So this hack parses ahead of time
+        // https://github.com/vercel/next.js/issues/11993
+        // TODO: review the above issue for solutions
+        props: JSON.parse(
+            JSON.stringify({
+                modelCategories,
+            })
+        ),
     }
 }
 

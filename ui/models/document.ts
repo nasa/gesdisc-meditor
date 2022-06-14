@@ -24,7 +24,6 @@ export async function getDocumentsForModel(
                     'x-meditor.deletedOn': { $exists: false },
                 },
             },
-
             // since documents can be so large, only include a handful of needed fields
             // TODO: once pagination is added to the API, this shouldn't be needed anymore
             {
@@ -36,7 +35,8 @@ export async function getDocumentsForModel(
                 },
             },
         ],
-        latestVersionOfDocument(model.titleProperty)
+        latestVersionOfDocument(model.titleProperty),
+        [{ $sort: { 'x-meditor.modifiedOn': -1 } }] // sort the result
     )
 
     // if the user is searching the documents, we'll convert their query to the mongo equivalent
