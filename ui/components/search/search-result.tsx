@@ -12,12 +12,7 @@ import { useContext, useState } from 'react'
 import { AppContext } from '../app-store'
 import { removeUnsavedDocumentFromLS } from '../../lib/unsaved-changes'
 
-const SearchResult = ({
-    document,
-    modelName,
-    onCloned = () => {},
-    isLocalDocument = false,
-}) => {
+const SearchResult = ({ document, modelName, onCloned, isLocalDocument = false }) => {
     const { setSuccessNotification } = useContext(AppContext)
     const [showCloneDocumentModal, setShowCloneDocumentModal] = useState(false)
 

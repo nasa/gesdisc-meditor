@@ -1,6 +1,6 @@
 export interface DocumentsSearchOptions {
     searchTerm?: string
-    luceneFilters?: string // ex. state:Draft
+    filter?: string // ex. state:Draft
     sort?: string // ex. modifiedOn | -modifiedOn
 }
 

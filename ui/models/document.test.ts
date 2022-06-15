@@ -166,7 +166,7 @@ describe('Documents', () => {
             await db.collection('Collection Metadata').insertOne(OML1BRVG_003)
 
             const collections = await getDocumentsForModel('Collection Metadata', {
-                luceneFilters: 'Combined_EntryID:GLDAS_CLM10SUBP_3H_001',
+                filter: 'Combined_EntryID:GLDAS_CLM10SUBP_3H_001',
             })
 
             expect(collections.length).toBe(1)
@@ -247,7 +247,7 @@ describe('Documents', () => {
         it('should throw for an improperly formatted filter', async () => {
             await expect(async () =>
                 getDocumentsForModel('Collection Metadata', {
-                    luceneFilters: 'Improper query here',
+                    filter: 'Improper query here',
                 })
             ).rejects.toThrowErrorMatchingInlineSnapshot(
                 `"Improperly formatted filter"`

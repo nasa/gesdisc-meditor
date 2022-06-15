@@ -1,39 +1,22 @@
-import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import SearchBar from '../../components/search/search-bar'
 import SearchList from '../../components/search/search-list'
+import SearchBar from '../../components/search/search-bar'
 import PageTitle from '../../components/page-title'
 import withAuthentication from '../../components/with-authentication'
 import { getModel, getModels } from '../../models/model'
 import { getDocumentsForModel } from '../../models/document'
 import { NextPageContext } from 'next'
 import { User } from '../../service/api'
-import { Document, Model } from '../../models/types'
-import { SearchOptions } from './types'
+import { Document, DocumentsSearchOptions, Model } from '../../models/types'
+import { ParsedUrlQuery } from 'querystring'
+import { useEffect, useRef, useState } from 'react'
 
-const DEFAULT_SEARCH_OPTIONS = {
-    term: '',
-    filters: {},
-    sort: {
-        direction: 'desc',
-        property: 'x-meditor.modifiedOn',
-        isDate: true,
-    },
-}
-
-/**
- * given an object of search filters, turn it into a Lucene style search query
- * @param searchFilters
- */
-function filtersToSearchQuery(searchFilters) {
-    let filters = []
-
-    Object.keys(searchFilters).forEach(key => {
-        let value = searchFilters[key]
-        if (value) filters.push(`${key}:${value}`)
-    })
-
-    return filters.join(' AND ')
+function getSearchOptionsFromParams(query: ParsedUrlQuery): DocumentsSearchOptions {
+    return {
+        filter: query.filter?.toString() || '',
+        sort: query.sort?.toString() || '',
+        searchTerm: query.searchTerm?.toString() || '',
+    }
 }
 
 interface ModelPageProps {
@@ -49,103 +32,62 @@ interface ModelPageProps {
 const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
     const router = useRouter()
     const modelName = router.query.modelName as string
-    const search = router.query.search as string
-    const filter = router.query.filter as string
-    const sort = router.query.sort as string
+    const [searchOptions, setSearchOptions] = useState<DocumentsSearchOptions>(
+        getSearchOptionsFromParams(router.query)
+    )
 
-    const [searchOptions, setSearchOptions] = useState<SearchOptions>({
-        // get search term from query param OR use default
-        term: search || DEFAULT_SEARCH_OPTIONS.term,
+    // use SSR documents on initial load, searching does a fetch
+    const [fetchedDocuments, setFetchedDocuments] = useState<Document[]>(documents)
 
-        // get search filters from URL params OR use defaults
-        filters: filter
-            ? filter.split(' AND ').reduce(
-                  (obj, item) => ({
-                      ...obj,
-                      [item.split(':')[0]]: item.split(':')[1],
-                  }),
-                  {}
-              )
-            : DEFAULT_SEARCH_OPTIONS.filters,
-
-        // get sort options from URL params or use defaults
-        sort: {
-            property: sort?.split(':')?.[0] || DEFAULT_SEARCH_OPTIONS.sort.property,
-            direction: sort?.split(':')?.[1] || DEFAULT_SEARCH_OPTIONS.sort.direction,
-            isDate: sort
-                ? sort?.split(':')?.[2]
-                    ? true
-                    : false
-                : DEFAULT_SEARCH_OPTIONS.sort.isDate,
-        },
-    })
-
-    // when changing search term, filters, sorting, etc. modify the URL to make the options bookmarkable
+    const isFirstRun = useRef(true)
     useEffect(() => {
-        if (!('URLSearchParams' in window)) {
+        if (isFirstRun.current) {
+            isFirstRun.current = false
             return
         }
 
-        let qp = new URLSearchParams(window.location.search)
+        console.log(JSON.stringify(searchOptions))
 
-        // add or remove query params for each search option type
-        searchOptions.term
-            ? qp.set('search', searchOptions.term)
-            : qp.delete('search')
-
-        let filters = filtersToSearchQuery(searchOptions.filters)
-        filters ? qp.set('filter', filters) : qp.delete('filter')
-
-        // only add sort options if they differ from the default
-        if (
-            searchOptions.sort.property !== DEFAULT_SEARCH_OPTIONS.sort.property ||
-            searchOptions.sort.direction !== DEFAULT_SEARCH_OPTIONS.sort.direction
-        ) {
-            qp.set(
-                'sort',
-                `${searchOptions.sort.property}:${searchOptions.sort.direction}`
-            )
-
-            if (searchOptions.sort.isDate) qp.set('sort', `${qp.get('sort')}:date`)
-        } else {
-            qp.delete('sort')
-        }
-
-        // setting location.search directly would cause a page refresh, instead add the change to history
-        history.pushState(
-            null,
-            '',
-            qp.toString()
-                ? window.location.pathname + '?' + qp.toString()
-                : window.location.pathname
-        )
+        refetchDocuments(searchOptions)
     }, [searchOptions])
+
+    async function refetchDocuments(searchOptions: DocumentsSearchOptions) {
+        const queryParams = new URLSearchParams({
+            ...searchOptions,
+            model: modelName,
+        }).toString()
+
+        const response = await fetch('/meditor/api/listDocuments?' + queryParams)
+        const documents = (await response.json()) as Document[]
+
+        console.log('new documents ', documents.length)
+
+        setFetchedDocuments(documents)
+    }
 
     function addNewDocument() {
         router.push('/meditor/[modelName]/new', `/meditor/${modelName}/new`)
     }
 
-    function handleFilterChange(filter, value) {
-        let newFilters = {
-            ...searchOptions.filters,
-            [filter]: value,
-        }
+    function handleSortChange(newSort) {
+        if (newSort == searchOptions.sort) return // don't update state if sort hasn't changed
 
-        // TODO: trigger a new query!!!!!!!!
-        /* 
-        getDocuments({
-            variables: {
-                modelName,
-                filter: filtersToSearchQuery(newFilters),
-            },
-        })*/
-
-        // update URL params to match filter change
         setSearchOptions({
             ...searchOptions,
-            filters: {
-                ...newFilters,
-            },
+            sort: newSort,
+        })
+    }
+
+    function handleFilterChange(filter, value) {
+        console.log('handle filter change ', filter, value)
+    }
+
+    function handleSearchChange(newSearchTerm: string) {
+        if (newSearchTerm == searchOptions.searchTerm) return // don't update state if search term hasn't changed
+
+        setSearchOptions({
+            ...searchOptions,
+            searchTerm: newSearchTerm,
         })
     }
 
@@ -157,19 +99,14 @@ const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
                 allModels={allModels}
                 model={model}
                 modelName={modelName}
-                initialInput={searchOptions.term}
-                onInput={term =>
-                    setSearchOptions({
-                        ...searchOptions,
-                        term,
-                    })
-                }
+                initialInput={searchOptions.searchTerm}
+                onInput={handleSearchChange}
             />
 
             <div className="my-4">
-                {documents && (
+                {fetchedDocuments && (
                     <SearchList
-                        documents={documents.map(document => ({
+                        documents={fetchedDocuments.map(document => ({
                             ...document,
                             ...document['x-meditor'], // bring x-meditor properties up a level
                         }))}
@@ -178,14 +115,10 @@ const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
                         user={user}
                         onRefreshList={() => {
                             // TODO: WHAT TO DO ON CLONE?
+                            // refetch using current search options
                         }}
                         searchOptions={searchOptions}
-                        onSortChange={sort => {
-                            setSearchOptions({
-                                ...searchOptions,
-                                sort,
-                            })
-                        }}
+                        onSortChange={handleSortChange}
                         onFilterChange={handleFilterChange}
                     />
                 )}
@@ -194,10 +127,16 @@ const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
     )
 }
 
-export async function getServerSideProps(context: NextPageContext) {
+export async function getServerSideProps(ctx: NextPageContext) {
     const models = await getModels()
-    const model = await getModel(context.query.modelName.toString())
-    const documents = await getDocumentsForModel(context.query.modelName.toString())
+    const model = await getModel(ctx.query.modelName.toString())
+
+    // gather query params
+    const modelName = ctx.query.modelName.toString()
+    const searchOptions = getSearchOptionsFromParams(ctx.query)
+
+    // fetch documents, applying search, filter, or sort
+    const documents = await getDocumentsForModel(modelName, searchOptions)
 
     return {
         // see note in /pages/index.tsx for parse/stringify explanation

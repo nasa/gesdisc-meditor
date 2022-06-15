@@ -53,11 +53,11 @@ export function getDocumentsForModelQuery(
     }
 
     // if the user is searching the documents, we'll convert their query to the mongo equivalent
-    if (searchOptions?.luceneFilters) {
+    if (searchOptions?.filter) {
         try {
             // add another match to query for the user's filter
             query.push({
-                $match: convertLuceneQueryToMongo(searchOptions.luceneFilters),
+                $match: convertLuceneQueryToMongo(searchOptions.filter),
             })
         } catch (err) {
             throw new BadRequestException('Improperly formatted filter')
