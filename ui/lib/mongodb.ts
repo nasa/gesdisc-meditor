@@ -14,7 +14,8 @@ const options: MongoClientOptions = {
 }
 
 let mongoClient: MongoClient
-let mongoClientPromise: Promise<MongoClient>
+
+export let mongoClientPromise: Promise<MongoClient>
 
 if (process.env.NODE_ENV === 'development') {
     // In development mode, use a global variable so that the value
@@ -32,10 +33,8 @@ if (process.env.NODE_ENV === 'development') {
     mongoClientPromise = mongoClient.connect()
 }
 
-export const getDb = async (dbName?: string) => {
+const getDb = async (dbName?: string) => {
     return (await mongoClientPromise).db(dbName || process.env.DB_NAME)
 }
 
-// Export a module-scoped MongoClient promise. By doing this in a
-// separate module, the client can be shared across functions.
-export default mongoClientPromise
+export default getDb
