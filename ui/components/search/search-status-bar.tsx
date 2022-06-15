@@ -56,27 +56,30 @@ const SearchStatusBar = ({
 
     const states =
         data?.model?.workflow?.nodes
-            ?.filter((node) => node.id !== 'Init' && node.id !== 'Deleted')
-            .map((node) => node.id)
+            ?.filter(node => node.id !== 'Init' && node.id !== 'Deleted')
+            .map(node => node.id)
             .sort() || []
 
     // find fields in the layout that are marked as filters
     let filterFields = []
 
     try {
-        filterFields = pickby(layout, (field) => 'ui:filter' in field)
-    } catch(err) {}
+        filterFields = pickby(layout, field => 'ui:filter' in field)
+    } catch (err) {}
 
     // retrieve the schema information for the field
-    Object.keys(filterFields).forEach((field) => {
+    Object.keys(filterFields).forEach(field => {
         filterFields[field].schema = schema?.properties?.[field]
     })
 
     const currentPrivileges = data?.model?.workflow
-        ? user.privilegesForModelAndWorkflowNode(modelName, data.model.workflow.currentNode)
+        ? user.privilegesForModelAndWorkflowNode(
+              modelName,
+              data.model.workflow.currentNode
+          )
         : []
     const currentEdges =
-        data?.model?.workflow?.currentEdges?.filter((edge) => {
+        data?.model?.workflow?.currentEdges?.filter(edge => {
             return user.rolesForModel(modelName).includes(edge.role)
         }) || []
 
@@ -90,7 +93,11 @@ const SearchStatusBar = ({
             <Alert variant="info">
                 No documents found.
                 {currentPrivileges.includes('create') && currentEdges.length && (
-                    <Button variant="secondary" onClick={onAddNew} style={{ marginLeft: 20 }}>
+                    <Button
+                        variant="secondary"
+                        onClick={onAddNew}
+                        style={{ marginLeft: 20 }}
+                    >
                         <MdAdd />
                         {currentEdges[0].label}
                     </Button>
@@ -103,12 +110,14 @@ const SearchStatusBar = ({
         <div className={styles.container}>
             <div className={styles.count}>
                 Showing {offset + 1} -{' '}
-                {offset + itemsPerPage > totalDocumentCount ? totalDocumentCount : offset + itemsPerPage} of{' '}
-                {totalDocumentCount} {modelName} documents
+                {offset + itemsPerPage > totalDocumentCount
+                    ? totalDocumentCount
+                    : offset + itemsPerPage}{' '}
+                of {totalDocumentCount} {modelName} documents
             </div>
 
             <div className={styles.actions}>
-                {Object.keys(filterFields).map((field) => (
+                {Object.keys(filterFields).map(field => (
                     <SearchFilter
                         key={field}
                         label={field}
@@ -123,13 +132,13 @@ const SearchStatusBar = ({
                         Filter by:
                         <select
                             className="form-control"
-                            value={searchOptions.filters.state}
-                            onChange={(e) => onFilterChange('state', e.target.value)}
+                            value={searchOptions.filter}
+                            onChange={e => onFilterChange(e.target.value)}
                         >
                             <option value=""></option>
 
-                            {states.map((state) => (
-                                <option key={state} value={state}>
+                            {states.map(state => (
+                                <option key={state} value={`state:${state}`}>
                                     {state}
                                 </option>
                             ))}

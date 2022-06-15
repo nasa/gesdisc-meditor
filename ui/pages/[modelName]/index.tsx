@@ -78,8 +78,13 @@ const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
         })
     }
 
-    function handleFilterChange(filter, value) {
-        console.log('handle filter change ', filter, value)
+    function handleFilterChange(newFilter) {
+        if (newFilter == searchOptions.filter) return // don't update filter if it hasn't changed
+
+        setSearchOptions({
+            ...searchOptions,
+            filter: newFilter,
+        })
     }
 
     function handleSearchChange(newSearchTerm: string) {
