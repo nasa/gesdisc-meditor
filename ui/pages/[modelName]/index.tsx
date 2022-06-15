@@ -128,11 +128,10 @@ const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
 }
 
 export async function getServerSideProps(ctx: NextPageContext) {
-    const models = await getModels()
-    const model = await getModel(ctx.query.modelName.toString())
-
-    // gather query params
     const modelName = ctx.query.modelName.toString()
+    const models = await getModels()
+    const model = await getModel(modelName)
+
     const searchOptions = getSearchOptionsFromParams(ctx.query)
 
     // fetch documents, applying search, filter, or sort

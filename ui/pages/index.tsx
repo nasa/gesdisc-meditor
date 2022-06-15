@@ -7,6 +7,7 @@ import styles from './dashboard.module.css'
 import { getModelsWithDocumentCount } from '../models/model'
 import type { ModelCategory } from '../models/types'
 import { NextPageContext } from 'next'
+import Link from 'next/link'
 import { sortModels } from '../utils/sort'
 
 type DashboardPageProps = {
@@ -29,23 +30,21 @@ const DashboardPage = ({ modelCategories }: DashboardPageProps) => {
                             .sort((a, b) => a.name.localeCompare(b.name))
                             .map(model => (
                                 <div key={model.name} className={styles.model}>
-                                    <Button
-                                        variant="light"
-                                        onClick={() =>
-                                            Router.push(
-                                                '/meditor/[modelName]',
-                                                `/meditor/${model.name}`
-                                            )
-                                        }
-                                        className="dashboard-model"
-                                    >
-                                        <ModelIcon
-                                            name={model?.icon?.name}
-                                            color={model?.icon?.color}
-                                        />
-                                        <span>{model?.name}</span>
-                                        <span>({model?.['x-meditor']?.count})</span>
-                                    </Button>
+                                    <Link href={`/meditor/${model.name}`}>
+                                        <Button
+                                            variant="light"
+                                            className="dashboard-model"
+                                        >
+                                            <ModelIcon
+                                                name={model?.icon?.name}
+                                                color={model?.icon?.color}
+                                            />
+                                            <span>{model?.name}</span>
+                                            <span>
+                                                ({model?.['x-meditor']?.count})
+                                            </span>
+                                        </Button>
+                                    </Link>
                                 </div>
                             ))}
                     </div>

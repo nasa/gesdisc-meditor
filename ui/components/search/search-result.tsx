@@ -10,9 +10,25 @@ import IconButton from '../icon-button'
 import CloneDocumentModal from '../document/clone-document-modal'
 import { useContext, useState } from 'react'
 import { AppContext } from '../app-store'
-import { removeUnsavedDocumentFromLS } from '../../lib/unsaved-changes'
+import {
+    removeUnsavedDocumentFromLS,
+    UnsavedDocument,
+} from '../../lib/unsaved-changes'
+import { Document } from '../../models/types'
 
-const SearchResult = ({ document, modelName, onCloned, isLocalDocument = false }) => {
+interface SearchResultProps {
+    document: Document | UnsavedDocument
+    modelName: string
+    onCloned?: Function
+    isLocalDocument?: boolean
+}
+
+const SearchResult = ({
+    document,
+    modelName,
+    onCloned,
+    isLocalDocument,
+}: SearchResultProps) => {
     const { setSuccessNotification } = useContext(AppContext)
     const [showCloneDocumentModal, setShowCloneDocumentModal] = useState(false)
 
@@ -25,7 +41,7 @@ const SearchResult = ({ document, modelName, onCloned, isLocalDocument = false }
             return
         }
 
-        removeUnsavedDocumentFromLS(document)
+        removeUnsavedDocumentFromLS(document as UnsavedDocument)
         setSuccessNotification(`Successfully deleted document: '${document.title}'`)
     }
 
