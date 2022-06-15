@@ -119,8 +119,7 @@ const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
                         onAddNew={addNewDocument}
                         user={user}
                         onRefreshList={() => {
-                            // TODO: WHAT TO DO ON CLONE?
-                            // refetch using current search options
+                            refetchDocuments(searchOptions) // refetch using current search options
                         }}
                         searchOptions={searchOptions}
                         onSortChange={handleSortChange}
