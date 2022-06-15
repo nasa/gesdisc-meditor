@@ -1,4 +1,4 @@
-import { getDb } from '../lib/mongodb'
+import getDb from '../lib/mongodb'
 import { getDocumentsForModel, getTargetStatesFromWorkflow } from './document'
 import alertsModel from './__test__/fixtures/models/alerts.json'
 import collectionMetadataModel from './__test__/fixtures/models/collection-metadata.json'

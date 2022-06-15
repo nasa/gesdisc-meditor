@@ -1,4 +1,4 @@
-import { getDb } from '../lib/mongodb'
+import getDb from '../lib/mongodb'
 import { getModel, getModels, getModelsWithDocumentCount } from './model'
 import alertsModel from './__test__/fixtures/models/alerts.json'
 import collectionMetadataModel from './__test__/fixtures/models/collection-metadata.json'

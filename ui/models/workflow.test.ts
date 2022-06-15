@@ -1,4 +1,4 @@
-import { getDb } from '../lib/mongodb'
+import getDb from '../lib/mongodb'
 import { getWorkflow, getWorkflowForModel } from './workflow'
 import collectionMetadataModel from './__test__/fixtures/models/collection-metadata.json'
 import editPublishCmrWorkflow from './__test__/fixtures/workflows/edit-publish-cmr.json'

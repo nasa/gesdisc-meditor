@@ -1,4 +1,4 @@
-import { getDb } from '../lib/mongodb'
+import getDb from '../lib/mongodb'
 import { getModel } from './model'
 import type { Document, DocumentsSearchOptions, Workflow } from './types'
 import { getWorkflow } from './workflow'

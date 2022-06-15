@@ -1,4 +1,4 @@
-import { getDb } from '../lib/mongodb'
+import getDb from '../lib/mongodb'
 import { NotFoundException } from '../utils/errors'
 import { getModel } from './model'
 import { Workflow } from './types'

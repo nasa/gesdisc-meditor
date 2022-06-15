@@ -1,4 +1,4 @@
-import { getDb } from '../lib/mongodb'
+import getDb from '../lib/mongodb'
 import { BadRequestException, NotFoundException } from '../utils/errors'
 import type { Model } from './types'
 import jsonpath from 'jsonpath'

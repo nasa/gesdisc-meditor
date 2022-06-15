@@ -1,4 +1,4 @@
-import { getDb } from '../lib/mongodb'
+import getDb from '../lib/mongodb'
 
 export const UNSPECIFIED_STATE_NAME = 'Unspecified'
 export const UNKNOWN_USER = 'Unknown'
