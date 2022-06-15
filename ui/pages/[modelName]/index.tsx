@@ -46,8 +46,6 @@ const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
             return
         }
 
-        console.log(JSON.stringify(searchOptions))
-
         refetchDocuments(searchOptions)
     }, [searchOptions])
 
@@ -59,8 +57,6 @@ const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
 
         const response = await fetch('/meditor/api/listDocuments?' + queryParams)
         const documents = (await response.json()) as Document[]
-
-        console.log('new documents ', documents.length)
 
         setFetchedDocuments(documents)
     }
