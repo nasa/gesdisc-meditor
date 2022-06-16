@@ -20,6 +20,7 @@ interface SearchResultProps {
     document: Document | UnsavedDocument
     modelName: string
     onCloned?: Function
+    onDelete?: Function
     isLocalDocument?: boolean
 }
 
@@ -27,6 +28,7 @@ const SearchResult = ({
     document,
     modelName,
     onCloned,
+    onDelete,
     isLocalDocument,
 }: SearchResultProps) => {
     const { setSuccessNotification } = useContext(AppContext)
@@ -43,6 +45,7 @@ const SearchResult = ({
 
         removeUnsavedDocumentFromLS(document as UnsavedDocument)
         setSuccessNotification(`Successfully deleted document: '${document.title}'`)
+        onDelete?.(document)
     }
 
     return (
@@ -51,15 +54,10 @@ const SearchResult = ({
                 <Link
                     href={
                         isLocalDocument
-                            ? '/meditor/[modelName]/new'
-                            : '/meditor/[modelName]/[documentTitle]'
-                    }
-                    as={
-                        isLocalDocument
-                            ? `/meditor/${urlEncode(document.model)}/new?localId=${
+                            ? `/${urlEncode(document.model)}/new?localId=${
                                   document.localId
                               }`
-                            : `/meditor/${urlEncode(document.model)}/${urlEncode(
+                            : `/${urlEncode(document.model)}/${urlEncode(
                                   document.title
                               )}`
                     }

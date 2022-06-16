@@ -82,7 +82,7 @@ const SearchBar = ({
     function handleModelChange(selectedModel) {
         setSelectedModel(selectedModel)
         reset()
-        Router.push('/meditor/[modelName]', `/meditor/${selectedModel.name}`)
+        Router.push('/[modelName]', `/${selectedModel.name}`)
     }
 
     return (

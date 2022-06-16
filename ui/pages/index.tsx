@@ -30,7 +30,7 @@ const DashboardPage = ({ modelCategories }: DashboardPageProps) => {
                             .sort((a, b) => a.name.localeCompare(b.name))
                             .map(model => (
                                 <div key={model.name} className={styles.model}>
-                                    <Link href={`/meditor/${model.name}`}>
+                                    <Link href={`/${model.name}`}>
                                         <Button
                                             variant="light"
                                             className="dashboard-model"

@@ -1,8 +1,6 @@
 module.exports = {
     assetPrefix: '/meditor',
-    publicRuntimeConfig: {
-        basePath: '/meditor',
-    },
+    basePath: '/meditor',
     webpackDevMiddleware: config => {
         config.watchOptions = {
             poll: 1000, // Check for changes every second

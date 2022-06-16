@@ -40,11 +40,15 @@ const SearchList = ({
 
     // look for unsaved documents in local storage
     useEffect(() => {
-        setLocalDocuments(findUnsavedDocumentsByModel(model.name))
+        refreshLocalDocuments()
     }, [])
 
     // combine local storage documents (unsaved) with database documents
     let listDocuments = [].concat(localDocuments, documents)
+
+    function refreshLocalDocuments() {
+        setLocalDocuments(findUnsavedDocumentsByModel(model.name))
+    }
 
     function Header({ text, sortBy = null }) {
         return (
@@ -114,6 +118,7 @@ const SearchList = ({
                                         document={document}
                                         isLocalDocument={true}
                                         modelName={model.name}
+                                        onDelete={refreshLocalDocuments}
                                     />
                                 )
                             } else {
@@ -122,7 +127,7 @@ const SearchList = ({
                                         key={document.title}
                                         document={document}
                                         modelName={model.name}
-                                        onCloned={onRefreshList}
+                                        onRefresh={onRefreshList}
                                     />
                                 )
                             }

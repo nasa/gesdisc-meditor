@@ -24,22 +24,6 @@ type Theme = typeof THEMES[number]
 // Though the URI spec says the query string is case-sensitive, we'll normalize as lowercase to follow https://lawsofux.com/postels-law/
 const THEMES = ['default', 'edpub'] as const
 
-/**
- * mEditor previously used hashes for routes, but hashes aren't passed into the server, so now it's using normal URLs.
- * Because old URLs may be bookmarked, let's redirect the old URLs to the new URLs
- */
-const OLD_URL_MAPPING = {
-    '#/search?': { href: '/meditor/[modelName]', as: '/meditor/{model}' },
-    '#/document/edit?': {
-        href: '/meditor/[modelName]/[documentTitle]',
-        as: '/meditor/{model}/{title}',
-    },
-    '#/document/new?': {
-        href: '/meditor/[modelName]/new',
-        as: '/meditor/{model}/new',
-    },
-}
-
 let customElementsRegistered = false
 
 function registerCustomElements() {
@@ -54,16 +38,6 @@ function registerCustomElements() {
     })
 }
 
-function getOldUrlMapping() {
-    if (typeof window === 'undefined' || !window.location.hash) return
-
-    const oldUrlKey = Object.keys(OLD_URL_MAPPING).find(prefix =>
-        window.location.hash.includes(prefix)
-    )
-
-    return oldUrlKey ? OLD_URL_MAPPING[oldUrlKey] : undefined
-}
-
 /**
  * customize the App to provide a consistent layout across pages
  * @param props.Component the active page
@@ -71,11 +45,9 @@ function getOldUrlMapping() {
  */
 const App = ({ Component, pageProps, theme }: AppProps & PropsType) => {
     const [user, setUser] = useState()
-
     const router = useRouter()
-
     const isAuthenticated = typeof user !== 'undefined' && user != null
-    let canLoadPage =
+    const canLoadPage =
         typeof user !== 'undefined' ||
         router.pathname == '/' ||
         router.pathname == '/installation'
@@ -83,30 +55,6 @@ const App = ({ Component, pageProps, theme }: AppProps & PropsType) => {
     useEffect(() => {
         registerCustomElements()
     }, [])
-
-    const oldUrlMapping = getOldUrlMapping()
-
-    // handle old URLs, use the mapping to construct the new URL
-    // TODO: use mEditor logs to determine if old URLs are still be used, if not, remove this
-    if (oldUrlMapping) {
-        canLoadPage = false
-
-        const hashObj: any = window.location.hash
-            .split('?')[1]
-            .split('&')
-            .map(v => v.split('='))
-            .reduce((pre, [key, value]) => ({ ...pre, [key]: value }), {})
-
-        let newUrl = oldUrlMapping
-
-        Object.keys(hashObj).forEach(
-            key => (newUrl.as = newUrl.as.replace(`{${key}}`, hashObj[key]))
-        )
-
-        console.log('using an old URL, redirect to new URL: ', JSON.stringify(newUrl))
-
-        router.push(newUrl.href, newUrl.as)
-    }
 
     return (
         <>

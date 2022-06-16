@@ -19,6 +19,17 @@ function getSearchOptionsFromParams(query: ParsedUrlQuery): DocumentsSearchOptio
     }
 }
 
+function getParamsFromSearchOptions(
+    searchOptions: DocumentsSearchOptions
+): URLSearchParams {
+    // remove empty items so we don't pollute the URL with empty params
+    const usedSearchOptions = Object.fromEntries(
+        Object.entries(searchOptions).filter(([_, v]) => v != null && v != '')
+    )
+
+    return new URLSearchParams({ ...usedSearchOptions })
+}
+
 interface ModelPageProps {
     user: User
     model: Model
@@ -36,9 +47,6 @@ const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
         getSearchOptionsFromParams(router.query)
     )
 
-    // use SSR documents on initial load, searching does a fetch
-    const [fetchedDocuments, setFetchedDocuments] = useState<Document[]>(documents)
-
     const isFirstRun = useRef(true)
     useEffect(() => {
         if (isFirstRun.current) {
@@ -50,19 +58,13 @@ const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
     }, [searchOptions])
 
     async function refetchDocuments(searchOptions: DocumentsSearchOptions) {
-        const queryParams = new URLSearchParams({
-            ...searchOptions,
-            model: modelName,
-        }).toString()
+        const queryParams = getParamsFromSearchOptions(searchOptions).toString()
 
-        const response = await fetch('/meditor/api/listDocuments?' + queryParams)
-        const documents = (await response.json()) as Document[]
-
-        setFetchedDocuments(documents)
+        router.push(`/${modelName}${queryParams && '?' + queryParams}`)
     }
 
     function addNewDocument() {
-        router.push('/meditor/[modelName]/new', `/meditor/${modelName}/new`)
+        router.push('/[modelName]/new', `/${modelName}/new`)
     }
 
     function handleSortChange(newSort) {
@@ -105,9 +107,9 @@ const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
             />
 
             <div className="my-4">
-                {fetchedDocuments && (
+                {documents && (
                     <SearchList
-                        documents={fetchedDocuments.map(document => ({
+                        documents={documents.map(document => ({
                             ...document,
                             ...document['x-meditor'], // bring x-meditor properties up a level
                         }))}
