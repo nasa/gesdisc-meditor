@@ -127,7 +127,7 @@ const SearchList = ({
                                         key={document.title}
                                         document={document}
                                         modelName={model.name}
-                                        onRefresh={onRefreshList}
+                                        onCloned={onRefreshList}
                                     />
                                 )
                             }
