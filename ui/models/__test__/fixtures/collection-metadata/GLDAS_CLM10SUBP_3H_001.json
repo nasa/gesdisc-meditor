@@ -1,0 +1,306 @@
+{
+    "Entry_ID": {
+        "Short_Name": "GLDAS_CLM10SUBP_3H",
+        "Version": "001"
+    },
+    "Science_Keywords": [
+        "EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC PRESSURE > SURFACE PRESSURE",
+        "EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC RADIATION > HEAT FLUX",
+        "EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC RADIATION > LONGWAVE RADIATION",
+        "EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC RADIATION > SHORTWAVE RADIATION",
+        "EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC TEMPERATURE > SURFACE TEMPERATURE",
+        "EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WATER VAPOR > WATER VAPOR INDICATORS > HUMIDITY",
+        "EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WATER VAPOR > WATER VAPOR PROCESSES > EVAPOTRANSPIRATION",
+        "EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC WINDS > SURFACE WINDS",
+        "EARTH SCIENCE > ATMOSPHERE > PRECIPITATION > LIQUID PRECIPITATION > RAIN",
+        "EARTH SCIENCE > ATMOSPHERE > PRECIPITATION > PRECIPITATION RATE",
+        "EARTH SCIENCE > ATMOSPHERE > PRECIPITATION > SOLID PRECIPITATION > SNOW",
+        "EARTH SCIENCE > LAND SURFACE > SOILS > SOIL MOISTURE/WATER CONTENT",
+        "EARTH SCIENCE > LAND SURFACE > SOILS > SOIL TEMPERATURE",
+        "EARTH SCIENCE > LAND SURFACE > SURFACE THERMAL PROPERTIES > LAND SURFACE TEMPERATURE",
+        "EARTH SCIENCE > TERRESTRIAL HYDROSPHERE > SNOW/ICE > SNOW WATER EQUIVALENT",
+        "EARTH SCIENCE > TERRESTRIAL HYDROSPHERE > SURFACE WATER > SURFACE WATER PROCESSES/MEASUREMENTS > RUNOFF"
+    ],
+    "ISO_Topic_Category": ["CLIMATOLOGY/METEOROLOGY/ATMOSPHERE"],
+    "Organization": [
+        {
+            "Organization_Type": "ARCHIVER",
+            "Organization_Name": {
+                "Short_Name": "NASA/GSFC/SED/ESD/GCDC/GESDISC",
+                "Long_Name": "Goddard Earth Sciences Data and Information Services Center (formerly Goddard DAAC), Global Change Data Center, Earth Sciences Division, Science and Exploration Directorate, Goddard Space Flight Center, NASA"
+            },
+            "Organization_URL": "https://disc.gsfc.nasa.gov/",
+            "Personnel": [
+                {
+                    "Role": "DATA CENTER CONTACT",
+                    "Contact_Group": [
+                        {
+                            "Name": "GES DISC HELP DESK SUPPORT GROUP",
+                            "Address": {
+                                "Street_Address": [
+                                    "Goddard Earth Sciences Data and Information Services Center",
+                                    "Code 610.2",
+                                    "NASA Goddard Space Flight Center"
+                                ],
+                                "City": "Greenbelt",
+                                "State_Province": "MD",
+                                "Postal_Code": "20771",
+                                "Country": "USA"
+                            },
+                            "Phone": [
+                                {
+                                    "Number": "301-614-5224",
+                                    "Type": "Telephone"
+                                },
+                                {
+                                    "Number": "301-614-5268",
+                                    "Type": "Fax"
+                                }
+                            ],
+                            "Email": ["gsfc-dl-help-disc@mail.nasa.gov"]
+                        }
+                    ],
+                    "Personnel_Type": "Contact_Group"
+                }
+            ]
+        }
+    ],
+    "Summary": {
+        "Abstract": "With the upgraded Land Surface Models (LSMs) and updated forcing data sets, the GLDAS version 2.1 (GLDAS-2.1) production stream serves as a replacement for GLDAS-001.  The entire GLDAS-001 collection from January 1979 through March 2020 was decommissioned on June 30, 2020 and removed from the GES DISC system.  However, the replacement for GLDAS-001 monthly and 3-hourly 1.0 x 1.0 degree products from CLM Land Surface Model  currently are not available yet. Once their replacement data products become available, the DOIs of GLDAS-001 CLM data products will direct to the GLDAS-2.1 CLM data products.\n\nThis data set contains a series of land surface parameters simulated from the Common Land Model (CLM) V2.0 model in the Global Land Data Assimilation System (GLDAS). The data are in 1.0 degree resolution and range from January 1979 to present. The temporal resolution is 3-hourly. \n\nThis simulation was forced by a combination of NOAA/GDAS atmospheric analysis fields, spatially and temporally disaggregated NOAA Climate Prediction Center Merged Analysis of Precipitation (CMAP) fields, and observation based downward shortwave and longwave radiation fields derived using the method of the Air Force Weather Agency's AGRicultural METeorological modeling system (AGRMET). The simulation was initialized on 1 January 1979 using soil moisture and other state fields from a GLDAS/CLM model climatology for that day of the year. \n\nWGRIB or another GRIB reader is required to read the files. The data set applies a user-defined parameter table to indicate the contents and parameter number. The GRIBTAB file shows a list of parameters for this data set, along with their Product Definition Section (PDS) IDs and units. \n\nFor more information, please see the README document."
+    },
+    "Related_URL": [
+        {
+            "URL_Content_Type": {
+                "Type_Subtype": "PROJECT HOME PAGE"
+            },
+            "URL": "https://ldas.gsfc.nasa.gov/gldas/",
+            "Title": "Project Home Page",
+            "Description": "GLDAS Project Home Page"
+        },
+        {
+            "URL_Content_Type": {
+                "Type_Subtype": "VIEW RELATED INFORMATION > HOW-TO"
+            },
+            "URL": "https://disc.gsfc.nasa.gov/information/howto?tags=hydrology",
+            "Title": "How-To",
+            "Description": "How to read and plot the data."
+        },
+        {
+            "URL_Content_Type": {
+                "Type_Subtype": "VIEW RELATED INFORMATION > GENERAL DOCUMENTATION"
+            },
+            "URL": "https://disc.gsfc.nasa.gov/information/documents?title=Hydrology%20Documentation",
+            "Description": "GES DISC Hydrology Documentation"
+        }
+    ],
+    "Platform": [
+        {
+            "Instrument": [
+                {
+                    "Name": "NOT APPLICABLE"
+                }
+            ],
+            "Name": "Other > Models > CLM-LSM > Common Land Model (CLM) Land Surface Model"
+        }
+    ],
+    "Temporal_Coverage": [
+        {
+            "Ends_At_Present_Flag": "false",
+            "Range_DateTime": [
+                {
+                    "Beginning_Date_Time": "1979-01-02",
+                    "Ending_Date_Time": "2020-03-31"
+                }
+            ]
+        }
+    ],
+    "Spatial_Coverage": {
+        "Geometry": {
+            "Coordinate_System": "CARTESIAN",
+            "Bounding_Rectangle": [
+                {
+                    "Southernmost_Latitude": -60,
+                    "Northernmost_Latitude": 90,
+                    "Westernmost_Longitude": -180,
+                    "Easternmost_Longitude": 180
+                }
+            ]
+        },
+        "Granule_Spatial_Representation": "CARTESIAN"
+    },
+    "Metadata_Dates": {
+        "Metadata_Creation": "2007-08-17",
+        "Metadata_Last_Revision": "2018-06-22",
+        "Data_Creation": "2007-08-16",
+        "Data_Last_Revision": "2007-08-16"
+    },
+    "Entry_Title": "GLDAS CLM Land Surface Model L4 3 hourly 1.0 x 1.0 degree Subsetted V001 (GLDAS_CLM10SUBP_3H) at GES DISC",
+    "Dataset_Citation": [
+        {
+            "Dataset_Creator": "Matthew Rodell and Hiroko Kato Beaudoing, NASA/GSFC/HSL",
+            "Dataset_Title": "GLDAS CLM Land Surface Model L4 3 hourly 1.0 x 1.0 degree Subsetted V001",
+            "Dataset_Series_Name": "GLDAS_CLM10SUBP_3H",
+            "Dataset_Release_Date": "2007-08-16",
+            "Dataset_Release_Place": "Greenbelt, Maryland, USA",
+            "Dataset_Publisher": "Goddard Earth Sciences Data and Information Services Center (GES DISC)",
+            "Version": "001",
+            "Data_Presentation_Form": "Digital Science Data",
+            "Persistent_Identifier": {
+                "Type": "DOI",
+                "Identifier": "10.5067/83NO2QDLG6M0",
+                "HasDOI": true
+            },
+            "Online_Resource": "https://disc.gsfc.nasa.gov/datacollection/GLDAS_CLM10SUBP_3H_001.html"
+        }
+    ],
+    "Personnel": [
+        {
+            "Role": ["METADATA AUTHOR"],
+            "Contact_Person": [
+                {
+                    "First_Name": "DAVID",
+                    "Last_Name": "SILBERSTEIN",
+                    "Address": [
+                        {
+                            "Street_Address": [
+                                "Goddard Earth Sciences Data and Information Services Center",
+                                "Code 610.2",
+                                "NASA Goddard Space Flight Center"
+                            ],
+                            "City": "Greenbelt",
+                            "State_Province": "MD",
+                            "Postal_Code": "20771",
+                            "Country": "USA"
+                        }
+                    ],
+                    "Phone": [
+                        {
+                            "Number": "301-614-5183",
+                            "Type": "Telephone"
+                        },
+                        {
+                            "Number": "301-614-5268",
+                            "Type": "Fax"
+                        }
+                    ],
+                    "Email": ["david.s.silberstein@nasa.gov"]
+                }
+            ],
+            "Personnel_Type": "Contact_Person"
+        }
+    ],
+    "Ancillary_Keyword": ["Hydrology"],
+    "Dataset_Progress": "IN WORK",
+    "Location": ["GEOGRAPHIC REGION > GLOBAL LAND"],
+    "Data_Resolution": [
+        {
+            "Latitude_Resolution": "1 degree",
+            "Longitude_Resolution": "1 degree",
+            "Temporal_Resolution": "3 hours",
+            "Temporal_Resolution_Range": "Hourly - < Daily"
+        }
+    ],
+    "Project": [
+        {
+            "Name": "GLDAS > Global Land Data Assimilation System"
+        }
+    ],
+    "Quality": "The data are provisional and subject to change as model improvements are implemented and new input data sets become available. Due to the fact that forcing data for Greenland are unreliable and the lack of a glacier/ice sheet model, snow water equivalent accumulates indefinitely in Greenland and a few other Arctic points. Therefore it is highly recommended that Greenland and other points with abnormally large snow water equivalent values be masked out when performing global analyses.",
+    "Access_Constraints": "None",
+    "Use_Constraints": "The Earth Observing System Data and Information System (EOSDIS) data use policy for NASA data can be accessed at https://earthdata.nasa.gov/earth-observation-data/data-use-policy. For information on how to properly cite and acknowledge data from the NASA GES DISC, refer to https://disc.gsfc.nasa.gov/information/documents?title=data-policy.",
+    "Dataset_Language": "English",
+    "Originating_Center": "NASA/GSFC/HSL",
+    "Distribution": [
+        {
+            "Distribution_Media": "Online Archive",
+            "Distribution_Size": "1 MB per file",
+            "Distribution_Format": "GRIB",
+            "Fees": "No Fee"
+        }
+    ],
+    "Multimedia_Sample": [
+        {
+            "File": "Soil Moisture",
+            "URL": "https://docserver.gesdisc.eosdis.nasa.gov/public/project/Images/GLDAS_CLM10SUBP_3H_001.png",
+            "Format": "PNG",
+            "Caption": "Average 0-2 cm Soil Moisture",
+            "Description": "GLDAS CLM 3-Hourly 1.0 degree Average Layer 1 (0-2 cm) Soil Moisture [kg/m2] at 00Z May 01, 2007."
+        }
+    ],
+    "Reference": [
+        {
+            "Citation": "Rodell, M., P.R. Houser, U. Jambor, J. Gottschalck, K. Mitchell, C. Meng, K. Arsenault, B. Cosgrove, J. Radakovich, M. Bosilovich, J.K. Entin, J.P. Walker, D. Lohmann, and D. Toll, 2004: The Global Land Data Assimilation System, Bull. Amer. Meteor. Soc., 85, 381-394, doi:10.1175/BAMS-85-3-381",
+            "Author": "Rodell, M., P.R. Houser, U. Jambor, J. Gottschalck, K. Mitchell, C. Meng, K. Arsenault, B. Cosgrove, J. Radakovich, M. Bosilovich, J.K. Entin, J.P. Walker, D. Lohmann, and D. Toll",
+            "Publication_Date": "2004",
+            "Title": "The Global Land Data Assimilation System",
+            "Persistent_Identifier": {
+                "Type": "DOI",
+                "Identifier": "10.1175/BAMS-85-3-381"
+            },
+            "Other_Reference_Details": "Data Author Publication"
+        }
+    ],
+    "Originating_Metadata_Node": "GCMD",
+    "Metadata_Name": "CEOS IDN DIF",
+    "Metadata_Version": "VERSION 10.2",
+    "DIF_Revision_History": "2014-05-12: Hualan Rui\n                        \n                        Removed the parameter list in the Summary and added a link to the corresponding GRIBTAB; Updated the Data Set Citation, Related URL, and Personnel.\n\n2016-10-13 Hualan:  Changed the Multimedia Sample URL to the image in a central repository.\n\n2017-10-27 Hualan: Updated based on the ARC findings.\n\n2020/6/30 Hualan: Updated the Summary to notify that GLDAS-001 data products have been removed from GES DISC collection.",
+    "Product_Level_Id": "4",
+    "Extended_Metadata": [
+        {
+            "Metadata": [
+                {
+                    "Group": "gov.nasa.gsfc.disc",
+                    "Name": "Data Granularity",
+                    "Description": "The time coverage of individual data granules.",
+                    "Value": ["3 hours"]
+                }
+            ]
+        },
+        {
+            "Metadata": [
+                {
+                    "Group": "gov.nasa.gsfc.gcmd",
+                    "Name": "metadata.tool",
+                    "Value": [
+                        "2017-10-27:docbuilder;2017-11-29:docbuilder;2018-06-22:docbuilder;2018-06-22:docbuilder"
+                    ]
+                }
+            ]
+        }
+    ],
+    "Combined_EntryID": "GLDAS_CLM10SUBP_3H_001",
+    "x-meditor": {
+        "model": "Collection Metadata",
+        "modifiedOn": "2022-04-03T02:00:45.335Z",
+        "modifiedBy": "jdoe",
+        "states": [
+            {
+                "source": "Init",
+                "target": "Draft",
+                "modifiedOn": null
+            },
+            {
+                "source": "Draft",
+                "target": "Published",
+                "modifiedOn": "2022-04-04T13:07:27.815Z",
+                "modifiedBy": "jdoe"
+            }
+        ],
+        "publishedTo": [
+            {
+                "url": "https://disc.gsfc.nasa.gov/information/collection-metadata?title=GLDAS_CLM10SUBP_3H_001",
+                "message": "Document was successfully published to UUI-OPS",
+                "target": "uui",
+                "statusCode": 200,
+                "publishedOn": 1649077649811
+            },
+            {
+                "message": "Document GLDAS_CLM10SUBP_3H_001 with concept Id C1279404074-GES_DISC at revision 27 was published to CMR-PROD",
+                "target": "cmr",
+                "statusCode": 200,
+                "publishedOn": 1649077649852
+            }
+        ],
+        "state": "Published"
+    }
+}

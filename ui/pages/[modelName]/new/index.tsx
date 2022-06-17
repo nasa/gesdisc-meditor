@@ -107,8 +107,8 @@ const NewDocumentPage = ({ user }) => {
     function redirectToDocumentEdit(document) {
         let documentName = urlEncode(document[data.model.titleProperty])
         router.push(
-            '/meditor/[modelName]/[documentTitle]',
-            `/meditor/${urlEncode(modelName)}/${documentName}`
+            '/[modelName]/[documentTitle]',
+            `/${urlEncode(modelName)}/${documentName}`
         )
     }
 
@@ -157,7 +157,7 @@ const NewDocumentPage = ({ user }) => {
         setSuccessNotification(
             `Successfully deleted document: '${localChanges.title}'`
         )
-        router.push('/meditor/[modelName]', `/meditor/${urlEncode(modelName)}`)
+        router.push('/[modelName]', `/${urlEncode(modelName)}`)
     }
 
     return (
@@ -167,8 +167,8 @@ const NewDocumentPage = ({ user }) => {
             <Breadcrumbs>
                 <Breadcrumb
                     title={modelName}
-                    href="/meditor/[modelName]"
-                    as={`/meditor/${modelName}`}
+                    href="/[modelName]"
+                    as={`/${modelName}`}
                 />
                 <Breadcrumb title="New" />
             </Breadcrumbs>

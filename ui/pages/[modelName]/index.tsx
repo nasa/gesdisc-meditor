@@ -1,170 +1,96 @@
-import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
-import Alert from 'react-bootstrap/Alert'
-import { withApollo } from '../../lib/apollo'
-import SearchBar from '../../components/search/search-bar'
 import SearchList from '../../components/search/search-list'
+import SearchBar from '../../components/search/search-bar'
 import PageTitle from '../../components/page-title'
 import withAuthentication from '../../components/with-authentication'
-import gql from 'graphql-tag'
-import { useLazyQuery } from '@apollo/react-hooks'
-import RenderResponse from '../../components/render-response'
-import Loading from '../../components/loading'
+import { getModel, getModels } from '../../models/model'
+import { getDocumentsForModel } from '../../models/document'
+import { NextPageContext } from 'next'
+import { User } from '../../service/api'
+import { Document, DocumentsSearchOptions, Model } from '../../models/types'
+import { ParsedUrlQuery } from 'querystring'
+import { useEffect, useRef, useState } from 'react'
 
-interface SearchOptions {
-    term: string
-    filters: any
-    sort: SortOptions
-}
-
-interface SortOptions {
-    direction: string
-    property: string
-    isDate: boolean
-}
-
-const DEFAULT_SEARCH_OPTIONS = {
-    term: '',
-    filters: {},
-    sort: {
-        direction: 'desc',
-        property: 'modifiedOn',
-        isDate: true,
-    },
-}
-
-const MODEL_DOCUMENTS_QUERY = gql`
-    query getDocuments($modelName: String!, $filter: String) {
-        model(modelName: $modelName) {
-            name
-            icon {
-                name
-                color
-            }
-            layout
-            schema
-        }
-        documents(modelName: $modelName, filter: $filter) {
-            title
-            model
-            modifiedBy
-            modifiedOn(format: "M/dd/yyyy, h:mm a")
-            state
-        }
+function getSearchOptionsFromParams(query: ParsedUrlQuery): DocumentsSearchOptions {
+    return {
+        filter: query.filter?.toString() || '',
+        sort: query.sort?.toString() || '',
+        searchTerm: query.searchTerm?.toString() || '',
     }
-`
+}
 
-/**
- * given an object of search filters, turn it into a Lucene style search query
- * @param searchFilters 
- */
-function filtersToSearchQuery(searchFilters) {
-    let filters = []
+function getParamsFromSearchOptions(
+    searchOptions: DocumentsSearchOptions
+): URLSearchParams {
+    // remove empty items so we don't pollute the URL with empty params
+    const usedSearchOptions = Object.fromEntries(
+        Object.entries(searchOptions).filter(([_, v]) => v != null && v != '')
+    )
 
-    Object.keys(searchFilters).forEach(key => {
-        let value = searchFilters[key]
-        if (value) filters.push(`${key}:${value}`)
-    })
+    return new URLSearchParams({ ...usedSearchOptions })
+}
 
-    return filters.join(' AND ')
+interface ModelPageProps {
+    user: User
+    model: Model
+    allModels: Model[]
+    documents: Document[]
 }
 
 /**
  * renders the model page with the model's documents in a searchable/filterable list
  */
-const ModelPage = ({ user, model, ssrDocuments }) => {
+const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
     const router = useRouter()
     const modelName = router.query.modelName as string
-    const search = router.query.search as string
-    const filter = router.query.filter as string
-    const sort = router.query.sort as string
+    const [searchOptions, setSearchOptions] = useState<DocumentsSearchOptions>(
+        getSearchOptionsFromParams(router.query)
+    )
 
-    const [documents, setDocuments] = useState([])
-    const [searchOptions, setSearchOptions] = useState<SearchOptions>({
-        // get search term from query param OR use default
-        term: search || DEFAULT_SEARCH_OPTIONS.term,
-
-        // get search filters from URL params OR use defaults
-        filters: filter ? filter.split(' AND ').reduce((obj, item) => ({
-            ...obj,
-            [item.split(':')[0]]: item.split(':')[1],
-        }), {}) : DEFAULT_SEARCH_OPTIONS.filters,
-
-        // get sort options from URL params or use defaults
-        sort: {
-            property: sort?.split(':')?.[0] || DEFAULT_SEARCH_OPTIONS.sort.property,
-            direction: sort?.split(':')?.[1] || DEFAULT_SEARCH_OPTIONS.sort.direction,
-            isDate: sort ? (sort?.split(':')?.[2] ? true : false) : DEFAULT_SEARCH_OPTIONS.sort.isDate,
-        },
-    })
-
-    const [getDocuments, { loading, error, data }] = useLazyQuery(MODEL_DOCUMENTS_QUERY, {
-        fetchPolicy: 'network-only',
-    })
-
-    const fetchedDocuments = data?.documents
-
+    const isFirstRun = useRef(true)
     useEffect(() => {
-        setDocuments(ssrDocuments)
-    }, [ssrDocuments])
-
-    useEffect(() => {
-        if (!fetchedDocuments) return
-        window.scrollTo(0, 0)
-        setDocuments(fetchedDocuments)
-    }, [fetchedDocuments])
-
-    // when changing search term, filters, sorting, etc. modify the URL to make the options bookmarkable
-    useEffect(() => {
-        if (!('URLSearchParams' in window)) {
+        if (isFirstRun.current) {
+            isFirstRun.current = false
             return
         }
 
-        let qp = new URLSearchParams(window.location.search)
-        
-        // add or remove query params for each search option type
-        searchOptions.term ? qp.set('search', searchOptions.term) : qp.delete('search')
-        
-        let filters = filtersToSearchQuery(searchOptions.filters)
-        filters ? qp.set('filter', filters) : qp.delete('filter')
-
-        // only add sort options if they differ from the default
-        if (searchOptions.sort.property !== DEFAULT_SEARCH_OPTIONS.sort.property || searchOptions.sort.direction !== DEFAULT_SEARCH_OPTIONS.sort.direction) {
-            qp.set('sort', `${searchOptions.sort.property}:${searchOptions.sort.direction}`)
-
-            if (searchOptions.sort.isDate) qp.set('sort', `${qp.get('sort')}:date`)
-        } else {
-            qp.delete('sort')
-        }
-
-        // setting location.search directly would cause a page refresh, instead add the change to history
-        history.pushState(null, '', qp.toString() ? window.location.pathname + '?' + qp.toString() : window.location.pathname)
+        refetchDocuments(searchOptions)
     }, [searchOptions])
 
-    function addNewDocument() {
-        router.push('/meditor/[modelName]/new', `/meditor/${modelName}/new`)
+    async function refetchDocuments(searchOptions: DocumentsSearchOptions) {
+        const queryParams = getParamsFromSearchOptions(searchOptions).toString()
+
+        router.push(`/${modelName}${queryParams && '?' + queryParams}`)
     }
 
-    function handleFilterChange(filter, value) {
-        let newFilters = {
-            ...searchOptions.filters,
-            [filter]: value,
-        }
+    function addNewDocument() {
+        router.push('/[modelName]/new', `/${modelName}/new`)
+    }
 
-        // trigger a new query
-        getDocuments({
-            variables: {
-                modelName,
-                filter: filtersToSearchQuery(newFilters),
-            },
-        })
-        
-        // update URL params to match filter change
+    function handleSortChange(newSort) {
+        if (newSort == searchOptions.sort) return // don't update state if sort hasn't changed
+
         setSearchOptions({
             ...searchOptions,
-            filters: {
-                ...newFilters,
-            },
+            sort: newSort,
+        })
+    }
+
+    function handleFilterChange(newFilter) {
+        if (newFilter == searchOptions.filter) return // don't update filter if it hasn't changed
+
+        setSearchOptions({
+            ...searchOptions,
+            filter: newFilter,
+        })
+    }
+
+    function handleSearchChange(newSearchTerm: string) {
+        if (newSearchTerm == searchOptions.searchTerm) return // don't update state if search term hasn't changed
+
+        setSearchOptions({
+            ...searchOptions,
+            searchTerm: newSearchTerm,
         })
     }
 
@@ -173,70 +99,56 @@ const ModelPage = ({ user, model, ssrDocuments }) => {
             <PageTitle title={modelName} />
 
             <SearchBar
+                allModels={allModels}
                 model={model}
                 modelName={modelName}
-                initialInput={searchOptions.term}
-                onInput={(term) => setSearchOptions({
-                    ...searchOptions,
-                    term,
-                })}
+                initialInput={searchOptions.searchTerm}
+                onInput={handleSearchChange}
             />
 
             <div className="my-4">
-                <RenderResponse
-                    loading={loading}
-                    error={!documents || error}
-                    loadingComponent={<Loading text={`Loading documents...`} />}
-                    errorComponent={
-                        <Alert variant="danger">
-                            <p>Failed to retrieve {modelName} documents.</p>
-                            <p>This is most likely temporary, please wait a bit and refresh the page.</p>
-                        </Alert>
-                    }
-                >
-                    {documents && (
-                        <SearchList
-                            documents={documents}
-                            model={model}
-                            onAddNew={addNewDocument}
-                            user={user}
-                            onRefreshList={() => {
-                                getDocuments({
-                                    variables: {
-                                        modelName,
-                                        filter,
-                                    },
-                                })
-                            }}
-                            searchOptions={searchOptions}
-                            onSortChange={(sort) => {
-                                setSearchOptions({
-                                    ...searchOptions,
-                                    sort,
-                                })
-                            }}
-                            onFilterChange={handleFilterChange}
-                        />
-                    )}
-                </RenderResponse>
+                {documents && (
+                    <SearchList
+                        documents={documents.map(document => ({
+                            ...document,
+                            ...document['x-meditor'], // bring x-meditor properties up a level
+                        }))}
+                        model={model}
+                        onAddNew={addNewDocument}
+                        user={user}
+                        onRefreshList={() => {
+                            refetchDocuments(searchOptions) // refetch using current search options
+                        }}
+                        searchOptions={searchOptions}
+                        onSortChange={handleSortChange}
+                        onFilterChange={handleFilterChange}
+                    />
+                )}
             </div>
         </div>
     )
 }
 
-ModelPage.getInitialProps = async (ctx) => {
-    let response = await ctx.apolloClient.query({
-        query: MODEL_DOCUMENTS_QUERY,
-        variables: {
-            modelName: ctx.query.modelName,
-            filter: ctx.query.filter,
-        },
-    })
+export async function getServerSideProps(ctx: NextPageContext) {
+    const modelName = ctx.query.modelName.toString()
+    const models = await getModels()
+    const model = await getModel(modelName)
+
+    const searchOptions = getSearchOptionsFromParams(ctx.query)
+
+    // fetch documents, applying search, filter, or sort
+    const documents = await getDocumentsForModel(modelName, searchOptions)
 
     return {
-        model: response?.data?.model,
-        ssrDocuments: response?.data?.documents,
+        // see note in /pages/index.tsx for parse/stringify explanation
+        props: JSON.parse(
+            JSON.stringify({
+                allModels: models,
+                model,
+                documents,
+            })
+        ),
     }
 }
 
-export default withApollo({ ssr: true })(withAuthentication()(ModelPage))
+export default withAuthentication()(ModelPage)

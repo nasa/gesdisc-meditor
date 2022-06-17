@@ -28,6 +28,14 @@ export const links: LinksFunction = () => {
 }
 
 export const loader: LoaderFunction = async ({ request }) => {
+    const data = {
+        ENV: {
+            HELP_DOCUMENT_LOCATION:
+                process.env.HELP_DOCUMENT_LOCATION || '/meditor/docs/user-guide',
+        },
+        firstName: null,
+    }
+
     try {
         const response = await fetch(`${process.env.API_ORIGIN}/meditor/api/me`, {
             //* Pass through the authentication cookie from the initial request to load the page.
@@ -36,17 +44,16 @@ export const loader: LoaderFunction = async ({ request }) => {
                 Cookie: request.headers.get('Cookie') || '',
             },
         })
-        const { firstName } = await response.json()
 
-        return {
-            ENV: {
-                HELP_DOCUMENT_LOCATION:
-                    process.env.HELP_DOCUMENT_LOCATION || '/meditor/docs/user-guide',
-            },
-            firstName,
+        if (response.ok) {
+            const { firstName } = await response.json()
+
+            data.firstName = firstName
         }
     } catch (error) {
         console.error(error)
+    } finally {
+        return data
     }
 }
 

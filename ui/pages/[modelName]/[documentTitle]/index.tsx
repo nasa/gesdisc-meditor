@@ -101,10 +101,11 @@ const HISTORY_QUERY = gql`
     }
 `
 
-const EditDocumentPage = ({ user, version = null }) => {
+const EditDocumentPage = ({ user, version = null, theme }) => {
     const router = useRouter()
     const params = router.query
     const documentTitle = urlDecode(params.documentTitle as string)
+    // todo: this seems like a security concern; any way to sanitize against injection / allowlist models?
     const modelName = params.modelName as string
 
     const [form, setForm] = useState(null)
@@ -219,7 +220,7 @@ const EditDocumentPage = ({ user, version = null }) => {
             documentResponse.data.document.version
         )
         state == 'Deleted'
-            ? router.push('/meditor/[modelName]', `/meditor/${modelName}`)
+            ? router.push('/[modelName]', `/${modelName}`)
             : reloadDocument()
     }
 
@@ -316,14 +317,16 @@ const EditDocumentPage = ({ user, version = null }) => {
         <div>
             <PageTitle title={[documentTitle, modelName]} />
 
-            <Breadcrumbs>
-                <Breadcrumb
-                    title={modelName}
-                    href="/meditor/[modelName]"
-                    as={`/meditor/${modelName}`}
-                />
-                <Breadcrumb title={documentTitle} />
-            </Breadcrumbs>
+            {theme !== 'edpub' && (
+                <Breadcrumbs>
+                    <Breadcrumb
+                        title={modelName}
+                        href="/[modelName]"
+                        as={`/${modelName}`}
+                    />
+                    <Breadcrumb title={documentTitle} />
+                </Breadcrumbs>
+            )}
 
             <DocumentHeader
                 activePanel={activePanel}

@@ -6,8 +6,6 @@ export interface Notification {
 }
 
 const DEFAULTS = {
-    user: null,
-    setUser: (_user: any) => {},
     notification: null,
     setNotification: (_notification: Notification) => {},
     setSuccessNotification: (_message: String) => {},
@@ -16,8 +14,7 @@ const DEFAULTS = {
 
 export const AppContext = createContext(DEFAULTS)
 
-export default (props) => {
-    const [user, setUser] = useState<any>(null)
+const AppStore = props => {
     const [notification, setNotification] = useState<Notification>(null)
 
     function setSuccessNotification(message) {
@@ -29,17 +26,13 @@ export default (props) => {
     }
 
     const store = {
-        user,
-        setUser,
         notification,
         setNotification,
         setSuccessNotification,
         setErrorNotification,
     }
 
-    return (
-        <AppContext.Provider value={store}>
-            {props.children}
-        </AppContext.Provider>
-    )
+    return <AppContext.Provider value={store}>{props.children}</AppContext.Provider>
 }
+
+export default AppStore

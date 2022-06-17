@@ -10,9 +10,27 @@ import IconButton from '../icon-button'
 import CloneDocumentModal from '../document/clone-document-modal'
 import { useContext, useState } from 'react'
 import { AppContext } from '../app-store'
-import { removeUnsavedDocumentFromLS } from '../../lib/unsaved-changes'
+import {
+    removeUnsavedDocumentFromLS,
+    UnsavedDocument,
+} from '../../lib/unsaved-changes'
+import { Document } from '../../models/types'
 
-const SearchResult = ({ document, modelName, onCloned = () => {}, isLocalDocument = false }) => {
+interface SearchResultProps {
+    document: Document | UnsavedDocument
+    modelName: string
+    onCloned?: Function
+    onDelete?: Function
+    isLocalDocument?: boolean
+}
+
+const SearchResult = ({
+    document,
+    modelName,
+    onCloned,
+    onDelete,
+    isLocalDocument,
+}: SearchResultProps) => {
     const { setSuccessNotification } = useContext(AppContext)
     const [showCloneDocumentModal, setShowCloneDocumentModal] = useState(false)
 
@@ -25,19 +43,23 @@ const SearchResult = ({ document, modelName, onCloned = () => {}, isLocalDocumen
             return
         }
 
-        removeUnsavedDocumentFromLS(document)
+        removeUnsavedDocumentFromLS(document as UnsavedDocument)
         setSuccessNotification(`Successfully deleted document: '${document.title}'`)
+        onDelete?.(document)
     }
 
     return (
         <div className={styles.result}>
             <div>
                 <Link
-                    href={isLocalDocument ? '/meditor/[modelName]/new' : '/meditor/[modelName]/[documentTitle]'}
-                    as={
+                    href={
                         isLocalDocument
-                            ? `/meditor/${urlEncode(document.model)}/new?localId=${document.localId}`
-                            : `/meditor/${urlEncode(document.model)}/${urlEncode(document.title)}`
+                            ? `/${urlEncode(document.model)}/new?localId=${
+                                  document.localId
+                              }`
+                            : `/${urlEncode(document.model)}/${urlEncode(
+                                  document.title
+                              )}`
                     }
                 >
                     <a dangerouslySetInnerHTML={{ __html: document.title }} />
@@ -45,13 +67,15 @@ const SearchResult = ({ document, modelName, onCloned = () => {}, isLocalDocumen
             </div>
 
             <div>
-                {isLocalDocument && <StateBadge variant="warning">Unsaved</StateBadge>}
-                {!isLocalDocument && <DocumentStateBadge document={document} modelName={modelName} />}
+                {isLocalDocument && (
+                    <StateBadge variant="warning">Unsaved</StateBadge>
+                )}
+                {!isLocalDocument && (
+                    <DocumentStateBadge document={document} modelName={modelName} />
+                )}
             </div>
 
-            <div>
-                {isLocalDocument ? format(new Date(document.modifiedOn), 'M/d/yy, h:mm aaa') : document.modifiedOn}
-            </div>
+            <div>{format(new Date(document.modifiedOn), 'M/d/yy, h:mm aaa')}</div>
 
             <div>{document.modifiedBy}</div>
 
@@ -63,7 +87,10 @@ const SearchResult = ({ document, modelName, onCloned = () => {}, isLocalDocumen
                 )}
 
                 {!isLocalDocument && (
-                    <IconButton alt="Clone Document" onClick={() => setShowCloneDocumentModal(true)}>
+                    <IconButton
+                        alt="Clone Document"
+                        onClick={() => setShowCloneDocumentModal(true)}
+                    >
                         <FaRegClone />
                     </IconButton>
                 )}
@@ -74,7 +101,7 @@ const SearchResult = ({ document, modelName, onCloned = () => {}, isLocalDocumen
                 documentTitle={document.title}
                 show={showCloneDocumentModal}
                 onCancel={() => setShowCloneDocumentModal(false)}
-                onSuccess={(newDocument) => {
+                onSuccess={newDocument => {
                     setShowCloneDocumentModal(false)
                     onCloned()
                 }}
