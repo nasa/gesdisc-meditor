@@ -1,5 +1,6 @@
 import { Components, JSX as LocalJSX } from '@gesdisc/meditor-components/loader'
 import { DetailedHTMLProps, HTMLAttributes } from 'react'
+import type { CKEditor } from 'ckeditor4-react'
 
 type StencilProps<T> = {
     [P in keyof T]?: Omit<T[P], 'ref'>
@@ -19,5 +20,5 @@ declare global {
         interface IntrinsicElements extends StencilToReact {}
     }
 
-    var CKEDITOR: any
+    var CKEDITOR: CKEditor
 }

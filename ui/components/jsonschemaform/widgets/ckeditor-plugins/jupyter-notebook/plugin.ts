@@ -1,3 +1,5 @@
+// https://ckeditor.com/docs/ckeditor4/latest/guide/plugin_sdk_intro.html
+
 import { jupyterNotebookDialog } from './dialog'
 
 export const jupyterNotebook = {
@@ -6,7 +8,7 @@ export const jupyterNotebook = {
         // no support for other languages yet
     },
     init: function (editor) {
-        // general command for allowing iframe embeds (CKEditor will remove it if not included)
+        // general command for allowing iframe embeds (CKEditor will remove the iframe if not included)
         editor.addCommand(
             'jupyterNotebook',
             new CKEDITOR.dialogCommand('jupyterNotebook', {
