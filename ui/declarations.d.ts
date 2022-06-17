@@ -9,10 +9,15 @@ type gReactProps<T> = {
     [P in keyof T]?: DetailedHTMLProps<HTMLAttributes<T[P]>, T[P]>
 }
 
-type StencilToReact<T = LocalJSX.IntrinsicElements, U = HTMLElementTagNameMap> = StencilProps<T> & ReactProps<U>
+type StencilToReact<
+    T = LocalJSX.IntrinsicElements,
+    U = HTMLElementTagNameMap
+> = StencilProps<T> & ReactProps<U>
 
 declare global {
     export namespace JSX {
         interface IntrinsicElements extends StencilToReact {}
     }
+
+    var CKEDITOR: any
 }

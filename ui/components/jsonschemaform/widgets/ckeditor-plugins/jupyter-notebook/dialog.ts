@@ -82,8 +82,7 @@ export function jupyterNotebookDialog(instance) {
                             {
                                 id: 'isResponsive',
                                 type: 'checkbox',
-                                label:
-                                    'Make Responsive (ignore width and height, fit to width)',
+                                label: 'Make Responsive (ignore width and height, fit to width)',
                                 default: false,
                             },
                         ],
@@ -106,17 +105,21 @@ export function jupyterNotebookDialog(instance) {
             )
 
             // setup the iframe with responsive style if needed
-            const iframeContent = `<iframe 
-                src="${url}"
-                ${!isResponsive && `width="${width}"`}
-                ${!isResponsive && `height="${height}"`}
-                ${
-                    isResponsive &&
-                    `style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"`
-                }
-                frameborder="0" 
-                allowfullscreen
-            ></iframe>`
+            const iframeContent = `<details>  
+                <summary>TITLE HERE</summary> 
+                
+                <iframe 
+                    src="${url}"
+                    ${!isResponsive && `width="${width}"`}
+                    ${!isResponsive && `height="${height}"`}
+                    ${
+                        isResponsive &&
+                        `style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"`
+                    }
+                    frameborder="0" 
+                    allowfullscreen
+                ></iframe>
+            </details>`
 
             // the responsive container for the iframe, if needed
             // styles intentionally included inline as mEditor does not share a stylesheet with the documents consumer (e.g. the website)
