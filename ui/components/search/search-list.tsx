@@ -5,71 +5,52 @@ import { findUnsavedDocumentsByModel } from '../../lib/unsaved-changes'
 import styles from './search-list.module.css'
 import { IoMdArrowDropdown } from 'react-icons/io'
 import Pagination from '../pagination'
+import { Document, DocumentsSearchOptions, Model } from '../../models/types'
+import { User } from '../../service/api'
 
-/**
- * determines if a document contains a given search term
- * @param document
- * @param searchTerm
- */
-function documentMatchesSearchTerm(document, searchTerm) {
-    return document?.title?.search(new RegExp(searchTerm, 'i')) !== -1
-}
-
-/**
- * sorts documents by modified date
- * @param direction
- * @param property
- * @param isDate
- * @param documentA
- * @param documentB
- */
-function sortDocuments(direction, property, isDate, documentA, documentB) {
-    let a = documentA[property]
-    let b = documentB[property]
-
-    if (isDate) {
-        a = new Date(a)
-        b = new Date(b)
-    }
-
-    const diff = a > b ? -1 : a < b ? 1 : 0
-
-    return direction == 'asc' ? diff * -1 : diff
+interface SearchListProps {
+    documents: Document[]
+    model: Model
+    user: User
+    searchOptions: DocumentsSearchOptions
+    onAddNew: Function
+    onRefreshList: Function
+    onSortChange: Function
+    onFilterChange: Function
 }
 
 /**
  * renders the model page with the model's documents in a searchable/filterable list
  */
-const SearchList = ({ documents, model, onAddNew, onRefreshList, user, searchOptions, onSortChange, onFilterChange }) => {
+const SearchList = ({
+    documents,
+    model,
+    onAddNew,
+    onRefreshList,
+    user,
+    searchOptions,
+    onSortChange,
+    onFilterChange,
+}: SearchListProps) => {
     const [currentPage, setCurrentPage] = useState(0)
-    const [localChanges, setLocalChanges] = useState([])
+    const [localDocuments, setLocalDocuments] = useState([])
 
     const itemsPerPage = 50
     const offset = currentPage * itemsPerPage
 
     // look for unsaved documents in local storage
     useEffect(() => {
-        setLocalChanges(findUnsavedDocumentsByModel(model.name))
+        refreshLocalDocuments()
     }, [])
 
-    let localDocuments = localChanges.sort(
-        sortDocuments.bind(this, searchOptions.sort.direction, searchOptions.sort.property, searchOptions.sort.isDate)
-    )
+    // combine local storage documents (unsaved) with database documents
+    let listDocuments = [].concat(localDocuments, documents)
 
-    let filteredDocuments = documents
-        .filter((document) => documentMatchesSearchTerm(document, searchOptions.term))
-        .sort(
-            sortDocuments.bind(
-                this,
-                searchOptions.sort.direction,
-                searchOptions.sort.property,
-                searchOptions.sort.isDate
-            )
-        )
+    function refreshLocalDocuments() {
+        setLocalDocuments(findUnsavedDocumentsByModel(model.name))
+    }
 
-    let listDocuments = [].concat(localDocuments, filteredDocuments)
-
-    function Header({ text, sortBy = null, isDate = false }) {
+    function Header({ text, sortBy = null }) {
         return (
             <div
                 className={styles.header}
@@ -79,20 +60,27 @@ const SearchList = ({ documents, model, onAddNew, onRefreshList, user, searchOpt
                 onClick={() => {
                     if (!sortBy) return // this is an unsortable column
 
-                    onSortChange({
-                        property: sortBy,
-                        direction:
-                            sortBy == searchOptions.sort.property && searchOptions.sort.direction == 'desc'
-                                ? 'asc'
-                                : 'desc',
-                        isDate,
-                    })
+                    const sortByDesc = '-' + sortBy
+                    onSortChange(
+                        searchOptions.sort == sortByDesc ? sortBy : sortByDesc
+                    )
                 }}
             >
                 {text}
 
-                {sortBy == searchOptions.sort.property && (
-                    <IoMdArrowDropdown size="1.5em" className={styles[`sort-${searchOptions.sort.direction}`]} />
+                {searchOptions.sort.indexOf(sortBy) >= 0 && (
+                    <IoMdArrowDropdown
+                        size="1.5em"
+                        className={
+                            styles[
+                                `sort-${
+                                    searchOptions.sort.charAt(0) == '-'
+                                        ? 'desc'
+                                        : 'asc'
+                                }`
+                            ]
+                        }
+                    />
                 )}
             </div>
         )
@@ -115,32 +103,35 @@ const SearchList = ({ documents, model, onAddNew, onRefreshList, user, searchOpt
             {listDocuments.length > 0 && (
                 <div className={styles.grid}>
                     <Header text="Title" sortBy="title" />
-                    <Header text="State" sortBy="state" />
-                    <Header text="Modified On" sortBy="modifiedOn" isDate={true} />
-                    <Header text="Modified By" sortBy="modifiedBy" />
+                    <Header text="State" sortBy="x-meditor.state" />
+                    <Header text="Modified On" sortBy="x-meditor.modifiedOn" />
+                    <Header text="Modified By" sortBy="x-meditor.modifiedBy" />
                     <Header text="Actions" />
 
-                    {listDocuments.slice(offset, offset + itemsPerPage).map((document) => {
-                        if (document.localId) {
-                            return (
-                                <SearchResult
-                                    key={document.localId}
-                                    document={document}
-                                    isLocalDocument={true}
-                                    modelName={model.name}
-                                />
-                            )
-                        } else {
-                            return (
-                                <SearchResult
-                                    key={document.title}
-                                    document={document}
-                                    modelName={model.name}
-                                    onCloned={onRefreshList}
-                                />
-                            )
-                        }
-                    })}
+                    {listDocuments
+                        .slice(offset, offset + itemsPerPage)
+                        .map(document => {
+                            if (document.localId) {
+                                return (
+                                    <SearchResult
+                                        key={document.localId}
+                                        document={document}
+                                        isLocalDocument={true}
+                                        modelName={model.name}
+                                        onDelete={refreshLocalDocuments}
+                                    />
+                                )
+                            } else {
+                                return (
+                                    <SearchResult
+                                        key={document.title}
+                                        document={document}
+                                        modelName={model.name}
+                                        onCloned={onRefreshList}
+                                    />
+                                )
+                            }
+                        })}
                 </div>
             )}
 
@@ -150,7 +141,7 @@ const SearchList = ({ documents, model, onAddNew, onRefreshList, user, searchOpt
                     currentPage={currentPage}
                     totalItems={listDocuments.length}
                     itemsPerPage={itemsPerPage}
-                    onPageChange={(pageNum) => {
+                    onPageChange={pageNum => {
                         setCurrentPage(pageNum)
                         window.scrollTo(0, 0)
                     }}

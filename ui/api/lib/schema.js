@@ -8,10 +8,8 @@ const typeDefs = gql`
     scalar JSONObject
 
     type Query {
-        modelCategories: [ModelCategory!]!
         models: [Model!]!
         model(modelName: String!, currentState: String): Model!
-        documents(modelName: String!, filter: String): [Document!]!
         document(modelName: String!, title: String!, version: String): Document!
         documentComments(modelName: String!, title: String!): [Comment]!
         documentHistory(modelName: String!, title: String!): [History]!
@@ -32,11 +30,6 @@ const typeDefs = gql`
         states: [WorkflowState!]!
     }
 
-    type ModelCategory {
-        name: String
-        models: [Model!]!
-    }
-
     type Model {
         name: String
         description: String
@@ -49,7 +42,6 @@ const typeDefs = gql`
         titleProperty: String
         documentation: String
         tag: [String!]!
-        documents: [Document!]!
     }
 
     type Document {

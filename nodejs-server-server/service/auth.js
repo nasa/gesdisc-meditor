@@ -27,10 +27,9 @@ function stripTrailingSlash(path) {
 function isRequestUrlProtected(protectedUrls, requestUrl) {
     return protectedUrls.some(protectedUrl => {
         const [requestPath, requestParamString] = requestUrl.toLowerCase().split('?')
-        const [
-            protectedPath,
-            protectedParamString,
-        ] = protectedUrl.toLowerCase().split('?')
+        const [protectedPath, protectedParamString] = protectedUrl
+            .toLowerCase()
+            .split('?')
 
         const pathMatch =
             stripTrailingSlash(requestPath) === stripTrailingSlash(protectedPath)

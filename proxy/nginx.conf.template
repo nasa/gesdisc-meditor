@@ -33,53 +33,63 @@ http {
         access_log /var/log/nginx/access.log compression;
         port_in_redirect off;
 
+        # NextJS asset paths
+        location ~ (/meditor/_next/static|/meditor/_next/webpack-hmr) {
+            proxy_pass http://web;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+        }
+
+        location /meditor {
+            proxy_pass         http://web/meditor;
+            include /etc/nginx/proxy.conf;
+        }
+
         location /meditor/ {
-            proxy_pass         http://web/;
-            proxy_redirect     off;
-            proxy_buffering    off;
-            proxy_set_header   Host $host;
-            proxy_set_header   X-Real-IP $remote_addr;
-            proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header   X-Forwarded-Host $server_name;
+            proxy_pass         http://web/meditor/;
+            include /etc/nginx/proxy.conf;
         }
 
         location /meditor/docs/ {
             proxy_pass         http://docs;
-            proxy_redirect     off;
-            proxy_buffering    off;
-            proxy_set_header   Host $host;
-            proxy_set_header   X-Real-IP $remote_addr;
-            proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header   X-Forwarded-Host $server_name;
+            include /etc/nginx/proxy.conf;
         }
 
         location /meditor/graphql {
             proxy_pass         http://graphql;
-            proxy_redirect     off;
-            proxy_set_header   Host $host;
-            proxy_set_header   X-Real-IP $remote_addr;
-            proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header   X-Forwarded-Host $server_name;
+            include /etc/nginx/proxy.conf;
         }
+
+        ###
+        ### by default all routes under /meditor/api go to the nodejs-server API
+        ### the following routes go to the Next API
+        ###
+        ### as we near the finish for migration, we should flip this and have old routes individually defined instead of new
+        ###
+        location /meditor/api/listModels {
+            proxy_pass         http://web/meditor/api/listModels;
+            include /etc/nginx/proxy.conf;
+        }
+
+        location /meditor/api/listDocuments {
+            proxy_pass         http://web/meditor/api/listDocuments;
+            include /etc/nginx/proxy.conf;
+        }
+        ###
+        ### end of Next route migration
+        ###
 
         location /meditor/api {
             proxy_pass         http://api/meditor/api;
-            proxy_redirect     off;
-            proxy_set_header   Host $host;
-            proxy_set_header   X-Real-IP $remote_addr;
-            proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header   X-Forwarded-Host $server_name;
+            include /etc/nginx/proxy.conf;
         }
 
         location /meditor/monitor/ {
             proxy_pass         http://monitor/;
-            proxy_redirect     off;
             proxy_http_version 1.1;
-            proxy_set_header   Host $host;
-            proxy_set_header   X-Real-IP $remote_addr;
-            proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header   X-Forwarded-Host $server_name;
             proxy_set_header   Connection "";
+            include /etc/nginx/proxy.conf;
         }
 
         location /meditor/monitor/api/websocket/ {

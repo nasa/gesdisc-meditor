@@ -83,15 +83,12 @@ const UserAuthentication = ({
             localStorage.setItem(
                 'redirectUrl',
                 JSON.stringify({
-                    href:
-                        Router.pathname.indexOf('/meditor') >= 0
-                            ? Router.pathname
-                            : `/meditor${Router.pathname}`,
+                    href: Router.pathname,
                     as: Router.asPath,
                 })
             )
 
-            Router.push('/meditor')
+            Router.push('/')
         }
     }
 

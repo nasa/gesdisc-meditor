@@ -4,16 +4,6 @@ const jsonMapper = require('json-mapper-json')
 const clonedeep = require('lodash.clonedeep')
 require('portable-fetch')
 
-function sortModels(modelA, modelB) {
-    if (modelA.category < modelB.category) return 1
-    if (modelA.category > modelB.category) return -1
-
-    if (modelA.category < modelB.category) return -1
-    if (modelA.category > modelB.category) return 1
-
-    return 0
-}
-
 function findInitialEdges(edges) {
     if (!edges) return []
 
@@ -114,38 +104,6 @@ module.exports = {
             }
 
             return model
-        },
-        models: async (_, _params, { dataSources }) => {
-            return dataSources.mEditorApi.getModels()
-        },
-        modelCategories: async (_, _params, { dataSources }) => {
-            let models = (await dataSources.mEditorApi.getModels()).sort(sortModels)
-
-            let categories = models
-                // retrieve just the category name
-                .map(model => model.category)
-                // remove duplicates
-                .filter(
-                    (category, index, categories) =>
-                        categories.indexOf(category) === index
-                )
-
-            return categories.map(category => ({
-                name: category,
-                models: models
-                    .filter(model => model.category === category)
-                    .map(model => {
-                        model.xMeditor = model['x-meditor']
-                        return model
-                    }),
-            }))
-        },
-        documents: async (_, params, { dataSources }) => {
-            let documents = await dataSources.mEditorApi.getDocumentsForModel(
-                params.modelName,
-                params.filter
-            )
-            return await jsonMapper(documents, getDocumentMap(params.modelName))
         },
         document: async (_, params, { dataSources }) => {
             let document

@@ -17,10 +17,6 @@ import * as url from 'url'
 import * as portableFetch from 'portable-fetch'
 import { attach } from './interceptor'
 
-// monkey patch URLSearchParams until this issue is resolved: https://github.com/swagger-api/swagger-codegen/issues/6403
-// @ts-ignore
-url.URLSearchParams = URLSearchParams
-
 const fetchIntercept = attach()
 
 const API_CONFIG: ConfigurationParameters = {

@@ -220,7 +220,7 @@ const EditDocumentPage = ({ user, version = null, theme }) => {
             documentResponse.data.document.version
         )
         state == 'Deleted'
-            ? router.push('/meditor/[modelName]', `/meditor/${modelName}`)
+            ? router.push('/[modelName]', `/${modelName}`)
             : reloadDocument()
     }
 
@@ -321,8 +321,8 @@ const EditDocumentPage = ({ user, version = null, theme }) => {
                 <Breadcrumbs>
                     <Breadcrumb
                         title={modelName}
-                        href="/meditor/[modelName]"
-                        as={`/meditor/${modelName}`}
+                        href="/[modelName]"
+                        as={`/${modelName}`}
                     />
                     <Breadcrumb title={documentTitle} />
                 </Breadcrumbs>
