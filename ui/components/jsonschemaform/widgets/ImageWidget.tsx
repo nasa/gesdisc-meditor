@@ -11,7 +11,9 @@ function ImageWidget(props) {
 
     const [uploadState, setUploadState] = useState(UPLOAD_IDLE)
     const [currentImagePath, setCurrentImagePath] = useState('')
-    const [imageUploadUrl, setImageUploadUrl] = useState(props.formContext.imageUploadUrl || '/images/upload')
+    const [imageUploadUrl, setImageUploadUrl] = useState(
+        props.formContext.imageUploadUrl || '/images/upload'
+    )
 
     useEffect(() => {
         setCurrentImagePath(props.value)
@@ -29,8 +31,8 @@ function ImageWidget(props) {
             body: formData,
         })
             .then(handleResponseErrors)
-            .then((res) => res.json())
-            .then((res) => {
+            .then(res => res.json())
+            .then(res => {
                 setCurrentImagePath(res.location)
                 props.onChange(res.location)
                 setUploadState(UPLOAD_IDLE)
@@ -52,17 +54,21 @@ function ImageWidget(props) {
             />
 
             {!props.readonly && (
-                <IconButton icon="cloud-upload" onClick={() => fileEl.current.click()} style={{ marginTop: 10 }}>
+                <IconButton
+                    icon="cloud-upload"
+                    onClick={() => fileEl.current.click()}
+                    style={{ marginTop: 10 }}
+                >
                     Upload {props.label}
                 </IconButton>
             )}
-            
+
             <input
                 type="file"
                 accept="image/jpg, image/gif, image/jpeg, image/png"
                 style={{ display: 'none' }}
                 ref={fileEl}
-                onChange={(e) => handleFileChanged(e.target.files[0])}
+                onChange={e => handleFileChanged(e.target.files[0])}
                 readOnly={props.readonly}
             />
 
@@ -85,7 +91,12 @@ function ImageWidget(props) {
             {currentImagePath && (
                 <div style={{ marginTop: 10 }}>
                     <p>Preview:</p>
-                    <img id="preview" src={currentImagePath} alt="Preview" style={{ maxWidth: '100%' }} />
+                    <img
+                        id="preview"
+                        src={currentImagePath}
+                        alt="Preview"
+                        style={{ maxWidth: '100%' }}
+                    />
                 </div>
             )}
         </div>

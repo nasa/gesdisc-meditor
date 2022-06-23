@@ -3,10 +3,20 @@ import Flatpickr from 'react-flatpickr'
 import { format } from 'date-fns'
 
 function DateTimeWidget(props) {
-    const { id, placeholder, required, disabled, readonly, autofocus, value, onChange, onBlur } = props
+    const {
+        id,
+        placeholder,
+        required,
+        disabled,
+        readonly,
+        autofocus,
+        value,
+        onChange,
+        onBlur,
+    } = props
 
     return (
-        <Flatpickr 
+        <Flatpickr
             className="form-control"
             id={id}
             placeholder={placeholder}
@@ -20,7 +30,6 @@ function DateTimeWidget(props) {
             onChange={(_selectedDates, date) => {
                 let dateValue = format(new Date(date), 'yyyy-MM-dd HH:mm:ssxxx')
                 onChange(dateValue)
-                
             }}
             options={{
                 time_24hr: true,
