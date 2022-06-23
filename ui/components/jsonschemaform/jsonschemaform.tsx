@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react'
-import Form from 'react-jsonschema-form'
+import Form from '@rjsf/core'
 import fields from './fields/'
 import widgets from './widgets/'
 import templates from './templates/'
@@ -36,10 +36,8 @@ const JsonSchemaForm = ({
 
             const { formData, errors, errorSchema } = formEl.current.state
 
-            const {
-                errors: _errors,
-                errorSchema: _errorSchema,
-            } = formEl.current.validate(formData)
+            const { errors: _errors, errorSchema: _errorSchema } =
+                formEl.current.validate(formData)
 
             const prevOtherFieldErrors = filter(
                 errors,
