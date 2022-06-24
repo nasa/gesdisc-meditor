@@ -1,5 +1,7 @@
 const template = `<details class="jupyter-notebook-embed" open>
-    <summary><h3>{{ title }}</h3></summary>
+    <summary class="mb-0 p-3">
+        <span class="h6 ml-3">{{ title }}</h3>
+    </summary>
 
     <iframe
         src="{{ url }}"
@@ -12,19 +14,9 @@ const template = `<details class="jupyter-notebook-embed" open>
 
 <style>
 details.jupyter-notebook-embed summary {
-    cursor: pointer;
-    padding: 0.75rem 1.25rem;
-    margin-bottom: 0;
-    background-color: rgba(0,0,0,.03);
+    /* some very sparse coloring, keeping this as minimal as possible so the website using it can decide how to style it */
+    background-color: rgba(0,0,0,.03);  
     border-bottom: 1px solid rgba(0,0,0,.125);
-}
-
-details.jupyter-notebook-embed summary h3 {
-    margin-left: 20px;
-}
-
-details.jupyter-notebook-embed summary > * {
-    display: inline;
 }
 </style>`
 
