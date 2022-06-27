@@ -176,7 +176,7 @@ const FormActions = ({
                     </Button>
                 )}
 
-                {showActions && deletionActions.length && (
+                {showActions && deletionActions.length > 0 && (
                     <Button
                         className={styles.button}
                         variant="outline-danger"

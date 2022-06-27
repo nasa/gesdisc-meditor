@@ -45,6 +45,7 @@
         "lodash.pickby": "^4.6.0",
         "mongodb": "^3.6.6",
         "monquery": "^0.2.0",
+        "mustache": "^4.2.0",
         "next": "^10.2.3",
         "pluralize": "^8.0.0",
         "portable-fetch": "^3.0.0",
