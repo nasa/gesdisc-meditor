@@ -62,28 +62,98 @@ http {
         }
 
         ###
-        ### by default all routes under /meditor/api go to the nodejs-server API
-        ### the following routes go to the Next API
+        ### by default all routes under /meditor/api go to the Next app
+        ### the following override routes go to the old NodeJS/Express API instead
         ###
-        ### as we near the finish for migration, we should flip this and have old routes individually defined instead of new
+        ### as API endpoints are migrated to Next, the entry here should be removed
         ###
-        location /meditor/api/listModels {
-            proxy_pass         http://web/meditor/api/listModels;
+        location /meditor/api/setup {
+            proxy_pass         http://api/meditor/api/setup;
             include /etc/nginx/proxy.conf;
         }
 
-        location /meditor/api/listDocuments {
-            proxy_pass         http://web/meditor/api/listDocuments;
+        location /meditor/api/putModel {
+            proxy_pass         http://api/meditor/api/putModel;
+            include /etc/nginx/proxy.conf;
+        }
+
+        location /meditor/api/getModel {
+            proxy_pass         http://api/meditor/api/getModel;
+            include /etc/nginx/proxy.conf;
+        }
+
+        location /meditor/api/putDocument {
+            proxy_pass         http://api/meditor/api/putDocument;
+            include /etc/nginx/proxy.conf;
+        }
+
+        location /meditor/api/cloneDocument {
+            proxy_pass         http://api/meditor/api/cloneDocument;
+            include /etc/nginx/proxy.conf;
+        }
+
+        location /meditor/api/getDocument {
+            proxy_pass         http://api/meditor/api/getDocument;
+            include /etc/nginx/proxy.conf;
+        }
+
+        location /meditor/api/getDocumentPublicationStatus {
+            proxy_pass         http://api/meditor/api/getDocumentPublicationStatus;
+            include /etc/nginx/proxy.conf;
+        }
+
+        location /meditor/api/getDocumentHistory {
+            proxy_pass         http://api/meditor/api/getDocumentHistory;
+            include /etc/nginx/proxy.conf;
+        }
+
+        location /meditor/api/changeDocumentState {
+            proxy_pass         http://api/meditor/api/changeDocumentState;
+            include /etc/nginx/proxy.conf;
+        }
+
+        location /meditor/api/getComments {
+            proxy_pass         http://api/meditor/api/getComments;
+            include /etc/nginx/proxy.conf;
+        }
+
+        location /meditor/api/postComment {
+            proxy_pass         http://api/meditor/api/postComment;
+            include /etc/nginx/proxy.conf;
+        }
+
+        location /meditor/api/resolveComment {
+            proxy_pass         http://api/meditor/api/resolveComment;
+            include /etc/nginx/proxy.conf;
+        }
+
+        location /meditor/api/editComment {
+            proxy_pass         http://api/meditor/api/editComment;
+            include /etc/nginx/proxy.conf;
+        }
+
+        location /meditor/api/login {
+            proxy_pass         http://api/meditor/api/login;
+            include /etc/nginx/proxy.conf;
+        }
+
+        location /meditor/api/logout {
+            proxy_pass         http://api/meditor/api/logout;
+            include /etc/nginx/proxy.conf;
+        }
+
+        location /meditor/api/me {
+            proxy_pass         http://api/meditor/api/me;
+            include /etc/nginx/proxy.conf;
+        }
+
+        location /meditor/api/getCsrfToken {
+            proxy_pass         http://api/meditor/api/getCsrfToken;
             include /etc/nginx/proxy.conf;
         }
         ###
         ### end of Next route migration
         ###
-
-        location /meditor/api {
-            proxy_pass         http://api/meditor/api;
-            include /etc/nginx/proxy.conf;
-        }
 
         location /meditor/monitor/ {
             proxy_pass         http://monitor/;

@@ -503,7 +503,9 @@ module.exports.init = function (app) {
     // Protect all PUT requests with cookie-based csrf
     // app.use('/meditor/api/', csrf({cookie: true}));
 
-    app.use(enforceAuthentication(PROTECTED_URLS))
+    if (process.env.STRICT_AUTHENTICATION) {
+        app.use(enforceAuthentication(PROTECTED_URLS))
+    }
 }
 
 function getMongoUrlWithDatabase(db) {

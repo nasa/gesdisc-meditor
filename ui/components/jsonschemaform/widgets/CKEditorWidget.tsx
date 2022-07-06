@@ -52,6 +52,10 @@ function CKEditorWidget(props) {
         extraPlugins: 'youtube,arcgisstorymap,indentblock,worldview,jupyterNotebook',
         extraAllowedContent: 'iframe(*)',
         allowedContent: true,
+        contentsCss: [
+            'https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css',
+        ], // adds bootstrap styles to the ckeditor iframe
+        bodyClass: 'm-3', // bootstrap removes body margin, but for ckeditor we need a bit of space around the content
     }
 
     // TODO: support disabled
