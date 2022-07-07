@@ -7,7 +7,7 @@ const UPLOAD_IN_PROGRESS = 'uploading'
 const UPLOAD_FAILED = 'upload failed'
 
 function ImageWidget(props) {
-    let fileEl = React.createRef()
+    let fileEl = React.createRef<HTMLInputElement>()
 
     const [uploadState, setUploadState] = useState(UPLOAD_IDLE)
     const [currentImagePath, setCurrentImagePath] = useState('')
