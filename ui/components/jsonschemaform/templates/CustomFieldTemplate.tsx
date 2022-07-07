@@ -1,6 +1,8 @@
 import React from 'react'
-import { ADDITIONAL_PROPERTY_FLAG } from '@rjsf/core'
 import IconButton from '../components/IconButton'
+import { utils } from '@rjsf/core'
+
+const { ADDITIONAL_PROPERTY_FLAG } = utils
 
 const REQUIRED_FIELD_SYMBOL = '*'
 
