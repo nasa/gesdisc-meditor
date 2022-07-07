@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { default as RJSFStringField } from 'react-jsonschema-form/lib/components/fields/StringField'
+import { default as RJSFStringField } from '@rjsf/core/lib/components/fields/StringField'
 import { MdWarning } from 'react-icons/md'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Tooltip from 'react-bootstrap/Tooltip'
@@ -11,13 +11,13 @@ import Tooltip from 'react-bootstrap/Tooltip'
 function StringField(props) {
     const [linkIsValid, setLinkIsValid] = useState(null)
     let fieldProps = { ...props }
-   
+
     // force the HtmlTextWidget if the field's value contains HTML (so it can render)
     try {
         if (props.formData.indexOf('</') >= 0 && !props?.uiSchema?.['ui:widget']) {
             fieldProps.uiSchema = {
                 ...fieldProps.uiSchema,
-                'ui:widget': 'htmltext'
+                'ui:widget': 'htmltext',
             }
         }
     } catch (err) {}
@@ -29,11 +29,12 @@ function StringField(props) {
     useEffect(() => {
         if (linkIsValid === null) return
 
-        let brokenLinks = localStorage.getItem('brokenLinks')
+        let brokenLinks = {}
 
-        if (brokenLinks) brokenLinks = JSON.parse(brokenLinks)
-        else brokenLinks = {}
-        
+        if (localStorage.getItem('brokenLinks')) {
+            brokenLinks = JSON.parse(localStorage.getItem('brokenLinks'))
+        }
+
         brokenLinks[props.name] = linkIsValid.toString()
 
         localStorage.setItem('brokenLinks', JSON.stringify(brokenLinks))
@@ -41,7 +42,7 @@ function StringField(props) {
 
     function validateNoBrokenLinks() {
         let urlFields = ['uri', 'uri-reference', 'url']
-        
+
         if (!props?.schema?.format || urlFields.indexOf(props.schema.format) < 0) {
             // this isn't a URL field
             return
@@ -63,15 +64,17 @@ function StringField(props) {
         }
 
         // ok we have a valid URL, let's test it
-        
-        let apiUrl = props.formContext.linkCheckerApiUrl + (props.formContext.linkCheckerApiUrl.substr(-1) != '/' ? '/' : '')
+
+        let apiUrl =
+            props.formContext.linkCheckerApiUrl +
+            (props.formContext.linkCheckerApiUrl.substr(-1) != '/' ? '/' : '')
 
         fetch(apiUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                query: `query { validLink(url:"${props.formData}") { isValid, message } }`
-            })
+                query: `query { validLink(url:"${props.formData}") { isValid, message } }`,
+            }),
         })
             .then(response => response.json())
             .then(response => {
@@ -98,11 +101,14 @@ function StringField(props) {
 
             {linkIsValid === false && (
                 <div className="field-warning">
-                    <OverlayTrigger 
-                        placement="left" 
-                        delay={{ show: 150, hide: 400 }} 
-                        overlay={(props) => (
-                            <Tooltip {...props}>
+                    <OverlayTrigger
+                        placement="left"
+                        delay={{ show: 150, hide: 400 }}
+                        overlay={props => (
+                            <Tooltip
+                                id={`broken-link-tooltip-${fieldProps.name}`}
+                                {...props}
+                            >
                                 URL doesn't exist
                             </Tooltip>
                         )}
