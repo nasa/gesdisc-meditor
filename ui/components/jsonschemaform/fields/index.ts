@@ -1,11 +1,11 @@
-import CollapsibleField from './CollapsibleField'
-import ArrayField from './ArrayField'
+//import CollapsibleField from './CollapsibleField'
+//import ArrayField from './ArrayField'
 import StringField from './StringField'
 import DescriptionField from './DescriptionField'
 
 const fields = {
-    CollapsibleField,
-    ArrayField,
+    //CollapsibleField,
+    //ArrayField,
     StringField,
     DescriptionField,
 }
