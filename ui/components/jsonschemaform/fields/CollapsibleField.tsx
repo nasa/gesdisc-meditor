@@ -1,4 +1,10 @@
 // @ts-nocheck
+/**
+ * react-jsonschema-form-extras CollapsibleField
+ * refactored for RJSF v2, original https://github.com/RXNT/react-json-schema-form-extras
+ *
+ * TODO: refactor to functional components, fix TS issues, and remove ts-nocheck
+ */
 import React, { Component } from 'react'
 import { utils } from '@rjsf/core'
 import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md'
