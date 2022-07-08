@@ -1,6 +1,7 @@
+// @ts-nocheck
 import React, { Component } from 'react'
-import { deepEquals, getDefaultFormState } from 'react-jsonschema-form'
-import { MdKeyboardArrowUp, MdKeyboardArrowDown  } from 'react-icons/md'
+import { utils } from '@rjsf/core'
+import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md'
 import { keyExistsInSchema } from '../../../lib/utils'
 
 class CollapseMenuAction extends Component {
@@ -14,10 +15,13 @@ class CollapseMenuAction extends Component {
         } else if (typeof action === 'object') {
             const Component = allActions[action.component]
             if (!Component) {
-                console.error(`Can't find ${action.component} in formContext.allActions`)
+                console.error(
+                    `Can't find ${action.component} in formContext.allActions`
+                )
                 return (
                     <h2 className="warning bg-error" style={{ color: 'red' }}>
-                        Can't find <b>{action.component}</b> in <b>formContext</b>.<b>allActions</b>
+                        Can't find <b>{action.component}</b> in <b>formContext</b>.
+                        <b>allActions</b>
                     </h2>
                 )
             }
@@ -102,14 +106,22 @@ function CollapseMenu(props) {
                         <MdKeyboardArrowDown size={iconSize} style={iconStyle} />
                     )}
                 </a>
-                <span>{title || name}</span>{props.required && <span className="required">*</span>}&nbsp;
+                <span>{title || name}</span>
+                {props.required && <span className="required">*</span>}&nbsp;
                 {addTo && (
-                    <a onClick={handleAdd} style={{ color: addGlyphColor, cursor: addCursor }}>
+                    <a
+                        onClick={handleAdd}
+                        style={{ color: addGlyphColor, cursor: addCursor }}
+                    >
                         <i style={{ cursor: addCursor }} className={add} />
                     </a>
                 )}
                 {actions.map((action, i) => (
-                    <CollapseMenuAction key={i} action={action} allActions={formContext.allActions} />
+                    <CollapseMenuAction
+                        key={i}
+                        action={action}
+                        allActions={formContext.allActions}
+                    />
                 ))}
             </div>
 
@@ -134,10 +146,13 @@ class CollapseLegend extends Component {
         } else if (typeof legend === 'object') {
             const Component = legends[legend.component]
             if (!Component) {
-                console.error(`Can't find ${legend.components} in formContext.legends`)
+                console.error(
+                    `Can't find ${legend.components} in formContext.legends`
+                )
                 return (
                     <h2 className="warning bg-error" style={{ color: 'red' }}>
-                        Can't find <b>{legend.component}</b> in <b>formContext</b>.<b>legends</b>
+                        Can't find <b>{legend.component}</b> in <b>formContext</b>.
+                        <b>legends</b>
                     </h2>
                 )
             }
@@ -159,13 +174,13 @@ class CollapsibleField extends Component {
     }
 
     componentDidMount() {
-        window.addEventListener('expandall', this.expandAll.bind(this));
-        window.addEventListener('collapseall', this.collapseAll.bind(this));
+        window.addEventListener('expandall', this.expandAll.bind(this))
+        window.addEventListener('collapseall', this.collapseAll.bind(this))
     }
 
     componentWillUnmount() {
-        window.removeEventListener('expandall', this.expandAll.bind(this));
-        window.removeEventListener('collapseall', this.collapseAll.bind(this));
+        window.removeEventListener('expandall', this.expandAll.bind(this))
+        window.removeEventListener('collapseall', this.collapseAll.bind(this))
     }
 
     expandAll() {
@@ -180,7 +195,7 @@ class CollapsibleField extends Component {
         let {
             uiSchema: { collapse: { addToBottom = true } = {} },
         } = this.props
-        if (formData.some(v => deepEquals(v, newVal))) {
+        if (formData.some(v => utils.deepEquals(v, newVal))) {
             return formData
         } else {
             // newVal can be either array or a single element, concat flattens value
@@ -254,14 +269,14 @@ class CollapsibleField extends Component {
                     this.setState({ AddElement })
                 }
             } else {
-                let newVal = getDefaultFormState(fieldSchema, {})
+                let newVal = utils.getDefaultFormState(fieldSchema, {})
                 this.doAdd(addTo, formData, newVal)
             }
         })
     }
 
     handleCollapsed = () => {
-        this.setState(function(state) {
+        this.setState(function (state) {
             return { collapsed: !state.collapsed }
         })
     }
