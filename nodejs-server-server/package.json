@@ -26,7 +26,6 @@
         "helmet": "^3.13.0",
         "https-proxy-agent": "^2.2.4",
         "js-yaml": "^3.14.1",
-        "jsonpath": "^1.1.1",
         "jsonschema": "^1.2.5",
         "lodash": "^4.17.21",
         "log": "^6.0.0",
