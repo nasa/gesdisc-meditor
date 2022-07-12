@@ -2,6 +2,8 @@ import getDb from '../lib/mongodb'
 import { BadRequestException, NotFoundException } from '../utils/errors'
 import type { Model } from './types'
 import jsonpath from 'jsonpath'
+import { isJsonType } from '../utils/string'
+import { populateModelTemplates } from './macros'
 
 export const MODELS_COLLECTION = 'Models'
 export const MODELS_TITLE_PROPERTY = 'name'
@@ -51,17 +53,15 @@ export async function getModel(
 
     // see top level documentation for description of macro templates
     if (options.populateMacroTemplates) {
-        // validate the model's schema before continuing
-        if (!this.isJson(model.schema)) {
+        // validate the model's schema before continuing as we need to parse it
+        if (!isJsonType(model.schema)) {
             throw new BadRequestException(
                 `The schema for model, ${modelName}, contains invalid JSON`
             )
         }
 
         // execute the macro templates for this model and get their values
-        // TODO: add support for macros
-        //let populatedTemplates = await this.getPopulatedModelTemplates(model)
-        let populatedTemplates = []
+        let populatedTemplates = await populateModelTemplates(model)
 
         // parse the schema into an object
         let schema =
@@ -70,7 +70,7 @@ export async function getModel(
         // can also set macro templates for the layout, parse it's JSON as well if this model has a layout
         let layout = null
 
-        if (model.layout && this.isJson(model.layout)) {
+        if (model.layout && isJsonType(model.layout)) {
             layout =
                 typeof model.layout === 'string'
                     ? JSON.parse(model.layout)
