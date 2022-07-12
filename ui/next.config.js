@@ -11,6 +11,17 @@ module.exports = {
     async redirects() {
         return [
             {
+                source: '/api/getModel',
+                has: [
+                    {
+                        type: 'query',
+                        key: 'name',
+                    },
+                ],
+                permanent: true,
+                destination: '/api/models/:name',
+            },
+            {
                 source: '/api/listModels',
                 permanent: true,
                 destination: '/api/models',

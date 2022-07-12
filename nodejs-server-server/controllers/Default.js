@@ -90,17 +90,6 @@ module.exports.getMe = function getMe(req, res, next) {
         })
 }
 
-module.exports.getModel = function getModel(req, res, next) {
-    var name = req.swagger.params['name'].value
-    Default.getModel(name)
-        .then(function (response) {
-            utils.writeJson(res, response)
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response)
-        })
-}
-
 module.exports.login = function login(req, res, next) {
     var code = req.swagger.params['code'].value
     Default.login(code)
