@@ -1,9 +1,9 @@
 import getDb from '../lib/mongodb'
 import { BadRequestException, NotFoundException } from '../utils/errors'
-import type { Model } from './types'
+import type { MacroTemplate, Model } from './types'
 import jsonpath from 'jsonpath'
 import { isJsonType } from '../utils/string'
-import { populateModelTemplates } from './macros'
+import { populateMacroTemplates } from './macros'
 
 export const MODELS_COLLECTION = 'Models'
 export const MODELS_TITLE_PROPERTY = 'name'
@@ -61,7 +61,7 @@ export async function getModel(
         }
 
         // execute the macro templates for this model and get their values
-        let populatedTemplates = await populateModelTemplates(model)
+        let populatedTemplates = await populateMacroTemplates(model)
 
         // parse the schema into an object
         let schema =
@@ -148,3 +148,11 @@ export async function getModelsWithDocumentCount(): Promise<Model[]> {
         })
     )
 }
+
+/**
+ * given a list of macro templates (assumed to be populated), applies them to the schema and layout fields of the model
+ */
+export function applyMacroTemplatesToModel(
+    model: Model,
+    templates: MacroTemplate[]
+) {}
