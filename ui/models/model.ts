@@ -51,49 +51,9 @@ export async function getModel(
 
     let model = results[0] as Model
 
-    // see top level documentation for description of macro templates
     if (options.populateMacroTemplates) {
-        // validate the model's schema before continuing as we need to parse it
-        if (!isJsonType(model.schema)) {
-            throw new BadRequestException(
-                `The schema for model, ${modelName}, contains invalid JSON`
-            )
-        }
-
-        // execute the macro templates for this model and get their values
-        let populatedTemplates = await populateMacroTemplates(model)
-
-        // parse the schema into an object
-        let schema =
-            typeof model.schema === 'string' ? JSON.parse(model.schema) : model.schema
-
-        // can also set macro templates for the layout, parse it's JSON as well if this model has a layout
-        let layout = null
-
-        if (model.layout && isJsonType(model.layout)) {
-            layout =
-                typeof model.layout === 'string'
-                    ? JSON.parse(model.layout)
-                    : model.layout
-        }
-
-        // loop through each macro template and update any matching fields in the model
-        populatedTemplates.forEach(template => {
-            // update any jsonpath matches in the schema with the template values
-            jsonpath.value(schema, template.jsonpath, template.result)
-
-            // if model has a layout, check in the layout for any matching jsonpath to update
-            if (layout && jsonpath.paths(layout, template.jsonpath).length) {
-                jsonpath.value(layout, template.jsonpath, template.result)
-            }
-        })
-
-        // set the schema and layout back to JSON strings
-        model.schema = JSON.stringify(schema, null, 2)
-
-        if (layout) {
-            model.layout = JSON.stringify(layout, null, 2)
-        }
+        // see top level documentation for description of macro templates
+        model = await applyMacroTemplatesToModel(model)
     }
 
     return model
@@ -150,9 +110,48 @@ export async function getModelsWithDocumentCount(): Promise<Model[]> {
 }
 
 /**
- * given a list of macro templates (assumed to be populated), applies them to the schema and layout fields of the model
+ * finds and applies macro templates in a model to the schema and layout fields
  */
-export function applyMacroTemplatesToModel(
-    model: Model,
-    templates: MacroTemplate[]
-) {}
+export async function applyMacroTemplatesToModel(model: Model) {
+    // validate the model's schema before continuing as we need to parse it
+    if (!isJsonType(model.schema)) {
+        throw new BadRequestException(
+            `The schema for model, ${model.name}, contains invalid JSON`
+        )
+    }
+
+    // execute the macro templates for this model and get their values
+    let populatedTemplates = await populateMacroTemplates(model)
+
+    // parse the schema into an object
+    let schema =
+        typeof model.schema === 'string' ? JSON.parse(model.schema) : model.schema
+
+    // can also set macro templates for the layout, parse it's JSON as well if this model has a layout
+    let layout = null
+
+    if (model.layout && isJsonType(model.layout)) {
+        layout =
+            typeof model.layout === 'string' ? JSON.parse(model.layout) : model.layout
+    }
+
+    // loop through each macro template and update any matching fields in the model
+    populatedTemplates.forEach(template => {
+        // update any jsonpath matches in the schema with the template values
+        jsonpath.value(schema, template.jsonpath, template.result)
+
+        // if model has a layout, check in the layout for any matching jsonpath to update
+        if (layout && jsonpath.paths(layout, template.jsonpath).length) {
+            jsonpath.value(layout, template.jsonpath, template.result)
+        }
+    })
+
+    // set the schema and layout back to JSON strings
+    model.schema = JSON.stringify(schema, null, 2)
+
+    if (layout) {
+        model.layout = JSON.stringify(layout, null, 2)
+    }
+
+    return model
+}
