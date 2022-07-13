@@ -33,7 +33,7 @@ export interface ModelMetadata extends DocumentMetadata {
     countAll?: number
 }
 
-export type MacroFunction = 'list' | 'userRoles'
+export type MacroFunction = 'list'
 
 export interface MacroTemplate {
     jsonpath: string
