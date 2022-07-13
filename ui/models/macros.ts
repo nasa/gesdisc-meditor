@@ -29,9 +29,9 @@ export const macroFunctions = {
             .toArray()
 
         return documents
+            .map(document => document[fieldName])
             .filter(filterUndefined)
             .filter(filterUnique)
-            .map(document => document[fieldName])
     },
 }
 
