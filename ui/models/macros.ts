@@ -33,39 +33,6 @@ export const macroFunctions = {
             .filter(filterUnique)
             .map(document => document[fieldName])
     },
-
-    /* 
-    
-exports.userRoles = function (dbo){
-    var roleList = [];
-    return new Promise(function(resolve, reject) {
-        dbo.collection("Models").aggregate([
-            { $lookup:
-                {
-                    from: "Workflows",
-                    localField: "workflow",
-                    foreignField: "name",
-                    as: "graph"
-                }
-            },
-            { $project:
-                {"_id":0, "name":1, "graph.roles":1}
-            },
-            { $unwind: "$graph" }
-        ], {allowDiskUse: true}).toArray(function(err,res){
-            if (err){
-                console.log(err);
-                throw(err);
-            }else{
-                res.forEach(element=>{
-                    roleList = roleList.concat(element.graph.roles);
-                });
-                resolve(roleList.unique());
-            }
-        });
-    } );
-};
-*/
 }
 
 /**
