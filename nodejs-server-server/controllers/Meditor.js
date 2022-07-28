@@ -6,13 +6,14 @@ var utils = require('../utils/writer')
 var mongo = require('mongodb')
 var MongoClient = mongo.MongoClient
 var ObjectID = mongo.ObjectID
+var jsonpath = require('jsonpath')
+var macros = require('./Macros')
 var mUtils = require('./lib/meditor-utils')
 var Validator = require('jsonschema').Validator
 var nats = require('./lib/nats-connection')
 var escape = require('mongo-escape').escape
 var fs = require('fs')
 var { promisify } = require('util')
-const fetch = require('node-fetch')
 
 const readFile = promisify(fs.readFile)
 
@@ -971,19 +972,118 @@ module.exports.changeDocumentState = function changeDocumentState(
         })
 }
 
-// TODO: temporarily calling the Next API as we migrate endpoints to Next. Remove once all references are migrated
-async function getModelContent(name, dbo) {
-    const apiUrl = `http://${
-        process.env.UI_HOST || 'meditor_ui'
-    }:3000/meditor/api/models/${name}`
-    const response = await fetch(apiUrl)
-    const parsedResponse = await response.json()
+// Internal method to list documents
+function getModelContent(name, dbo) {
+    return new Promise(function (resolve, reject) {
+        dbo.collection('Models')
+            .find({ name: name })
+            .sort({ 'x-meditor.modifiedOn': -1 })
+            .project({ _id: 0 })
+            .toArray(function (err, res) {
+                if (err) {
+                    console.log(err)
+                    reject(err)
+                }
 
-    if (response.status !== 200) {
-        throw parsedResponse.error
+                // Fill in templates if they exist
+                var promiseList = []
+                if (res[0] && res[0].hasOwnProperty('templates')) {
+                    res[0].templates.forEach(element => {
+                        var macroFields = element.macro.split(/\s+/)
+                        promiseList.push(
+                            new Promise(function (promiseResolve, promiseReject) {
+                                if (typeof macros[macroFields[0]] === 'function') {
+                                    macros[macroFields[0]](
+                                        dbo,
+                                        macroFields.slice(1, macroFields.length)
+                                    )
+                                        .then(function (response) {
+                                            promiseResolve(response)
+                                        })
+                                        .catch(function (err) {
+                                            console.log(err)
+                                            promiseReject(err)
+                                        })
+                                } else {
+                                    console.log(
+                                        "Macro, '" + macroName + "', not supported"
+                                    )
+                                    promiseReject(
+                                        "Macro, '" + macroName + "', not supported"
+                                    )
+                                }
+                            })
+                        )
+                    })
+                    Promise.all(promiseList)
+                        .then(response => {
+                            try {
+                                var schema = JSON.parse(res[0].schema)
+                                var layout =
+                                    res[0].layout && res[0].layout != ''
+                                        ? JSON.parse(res[0].layout)
+                                        : null
+
+                                var i = 0
+                                res[0].templates.forEach(element => {
+                                    let replaceValue = response[i++]
+
+                                    jsonpath.value(
+                                        schema,
+                                        element.jsonpath,
+                                        replaceValue
+                                    )
+
+                                    if (layout) {
+                                        jsonpath.value(
+                                            layout,
+                                            element.jsonpath,
+                                            replaceValue
+                                        )
+                                        res[0].layout = JSON.stringify(
+                                            layout,
+                                            null,
+                                            2
+                                        )
+                                    }
+
+                                    res[0].schema = JSON.stringify(schema, null, 2)
+                                })
+                                resolve(res[0])
+                            } catch (err) {
+                                console.error('Failed to parse schema', err)
+                                reject(err)
+                            }
+                        })
+                        .catch(function (err) {
+                            reject(err)
+                        })
+                } else {
+                    resolve(res[0])
+                }
+            })
+    })
+}
+
+module.exports.getModel = async function (request, response, next) {
+    let client = new MongoClient(MongoUrl)
+
+    try {
+        await client.connect()
+
+        let dbo = await client.db(DbName)
+
+        const model = await getModelContent(request.query.name, dbo)
+
+        if (!model) throw new Error('Model not found')
+
+        handleSuccess(response, model)
+    } catch (err) {
+        console.error(err)
+        handleError(response, err)
+    } finally {
+        client.close()
     }
-
-    return parsedResponse
 }
 
 module.exports.getDocumentHistory = async function (request, response) {

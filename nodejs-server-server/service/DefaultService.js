@@ -144,6 +144,43 @@ exports.getMe = function () {
 }
 
 /**
+ * Gets a Model
+ * Gets a Model object
+ *
+ * name String Name of the model
+ * returns model
+ **/
+exports.getModel = function (name) {
+    return new Promise(function (resolve, reject) {
+        var examples = {}
+        examples['application/json'] = {
+            schema: 'schema',
+            layout: 'layout',
+            titleField: 'titleField',
+            documentation: 'documentation',
+            name: 'name',
+            icon: {
+                color: 'color',
+                name: 'name',
+            },
+            'x-meditor': {
+                modifiedOn: 'modifiedOn',
+                count: 'count',
+                modifiedBy: 'modifiedBy',
+                title: 'title',
+            },
+            description: 'description',
+            tag: ['tag', 'tag'],
+        }
+        if (Object.keys(examples).length > 0) {
+            resolve(examples[Object.keys(examples)[0]])
+        } else {
+            resolve()
+        }
+    })
+}
+
+/**
  * Login
  * Redirect to configured identity provider for login
  *
