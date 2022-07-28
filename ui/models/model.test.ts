@@ -32,6 +32,13 @@ describe('Model', () => {
     })
 
     describe('getModel', () => {
+        beforeEach(async () => {
+            let collection: any = { ...GLDAS_CLM10SUBP_3H_001 }
+            delete collection._id
+
+            await db.collection('Collection Metadata').insertOne(collection)
+        })
+
         it('should return the requested models', async () => {
             expect(await getModel('Alerts')).toEqual(alertsModel)
             expect(await getModel('Collection Metadata')).toEqual(
@@ -50,6 +57,42 @@ describe('Model', () => {
             await expect(async () =>
                 getModel('Foo')
             ).rejects.toThrowErrorMatchingInlineSnapshot(`"Model not found: Foo"`)
+        })
+
+        it('should not populate schema from macros by default', async () => {
+            const model = await getModel('Alerts')
+            const schemaDatasetsEnum = JSON.parse(model.schema).properties.datasets
+                .items.enum
+
+            // still using the placeholder
+            expect(schemaDatasetsEnum).toMatchInlineSnapshot(`
+                Array [
+                  "placeholder",
+                ]
+            `)
+        })
+
+        it('should populate schema from macros if using populateMacroTemplates', async () => {
+            const model = await getModel('Alerts', { populateMacroTemplates: true })
+            const schemaDatasetsEnum = JSON.parse(model.schema).properties.datasets
+                .items.enum
+
+            expect(schemaDatasetsEnum).toMatchInlineSnapshot(`
+                Array [
+                  "GLDAS_CLM10SUBP_3H_001",
+                ]
+            `)
+        })
+
+        it('should populate macros in layouts', async () => {
+            const model = await getModel('Alerts', { populateMacroTemplates: true })
+            const layoutDatasetsEnum = JSON.parse(model.layout).datasets.enum
+
+            expect(layoutDatasetsEnum).toMatchInlineSnapshot(`
+                Array [
+                  "GLDAS_CLM10SUBP_3H_001",
+                ]
+            `)
         })
     })
 

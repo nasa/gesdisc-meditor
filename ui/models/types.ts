@@ -20,6 +20,7 @@ export interface Model {
     'x-meditor'?: ModelMetadata
     category?: string
     workflow?: string
+    templates?: MacroTemplate[]
 }
 
 export interface ModelIcon {
@@ -32,6 +33,13 @@ export interface ModelMetadata extends DocumentMetadata {
     countAll?: number
 }
 
+export type MacroFunction = 'list'
+
+export interface MacroTemplate {
+    jsonpath: string
+    macro: MacroFunction
+    result?: string[]
+}
 export interface Workflow {
     _id?: string
     name: string
