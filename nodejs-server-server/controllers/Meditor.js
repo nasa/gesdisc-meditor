@@ -605,7 +605,9 @@ module.exports.putDocument = function putDocument(request, response, next) {
         .then(model => {
             // validate the document against the schema
             var v = new Validator()
-            var result = v.validate(doc, JSON.parse(model.schema))
+            var schema = JSON.parse(model.schema)
+            schema.additionalProperties = true
+            var result = v.validate(doc, schema)
 
             if (result.errors.length > 0) {
                 throw {

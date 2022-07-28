@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react'
 
 // JsonSchemaForm widgets rely heavily on global window, so we'll need to load them in separately
 // as the server side doesn't have a window!
-const JsonSchemaForm = dynamic(() => import('../jsonschemaform/jsonschemaform'), { ssr: false })
+const JsonSchemaForm = dynamic(() => import('../jsonschemaform/jsonschemaform'), {
+    ssr: false,
+})
 
 const Form = ({
     model,
@@ -30,19 +32,29 @@ const Form = ({
 
         setExpandAll(sectionsExpanded)
 
-        window.dispatchEvent(new CustomEvent(sectionsExpanded ? 'expandall' : 'collapseall'))
+        window.dispatchEvent(
+            new CustomEvent(sectionsExpanded ? 'expandall' : 'collapseall')
+        )
     }
+
+    // ensure mEditor additional properties don't trigger validation errors
+    const schema = model ? JSON.parse(model.schema) : {}
+    schema.additionalProperties = true
 
     return (
         <>
             {hasSections && (
-                <Button variant="outline-secondary" className="mt-4 mb-3" onClick={toggleExpandAll}>
+                <Button
+                    variant="outline-secondary"
+                    className="mt-4 mb-3"
+                    onClick={toggleExpandAll}
+                >
                     {expandAll ? 'Collapse All' : 'Expand All'}
                 </Button>
             )}
 
             <JsonSchemaForm
-                schema={model ? JSON.parse(model.schema) : {}}
+                schema={schema}
                 formData={formData}
                 layout={layout}
                 liveValidate={liveValidate}
