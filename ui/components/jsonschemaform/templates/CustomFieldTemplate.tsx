@@ -1,6 +1,8 @@
 import React from 'react'
-import { ADDITIONAL_PROPERTY_FLAG } from 'react-jsonschema-form'
 import IconButton from '../components/IconButton'
+import { utils } from '@rjsf/core'
+
+const { ADDITIONAL_PROPERTY_FLAG } = utils
 
 const REQUIRED_FIELD_SYMBOL = '*'
 
@@ -15,7 +17,9 @@ function Label(props) {
         <div className="control-label-container">
             <label className="control-label" htmlFor={id}>
                 {label}
-                {required && <span className="required">{REQUIRED_FIELD_SYMBOL}</span>}
+                {required && (
+                    <span className="required">{REQUIRED_FIELD_SYMBOL}</span>
+                )}
             </label>
 
             {description ? description : null}
@@ -30,14 +34,24 @@ function LabelInput(props) {
             className="form-control"
             type="text"
             id={id}
-            onBlur={(event) => onChange(event.target.value)}
+            onBlur={event => onChange(event.target.value)}
             defaultValue={label}
         />
     )
 }
 
 function WrapIfAdditional(props) {
-    const { id, classNames, disabled, label, onKeyChange, onDropPropertyClick, readonly, required, schema } = props
+    const {
+        id,
+        classNames,
+        disabled,
+        label,
+        onKeyChange,
+        onDropPropertyClick,
+        readonly,
+        required,
+        schema,
+    } = props
     const keyLabel = `${label} Key` // i18n ?
     const additional = schema.hasOwnProperty(ADDITIONAL_PROPERTY_FLAG)
 
@@ -50,11 +64,22 @@ function WrapIfAdditional(props) {
             <div className="row">
                 <div className="col-xs-5 form-additional">
                     <div className="form-group">
-                        <Label label={keyLabel} required={required} id={`${id}-key`} />
-                        <LabelInput label={label} required={required} id={`${id}-key`} onChange={onKeyChange} />
+                        <Label
+                            label={keyLabel}
+                            required={required}
+                            id={`${id}-key`}
+                        />
+                        <LabelInput
+                            label={label}
+                            required={required}
+                            id={`${id}-key`}
+                            onChange={onKeyChange}
+                        />
                     </div>
                 </div>
-                <div className="form-additional form-group col-xs-5">{props.children}</div>
+                <div className="form-additional form-group col-xs-5">
+                    {props.children}
+                </div>
                 <div className="col-xs-2">
                     <IconButton
                         type="danger"
@@ -72,7 +97,17 @@ function WrapIfAdditional(props) {
 }
 
 function CustomFieldTemplate(props) {
-    const { id, label, children, errors, help, description, hidden, required, displayLabel } = props
+    const {
+        id,
+        label,
+        children,
+        errors,
+        help,
+        description,
+        hidden,
+        required,
+        displayLabel,
+    } = props
 
     if (hidden) {
         return <div className="hidden">{children}</div>
@@ -80,7 +115,14 @@ function CustomFieldTemplate(props) {
 
     return (
         <WrapIfAdditional {...props}>
-            {displayLabel && <Label label={label} required={required} id={id} description={description} />}
+            {displayLabel && (
+                <Label
+                    label={label}
+                    required={required}
+                    id={id}
+                    description={description}
+                />
+            )}
             {children}
             {errors}
             {help}

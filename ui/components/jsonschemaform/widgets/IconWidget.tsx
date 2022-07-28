@@ -24,13 +24,8 @@ function IconWidget(props) {
             required={required}
             disabled={disabled || readonly}
             autoFocus={autofocus}
-            onBlur={onBlur &&
-                (event => onBlur(id, event.target.value))
-            }
-            onFocus={
-                onFocus &&
-                (event => onFocus(id, event.target.value))
-            }
+            onBlur={onBlur && (event => onBlur(id, event.target.value))}
+            onFocus={onFocus && (event => onFocus(id, event.target.value))}
             onChange={event => onChange(event.target.value)}
         >
             {schema.default === undefined && <option value="">{placeholder}</option>}

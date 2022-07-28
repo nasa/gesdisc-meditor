@@ -7,15 +7,25 @@ function optionHasValue(option) {
     }
 
     if (typeof option === 'object') {
-        return option.value && option.value != ""
+        return option.value && option.value != ''
     }
 
-    return option != ""
+    return option != ''
 }
 
 function MultiSelectWidget(props) {
-    const { id, placeholder, required, disabled, readonly, autofocus, value, options, onChange } = props
-    const [ tagify, setTagify ] = useState(null)
+    const {
+        id,
+        placeholder,
+        required,
+        disabled,
+        readonly,
+        autofocus,
+        value,
+        options,
+        onChange,
+    } = props
+    const [tagify, setTagify] = useState(null)
 
     const inputEl = useRef(null)
 
@@ -24,9 +34,12 @@ function MultiSelectWidget(props) {
 
         let tagifyOptions = {
             mode: !props.multiple ? 'select' : null,
-            whitelist: options.enumOptions.filter(optionHasValue) || [],
-            enforceWhitelist: 'enforceEnumOptions' in options ? options.enforceEnumOptions : true,
-            keepInvalidTags: 'keepInvalidTags' in options ? options.keepInvalidTags : true,
+            whitelist:
+                (options.enum || options.enumOptions)?.filter(optionHasValue) || [],
+            enforceWhitelist:
+                'enforceEnumOptions' in options ? options.enforceEnumOptions : true,
+            keepInvalidTags:
+                'keepInvalidTags' in options ? options.keepInvalidTags : true,
             dropdown: {
                 enabled: 'dropdownEnabled' in options ? options.dropdownEnabled : 0,
                 maxItems: 'maxOptions' in options ? options.maxOptions : 1000,
@@ -35,12 +48,12 @@ function MultiSelectWidget(props) {
         }
 
         setTagify(new Tagify(inputEl.current, tagifyOptions))
-    }, [inputEl, tagify, options.enumOptions])
+    }, [inputEl, tagify, options.enum, options.enumOptions])
 
     useEffect(() => {
         if (!tagify) return
 
-        const handleTagsChanged = (event) => {
+        const handleTagsChanged = event => {
             let selectedItems = event.detail.tagify.value.map(item => item.value)
             onChange(!props.multiple ? selectedItems.join(',') : selectedItems)
         }
@@ -53,12 +66,17 @@ function MultiSelectWidget(props) {
     useEffect(() => {
         if (!tagify) return
 
-        tagify.settings.whitelist = options.enumOptions.filter(optionHasValue)
-    }, [tagify, options.enumOptions])
+        tagify.settings.whitelist =
+            (options.enum || options.enumOptions)?.filter(optionHasValue) || []
+    }, [tagify, options.enum, options.enumOptions])
 
     let filteredValue = value && typeof value === 'string' ? [value] : value
 
-    filteredValue = filteredValue ? filteredValue.map(value => typeof value === 'string' ? { value: value } : value) : []
+    filteredValue = filteredValue
+        ? filteredValue.map(value =>
+              typeof value === 'string' ? { value: value } : value
+          )
+        : []
 
     return (
         <input

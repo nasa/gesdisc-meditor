@@ -10,7 +10,7 @@ function FlexLayoutTemplate({ TitleField, properties, title, description }) {
             <div className="row">
                 <div dangerouslySetInnerHTML={{ __html: description }} />
             </div>
-            
+
             <div className="row">
                 {properties.map(prop => {
                     return prop.content

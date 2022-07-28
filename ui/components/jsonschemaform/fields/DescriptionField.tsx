@@ -17,7 +17,7 @@ function DescriptionField(props) {
     return (
         <OverlayTrigger
             placement="top"
-            overlay={(props) => (
+            overlay={props => (
                 <Tooltip id="description-tooltip" {...props}>
                     {description}
                 </Tooltip>

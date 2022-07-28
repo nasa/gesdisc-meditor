@@ -22,7 +22,9 @@ function HtmlTextWidget(props) {
     }
 
     const _onChange = ({ target }) => {
-        return props.onChange(target.innerHTML === '' ? options.emptyValue : target.innerHTML)
+        return props.onChange(
+            target.innerHTML === '' ? options.emptyValue : target.innerHTML
+        )
     }
 
     return (
@@ -30,12 +32,14 @@ function HtmlTextWidget(props) {
             contentEditable={true}
             key={inputProps.id}
             className="form-control"
-            readOnly={readonly}
-            disabled={disabled}
-            autoFocus={autofocus}
+            aria-readonly={readonly}
             onInput={_onChange}
-            onBlur={onBlur && ((event) => onBlur(inputProps.id, event.target.innerHTML))}
-            onFocus={onFocus && ((event) => onFocus(inputProps.id, event.target.innerHTML))}
+            onBlur={
+                onBlur && (event => onBlur(inputProps.id, event.target.innerHTML))
+            }
+            onFocus={
+                onFocus && (event => onFocus(inputProps.id, event.target.innerHTML))
+            }
             dangerouslySetInnerHTML={{ __html: value == null ? '' : value }}
         />
     )

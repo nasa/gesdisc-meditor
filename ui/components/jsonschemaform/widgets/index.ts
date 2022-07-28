@@ -10,8 +10,8 @@ const widgets = {
     ckeditor: CKEditorWidget,
     icon: IconWidget,
     image: ImageWidget,
-    "multi-select": MultiSelectWidget,
-    "date-time": DateTimeWidget,
+    'multi-select': MultiSelectWidget,
+    'date-time': DateTimeWidget,
     concatenated: ConcatenatedWidget,
     htmltext: HtmlTextWidget,
 }
