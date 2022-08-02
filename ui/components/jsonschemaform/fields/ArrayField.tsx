@@ -2,8 +2,7 @@
 import AddButton from '../components/AddButton'
 import IconButton from '../components/IconButton'
 import React, { Component } from 'react'
-
-import UnsupportedField from '@rjsf/core/lib/components/fields/UnsupportedField'
+import includes from 'core-js-pure/es/array/includes'
 
 import {
     getWidget,
@@ -13,10 +12,10 @@ import {
     isFilesArray,
     isFixedItems,
     allowAdditionalItems,
+    isCustomWidget,
     optionsList,
     retrieveSchema,
     toIdSchema,
-    getDefaultRegistry,
 } from '@rjsf/core/lib/utils'
 import shortid from 'shortid'
 
@@ -34,10 +33,6 @@ function ArrayFieldDescription({ DescriptionField, idSchema, description }) {
     }
     const id = `${idSchema.$id}__description`
     return <DescriptionField id={id} description={description} />
-}
-
-function hasEnumOptions(uiSchema) {
-    return 'ui:options' in uiSchema && 'enum' in uiSchema['ui:options']
 }
 
 // Used in the two templates
@@ -66,6 +61,7 @@ function DefaultArrayItem(props) {
                         {(props.hasMoveUp || props.hasMoveDown) && (
                             <IconButton
                                 icon="arrow-up"
+                                aria-label="Move up"
                                 className="array-item-move-up"
                                 tabIndex="-1"
                                 style={btnStyle}
@@ -85,6 +81,7 @@ function DefaultArrayItem(props) {
                             <IconButton
                                 icon="arrow-down"
                                 className="array-item-move-down"
+                                aria-label="Move down"
                                 tabIndex="-1"
                                 style={btnStyle}
                                 disabled={
@@ -103,6 +100,7 @@ function DefaultArrayItem(props) {
                             <IconButton
                                 type="danger"
                                 icon="times"
+                                aria-label="Remove"
                                 className="array-item-remove"
                                 tabIndex="-1"
                                 style={btnStyle}
@@ -244,8 +242,8 @@ class ArrayField extends Component {
                 updatedKeyedFormData: false,
             }
         }
-        const nextFormData = nextProps.formData
-        const previousKeyedFormData = prevState.keyedFormData
+        const nextFormData = nextProps.formData || []
+        const previousKeyedFormData = prevState.keyedFormData || []
         const newKeyedFormData =
             nextFormData.length === previousKeyedFormData.length
                 ? previousKeyedFormData.map((previousKeyedFormDatum, index) => {
@@ -269,7 +267,7 @@ class ArrayField extends Component {
         if (Array.isArray(itemSchema.type)) {
             // While we don't yet support composite/nullable jsonschema types, it's
             // future-proof to check for requirement against these.
-            return !itemSchema.type.includes('null')
+            return !includes(itemSchema.type, 'null')
         }
         // All non-null array item types are inherently required by design
         return itemSchema.type !== 'null'
@@ -291,17 +289,19 @@ class ArrayField extends Component {
     }
 
     _getNewFormDataRow = () => {
-        const { schema, registry = getDefaultRegistry() } = this.props
-        const { definitions } = registry
+        const { schema, registry } = this.props
+        const { rootSchema } = registry
         let itemSchema = schema.items
         if (isFixedItems(schema) && allowAdditionalItems(schema)) {
             itemSchema = schema.additionalItems
         }
-        return getDefaultFormState(itemSchema, undefined, definitions)
+        return getDefaultFormState(itemSchema, undefined, rootSchema)
     }
 
     onAddClick = event => {
-        event.preventDefault()
+        if (event) {
+            event.preventDefault()
+        }
 
         const { onChange } = this.props
         const newKeyedFormDataRow = {
@@ -385,9 +385,9 @@ class ArrayField extends Component {
                 newErrorSchema = {}
                 const errorSchema = this.props.errorSchema
                 for (let i in errorSchema) {
-                    if (i === index) {
+                    if (i == index) {
                         newErrorSchema[newIndex] = errorSchema[index]
-                    } else if (i === newIndex) {
+                    } else if (i == newIndex) {
                         newErrorSchema[index] = errorSchema[newIndex]
                     } else {
                         newErrorSchema[i] = errorSchema[i]
@@ -441,15 +441,12 @@ class ArrayField extends Component {
     }
 
     render() {
-        const {
-            schema,
-            uiSchema,
-            idSchema,
-            registry = getDefaultRegistry(),
-        } = this.props
-        const { definitions } = registry
-
+        const { schema, uiSchema, idSchema, registry } = this.props
+        const { rootSchema } = registry
         if (!schema.hasOwnProperty('items')) {
+            const { fields } = registry
+            const { UnsupportedField } = fields
+
             return (
                 <UnsupportedField
                     schema={schema}
@@ -458,14 +455,18 @@ class ArrayField extends Component {
                 />
             )
         }
+        if (isMultiSelect(schema, rootSchema)) {
+            // If array has enum or uniqueItems set to true, call renderMultiSelect() to render the default multiselect widget or a custom widget, if specified.
+            return this.renderMultiSelect()
+        }
+        if (isCustomWidget(uiSchema)) {
+            return this.renderCustomWidget()
+        }
         if (isFixedItems(schema)) {
             return this.renderFixedArray()
         }
-        if (isFilesArray(schema, uiSchema, definitions)) {
+        if (isFilesArray(schema, uiSchema, rootSchema)) {
             return this.renderFiles()
-        }
-        if (isMultiSelect(schema, definitions) || hasEnumOptions(uiSchema)) {
-            return this.renderMultiSelect()
         }
         return this.renderNormalArray()
     }
@@ -474,37 +475,40 @@ class ArrayField extends Component {
         const {
             schema,
             uiSchema,
-            formData,
             errorSchema,
             idSchema,
             name,
             required,
             disabled,
             readonly,
+            hideError,
             autofocus,
-            registry = getDefaultRegistry(),
+            registry,
             onBlur,
             onFocus,
             idPrefix,
+            idSeparator = '_',
             rawErrors,
         } = this.props
         const title = schema.title === undefined ? name : schema.title
-        const { ArrayFieldTemplate, definitions, fields, formContext } = registry
+        const { ArrayFieldTemplate, rootSchema, fields, formContext } = registry
         const { TitleField, DescriptionField } = fields
-        const itemsSchema = retrieveSchema(schema.items, definitions)
+        const itemsSchema = retrieveSchema(schema.items, rootSchema)
+        const formData = keyedToPlainFormData(this.state.keyedFormData)
         const arrayProps = {
             canAdd: this.canAddItem(formData),
             items: this.state.keyedFormData.map((keyedItem, index) => {
                 const { key, item } = keyedItem
-                const itemSchema = retrieveSchema(schema.items, definitions, item)
+                const itemSchema = retrieveSchema(schema.items, rootSchema, item)
                 const itemErrorSchema = errorSchema ? errorSchema[index] : undefined
-                const itemIdPrefix = idSchema.$id + '_' + index
+                const itemIdPrefix = idSchema.$id + idSeparator + index
                 const itemIdSchema = toIdSchema(
                     itemSchema,
                     itemIdPrefix,
-                    definitions,
+                    rootSchema,
                     item,
-                    idPrefix
+                    idPrefix,
+                    idSeparator
                 )
                 return this.renderArrayFieldItem({
                     key,
@@ -528,6 +532,7 @@ class ArrayField extends Component {
             uiSchema,
             onAddClick: this.onAddClick,
             readonly,
+            hideError,
             required,
             schema,
             title,
@@ -546,6 +551,56 @@ class ArrayField extends Component {
         return <Component {...arrayProps} />
     }
 
+    renderCustomWidget() {
+        const {
+            schema,
+            idSchema,
+            uiSchema,
+            disabled,
+            readonly,
+            hideError,
+            required,
+            placeholder,
+            autofocus,
+            onBlur,
+            onFocus,
+            formData: items,
+            registry,
+            rawErrors,
+            name,
+        } = this.props
+        const { widgets, formContext } = registry
+        const title = schema.title || name
+
+        const { widget, ...options } = {
+            ...getUiOptions(uiSchema),
+        }
+        const Widget = getWidget(schema, widget, widgets)
+        return (
+            <Widget
+                id={idSchema && idSchema.$id}
+                multiple
+                onChange={this.onSelectChange}
+                onBlur={onBlur}
+                onFocus={onFocus}
+                options={options}
+                schema={schema}
+                uiSchema={uiSchema}
+                registry={registry}
+                value={items}
+                disabled={disabled}
+                readonly={readonly}
+                hideError={hideError}
+                required={required}
+                label={title}
+                placeholder={placeholder}
+                formContext={formContext}
+                autofocus={autofocus}
+                rawErrors={rawErrors}
+            />
+        )
+    }
+
     renderMultiSelect() {
         const {
             schema,
@@ -555,20 +610,19 @@ class ArrayField extends Component {
             disabled,
             readonly,
             required,
-            label,
             placeholder,
             autofocus,
             onBlur,
             onFocus,
-            registry = getDefaultRegistry(),
+            registry,
             rawErrors,
+            name,
         } = this.props
         const items = this.props.formData
-        const { widgets, definitions, formContext } = registry
-        const itemsSchema = retrieveSchema(schema.items, definitions, formData)
-        const enumOptions = hasEnumOptions(uiSchema)
-            ? optionsList(uiSchema['ui:options'])
-            : optionsList(itemsSchema)
+        const { widgets, rootSchema, formContext } = registry
+        const itemsSchema = retrieveSchema(schema.items, rootSchema, formData)
+        const title = schema.title || name
+        const enumOptions = optionsList(itemsSchema)
         const { widget = 'select', ...options } = {
             ...getUiOptions(uiSchema),
             enumOptions,
@@ -583,12 +637,13 @@ class ArrayField extends Component {
                 onFocus={onFocus}
                 options={options}
                 schema={schema}
+                uiSchema={uiSchema}
                 registry={registry}
                 value={items}
                 disabled={disabled}
                 readonly={readonly}
                 required={required}
-                label={label}
+                label={title}
                 placeholder={placeholder}
                 formContext={formContext}
                 autofocus={autofocus}
@@ -608,7 +663,7 @@ class ArrayField extends Component {
             autofocus,
             onBlur,
             onFocus,
-            registry = getDefaultRegistry(),
+            registry,
             rawErrors,
         } = this.props
         const title = schema.title || name
@@ -625,10 +680,12 @@ class ArrayField extends Component {
                 onBlur={onBlur}
                 onFocus={onFocus}
                 schema={schema}
+                uiSchema={uiSchema}
                 title={title}
                 value={items}
                 disabled={disabled}
                 readonly={readonly}
+                registry={registry}
                 formContext={formContext}
                 autofocus={autofocus}
                 rawErrors={rawErrors}
@@ -643,26 +700,27 @@ class ArrayField extends Component {
             formData,
             errorSchema,
             idPrefix,
+            idSeparator = '_',
             idSchema,
             name,
             required,
             disabled,
             readonly,
             autofocus,
-            registry = getDefaultRegistry(),
+            registry,
             onBlur,
             onFocus,
             rawErrors,
         } = this.props
         const title = schema.title || name
         let items = this.props.formData
-        const { ArrayFieldTemplate, definitions, fields, formContext } = registry
+        const { ArrayFieldTemplate, rootSchema, fields, formContext } = registry
         const { TitleField } = fields
         const itemSchemas = schema.items.map((item, index) =>
-            retrieveSchema(item, definitions, formData[index])
+            retrieveSchema(item, rootSchema, formData[index])
         )
         const additionalSchema = allowAdditionalItems(schema)
-            ? retrieveSchema(schema.additionalItems, definitions, formData)
+            ? retrieveSchema(schema.additionalItems, rootSchema, formData)
             : null
 
         if (!items || items.length < itemSchemas.length) {
@@ -682,15 +740,16 @@ class ArrayField extends Component {
                 const { key, item } = keyedItem
                 const additional = index >= itemSchemas.length
                 const itemSchema = additional
-                    ? retrieveSchema(schema.additionalItems, definitions, item)
+                    ? retrieveSchema(schema.additionalItems, rootSchema, item)
                     : itemSchemas[index]
-                const itemIdPrefix = idSchema.$id + '_' + index
+                const itemIdPrefix = idSchema.$id + idSeparator + index
                 const itemIdSchema = toIdSchema(
                     itemSchema,
                     itemIdPrefix,
-                    definitions,
+                    rootSchema,
                     item,
-                    idPrefix
+                    idPrefix,
+                    idSeparator
                 )
                 const itemUiSchema = additional
                     ? uiSchema.additionalItems || {}
@@ -718,6 +777,7 @@ class ArrayField extends Component {
             onAddClick: this.onAddClick,
             readonly,
             required,
+            registry,
             schema,
             uiSchema,
             title,
@@ -751,20 +811,11 @@ class ArrayField extends Component {
             onFocus,
             rawErrors,
         } = props
-        const {
-            disabled,
-            readonly,
-            uiSchema,
-            registry = getDefaultRegistry(),
-        } = this.props
+        const { disabled, readonly, uiSchema, registry } = this.props
         const {
             fields: { SchemaField },
         } = registry
-        const { orderable, removable } = {
-            orderable: false,
-            removable: true,
-            ...uiSchema['ui:options'],
-        }
+        const { orderable = true, removable = true } = getUiOptions(uiSchema)
         const has = {
             moveUp: orderable && canMoveUp,
             moveDown: orderable && canMoveDown,
@@ -780,6 +831,8 @@ class ArrayField extends Component {
                     uiSchema={itemUiSchema}
                     formData={itemData}
                     errorSchema={itemErrorSchema}
+                    idPrefix={this.props.idPrefix}
+                    idSeparator={this.props.idSeparator}
                     idSchema={itemIdSchema}
                     required={this.isItemRequired(itemSchema)}
                     onChange={this.onChangeForIndex(index)}
@@ -788,6 +841,7 @@ class ArrayField extends Component {
                     registry={this.props.registry}
                     disabled={this.props.disabled}
                     readonly={this.props.readonly}
+                    hideError={this.props.hideError}
                     autofocus={autofocus}
                     rawErrors={rawErrors}
                 />

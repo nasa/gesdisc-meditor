@@ -1,6 +1,6 @@
 import React from 'react'
 import Flatpickr from 'react-flatpickr'
-import { format } from 'date-fns'
+import { format, zonedTimeToUtc } from 'date-fns-tz'
 
 function DateTimeWidget(props) {
     const {
@@ -13,7 +13,10 @@ function DateTimeWidget(props) {
         value,
         onChange,
         onBlur,
+        options,
     } = props
+
+    const dateFormatOption = options?.dateFormat || ''
 
     return (
         <Flatpickr
@@ -28,7 +31,20 @@ function DateTimeWidget(props) {
                 onBlur(id, value)
             }}
             onChange={(_selectedDates, date) => {
-                let dateValue = format(new Date(date), 'yyyy-MM-dd HH:mm:ssxxx')
+                let dateValue
+
+                switch (dateFormatOption) {
+                    case 'Z':
+                        dateValue = zonedTimeToUtc(
+                            new Date(date),
+                            'Etc/UTC'
+                        ).toISOString()
+                        break
+
+                    default:
+                        dateValue = format(new Date(date), 'yyyy-MM-dd HH:mm:ssxxx')
+                }
+
                 onChange(dateValue)
             }}
             options={{

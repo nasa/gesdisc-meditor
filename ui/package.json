@@ -31,6 +31,7 @@
         "cookie-parser": "^1.4.5",
         "dagre": "^0.8.5",
         "date-fns": "^2.13.0",
+        "date-fns-tz": "^1.3.6",
         "graphql": "^14.6.0",
         "graphql-tag": "^2.10.3",
         "graphql-type-json": "^0.3.1",
