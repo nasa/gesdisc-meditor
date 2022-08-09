@@ -916,7 +916,12 @@ module.exports.changeDocumentState = function changeDocumentState(
                 .collection(that.params.model)
                 .updateOne(
                     { _id: res._id },
-                    { $set: { 'x-meditor.states': newStatesArray } }
+                    {
+                        $set: {
+                            'x-meditor.states': newStatesArray,
+                            ...(that.params.document && { ...that.params.document }),
+                        },
+                    }
                 )
         })
         .then(async () => {
