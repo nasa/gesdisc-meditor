@@ -213,12 +213,24 @@ const EditDocumentPage = ({ user, version = null, theme }) => {
     }
 
     async function updateDocumentState(state) {
-        await mEditorApi.changeDocumentState(
-            modelName,
-            documentTitle,
-            state,
-            documentResponse.data.document.version
+        const { _id, ...document } = formData.doc
+        delete document['x-meditor'] // x-meditor metadata, shouldn't be there but ensure it isn't
+
+        await fetch(
+            `/meditor/api/changeDocumentState?model=${modelName}&title=${documentTitle}&state=${state}&version=${documentResponse.data.document.version}`,
+            {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    // only allow updating the document during a state change if the user has edit privileges
+                    // this leaves it up to the workflow to determine whether updating via state change is allowed
+                    ...(currentPrivileges?.includes('edit') && document),
+                }),
+            }
         )
+
         state == 'Deleted'
             ? router.push('/[modelName]', `/${modelName}`)
             : reloadDocument()

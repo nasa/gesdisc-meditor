@@ -333,10 +333,7 @@ paths:
             parameters:
                 - in: body
                   name: document
-                  schema:
-                      type: object
-                      additionalProperties:
-                          type: string
+                  schema: {}
                 - name: 'model'
                   in: 'query'
                   description: 'Name of the Model'
