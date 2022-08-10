@@ -13,6 +13,14 @@ export function getDocumentsForModelQuery(
     const sortProperty = (searchOptions?.sort || DEFAULT_SORT).replace(/^-/, '')
     const sortDir = (searchOptions?.sort || DEFAULT_SORT).charAt(0) == '-' ? -1 : 1
 
+    const includeFieldsProjection = searchOptions.includeFields?.split(',').reduce(
+        (projection, field) => ({
+            ...projection,
+            [field]: 1,
+        }),
+        {}
+    )
+
     let query: any[] = [
         // filter out deleted documents
         {
@@ -29,6 +37,7 @@ export function getDocumentsForModelQuery(
                 title: `$${titleProperty}`, // add a title field that matches the `titleProperty` field
                 [titleProperty]: 1,
                 'x-meditor': 1,
+                ...includeFieldsProjection,
             },
         },
 

@@ -12,6 +12,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 ...(req.query.searchTerm && {
                     searchTerm: req.query.searchTerm.toString(),
                 }),
+                ...(req.query.includeFields && {
+                    includeFields: req.query.includeFields.toString(),
+                }),
             }
         )
 
