@@ -2,7 +2,7 @@ import LoginDialog from '../components/login-dialog'
 import { useEffect } from 'react'
 import mEditorAPI from '../service/'
 import { attachInterceptor } from '../service/'
-import Router from 'next/router'
+import { useRouter } from 'next/router'
 
 export interface Role {
     model: string
@@ -63,6 +63,15 @@ const UserAuthentication = ({
     user,
     isAuthenticated,
 }) => {
+    const router = useRouter()
+    const automaticallySendUserToLoginProvider = new URLSearchParams(
+        router.query as Record<string, string>
+    ).has('autoLogin')
+    const showLoginDialog =
+        typeof user !== 'undefined' &&
+        isAuthenticated === false &&
+        !automaticallySendUserToLoginProvider
+
     async function fetchUser() {
         try {
             handleLoggedInUser(await mEditorAPI.getMe())
@@ -78,17 +87,24 @@ const UserAuthentication = ({
     async function handleLoggedOutUser() {
         onUserUpdate(null)
 
-        // unauthenticated users can only view the dashboard, send them there
-        if (Router.pathname != '/') {
+        const loginUrl = automaticallySendUserToLoginProvider
+            ? process.env.NEXT_PUBLIC_API_BASE_PATH + '/login'
+            : '/meditor'
+
+        if (router.pathname != '/') {
+            // need to track the current URL before we redirect, so we can take the user back to the page they were trying to load
             localStorage.setItem(
                 'redirectUrl',
                 JSON.stringify({
-                    href: Router.pathname,
-                    as: Router.asPath,
+                    href: router.pathname,
+                    as: router.asPath,
                 })
             )
+        }
 
-            Router.push('/')
+        if (router.pathname !== '/' || automaticallySendUserToLoginProvider) {
+            // need to redirect the user to the login page (either the dashboard or the login provider - EDLogin/Cognito/etc.)
+            window.location.href = loginUrl
         }
     }
 
@@ -108,9 +124,7 @@ const UserAuthentication = ({
 
     return (
         <>
-            <LoginDialog
-                show={typeof user !== 'undefined' && isAuthenticated === false}
-            />
+            <LoginDialog show={showLoginDialog} />
         </>
     )
 }
