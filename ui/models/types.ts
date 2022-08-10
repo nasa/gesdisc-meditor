@@ -2,7 +2,6 @@ export interface DocumentsSearchOptions {
     searchTerm?: string
     filter?: string // ex. state:Draft
     sort?: string // ex. modifiedOn | -modifiedOn
-    includeFields?: string
 }
 
 export interface ModelCategory {
