@@ -369,13 +369,16 @@ const EditDocumentPage = ({ user, version = null, theme }) => {
                         />
                     </div>
                 )}
-                <DocumentForm
-                    model={modelResponse?.data?.model}
-                    document={formData}
-                    onUpdateForm={setForm}
-                    onChange={handleSourceChange}
-                    readOnly={!currentPrivileges?.includes('edit')}
-                />
+
+                {modelResponse?.data?.model && formData && (
+                    <DocumentForm
+                        model={modelResponse?.data?.model}
+                        document={formData}
+                        onUpdateForm={setForm}
+                        onChange={handleSourceChange}
+                        readOnly={!currentPrivileges?.includes('edit')}
+                    />
+                )}
 
                 <DocumentPanel
                     title="Comments"
