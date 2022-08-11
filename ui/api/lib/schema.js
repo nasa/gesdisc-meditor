@@ -72,6 +72,7 @@ const typeDefs = gql`
     type WorkflowNode {
         id: String!
         privileges: [WorkflowPrivilege]
+        allowValidationErrors: Boolean
     }
 
     type WorkflowEdge {

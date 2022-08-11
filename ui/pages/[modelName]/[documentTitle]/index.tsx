@@ -1,27 +1,27 @@
-import gql from 'graphql-tag'
-import { useContext, useState, useEffect } from 'react'
-import { AppContext } from '../../../components/app-store'
 import { useLazyQuery } from '@apollo/react-hooks'
+import gql from 'graphql-tag'
+import cloneDeep from 'lodash.clonedeep'
 import { useRouter } from 'next/router'
-import { withApollo } from '../../../lib/apollo'
-import PageTitle from '../../../components/page-title'
-import DocumentForm from '../../../components/document/form'
-import { Breadcrumbs, Breadcrumb } from '../../../components/breadcrumbs'
-import DocumentHeader from '../../../components/document/document-header'
-import DocumentPanel from '../../../components/document/document-panel'
+import { useContext, useEffect, useState } from 'react'
+import { AppContext } from '../../../components/app-store'
+import { Breadcrumb, Breadcrumbs } from '../../../components/breadcrumbs'
 import DocumentComments from '../../../components/document/document-comments'
+import DocumentHeader from '../../../components/document/document-header'
 import DocumentHistory from '../../../components/document/document-history'
-import SourceDialog from '../../../components/document/source-dialog'
-import withAuthentication from '../../../components/with-authentication'
+import DocumentPanel from '../../../components/document/document-panel'
+import DocumentWorkflow from '../../../components/document/document-workflow'
+import DocumentForm from '../../../components/document/form'
 import FormActions from '../../../components/document/form-actions'
-import mEditorApi from '../../../service/'
-import styles from './document-edit.module.css'
+import SourceDialog from '../../../components/document/source-dialog'
+import JsonDiffViewer from '../../../components/json-diff-viewer'
+import PageTitle from '../../../components/page-title'
+import withAuthentication from '../../../components/with-authentication'
+import { withApollo } from '../../../lib/apollo'
 import { treeify } from '../../../lib/treeify'
 import { urlDecode } from '../../../lib/url'
-import JsonDiffViewer from '../../../components/json-diff-viewer'
 import { useLocalStorage } from '../../../lib/use-localstorage.hook'
-import cloneDeep from 'lodash.clonedeep'
-import DocumentWorkflow from '../../../components/document/document-workflow'
+import mEditorApi from '../../../service/'
+import styles from './document-edit.module.css'
 
 export type DocumentPanels = 'comments' | 'history' | 'source' | 'workflow'
 
@@ -58,6 +58,7 @@ const MODEL_QUERY = gql`
                         role
                         privilege
                     }
+                    allowValidationErrors
                 }
                 currentEdges {
                     role
@@ -363,6 +364,10 @@ const EditDocumentPage = ({ user, version = null, theme }) => {
                     onUpdateForm={setForm}
                     onChange={handleSourceChange}
                     readOnly={!currentPrivileges?.includes('edit')}
+                    allowValidationErrors={
+                        modelResponse?.data?.model.workflow.currentNode
+                            .allowValidationErrors
+                    }
                 />
 
                 <DocumentPanel
@@ -425,6 +430,10 @@ const EditDocumentPage = ({ user, version = null, theme }) => {
                     documentResponse?.data?.document?.targetStates?.length > 0
                 }
                 confirmUnsavedChanges={true}
+                allowValidationErrors={
+                    modelResponse?.data?.model.workflow.currentNode
+                        .allowValidationErrors
+                }
             />
         </div>
     )

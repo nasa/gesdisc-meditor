@@ -1,9 +1,9 @@
-import Button from 'react-bootstrap/Button'
-import { useRef, useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
-import styles from './form-actions.module.css'
-import isEqual from 'lodash.isequal'
 import cloneDeep from 'lodash.clonedeep'
+import isEqual from 'lodash.isequal'
+import { useRouter } from 'next/router'
+import { useEffect, useState } from 'react'
+import Button from 'react-bootstrap/Button'
+import styles from './form-actions.module.css'
 
 const DELETED_STATE = 'Deleted'
 const DELETE_CONFIRMATION =
@@ -20,8 +20,8 @@ const FormActions = ({
     onUpdateState = (target: string) => {},
     onDelete = null,
     CustomActions = null,
+    allowValidationErrors = false,
 }) => {
-    const saveEl = useRef(null)
     const canSave = privileges.includes('edit') || privileges.includes('create')
     const router = useRouter()
 
@@ -104,24 +104,25 @@ const FormActions = ({
             return
         }
 
-        let errors = validateAllFields()
+        if (!allowValidationErrors) {
+            let errors = validateAllFields()
 
-        // don't save a document that has errors!
-        if (errors.length) {
-            // errors are printed above the save button, pushing it down. scroll it back
-            setTimeout(() => {
-                let errorPanel = document.querySelector('.rjsf > .panel.errors')
+            if (errors.length) {
+                // errors are printed above the save button, pushing it down. scroll it back
+                setTimeout(() => {
+                    let errorPanel = document.querySelector('.rjsf > .panel.errors')
 
-                if (!errorPanel) return
+                    if (!errorPanel) return
 
-                errorPanel.scrollIntoView()
-            }, 10)
+                    errorPanel.scrollIntoView()
+                }, 10)
 
-            return
+                return
+            }
         }
 
         setIsDirty(false)
-        onSave(form.state.formData) // no errors, document can be saved!
+        onSave(form.state.formData)
     }
 
     function handleStateUpdate(target) {
@@ -191,7 +192,6 @@ const FormActions = ({
                         className={styles.button}
                         variant="secondary"
                         onClick={handleSave}
-                        ref={saveEl}
                     >
                         Save
                     </Button>
