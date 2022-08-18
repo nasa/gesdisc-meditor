@@ -210,6 +210,34 @@ async function updateOrCreateUser(profile, uidField = 'uid') {
         if (_.isNil(existingUser)) {
             // user does not exist, set the created date
             user.created = _.now()
+
+            // a basic mEditor user to insert
+            const mEditorUser = {
+                id: uid,
+                name: `${user.firstName} ${user.lastName}`,
+                roles: getNewUserRoles(),
+                'x-meditor': {
+                    model: 'Users',
+                    modifiedOn: new Date().toISOString(),
+                    modifiedBy: 'system',
+                    states: [
+                        {
+                            source: 'Init',
+                            target: 'Draft',
+                            modifiedOn: new Date().toISOString(),
+                        },
+                    ],
+                },
+            }
+
+            // create or update the new user
+            await db
+                .collection(USERS_COLLECTION_MEDITOR)
+                .findOneAndUpdate(
+                    { id: uid },
+                    { $set: mEditorUser },
+                    { upsert: true }
+                )
         }
 
         // create or update the user
@@ -224,6 +252,35 @@ async function updateOrCreateUser(profile, uidField = 'uid') {
         throw err // rethrow
     } finally {
         client.close()
+    }
+}
+
+/**
+ * a new user is either created with no roles (mEditors default) or a set of roles as defined in the "NEW_USER_ROLES" ENV variable
+ *
+ * example: NEW_USER_ROLES=News.Author UMM-C.Author Alerts.Publisher
+ *      would give a user roles of
+ *      [{ model: "News", role: "Author" }, { model: "UMM-C", role: "Author" }, { model: "Alerts", role: "Publisher" }]
+ */
+function getNewUserRoles() {
+    if (!process.env.NEW_USER_ROLES) {
+        return [] // no defined new user roles, return an empty array
+    }
+
+    try {
+        // ENV var in format NEW_USER_ROLES=News.Author News.Publisher UMM-C.Author
+        return process.env.NEW_USER_ROLES.split(' ').map(modelAndRole => ({
+            model: modelAndRole.split('.')[0],
+            role: modelAndRole.split('.')[1],
+        }))
+    } catch (err) {
+        // if we get here, the ENV variable was not setup correctly
+        // this should be caught during development so we shouldn't need detailed error handling
+        console.error(err)
+        console.error(
+            'Failed to parse new user roles, returning an empty set of roles'
+        )
+        return []
     }
 }
 
