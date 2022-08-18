@@ -922,6 +922,13 @@ module.exports.changeDocumentState = function changeDocumentState(
                 modifiedOn: new Date().toISOString(),
                 modifiedBy: that.user.uid,
             })
+
+            // only allow updating a non-empty document on a PUT request
+            const canUpdateDocument =
+                request.method === 'PUT' &&
+                that.params.document &&
+                !_.isEmpty(that.params.document)
+
             return that.dbo
                 .db(DbName)
                 .collection(that.params.model)
@@ -930,7 +937,7 @@ module.exports.changeDocumentState = function changeDocumentState(
                     {
                         $set: {
                             'x-meditor.states': newStatesArray,
-                            ...(that.params.document && { ...that.params.document }),
+                            ...(canUpdateDocument && { ...that.params.document }),
                         },
                     }
                 )
