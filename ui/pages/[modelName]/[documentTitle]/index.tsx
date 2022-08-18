@@ -223,11 +223,11 @@ const EditDocumentPage = ({ user, version = null, theme }) => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    // only allow updating the document during a state change if the user has edit privileges
-                    // this leaves it up to the workflow to determine whether updating via state change is allowed
-                    ...(currentPrivileges?.includes('edit') && document),
-                }),
+
+                // only allow updating the document during a state change if the user has edit privileges
+                // this leaves it up to the workflow to determine whether updating via state change is allowed
+                ...(currentPrivileges?.includes('edit') &&
+                    document && { body: JSON.stringify(document) }),
             }
         )
 

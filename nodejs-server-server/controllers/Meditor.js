@@ -911,6 +911,7 @@ module.exports.changeDocumentState = function changeDocumentState(
                 modifiedOn: new Date().toISOString(),
                 modifiedBy: that.user.uid,
             })
+
             return that.dbo
                 .db(DbName)
                 .collection(that.params.model)
@@ -919,7 +920,10 @@ module.exports.changeDocumentState = function changeDocumentState(
                     {
                         $set: {
                             'x-meditor.states': newStatesArray,
-                            ...(that.params.document && { ...that.params.document }),
+                            ...(that.params.document &&
+                                !_.isEmpty(that.params.document) && {
+                                    ...that.params.document,
+                                }),
                         },
                     }
                 )
