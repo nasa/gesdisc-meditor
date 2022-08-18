@@ -1,5 +1,5 @@
-import styles from './breadcrumbs.module.css'
 import Link from 'next/link'
+import styles from './breadcrumbs.module.css'
 
 export const Breadcrumb = props => {
     return (
@@ -15,7 +15,7 @@ export const Breadcrumb = props => {
     )
 }
 
-export const Breadcrumbs = ({ children }) => {
+export const Breadcrumbs: React.FC = ({ children }) => {
     return (
         <div className={styles.breadcrumbs}>
             <ul className={styles.ul}>

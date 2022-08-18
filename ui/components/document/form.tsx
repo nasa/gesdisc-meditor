@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic'
+import { useState } from 'react'
 import Button from 'react-bootstrap/Button'
-import { useState, useEffect } from 'react'
 
 // JsonSchemaForm widgets rely heavily on global window, so we'll need to load them in separately
 // as the server side doesn't have a window!
@@ -14,6 +14,7 @@ const Form = ({
     liveValidate = false,
     readOnly = false,
     onUpdateForm,
+    allowValidationErrors = false,
     onChange = (data: any) => {},
 }) => {
     const [expandAll, setExpandAll] = useState(false)
@@ -62,6 +63,7 @@ const Form = ({
                 onChange={(event: any) => onChange(event?.formData)}
                 imageUploadUrl={process.env.NEXT_PUBLIC_IMAGE_UPLOAD_URL}
                 linkCheckerUrl="/meditor/graphql"
+                allowValidationErrors={allowValidationErrors}
             />
         </>
     )
