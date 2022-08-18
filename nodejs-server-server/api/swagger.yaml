@@ -324,6 +324,63 @@ paths:
             security: []
             x-swagger-router-controller: 'Meditor'
     /changeDocumentState:
+        put:
+            summary: 'Change the state of a document'
+            description: 'Change the state of a document; modifies the state of a document by a privileged user'
+            operationId: 'changeDocumentState'
+            consumes:
+                - application/json
+            parameters:
+                - in: body
+                  name: document
+                  schema: {}
+                - name: 'model'
+                  in: 'query'
+                  description: 'Name of the Model'
+                  required: true
+                  type: 'string'
+                - name: 'title'
+                  in: 'query'
+                  description: 'Title of the document'
+                  required: true
+                  type: 'string'
+                - name: 'version'
+                  in: 'query'
+                  description: 'Version of the document'
+                  required: false
+                  type: 'string'
+                  default: 'latest'
+                - name: 'state'
+                  in: 'query'
+                  description: 'Target state of the document'
+                  type: 'string'
+                  required: true
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        $ref: '#/definitions/success'
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                403:
+                    description: 'Access denied'
+                    schema:
+                        $ref: '#/definitions/error'
+                422:
+                    description: 'Invalid syntax'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            x-swagger-router-controller: 'Meditor'
         get:
             summary: 'Change the state of a document'
             description: 'Change the state of a document; modifies the state of a document by a privileged user'

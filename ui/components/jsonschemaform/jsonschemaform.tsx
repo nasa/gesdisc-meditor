@@ -55,11 +55,13 @@ const JsonSchemaForm = ({
         }, 10)
     }
 
+    const { _id, ...document } = formData
+
     return (
         <Form
             ref={formEl}
             schema={schema}
-            formData={formData}
+            formData={document}
             uiSchema={layout}
             fields={fields as any}
             widgets={widgets}
