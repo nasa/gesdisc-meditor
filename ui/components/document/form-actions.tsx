@@ -3,6 +3,7 @@ import isEqual from 'lodash.isequal'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import Button from 'react-bootstrap/Button'
+import { clearEmpties } from '../../utils/object'
 import styles from './form-actions.module.css'
 
 const DELETED_STATE = 'Deleted'
@@ -122,7 +123,7 @@ const FormActions = ({
         }
 
         setIsDirty(false)
-        onSave(form.state.formData)
+        onSave(clearEmpties(form.state.formData))
     }
 
     function handleStateUpdate(target) {
