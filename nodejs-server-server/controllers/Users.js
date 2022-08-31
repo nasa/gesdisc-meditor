@@ -270,8 +270,8 @@ function getNewUserRoles() {
     try {
         // ENV var in format NEW_USER_ROLES=News.Author News.Publisher UMM-C.Author
         return process.env.NEW_USER_ROLES.split(' ').map(modelAndRole => ({
-            model: modelAndRole.split('.')[0],
-            role: modelAndRole.split('.')[1],
+            model: modelAndRole.split('.')[0].replace(/%20/g, ' '),
+            role: modelAndRole.split('.')[1].replace(/%20/g, ' '),
         }))
     } catch (err) {
         // if we get here, the ENV variable was not setup correctly
