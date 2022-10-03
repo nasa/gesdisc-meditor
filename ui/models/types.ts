@@ -1,3 +1,22 @@
+export interface User {
+    id: string // db id
+    uid: string // authentication provider's id (URS uid, Cognito id, etc.)
+    created: number
+    emailAddress: string
+    name: string
+    firstName: string
+    middleInitial?: string
+    lastName: string
+    studyArea?: string
+    lastAccessed: number
+    roles: UserRole[]
+}
+
+export interface UserRole {
+    model: string
+    role: string
+}
+
 export interface DocumentsSearchOptions {
     searchTerm?: string
     filter?: string // ex. state:Draft
@@ -93,4 +112,18 @@ export interface PublishedTo {
     failedOn?: number
     url?: string
     target?: string
+}
+
+export interface DocumentComment {
+    _id?: string
+    createdOn: string
+    createdBy: string
+    documentId: string
+    model: string
+    text: string
+    userUid: string
+    parentId?: string
+    resolved?: boolean
+    resolvedBy?: string
+    lastEdited?: string
 }
