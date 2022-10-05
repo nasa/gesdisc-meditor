@@ -1,7 +1,7 @@
 import { NextApiResponse } from 'next'
 
 export class HttpException extends Error {
-    status
+    status: number
 
     constructor(status: number, message: string) {
         super(message)
@@ -27,7 +27,7 @@ export class BadRequestException extends HttpException {
 }
 
 export class NotFoundException extends HttpException {
-    constructor(message: string = 'Bad Request') {
+    constructor(message: string = 'Not Found') {
         super(404, message)
 
         Object.setPrototypeOf(this, NotFoundException.prototype)
