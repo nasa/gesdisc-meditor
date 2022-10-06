@@ -5,8 +5,8 @@ const LEGACY_MEDITOR_SESSION_COOKIE = '__mEditor'
 
 /**
  * for the time being, authentication is ONLY handled in the legacy API (/nodejs-server-server)
- * 
- * In the future, we'll want to use NextAuth (without breaking .netrc based logins). This function matches the parameter definition 
+ *
+ * In the future, we'll want to use NextAuth (without breaking .netrc based logins). This function matches the parameter definition
  * of the "unstable_getServerSideSession" function in NextAuth and can be augmented.
  */
 export async function getLoggedInUser(req: NextApiRequest, _res: NextApiResponse) {
@@ -38,6 +38,6 @@ export async function getUserBySessionCookie(req: NextApiRequest) {
 
     return {
         ...user,
-        name: [user.firstName, user.lastName].join(' ')
+        name: [user.firstName, user.lastName].join(' '),
     }
 }

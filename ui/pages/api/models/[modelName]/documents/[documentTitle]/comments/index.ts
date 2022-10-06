@@ -1,8 +1,11 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { createCommentAsUser } from '../../../../../../../comments/comments'
-import { DocumentComment } from '../../../../../../../comments/comments.model'
-import { getLoggedInUser } from '../../../../../../../models/user'
-import { apiError, MethodNotAllowedException, UnauthorizedException } from '../../../../../../../utils/errors'
+import { getLoggedInUser } from '../../../../../../../auth/user'
+import { createCommentAsUser } from '../../../../../../../comments/service'
+import {
+    apiError,
+    MethodNotAllowedException,
+    UnauthorizedException,
+} from '../../../../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
@@ -24,7 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                             ...req.body,
                             documentId: documentTitle,
                             model: modelName,
-                        } as DocumentComment,
+                        },
                         user
                     )
                 )

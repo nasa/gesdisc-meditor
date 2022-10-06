@@ -1,15 +1,9 @@
 import { NextApiResponse } from 'next'
-import { ZodError } from 'zod'
-import { isJsonType } from './string'
 
 export class HttpException extends Error {
     status
 
-    constructor(status: number, message: string | ZodError) {
-        if (message instanceof ZodError) {
-            message = JSON.stringify(message.issues)
-        }
-
+    constructor(status: number, message: string) {
         super(message)
 
         this.status = status
@@ -19,13 +13,13 @@ export class HttpException extends Error {
     toJson() {
         return {
             status: this.status,
-            error: isJsonType(this.message) ? JSON.parse(this.message) : this.message,
+            error: this.message,
         }
     }
 }
 
 export class BadRequestException extends HttpException {
-    constructor(message: string | ZodError = 'Bad Request') {
+    constructor(message: string = 'Bad Request') {
         super(400, message)
 
         Object.setPrototypeOf(this, BadRequestException.prototype)
@@ -33,7 +27,7 @@ export class BadRequestException extends HttpException {
 }
 
 export class NotFoundException extends HttpException {
-    constructor(message: string | ZodError = 'Bad Request') {
+    constructor(message: string = 'Bad Request') {
         super(404, message)
 
         Object.setPrototypeOf(this, NotFoundException.prototype)
@@ -41,7 +35,7 @@ export class NotFoundException extends HttpException {
 }
 
 export class MethodNotAllowedException extends HttpException {
-    constructor(message: string | ZodError = 'Method Not Allowed') {
+    constructor(message: string = 'Method Not Allowed') {
         super(405, message)
 
         Object.setPrototypeOf(this, MethodNotAllowedException.prototype)
@@ -49,7 +43,7 @@ export class MethodNotAllowedException extends HttpException {
 }
 
 export class UnauthorizedException extends HttpException {
-    constructor(message: string | ZodError = 'Unauthorized') {
+    constructor(message: string = 'Unauthorized') {
         super(401, message)
 
         Object.setPrototypeOf(this, UnauthorizedException.prototype)
