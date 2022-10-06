@@ -133,17 +133,6 @@ module.exports.logout = function logout(req, res, next) {
         })
 }
 
-module.exports.postComment = function postComment(req, res, next) {
-    var file = req.swagger.params['file'].value
-    Default.postComment(file)
-        .then(function (response) {
-            utils.writeJson(res, response)
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response)
-        })
-}
-
 module.exports.putDocument = function putDocument(req, res, next) {
     var file = req.swagger.params['file'].value
     Default.putDocument(file)

@@ -16,11 +16,11 @@ export function treeify(
 
     list.forEach(function (obj) {
         if (obj[parentAttr] != null && obj[parentAttr] != 'root') {
-            lookup[obj[parentAttr]][childrenAttr].push(obj)
+            lookup[obj[parentAttr]]?.[childrenAttr]?.push(obj)
         } else {
             treeList.push(obj)
         }
     })
-    
+
     return treeList
 }
