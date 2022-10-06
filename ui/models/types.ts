@@ -94,17 +94,3 @@ export interface PublishedTo {
     url?: string
     target?: string
 }
-
-export interface DocumentComment {
-    _id?: string
-    createdOn: string
-    createdBy: string
-    documentId: string
-    model: string
-    text: string
-    userUid: string
-    parentId?: string
-    resolved?: boolean
-    resolvedBy?: string
-    lastEdited?: string
-}
