@@ -20,7 +20,6 @@ export const withAuthentication =
         }
 
         if (ssr || PageComponent.getInitialProps) {
-            console.log(PageComponent.getInitialProps)
             WithAuthentication.getInitialProps = async ctx => {
                 const inAppContext = Boolean(ctx.ctx)
 

@@ -1,6 +1,6 @@
 import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
 import { getCommentForDocumentQuery, getCommentsForDocumentQuery } from './queries'
-import { MongoDocumentComment, SafeDocumentComment } from './types'
+import { DocumentComment } from './types'
 
 async function getCommentForDocument({
     commentId,
@@ -10,16 +10,16 @@ async function getCommentForDocument({
     commentId: string
     documentTitle: string
     modelName: string
-}) {
+}): Promise<DocumentComment[]> {
     const db = await getDb()
     const query = getCommentForDocumentQuery({ commentId, documentTitle, modelName })
 
-    const comments: MongoDocumentComment[] = await db
-        .collection('Comments')
+    const comments = await db
+        .collection<DocumentComment>('Comments')
         .aggregate(query, { allowDiskUse: true })
         .toArray()
 
-    return makeSafeObjectIDs(comments) as SafeDocumentComment
+    return makeSafeObjectIDs(comments)
 }
 
 async function getCommentsForDocument({
@@ -28,16 +28,16 @@ async function getCommentsForDocument({
 }: {
     documentTitle: string
     modelName: string
-}) {
+}): Promise<DocumentComment[]> {
     const db = await getDb()
     const query = getCommentsForDocumentQuery({ documentTitle, modelName })
 
-    const comments: MongoDocumentComment[] = await db
-        .collection('Comments')
+    const comments = await db
+        .collection<DocumentComment>('Comments')
         .aggregate(query, { allowDiskUse: true })
         .toArray()
 
-    return makeSafeObjectIDs(comments) as SafeDocumentComment
+    return makeSafeObjectIDs(comments)
 }
 
 export { getCommentForDocument, getCommentsForDocument }

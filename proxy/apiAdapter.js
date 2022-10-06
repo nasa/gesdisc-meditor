@@ -7,6 +7,20 @@
 const BASE_PATH = '/meditor/api/';
 
 /**
+ * Add header from the sub-request's response to NGINX's request (which ultimately gets returned as a response). This allows us to defer the API logic to our Next.js API.
+ * @param {NginxHTTPRequest} request
+ * @param {NginxHTTPRequest} response
+ */
+function passThroughHeaders(request, response) {
+    for (const prop in response.headersOut) {
+        if (response.headersOut.hasOwnProperty(prop)) {
+            request.headersOut[prop] = response.headersOut[prop];
+        }
+    }
+}
+
+/**
+ * Adapt an incoming request to mEditor's first API to mEditor's new API.
  * @param {NginxHTTPRequest} request
  */
 async function adapt(request) {
@@ -27,19 +41,33 @@ async function adapt(request) {
                     { method }
                 );
 
+                passThroughHeaders(request, response);
+
                 request.return(response.status, response.responseBody);
             } catch (error) {
-                request.return(500, error);
+                ngx.log(ngx.ERR, error);
+
+                //* Do not expose the error to the end-user.
+                request.return(
+                    500,
+                    JSON.stringify({ message: 'Internal Server Error' })
+                );
             }
 
             break;
 
         default:
-            request.return(
-                500,
+            ngx.log(
+                ngx.ERR,
                 JSON.stringify({
                     message: uri + ' does not have an API adapter.',
                 })
+            );
+
+            //* Do not expose the error to the end-user.
+            request.return(
+                500,
+                JSON.stringify({ message: 'Internal Server Error' })
             );
             break;
     }

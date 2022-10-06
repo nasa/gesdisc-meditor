@@ -72,21 +72,6 @@ const MODEL_QUERY = gql`
         }
     }
 `
-//! delete this query
-// const COMMENTS_QUERY = gql`
-//     query getComments($modelName: String!, $title: String!) {
-//         documentComments(modelName: $modelName, title: $title) {
-//             _id
-//             parentId
-//             userUid
-//             text
-//             resolved
-//             resolvedBy
-//             createdBy
-//             createdOn
-//         }
-//     }
-// `
 
 const HISTORY_QUERY = gql`
     query getHistory($modelName: String!, $title: String!) {
@@ -223,15 +208,6 @@ const EditDocumentPage = ({ user, version = null, theme, comments }) => {
             ? router.push('/[modelName]', `/${modelName}`)
             : reloadDocument()
     }
-
-    // async function reloadComments() {
-    //     loadComments({
-    //         variables: {
-    //             modelName,
-    //             title: documentTitle,
-    //         },
-    //     })
-    // }
 
     async function saveComment(comment) {
         if (!('_id' in comment)) {
