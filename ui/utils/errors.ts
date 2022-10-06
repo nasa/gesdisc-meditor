@@ -54,8 +54,6 @@ export class UnauthorizedException extends HttpException {
  * converts errors to a JSON api response
  */
 export function apiError(response: NextApiResponse, error: Error | HttpException) {
-    console.log(error, typeof error, error instanceof HttpException)
-
     if (error instanceof HttpException) {
         response.status(error.status).json(error.toJson())
     } else {
