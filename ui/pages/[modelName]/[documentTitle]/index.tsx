@@ -3,7 +3,6 @@ import gql from 'graphql-tag'
 import cloneDeep from 'lodash.clonedeep'
 import { useRouter } from 'next/router'
 import { useContext, useEffect, useState } from 'react'
-import CommentsApi from '../../../comments/api-wrapper'
 import { AppContext } from '../../../components/app-store'
 import { Breadcrumb, Breadcrumbs } from '../../../components/breadcrumbs'
 import DocumentComments from '../../../components/document/document-comments'
@@ -248,12 +247,18 @@ const EditDocumentPage = ({ user, version = null, theme }) => {
     }
 
     async function saveComment(comment) {
+        const commentsApiUrl = `/meditor/api/models/${encodeURIComponent(
+            modelName
+        )}/documents/${encodeURIComponent(documentTitle)}/comments`
+
         if (!('_id' in comment)) {
             // create a new comment
-            await CommentsApi.postComment({
-                ...comment,
-                documentId: documentTitle,
-                model: modelName,
+            await fetch(commentsApiUrl, {
+                method: 'POST',
+                body: JSON.stringify(comment),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
             })
         } else {
             // edit an existing comment

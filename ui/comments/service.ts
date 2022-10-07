@@ -3,7 +3,7 @@ import getDb from '../lib/mongodb'
 import type { User } from '../auth/types'
 import { CreateCommentUserInput, NewDocumentComment } from './types'
 import { validate } from 'jsonschema'
-import { NewDocumentCommentUserInputSchema } from './schemas'
+import { NewDocumentCommentUserInputSchema } from './validation.schemas'
 
 export const COMMENTS_COLLECTION = 'Comments'
 
