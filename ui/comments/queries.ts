@@ -14,9 +14,9 @@ function getCommentForDocumentQuery({
             $match: {
                 $and: [
                     {
+                        _id: new ObjectId(commentId),
                         documentId: documentTitle,
                         model: modelName,
-                        _id: new ObjectId(commentId),
                     },
                 ],
             },

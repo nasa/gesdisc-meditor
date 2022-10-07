@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { getCommentsForDocument } from '../../../../../../../comments/service'
-import { apiError } from '../../../../../../../utils/errors'
+import { apiError, NotFoundException } from '../../../../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
@@ -12,6 +12,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     documentTitle: decodeURIComponent(documentTitle.toString()),
                     modelName: decodeURIComponent(modelName.toString()),
                 })
+
+                if (!comments.length) {
+                    throw new NotFoundException(
+                        `Comments not found for model '${modelName}' with document '${documentTitle}'.`
+                    )
+                }
 
                 return res.status(200).json(comments)
             }
