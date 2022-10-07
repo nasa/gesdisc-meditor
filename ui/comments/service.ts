@@ -1,11 +1,14 @@
 import { BadRequestException, UnauthorizedException } from '../utils/errors'
-import getDb from '../lib/mongodb'
 import type { User } from '../auth/types'
-import { CreateCommentUserInput, NewDocumentComment } from './types'
+import { CreateCommentUserInput, UpdateCommentUserInput } from './types'
 import { validate } from 'jsonschema'
-import { NewDocumentCommentUserInputSchema } from './validation.schemas'
+import {
+    NewDocumentCommentUserInputSchema,
+    UpdateDocumentCommentUserInputSchema,
+} from './validation.schemas'
+import CommentsDb from './db'
 
-export const COMMENTS_COLLECTION = 'Comments'
+const commentsDb = new CommentsDb()
 
 export async function createCommentAsUser(
     newComment: CreateCommentUserInput,
@@ -21,19 +24,32 @@ export async function createCommentAsUser(
         throw new BadRequestException(validationResult.toString())
     }
 
-    const db = await getDb()
+    return commentsDb.insertOne({
+        ...newComment, // validated user input
+        parentId: newComment.parentId || 'root', // TODO: Why not use undefined rather than 'root'? (refactor opportunity)
+        userUid: user.uid,
+        createdOn: new Date().toISOString(),
+        createdBy: user.name,
+        resolved: false, // can't create a resolved comment
+    })
+}
 
-    // insert the new comment
-    const { insertedId } = await db
-        .collection<NewDocumentComment>(COMMENTS_COLLECTION)
-        .insertOne({
-            ...newComment, // validated user input
-            parentId: newComment.parentId || 'root', // TODO: Why not use undefined rather than 'root'? (refactor opportunity)
-            userUid: user.uid,
-            createdOn: new Date().toISOString(),
-            createdBy: user.name,
-            resolved: false, // can't create a resolved comment
-        })
+export async function updateCommentAsUser(
+    commentChanges: UpdateCommentUserInput,
+    user: User
+) {
+    if (!user?.uid) {
+        throw new UnauthorizedException()
+    }
 
-    return db.collection(COMMENTS_COLLECTION).findOne({ _id: insertedId }) // return the new comment
+    const validationResult = validate(
+        commentChanges,
+        UpdateDocumentCommentUserInputSchema
+    )
+
+    if (!validationResult.valid) {
+        throw new BadRequestException(validationResult.toString())
+    }
+
+    return commentsDb.updateOne(commentChanges)
 }

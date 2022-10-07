@@ -179,15 +179,3 @@ module.exports.resolveComment = function resolveComment(req, res, next) {
             utils.writeJson(res, response)
         })
 }
-
-module.exports.editComment = function editComment(req, res, next) {
-    var id = req.swagger.params['id'].value
-    var text = req.swagger.params['text'].value
-    Default.editComment(id, text)
-        .then(function (response) {
-            utils.writeJson(res, response)
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response)
-        })
-}

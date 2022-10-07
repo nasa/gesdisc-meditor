@@ -26,3 +26,9 @@ export type CreateCommentUserInput = Pick<
 > & {
     parentId?: string // optional parentId on input
 }
+
+export type UpdateCommentUserInput = {
+    _id: string
+    resolved?: boolean
+    text?: string
+}
