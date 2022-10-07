@@ -602,14 +602,25 @@ module.exports.putDocument = function putDocument(request, response, next) {
             that.model = model
             return model
         })
-        .then(model => {
+        .then(async model => {
+            //* Get the model's workflow so that we can find information about the draft node, which is the only node that applies to putDocument.
+            const [workflow] = await that.dbo
+                .db(DbName)
+                .collection('Workflows')
+                .find({ name: that.model.workflow })
+                .sort({ 'x-meditor.modifiedOn': -1 })
+                .limit(1)
+                .toArray()
+            const draftNode = workflow.nodes.find(node => node.id === 'Draft')
+            const { allowValidationErrors } = draftNode
+
             // validate the document against the schema
             var v = new Validator()
             var schema = JSON.parse(model.schema)
             schema.additionalProperties = true
             var result = v.validate(doc, schema)
 
-            if (result.errors.length > 0) {
+            if (result.errors.length > 0 && !allowValidationErrors) {
                 throw {
                     status: 400,
                     message: `Document does not validate against the ${doc['x-meditor'].model} schema`,
@@ -911,12 +922,24 @@ module.exports.changeDocumentState = function changeDocumentState(
                 modifiedOn: new Date().toISOString(),
                 modifiedBy: that.user.uid,
             })
+
+            // only allow updating a non-empty document on a PUT request
+            const canUpdateDocument =
+                request.method === 'PUT' &&
+                that.params.document &&
+                !_.isEmpty(that.params.document)
+
             return that.dbo
                 .db(DbName)
                 .collection(that.params.model)
                 .updateOne(
                     { _id: res._id },
-                    { $set: { 'x-meditor.states': newStatesArray } }
+                    {
+                        $set: {
+                            'x-meditor.states': newStatesArray,
+                            ...(canUpdateDocument && { ...that.params.document }),
+                        },
+                    }
                 )
         })
         .then(async () => {

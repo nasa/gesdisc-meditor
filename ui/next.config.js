@@ -8,11 +8,10 @@ module.exports = {
         }
         return config
     },
-    async redirects() {
+    async rewrites() {
         return [
             {
                 source: '/api/listModels',
-                permanent: true,
                 destination: '/api/models',
             },
             {
@@ -23,7 +22,6 @@ module.exports = {
                         key: 'model',
                     },
                 ],
-                permanent: true,
                 destination: '/api/models/:model/documents',
             },
         ]

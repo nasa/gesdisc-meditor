@@ -1,11 +1,11 @@
-import React, { useRef, useEffect } from 'react'
 import Form from '@rjsf/core'
-import fields from './fields/'
-import widgets from './widgets/'
-import templates from './templates/'
 import filter from 'lodash/filter'
-import uniqWith from 'lodash/uniqWith'
 import isEqual from 'lodash/isEqual'
+import uniqWith from 'lodash/uniqWith'
+import { useEffect, useRef } from 'react'
+import fields from './fields/'
+import templates from './templates/'
+import widgets from './widgets/'
 
 const JsonSchemaForm = ({
     schema,
@@ -14,6 +14,7 @@ const JsonSchemaForm = ({
     linkCheckerUrl = null,
     layout,
     liveValidate = false,
+    allowValidationErrors = false,
     onInit = (form: any) => {},
     onChange = (event: any) => {},
 }) => {
@@ -48,18 +49,25 @@ const JsonSchemaForm = ({
 
             const fieldErrorSchema = _errorSchema[field] || {}
 
-            formEl.current.setState({
-                errors: uniqWith([...prevOtherFieldErrors, ...fieldErrors], isEqual),
-                errorSchema: { ...errorSchema, [field]: fieldErrorSchema },
-            })
+            if (!allowValidationErrors) {
+                formEl.current.setState({
+                    errors: uniqWith(
+                        [...prevOtherFieldErrors, ...fieldErrors],
+                        isEqual
+                    ),
+                    errorSchema: { ...errorSchema, [field]: fieldErrorSchema },
+                })
+            }
         }, 10)
     }
+
+    const { _id, ...document } = formData
 
     return (
         <Form
             ref={formEl}
             schema={schema}
-            formData={formData}
+            formData={document}
             uiSchema={layout}
             fields={fields as any}
             widgets={widgets}
@@ -75,6 +83,8 @@ const JsonSchemaForm = ({
                     'https://lb.gesdisc.eosdis.nasa.gov/images/upload',
                 linkCheckerApiUrl: linkCheckerUrl,
             }}
+            noValidate={allowValidationErrors}
+            noHtml5Validate={allowValidationErrors}
         />
     )
 }

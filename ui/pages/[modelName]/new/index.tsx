@@ -1,31 +1,31 @@
-import { useContext, useState, useEffect } from 'react'
-import { AppContext } from '../../../components/app-store'
 import { useQuery } from '@apollo/react-hooks'
-import { useRouter } from 'next/router'
-import { withApollo } from '../../../lib/apollo'
-import Alert from 'react-bootstrap/Alert'
-import RenderResponse from '../../../components/render-response'
-import Loading from '../../../components/loading'
-import PageTitle from '../../../components/page-title'
-import Form from '../../../components/document/form'
-import { Breadcrumbs, Breadcrumb } from '../../../components/breadcrumbs'
-import DocumentHeader from '../../../components/document/document-header'
-import mEditorApi from '../../../service'
-import withAuthentication from '../../../components/with-authentication'
-import FormActions from '../../../components/document/form-actions'
+import format from 'date-fns/format'
 import gql from 'graphql-tag'
-import { urlEncode } from '../../../lib/url'
 import omitBy from 'lodash.omitby'
-import {
-    getNewUnsavedDocument,
-    retrieveUnsavedDocumentFromLS,
-    updateUnsavedDocumentInLS,
-    removeUnsavedDocumentFromLS,
-    UNTITLED_DOCUMENT_TITLE,
-} from '../../../lib/unsaved-changes'
+import { useRouter } from 'next/router'
+import { useContext, useEffect, useState } from 'react'
+import Alert from 'react-bootstrap/Alert'
 import Spinner from 'react-bootstrap/Spinner'
 import { AiOutlineCheck } from 'react-icons/ai'
-import format from 'date-fns/format'
+import { AppContext } from '../../../components/app-store'
+import { Breadcrumb, Breadcrumbs } from '../../../components/breadcrumbs'
+import DocumentHeader from '../../../components/document/document-header'
+import Form from '../../../components/document/form'
+import FormActions from '../../../components/document/form-actions'
+import Loading from '../../../components/loading'
+import PageTitle from '../../../components/page-title'
+import RenderResponse from '../../../components/render-response'
+import withAuthentication from '../../../components/with-authentication'
+import { withApollo } from '../../../lib/apollo'
+import {
+    getNewUnsavedDocument,
+    removeUnsavedDocumentFromLS,
+    retrieveUnsavedDocumentFromLS,
+    UNTITLED_DOCUMENT_TITLE,
+    updateUnsavedDocumentInLS,
+} from '../../../lib/unsaved-changes'
+import { urlEncode } from '../../../lib/url'
+import mEditorApi from '../../../service'
 
 const MODEL_QUERY = gql`
     query getModel($modelName: String!) {
@@ -45,6 +45,7 @@ const MODEL_QUERY = gql`
                         role
                         privilege
                     }
+                    allowValidationErrors
                 }
             }
         }
@@ -198,6 +199,9 @@ const NewDocumentPage = ({ user }) => {
                     document={localChanges?.formData}
                     onUpdateForm={setForm}
                     onChange={onChange}
+                    allowValidationErrors={
+                        data?.model.workflow.currentNode.allowValidationErrors
+                    }
                 />
 
                 {form?.state && (
@@ -232,6 +236,9 @@ const NewDocumentPage = ({ user }) => {
                                     </>
                                 )}
                             </span>
+                        }
+                        allowValidationErrors={
+                            data?.model.workflow.currentNode.allowValidationErrors
                         }
                     />
                 )}

@@ -40,6 +40,12 @@ function LabelInput(props) {
     )
 }
 
+/**
+ * additional fields are in the underlying JSON document but NOT in the schema
+ *
+ * Take a schema that defines fields called "name" and "address".
+ * If the JSON document contains a field called "phone number" it is considered an additional field.
+ */
 function WrapIfAdditional(props) {
     const {
         id,
@@ -59,8 +65,12 @@ function WrapIfAdditional(props) {
         return <div className={classNames}>{props.children}</div>
     }
 
+    // in mEditor, we don't want to show additional fields, but DO want to keep them in the JSON document
+    // we'll just display: none them
+    const additionalFieldClassNames = `${classNames} d-none`
+
     return (
-        <div className={classNames}>
+        <div className={additionalFieldClassNames}>
             <div className="row">
                 <div className="col-xs-5 form-additional">
                     <div className="form-group">

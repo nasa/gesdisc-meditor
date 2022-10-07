@@ -46,12 +46,6 @@ export function getDocumentsForModelQuery(
         },
     ]
 
-    // add search query if user is searching documents
-    // according to Mongo this must be the first pipeline stage
-    if (searchOptions?.searchTerm) {
-        query.unshift({ $match: { $text: { $search: searchOptions.searchTerm } } })
-    }
-
     // if the user is searching the documents, we'll convert their query to the mongo equivalent
     if (searchOptions?.filter) {
         try {
