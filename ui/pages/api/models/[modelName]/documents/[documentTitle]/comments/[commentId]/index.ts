@@ -8,13 +8,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             case 'GET': {
                 const { commentId, documentTitle, modelName } = req.query
 
-                const comment = await getCommentForDocument({
+                const [error, comment] = await getCommentForDocument({
                     commentId: decodeURIComponent(commentId.toString()),
                     documentTitle: decodeURIComponent(documentTitle.toString()),
                     modelName: decodeURIComponent(modelName.toString()),
                 })
 
-                if (!comment.length) {
+                if (error || !Object.keys(comment).length) {
                     throw new NotFoundException(
                         `Comments not found for model '${modelName}' with document '${documentTitle}' and comment ID '${commentId}'.`
                     )

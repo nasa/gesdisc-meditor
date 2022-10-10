@@ -103,7 +103,6 @@ const EditDocumentPage = ({ user, version = null, theme, comments }) => {
         'documentEditActivePanel',
         null
     )
-    const [treeifiedComments, setTreeifiedComments] = useState([])
     const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
 
     const [loadDocument, documentResponse] = useLazyQuery(DOCUMENT_QUERY, {
@@ -153,10 +152,6 @@ const EditDocumentPage = ({ user, version = null, theme, comments }) => {
             })
         }
     }, [documentResponse.data])
-
-    useEffect(() => {
-        setTreeifiedComments(treeify(comments))
-    }, [comments])
 
     const currentPrivileges = modelResponse?.data?.model?.workflow
         ? user.privilegesForModelAndWorkflowNode(
@@ -369,7 +364,7 @@ const EditDocumentPage = ({ user, version = null, theme, comments }) => {
                 >
                     <DocumentComments
                         user={user}
-                        comments={treeifiedComments}
+                        comments={comments}
                         saveComment={saveComment}
                         resolveComment={resolveComment}
                     />
@@ -434,13 +429,19 @@ const EditDocumentPage = ({ user, version = null, theme, comments }) => {
 export async function getServerSideProps(ctx: NextPageContext) {
     const { documentTitle, modelName } = ctx.query
 
-    const comments = await getCommentsForDocument({
+    const [commentsError, comments] = await getCommentsForDocument({
         documentTitle: decodeURIComponent(documentTitle.toString()),
         modelName: decodeURIComponent(modelName.toString()),
     })
 
+    if (!!commentsError) {
+        return {
+            props: { comments: null },
+        }
+    }
+
     return {
-        props: { comments },
+        props: { comments: treeify(comments) },
     }
 }
 

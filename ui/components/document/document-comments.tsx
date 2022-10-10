@@ -1,15 +1,24 @@
-import Card from 'react-bootstrap/Card'
-import Image from 'react-bootstrap/Image'
-import Button from 'react-bootstrap/Button'
-import Form from 'react-bootstrap/Form'
-import { MdComment, MdSend, MdClose, MdEdit, MdReply, MdCheck } from 'react-icons/md'
-import { IoMdEye, IoMdEyeOff } from 'react-icons/io'
-import styles from './document-comments.module.css'
-import { useState, useEffect } from 'react'
-import IconButton from '../icon-button'
 import { format } from 'date-fns'
+import { useEffect, useState } from 'react'
+import Button from 'react-bootstrap/Button'
+import Card from 'react-bootstrap/Card'
+import Form from 'react-bootstrap/Form'
+import Image from 'react-bootstrap/Image'
+import { IoMdEye, IoMdEyeOff } from 'react-icons/io'
+import {
+    MdCheck,
+    MdClose,
+    MdComment,
+    MdEdit,
+    MdFeedback,
+    MdReply,
+    MdSend,
+} from 'react-icons/md'
+import IconButton from '../icon-button'
+import styles from './document-comments.module.css'
 
-const AVATAR_URL = 'https://bugs.earthdata.nasa.gov/secure/useravatar?size=large&ownerId=${uid}'
+const AVATAR_URL =
+    'https://bugs.earthdata.nasa.gov/secure/useravatar?size=large&ownerId=${uid}'
 const DEFAULT_PARENT_ID = 'root'
 const DEFAULT_COMMENT = {
     text: '',
@@ -17,14 +26,21 @@ const DEFAULT_COMMENT = {
     parentId: DEFAULT_PARENT_ID,
 }
 
-const CommentCard = ({ comment, onSave, user = null, onCancel = () => {}, onResolve = (_comment) => {} }) => {
+const CommentCard = ({
+    comment,
+    onSave,
+    user = null,
+    onCancel = () => {},
+    onResolve = _comment => {},
+}) => {
     const [newComment, setNewComment] = useState('')
     const [editing, setEditing] = useState(false)
     const [replyComment, setReplyComment] = useState(null)
     const [validated, setValidated] = useState(false)
 
     const showCardActions = '_id' in comment && !comment.resolved && !editing
-    const showChildComments = replyComment || (comment.children && comment.children.length)
+    const showChildComments =
+        replyComment || (comment.children && comment.children.length)
 
     useEffect(() => {
         if (!comment._id) {
@@ -36,7 +52,7 @@ const CommentCard = ({ comment, onSave, user = null, onCancel = () => {}, onReso
         setNewComment(comment.text)
     }, [editing])
 
-    const handleSubmit = (event) => {
+    const handleSubmit = event => {
         const form = event.currentTarget
 
         event.preventDefault()
@@ -71,7 +87,7 @@ const CommentCard = ({ comment, onSave, user = null, onCancel = () => {}, onReso
         setReplyComment(newComment)
     }
 
-    const handleSubmitReply = (reply) => {
+    const handleSubmitReply = reply => {
         onSave(reply)
         setReplyComment(null)
     }
@@ -86,12 +102,23 @@ const CommentCard = ({ comment, onSave, user = null, onCancel = () => {}, onReso
                 {comment._id && (
                     <div className={styles.title}>
                         <div>
-                            <Image src={AVATAR_URL.replace('${uid}', comment.userUid || 'undefined')} roundedCircle />
+                            <Image
+                                src={AVATAR_URL.replace(
+                                    '${uid}',
+                                    comment.userUid || 'undefined'
+                                )}
+                                roundedCircle
+                            />
                         </div>
 
                         <div>
                             <h5>{comment.createdBy}</h5>
-                            <small>{format(new Date(comment.createdOn), 'M/d/yy, h:mm aaa')}</small>
+                            <small>
+                                {format(
+                                    new Date(comment.createdOn),
+                                    'M/d/yy, h:mm aaa'
+                                )}
+                            </small>
                         </div>
                     </div>
                 )}
@@ -105,10 +132,12 @@ const CommentCard = ({ comment, onSave, user = null, onCancel = () => {}, onReso
                                 rows={3}
                                 placeholder="Leave your comment here..."
                                 value={newComment}
-                                onChange={(e) => setNewComment(e.target.value)}
+                                onChange={e => setNewComment(e.target.value)}
                             />
 
-                            <Form.Control.Feedback type="invalid">Please enter a comment.</Form.Control.Feedback>
+                            <Form.Control.Feedback type="invalid">
+                                Please enter a comment.
+                            </Form.Control.Feedback>
                         </Form.Group>
 
                         <div className={styles.cardActions}>
@@ -132,13 +161,19 @@ const CommentCard = ({ comment, onSave, user = null, onCancel = () => {}, onReso
                         </IconButton>
 
                         {user.uid == comment.userUid && (
-                            <IconButton alt="Edit comment" onClick={() => setEditing(true)}>
+                            <IconButton
+                                alt="Edit comment"
+                                onClick={() => setEditing(true)}
+                            >
                                 <MdEdit />
                             </IconButton>
                         )}
 
                         {comment.parentId == DEFAULT_PARENT_ID && (
-                            <IconButton alt="Resolve comment" onClick={() => onResolve(comment)}>
+                            <IconButton
+                                alt="Resolve comment"
+                                onClick={() => onResolve(comment)}
+                            >
                                 <MdCheck />
                             </IconButton>
                         )}
@@ -157,8 +192,13 @@ const CommentCard = ({ comment, onSave, user = null, onCancel = () => {}, onReso
                         />
                     )}
 
-                    {comment.children.map((childComment) => (
-                        <CommentCard key={childComment._id} user={user} comment={childComment} onSave={onSave} />
+                    {comment.children.map(childComment => (
+                        <CommentCard
+                            key={childComment._id}
+                            user={user}
+                            comment={childComment}
+                            onSave={onSave}
+                        />
                     ))}
                 </div>
             )}
@@ -174,12 +214,12 @@ const DocumentComments = ({ user, comments = [], saveComment, resolveComment }) 
         setNewComment(Object.assign({}, DEFAULT_COMMENT))
     }
 
-    const updateComment = (comment) => {
+    const updateComment = comment => {
         saveComment(comment).then(() => setNewComment(null))
     }
 
     // hide resolved comments unless show all is clicked
-    const filterCommentByResolved = (comment) => {
+    const filterCommentByResolved = comment => {
         return showAll || !comment.resolved
     }
 
@@ -187,13 +227,21 @@ const DocumentComments = ({ user, comments = [], saveComment, resolveComment }) 
         <div>
             <div className={styles.buttons}>
                 {!newComment && (
-                    <Button className={styles.button} variant="outline-dark" onClick={handleCreateComment}>
+                    <Button
+                        className={styles.button}
+                        variant="outline-dark"
+                        onClick={handleCreateComment}
+                    >
                         <MdComment />
                         New Comment
                     </Button>
                 )}
 
-                <Button className={styles.button} variant="outline-dark" onClick={() => setShowAll(!showAll)}>
+                <Button
+                    className={styles.button}
+                    variant="outline-dark"
+                    onClick={() => setShowAll(!showAll)}
+                >
                     {showAll ? (
                         <>
                             <IoMdEyeOff />
@@ -217,17 +265,38 @@ const DocumentComments = ({ user, comments = [], saveComment, resolveComment }) 
                 />
             )}
 
-            {!comments.length && <div className="text-center py-4 text-muted">There are no comments yet.</div>}
+            {comments === null ? (
+                <p className="text-center py-4 text-danger">
+                    mEditor had an error getting comments for this document. mEditor
+                    has recorded the error, but you can still
+                    <Button
+                        className="ml-1 p-0"
+                        variant="link"
+                        href="mailto:gsfc-uui-dev-disc@lists.nasa.gov"
+                    >
+                        <MdFeedback size="1.6em" className="mr-1" />
+                        Leave Feedback
+                    </Button>
+                </p>
+            ) : (
+                <>
+                    {!comments.length && (
+                        <div className="text-center py-4 text-muted">
+                            There are no comments yet.
+                        </div>
+                    )}
 
-            {comments.filter(filterCommentByResolved).map((comment) => (
-                <CommentCard
-                    key={comment._id}
-                    user={user}
-                    comment={comment}
-                    onSave={updateComment}
-                    onResolve={resolveComment}
-                />
-            ))}
+                    {comments.filter(filterCommentByResolved).map(comment => (
+                        <CommentCard
+                            key={comment._id}
+                            user={user}
+                            comment={comment}
+                            onSave={updateComment}
+                            onResolve={resolveComment}
+                        />
+                    ))}
+                </>
+            )}
         </div>
     )
 }
