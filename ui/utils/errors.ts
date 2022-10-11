@@ -7,7 +7,6 @@ export class HttpException extends Error {
         super(message)
 
         this.status = status
-        // Object.setPrototypeOf(this, HttpException.prototype)
     }
 
     toJson() {
@@ -21,16 +20,12 @@ export class HttpException extends Error {
 export class BadRequestException extends HttpException {
     constructor(message: string = 'Bad Request') {
         super(400, message)
-
-        // Object.setPrototypeOf(this, BadRequestException.prototype)
     }
 }
 
 export class NotFoundException extends HttpException {
     constructor(message: string = 'Not Found') {
         super(404, message)
-
-        // Object.setPrototypeOf(this, NotFoundException.prototype)
     }
 }
 
@@ -44,7 +39,6 @@ export function apiError(response: NextApiResponse, error: Error | HttpException
     } else {
         response.status(500).json({
             status: 500,
-            // error: error.message || 'Bad Request',
             error: 'Bad Request',
         })
     }
