@@ -111,7 +111,7 @@ describe('Comments Service', () => {
     })
 
     it('creates an unresolved comment by default', async () => {
-        const newComment = await createCommentAsUser(
+        const [error, newComment] = await createCommentAsUser(
             {
                 model: 'Foo',
                 documentId: 'Bar',
@@ -120,11 +120,12 @@ describe('Comments Service', () => {
             BaconUser
         )
 
+        expect(error).toBeNull()
         expect(newComment.resolved).toEqual(false)
     })
 
     it('creates a new comment as a root comment by default', async () => {
-        const newComment = await createCommentAsUser(
+        const [error, newComment] = await createCommentAsUser(
             {
                 model: 'Foo',
                 documentId: 'Bar',
@@ -133,11 +134,12 @@ describe('Comments Service', () => {
             BaconUser
         )
 
+        expect(error).toBeNull()
         expect(newComment.parentId).toEqual('root')
     })
 
     it('creates a comment on a document', async () => {
-        const { _id, createdOn, ...newComment } = await createCommentAsUser(
+        const [error, { _id, createdOn, ...newComment }] = await createCommentAsUser(
             {
                 model: 'Foo',
                 documentId: 'Bar',
@@ -147,6 +149,7 @@ describe('Comments Service', () => {
             BaconUser
         )
 
+        expect(error).toBeNull()
         expect(newComment).toMatchInlineSnapshot(`
             Object {
               "createdBy": "Bacon User",

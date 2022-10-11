@@ -17,7 +17,7 @@ const commentsDb = new CommentsDb()
 export async function createCommentAsUser(
     newComment: CreateCommentUserInput,
     user: User
-) {
+): Promise<ErrorData<DocumentComment>> {
     if (!user?.uid) {
         throw new UnauthorizedException()
     }
@@ -28,20 +28,28 @@ export async function createCommentAsUser(
         throw new BadRequestException(validationResult.toString())
     }
 
-    return commentsDb.insertOne({
-        ...newComment, // validated user input
-        parentId: newComment.parentId || 'root', // TODO: Why not use undefined rather than 'root'? (refactor opportunity)
-        userUid: user.uid,
-        createdOn: new Date().toISOString(),
-        createdBy: user.name,
-        resolved: false, // can't create a resolved comment
-    })
+    try {
+        const comment = await commentsDb.insertOne({
+            ...newComment, // validated user input
+            parentId: newComment.parentId || 'root', // TODO: Why not use undefined rather than 'root'? (refactor opportunity)
+            userUid: user.uid,
+            createdOn: new Date().toISOString(),
+            createdBy: user.name,
+            resolved: false, // can't create a resolved comment
+        })
+
+        return [null, makeSafeObjectIDs(comment)]
+    } catch (err: any) {
+        console.error(err)
+
+        return [err, null]
+    }
 }
 
 export async function updateCommentAsUser(
     commentChanges: UpdateCommentUserInput,
     user: User
-) {
+): Promise<ErrorData<DocumentComment>> {
     if (!user?.uid) {
         throw new UnauthorizedException()
     }
@@ -55,7 +63,15 @@ export async function updateCommentAsUser(
         throw new BadRequestException(validationResult.toString())
     }
 
-    return commentsDb.updateOne(commentChanges)
+    try {
+        const updatedComment = await commentsDb.updateOne(commentChanges)
+
+        return [null, makeSafeObjectIDs(updatedComment)]
+    } catch (err: any) {
+        console.error(err)
+
+        return [err, null]
+    }
 }
 
 export async function getCommentForDocument({
