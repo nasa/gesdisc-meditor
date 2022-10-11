@@ -217,26 +217,42 @@ const EditDocumentPage = ({ user, version = null, theme, comments }) => {
             : reloadDocument()
     }
 
-    async function saveComment(comment) {
+    async function handleSaveComment(comment) {
+        if (!('_id' in comment)) {
+            await createComment(comment)
+        } else {
+            await updateComment(comment)
+        }
+
+        refreshDataInPlace(router)
+    }
+
+    async function createComment(comment) {
         const commentsApiUrl = `/meditor/api/models/${encodeURIComponent(
             modelName
         )}/documents/${encodeURIComponent(documentTitle)}/comments`
 
-        if (!('_id' in comment)) {
-            // create a new comment
-            await fetch(commentsApiUrl, {
-                method: 'POST',
-                body: JSON.stringify(comment),
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            })
-        } else {
-            // edit an existing comment
-            await mEditorApi.editComment(comment._id, comment.text)
-        }
+        return fetch(commentsApiUrl, {
+            method: 'POST',
+            body: JSON.stringify(comment),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+    }
 
-        refreshDataInPlace(router)
+    async function updateComment(comment) {
+        const commentsApiUrl = `/meditor/api/models/${encodeURIComponent(
+            modelName
+        )}/documents/${encodeURIComponent(documentTitle)}/comments/${comment._id}`
+
+        return fetch(commentsApiUrl, {
+            method: 'PUT',
+            body: JSON.stringify(comment),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
     }
 
     async function resolveComment(comment) {
@@ -367,7 +383,7 @@ const EditDocumentPage = ({ user, version = null, theme, comments }) => {
                     <DocumentComments
                         user={user}
                         comments={comments}
-                        saveComment={saveComment}
+                        saveComment={handleSaveComment}
                         resolveComment={resolveComment}
                     />
                 </DocumentPanel>
