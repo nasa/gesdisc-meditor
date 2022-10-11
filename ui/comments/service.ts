@@ -13,17 +13,20 @@ export async function createCommentAsUser(
     newComment: CreateCommentUserInput,
     user: User
 ): Promise<ErrorData<DocumentComment>> {
-    if (!user?.uid) {
-        throw new UnauthorizedException()
-    }
-
-    const validationResult = validate(newComment, NewDocumentCommentUserInputSchema)
-
-    if (!validationResult.valid) {
-        throw new BadRequestException(validationResult.toString())
-    }
-
     try {
+        if (!user?.uid) {
+            throw new UnauthorizedException()
+        }
+
+        const validationResult = validate(
+            newComment,
+            NewDocumentCommentUserInputSchema
+        )
+
+        if (!validationResult.valid) {
+            throw new BadRequestException(validationResult.toString())
+        }
+
         const comment = await CommentsDb.insertOne({
             ...newComment, // validated user input
             parentId: newComment.parentId || 'root', // TODO: Why not use undefined rather than 'root'? (refactor opportunity)
@@ -33,7 +36,7 @@ export async function createCommentAsUser(
             resolved: false, // can't create a resolved comment
         })
 
-        return [null, makeSafeObjectIDs(comment)]
+        return [null, comment]
     } catch (err: any) {
         console.error(err)
 

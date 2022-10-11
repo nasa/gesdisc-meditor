@@ -82,27 +82,30 @@ describe('Comments Service', () => {
         expect(comment).toMatchSnapshot()
     })
 
-    it('throws an UnauthorizedException if the user is logged out', async () => {
-        await expect(async () =>
-            createCommentAsUser(
-                {
-                    model: 'Foo',
-                    documentId: 'Bar',
-                    text: 'Testing unresolved comment by default',
-                },
-                {} as any // force logged out
-            )
-        ).rejects.toThrowErrorMatchingInlineSnapshot(`"Unauthorized"`)
+    it('returns an UnauthorizedException if the user is logged out', async () => {
+        const [error, comment] = await createCommentAsUser(
+            {
+                model: 'Foo',
+                documentId: 'Bar',
+                text: 'Testing unresolved comment by default',
+            },
+            {} as any // force logged out
+        )
+
+        expect(error).toMatchInlineSnapshot(`[Error: Unauthorized]`)
+        expect(comment).toBeNull()
     })
 
-    it('throws a BadRequestException if the comment is invalid', async () => {
-        await expect(async () => createCommentAsUser({} as any, BaconUser)).rejects
-            .toThrowErrorMatchingInlineSnapshot(`
-                    "0: instance requires property \\"documentId\\"
-                    1: instance requires property \\"model\\"
-                    2: instance requires property \\"text\\"
-                    "
-                `)
+    it('returns a list of validation errors if the comment is invalid', async () => {
+        const [error, comment] = await createCommentAsUser({} as any, BaconUser)
+
+        expect(error).toMatchInlineSnapshot(`
+            [Error: 0: instance requires property "documentId"
+            1: instance requires property "model"
+            2: instance requires property "text"
+            ]
+        `)
+        expect(comment).toBeNull()
     })
 
     it('creates an unresolved comment by default', async () => {
