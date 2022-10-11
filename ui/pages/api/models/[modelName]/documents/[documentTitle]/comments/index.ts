@@ -25,11 +25,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         switch (req.method) {
             case 'GET': {
-                const { documentTitle, modelName } = req.query
-
                 const [error, comments] = await getCommentsForDocument({
-                    documentTitle: decodeURIComponent(documentTitle.toString()),
-                    modelName: decodeURIComponent(modelName.toString()),
+                    documentTitle: decodeURIComponent(documentTitle),
+                    modelName: decodeURIComponent(modelName),
                 })
 
                 if (error || !comments.length) {
