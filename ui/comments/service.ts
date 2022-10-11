@@ -1,4 +1,5 @@
 import { BadRequestException, UnauthorizedException } from '../utils/errors'
+import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
 import type { User } from '../auth/types'
 import { CreateCommentUserInput, UpdateCommentUserInput } from './types'
 import { validate } from 'jsonschema'
@@ -7,6 +8,9 @@ import {
     UpdateDocumentCommentUserInputSchema,
 } from './validation.schemas'
 import CommentsDb from './db'
+import { ErrorData } from '../declarations'
+import { getCommentForDocumentQuery, getCommentsForDocumentQuery } from './queries'
+import { DocumentComment } from './types'
 
 const commentsDb = new CommentsDb()
 
@@ -52,4 +56,58 @@ export async function updateCommentAsUser(
     }
 
     return commentsDb.updateOne(commentChanges)
+}
+
+export async function getCommentForDocument({
+    commentId,
+    documentTitle,
+    modelName,
+}: {
+    commentId: string
+    documentTitle: string
+    modelName: string
+}): Promise<ErrorData<DocumentComment>> {
+    try {
+        const db = await getDb()
+        const query = getCommentForDocumentQuery({
+            commentId,
+            documentTitle,
+            modelName,
+        })
+
+        const [comment = {}] = await db
+            .collection<DocumentComment>('Comments')
+            .aggregate(query, { allowDiskUse: true })
+            .toArray()
+
+        return [null, makeSafeObjectIDs(comment)]
+    } catch (error) {
+        console.error(error)
+
+        return [error, null]
+    }
+}
+
+export async function getCommentsForDocument({
+    documentTitle,
+    modelName,
+}: {
+    documentTitle: string
+    modelName: string
+}): Promise<ErrorData<DocumentComment[]>> {
+    try {
+        const db = await getDb()
+        const query = getCommentsForDocumentQuery({ documentTitle, modelName })
+
+        const comments = await db
+            .collection<DocumentComment>('Comments')
+            .aggregate(query, { allowDiskUse: true })
+            .toArray()
+
+        return [null, makeSafeObjectIDs(comments)]
+    } catch (error) {
+        console.error(error)
+
+        return [error, null]
+    }
 }

@@ -3,7 +3,13 @@ import isEqual from 'lodash.isequal'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import Button from 'react-bootstrap/Button'
+import { clearEmpties } from '../../utils/object'
 import styles from './form-actions.module.css'
+import { Validator } from 'jsonschema'
+import {
+    filterErrorsFromErrorSchema,
+    toErrorList,
+} from '../../utils/jsonschema-validate'
 
 const DELETED_STATE = 'Deleted'
 const DELETE_CONFIRMATION =
@@ -78,16 +84,29 @@ const FormActions = ({
         }
     }
 
-    function validateAllFields() {
-        const { formData } = form.state
-        const { errors, errorSchema } = form.validate(formData)
+    /**
+     * unfortunately, RJSF forces the underlying JSON document to contain undefined, empty arrays, etc. that cause
+     * wrong validation results to be returned
+     *
+     * to fix the wrong validation results, we will call our own validate (using `jsonschema`) then only return
+     * the RJSF validation errors that are in both lists of errors
+     *
+     * TODO: upgrade RSJF to v5 (after beta testing) and review if this is still necessary
+     */
+    function validateAllFields(formData: any) {
+        const { errorSchema } = form.validate(formData) // retrieve validation result schema from RJSF
+        const { errors } = new Validator().validate(formData, form.state.schema) // retrieve validation results from JSF
+
+        // get a filtered list of validation errors
+        const filteredErrorSchema = filterErrorsFromErrorSchema(errors, errorSchema)
+        const filteredErrors = toErrorList(filteredErrorSchema)
 
         form.setState({
-            errors,
-            errorSchema,
+            errors: filteredErrors,
+            errorSchema: filteredErrorSchema,
         })
 
-        return errors
+        return filteredErrors
     }
 
     function handleSave() {
@@ -104,8 +123,12 @@ const FormActions = ({
             return
         }
 
+        // react-jsonschema-form leaves undefined values, empty arrays, etc.
+        // we need to make sure these are all removed before running validation
+        let formData = clearEmpties(form.state.formData)
+
         if (!allowValidationErrors) {
-            let errors = validateAllFields()
+            let errors = validateAllFields(formData)
 
             if (errors.length) {
                 // errors are printed above the save button, pushing it down. scroll it back
@@ -122,7 +145,7 @@ const FormActions = ({
         }
 
         setIsDirty(false)
-        onSave(form.state.formData)
+        onSave(formData)
     }
 
     function handleStateUpdate(target) {

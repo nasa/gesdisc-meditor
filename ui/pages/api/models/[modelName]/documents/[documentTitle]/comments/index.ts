@@ -1,9 +1,13 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { getLoggedInUser } from '../../../../../../../auth/user'
-import { createCommentAsUser } from '../../../../../../../comments/service'
+import {
+    createCommentAsUser,
+    getCommentsForDocument,
+} from '../../../../../../../comments/service'
 import {
     apiError,
     MethodNotAllowedException,
+    NotFoundException,
     UnauthorizedException,
 } from '../../../../../../../utils/errors'
 
@@ -20,6 +24,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const documentTitle = req.query.documentTitle?.toString()
 
         switch (req.method) {
+            case 'GET': {
+                const [error, comments] = await getCommentsForDocument({
+                    documentTitle: decodeURIComponent(documentTitle),
+                    modelName: decodeURIComponent(modelName),
+                })
+
+                if (error || !comments.length) {
+                    throw new NotFoundException(
+                        `Comments not found for model '${modelName}' with document '${documentTitle}'.`
+                    )
+                }
+
+                return res.status(200).json(comments)
+            }
+
             case 'POST':
                 return res.status(200).json(
                     await createCommentAsUser(

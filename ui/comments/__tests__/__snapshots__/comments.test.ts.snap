@@ -1,0 +1,50 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Comments Service collection return all comments for an existing model and document with comments 1`] = `
+Array [
+  Object {
+    "_id": "634de0e7e9cb15002e80a9c8",
+    "createdBy": "Test User",
+    "createdOn": "2022-10-04T14:52:31.105Z",
+    "documentId": "Mock Alert w/ Comments & Troublesome Title",
+    "lastEdited": "2022-10-04T19:27:18.020Z",
+    "model": "Alerts",
+    "parentId": "root",
+    "resolved": true,
+    "resolvedBy": "othertestuser",
+    "text": "This is a comment, now with edits that improve the comment.",
+    "userUid": "testuser",
+    "version": "2022-08-15T15:17:04.357Z",
+  },
+  Object {
+    "_id": "633de0e7e9ca15002e8089c6",
+    "createdBy": "Test User",
+    "createdOn": "2022-10-05T19:54:15.575Z",
+    "documentId": "Mock Alert w/ Comments & Troublesome Title",
+    "lastEdited": "2022-10-05T19:54:36.114Z",
+    "model": "Alerts",
+    "parentId": "root",
+    "resolved": true,
+    "resolvedBy": "othertestuser",
+    "text": "This comment is will be resolved shortly. It also has edits!",
+    "userUid": "testuser",
+    "version": "2022-08-15T15:17:04.357Z",
+  },
+  Object {
+    "_id": "634035c35e1978002fead5a1",
+    "createdBy": "Test User",
+    "createdOn": "2022-10-07T14:20:51.049Z",
+    "documentId": "Mock Alert w/ Comments & Troublesome Title",
+    "model": "Alerts",
+    "parentId": "root",
+    "resolved": false,
+    "text": "Fresh comment that highlights an unresolved issue.",
+    "userUid": "testuser",
+    "version": "2022-08-15T15:17:04.357Z",
+  },
+]
+`;
+
+exports[`Comments Service collection returns no comments for an existing model and document without comments 1`] = `Array []`;
+
+exports[`Comments Service singleton returns no comment for an existing model and document without comments 1`] = `Array []`;
