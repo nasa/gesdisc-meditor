@@ -431,10 +431,10 @@ const EditDocumentPage = ({ user, version = null, theme, comments }) => {
 export async function getServerSideProps(ctx: NextPageContext) {
     const { documentTitle, modelName } = ctx.query
 
-    const [commentsError, comments] = await getCommentsForDocument({
-        documentTitle: decodeURIComponent(documentTitle.toString()),
-        modelName: decodeURIComponent(modelName.toString()),
-    })
+    const [commentsError, comments] = await getCommentsForDocument(
+        decodeURIComponent(documentTitle.toString()),
+        decodeURIComponent(modelName.toString())
+    )
 
     if (!!commentsError) {
         return {

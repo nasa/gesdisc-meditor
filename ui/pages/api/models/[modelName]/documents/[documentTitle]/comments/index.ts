@@ -21,15 +21,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             throw new UnauthorizedException()
         }
 
-        const modelName = req.query.modelName?.toString()
-        const documentTitle = req.query.documentTitle?.toString()
+        const modelName = req.query.modelName.toString()
+        const documentTitle = req.query.documentTitle.toString()
 
         switch (req.method) {
             case 'GET': {
-                const [error, comments] = await getCommentsForDocument({
-                    documentTitle: decodeURIComponent(documentTitle),
-                    modelName: decodeURIComponent(modelName),
-                })
+                const [error, comments] = await getCommentsForDocument(
+                    decodeURIComponent(documentTitle),
+                    decodeURIComponent(modelName)
+                )
 
                 if (error || !comments.length) {
                     throw new NotFoundException(
@@ -44,8 +44,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 const [error, newComment] = await createCommentAsUser(
                     {
                         ...req.body,
-                        documentId: documentTitle,
-                        model: modelName,
+                        documentId: decodeURIComponent(documentTitle),
+                        model: decodeURIComponent(modelName),
                     },
                     user
                 )

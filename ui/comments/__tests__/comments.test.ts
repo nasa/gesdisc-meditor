@@ -34,10 +34,10 @@ describe('Comments Service', () => {
     })
 
     test('collection return all comments for an existing model and document with comments', async () => {
-        const [error, comments] = await getCommentsForDocument({
-            documentTitle: 'Mock Alert w/ Comments & Troublesome Title',
-            modelName: 'Alerts',
-        })
+        const [error, comments] = await getCommentsForDocument(
+            'Mock Alert w/ Comments & Troublesome Title',
+            'Alerts'
+        )
 
         expect(error).toBeNull()
         expect(comments).toHaveLength(3)
@@ -45,10 +45,10 @@ describe('Comments Service', () => {
     })
 
     test('collection returns no comments for an existing model and document without comments', async () => {
-        const [error, comments] = await getCommentsForDocument({
-            documentTitle: 'Mock Alert without Comments',
-            modelName: 'Alerts',
-        })
+        const [error, comments] = await getCommentsForDocument(
+            'Mock Alert without Comments',
+            'Alerts'
+        )
 
         expect(error).toBeNull()
         expect(comments).toHaveLength(0)
@@ -59,11 +59,11 @@ describe('Comments Service', () => {
     test.skip('singleton returns one comment for an existing model and document with comments', async () => {
         const [mockComment] = mockComments
 
-        const [error, comment] = await getCommentForDocument({
-            commentId: mockComment._id,
-            documentTitle: mockComment.documentId,
-            modelName: mockComment.model,
-        })
+        const [error, comment] = await getCommentForDocument(
+            mockComment._id,
+            mockComment.documentId,
+            mockComment.model
+        )
 
         expect(error).toBeNull()
         expect(Object.keys(comment)).toHaveLength(11)
@@ -71,11 +71,11 @@ describe('Comments Service', () => {
     })
 
     test('singleton returns no comment for an existing model and document without comments', async () => {
-        const [error, comment] = await getCommentForDocument({
-            commentId: '5c269eaa7f40f1002dfe85f1',
-            documentTitle: 'Mock Alert w/ Comments & Troublesome Title',
-            modelName: 'Alerts',
-        })
+        const [error, comment] = await getCommentForDocument(
+            '5c269eaa7f40f1002dfe85f1',
+            'Mock Alert w/ Comments & Troublesome Title',
+            'Alerts'
+        )
 
         expect(error).toBeNull()
         expect(Object.keys(comment)).toHaveLength(0)

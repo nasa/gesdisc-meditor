@@ -41,22 +41,14 @@ export async function createCommentAsUser(
     }
 }
 
-export async function getCommentForDocument({
-    commentId,
-    documentTitle,
-    modelName,
-}: {
-    commentId: string
-    documentTitle: string
+export async function getCommentForDocument(
+    commentId: string,
+    documentTitle: string,
     modelName: string
-}): Promise<ErrorData<DocumentComment>> {
+): Promise<ErrorData<DocumentComment>> {
     try {
         const db = await getDb()
-        const query = getCommentForDocumentQuery({
-            commentId,
-            documentTitle,
-            modelName,
-        })
+        const query = getCommentForDocumentQuery(commentId, documentTitle, modelName)
 
         const [comment = {}] = await db
             .collection<DocumentComment>('Comments')
@@ -71,16 +63,13 @@ export async function getCommentForDocument({
     }
 }
 
-export async function getCommentsForDocument({
-    documentTitle,
-    modelName,
-}: {
-    documentTitle: string
+export async function getCommentsForDocument(
+    documentTitle: string,
     modelName: string
-}): Promise<ErrorData<DocumentComment[]>> {
+): Promise<ErrorData<DocumentComment[]>> {
     try {
         const db = await getDb()
-        const query = getCommentsForDocumentQuery({ documentTitle, modelName })
+        const query = getCommentsForDocumentQuery(documentTitle, modelName)
 
         const comments = await db
             .collection<DocumentComment>('Comments')
