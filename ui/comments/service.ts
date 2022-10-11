@@ -47,11 +47,6 @@ export async function createCommentAsUser(
     }
 }
 
-/**
- * user can update a comment's text property OR the resolved property
- *
- * resolving a comment is a special case as we'll need to resolve all the child comments as well, we'll leave that business logic here for calling the "resolveCommentAsUser" function
- */
 export async function updateCommentAsUser(
     commentChanges: UpdateCommentUserInput,
     user: User
@@ -71,7 +66,8 @@ export async function updateCommentAsUser(
         }
 
         if (commentChanges.resolved) {
-            // user is resolving a comment
+            // Resolving a comment is a special case since we need to resolve all the child comments as well.
+            // Can safely return early after resolving as the validation rules ensure we aren't calling update to resolve while also updating other properties.
             const resolvedComment = await CommentsDb.resolveComment(
                 commentChanges._id,
                 user.uid

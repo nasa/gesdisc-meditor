@@ -256,7 +256,7 @@ const EditDocumentPage = ({ user, version = null, theme, comments }) => {
     }
 
     async function resolveComment(comment) {
-        await mEditorApi.resolveComment(comment._id, user.uid)
+        await updateComment({ _id: comment._id, resolved: true })
 
         refreshDataInPlace(router)
     }
