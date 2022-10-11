@@ -1,3 +1,4 @@
+import { ObjectID } from 'mongodb'
 import getDb from '../lib/mongodb'
 import { DocumentComment, NewDocumentComment, UpdateCommentUserInput } from './types'
 
@@ -18,8 +19,8 @@ export default class CommentsDb {
     async updateOne(comment: UpdateCommentUserInput): Promise<DocumentComment> {
         const db = await getDb()
 
-        await db.collection<DocumentComment>(COMMENTS_COLLECTION).updateOne(
-            { _id: comment._id },
+        await db.collection(COMMENTS_COLLECTION).updateOne(
+            { _id: new ObjectID(comment._id) },
             {
                 $set: {
                     // specifically pull out the fields that can be updated
@@ -33,6 +34,6 @@ export default class CommentsDb {
 
         return (await db
             .collection(COMMENTS_COLLECTION)
-            .findOne({ _id: comment._id })) as DocumentComment
+            .findOne({ _id: new ObjectID(comment._id) })) as DocumentComment
     }
 }
