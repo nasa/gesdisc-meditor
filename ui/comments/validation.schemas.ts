@@ -17,9 +17,9 @@ export const NewDocumentCommentUserInputSchema = {
 }
 
 // user can only update the 'text' and 'resolved' fields of a comment after it is created
-// anyOf means they can update one or both, but if neither field is present an error will be thrown
+// oneOf means the user can either update the text field or the resolved field, but not both
 export const UpdateDocumentCommentUserInputSchema = {
-    anyOf: [
+    oneOf: [
         {
             properties: {
                 text: {

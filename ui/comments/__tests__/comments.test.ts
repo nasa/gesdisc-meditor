@@ -83,27 +83,30 @@ describe('Comments Service', () => {
         expect(comment).toMatchSnapshot()
     })
 
-    it('throws an UnauthorizedException if the user is logged out', async () => {
-        await expect(async () =>
-            createCommentAsUser(
-                {
-                    model: 'Foo',
-                    documentId: 'Bar',
-                    text: 'Testing unresolved comment by default',
-                },
-                {} as any // force logged out
-            )
-        ).rejects.toThrowErrorMatchingInlineSnapshot(`"Unauthorized"`)
+    it('returns an UnauthorizedException if the user is logged out', async () => {
+        const [error, comment] = await createCommentAsUser(
+            {
+                model: 'Foo',
+                documentId: 'Bar',
+                text: 'Testing unresolved comment by default',
+            },
+            {} as any // force logged out
+        )
+
+        expect(error).toMatchInlineSnapshot(`[Error: Unauthorized]`)
+        expect(comment).toBeNull()
     })
 
-    it('throws a BadRequestException if the comment is invalid', async () => {
-        await expect(async () => createCommentAsUser({} as any, BaconUser)).rejects
-            .toThrowErrorMatchingInlineSnapshot(`
-                    "0: instance requires property \\"documentId\\"
-                    1: instance requires property \\"model\\"
-                    2: instance requires property \\"text\\"
-                    "
-                `)
+    it('returns a list of validation errors if the comment is invalid', async () => {
+        const [error, comment] = await createCommentAsUser({} as any, BaconUser)
+
+        expect(error).toMatchInlineSnapshot(`
+            [Error: 0: instance requires property "documentId"
+            1: instance requires property "model"
+            2: instance requires property "text"
+            ]
+        `)
+        expect(comment).toBeNull()
     })
 
     it('creates an unresolved comment by default', async () => {
@@ -159,43 +162,62 @@ describe('Comments Service', () => {
         `)
     })
 
-    it('throws an UnauthorizedException if the user is logged out while updating a comment', async () => {
-        await expect(async () =>
-            updateCommentAsUser(
-                {
-                    _id: 'foo',
-                    resolved: true,
-                    text: 'bacon',
-                },
-                {} as any // force logged out
-            )
-        ).rejects.toThrowErrorMatchingInlineSnapshot(`"Unauthorized"`)
+    it('returns an UnauthorizedException if the user is logged out while updating a comment', async () => {
+        const [error, comment] = await updateCommentAsUser(
+            {
+                _id: 'foo',
+                resolved: true,
+                text: 'bacon',
+            },
+            {} as any // force logged out
+        )
+
+        expect(error).toMatchInlineSnapshot(`[Error: Unauthorized]`)
+        expect(comment).toBeNull()
     })
 
-    it('throws a BadRequestException if the comment updates are invalid', async () => {
-        await expect(async () => updateCommentAsUser({} as any, BaconUser)).rejects
-            .toThrowErrorMatchingInlineSnapshot(`
-                    "0: instance is not any of [subschema 0],[subschema 1]
-                    "
-                `)
+    it('returns a list of validation errors if the comment updates are invalid', async () => {
+        const [error, comment] = await updateCommentAsUser({} as any, BaconUser)
+
+        expect(error).toMatchInlineSnapshot(`
+            [Error: 0: instance is not exactly one from [subschema 0],[subschema 1]
+            ]
+        `)
+        expect(comment).toBeNull()
     })
 
-    it('updates a comment with the user provided values', async () => {
+    it('returns a BadRequestException if trying to update `text` and `resolved` at the same time', async () => {
+        const [error, comment] = await updateCommentAsUser(
+            {
+                _id: 'foo',
+                resolved: true,
+                text: 'Bacon',
+            },
+            BaconUser
+        )
+
+        expect(error).toMatchInlineSnapshot(`
+            [Error: 0: instance is not exactly one from [subschema 0],[subschema 1]
+            ]
+        `)
+        expect(comment).toBeNull()
+    })
+
+    it('updates a comments text', async () => {
         const { _id, ...mockComment } = mockComments[0]
 
-        const { insertedId } = await db.collection('Comments').insertOne(mockComment)
+        const { insertedId } = await db.collection('Comments').insertOne(mockComment) // make sure we have a comment in the db to work with
 
         const [error, { _id: updatedId, ...updatedComment }] =
             await updateCommentAsUser(
                 {
-                    _id: insertedId.toString(),
-                    resolved: false,
+                    _id: insertedId,
                     text: 'Bacon',
                 },
                 BaconUser
             )
 
-        await db.collection('Comments').deleteOne({ _id: insertedId })
+        await db.collection('Comments').deleteOne({ _id: insertedId }) // delete the comment we added
 
         expect(error).toBeNull()
         expect(updatedComment).toMatchInlineSnapshot(`
@@ -206,7 +228,7 @@ describe('Comments Service', () => {
               "lastEdited": "2022-10-04T19:27:18.020Z",
               "model": "Alerts",
               "parentId": "root",
-              "resolved": false,
+              "resolved": true,
               "resolvedBy": "othertestuser",
               "text": "Bacon",
               "userUid": "testuser",

@@ -125,12 +125,6 @@ http {
             include /etc/nginx/proxy.conf;
         }
 
-
-        location /meditor/api/resolveComment {
-            proxy_pass         http://api/meditor/api/resolveComment;
-            include /etc/nginx/proxy.conf;
-        }
-
         location /meditor/api/login {
             proxy_pass         http://api/meditor/api/login;
             include /etc/nginx/proxy.conf;

@@ -12,6 +12,7 @@ export type DocumentComment = {
     /** MongoDB Id */
     parentId: string
     resolved: boolean
+    resolvedBy?: string
     text: string
     userUid: string
     /** date as ISO string */
