@@ -12,8 +12,6 @@ import { ErrorData } from '../declarations'
 import { getCommentForDocumentQuery, getCommentsForDocumentQuery } from './queries'
 import { DocumentComment } from './types'
 
-const commentsDb = new CommentsDb()
-
 export async function createCommentAsUser(
     newComment: CreateCommentUserInput,
     user: User
@@ -29,7 +27,7 @@ export async function createCommentAsUser(
     }
 
     try {
-        const comment = await commentsDb.insertOne({
+        const comment = await CommentsDb.insertOne({
             ...newComment, // validated user input
             parentId: newComment.parentId || 'root', // TODO: Why not use undefined rather than 'root'? (refactor opportunity)
             userUid: user.uid,
@@ -64,7 +62,7 @@ export async function updateCommentAsUser(
     }
 
     try {
-        const updatedComment = await commentsDb.updateOne(commentChanges)
+        const updatedComment = await CommentsDb.updateOne(commentChanges)
 
         return [null, makeSafeObjectIDs(updatedComment)]
     } catch (err: any) {

@@ -48,3 +48,5 @@ Array [
 exports[`Comments Service collection returns no comments for an existing model and document without comments 1`] = `Array []`;
 
 exports[`Comments Service singleton returns no comment for an existing model and document without comments 1`] = `Object {}`;
+
+exports[`Comments Service singleton returns one comment for an existing model and document with comments 1`] = `Object {}`;

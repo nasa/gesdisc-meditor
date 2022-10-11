@@ -51,8 +51,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 )
 
                 if (error) {
-                    // if we see an error here, it's most likely due to a database issue. Without exposing the error itself, the best we can do
-                    // is ask the user to try again
+                    // if we see an error here, it's most likely due to a database issue. Without exposing the error itself, the best we can do is ask the user to try again
                     throw new BadRequestException(
                         'An unexpected error occurred while creating the comment, please try your request again later'
                     )

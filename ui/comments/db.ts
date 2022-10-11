@@ -4,7 +4,7 @@ import { DocumentComment, NewDocumentComment, UpdateCommentUserInput } from './t
 
 const COMMENTS_COLLECTION = 'Comments'
 
-export default class CommentsDb {
+class CommentsDb {
     async insertOne(comment: NewDocumentComment): Promise<DocumentComment> {
         const db = await getDb()
         const { insertedId } = await db
@@ -37,3 +37,5 @@ export default class CommentsDb {
         })) as DocumentComment
     }
 }
+
+export default new CommentsDb()
