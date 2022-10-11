@@ -1,8 +1,10 @@
 import { useLazyQuery } from '@apollo/react-hooks'
 import gql from 'graphql-tag'
 import cloneDeep from 'lodash.clonedeep'
+import { NextPageContext } from 'next'
 import { useRouter } from 'next/router'
 import { useContext, useEffect, useState } from 'react'
+import { getCommentsForDocument } from '../../../comments/service'
 import { AppContext } from '../../../components/app-store'
 import { Breadcrumb, Breadcrumbs } from '../../../components/breadcrumbs'
 import DocumentComments from '../../../components/document/document-comments'
@@ -17,6 +19,7 @@ import JsonDiffViewer from '../../../components/json-diff-viewer'
 import PageTitle from '../../../components/page-title'
 import withAuthentication from '../../../components/with-authentication'
 import { withApollo } from '../../../lib/apollo'
+import { refreshDataInPlace } from '../../../lib/next'
 import { treeify } from '../../../lib/treeify'
 import { urlDecode } from '../../../lib/url'
 import { useLocalStorage } from '../../../lib/use-localstorage.hook'
@@ -71,21 +74,6 @@ const MODEL_QUERY = gql`
     }
 `
 
-const COMMENTS_QUERY = gql`
-    query getComments($modelName: String!, $title: String!) {
-        documentComments(modelName: $modelName, title: $title) {
-            _id
-            parentId
-            userUid
-            text
-            resolved
-            resolvedBy
-            createdBy
-            createdOn
-        }
-    }
-`
-
 const HISTORY_QUERY = gql`
     query getHistory($modelName: String!, $title: String!) {
         documentHistory(modelName: $modelName, title: $title) {
@@ -102,7 +90,7 @@ const HISTORY_QUERY = gql`
     }
 `
 
-const EditDocumentPage = ({ user, version = null, theme }) => {
+const EditDocumentPage = ({ user, version = null, theme, comments }) => {
     const router = useRouter()
     const params = router.query
     const documentTitle = urlDecode(params.documentTitle as string)
@@ -115,7 +103,6 @@ const EditDocumentPage = ({ user, version = null, theme }) => {
         'documentEditActivePanel',
         null
     )
-    const [treeifiedComments, setTreeifiedComments] = useState([])
     const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
 
     const [loadDocument, documentResponse] = useLazyQuery(DOCUMENT_QUERY, {
@@ -123,10 +110,6 @@ const EditDocumentPage = ({ user, version = null, theme }) => {
     })
 
     const [loadModel, modelResponse] = useLazyQuery(MODEL_QUERY, {
-        fetchPolicy: 'network-only',
-    })
-
-    const [loadComments, commentsResponse] = useLazyQuery(COMMENTS_QUERY, {
         fetchPolicy: 'network-only',
     })
 
@@ -158,7 +141,8 @@ const EditDocumentPage = ({ user, version = null, theme }) => {
             })
         }
 
-        reloadComments()
+        refreshDataInPlace(router)
+
         if (!historyResponse.data) {
             loadHistory({
                 variables: {
@@ -168,10 +152,6 @@ const EditDocumentPage = ({ user, version = null, theme }) => {
             })
         }
     }, [documentResponse.data])
-
-    useEffect(() => {
-        setTreeifiedComments(treeify(commentsResponse?.data?.documentComments))
-    }, [commentsResponse.data])
 
     const currentPrivileges = modelResponse?.data?.model?.workflow
         ? user.privilegesForModelAndWorkflowNode(
@@ -237,15 +217,6 @@ const EditDocumentPage = ({ user, version = null, theme }) => {
             : reloadDocument()
     }
 
-    async function reloadComments() {
-        loadComments({
-            variables: {
-                modelName,
-                title: documentTitle,
-            },
-        })
-    }
-
     async function saveComment(comment) {
         const commentsApiUrl = `/meditor/api/models/${encodeURIComponent(
             modelName
@@ -265,12 +236,13 @@ const EditDocumentPage = ({ user, version = null, theme }) => {
             await mEditorApi.editComment(comment._id, comment.text)
         }
 
-        reloadComments()
+        refreshDataInPlace(router)
     }
 
     async function resolveComment(comment) {
         await mEditorApi.resolveComment(comment._id, user.uid)
-        reloadComments()
+
+        refreshDataInPlace(router)
     }
 
     function togglePanel(panel) {
@@ -352,7 +324,7 @@ const EditDocumentPage = ({ user, version = null, theme }) => {
                 togglePanelOpen={togglePanel}
                 toggleJsonDiffer={toggleJsonDiffer}
                 privileges={currentPrivileges}
-                comments={commentsResponse?.data?.documentComments}
+                comments={comments}
                 history={historyResponse?.data?.documentHistory}
             />
 
@@ -394,7 +366,7 @@ const EditDocumentPage = ({ user, version = null, theme }) => {
                 >
                     <DocumentComments
                         user={user}
-                        comments={treeifiedComments}
+                        comments={comments}
                         saveComment={saveComment}
                         resolveComment={resolveComment}
                     />
@@ -456,4 +428,23 @@ const EditDocumentPage = ({ user, version = null, theme }) => {
     )
 }
 
-export default withApollo({ ssr: true })(withAuthentication()(EditDocumentPage))
+export async function getServerSideProps(ctx: NextPageContext) {
+    const { documentTitle, modelName } = ctx.query
+
+    const [commentsError, comments] = await getCommentsForDocument({
+        documentTitle: decodeURIComponent(documentTitle.toString()),
+        modelName: decodeURIComponent(modelName.toString()),
+    })
+
+    if (!!commentsError) {
+        return {
+            props: { comments: null },
+        }
+    }
+
+    return {
+        props: { comments: treeify(comments) },
+    }
+}
+
+export default withApollo({ ssr: false })(withAuthentication()(EditDocumentPage))

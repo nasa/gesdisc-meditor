@@ -15,7 +15,7 @@ const options: MongoClientOptions = {
 
 let mongoClient: MongoClient
 
-export let mongoClientPromise: Promise<MongoClient>
+let mongoClientPromise: Promise<MongoClient>
 
 if (process.env.NODE_ENV === 'development') {
     // In development mode, use a global variable so that the value
@@ -37,4 +37,10 @@ const getDb = async (dbName?: string) => {
     return (await mongoClientPromise).db(dbName || process.env.DB_NAME)
 }
 
-export default getDb
+// Next doesn't know how to process the Mongo _id property, as it's an object, not a string. So this hack parses ahead of time
+// https://github.com/vercel/next.js/issues/11993
+function makeSafeObjectIDs(records: Record<string, any> | Record<string, any>[]) {
+    return JSON.parse(JSON.stringify(records))
+}
+
+export { getDb as default, makeSafeObjectIDs, mongoClientPromise }

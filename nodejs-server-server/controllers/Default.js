@@ -17,18 +17,6 @@ module.exports.changeDocumentState = function changeDocumentState(req, res, next
         })
 }
 
-module.exports.getComments = function getComments(req, res, next) {
-    var title = req.swagger.params['title'].value
-    var model = req.swagger.params['model'].value
-    Default.getComments(title, model)
-        .then(function (response) {
-            utils.writeJson(res, response)
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response)
-        })
-}
-
 module.exports.getCsrfToken = function getCsrfToken(req, res, next) {
     Default.getCsrfToken()
         .then(function (response) {

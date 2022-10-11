@@ -12,8 +12,8 @@
  * Do not edit the class manually.
  */
 
-import * as url from 'url'
 import * as portableFetch from 'portable-fetch'
+import * as url from 'url'
 import { Configuration } from './configuration'
 
 const BASE_PATH = ''
@@ -775,62 +775,6 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
             )
 
             localVarRequestOptions.credentials = 'include'
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            }
-        },
-        /**
-         * Gets comments for document
-         * @summary Gets comments for document
-         * @param {string} title Title of the document
-         * @param {string} model Model of the document
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getComments(title: string, model: string, options: any = {}): FetchArgs {
-            // verify required parameter 'title' is not null or undefined
-            if (title === null || title === undefined) {
-                throw new RequiredError(
-                    'title',
-                    'Required parameter title was null or undefined when calling getComments.'
-                )
-            }
-            // verify required parameter 'model' is not null or undefined
-            if (model === null || model === undefined) {
-                throw new RequiredError(
-                    'model',
-                    'Required parameter model was null or undefined when calling getComments.'
-                )
-            }
-            const localVarPath = `/getComments`
-            const localVarUrlObj = url.parse(localVarPath, true)
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options)
-            const localVarHeaderParameter = {} as any
-            const localVarQueryParameter = {} as any
-
-            if (title !== undefined) {
-                localVarQueryParameter['title'] = title
-            }
-
-            if (model !== undefined) {
-                localVarQueryParameter['model'] = model
-            }
-
-            localVarUrlObj.query = Object.assign(
-                {},
-                localVarUrlObj.query,
-                localVarQueryParameter,
-                options.query
-            )
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search
-            localVarRequestOptions.headers = Object.assign(
-                {},
-                localVarHeaderParameter,
-                options.headers
-            )
 
             return {
                 url: url.format(localVarUrlObj),
@@ -1613,40 +1557,6 @@ export const DefaultApiFp = function (configuration?: Configuration) {
             }
         },
         /**
-         * Gets comments for document
-         * @summary Gets comments for document
-         * @param {string} title Title of the document
-         * @param {string} model Model of the document
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getComments(
-            title: string,
-            model: string,
-            options?: any
-        ): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
-            const localVarFetchArgs = DefaultApiFetchParamCreator(
-                configuration
-            ).getComments(title, model, options)
-            return (
-                fetch: FetchAPI = portableFetch,
-                basePath: string = BASE_PATH
-            ) => {
-                return configuration
-                    .fetch(
-                        basePath + localVarFetchArgs.url,
-                        localVarFetchArgs.options
-                    )
-                    .then(response => {
-                        if (response.status >= 200 && response.status < 300) {
-                            return response.json()
-                        } else {
-                            throw response
-                        }
-                    })
-            }
-        },
-        /**
          * Gets a new csrf token
          * @summary Gets a new csrf token
          * @param {*} [options] Override http request option.
@@ -2132,21 +2042,6 @@ export const DefaultApiFactory = function (
             )(fetch, basePath)
         },
         /**
-         * Gets comments for document
-         * @summary Gets comments for document
-         * @param {string} title Title of the document
-         * @param {string} model Model of the document
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getComments(title: string, model: string, options?: any) {
-            return DefaultApiFp(configuration).getComments(
-                title,
-                model,
-                options
-            )(fetch, basePath)
-        },
-        /**
          * Gets a new csrf token
          * @summary Gets a new csrf token
          * @param {*} [options] Override http request option.
@@ -2378,23 +2273,6 @@ export class DefaultApi extends BaseAPI {
         return DefaultApiFp(this.configuration).editComment(
             id,
             text,
-            options
-        )(this.fetch, this.basePath)
-    }
-
-    /**
-     * Gets comments for document
-     * @summary Gets comments for document
-     * @param {string} title Title of the document
-     * @param {string} model Model of the document
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DefaultApi
-     */
-    public getComments(title: string, model: string, options?: any) {
-        return DefaultApiFp(this.configuration).getComments(
-            title,
-            model,
             options
         )(this.fetch, this.basePath)
     }

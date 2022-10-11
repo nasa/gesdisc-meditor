@@ -1,0 +1,42 @@
+[
+    {
+        "_id": "634de0e7e9cb15002e80a9c8",
+        "text": "This is a comment, now with edits that improve the comment.",
+        "resolved": true,
+        "parentId": "root",
+        "documentId": "Mock Alert w/ Comments & Troublesome Title",
+        "model": "Alerts",
+        "version": "2022-08-15T15:17:04.357Z",
+        "createdBy": "Test User",
+        "userUid": "testuser",
+        "createdOn": "2022-10-04T14:52:31.105Z",
+        "lastEdited": "2022-10-04T19:27:18.020Z",
+        "resolvedBy": "othertestuser"
+    },
+    {
+        "_id": "633de0e7e9ca15002e8089c6",
+        "text": "This comment is will be resolved shortly. It also has edits!",
+        "resolved": true,
+        "parentId": "root",
+        "documentId": "Mock Alert w/ Comments & Troublesome Title",
+        "model": "Alerts",
+        "version": "2022-08-15T15:17:04.357Z",
+        "createdBy": "Test User",
+        "userUid": "testuser",
+        "createdOn": "2022-10-05T19:54:15.575Z",
+        "lastEdited": "2022-10-05T19:54:36.114Z",
+        "resolvedBy": "othertestuser"
+    },
+    {
+        "_id": "634035c35e1978002fead5a1",
+        "text": "Fresh comment that highlights an unresolved issue.",
+        "resolved": false,
+        "parentId": "root",
+        "documentId": "Mock Alert w/ Comments & Troublesome Title",
+        "model": "Alerts",
+        "version": "2022-08-15T15:17:04.357Z",
+        "createdBy": "Test User",
+        "userUid": "testuser",
+        "createdOn": "2022-10-07T14:20:51.049Z"
+    }
+]

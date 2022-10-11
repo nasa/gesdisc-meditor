@@ -1226,18 +1226,6 @@ function editCommentWithId(params, uid) {
     })
 }
 
-//Exported method to get comments for document
-module.exports.getComments = function getComments(req, res, next) {
-    var params = getSwaggerParams(req)
-    getCommentsforDoc(params)
-        .then(function (response) {
-            utils.writeJson(res, response)
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response)
-        })
-}
-
 //Exported method to resolve comment
 module.exports.resolveComment = function resolveComment(req, res, next) {
     var params = getSwaggerParams(req)
@@ -1261,29 +1249,4 @@ module.exports.editComment = function editComment(req, res, next) {
         .catch(function (response) {
             utils.writeJson(res, { code: 500, message: response }, 500)
         })
-}
-
-// Internal method to list comments
-function getCommentsforDoc(params) {
-    return new Promise(function (resolve, reject) {
-        MongoClient.connect(MongoUrl, function (err, db) {
-            if (err) {
-                console.log(err)
-                throw err
-            }
-            var dbo = db.db(DbName)
-            dbo.collection('Comments')
-                .find({
-                    $and: [{ documentId: params.title }, { model: params.model }],
-                })
-                .toArray(function (err, res) {
-                    if (err) {
-                        console.log(err)
-                        throw err
-                    }
-                    db.close()
-                    resolve(res)
-                })
-        })
-    })
 }
