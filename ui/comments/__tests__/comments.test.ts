@@ -22,13 +22,15 @@ describe('Comments Service', () => {
 
     beforeAll(async () => {
         db = await getDb()
+    })
 
+    beforeEach(async () => {
         await db.collection('Models').insertOne(alertsModel)
         await db.collection('Alerts').insertMany(mockAlerts)
         await db.collection('Comments').insertMany(mockComments)
     })
 
-    afterAll(async () => {
+    afterEach(async () => {
         await db.collection('Models').deleteMany({})
         await db.collection('Alerts').deleteMany({})
         await db.collection('Comments').deleteMany({})
@@ -204,36 +206,31 @@ describe('Comments Service', () => {
     })
 
     it('updates a comments text', async () => {
-        const { _id, ...mockComment } = mockComments[0]
+        // insert a new comment
+        const [_error, { _id: insertedId, ...newComment }] =
+            await createCommentAsUser(
+                {
+                    model: 'Foo',
+                    documentId: 'Bar',
+                    text: 'This is my sample text that should be changed!',
+                },
+                BaconUser
+            )
 
-        const { insertedId } = await db.collection('Comments').insertOne(mockComment) // make sure we have a comment in the db to work with
-
+        // attempt to update it
         const [error, { _id: updatedId, ...updatedComment }] =
             await updateCommentAsUser(
                 {
-                    _id: insertedId,
+                    _id: insertedId.toString(),
                     text: 'Bacon',
                 },
                 BaconUser
             )
 
-        await db.collection('Comments').deleteOne({ _id: insertedId }) // delete the comment we added
-
         expect(error).toBeNull()
-        expect(updatedComment).toMatchInlineSnapshot(`
-            Object {
-              "createdBy": "Test User",
-              "createdOn": "2022-10-04T14:52:31.105Z",
-              "documentId": "Mock Alert w/ Comments & Troublesome Title",
-              "lastEdited": "2022-10-04T19:27:18.020Z",
-              "model": "Alerts",
-              "parentId": "root",
-              "resolved": true,
-              "resolvedBy": "othertestuser",
-              "text": "Bacon",
-              "userUid": "testuser",
-              "version": "2022-08-15T15:17:04.357Z",
-            }
-        `)
+        expect(updatedComment).toEqual({
+            ...newComment,
+            text: 'Bacon',
+        })
     })
 })

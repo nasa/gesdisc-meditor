@@ -5,11 +5,11 @@ import { DocumentComment, NewDocumentComment } from './types'
 const COMMENTS_COLLECTION = 'Comments'
 
 class CommentsDb {
-    async getCommentById(commentId: string | ObjectID): Promise<DocumentComment> {
+    async getCommentById(commentId: string): Promise<DocumentComment> {
         const db = await getDb()
 
         const comment = (await db.collection(COMMENTS_COLLECTION).findOne({
-            _id: ObjectID.isValid(commentId) ? commentId : new ObjectID(commentId),
+            _id: new ObjectID(commentId),
         })) as DocumentComment
 
         return makeSafeObjectIDs(comment)
@@ -21,7 +21,7 @@ class CommentsDb {
             .collection<NewDocumentComment>(COMMENTS_COLLECTION)
             .insertOne(comment)
 
-        return this.getCommentById(insertedId)
+        return this.getCommentById(insertedId.toString())
     }
 
     async updateCommentText(
