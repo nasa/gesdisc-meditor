@@ -8,11 +8,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             case 'GET': {
                 const { commentId, documentTitle, modelName } = req.query
 
-                const [error, comment] = await getCommentForDocument({
-                    commentId: decodeURIComponent(commentId.toString()),
-                    documentTitle: decodeURIComponent(documentTitle.toString()),
-                    modelName: decodeURIComponent(modelName.toString()),
-                })
+                const [error, comment] = await getCommentForDocument(
+                    decodeURIComponent(commentId.toString()),
+                    decodeURIComponent(documentTitle.toString()),
+                    decodeURIComponent(modelName.toString())
+                )
 
                 if (error || !Object.keys(comment).length) {
                     throw new NotFoundException(

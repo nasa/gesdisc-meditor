@@ -3,22 +3,14 @@ import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
 import { getCommentForDocumentQuery, getCommentsForDocumentQuery } from './queries'
 import { DocumentComment } from './types'
 
-async function getCommentForDocument({
-    commentId,
-    documentTitle,
-    modelName,
-}: {
-    commentId: string
-    documentTitle: string
+async function getCommentForDocument(
+    commentId: string,
+    documentTitle: string,
     modelName: string
-}): Promise<ErrorData<DocumentComment>> {
+): Promise<ErrorData<DocumentComment>> {
     try {
         const db = await getDb()
-        const query = getCommentForDocumentQuery({
-            commentId,
-            documentTitle,
-            modelName,
-        })
+        const query = getCommentForDocumentQuery(commentId, documentTitle, modelName)
 
         const [comment = {}] = await db
             .collection<DocumentComment>('Comments')
@@ -33,16 +25,13 @@ async function getCommentForDocument({
     }
 }
 
-async function getCommentsForDocument({
-    documentTitle,
-    modelName,
-}: {
-    documentTitle: string
+async function getCommentsForDocument(
+    documentTitle: string,
     modelName: string
-}): Promise<ErrorData<DocumentComment[]>> {
+): Promise<ErrorData<DocumentComment[]>> {
     try {
         const db = await getDb()
-        const query = getCommentsForDocumentQuery({ documentTitle, modelName })
+        const query = getCommentsForDocumentQuery(documentTitle, modelName)
 
         const comments = await db
             .collection<DocumentComment>('Comments')
