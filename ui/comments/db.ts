@@ -15,6 +15,50 @@ class CommentsDb {
         return makeSafeObjectIDs(comment)
     }
 
+    async getCommentForDocument(
+        commentId: string,
+        documentTitle: string,
+        modelName: string
+    ) {
+        const db = await getDb()
+
+        const query: any[] = [
+            {
+                $match: {
+                    $and: [
+                        {
+                            _id: new ObjectID(commentId),
+                            documentId: documentTitle,
+                            model: modelName,
+                        },
+                    ],
+                },
+            },
+        ]
+
+        const [comment = {}] = await db
+            .collection<DocumentComment>('Comments')
+            .aggregate(query, { allowDiskUse: true })
+            .toArray()
+
+        return makeSafeObjectIDs(comment)
+    }
+
+    async getCommentsForDocument(documentTitle: string, modelName: string) {
+        const db = await getDb()
+
+        const query: any[] = [
+            { $match: { $and: [{ documentId: documentTitle, model: modelName }] } },
+        ]
+
+        const comments = await db
+            .collection<DocumentComment>('Comments')
+            .aggregate(query, { allowDiskUse: true })
+            .toArray()
+
+        return makeSafeObjectIDs(comments)
+    }
+
     async insertOne(comment: NewDocumentComment): Promise<DocumentComment> {
         const db = await getDb()
         const { insertedId } = await db
