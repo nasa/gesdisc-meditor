@@ -1,13 +1,13 @@
-import styles from './document-header.module.css'
-import ModelIcon from '../model-icon'
-import DocumentStateBadge from './document-state-badge'
-import Button from 'react-bootstrap/Button'
 import Badge from 'react-bootstrap/Badge'
+import Button from 'react-bootstrap/Button'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Tooltip from 'react-bootstrap/Tooltip'
-import { MdHistory, MdComment, MdCompare } from 'react-icons/md'
-import { FcFlowChart } from 'react-icons/fc'
 import { BsBraces } from 'react-icons/bs'
+import { FcFlowChart } from 'react-icons/fc'
+import { MdComment, MdCompare, MdHistory } from 'react-icons/md'
+import ModelIcon from '../model-icon'
+import styles from './document-header.module.css'
+import DocumentStateBadge from './document-state-badge'
 
 const DocumentHeader = ({
     activePanel = null,
@@ -21,6 +21,8 @@ const DocumentHeader = ({
     comments = [],
     history = [],
 }) => {
+    const numberOfComments = comments === null ? 0 : comments.length
+
     return (
         <div>
             <div className={styles.title}>
@@ -48,7 +50,7 @@ const DocumentHeader = ({
                             >
                                 <MdComment />
                                 <Badge className={styles.badge} variant="light">
-                                    {comments.length}
+                                    {numberOfComments}
                                 </Badge>
                                 <span className="sr-only">Show Comments Panel</span>
                             </Button>

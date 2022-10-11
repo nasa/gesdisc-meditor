@@ -1,3 +1,4 @@
+import { ErrorData } from '../declarations'
 import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
 import { getCommentForDocumentQuery, getCommentsForDocumentQuery } from './queries'
 import { DocumentComment } from './types'
@@ -10,16 +11,26 @@ async function getCommentForDocument({
     commentId: string
     documentTitle: string
     modelName: string
-}): Promise<DocumentComment[]> {
-    const db = await getDb()
-    const query = getCommentForDocumentQuery({ commentId, documentTitle, modelName })
+}): Promise<ErrorData<DocumentComment>> {
+    try {
+        const db = await getDb()
+        const query = getCommentForDocumentQuery({
+            commentId,
+            documentTitle,
+            modelName,
+        })
 
-    const comments = await db
-        .collection<DocumentComment>('Comments')
-        .aggregate(query, { allowDiskUse: true })
-        .toArray()
+        const [comment = {}] = await db
+            .collection<DocumentComment>('Comments')
+            .aggregate(query, { allowDiskUse: true })
+            .toArray()
 
-    return makeSafeObjectIDs(comments)
+        return [null, makeSafeObjectIDs(comment)]
+    } catch (error) {
+        console.error(error)
+
+        return [error, null]
+    }
 }
 
 async function getCommentsForDocument({
@@ -28,16 +39,22 @@ async function getCommentsForDocument({
 }: {
     documentTitle: string
     modelName: string
-}): Promise<DocumentComment[]> {
-    const db = await getDb()
-    const query = getCommentsForDocumentQuery({ documentTitle, modelName })
+}): Promise<ErrorData<DocumentComment[]>> {
+    try {
+        const db = await getDb()
+        const query = getCommentsForDocumentQuery({ documentTitle, modelName })
 
-    const comments = await db
-        .collection<DocumentComment>('Comments')
-        .aggregate(query, { allowDiskUse: true })
-        .toArray()
+        const comments = await db
+            .collection<DocumentComment>('Comments')
+            .aggregate(query, { allowDiskUse: true })
+            .toArray()
 
-    return makeSafeObjectIDs(comments)
+        return [null, makeSafeObjectIDs(comments)]
+    } catch (error) {
+        console.error(error)
+
+        return [error, null]
+    }
 }
 
 export { getCommentForDocument, getCommentsForDocument }

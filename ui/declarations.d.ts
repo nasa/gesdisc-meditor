@@ -1,19 +1,6 @@
-import { Components, JSX as LocalJSX } from '@gesdisc/meditor-components/loader'
-import { DetailedHTMLProps, HTMLAttributes } from 'react'
+import { JSX as LocalJSX } from '@gesdisc/meditor-components/loader'
 import type { CKEditor } from 'ckeditor4-react'
-
-type StencilProps<T> = {
-    [P in keyof T]?: Omit<T[P], 'ref'>
-}
-
-type gReactProps<T> = {
-    [P in keyof T]?: DetailedHTMLProps<HTMLAttributes<T[P]>, T[P]>
-}
-
-type StencilToReact<
-    T = LocalJSX.IntrinsicElements,
-    U = HTMLElementTagNameMap
-> = StencilProps<T> & ReactProps<U>
+import { DetailedHTMLProps, HTMLAttributes } from 'react'
 
 declare global {
     export namespace JSX {
@@ -22,3 +9,18 @@ declare global {
 
     var CKEDITOR: CKEditor
 }
+
+export type ErrorData<T> = [Error | null, T | null]
+
+type gReactProps<T> = {
+    [P in keyof T]?: DetailedHTMLProps<HTMLAttributes<T[P]>, T[P]>
+}
+
+type StencilProps<T> = {
+    [P in keyof T]?: Omit<T[P], 'ref'>
+}
+
+type StencilToReact<
+    T = LocalJSX.IntrinsicElements,
+    U = HTMLElementTagNameMap
+> = StencilProps<T> & ReactProps<U>
