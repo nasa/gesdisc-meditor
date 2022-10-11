@@ -52,7 +52,10 @@ class CommentsDb {
             {
                 $or: [
                     { _id: new ObjectID(commentId) }, // resolve the requested comment
-                    { parentId: new ObjectID(commentId) }, // also resolve any child comments
+
+                    // also resolve any child comments
+                    // TODO: confusingly, parentId is a string, not an ObjectID. This would make more sense as an ObjectID
+                    { parentId: commentId },
                 ],
             },
             { $set: { resolved: true, resolvedBy: resolvedByUserId } }

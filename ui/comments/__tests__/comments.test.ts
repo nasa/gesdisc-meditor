@@ -9,6 +9,7 @@ import {
 } from '../service'
 import mockComments from './__fixtures__/comments.json'
 import BaconUser from '../../auth/__test__/__fixtures__/bacon-user.json'
+import CommentsDB from '../db'
 
 const mockAlerts = [
     {
@@ -231,6 +232,58 @@ describe('Comments Service', () => {
         expect(updatedComment).toEqual({
             ...newComment,
             text: 'Bacon',
+        })
+    })
+
+    it('resolves a comment and all its child comments', async () => {
+        const [_p, parentComment] = await createCommentAsUser(
+            {
+                model: 'Foo',
+                documentId: 'Bar',
+                text: 'I am a parent, I should be resolved',
+            },
+            BaconUser
+        )
+
+        const [_c, childComment] = await createCommentAsUser(
+            {
+                model: 'Foo',
+                documentId: 'Bar',
+                text: 'I am a child of the parent comment, I should be resolved',
+                parentId: parentComment._id,
+            },
+            BaconUser
+        )
+
+        const [_s, siblingComment] = await createCommentAsUser(
+            {
+                model: 'Foo',
+                documentId: 'Bar',
+                text: 'I am a sibling, I should NOT be resolved',
+            },
+            BaconUser
+        )
+
+        // attempt to resolve the parent comment
+        const [error] = await updateCommentAsUser(
+            {
+                _id: parentComment._id.toString(),
+                resolved: true,
+            },
+            BaconUser
+        )
+
+        expect(error).toBeNull()
+        expect(await CommentsDB.getCommentById(parentComment._id)).toMatchObject({
+            resolved: true,
+            resolvedBy: BaconUser.uid,
+        })
+        expect(await CommentsDB.getCommentById(childComment._id)).toMatchObject({
+            resolved: true,
+            resolvedBy: BaconUser.uid,
+        })
+        expect(await CommentsDB.getCommentById(siblingComment._id)).toMatchObject({
+            resolved: false,
         })
     })
 })
