@@ -5,15 +5,7 @@ import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
 import Image from 'react-bootstrap/Image'
 import { IoMdEye, IoMdEyeOff } from 'react-icons/io'
-import {
-    MdCheck,
-    MdClose,
-    MdComment,
-    MdEdit,
-    MdFeedback,
-    MdReply,
-    MdSend,
-} from 'react-icons/md'
+import { MdCheck, MdClose, MdComment, MdEdit, MdReply, MdSend } from 'react-icons/md'
 import IconButton from '../icon-button'
 import styles from './document-comments.module.css'
 
@@ -268,15 +260,8 @@ const DocumentComments = ({ user, comments = [], saveComment, resolveComment }) 
             {comments === null ? (
                 <p className="text-center py-4 text-danger">
                     mEditor had an error getting comments for this document. mEditor
-                    has recorded the error, but you can still
-                    <Button
-                        className="ml-1 p-0"
-                        variant="link"
-                        href="mailto:gsfc-uui-dev-disc@lists.nasa.gov"
-                    >
-                        <MdFeedback size="1.6em" className="mr-1" />
-                        Leave Feedback
-                    </Button>
+                    has recorded the error, but you can still leave feedback using the
+                    link at the top of the page.
                 </p>
             ) : (
                 <>
