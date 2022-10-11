@@ -50,23 +50,37 @@ export async function updateCommentAsUser(
     commentChanges: UpdateCommentUserInput,
     user: User
 ): Promise<ErrorData<DocumentComment>> {
-    if (!user?.uid) {
-        throw new UnauthorizedException()
-    }
-
-    const validationResult = validate(
-        commentChanges,
-        UpdateDocumentCommentUserInputSchema
-    )
-
-    if (!validationResult.valid) {
-        throw new BadRequestException(validationResult.toString())
-    }
-
     try {
-        const updatedComment = await CommentsDb.updateOne(commentChanges)
+        if (!user?.uid) {
+            throw new UnauthorizedException()
+        }
 
-        return [null, makeSafeObjectIDs(updatedComment)]
+        const validationResult = validate(
+            commentChanges,
+            UpdateDocumentCommentUserInputSchema
+        )
+
+        if (!validationResult.valid) {
+            throw new BadRequestException(validationResult.toString())
+        }
+
+        if (commentChanges.resolved) {
+            // Resolving a comment is a special case since we need to resolve all the child comments as well.
+            // Can safely return early after resolving as the validation rules ensure we aren't calling update to resolve while also updating other properties.
+            const resolvedComment = await CommentsDb.resolveComment(
+                commentChanges._id,
+                user.uid
+            )
+
+            return [null, resolvedComment]
+        }
+
+        const updatedComment = await CommentsDb.updateCommentText(
+            commentChanges._id,
+            commentChanges.text
+        )
+
+        return [null, updatedComment]
     } catch (err: any) {
         console.error(err)
 

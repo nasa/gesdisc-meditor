@@ -1,6 +1,6 @@
 import { ObjectID } from 'mongodb'
-import { DocumentComment, NewDocumentComment, UpdateCommentUserInput } from './types'
 import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
+import { DocumentComment, NewDocumentComment } from './types'
 
 const COMMENTS_COLLECTION = 'Comments'
 
@@ -15,50 +15,6 @@ class CommentsDb {
         return makeSafeObjectIDs(comment)
     }
 
-    async getCommentForDocument(
-        commentId: string,
-        documentTitle: string,
-        modelName: string
-    ) {
-        const db = await getDb()
-
-        const query: any[] = [
-            {
-                $match: {
-                    $and: [
-                        {
-                            _id: new ObjectID(commentId),
-                            documentId: documentTitle,
-                            model: modelName,
-                        },
-                    ],
-                },
-            },
-        ]
-
-        const [comment = {}] = await db
-            .collection<DocumentComment>('Comments')
-            .aggregate(query, { allowDiskUse: true })
-            .toArray()
-
-        return makeSafeObjectIDs(comment)
-    }
-
-    async getCommentsForDocument(documentTitle: string, modelName: string) {
-        const db = await getDb()
-
-        const query: any[] = [
-            { $match: { $and: [{ documentId: documentTitle, model: modelName }] } },
-        ]
-
-        const comments = await db
-            .collection<DocumentComment>('Comments')
-            .aggregate(query, { allowDiskUse: true })
-            .toArray()
-
-        return makeSafeObjectIDs(comments)
-    }
-
     async insertOne(comment: NewDocumentComment): Promise<DocumentComment> {
         const db = await getDb()
         const { insertedId } = await db
@@ -68,26 +24,43 @@ class CommentsDb {
         return this.getCommentById(insertedId.toString())
     }
 
-    async updateOne(comment: UpdateCommentUserInput): Promise<DocumentComment> {
+    async updateCommentText(
+        commentId: string,
+        newText: string
+    ): Promise<DocumentComment> {
         const db = await getDb()
 
         await db.collection(COMMENTS_COLLECTION).updateOne(
-            { _id: new ObjectID(comment._id) },
+            { _id: new ObjectID(commentId) },
             {
                 $set: {
-                    // specifically pull out the fields that can be updated
-                    ...(typeof comment.resolved !== 'undefined' && {
-                        resolved: comment.resolved,
-                    }),
-                    ...(comment.text && { text: comment.text }),
+                    text: newText,
                 },
             }
         )
 
-        return (await db.collection(COMMENTS_COLLECTION).findOne({
-            _id: new ObjectID(comment._id),
-        })) as DocumentComment
+        return this.getCommentById(commentId)
+    }
+
+    async resolveComment(
+        commentId: string,
+        resolvedByUserId: string
+    ): Promise<DocumentComment> {
+        const db = await getDb()
+
+        await db.collection(COMMENTS_COLLECTION).updateMany(
+            {
+                $or: [
+                    { _id: new ObjectID(commentId) }, // resolve the requested comment
+
+                    // also resolve any child comments
+                    // TODO: confusingly, parentId is a string, not an ObjectID. This would make more sense as an ObjectID
+                    { parentId: commentId },
+                ],
+            },
+            { $set: { resolved: true, resolvedBy: resolvedByUserId } }
+        )
+
+        return this.getCommentById(commentId)
     }
 }
-
-export default new CommentsDb()

@@ -155,15 +155,3 @@ module.exports.putModel = function putModel(req, res, next) {
             utils.writeJson(res, response)
         })
 }
-
-module.exports.resolveComment = function resolveComment(req, res, next) {
-    var id = req.swagger.params['id'].value
-    var resolvedBy = req.swagger.params['resolvedBy'].value
-    Default.resolveComment(id, resolvedBy)
-        .then(function (response) {
-            utils.writeJson(res, response)
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response)
-        })
-}
