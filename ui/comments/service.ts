@@ -1,19 +1,18 @@
 import { BadRequestException, UnauthorizedException } from '../utils/errors'
 import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
 import type { User } from '../auth/types'
-import { CreateCommentUserInput, NewDocumentComment } from './types'
+import { CreateCommentUserInput } from './types'
 import { validate } from 'jsonschema'
 import { NewDocumentCommentUserInputSchema } from './validation.schemas'
 import { ErrorData } from '../declarations'
 import { getCommentForDocumentQuery, getCommentsForDocumentQuery } from './queries'
 import { DocumentComment } from './types'
-
-export const COMMENTS_COLLECTION = 'Comments'
+import CommentsDb from './db'
 
 export async function createCommentAsUser(
     newComment: CreateCommentUserInput,
     user: User
-) {
+): Promise<ErrorData<DocumentComment>> {
     if (!user?.uid) {
         throw new UnauthorizedException()
     }
@@ -24,12 +23,8 @@ export async function createCommentAsUser(
         throw new BadRequestException(validationResult.toString())
     }
 
-    const db = await getDb()
-
-    // insert the new comment
-    const { insertedId } = await db
-        .collection<NewDocumentComment>(COMMENTS_COLLECTION)
-        .insertOne({
+    try {
+        const comment = await CommentsDb.insertOne({
             ...newComment, // validated user input
             parentId: newComment.parentId || 'root', // TODO: Why not use undefined rather than 'root'? (refactor opportunity)
             userUid: user.uid,
@@ -38,7 +33,12 @@ export async function createCommentAsUser(
             resolved: false, // can't create a resolved comment
         })
 
-    return db.collection(COMMENTS_COLLECTION).findOne({ _id: insertedId }) // return the new comment
+        return [null, makeSafeObjectIDs(comment)]
+    } catch (err: any) {
+        console.error(err)
+
+        return [err, null]
+    }
 }
 
 export async function getCommentForDocument({

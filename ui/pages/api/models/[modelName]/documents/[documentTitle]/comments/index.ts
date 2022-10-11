@@ -6,6 +6,7 @@ import {
 } from '../../../../../../../comments/service'
 import {
     apiError,
+    BadRequestException,
     MethodNotAllowedException,
     NotFoundException,
     UnauthorizedException,
@@ -40,16 +41,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
 
             case 'POST':
-                return res.status(200).json(
-                    await createCommentAsUser(
-                        {
-                            ...req.body,
-                            documentId: documentTitle,
-                            model: modelName,
-                        },
-                        user
-                    )
+                const [error, newComment] = await createCommentAsUser(
+                    {
+                        ...req.body,
+                        documentId: documentTitle,
+                        model: modelName,
+                    },
+                    user
                 )
+
+                if (error) {
+                    // if we see an error here, it's most likely due to a database issue. Without exposing the error itself, the best we can do is ask the user to try again
+                    throw new BadRequestException(
+                        'An unexpected error occurred while creating the comment, please try your request again later'
+                    )
+                }
+
+                return res.status(200).json(newComment)
 
             default:
                 throw new MethodNotAllowedException()
