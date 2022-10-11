@@ -47,8 +47,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     // as a safeguard, only pull the items from the request the user can actually update
                     {
                         _id: commentId,
-                        ...(!!req.body.resolved && { resolved: req.body.resolved }),
-                        ...(!!req.body.text && { text: req.body.text }),
+                        resolved: req.body.resolved,
+                        text: req.body.text,
                     },
                     user
                 )

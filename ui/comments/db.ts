@@ -24,16 +24,16 @@ export default class CommentsDb {
             {
                 $set: {
                     // specifically pull out the fields that can be updated
-                    ...(!!comment.resolved && {
+                    ...(typeof comment.resolved !== 'undefined' && {
                         resolved: comment.resolved,
                     }),
-                    ...(!!comment.text && { text: comment.text }),
+                    ...(comment.text && { text: comment.text }),
                 },
             }
         )
 
-        return (await db
-            .collection(COMMENTS_COLLECTION)
-            .findOne({ _id: new ObjectID(comment._id) })) as DocumentComment
+        return (await db.collection(COMMENTS_COLLECTION).findOne({
+            _id: new ObjectID(comment._id),
+        })) as DocumentComment
     }
 }
