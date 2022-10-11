@@ -542,35 +542,6 @@ function addModel(model) {
     })
 }
 
-//Exported method to add a Model
-module.exports.putModel = function putModel(req, res, next) {
-    // Parse uploaded file
-    var file = req.swagger.params['file'].value
-    // Ensure it is well formed JSON
-    var model
-    try {
-        model = safelyParseJSON(file.buffer.toString())
-    } catch (err) {
-        console.log(err)
-        var response = {
-            code: 400,
-            message: 'Failed to parse the Model',
-        }
-        utils.writeJson(res, response, 400)
-        return
-    }
-    // TODO: validate JSON based on schema
-
-    // Insert the new Model
-    addModel(model)
-        .then(function (response) {
-            utils.writeJson(res, { code: 200, message: response }, 200)
-        })
-        .catch(function (response) {
-            utils.writeJson(res, { code: 500, message: response }, 500)
-        })
-}
-
 //Exported method to add a Document
 module.exports.putDocument = function putDocument(request, response, next) {
     var that = {}

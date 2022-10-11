@@ -72,11 +72,6 @@ http {
             include /etc/nginx/proxy.conf;
         }
 
-        location /meditor/api/putModel {
-            proxy_pass         http://api/meditor/api/putModel;
-            include /etc/nginx/proxy.conf;
-        }
-
         location /meditor/api/getModel {
             proxy_pass         http://api/meditor/api/getModel;
             include /etc/nginx/proxy.conf;
