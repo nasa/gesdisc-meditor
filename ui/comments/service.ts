@@ -1,5 +1,4 @@
 import { BadRequestException, UnauthorizedException } from '../utils/errors'
-import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
 import type { User } from '../auth/types'
 import { CreateCommentUserInput, UpdateCommentUserInput } from './types'
 import { validate } from 'jsonschema'
@@ -9,24 +8,27 @@ import {
 } from './validation.schemas'
 import CommentsDb from './db'
 import { ErrorData } from '../declarations'
-import { getCommentForDocumentQuery, getCommentsForDocumentQuery } from './queries'
 import { DocumentComment } from './types'
+import { makeSafeObjectIDs } from '../lib/mongodb'
 
 export async function createCommentAsUser(
     newComment: CreateCommentUserInput,
     user: User
 ): Promise<ErrorData<DocumentComment>> {
-    if (!user?.uid) {
-        throw new UnauthorizedException()
-    }
-
-    const validationResult = validate(newComment, NewDocumentCommentUserInputSchema)
-
-    if (!validationResult.valid) {
-        throw new BadRequestException(validationResult.toString())
-    }
-
     try {
+        if (!user?.uid) {
+            throw new UnauthorizedException()
+        }
+
+        const validationResult = validate(
+            newComment,
+            NewDocumentCommentUserInputSchema
+        )
+
+        if (!validationResult.valid) {
+            throw new BadRequestException(validationResult.toString())
+        }
+
         const comment = await CommentsDb.insertOne({
             ...newComment, // validated user input
             parentId: newComment.parentId || 'root', // TODO: Why not use undefined rather than 'root'? (refactor opportunity)
@@ -36,7 +38,7 @@ export async function createCommentAsUser(
             resolved: false, // can't create a resolved comment
         })
 
-        return [null, makeSafeObjectIDs(comment)]
+        return [null, comment]
     } catch (err: any) {
         console.error(err)
 
@@ -72,29 +74,19 @@ export async function updateCommentAsUser(
     }
 }
 
-export async function getCommentForDocument({
-    commentId,
-    documentTitle,
-    modelName,
-}: {
-    commentId: string
-    documentTitle: string
+export async function getCommentForDocument(
+    commentId: string,
+    documentTitle: string,
     modelName: string
-}): Promise<ErrorData<DocumentComment>> {
+): Promise<ErrorData<DocumentComment>> {
     try {
-        const db = await getDb()
-        const query = getCommentForDocumentQuery({
+        const comment = await CommentsDb.getCommentForDocument(
             commentId,
             documentTitle,
-            modelName,
-        })
+            modelName
+        )
 
-        const [comment = {}] = await db
-            .collection<DocumentComment>('Comments')
-            .aggregate(query, { allowDiskUse: true })
-            .toArray()
-
-        return [null, makeSafeObjectIDs(comment)]
+        return [null, comment]
     } catch (error) {
         console.error(error)
 
@@ -102,23 +94,17 @@ export async function getCommentForDocument({
     }
 }
 
-export async function getCommentsForDocument({
-    documentTitle,
-    modelName,
-}: {
-    documentTitle: string
+export async function getCommentsForDocument(
+    documentTitle: string,
     modelName: string
-}): Promise<ErrorData<DocumentComment[]>> {
+): Promise<ErrorData<DocumentComment[]>> {
     try {
-        const db = await getDb()
-        const query = getCommentsForDocumentQuery({ documentTitle, modelName })
+        const comments = await CommentsDb.getCommentsForDocument(
+            documentTitle,
+            modelName
+        )
 
-        const comments = await db
-            .collection<DocumentComment>('Comments')
-            .aggregate(query, { allowDiskUse: true })
-            .toArray()
-
-        return [null, makeSafeObjectIDs(comments)]
+        return [null, comments]
     } catch (error) {
         console.error(error)
 

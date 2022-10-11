@@ -21,17 +21,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             throw new UnauthorizedException()
         }
 
-        const commentId = req.query.commentId.toString()
-        const documentTitle = req.query.documentTitle.toString()
-        const modelName = req.query.modelName.toString()
-
         switch (req.method) {
             case 'GET': {
-                const [error, comment] = await getCommentForDocument({
-                    commentId: decodeURIComponent(commentId),
-                    documentTitle: decodeURIComponent(documentTitle),
-                    modelName: decodeURIComponent(modelName),
-                })
+                const { commentId, documentTitle, modelName } = req.query
+
+                const [error, comment] = await getCommentForDocument(
+                    decodeURIComponent(commentId.toString()),
+                    decodeURIComponent(documentTitle.toString()),
+                    decodeURIComponent(modelName.toString())
+                )
 
                 if (error || !Object.keys(comment).length) {
                     throw new NotFoundException(
@@ -46,7 +44,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 const [error, updatedComment] = await updateCommentAsUser(
                     // as a safeguard, only pull the items from the request the user can actually update
                     {
-                        _id: commentId,
+                        _id: req.query.commentId.toString(),
                         resolved: req.body.resolved,
                         text: req.body.text,
                     },
