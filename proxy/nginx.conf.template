@@ -45,12 +45,7 @@ http {
         }
 
         location /meditor {
-            proxy_pass         http://web/meditor;
-            include /etc/nginx/proxy.conf;
-        }
-
-        location /meditor/ {
-            proxy_pass         http://web/meditor/;
+            proxy_pass         http://web;
             include /etc/nginx/proxy.conf;
         }
 
