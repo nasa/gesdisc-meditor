@@ -288,28 +288,6 @@ exports.cloneDocument = function (model, title, newTitle) {
 }
 
 /**
- * Adds a Model
- * Adds a Model object
- *
- * file File Uploaded model file (JSON)
- * returns success
- **/
-exports.putModel = function (file) {
-    return new Promise(function (resolve, reject) {
-        var examples = {}
-        examples['application/json'] = {
-            code: 0,
-            description: 'description',
-        }
-        if (Object.keys(examples).length > 0) {
-            resolve(examples[Object.keys(examples)[0]])
-        } else {
-            resolve()
-        }
-    })
-}
-
-/**
  * Resolves comment
  * Resolves comment
  *

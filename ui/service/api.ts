@@ -1326,66 +1326,6 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
             }
         },
         /**
-         * Adds a Model object
-         * @summary Adds a Model
-         * @param {any} file Uploaded model file (JSON)
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        putModel(file: any, options: any = {}): FetchArgs {
-            // verify required parameter 'file' is not null or undefined
-            if (file === null || file === undefined) {
-                throw new RequiredError(
-                    'file',
-                    'Required parameter file was null or undefined when calling putModel.'
-                )
-            }
-            const localVarPath = `/putModel`
-            const localVarUrlObj = url.parse(localVarPath, true)
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options)
-            const localVarHeaderParameter = {} as any
-            const localVarQueryParameter = {} as any
-            const localVarFormParams = new URLSearchParams()
-
-            // authentication URS4 required
-            // oauth required
-            if (configuration && configuration.accessToken) {
-                const localVarAccessTokenValue =
-                    typeof configuration.accessToken === 'function'
-                        ? configuration.accessToken('URS4', ['read', 'write'])
-                        : configuration.accessToken
-                localVarHeaderParameter['Authorization'] =
-                    'Bearer ' + localVarAccessTokenValue
-            }
-
-            if (file !== undefined) {
-                localVarFormParams.set('file', file as any)
-            }
-
-            localVarHeaderParameter['Content-Type'] =
-                'application/x-www-form-urlencoded'
-
-            localVarUrlObj.query = Object.assign(
-                {},
-                localVarUrlObj.query,
-                localVarQueryParameter,
-                options.query
-            )
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search
-            localVarRequestOptions.headers = Object.assign(
-                {},
-                localVarHeaderParameter,
-                options.headers
-            )
-            localVarRequestOptions.body = localVarFormParams.toString()
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            }
-        },
-        /**
          * Resolves comment
          * @summary Resolves comment
          * @param {string} id Comment id
@@ -1962,38 +1902,6 @@ export const DefaultApiFp = function (configuration?: Configuration) {
             }
         },
         /**
-         * Adds a Model object
-         * @summary Adds a Model
-         * @param {any} file Uploaded model file (JSON)
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        putModel(
-            file: any,
-            options?: any
-        ): (fetch?: FetchAPI, basePath?: string) => Promise<Success> {
-            const localVarFetchArgs = DefaultApiFetchParamCreator(
-                configuration
-            ).putModel(file, options)
-            return (
-                fetch: FetchAPI = portableFetch,
-                basePath: string = BASE_PATH
-            ) => {
-                return configuration
-                    .fetch(
-                        basePath + localVarFetchArgs.url,
-                        localVarFetchArgs.options
-                    )
-                    .then(response => {
-                        if (response.status >= 200 && response.status < 300) {
-                            return response.json()
-                        } else {
-                            throw response
-                        }
-                    })
-            }
-        },
-        /**
          * Resolves comment
          * @summary Resolves comment
          * @param {string} id Comment id
@@ -2258,19 +2166,6 @@ export const DefaultApiFactory = function (
          */
         putDocument(file: any, options?: any) {
             return DefaultApiFp(configuration).putDocument(file, options)(
-                fetch,
-                basePath
-            )
-        },
-        /**
-         * Adds a Model object
-         * @summary Adds a Model
-         * @param {any} file Uploaded model file (JSON)
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        putModel(file: any, options?: any) {
-            return DefaultApiFp(configuration).putModel(file, options)(
                 fetch,
                 basePath
             )
@@ -2545,21 +2440,6 @@ export class DefaultApi extends BaseAPI {
      */
     public putDocument(file: any, options?: any) {
         return DefaultApiFp(this.configuration).putDocument(file, options)(
-            this.fetch,
-            this.basePath
-        )
-    }
-
-    /**
-     * Adds a Model object
-     * @summary Adds a Model
-     * @param {any} file Uploaded model file (JSON)
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DefaultApi
-     */
-    public putModel(file: any, options?: any) {
-        return DefaultApiFp(this.configuration).putModel(file, options)(
             this.fetch,
             this.basePath
         )

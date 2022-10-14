@@ -156,17 +156,6 @@ module.exports.cloneDocument = function cloneDocument(req, res, next) {
         })
 }
 
-module.exports.putModel = function putModel(req, res, next) {
-    var file = req.swagger.params['file'].value
-    Default.putModel(file)
-        .then(function (response) {
-            utils.writeJson(res, response)
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response)
-        })
-}
-
 module.exports.resolveComment = function resolveComment(req, res, next) {
     var id = req.swagger.params['id'].value
     var resolvedBy = req.swagger.params['resolvedBy'].value
