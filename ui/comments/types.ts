@@ -12,6 +12,7 @@ export type DocumentComment = {
     /** MongoDB Id */
     parentId: string
     resolved: boolean
+    resolvedBy?: string
     text: string
     userUid: string
     /** date as ISO string */
@@ -25,4 +26,10 @@ export type CreateCommentUserInput = Pick<
     'documentId' | 'model' | 'text'
 > & {
     parentId?: string // optional parentId on input
+}
+
+export type UpdateCommentUserInput = {
+    _id: string
+    resolved?: boolean
+    text?: string
 }

@@ -5,9 +5,11 @@ import {
     getCommentForDocument,
     getCommentsForDocument,
     createCommentAsUser,
+    updateCommentAsUser,
 } from '../service'
 import mockComments from './__fixtures__/comments.json'
 import BaconUser from '../../auth/__test__/__fixtures__/bacon-user.json'
+import CommentsDB from '../db'
 
 const mockAlerts = [
     {
@@ -21,13 +23,15 @@ describe('Comments Service', () => {
 
     beforeAll(async () => {
         db = await getDb()
+    })
 
+    beforeEach(async () => {
         await db.collection('Models').insertOne(alertsModel)
         await db.collection('Alerts').insertMany(mockAlerts)
         await db.collection('Comments').insertMany(mockComments)
     })
 
-    afterAll(async () => {
+    afterEach(async () => {
         await db.collection('Models').deleteMany({})
         await db.collection('Alerts').deleteMany({})
         await db.collection('Comments').deleteMany({})
@@ -159,5 +163,127 @@ describe('Comments Service', () => {
               "userUid": "bacon",
             }
         `)
+    })
+
+    it('returns an UnauthorizedException if the user is logged out while updating a comment', async () => {
+        const [error, comment] = await updateCommentAsUser(
+            {
+                _id: 'foo',
+                resolved: true,
+                text: 'bacon',
+            },
+            {} as any // force logged out
+        )
+
+        expect(error).toMatchInlineSnapshot(`[Error: Unauthorized]`)
+        expect(comment).toBeNull()
+    })
+
+    it('returns a list of validation errors if the comment updates are invalid', async () => {
+        const [error, comment] = await updateCommentAsUser({} as any, BaconUser)
+
+        expect(error).toMatchInlineSnapshot(`
+            [Error: 0: instance is not exactly one from [subschema 0],[subschema 1]
+            ]
+        `)
+        expect(comment).toBeNull()
+    })
+
+    it('returns a BadRequestException if trying to update `text` and `resolved` at the same time', async () => {
+        const [error, comment] = await updateCommentAsUser(
+            {
+                _id: 'foo',
+                resolved: true,
+                text: 'Bacon',
+            },
+            BaconUser
+        )
+
+        expect(error).toMatchInlineSnapshot(`
+            [Error: 0: instance is not exactly one from [subschema 0],[subschema 1]
+            ]
+        `)
+        expect(comment).toBeNull()
+    })
+
+    it('updates a comments text', async () => {
+        // insert a new comment
+        const [_error, { _id: insertedId, ...newComment }] =
+            await createCommentAsUser(
+                {
+                    model: 'Foo',
+                    documentId: 'Bar',
+                    text: 'This is my sample text that should be changed!',
+                },
+                BaconUser
+            )
+
+        // attempt to update it
+        const [error, { _id: updatedId, ...updatedComment }] =
+            await updateCommentAsUser(
+                {
+                    _id: insertedId.toString(),
+                    text: 'Bacon',
+                },
+                BaconUser
+            )
+
+        expect(error).toBeNull()
+        expect(updatedComment).toEqual({
+            ...newComment,
+            text: 'Bacon',
+        })
+    })
+
+    it('resolves a comment and all its child comments', async () => {
+        const [_p, parentComment] = await createCommentAsUser(
+            {
+                model: 'Foo',
+                documentId: 'Bar',
+                text: 'I am a parent, I should be resolved',
+            },
+            BaconUser
+        )
+
+        const [_c, childComment] = await createCommentAsUser(
+            {
+                model: 'Foo',
+                documentId: 'Bar',
+                text: 'I am a child of the parent comment, I should be resolved',
+                parentId: parentComment._id,
+            },
+            BaconUser
+        )
+
+        const [_s, siblingComment] = await createCommentAsUser(
+            {
+                model: 'Foo',
+                documentId: 'Bar',
+                text: 'I am a sibling, I should NOT be resolved',
+            },
+            BaconUser
+        )
+
+        // attempt to resolve the parent comment
+        const [error] = await updateCommentAsUser(
+            {
+                _id: parentComment._id.toString(),
+                resolved: true,
+            },
+            BaconUser
+        )
+
+        expect(error).toBeNull()
+        expect(await CommentsDB.getCommentById(parentComment._id)).toMatchObject({
+            resolved: true,
+            resolvedBy: BaconUser.uid,
+        })
+        expect(await CommentsDB.getCommentById(childComment._id)).toMatchObject({
+            resolved: true,
+            resolvedBy: BaconUser.uid,
+        })
+        expect(await CommentsDB.getCommentById(siblingComment._id)).toMatchObject({
+            resolved: false,
+        })
     })
 })

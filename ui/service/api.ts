@@ -724,64 +724,6 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
             }
         },
         /**
-         * Edit comment
-         * @summary Edit comment
-         * @param {string} id Comment id
-         * @param {string} text New text
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        editComment(id: string, text: string, options: any = {}): FetchArgs {
-            // verify required parameter 'id' is not null or undefined
-            if (id === null || id === undefined) {
-                throw new RequiredError(
-                    'id',
-                    'Required parameter id was null or undefined when calling editComment.'
-                )
-            }
-            // verify required parameter 'text' is not null or undefined
-            if (text === null || text === undefined) {
-                throw new RequiredError(
-                    'text',
-                    'Required parameter text was null or undefined when calling editComment.'
-                )
-            }
-            const localVarPath = `/editComment`
-            const localVarUrlObj = url.parse(localVarPath, true)
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options)
-            const localVarHeaderParameter = {} as any
-            const localVarQueryParameter = {} as any
-
-            if (id !== undefined) {
-                localVarQueryParameter['id'] = id
-            }
-
-            if (text !== undefined) {
-                localVarQueryParameter['text'] = text
-            }
-
-            localVarUrlObj.query = Object.assign(
-                {},
-                localVarUrlObj.query,
-                localVarQueryParameter,
-                options.query
-            )
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search
-            localVarRequestOptions.headers = Object.assign(
-                {},
-                localVarHeaderParameter,
-                options.headers
-            )
-
-            localVarRequestOptions.credentials = 'include'
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            }
-        },
-        /**
          * Gets a new csrf token
          * @summary Gets a new csrf token
          * @param {*} [options] Override http request option.
@@ -1271,64 +1213,6 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
             }
         },
         /**
-         * Resolves comment
-         * @summary Resolves comment
-         * @param {string} id Comment id
-         * @param {string} resolvedBy Resolved by
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        resolveComment(id: string, resolvedBy: string, options: any = {}): FetchArgs {
-            // verify required parameter 'id' is not null or undefined
-            if (id === null || id === undefined) {
-                throw new RequiredError(
-                    'id',
-                    'Required parameter id was null or undefined when calling resolveComment.'
-                )
-            }
-            // verify required parameter 'resolvedBy' is not null or undefined
-            if (resolvedBy === null || resolvedBy === undefined) {
-                throw new RequiredError(
-                    'resolvedBy',
-                    'Required parameter resolvedBy was null or undefined when calling resolveComment.'
-                )
-            }
-            const localVarPath = `/resolveComment`
-            const localVarUrlObj = url.parse(localVarPath, true)
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options)
-            const localVarHeaderParameter = {} as any
-            const localVarQueryParameter = {} as any
-
-            if (id !== undefined) {
-                localVarQueryParameter['id'] = id
-            }
-
-            if (resolvedBy !== undefined) {
-                localVarQueryParameter['resolvedBy'] = resolvedBy
-            }
-
-            localVarUrlObj.query = Object.assign(
-                {},
-                localVarUrlObj.query,
-                localVarQueryParameter,
-                options.query
-            )
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search
-            localVarRequestOptions.headers = Object.assign(
-                {},
-                localVarHeaderParameter,
-                options.headers
-            )
-
-            localVarRequestOptions.credentials = 'include'
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            }
-        },
-        /**
          *
          * @param {Array<Users>} [users]
          * @param {*} [options] Override http request option.
@@ -1444,40 +1328,6 @@ export const DefaultApiFp = function (configuration?: Configuration) {
             const localVarFetchArgs = DefaultApiFetchParamCreator(
                 configuration
             ).cloneDocument(model, title, newTitle, options)
-            return (
-                fetch: FetchAPI = portableFetch,
-                basePath: string = BASE_PATH
-            ) => {
-                return configuration
-                    .fetch(
-                        basePath + localVarFetchArgs.url,
-                        localVarFetchArgs.options
-                    )
-                    .then(response => {
-                        if (response.status >= 200 && response.status < 300) {
-                            return response.json()
-                        } else {
-                            throw response
-                        }
-                    })
-            }
-        },
-        /**
-         * Edit comment
-         * @summary Edit comment
-         * @param {string} id Comment id
-         * @param {string} text New text
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        editComment(
-            id: string,
-            text: string,
-            options?: any
-        ): (fetch?: FetchAPI, basePath?: string) => Promise<Success> {
-            const localVarFetchArgs = DefaultApiFetchParamCreator(
-                configuration
-            ).editComment(id, text, options)
             return (
                 fetch: FetchAPI = portableFetch,
                 basePath: string = BASE_PATH
@@ -1815,40 +1665,6 @@ export const DefaultApiFp = function (configuration?: Configuration) {
             }
         },
         /**
-         * Resolves comment
-         * @summary Resolves comment
-         * @param {string} id Comment id
-         * @param {string} resolvedBy Resolved by
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        resolveComment(
-            id: string,
-            resolvedBy: string,
-            options?: any
-        ): (fetch?: FetchAPI, basePath?: string) => Promise<Success> {
-            const localVarFetchArgs = DefaultApiFetchParamCreator(
-                configuration
-            ).resolveComment(id, resolvedBy, options)
-            return (
-                fetch: FetchAPI = portableFetch,
-                basePath: string = BASE_PATH
-            ) => {
-                return configuration
-                    .fetch(
-                        basePath + localVarFetchArgs.url,
-                        localVarFetchArgs.options
-                    )
-                    .then(response => {
-                        if (response.status >= 200 && response.status < 300) {
-                            return response.json()
-                        } else {
-                            throw response
-                        }
-                    })
-            }
-        },
-        /**
          *
          * @param {Array<Users>} [users]
          * @param {*} [options] Override http request option.
@@ -1931,21 +1747,6 @@ export const DefaultApiFactory = function (
                 model,
                 title,
                 newTitle,
-                options
-            )(fetch, basePath)
-        },
-        /**
-         * Edit comment
-         * @summary Edit comment
-         * @param {string} id Comment id
-         * @param {string} text New text
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        editComment(id: string, text: string, options?: any) {
-            return DefaultApiFp(configuration).editComment(
-                id,
-                text,
                 options
             )(fetch, basePath)
         },
@@ -2071,21 +1872,6 @@ export const DefaultApiFactory = function (
             )
         },
         /**
-         * Resolves comment
-         * @summary Resolves comment
-         * @param {string} id Comment id
-         * @param {string} resolvedBy Resolved by
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        resolveComment(id: string, resolvedBy: string, options?: any) {
-            return DefaultApiFp(configuration).resolveComment(
-                id,
-                resolvedBy,
-                options
-            )(fetch, basePath)
-        },
-        /**
          *
          * @param {Array<Users>} [users]
          * @param {*} [options] Override http request option.
@@ -2151,23 +1937,6 @@ export class DefaultApi extends BaseAPI {
             model,
             title,
             newTitle,
-            options
-        )(this.fetch, this.basePath)
-    }
-
-    /**
-     * Edit comment
-     * @summary Edit comment
-     * @param {string} id Comment id
-     * @param {string} text New text
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DefaultApi
-     */
-    public editComment(id: string, text: string, options?: any) {
-        return DefaultApiFp(this.configuration).editComment(
-            id,
-            text,
             options
         )(this.fetch, this.basePath)
     }
@@ -2328,23 +2097,6 @@ export class DefaultApi extends BaseAPI {
             this.fetch,
             this.basePath
         )
-    }
-
-    /**
-     * Resolves comment
-     * @summary Resolves comment
-     * @param {string} id Comment id
-     * @param {string} resolvedBy Resolved by
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DefaultApi
-     */
-    public resolveComment(id: string, resolvedBy: string, options?: any) {
-        return DefaultApiFp(this.configuration).resolveComment(
-            id,
-            resolvedBy,
-            options
-        )(this.fetch, this.basePath)
     }
 
     /**

@@ -1,6 +1,6 @@
 import { ObjectID } from 'mongodb'
-import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
 import { DocumentComment, NewDocumentComment } from './types'
+import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
 
 const COMMENTS_COLLECTION = 'Comments'
 
@@ -59,6 +59,46 @@ class CommentsDb {
             .insertOne(comment)
 
         return this.getCommentById(insertedId.toString())
+    }
+
+    async updateCommentText(
+        commentId: string,
+        newText: string
+    ): Promise<DocumentComment> {
+        const db = await getDb()
+
+        await db.collection(COMMENTS_COLLECTION).updateOne(
+            { _id: new ObjectID(commentId) },
+            {
+                $set: {
+                    text: newText,
+                },
+            }
+        )
+
+        return this.getCommentById(commentId)
+    }
+
+    async resolveComment(
+        commentId: string,
+        resolvedByUserId: string
+    ): Promise<DocumentComment> {
+        const db = await getDb()
+
+        await db.collection(COMMENTS_COLLECTION).updateMany(
+            {
+                $or: [
+                    { _id: new ObjectID(commentId) }, // resolve the requested comment
+
+                    // also resolve any child comments
+                    // TODO: confusingly, parentId is a string, not an ObjectID. This would make more sense as an ObjectID
+                    { parentId: commentId },
+                ],
+            },
+            { $set: { resolved: true, resolvedBy: resolvedByUserId } }
+        )
+
+        return this.getCommentById(commentId)
     }
 
     private async getCommentById(commentId: string): Promise<DocumentComment> {

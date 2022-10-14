@@ -49,9 +49,11 @@ export function apiError(response: NextApiResponse, error: Error | HttpException
     if (error instanceof HttpException) {
         response.status(error.status).json(error.toJson())
     } else {
+        console.error(error)
+
         response.status(500).json({
             status: 500,
-            error: 'Bad Request',
+            error: 'Internal Server Error',
         })
     }
 }
