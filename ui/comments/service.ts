@@ -9,7 +9,6 @@ import {
 import CommentsDb from './db'
 import { ErrorData } from '../declarations'
 import { DocumentComment } from './types'
-import { makeSafeObjectIDs } from '../lib/mongodb'
 
 export async function createCommentAsUser(
     newComment: CreateCommentUserInput,
