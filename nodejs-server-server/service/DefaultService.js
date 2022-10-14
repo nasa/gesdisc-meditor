@@ -23,26 +23,6 @@ exports.changeDocumentState = function (model, title, state, version) {
 }
 
 /**
- * Gets comments for document
- * Gets comments for document
- *
- * title String Title of the document
- * model String Model of the document
- * returns Object
- **/
-exports.getComments = function (title, model) {
-    return new Promise(function (resolve, reject) {
-        var examples = {}
-        examples['application/json'] = '{}'
-        if (Object.keys(examples).length > 0) {
-            resolve(examples[Object.keys(examples)[0]])
-        } else {
-            resolve()
-        }
-    })
-}
-
-/**
  * Gets a new csrf token
  * Gets a new csrf token
  *
