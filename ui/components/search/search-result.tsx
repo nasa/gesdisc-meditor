@@ -2,7 +2,6 @@ import Link from 'next/link'
 import DocumentStateBadge from '../document/document-state-badge'
 import StateBadge from '../state-badge'
 import styles from './search-result.module.css'
-import { urlEncode } from '../../lib/url'
 import { format } from 'date-fns'
 import { FaRegClone } from 'react-icons/fa'
 import { IoMdTrash } from 'react-icons/io'
@@ -54,12 +53,12 @@ const SearchResult = ({
                 <Link
                     href={
                         isLocalDocument
-                            ? `/${urlEncode(document.model)}/new?localId=${
+                            ? `/${encodeURIComponent(document.model)}/new?localId=${
                                   document.localId
                               }`
-                            : `/${urlEncode(document.model)}/${urlEncode(
-                                  document.title
-                              )}`
+                            : `/${encodeURIComponent(
+                                  document.model
+                              )}/${encodeURIComponent(document.title)}`
                     }
                 >
                     <a dangerouslySetInnerHTML={{ __html: document.title }} />

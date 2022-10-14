@@ -5,18 +5,11 @@ import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
 const COMMENTS_COLLECTION = 'Comments'
 
 class CommentsDb {
-    async getCommentById(commentId: string): Promise<DocumentComment> {
-        const db = await getDb()
-
-        const comment = (await db.collection(COMMENTS_COLLECTION).findOne({
-            _id: new ObjectID(commentId),
-        })) as DocumentComment
-
-        return makeSafeObjectIDs(comment)
-    }
-
     async getCommentForDocument(
         commentId: string,
+        //? this method is called from a REST url, /models/{modelName}/documents/{documentTitle}/comments/{commentId}
+        //? Even though we have a commentId, we need to also verify that this comment belongs to the right document in a particular model
+        // TODO: introduce a base level /api/comments/{ID?} API which could simplify this entire class and allow us to have generic "findById"/"find"/"insert"/etc. methods
         documentTitle: string,
         modelName: string
     ) {
@@ -106,6 +99,16 @@ class CommentsDb {
         )
 
         return this.getCommentById(commentId)
+    }
+
+    private async getCommentById(commentId: string): Promise<DocumentComment> {
+        const db = await getDb()
+
+        const comment = (await db.collection(COMMENTS_COLLECTION).findOne({
+            _id: new ObjectID(commentId),
+        })) as DocumentComment
+
+        return makeSafeObjectIDs(comment)
     }
 }
 

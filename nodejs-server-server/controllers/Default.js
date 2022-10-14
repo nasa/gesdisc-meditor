@@ -144,14 +144,3 @@ module.exports.cloneDocument = function cloneDocument(req, res, next) {
             utils.writeJson(res, response)
         })
 }
-
-module.exports.putModel = function putModel(req, res, next) {
-    var file = req.swagger.params['file'].value
-    Default.putModel(file)
-        .then(function (response) {
-            utils.writeJson(res, response)
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response)
-        })
-}

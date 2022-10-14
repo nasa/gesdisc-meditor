@@ -21,7 +21,6 @@ import withAuthentication from '../../../components/with-authentication'
 import { withApollo } from '../../../lib/apollo'
 import { refreshDataInPlace } from '../../../lib/next'
 import { treeify } from '../../../lib/treeify'
-import { urlDecode } from '../../../lib/url'
 import { useLocalStorage } from '../../../lib/use-localstorage.hook'
 import mEditorApi from '../../../service/'
 import styles from './document-edit.module.css'
@@ -93,7 +92,7 @@ const HISTORY_QUERY = gql`
 const EditDocumentPage = ({ user, version = null, theme, comments }) => {
     const router = useRouter()
     const params = router.query
-    const documentTitle = urlDecode(params.documentTitle as string)
+    const documentTitle = decodeURIComponent(params.documentTitle as string)
     // todo: this seems like a security concern; any way to sanitize against injection / allowlist models?
     const modelName = params.modelName as string
 
