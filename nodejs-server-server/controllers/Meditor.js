@@ -1221,32 +1221,3 @@ module.exports.editComment = function editComment(req, res, next) {
             utils.writeJson(res, { code: 500, message: response }, 500)
         })
 }
-
-//Exported method to add a comment
-module.exports.postComment = function postComment(req, res, next) {
-    // Parse uploaded file
-    var file = req.swagger.params['file'].value
-    // Ensure it is well formed JSON
-    var comment
-    try {
-        comment = safelyParseJSON(file.buffer.toString())
-    } catch (err) {
-        console.log(err)
-        var response = {
-            code: 400,
-            message: 'Failed to parse comment',
-        }
-        utils.writeJson(res, response, 400)
-        return
-    }
-    // TODO: validate JSON based on schema
-
-    // Insert the new comment
-    addComment(comment)
-        .then(function (response) {
-            utils.writeJson(res, { code: 200, message: response }, 200)
-        })
-        .catch(function (response) {
-            utils.writeJson(res, { code: 500, message: response }, 500)
-        })
-}

@@ -397,42 +397,6 @@ paths:
                         $ref: '#/definitions/error'
             security: []
             x-swagger-router-controller: 'Meditor'
-    /postComment:
-        post:
-            summary: 'Puts comment for document'
-            description: 'Puts comment for document'
-            operationId: 'postComment'
-            consumes:
-                - 'multipart/form-data'
-            parameters:
-                - name: 'file'
-                  in: 'formData'
-                  description: 'Uploaded comment (JSON)'
-                  required: true
-                  type: 'file'
-            responses:
-                200:
-                    description: 'Successful response'
-                    schema:
-                        $ref: '#/definitions/success'
-                400:
-                    description: 'Bad request'
-                    schema:
-                        $ref: '#/definitions/error'
-                422:
-                    description: 'Invalid syntax'
-                    schema:
-                        $ref: '#/definitions/error'
-                500:
-                    description: 'Server error'
-                    schema:
-                        $ref: '#/definitions/error'
-                503:
-                    description: 'Service not available'
-                    schema:
-                        $ref: '#/definitions/error'
-            security: []
-            x-swagger-router-controller: 'Meditor'
     /resolveComment:
         post:
             summary: 'Resolves comment'

@@ -29,6 +29,18 @@ export class NotFoundException extends HttpException {
     }
 }
 
+export class MethodNotAllowedException extends HttpException {
+    constructor(message: string = 'Method Not Allowed') {
+        super(405, message)
+    }
+}
+
+export class UnauthorizedException extends HttpException {
+    constructor(message: string = 'Unauthorized') {
+        super(401, message)
+    }
+}
+
 /**
  * converts errors to a JSON api response
  * To prevent leaking implementation details to an end-user, if the error isn't an instance of HttpException, only return a generic error.

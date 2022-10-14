@@ -24,7 +24,6 @@ import {
     UNTITLED_DOCUMENT_TITLE,
     updateUnsavedDocumentInLS,
 } from '../../../lib/unsaved-changes'
-import { urlEncode } from '../../../lib/url'
 import mEditorApi from '../../../service'
 
 const MODEL_QUERY = gql`
@@ -106,10 +105,10 @@ const NewDocumentPage = ({ user }) => {
     }, [localChanges])
 
     function redirectToDocumentEdit(document) {
-        let documentName = urlEncode(document[data.model.titleProperty])
+        let documentName = encodeURIComponent(document[data.model.titleProperty])
         router.push(
             '/[modelName]/[documentTitle]',
-            `/${urlEncode(modelName)}/${documentName}`
+            `/${encodeURIComponent(modelName)}/${documentName}`
         )
     }
 
@@ -158,7 +157,7 @@ const NewDocumentPage = ({ user }) => {
         setSuccessNotification(
             `Successfully deleted document: '${localChanges.title}'`
         )
-        router.push('/[modelName]', `/${urlEncode(modelName)}`)
+        router.push('/[modelName]', `/${encodeURIComponent(modelName)}`)
     }
 
     return (

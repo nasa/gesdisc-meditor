@@ -36,21 +36,8 @@ http {
         access_log /var/log/nginx/access.log compression;
         port_in_redirect off;
 
-        # NextJS asset paths
-        location ~ (/meditor/_next/static|/meditor/_next/webpack-hmr) {
-            proxy_pass http://web;
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection "upgrade";
-        }
-
         location /meditor {
-            proxy_pass         http://web/meditor;
-            include /etc/nginx/proxy.conf;
-        }
-
-        location /meditor/ {
-            proxy_pass         http://web/meditor/;
+            proxy_pass         http://web;
             include /etc/nginx/proxy.conf;
         }
 
@@ -120,11 +107,6 @@ http {
             include /etc/nginx/proxy.conf;
         }
 
-
-        location /meditor/api/postComment {
-            proxy_pass         http://api/meditor/api/postComment;
-            include /etc/nginx/proxy.conf;
-        }
 
         location /meditor/api/resolveComment {
             proxy_pass         http://api/meditor/api/resolveComment;

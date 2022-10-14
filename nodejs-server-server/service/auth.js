@@ -11,7 +11,6 @@ const PROTECTED_URLS = [
     '/meditor/api/cloneDocument',
     '/meditor/api/getDocument?model=Users',
     '/meditor/api/changeDocumentState',
-    '/meditor/api/postComment',
     '/meditor/api/resolveComment',
     '/meditor/api/editComment',
     '/meditor/api/logout',

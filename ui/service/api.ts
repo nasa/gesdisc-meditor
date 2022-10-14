@@ -1214,61 +1214,6 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
             }
         },
         /**
-         * Puts comment for document
-         * @summary Puts comment for document
-         * @param {any} file Uploaded comment (JSON)
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        postComment(file: any, options: any = {}): FetchArgs {
-            // verify required parameter 'file' is not null or undefined
-            if (file === null || file === undefined) {
-                throw new RequiredError(
-                    'file',
-                    'Required parameter file was null or undefined when calling postComment.'
-                )
-            }
-            const localVarPath = `/postComment`
-            const localVarUrlObj = url.parse(localVarPath, true)
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options)
-            const localVarHeaderParameter = {} as any
-            const localVarQueryParameter = {} as any
-            const localVarFormParams = new FormData()
-
-            // authentication URS4 required
-            // oauth required
-            if (configuration && configuration.accessToken) {
-                const localVarAccessTokenValue =
-                    typeof configuration.accessToken === 'function'
-                        ? configuration.accessToken('URS4', ['read', 'write'])
-                        : configuration.accessToken
-                localVarHeaderParameter['Authorization'] =
-                    'Bearer ' + localVarAccessTokenValue
-            }
-
-            if (file !== undefined) {
-                localVarFormParams.append('file', file)
-            }
-
-            localVarUrlObj.query = Object.assign(
-                {},
-                localVarUrlObj.query,
-                localVarQueryParameter,
-                options.query
-            )
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search
-            localVarRequestOptions.headers = Object.assign({}, options.headers)
-            localVarRequestOptions.body = localVarFormParams
-
-            localVarRequestOptions.credentials = 'include'
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            }
-        },
-        /**
          * Puts a document
          * @summary Puts a document
          * @param {any} file Uploaded document file (JSON)
@@ -1838,38 +1783,6 @@ export const DefaultApiFp = function (configuration?: Configuration) {
             }
         },
         /**
-         * Puts comment for document
-         * @summary Puts comment for document
-         * @param {any} file Uploaded comment (JSON)
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        postComment(
-            file: any,
-            options?: any
-        ): (fetch?: FetchAPI, basePath?: string) => Promise<Success> {
-            const localVarFetchArgs = DefaultApiFetchParamCreator(
-                configuration
-            ).postComment(file, options)
-            return (
-                fetch: FetchAPI = portableFetch,
-                basePath: string = BASE_PATH
-            ) => {
-                return configuration
-                    .fetch(
-                        basePath + localVarFetchArgs.url,
-                        localVarFetchArgs.options
-                    )
-                    .then(response => {
-                        if (response.status >= 200 && response.status < 300) {
-                            return response.json()
-                        } else {
-                            throw response
-                        }
-                    })
-            }
-        },
-        /**
          * Puts a document
          * @summary Puts a document
          * @param {any} file Uploaded document file (JSON)
@@ -2145,19 +2058,6 @@ export const DefaultApiFactory = function (
             return DefaultApiFp(configuration).logout(options)(fetch, basePath)
         },
         /**
-         * Puts comment for document
-         * @summary Puts comment for document
-         * @param {any} file Uploaded comment (JSON)
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        postComment(file: any, options?: any) {
-            return DefaultApiFp(configuration).postComment(file, options)(
-                fetch,
-                basePath
-            )
-        },
-        /**
          * Puts a document
          * @summary Puts a document
          * @param {any} file Uploaded document file (JSON)
@@ -2410,21 +2310,6 @@ export class DefaultApi extends BaseAPI {
      */
     public logout(options?: any) {
         return DefaultApiFp(this.configuration).logout(options)(
-            this.fetch,
-            this.basePath
-        )
-    }
-
-    /**
-     * Puts comment for document
-     * @summary Puts comment for document
-     * @param {any} file Uploaded comment (JSON)
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DefaultApi
-     */
-    public postComment(file: any, options?: any) {
-        return DefaultApiFp(this.configuration).postComment(file, options)(
             this.fetch,
             this.basePath
         )

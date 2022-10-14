@@ -15,5 +15,14 @@ export type DocumentComment = {
     text: string
     userUid: string
     /** date as ISO string */
-    version: string
+    version?: string
+}
+
+export type NewDocumentComment = Omit<DocumentComment, '_id'>
+
+export type CreateCommentUserInput = Pick<
+    DocumentComment,
+    'documentId' | 'model' | 'text'
+> & {
+    parentId?: string // optional parentId on input
 }

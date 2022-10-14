@@ -1,8 +1,13 @@
 import { Db } from 'mongodb'
 import getDb from '../../lib/mongodb'
 import alertsModel from '../../models/__test__/fixtures/models/alerts.json'
-import { getCommentForDocument, getCommentsForDocument } from '../service'
+import {
+    getCommentForDocument,
+    getCommentsForDocument,
+    createCommentAsUser,
+} from '../service'
 import mockComments from './__fixtures__/comments.json'
+import BaconUser from '../../auth/__test__/__fixtures__/bacon-user.json'
 
 const mockAlerts = [
     {
@@ -75,5 +80,84 @@ describe('Comments Service', () => {
         expect(error).toBeNull()
         expect(Object.keys(comment)).toHaveLength(0)
         expect(comment).toMatchSnapshot()
+    })
+
+    it('returns an UnauthorizedException if the user is logged out', async () => {
+        const [error, comment] = await createCommentAsUser(
+            {
+                model: 'Foo',
+                documentId: 'Bar',
+                text: 'Testing unresolved comment by default',
+            },
+            {} as any // force logged out
+        )
+
+        expect(error).toMatchInlineSnapshot(`[Error: Unauthorized]`)
+        expect(comment).toBeNull()
+    })
+
+    it('returns a list of validation errors if the comment is invalid', async () => {
+        const [error, comment] = await createCommentAsUser({} as any, BaconUser)
+
+        expect(error).toMatchInlineSnapshot(`
+            [Error: 0: instance requires property "documentId"
+            1: instance requires property "model"
+            2: instance requires property "text"
+            ]
+        `)
+        expect(comment).toBeNull()
+    })
+
+    it('creates an unresolved comment by default', async () => {
+        const [error, newComment] = await createCommentAsUser(
+            {
+                model: 'Foo',
+                documentId: 'Bar',
+                text: 'Testing unresolved comment by default',
+            },
+            BaconUser
+        )
+
+        expect(error).toBeNull()
+        expect(newComment.resolved).toEqual(false)
+    })
+
+    it('creates a new comment as a root comment by default', async () => {
+        const [error, newComment] = await createCommentAsUser(
+            {
+                model: 'Foo',
+                documentId: 'Bar',
+                text: 'Testing unresolved comment by default',
+            },
+            BaconUser
+        )
+
+        expect(error).toBeNull()
+        expect(newComment.parentId).toEqual('root')
+    })
+
+    it('creates a comment on a document', async () => {
+        const [error, { _id, createdOn, ...newComment }] = await createCommentAsUser(
+            {
+                model: 'Foo',
+                documentId: 'Bar',
+                text: 'Test comment',
+                parentId: 'foo',
+            },
+            BaconUser
+        )
+
+        expect(error).toBeNull()
+        expect(newComment).toMatchInlineSnapshot(`
+            Object {
+              "createdBy": "Bacon User",
+              "documentId": "Bar",
+              "model": "Foo",
+              "parentId": "foo",
+              "resolved": false,
+              "text": "Test comment",
+              "userUid": "bacon",
+            }
+        `)
     })
 })

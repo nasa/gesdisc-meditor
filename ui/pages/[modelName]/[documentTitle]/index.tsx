@@ -21,7 +21,6 @@ import withAuthentication from '../../../components/with-authentication'
 import { withApollo } from '../../../lib/apollo'
 import { refreshDataInPlace } from '../../../lib/next'
 import { treeify } from '../../../lib/treeify'
-import { urlDecode } from '../../../lib/url'
 import { useLocalStorage } from '../../../lib/use-localstorage.hook'
 import mEditorApi from '../../../service/'
 import styles from './document-edit.module.css'
@@ -93,7 +92,7 @@ const HISTORY_QUERY = gql`
 const EditDocumentPage = ({ user, version = null, theme, comments }) => {
     const router = useRouter()
     const params = router.query
-    const documentTitle = urlDecode(params.documentTitle as string)
+    const documentTitle = decodeURIComponent(params.documentTitle as string)
     // todo: this seems like a security concern; any way to sanitize against injection / allowlist models?
     const modelName = params.modelName as string
 
@@ -218,19 +217,21 @@ const EditDocumentPage = ({ user, version = null, theme, comments }) => {
     }
 
     async function saveComment(comment) {
+        const commentsApiUrl = `/meditor/api/models/${encodeURIComponent(
+            modelName
+        )}/documents/${encodeURIComponent(documentTitle)}/comments`
+
         if (!('_id' in comment)) {
-            comment.documentId = documentTitle
-            comment.model = modelName
-            comment.version = documentResponse.data.document.version
-
-            // TODO: move to the API
-            comment.createdBy = user.firstName + ' ' + user.lastName
-            comment.userUid = user.uid
-
-            const commentBlob = new Blob([JSON.stringify(comment)])
-
-            await mEditorApi.postComment(commentBlob)
+            // create a new comment
+            await fetch(commentsApiUrl, {
+                method: 'POST',
+                body: JSON.stringify(comment),
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
         } else {
+            // edit an existing comment
             await mEditorApi.editComment(comment._id, comment.text)
         }
 
