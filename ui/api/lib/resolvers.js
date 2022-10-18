@@ -142,12 +142,6 @@ module.exports = {
                 params.title
             )
         },
-        documentHistory: async (_, params, { dataSources }) => {
-            return dataSources.mEditorApi.getDocumentHistory(
-                params.modelName,
-                params.title
-            )
-        },
         validLink: async (_, { url }) => {
             try {
                 let regex = new RegExp(

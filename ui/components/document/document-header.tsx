@@ -22,6 +22,7 @@ const DocumentHeader = ({
     history = [],
 }) => {
     const numberOfComments = comments === null ? 0 : comments.length
+    const numberOfHistoryEntries = history === null ? 0 : history.length
 
     return (
         <div>
@@ -72,7 +73,7 @@ const DocumentHeader = ({
                         >
                             <MdHistory />
                             <Badge className={styles.badge} variant="light">
-                                {history.length}
+                                {numberOfHistoryEntries}
                             </Badge>
                             <span className="sr-only">Show History Panel</span>
                         </Button>

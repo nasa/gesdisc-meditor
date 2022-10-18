@@ -1082,52 +1082,7 @@ module.exports.getModel = async function (request, response, next) {
     }
 }
 
-module.exports.getDocumentHistory = async function (request, response) {
-    let client = new MongoClient(MongoUrl)
-
-    try {
-        await client.connect()
-
-        let dbo = await client.db(DbName)
-
-        const model = await getModelContent(request.query.model, dbo)
-
-        if (!model) throw new Error('Model not found')
-
-        const query = {
-            [model.titleProperty]: request.query.title,
-            'x-meditor.deletedOn': { $exists: false },
-            ...('version' in request.query &&
-                request.query.version !== 'latest' && {
-                    'x-meditor.modifiedOn': request.query.version,
-                }),
-        }
-
-        const historyItems = await dbo
-            .collection(request.query.model)
-            .find(query)
-            .sort({ 'x-meditor.modifiedOn': -1 })
-            .map(item => ({
-                modifiedOn: item['x-meditor'].modifiedOn,
-                modifiedBy: item['x-meditor'].modifiedBy,
-                state: _.last(item['x-meditor'].states).target,
-                states: item['x-meditor'].states.filter(
-                    state => state.source !== 'Init'
-                ),
-            }))
-            .toArray()
-
-        handleSuccess(response, historyItems)
-    } catch (err) {
-        console.error(err)
-        handleError(response, err)
-    } finally {
-        client.close()
-    }
-}
-
 //Add a Comment
-
 function addComment(comment) {
     comment['createdOn'] = new Date().toISOString()
     return new Promise(function (resolve, reject) {

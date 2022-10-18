@@ -1,9 +1,12 @@
-import getDb from '../lib/mongodb'
-import { getModel } from './model'
-import type { Document, DocumentsSearchOptions, Workflow } from './types'
-import { getWorkflow } from './workflow'
-import { getDocumentsForModelQuery } from './document.queries'
 import Fuse from 'fuse.js'
+import { ErrorData } from '../declarations'
+import getDb from '../lib/mongodb'
+import { getModel } from '../models/model'
+import type { Document, DocumentsSearchOptions, Workflow } from '../models/types'
+import { getWorkflow } from '../models/workflow'
+import { getDocumentsDb } from './db'
+import { getDocumentsForModelQuery } from './document.queries'
+import { DocumentHistory } from './types'
 
 // TODO: add OPTIONAL pagination (don't break existing scripts, perhaps the existence of pagination query params changes the output?)
 export async function getDocumentsForModel(
@@ -41,6 +44,54 @@ export async function getDocumentsForModel(
             targetStates: getTargetStatesFromWorkflow(document, workflow), // populate document with states it can transition into
         },
     }))
+}
+
+export async function getDocumentHistory(
+    documentTitle: string,
+    modelName: string
+): Promise<ErrorData<DocumentHistory[]>> {
+    try {
+        const documentsDb = await getDocumentsDb()
+        // todo: refactor once getModel is a class instance of modelsDb
+        const { titleProperty = '' } = await getModel(modelName)
+
+        const historyItems = await documentsDb.getDocumentHistory(
+            documentTitle,
+            modelName,
+            titleProperty
+        )
+
+        return [null, historyItems]
+    } catch (error) {
+        console.error(error)
+
+        return [error, null]
+    }
+}
+
+export async function getDocumentHistoryByVersion(
+    versionId: string,
+    documentTitle: string,
+    modelName: string
+): Promise<ErrorData<DocumentHistory>> {
+    try {
+        const documentsDb = await getDocumentsDb()
+        // todo: refactor once getModel is a class instance of modelsDb
+        const { titleProperty = '' } = await getModel(modelName)
+
+        const historyItem = await documentsDb.getDocumentHistoryByVersion(
+            documentTitle,
+            modelName,
+            titleProperty,
+            versionId
+        )
+
+        return [null, historyItem]
+    } catch (error) {
+        console.error(error)
+
+        return [error, null]
+    }
 }
 
 /**

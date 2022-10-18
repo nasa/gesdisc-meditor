@@ -56,18 +56,6 @@ module.exports.getDocumentPublicationStatus = function getDocumentPublicationSta
         })
 }
 
-module.exports.getDocumentHistory = function getDocumentHistory(req, res, next) {
-    var model = req.swagger.params['model'].value
-    var title = req.swagger.params['title'].value
-    Default.getDocumentHistory(model, title)
-        .then(function (response) {
-            utils.writeJson(res, response)
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response)
-        })
-}
-
 module.exports.getMe = function getMe(req, res, next) {
     Default.getMe()
         .then(function (response) {

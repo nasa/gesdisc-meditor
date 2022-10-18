@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { getDocumentsForModel } from '../../../../../models/document'
+import { getDocumentsForModel } from '../../../../../documents/service'
 import { apiError } from '../../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
