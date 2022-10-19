@@ -92,9 +92,10 @@ const DocumentHistory = ({
 
             {history === null ? (
                 <p className="text-center py-4 text-danger">
-                    mEditor had an error getting the history for this document.
-                    mEditor has recorded the error, but you can still leave feedback
-                    using the link at the top of the page.
+                    mEditor had an error getting the history for this document. Please
+                    try refreshing the page once your work is saved. mEditor has
+                    recorded the error, but you can still leave feedback using the
+                    link at the top of the page.
                 </p>
             ) : (
                 history.map((item, index) => (

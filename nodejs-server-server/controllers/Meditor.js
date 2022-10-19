@@ -1081,23 +1081,3 @@ module.exports.getModel = async function (request, response, next) {
         client.close()
     }
 }
-
-//Add a Comment
-function addComment(comment) {
-    comment['createdOn'] = new Date().toISOString()
-    return new Promise(function (resolve, reject) {
-        MongoClient.connect(MongoUrl, function (err, db) {
-            if (err) throw err
-            var dbo = db.db(DbName)
-            dbo.collection('Comments').insertOne(comment, function (err, res) {
-                if (err) {
-                    console.log(err)
-                    throw err
-                }
-                var userMsg = 'Added comment'
-                db.close()
-                resolve(userMsg)
-            })
-        })
-    })
-}

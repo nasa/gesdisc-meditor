@@ -81,7 +81,9 @@ describe('Documents', () => {
 
     describe('getDocumentsForModel', () => {
         it('should return a empty list of documents for a model with no documents', async () => {
-            const documents = await getDocumentsForModel('Collection Metadata')
+            const [error, documents] = await getDocumentsForModel(
+                'Collection Metadata'
+            )
 
             expect(documents.length).toEqual(0)
         })
@@ -93,8 +95,10 @@ describe('Documents', () => {
                 .insertOne(GLDAS_CLM10SUBP_3H_001)
             await db.collection('Collection Metadata').insertOne(OML1BRVG_003)
 
-            const alerts = await getDocumentsForModel('Alerts')
-            const collections = await getDocumentsForModel('Collection Metadata')
+            const [alertsError, alerts] = await getDocumentsForModel('Alerts')
+            const [collectionsError, collections] = await getDocumentsForModel(
+                'Collection Metadata'
+            )
 
             expect(alerts.length).toBe(1)
             expect(collections.length).toBe(2)
@@ -103,7 +107,9 @@ describe('Documents', () => {
         it('returned documents with no state should have unspecified state added', async () => {
             await db.collection('Collection Metadata').insertOne(TEST_NO_STATE)
 
-            const collections = await getDocumentsForModel('Collection Metadata')
+            const [collectionsError, collections] = await getDocumentsForModel(
+                'Collection Metadata'
+            )
 
             expect(collections[0]['x-meditor'].state).toEqual('Unspecified')
         })
@@ -112,7 +118,10 @@ describe('Documents', () => {
             await db
                 .collection('Collection Metadata')
                 .insertOne(GLDAS_CLM10SUBP_3H_001)
-            const collections = await getDocumentsForModel('Collection Metadata')
+
+            const [collectionsError, collections] = await getDocumentsForModel(
+                'Collection Metadata'
+            )
 
             expect(collections[0]).toMatchInlineSnapshot(`
                 Object {
@@ -165,9 +174,12 @@ describe('Documents', () => {
                 .insertOne(GLDAS_CLM10SUBP_3H_001)
             await db.collection('Collection Metadata').insertOne(OML1BRVG_003)
 
-            const collections = await getDocumentsForModel('Collection Metadata', {
-                filter: 'Combined_EntryID:GLDAS_CLM10SUBP_3H_001',
-            })
+            const [collectionsError, collections] = await getDocumentsForModel(
+                'Collection Metadata',
+                {
+                    filter: 'Combined_EntryID:GLDAS_CLM10SUBP_3H_001',
+                }
+            )
 
             expect(collections.length).toBe(1)
         })
@@ -191,7 +203,9 @@ describe('Documents', () => {
                 },
             })
 
-            const collections = await getDocumentsForModel('Collection Metadata')
+            const [collectionsError, collections] = await getDocumentsForModel(
+                'Collection Metadata'
+            )
 
             expect(collections.map(collection => collection.title)).toEqual([
                 'OML1BRVG_003',
@@ -234,9 +248,12 @@ describe('Documents', () => {
                     },
                 })
 
-                const collections = await getDocumentsForModel(collection, {
-                    sort,
-                })
+                const [collectionsError, collections] = await getDocumentsForModel(
+                    collection,
+                    {
+                        sort,
+                    }
+                )
 
                 expect(collections.map(collection => collection.title)).toEqual(
                     expectedTitlesInOrder
@@ -245,12 +262,15 @@ describe('Documents', () => {
         )
 
         it('should throw for an improperly formatted filter', async () => {
-            await expect(async () =>
-                getDocumentsForModel('Collection Metadata', {
+            const [collectionsError, collections] = await getDocumentsForModel(
+                'Collection Metadata',
+                {
                     filter: 'Improper query here',
-                })
-            ).rejects.toThrowErrorMatchingInlineSnapshot(
-                `"Improperly formatted filter"`
+                }
+            )
+
+            expect(collectionsError).toMatchInlineSnapshot(
+                `[Error: Improperly formatted filter]`
             )
         })
 
@@ -265,7 +285,9 @@ describe('Documents', () => {
             await db.collection('Collection Metadata').insertOne(oldVersion)
             await db.collection('Collection Metadata').insertOne(OML1BRVG_003)
 
-            const collections = await getDocumentsForModel('Collection Metadata')
+            const [collectionsError, collections] = await getDocumentsForModel(
+                'Collection Metadata'
+            )
 
             expect(collections.length).toBe(2)
             // check date to make sure we got the latest one
@@ -283,7 +305,9 @@ describe('Documents', () => {
             await db.collection('Collection Metadata').insertOne(deletedDocument)
             await db.collection('Collection Metadata').insertOne(OML1BRVG_003)
 
-            const collections = await getDocumentsForModel('Collection Metadata')
+            const [collectionsError, collections] = await getDocumentsForModel(
+                'Collection Metadata'
+            )
 
             expect(collections.length).toBe(1)
         })
