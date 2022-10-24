@@ -40,22 +40,6 @@ module.exports.getDocument = function getDocument(req, res, next) {
         })
 }
 
-module.exports.getDocumentPublicationStatus = function getDocumentPublicationStatus(
-    req,
-    res,
-    next
-) {
-    var model = req.swagger.params['model'].value
-    var title = req.swagger.params['title'].value
-    Default.getDocumentPublicationStatus(model, title)
-        .then(function (response) {
-            utils.writeJson(res, response)
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response)
-        })
-}
-
 module.exports.getMe = function getMe(req, res, next) {
     Default.getMe()
         .then(function (response) {

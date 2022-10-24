@@ -1,3 +1,5 @@
+import { DocumentPublications } from '../documents/types'
+
 export interface DocumentsSearchOptions {
     searchTerm?: string
     filter?: string // ex. state:Draft
@@ -68,7 +70,7 @@ export interface DocumentMetadata {
     state: string
     targetStates: string[]
     states: WorkflowState[]
-    publishedTo?: PublishedTo[]
+    publishedTo?: DocumentPublications[]
 }
 
 export interface Document {
@@ -84,13 +86,4 @@ export interface WorkflowState {
     source: string
     target: string
     modifiedOn: string | null
-}
-
-export interface PublishedTo {
-    message: string
-    statusCode: number
-    publishedOn?: number
-    failedOn?: number
-    url?: string
-    target?: string
 }

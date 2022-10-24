@@ -1,0 +1,64 @@
+{
+    "_id": "6350af16db63ce102b8301cv",
+    "severity": "normal",
+    "datasets": [
+        "SNDRAQIL2CCPRET_2",
+        "SNDRAQIL3SDCCP_2",
+        "SNDRAQIML3SDCCP_2",
+        "SNDRAQIL3CMCCP_2",
+        "SNDRAQIL3SMCCP_2",
+        "SNDRAQIL3CDCCP_2",
+        "SNDRAQIML3CMCCP_2",
+        "SNDRAQIML2CCPRET_2",
+        "SNDRAQIML3SMCCP_2",
+        "SNDRAQIML3CDCCP_2",
+        "SNDRJ1IML2CCPRET_2",
+        "SNDRJ1IML3SDCCP_2",
+        "SNDRJ1IML3SMCCP_2",
+        "SNDRJ1IML3CDCCP_2",
+        "SNDRJ1IML3CMCCP_2",
+        "SNDRSNIML2CCPRETN_2",
+        "SNDRSNIML2CCPRET_2",
+        "SNDRSNIML3CDCCPN_2",
+        "SNDRSNIML3SMCCPN_2",
+        "SNDRSNIML3SMCCP_2",
+        "SNDRSNIML3CDCCP_2",
+        "SNDRSNIML3SDCCP_2",
+        "SNDRSNIML3SDCCPN_2",
+        "SNDRSNIML3CMCCP_2",
+        "SNDRSNIML3CMCCPN_2"
+    ],
+    "body": "<p>WARNING: Users of CLIMCAPS (<span style=\"font-size:12pt; font-variant:normal; white-space:pre-wrap\"><span style=\"font-family:Calibri,sans-serif\"><span style=\"color:#000000\"><span style=\"font-weight:400\"><span style=\"font-style:normal\"><span style=\"text-decoration:none\">Community Long-term Infrared Microwave Coupled Atmospheric Product System)</span></span></span></span></span></span> Level-2 and Level-3 products should avoid the derived product &ldquo;co_mmr_midtrop&rdquo; (carbon monoxide mass mixing ratio to dry air [kg/kg] at ~500 hPa). This variable has a significant bias due to a conversion error: the molecular weight of carbon dioxide (CO2, 48.01 g/mol) was used instead of carbon monoxide (CO, 28.01 g/mol). To correct, simply multiply &ldquo;co_mmr_midtrop&rdquo; by 28.01/48.01. Alternatively, derive a profile of mass mixing ratio from scratch using the retrieved column density values (&ldquo;mol_lay/co_mol_lay&rdquo;) in the Level 2 files.</p>\n\n<p>For further questions or concerns please contact the Sounder SIPS at: sounder.sips@jpl.nasa.gov</p>\n\n<p>&nbsp;</p>\n",
+    "title": "Issue with derived carbon monoxide mass mixing ratio from the CLIMCAPS processing system",
+    "start": "2022-10-19 12:00:00-04:00",
+    "expiration": "2023-09-30 12:00:00-04:00",
+    "x-meditor": {
+        "model": "Alerts",
+        "modifiedOn": "2022-10-19T18:16:54.215Z",
+        "modifiedBy": "jane.doe",
+        "states": [
+            {
+                "source": "Init",
+                "target": "Draft",
+                "modifiedOn": null
+            },
+            {
+                "source": "Draft",
+                "target": "Published",
+                "modifiedOn": "2022-10-19T18:17:03.139Z",
+                "modifiedBy": "jane.doe"
+            }
+        ],
+        "publishedTo": [
+            {
+                "url": "http://www.example.com",
+                "message": "Document was successfully published to UUI-OPS",
+                "target": "uui",
+                "statusCode": 200,
+                "publishedOn": 1666203423780
+            }
+        ],
+        "state": "Published",
+        "targetStates": []
+    }
+}

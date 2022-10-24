@@ -761,50 +761,6 @@ module.exports.getDocument = async function (request, response) {
     }
 }
 
-// Exported method to get a document's publication status
-module.exports.getDocumentPublicationStatus = async function (
-    request,
-    response,
-    next
-) {
-    let client = new MongoClient(MongoUrl)
-
-    try {
-        await client.connect()
-
-        let dbo = await client.db(DbName)
-
-        const model = await getModelContent(request.query.model, dbo)
-
-        if (!model) throw new Error('Model not found')
-
-        const results = await dbo
-            .collection(request.query.model)
-            .aggregate(
-                [
-                    { $match: { [model.titleProperty]: request.query.title } },
-                    { $sort: { 'x-meditor.modifiedOn': -1 } },
-                    { $project: { 'x-meditor.publishedTo': 1 } },
-                ],
-                { allowDiskUse: true }
-            )
-            .toArray()
-
-        if (!results.length) throw new Error('No document found')
-
-        if (!results[0]['x-meditor'].publishedTo) {
-            handleNotFound(response, 'Document has not been published')
-        } else {
-            handleSuccess(response, results[0]['x-meditor'].publishedTo || [])
-        }
-    } catch (err) {
-        console.error(err)
-        handleError(response, err)
-    } finally {
-        client.close()
-    }
-}
-
 // Change workflow status of a document
 module.exports.changeDocumentState = function changeDocumentState(
     request,
