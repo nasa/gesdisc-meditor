@@ -618,69 +618,6 @@ module.exports.putDocument = function putDocument(request, response, next) {
         })
 }
 
-// Exported method to setup mEditor for the first time
-module.exports.setup = async function (request, response) {
-    console.log('Request to setup mEditor received ', request.body)
-
-    let client = new MongoClient(MongoUrl)
-
-    await client.connect()
-
-    try {
-        // verify that there are no models yet
-        if ((await client.db(DbName).collection('Models').find().count()) > 0) {
-            throw new Error('mEditor has already been setup')
-        }
-
-        // prep users for insert
-        let roles = ['Models', 'Workflows', 'Users', 'Example News'].map(model => ({
-            model,
-            role: 'Author',
-        }))
-        let users = request.body.map(user => ({
-            id: user.uid,
-            name: user.name,
-            roles,
-            'x-meditor': {
-                model: 'Users',
-                modifiedOn: new Date().toISOString(),
-                modifiedBy: 'system',
-                states: [
-                    {
-                        source: 'Init',
-                        target: 'Draft',
-                        modifiedOn: new Date().toISOString(),
-                    },
-                ],
-            },
-        }))
-
-        // insert users
-        await client.db(DbName).collection('Users').insertMany(users)
-
-        // read in seed data
-        let models = JSON.parse(await readFile(__dirname + '/../db-seed/models.json'))
-        let workflows = JSON.parse(
-            await readFile(__dirname + '/../db-seed/workflows.json')
-        )
-        let news = JSON.parse(
-            await readFile(__dirname + '/../db-seed/example-news.json')
-        )
-
-        // insert seed data
-        await client.db(DbName).collection('Models').insertMany(models)
-        await client.db(DbName).collection('Workflows').insertMany(workflows)
-        await client.db(DbName).collection('Example News').insertMany(news)
-
-        handleSuccess(response, {})
-    } catch (err) {
-        console.error(err)
-        handleError(response, err)
-    } finally {
-        await client.close()
-    }
-}
-
 // Exported method to clone a document
 module.exports.cloneDocument = async function (request, response, next) {
     let client = new MongoClient(MongoUrl)

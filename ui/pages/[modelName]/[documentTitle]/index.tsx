@@ -1,7 +1,7 @@
 import { useLazyQuery } from '@apollo/react-hooks'
 import gql from 'graphql-tag'
 import cloneDeep from 'lodash.clonedeep'
-import { NextPageContext } from 'next'
+import type { NextPageContext } from 'next'
 import { useRouter } from 'next/router'
 import { useContext, useEffect, useState } from 'react'
 import { getCommentsForDocument } from '../../../comments/service'

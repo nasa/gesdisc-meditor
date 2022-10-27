@@ -1,14 +1,13 @@
-import PageTitle from '../components/page-title'
-import UnderMaintenance from '../components/under-maintenance'
-import Router from 'next/router'
+import type { NextPageContext } from 'next'
+import Link from 'next/link'
 import Button from 'react-bootstrap/Button'
 import ModelIcon from '../components/model-icon'
-import styles from './dashboard.module.css'
+import PageTitle from '../components/page-title'
+import UnderMaintenance from '../components/under-maintenance'
 import { getModelsWithDocumentCount } from '../models/model'
 import type { ModelCategory } from '../models/types'
-import { NextPageContext } from 'next'
-import Link from 'next/link'
 import { sortModels } from '../utils/sort'
+import styles from './dashboard.module.css'
 
 type DashboardPageProps = {
     modelCategories: ModelCategory[]
@@ -58,12 +57,13 @@ export async function getServerSideProps(context: NextPageContext) {
     const models = (await getModelsWithDocumentCount()).sort(sortModels)
 
     if (!models.length) {
-        // database hasn't been setup yet, redirect to installation page!
-        context.res.writeHead(301, {
-            Location: '/meditor/installation',
-        })
-
-        context.res.end()
+        return {
+            redirect: {
+                // base path is automatically applied (see next.config.js)
+                destination: '/installation',
+                permanent: false,
+            },
+        }
     }
 
     // get a unique list of category names from the models

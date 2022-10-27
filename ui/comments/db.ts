@@ -2,6 +2,8 @@ import { Db, ObjectID } from 'mongodb'
 import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
 import { DocumentComment, NewDocumentComment } from './types'
 
+const COMMENTS_COLLECTION = 'Comments'
+
 class CommentsDb {
     #COMMENTS_COLLECTION = 'Comments'
     #db: Db

@@ -1,4 +1,4 @@
-import { NextRouter } from 'next/router'
+import type { NextRouter } from 'next/router'
 
 /**
  * As an alternative to calling the underlying service for new data or calling the API (which calls the underlying service), we can let React diff the page and send us new data.

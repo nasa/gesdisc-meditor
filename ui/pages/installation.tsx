@@ -1,30 +1,32 @@
-import PageTitle from '../components/page-title'
-import styles from './installation.module.css'
+import type { NextPageContext } from 'next'
+import { useRouter } from 'next/router'
+import pluralize from 'pluralize'
+import { useEffect, useState } from 'react'
 import Accordion from 'react-bootstrap/Accordion'
-import Card from 'react-bootstrap/Card'
-import Button from 'react-bootstrap/Button'
-import { MdNavigateNext, MdDelete } from 'react-icons/md'
-import { useState, useEffect } from 'react'
-import Form from 'react-bootstrap/Form'
-import Col from 'react-bootstrap/Col'
-import ListGroup from 'react-bootstrap/ListGroup'
-import IconButton from '../components/jsonschemaform/components/IconButton'
-import { FaDatabase } from 'react-icons/fa'
-import mEditorApi from '../service/'
-import Loading from '../components/loading'
 import Alert from 'react-bootstrap/Alert'
-import { NextPageContext } from 'next'
+import Button from 'react-bootstrap/Button'
+import Card from 'react-bootstrap/Card'
+import Col from 'react-bootstrap/Col'
+import Form from 'react-bootstrap/Form'
+import ListGroup from 'react-bootstrap/ListGroup'
+import { FaDatabase } from 'react-icons/fa'
+import { MdDelete, MdNavigateNext } from 'react-icons/md'
+import IconButton from '../components/jsonschemaform/components/IconButton'
+import Loading from '../components/loading'
+import PageTitle from '../components/page-title'
+import { refreshDataInPlace } from '../lib/next'
 import { getModels } from '../models/model'
+import { fetchSeedDb } from '../setup/http'
+import type { User } from '../setup/types'
+import styles from './installation.module.css'
 
-interface User {
-    name: string
-    uid: string
-}
-
+// import mEditorApi from '../service/'
 /**
  * renders the install page ONLY if there aren't any models created yet (fresh install)
  */
 const InstallationPage = () => {
+    const router = useRouter()
+
     const [step, setStep] = useState(1)
     const [maxSteps, setMaxSteps] = useState(1)
     const [users, setUsers] = useState<Array<User>>([])
@@ -80,16 +82,18 @@ const InstallationPage = () => {
     async function runSetup() {
         setSetupState('in progress')
 
-        try {
-            await mEditorApi.setup(users)
-            setTimeout(() => {
-                setSetupState('success')
-                goToStep(4)
+        const [error] = await fetchSeedDb(users)
+
+        if (!!error) {
+            return setTimeout(() => {
+                setSetupState('failed')
             }, 1000)
-        } catch (err) {
-            console.error('Failed to setup ', err)
-            setTimeout(() => setSetupState('failed'), 1000)
         }
+
+        setTimeout(() => {
+            setSetupState('success')
+            goToStep(4)
+        }, 1000)
     }
 
     return (
@@ -305,7 +309,8 @@ const InstallationPage = () => {
                                             "Edit-Review-Publish" and "Edit"
                                         </li>
                                         <li>
-                                            The {users.length} user(s) that you
+                                            The {users.length}{' '}
+                                            {pluralize('user', users.length)} that you
                                             requested
                                         </li>
                                         <li>An example model: "Example News"</li>
@@ -337,7 +342,7 @@ const InstallationPage = () => {
 
                             <Button
                                 variant="primary"
-                                onClick={() => (window.location.href = '/meditor')}
+                                onClick={() => refreshDataInPlace(router)}
                             >
                                 Login to mEditor
                             </Button>
@@ -354,11 +359,14 @@ export async function getServerSideProps(context: NextPageContext) {
 
     if (models?.length) {
         // there are already models! redirect back to the dashboard
-        context.res.writeHead(301, {
-            Location: '/meditor',
-        })
-
-        context.res.end()
+        return {
+            redirect: {
+                // Don't use the base path (see nex.config.js) here: if used, '/' redirects to '/meditor/' which redirects to '/meditor'.
+                basePath: false,
+                destination: '/meditor',
+                permanent: true,
+            },
+        }
     }
 
     return {
