@@ -14,7 +14,7 @@
 
 import * as portableFetch from 'portable-fetch'
 import * as url from 'url'
-import { Configuration } from './configuration'
+import type { Configuration } from './configuration'
 
 const BASE_PATH = ''
 
@@ -1212,57 +1212,6 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
                 options: localVarRequestOptions,
             }
         },
-        /**
-         *
-         * @param {Array<Users>} [users]
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        setup(users?: Array<Users>, options: any = {}): FetchArgs {
-            const localVarPath = `/setup`
-            const localVarUrlObj = url.parse(localVarPath, true)
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options)
-            const localVarHeaderParameter = {} as any
-            const localVarQueryParameter = {} as any
-
-            // authentication URS4 required
-            // oauth required
-            if (configuration && configuration.accessToken) {
-                const localVarAccessTokenValue =
-                    typeof configuration.accessToken === 'function'
-                        ? configuration.accessToken('URS4', ['read', 'write'])
-                        : configuration.accessToken
-                localVarHeaderParameter['Authorization'] =
-                    'Bearer ' + localVarAccessTokenValue
-            }
-
-            localVarHeaderParameter['Content-Type'] = 'application/json'
-
-            localVarUrlObj.query = Object.assign(
-                {},
-                localVarUrlObj.query,
-                localVarQueryParameter,
-                options.query
-            )
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search
-            localVarRequestOptions.headers = Object.assign(
-                {},
-                localVarHeaderParameter,
-                options.headers
-            )
-            const needsSerialization =
-                <any>'Array&lt;Users&gt;' !== 'string' ||
-                localVarRequestOptions.headers['Content-Type'] === 'application/json'
-            localVarRequestOptions.body = needsSerialization
-                ? JSON.stringify(users || {})
-                : users || ''
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            }
-        },
     }
 }
 
@@ -1664,37 +1613,6 @@ export const DefaultApiFp = function (configuration?: Configuration) {
                     })
             }
         },
-        /**
-         *
-         * @param {Array<Users>} [users]
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        setup(
-            users?: Array<Users>,
-            options?: any
-        ): (fetch?: FetchAPI, basePath?: string) => Promise<Success> {
-            const localVarFetchArgs = DefaultApiFetchParamCreator(
-                configuration
-            ).setup(users, options)
-            return (
-                fetch: FetchAPI = portableFetch,
-                basePath: string = BASE_PATH
-            ) => {
-                return configuration
-                    .fetch(
-                        basePath + localVarFetchArgs.url,
-                        localVarFetchArgs.options
-                    )
-                    .then(response => {
-                        if (response.status >= 200 && response.status < 300) {
-                            return response.json()
-                        } else {
-                            throw response
-                        }
-                    })
-            }
-        },
     }
 }
 
@@ -1870,15 +1788,6 @@ export const DefaultApiFactory = function (
                 fetch,
                 basePath
             )
-        },
-        /**
-         *
-         * @param {Array<Users>} [users]
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        setup(users?: Array<Users>, options?: any) {
-            return DefaultApiFp(configuration).setup(users, options)(fetch, basePath)
         },
     }
 }
@@ -2094,20 +2003,6 @@ export class DefaultApi extends BaseAPI {
      */
     public putDocument(file: any, options?: any) {
         return DefaultApiFp(this.configuration).putDocument(file, options)(
-            this.fetch,
-            this.basePath
-        )
-    }
-
-    /**
-     *
-     * @param {Array<Users>} [users]
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DefaultApi
-     */
-    public setup(users?: Array<Users>, options?: any) {
-        return DefaultApiFp(this.configuration).setup(users, options)(
             this.fetch,
             this.basePath
         )

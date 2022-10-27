@@ -1,4 +1,4 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
 
 const LEGACY_API_HOST = process.env.API_HOST || 'meditor_server:8081'
 const LEGACY_MEDITOR_SESSION_COOKIE = '__mEditor'

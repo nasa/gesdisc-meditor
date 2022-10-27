@@ -203,11 +203,16 @@ async function updateOrCreateUser(profile, uidField = 'uid') {
             lastAccessed: _.now(),
         }
 
-        const existingUser = await db
+        const existingMeditorUser = await db
+            .collection(USERS_COLLECTION_MEDITOR)
+            .findOne({ id: uid })
+
+        const existingUrsUser = await db
             .collection(USERS_COLLECTION_URS)
             .findOne({ uid })
 
-        if (_.isNil(existingUser)) {
+        //* Upsert a user in the meditor users collection only if both collections don't have that user.
+        if (_.isNil(existingUrsUser) && _.isNil(existingMeditorUser)) {
             // user does not exist, set the created date
             user.created = _.now()
 

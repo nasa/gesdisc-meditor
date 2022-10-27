@@ -1,7 +1,7 @@
-import { addStatesToDocument, latestVersionOfDocument } from './shared.queries'
-import { DocumentsSearchOptions } from './types'
-import { convertLuceneQueryToMongo } from '../utils/search'
 import { BadRequestException } from '../utils/errors'
+import { convertLuceneQueryToMongo } from '../utils/search'
+import { addStatesToDocument, latestVersionOfDocument } from './shared.queries'
+import type { DocumentsSearchOptions } from './types'
 
 const DEFAULT_SORT = '-x-meditor.modifiedOn'
 

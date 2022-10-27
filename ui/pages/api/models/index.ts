@@ -1,4 +1,4 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import { getModels } from '../../../models/model'
 import { apiError } from '../../../utils/errors'
 

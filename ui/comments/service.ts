@@ -1,14 +1,17 @@
-import { BadRequestException, UnauthorizedException } from '../utils/errors'
-import type { User } from '../auth/types'
-import { CreateCommentUserInput, UpdateCommentUserInput } from './types'
 import { validate } from 'jsonschema'
+import type { User } from '../auth/types'
+import type { ErrorData } from '../declarations'
+import { BadRequestException, UnauthorizedException } from '../utils/errors'
+import CommentsDb from './db'
+import type {
+    CreateCommentUserInput,
+    DocumentComment,
+    UpdateCommentUserInput,
+} from './types'
 import {
     NewDocumentCommentUserInputSchema,
     UpdateDocumentCommentUserInputSchema,
 } from './validation.schemas'
-import CommentsDb from './db'
-import { ErrorData } from '../declarations'
-import { DocumentComment } from './types'
 
 export async function createCommentAsUser(
     newComment: CreateCommentUserInput,

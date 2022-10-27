@@ -1,6 +1,6 @@
 import { ObjectID } from 'mongodb'
-import { DocumentComment, NewDocumentComment } from './types'
 import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
+import type { DocumentComment, NewDocumentComment } from './types'
 
 const COMMENTS_COLLECTION = 'Comments'
 
