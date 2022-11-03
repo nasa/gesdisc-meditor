@@ -17,7 +17,7 @@ import PageTitle from '../components/page-title'
 import { refreshDataInPlace } from '../lib/next'
 import { getModels } from '../models/model'
 import { fetchSeedDb } from '../setup/http'
-import type { User } from '../setup/types'
+import type { UserDuringSetup } from '../setup/types'
 import styles from './installation.module.css'
 
 // import mEditorApi from '../service/'
@@ -29,9 +29,9 @@ const InstallationPage = () => {
 
     const [step, setStep] = useState(1)
     const [maxSteps, setMaxSteps] = useState(1)
-    const [users, setUsers] = useState<Array<User>>([])
+    const [users, setUsers] = useState<Array<UserDuringSetup>>([])
     const [validated, setValidated] = useState<boolean>(false)
-    const [newUser, setNewUser] = useState<User>(null)
+    const [newUser, setNewUser] = useState<UserDuringSetup>(null)
     const [setupState, setSetupState] = useState<
         'not started' | 'in progress' | 'failed' | 'success'
     >('not started')
@@ -159,7 +159,7 @@ const InstallationPage = () => {
                                     </ListGroup.Item>
                                 )}
 
-                                {users.map((user: User, index: number) => (
+                                {users.map((user: UserDuringSetup, index: number) => (
                                     <ListGroup.Item
                                         key={user.uid}
                                         className="d-flex align-items-center justify-content-between"

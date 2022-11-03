@@ -2,9 +2,11 @@ import type { ErrorData } from '../declarations'
 import { getModels } from '../models/model'
 import { BadRequestException } from '../utils/errors'
 import { getSetupDb } from './db'
-import type { User } from './types'
+import type { UserDuringSetup } from './types'
 
-async function setUpNewInstallation(users: User[] = []): Promise<ErrorData<null>> {
+async function setUpNewInstallation(
+    users: UserDuringSetup[] = []
+): Promise<ErrorData<null>> {
     console.log('Request to set up mEditor received. Adding users: ', users)
 
     try {

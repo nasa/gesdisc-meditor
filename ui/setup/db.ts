@@ -3,7 +3,7 @@ import getDb from '../lib/mongodb'
 import exampleNews from './db-seed/example-news.json'
 import models from './db-seed/models.json'
 import workflows from './db-seed/workflows.json'
-import type { User } from './types'
+import type { UserDuringSetup } from './types'
 
 class SetupDb {
     #EXAMPLE_NEWS_COLLECTION = 'Example News'
@@ -18,7 +18,7 @@ class SetupDb {
         }
     }
 
-    async seedDb(users: User[]): Promise<void> {
+    async seedDb(users: UserDuringSetup[]): Promise<void> {
         const ISO_DATE = new Date().toISOString()
 
         const defaultRoles = ['Models', 'Workflows', 'Users', 'Example News'].map(

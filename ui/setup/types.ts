@@ -1,4 +1,3 @@
-export type User = {
-    name: string
-    uid: string
-}
+import type { User } from '../auth/types'
+
+export type UserDuringSetup = Pick<User, 'name' | 'uid'>
