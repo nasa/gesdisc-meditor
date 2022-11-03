@@ -361,9 +361,7 @@ export async function getServerSideProps(context: NextPageContext) {
         // there are already models! redirect back to the dashboard
         return {
             redirect: {
-                // Don't use the base path (see nex.config.js) here: if used, '/' redirects to '/meditor/' which redirects to '/meditor'.
-                basePath: false,
-                destination: '/meditor',
+                destination: '/',
                 permanent: true,
             },
         }
