@@ -1,4 +1,4 @@
-import { NextApiResponse } from 'next'
+import type { NextApiResponse } from 'next'
 
 export class HttpException extends Error {
     status: number

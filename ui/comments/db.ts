@@ -1,6 +1,7 @@
-import { Db, ObjectID } from 'mongodb'
+import type { Db } from 'mongodb'
+import { ObjectID } from 'mongodb'
 import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
-import { DocumentComment, NewDocumentComment } from './types'
+import type { DocumentComment, NewDocumentComment } from './types'
 
 class CommentsDb {
     #COMMENTS_COLLECTION = 'Comments'

@@ -1,9 +1,9 @@
 import { validate } from 'jsonschema'
 import type { User } from '../auth/types'
-import { ErrorData } from '../declarations'
+import type { ErrorData } from '../declarations'
 import { BadRequestException, UnauthorizedException } from '../utils/errors'
 import { getCommentsDb } from './db'
-import {
+import type {
     CreateCommentUserInput,
     DocumentComment,
     UpdateCommentUserInput,

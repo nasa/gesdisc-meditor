@@ -1,7 +1,7 @@
 import getDb from '../lib/mongodb'
 import { NotFoundException } from '../utils/errors'
 import { getModel } from './model'
-import { Workflow } from './types'
+import type { Workflow } from './types'
 
 export const WORKFLOWS_COLLECTION = 'Workflows'
 export const WORKFLOWS_TITLE_PROPERTY = 'name'

@@ -1,19 +1,19 @@
-import Link from 'next/link'
-import DocumentStateBadge from '../document/document-state-badge'
-import StateBadge from '../state-badge'
-import styles from './search-result.module.css'
 import { format } from 'date-fns'
+import Link from 'next/link'
+import { useContext, useState } from 'react'
 import { FaRegClone } from 'react-icons/fa'
 import { IoMdTrash } from 'react-icons/io'
-import IconButton from '../icon-button'
-import CloneDocumentModal from '../document/clone-document-modal'
-import { useContext, useState } from 'react'
-import { AppContext } from '../app-store'
 import {
     removeUnsavedDocumentFromLS,
     UnsavedDocument,
 } from '../../lib/unsaved-changes'
-import { Document } from '../../models/types'
+import type { Document } from '../../models/types'
+import { AppContext } from '../app-store'
+import CloneDocumentModal from '../document/clone-document-modal'
+import DocumentStateBadge from '../document/document-state-badge'
+import IconButton from '../icon-button'
+import StateBadge from '../state-badge'
+import styles from './search-result.module.css'
 
 interface SearchResultProps {
     document: Document | UnsavedDocument

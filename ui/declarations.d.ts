@@ -10,7 +10,12 @@ declare global {
     var CKEDITOR: CKEditor
 }
 
-export type ErrorData<T> = [Error | null, T | null]
+export type APIError = {
+    status: number
+    error: string
+}
+
+export type ErrorData<T> = [Error | APIError | null, T | null]
 
 type gReactProps<T> = {
     [P in keyof T]?: DetailedHTMLProps<HTMLAttributes<T[P]>, T[P]>

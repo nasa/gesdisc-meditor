@@ -1,5 +1,5 @@
-import { ErrorSchema } from '@rjsf/core'
-import { ValidationError } from 'jsonschema'
+import type { ErrorSchema } from '@rjsf/core'
+import type { ValidationError } from 'jsonschema'
 
 /**
  * returns a new errorSchema ONLY including validation errors for fields found in `errors`

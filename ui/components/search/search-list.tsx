@@ -1,12 +1,12 @@
-import SearchStatusBar from './search-status-bar'
-import SearchResult from './search-result'
 import { useEffect, useState } from 'react'
-import { findUnsavedDocumentsByModel } from '../../lib/unsaved-changes'
-import styles from './search-list.module.css'
 import { IoMdArrowDropdown } from 'react-icons/io'
+import { findUnsavedDocumentsByModel } from '../../lib/unsaved-changes'
+import type { Document, DocumentsSearchOptions, Model } from '../../models/types'
+import type { User } from '../../service/api'
 import Pagination from '../pagination'
-import { Document, DocumentsSearchOptions, Model } from '../../models/types'
-import { User } from '../../service/api'
+import styles from './search-list.module.css'
+import SearchResult from './search-result'
+import SearchStatusBar from './search-status-bar'
 
 interface SearchListProps {
     documents: Document[]

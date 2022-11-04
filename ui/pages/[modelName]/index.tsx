@@ -1,6 +1,6 @@
-import { NextPageContext } from 'next'
+import type { NextPageContext } from 'next'
 import { useRouter } from 'next/router'
-import { ParsedUrlQuery } from 'querystring'
+import type { ParsedUrlQuery } from 'querystring'
 import { useEffect, useRef, useState } from 'react'
 import PageTitle from '../../components/page-title'
 import SearchBar from '../../components/search/search-bar'
@@ -8,8 +8,8 @@ import SearchList from '../../components/search/search-list'
 import withAuthentication from '../../components/with-authentication'
 import { getDocumentsForModel } from '../../documents/service'
 import { getModel, getModels } from '../../models/model'
-import { Document, DocumentsSearchOptions, Model } from '../../models/types'
-import { User } from '../../service/api'
+import type { Document, DocumentsSearchOptions, Model } from '../../models/types'
+import type { User } from '../../service/api'
 
 function getSearchOptionsFromParams(query: ParsedUrlQuery): DocumentsSearchOptions {
     return {
