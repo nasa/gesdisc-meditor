@@ -1,15 +1,22 @@
-import getDb from '../lib/mongodb'
-import { getDocumentsForModel, getTargetStatesFromWorkflow } from './document'
-import alertsModel from './__test__/fixtures/models/alerts.json'
-import collectionMetadataModel from './__test__/fixtures/models/collection-metadata.json'
-import GLDAS_CLM10SUBP_3H_001 from './__test__/fixtures/collection-metadata/GLDAS_CLM10SUBP_3H_001.json'
-import OML1BRVG_003 from './__test__/fixtures/collection-metadata/OML1BRVG_003.json'
-import TEST_NO_STATE from './__test__/fixtures/collection-metadata/TEST_NO_STATE.json'
-import SpatialSearchIssue from './__test__/fixtures/alerts/spatial_search_issue.json'
-import editPublishWorkflow from './__test__/fixtures/workflows/edit-publish.json'
-import editPublishCmrWorkflow from './__test__/fixtures/workflows/edit-publish-cmr.json'
-import modifyReviewPublishWorkflow from './__test__/fixtures/workflows/modify-review-publish.json'
 import { Db } from 'mongodb'
+import getDb from '../../lib/mongodb'
+import SpatialSearchIssue from '../../models/__test__/fixtures/alerts/spatial_search_issue.json'
+import GLDAS_CLM10SUBP_3H_001 from '../../models/__test__/fixtures/collection-metadata/GLDAS_CLM10SUBP_3H_001.json'
+import OML1BRVG_003 from '../../models/__test__/fixtures/collection-metadata/OML1BRVG_003.json'
+import TEST_NO_STATE from '../../models/__test__/fixtures/collection-metadata/TEST_NO_STATE.json'
+import alertsModel from '../../models/__test__/fixtures/models/alerts.json'
+import collectionMetadataModel from '../../models/__test__/fixtures/models/collection-metadata.json'
+import editPublishCmrWorkflow from '../../models/__test__/fixtures/workflows/edit-publish-cmr.json'
+import editPublishWorkflow from '../../models/__test__/fixtures/workflows/edit-publish.json'
+import modifyReviewPublishWorkflow from '../../models/__test__/fixtures/workflows/modify-review-publish.json'
+import {
+    getDocumentHistory,
+    getDocumentHistoryByVersion,
+    getDocumentsForModel,
+    getTargetStatesFromWorkflow,
+} from '../service'
+
+import alertWithHistory from './__fixtures__/alertWithHistory.json'
 
 describe('Documents', () => {
     let db: Db
@@ -81,7 +88,9 @@ describe('Documents', () => {
 
     describe('getDocumentsForModel', () => {
         it('should return a empty list of documents for a model with no documents', async () => {
-            const documents = await getDocumentsForModel('Collection Metadata')
+            const [error, documents] = await getDocumentsForModel(
+                'Collection Metadata'
+            )
 
             expect(documents.length).toEqual(0)
         })
@@ -93,8 +102,10 @@ describe('Documents', () => {
                 .insertOne(GLDAS_CLM10SUBP_3H_001)
             await db.collection('Collection Metadata').insertOne(OML1BRVG_003)
 
-            const alerts = await getDocumentsForModel('Alerts')
-            const collections = await getDocumentsForModel('Collection Metadata')
+            const [alertsError, alerts] = await getDocumentsForModel('Alerts')
+            const [collectionsError, collections] = await getDocumentsForModel(
+                'Collection Metadata'
+            )
 
             expect(alerts.length).toBe(1)
             expect(collections.length).toBe(2)
@@ -103,7 +114,9 @@ describe('Documents', () => {
         it('returned documents with no state should have unspecified state added', async () => {
             await db.collection('Collection Metadata').insertOne(TEST_NO_STATE)
 
-            const collections = await getDocumentsForModel('Collection Metadata')
+            const [collectionsError, collections] = await getDocumentsForModel(
+                'Collection Metadata'
+            )
 
             expect(collections[0]['x-meditor'].state).toEqual('Unspecified')
         })
@@ -112,7 +125,10 @@ describe('Documents', () => {
             await db
                 .collection('Collection Metadata')
                 .insertOne(GLDAS_CLM10SUBP_3H_001)
-            const collections = await getDocumentsForModel('Collection Metadata')
+
+            const [collectionsError, collections] = await getDocumentsForModel(
+                'Collection Metadata'
+            )
 
             expect(collections[0]).toMatchInlineSnapshot(`
                 Object {
@@ -165,9 +181,12 @@ describe('Documents', () => {
                 .insertOne(GLDAS_CLM10SUBP_3H_001)
             await db.collection('Collection Metadata').insertOne(OML1BRVG_003)
 
-            const collections = await getDocumentsForModel('Collection Metadata', {
-                filter: 'Combined_EntryID:GLDAS_CLM10SUBP_3H_001',
-            })
+            const [collectionsError, collections] = await getDocumentsForModel(
+                'Collection Metadata',
+                {
+                    filter: 'Combined_EntryID:GLDAS_CLM10SUBP_3H_001',
+                }
+            )
 
             expect(collections.length).toBe(1)
         })
@@ -191,7 +210,9 @@ describe('Documents', () => {
                 },
             })
 
-            const collections = await getDocumentsForModel('Collection Metadata')
+            const [collectionsError, collections] = await getDocumentsForModel(
+                'Collection Metadata'
+            )
 
             expect(collections.map(collection => collection.title)).toEqual([
                 'OML1BRVG_003',
@@ -234,9 +255,12 @@ describe('Documents', () => {
                     },
                 })
 
-                const collections = await getDocumentsForModel(collection, {
-                    sort,
-                })
+                const [collectionsError, collections] = await getDocumentsForModel(
+                    collection,
+                    {
+                        sort,
+                    }
+                )
 
                 expect(collections.map(collection => collection.title)).toEqual(
                     expectedTitlesInOrder
@@ -245,12 +269,15 @@ describe('Documents', () => {
         )
 
         it('should throw for an improperly formatted filter', async () => {
-            await expect(async () =>
-                getDocumentsForModel('Collection Metadata', {
+            const [collectionsError, collections] = await getDocumentsForModel(
+                'Collection Metadata',
+                {
                     filter: 'Improper query here',
-                })
-            ).rejects.toThrowErrorMatchingInlineSnapshot(
-                `"Improperly formatted filter"`
+                }
+            )
+
+            expect(collectionsError).toMatchInlineSnapshot(
+                `[Error: Improperly formatted filter]`
             )
         })
 
@@ -265,7 +292,9 @@ describe('Documents', () => {
             await db.collection('Collection Metadata').insertOne(oldVersion)
             await db.collection('Collection Metadata').insertOne(OML1BRVG_003)
 
-            const collections = await getDocumentsForModel('Collection Metadata')
+            const [collectionsError, collections] = await getDocumentsForModel(
+                'Collection Metadata'
+            )
 
             expect(collections.length).toBe(2)
             // check date to make sure we got the latest one
@@ -283,9 +312,85 @@ describe('Documents', () => {
             await db.collection('Collection Metadata').insertOne(deletedDocument)
             await db.collection('Collection Metadata').insertOne(OML1BRVG_003)
 
-            const collections = await getDocumentsForModel('Collection Metadata')
+            const [collectionsError, collections] = await getDocumentsForModel(
+                'Collection Metadata'
+            )
 
             expect(collections.length).toBe(1)
+        })
+    })
+
+    describe('getDocumentHistory', () => {
+        test('returns document history', async () => {
+            await db.collection('Alerts').insertMany(alertWithHistory)
+
+            const [error, history] = await getDocumentHistory(
+                'Reprocessed FLDAS Data',
+                'Alerts'
+            )
+
+            expect(history).toMatchInlineSnapshot(`
+                Array [
+                  Object {
+                    "modifiedBy": "jdoe",
+                    "modifiedOn": "2018-08-09T14:26:07.541Z",
+                    "state": "Published",
+                    "states": Array [
+                      Object {
+                        "modifiedOn": "2018-08-09T14:26:07.541Z",
+                        "source": "Approved",
+                        "target": "Published",
+                      },
+                    ],
+                  },
+                  Object {
+                    "modifiedBy": "jdoe",
+                    "modifiedOn": "2018-08-09T14:26:07.538Z",
+                    "state": "Draft",
+                    "states": Array [],
+                  },
+                  Object {
+                    "modifiedBy": "jdoe",
+                    "modifiedOn": "2018-08-09T14:25:10.834Z",
+                    "state": "Draft",
+                    "states": Array [],
+                  },
+                  Object {
+                    "modifiedBy": "jdoe",
+                    "modifiedOn": "2018-08-09T14:25:09.384Z",
+                    "state": "Draft",
+                    "states": Array [],
+                  },
+                ]
+            `)
+        })
+    })
+
+    describe('getDocumentHistoryByVersion', () => {
+        test('returns document history', async () => {
+            await db.collection('Alerts').insertMany(alertWithHistory)
+
+            const [error, history] = await getDocumentHistory(
+                'Reprocessed FLDAS Data',
+                'Alerts'
+            )
+
+            const [lastHistory] = history.slice(-1)
+
+            const [versionError, versionHistory] = await getDocumentHistoryByVersion(
+                lastHistory.modifiedOn,
+                'Reprocessed FLDAS Data',
+                'Alerts'
+            )
+
+            expect(versionHistory).toMatchInlineSnapshot(`
+                Object {
+                  "modifiedBy": "jdoe",
+                  "modifiedOn": "2018-08-09T14:25:09.384Z",
+                  "state": "Draft",
+                  "states": Array [],
+                }
+            `)
         })
     })
 })

@@ -84,26 +84,6 @@ exports.getDocumentPublicationStatus = function (model, title) {
 }
 
 /**
- * Gets a document
- * Gets a document's history
- *
- * model String Name of the Model
- * title String Title of the document
- * returns Object
- **/
-exports.getDocumentHistory = function (model, title) {
-    return new Promise(function (resolve, reject) {
-        var examples = {}
-        examples['application/json'] = '{}'
-        if (Object.keys(examples).length > 0) {
-            resolve(examples[Object.keys(examples)[0]])
-        } else {
-            resolve()
-        }
-    })
-}
-
-/**
  * Gets user info
  * Gets user info
  *

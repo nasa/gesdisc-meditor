@@ -29,7 +29,7 @@ async function adapt(request) {
     const uri = request.uri;
 
     switch (uri) {
-        case BASE_PATH + 'getComments':
+        case BASE_PATH + 'getComments': {
             try {
                 const response = await request.subrequest(
                     BASE_PATH +
@@ -55,8 +55,37 @@ async function adapt(request) {
             }
 
             break;
+        }
 
-        default:
+        case BASE_PATH + 'getDocumentHistory': {
+            try {
+                const response = await request.subrequest(
+                    BASE_PATH +
+                        'models/' +
+                        encodeURIComponent(args.model) +
+                        '/documents/' +
+                        encodeURIComponent(args.title) +
+                        '/history',
+                    { method }
+                );
+
+                passThroughHeaders(request, response);
+
+                request.return(response.status, response.responseBody);
+            } catch (error) {
+                ngx.log(ngx.ERR, error);
+
+                //* Do not expose the error to the end-user.
+                request.return(
+                    500,
+                    JSON.stringify({ message: 'Internal Server Error' })
+                );
+            }
+
+            break;
+        }
+
+        default: {
             ngx.log(
                 ngx.ERR,
                 JSON.stringify({
@@ -69,7 +98,9 @@ async function adapt(request) {
                 500,
                 JSON.stringify({ message: 'Internal Server Error' })
             );
+
             break;
+        }
     }
 }
 

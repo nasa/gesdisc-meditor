@@ -1,15 +1,15 @@
-import { useRouter } from 'next/router'
-import SearchList from '../../components/search/search-list'
-import SearchBar from '../../components/search/search-bar'
-import PageTitle from '../../components/page-title'
-import withAuthentication from '../../components/with-authentication'
-import { getModel, getModels } from '../../models/model'
-import { getDocumentsForModel } from '../../models/document'
 import { NextPageContext } from 'next'
-import { User } from '../../service/api'
-import { Document, DocumentsSearchOptions, Model } from '../../models/types'
+import { useRouter } from 'next/router'
 import { ParsedUrlQuery } from 'querystring'
 import { useEffect, useRef, useState } from 'react'
+import PageTitle from '../../components/page-title'
+import SearchBar from '../../components/search/search-bar'
+import SearchList from '../../components/search/search-list'
+import withAuthentication from '../../components/with-authentication'
+import { getDocumentsForModel } from '../../documents/service'
+import { getModel, getModels } from '../../models/model'
+import { Document, DocumentsSearchOptions, Model } from '../../models/types'
+import { User } from '../../service/api'
 
 function getSearchOptionsFromParams(query: ParsedUrlQuery): DocumentsSearchOptions {
     return {
@@ -107,7 +107,22 @@ const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
             />
 
             <div className="my-4">
-                {documents && (
+                {documents === null ? (
+                    <p className="text-center py-4 text-danger">
+                        mEditor had an error getting documents for{' '}
+                        {model.name || 'this model'}. Please verify that your{' '}
+                        <a
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            href="https://en.wikipedia.org/wiki/Query_string"
+                        >
+                            query parameters
+                        </a>{' '}
+                        are correct and try refreshing the page. mEditor has recorded
+                        the error, but you can still leave feedback using the link at
+                        the top of the page.
+                    </p>
+                ) : (
                     <SearchList
                         documents={documents.map(document => ({
                             ...document,
@@ -137,18 +152,19 @@ export async function getServerSideProps(ctx: NextPageContext) {
     const searchOptions = getSearchOptionsFromParams(ctx.query)
 
     // fetch documents, applying search, filter, or sort
-    const documents = await getDocumentsForModel(modelName, searchOptions)
+    const [documentsError, documents] = await getDocumentsForModel(
+        modelName,
+        searchOptions
+    )
 
-    return {
-        // see note in /pages/index.tsx for parse/stringify explanation
-        props: JSON.parse(
-            JSON.stringify({
-                allModels: models,
-                model,
-                documents,
-            })
-        ),
+    // todo: both stringify => parse should be moved to concern of db (see comments, documents)
+    const props = {
+        allModels: JSON.parse(JSON.stringify(models)),
+        model: JSON.parse(JSON.stringify(model)),
+        documents: !!documentsError ? null : documents,
     }
+
+    return { props }
 }
 
 export default withAuthentication()(ModelPage)
