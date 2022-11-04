@@ -259,8 +259,9 @@ const DocumentComments = ({ user, comments = [], saveComment, resolveComment }) 
 
             {comments === null ? (
                 <p className="text-center py-4 text-danger">
-                    mEditor had an error getting comments for this document. mEditor
-                    has recorded the error, but you can still leave feedback using the
+                    mEditor had an error getting comments for this document. Please
+                    try refreshing the page once your work is saved. mEditor has
+                    recorded the error, but you can still leave feedback using the
                     link at the top of the page.
                 </p>
             ) : (

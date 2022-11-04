@@ -1,0 +1,195 @@
+[
+    {
+        "_id": "5b6c4ebcc2d8adf60f741fba",
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2018-08-09T14:25:09.384Z",
+            "modifiedBy": "jdoe",
+            "states": [
+                {
+                    "source": "Init",
+                    "target": "Draft",
+                    "modifiedOn": "2018-08-09T14:25:09.384Z"
+                }
+            ]
+        },
+        "title": "Reprocessed FLDAS Data",
+        "body": "<p>All of the FLDAS products have been reprocessed for improvements and corrections in the file metadata, specifically in regards to the &lsquo;time&rsquo; metadata.&nbsp; All FLDAS data are now accessible and available for download at the GES DISC.&nbsp; If you downloaded FLDAS data before August 7, please be aware that the file metadata may be incorrect.&nbsp; Please contact the GES DISC Help Desk at gsfc-nasa-disc@lists.nasa.gov if you have any questions.</p>\n",
+        "expiration": "2018-09-09T04:00:00Z",
+        "start": "2018-08-09T04:00:00Z",
+        "severity": "normal",
+        "tags": ["hydrology", "fldas"],
+        "datasets": [
+            "FLDAS_VIC025_A_SA_M_001",
+            "FLDAS_VIC025_A_WA_D_001",
+            "FLDAS_NOAH01_A_SA_D_001",
+            "FLDAS_NOAH01_C_EA_MC_001",
+            "FLDAS_NOAH01_A_EA_M_001",
+            "FLDAS_VIC025_A_EA_D_001",
+            "FLDAS_NOAH01_A_WA_D_001",
+            "FLDAS_VIC025_C_SA_M_001",
+            "FLDAS_NOAH01_A_EA_D_001",
+            "FLDAS_NOAH01_C_WA_MA_001",
+            "FLDAS_NOAH01_C_WA_MC_001",
+            "FLDAS_NOAH01_C_EA_MA_001",
+            "FLDAS_VIC025_C_WA_M_001",
+            "FLDAS_VIC025_A_WA_M_001",
+            "FLDAS_NOAH01_A_SA_M_001",
+            "FLDAS_VIC025_A_EA_M_001",
+            "FLDAS_NOAH01_A_WA_M_001",
+            "FLDAS_VIC025_C_EA_M_001",
+            "FLDAS_NOAH01_C_WA_M_001",
+            "FLDAS_NOAH01_C_SA_M_001",
+            "FLDAS_NOAH01_C_SA_MC_001",
+            "FLDAS_NOAH01_C_EA_M_001",
+            "FLDAS_VIC025_A_SA_D_001",
+            "FLDAS_NOAH01_C_SA_MA_001"
+        ]
+    },
+    {
+        "_id": "5b6c4ec5c2d8adf60f741fd6",
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2018-08-09T14:26:07.538Z",
+            "modifiedBy": "jdoe",
+            "states": [
+                {
+                    "source": "Init",
+                    "target": "Draft",
+                    "modifiedOn": "2018-08-09T14:26:07.538Z"
+                }
+            ]
+        },
+        "title": "Reprocessed FLDAS Data",
+        "body": "<p>All of the FLDAS products have been reprocessed for improvements and corrections in the file metadata, specifically in regards to the &lsquo;time&rsquo; metadata.&nbsp; All FLDAS data are now accessible and available for download at the GES DISC.&nbsp; If you downloaded FLDAS data before August 7, please be aware that the file metadata may be incorrect.&nbsp; Please contact the GES DISC Help Desk at gsfc-nasa-disc@lists.nasa.gov if you have any questions.</p>\n",
+        "expiration": "2018-09-09T04:00:00Z",
+        "start": "2018-08-09T04:00:00Z",
+        "severity": "normal",
+        "tags": ["hydrology", "fldas"],
+        "datasets": [
+            "FLDAS_VIC025_A_SA_M_001",
+            "FLDAS_VIC025_A_WA_D_001",
+            "FLDAS_NOAH01_A_SA_D_001",
+            "FLDAS_NOAH01_C_EA_MC_001",
+            "FLDAS_NOAH01_A_EA_M_001",
+            "FLDAS_VIC025_A_EA_D_001",
+            "FLDAS_NOAH01_A_WA_D_001",
+            "FLDAS_VIC025_C_SA_M_001",
+            "FLDAS_NOAH01_A_EA_D_001",
+            "FLDAS_NOAH01_C_WA_MA_001",
+            "FLDAS_NOAH01_C_WA_MC_001",
+            "FLDAS_NOAH01_C_EA_MA_001",
+            "FLDAS_VIC025_C_WA_M_001",
+            "FLDAS_VIC025_A_WA_M_001",
+            "FLDAS_NOAH01_A_SA_M_001",
+            "FLDAS_VIC025_A_EA_M_001",
+            "FLDAS_NOAH01_A_WA_M_001",
+            "FLDAS_VIC025_C_EA_M_001",
+            "FLDAS_NOAH01_C_WA_M_001",
+            "FLDAS_NOAH01_C_SA_M_001",
+            "FLDAS_NOAH01_C_SA_MC_001",
+            "FLDAS_NOAH01_C_EA_M_001",
+            "FLDAS_VIC025_A_SA_D_001",
+            "FLDAS_NOAH01_C_SA_MA_001"
+        ]
+    },
+    {
+        "_id": "5b6c4ec6c2d8adf60f741fd9",
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2018-08-09T14:25:10.834Z",
+            "modifiedBy": "jdoe",
+            "states": [
+                {
+                    "source": "Init",
+                    "target": "Draft",
+                    "modifiedOn": "2018-08-09T14:25:10.834Z"
+                }
+            ]
+        },
+        "title": "Reprocessed FLDAS Data",
+        "body": "<p>All of the FLDAS products have been reprocessed for improvements and corrections in the file metadata, specifically in regards to the &lsquo;time&rsquo; metadata.&nbsp; All FLDAS data are now accessible and available for download at the GES DISC.&nbsp; If you downloaded FLDAS data before August 7, please be aware that the file metadata may be incorrect.&nbsp; Please contact the GES DISC Help Desk at gsfc-nasa-disc@lists.nasa.gov if you have any questions.</p>\n",
+        "expiration": "2018-09-09T04:00:00Z",
+        "start": "2018-08-09T04:00:00Z",
+        "severity": "normal",
+        "tags": ["hydrology", "fldas"],
+        "datasets": [
+            "FLDAS_VIC025_A_SA_M_001",
+            "FLDAS_VIC025_A_WA_D_001",
+            "FLDAS_NOAH01_A_SA_D_001",
+            "FLDAS_NOAH01_C_EA_MC_001",
+            "FLDAS_NOAH01_A_EA_M_001",
+            "FLDAS_VIC025_A_EA_D_001",
+            "FLDAS_NOAH01_A_WA_D_001",
+            "FLDAS_VIC025_C_SA_M_001",
+            "FLDAS_NOAH01_A_EA_D_001",
+            "FLDAS_NOAH01_C_WA_MA_001",
+            "FLDAS_NOAH01_C_WA_MC_001",
+            "FLDAS_NOAH01_C_EA_MA_001",
+            "FLDAS_VIC025_C_WA_M_001",
+            "FLDAS_VIC025_A_WA_M_001",
+            "FLDAS_NOAH01_A_SA_M_001",
+            "FLDAS_VIC025_A_EA_M_001",
+            "FLDAS_NOAH01_A_WA_M_001",
+            "FLDAS_VIC025_C_EA_M_001",
+            "FLDAS_NOAH01_C_WA_M_001",
+            "FLDAS_NOAH01_C_SA_M_001",
+            "FLDAS_NOAH01_C_SA_MC_001",
+            "FLDAS_NOAH01_C_EA_M_001",
+            "FLDAS_VIC025_A_SA_D_001",
+            "FLDAS_NOAH01_C_SA_MA_001"
+        ]
+    },
+    {
+        "_id": "5b6c4effc2d8adf60f742042",
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2018-08-09T14:26:07.541Z",
+            "modifiedBy": "jdoe",
+            "states": [
+                {
+                    "source": "Init",
+                    "target": "Draft",
+                    "modifiedOn": "2018-08-09T14:26:07.541Z"
+                },
+                {
+                    "source": "Approved",
+                    "target": "Published",
+                    "modifiedOn": "2018-08-09T14:26:07.541Z"
+                }
+            ]
+        },
+        "title": "Reprocessed FLDAS Data",
+        "body": "<p>All of the FLDAS products have been reprocessed for improvements and corrections in the file metadata, specifically in regards to the &lsquo;time&rsquo; metadata.&nbsp; All FLDAS data are now accessible and available for download at the GES DISC.&nbsp; If you downloaded FLDAS data before August 7, please be aware that the file metadata may be incorrect.&nbsp; Please contact the GES DISC Help Desk at gsfc-nasa-disc@lists.nasa.gov if you have any questions.</p>\n",
+        "expiration": "2018-09-09T04:00:00Z",
+        "start": "2018-08-09T04:00:00Z",
+        "severity": "normal",
+        "tags": ["hydrology", "fldas"],
+        "datasets": [
+            "FLDAS_VIC025_A_SA_M_001",
+            "FLDAS_VIC025_A_WA_D_001",
+            "FLDAS_NOAH01_A_SA_D_001",
+            "FLDAS_NOAH01_C_EA_MC_001",
+            "FLDAS_NOAH01_A_EA_M_001",
+            "FLDAS_VIC025_A_EA_D_001",
+            "FLDAS_NOAH01_A_WA_D_001",
+            "FLDAS_VIC025_C_SA_M_001",
+            "FLDAS_NOAH01_A_EA_D_001",
+            "FLDAS_NOAH01_C_WA_MA_001",
+            "FLDAS_NOAH01_C_WA_MC_001",
+            "FLDAS_NOAH01_C_EA_MA_001",
+            "FLDAS_VIC025_C_WA_M_001",
+            "FLDAS_VIC025_A_WA_M_001",
+            "FLDAS_NOAH01_A_SA_M_001",
+            "FLDAS_VIC025_A_EA_M_001",
+            "FLDAS_NOAH01_A_WA_M_001",
+            "FLDAS_VIC025_C_EA_M_001",
+            "FLDAS_NOAH01_C_WA_M_001",
+            "FLDAS_NOAH01_C_SA_M_001",
+            "FLDAS_NOAH01_C_SA_MC_001",
+            "FLDAS_NOAH01_C_EA_M_001",
+            "FLDAS_VIC025_A_SA_D_001",
+            "FLDAS_NOAH01_C_SA_MA_001"
+        ]
+    }
+]

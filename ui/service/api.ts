@@ -833,66 +833,6 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
             }
         },
         /**
-         * Gets a document's history
-         * @summary Gets a document
-         * @param {string} model Name of the Model
-         * @param {string} title Title of the document
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getDocumentHistory(
-            model: string,
-            title: string,
-            options: any = {}
-        ): FetchArgs {
-            // verify required parameter 'model' is not null or undefined
-            if (model === null || model === undefined) {
-                throw new RequiredError(
-                    'model',
-                    'Required parameter model was null or undefined when calling getDocumentHistory.'
-                )
-            }
-            // verify required parameter 'title' is not null or undefined
-            if (title === null || title === undefined) {
-                throw new RequiredError(
-                    'title',
-                    'Required parameter title was null or undefined when calling getDocumentHistory.'
-                )
-            }
-            const localVarPath = `/getDocumentHistory`
-            const localVarUrlObj = url.parse(localVarPath, true)
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options)
-            const localVarHeaderParameter = {} as any
-            const localVarQueryParameter = {} as any
-
-            if (model !== undefined) {
-                localVarQueryParameter['model'] = model
-            }
-
-            if (title !== undefined) {
-                localVarQueryParameter['title'] = title
-            }
-
-            localVarUrlObj.query = Object.assign(
-                {},
-                localVarUrlObj.query,
-                localVarQueryParameter,
-                options.query
-            )
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search
-            localVarRequestOptions.headers = Object.assign(
-                {},
-                localVarHeaderParameter,
-                options.headers
-            )
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            }
-        },
-        /**
          * Gets user info
          * @summary Gets user info
          * @param {*} [options] Override http request option.
@@ -1361,40 +1301,6 @@ export const DefaultApiFp = function (configuration?: Configuration) {
             }
         },
         /**
-         * Gets a document's history
-         * @summary Gets a document
-         * @param {string} model Name of the Model
-         * @param {string} title Title of the document
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getDocumentHistory(
-            model: string,
-            title: string,
-            options?: any
-        ): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
-            const localVarFetchArgs = DefaultApiFetchParamCreator(
-                configuration
-            ).getDocumentHistory(model, title, options)
-            return (
-                fetch: FetchAPI = portableFetch,
-                basePath: string = BASE_PATH
-            ) => {
-                return configuration
-                    .fetch(
-                        basePath + localVarFetchArgs.url,
-                        localVarFetchArgs.options
-                    )
-                    .then(response => {
-                        if (response.status >= 200 && response.status < 300) {
-                            return response.json()
-                        } else {
-                            throw response
-                        }
-                    })
-            }
-        },
-        /**
          * Gets user info
          * @summary Gets user info
          * @param {*} [options] Override http request option.
@@ -1695,21 +1601,6 @@ export const DefaultApiFactory = function (
             )(fetch, basePath)
         },
         /**
-         * Gets a document's history
-         * @summary Gets a document
-         * @param {string} model Name of the Model
-         * @param {string} title Title of the document
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getDocumentHistory(model: string, title: string, options?: any) {
-            return DefaultApiFp(configuration).getDocumentHistory(
-                model,
-                title,
-                options
-            )(fetch, basePath)
-        },
-        /**
          * Gets user info
          * @summary Gets user info
          * @param {*} [options] Override http request option.
@@ -1884,23 +1775,6 @@ export class DefaultApi extends BaseAPI {
             model,
             title,
             version,
-            options
-        )(this.fetch, this.basePath)
-    }
-
-    /**
-     * Gets a document's history
-     * @summary Gets a document
-     * @param {string} model Name of the Model
-     * @param {string} title Title of the document
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DefaultApi
-     */
-    public getDocumentHistory(model: string, title: string, options?: any) {
-        return DefaultApiFp(this.configuration).getDocumentHistory(
-            model,
-            title,
             options
         )(this.fetch, this.basePath)
     }

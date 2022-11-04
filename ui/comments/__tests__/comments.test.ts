@@ -1,15 +1,15 @@
 import { Db } from 'mongodb'
+import BaconUser from '../../auth/__test__/__fixtures__/bacon-user.json'
 import getDb from '../../lib/mongodb'
 import alertsModel from '../../models/__test__/fixtures/models/alerts.json'
+import { getCommentsDb } from '../db'
 import {
+    createCommentAsUser,
     getCommentForDocument,
     getCommentsForDocument,
-    createCommentAsUser,
     updateCommentAsUser,
 } from '../service'
 import mockComments from './__fixtures__/comments.json'
-import BaconUser from '../../auth/__test__/__fixtures__/bacon-user.json'
-import CommentsDB from '../db'
 
 const mockAlerts = [
     {
@@ -236,6 +236,8 @@ describe('Comments Service', () => {
     })
 
     it('resolves a comment and all its child comments', async () => {
+        const commentsDb = await getCommentsDb()
+
         const [_p, parentComment] = await createCommentAsUser(
             {
                 model: 'Foo',
@@ -274,15 +276,18 @@ describe('Comments Service', () => {
         )
 
         expect(error).toBeNull()
-        expect(await CommentsDB.getCommentById(parentComment._id)).toMatchObject({
+        //@ts-ignore
+        expect(await commentsDb.getCommentById(parentComment._id)).toMatchObject({
             resolved: true,
             resolvedBy: BaconUser.uid,
         })
-        expect(await CommentsDB.getCommentById(childComment._id)).toMatchObject({
+        //@ts-ignore
+        expect(await commentsDb.getCommentById(childComment._id)).toMatchObject({
             resolved: true,
             resolvedBy: BaconUser.uid,
         })
-        expect(await CommentsDB.getCommentById(siblingComment._id)).toMatchObject({
+        //@ts-ignore
+        expect(await commentsDb.getCommentById(siblingComment._id)).toMatchObject({
             resolved: false,
         })
     })

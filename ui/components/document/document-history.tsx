@@ -1,10 +1,10 @@
-import Card from 'react-bootstrap/Card'
-import DocumentStateBadge from './document-state-badge'
-import { FaRegDotCircle } from 'react-icons/fa'
-import styles from './document-history.module.css'
-import { IoMdEye, IoMdEyeOff } from 'react-icons/io'
 import Button from 'react-bootstrap/Button'
+import Card from 'react-bootstrap/Card'
+import { FaRegDotCircle } from 'react-icons/fa'
+import { IoMdEye, IoMdEyeOff } from 'react-icons/io'
 import { useLocalStorage } from '../../lib/use-localstorage.hook'
+import styles from './document-history.module.css'
+import DocumentStateBadge from './document-state-badge'
 
 const sortByLastModifiedDesc = (a, b) => {
     let dateA = new Date(a.modifiedOn)
@@ -90,50 +90,59 @@ const DocumentHistory = ({
                 </Button>
             </div>
 
-            {history.map((item, index) => (
-                <Card
-                    key={item.modifiedOn}
-                    className={`${styles.card} ${
-                        index === 0 ? styles.activeHistory : ''
-                    }`}
-                    onClick={ev => {
-                        onVersionChange(item.modifiedOn)
-                        toggleActiveHistory(ev)
-                    }}
-                >
-                    <Card.Body>
-                        <div className={styles.body}>
-                            <div className={styles.meta}>
-                                <a>{item.modifiedOn}</a>
-                                {item.modifiedBy}
+            {history === null ? (
+                <p className="text-center py-4 text-danger">
+                    mEditor had an error getting the history for this document. Please
+                    try refreshing the page once your work is saved. mEditor has
+                    recorded the error, but you can still leave feedback using the
+                    link at the top of the page.
+                </p>
+            ) : (
+                history.map((item, index) => (
+                    <Card
+                        key={item.modifiedOn}
+                        className={`${styles.card} ${
+                            index === 0 ? styles.activeHistory : ''
+                        }`}
+                        onClick={ev => {
+                            onVersionChange(item.modifiedOn)
+                            toggleActiveHistory(ev)
+                        }}
+                    >
+                        <Card.Body>
+                            <div className={styles.body}>
+                                <div className={styles.meta}>
+                                    <a>{item.modifiedOn}</a>
+                                    {item.modifiedBy}
+                                </div>
+
+                                <div>
+                                    <DocumentStateBadge document={item} />
+                                </div>
                             </div>
 
-                            <div>
-                                <DocumentStateBadge document={item} />
-                            </div>
-                        </div>
-
-                        {item.states?.length > 0 && (
-                            <div
-                                className={`${styles.pastStates} ${
-                                    historyPreferences.showDetails
-                                        ? styles.visible
-                                        : ''
-                                }`}
-                            >
-                                {item.states
-                                    ?.sort(sortByLastModifiedDesc)
-                                    .map(state => (
-                                        <PastState
-                                            state={state}
-                                            key={state.source + state.modifiedOn}
-                                        />
-                                    ))}
-                            </div>
-                        )}
-                    </Card.Body>
-                </Card>
-            ))}
+                            {item.states?.length > 0 && (
+                                <div
+                                    className={`${styles.pastStates} ${
+                                        historyPreferences.showDetails
+                                            ? styles.visible
+                                            : ''
+                                    }`}
+                                >
+                                    {item.states
+                                        ?.sort(sortByLastModifiedDesc)
+                                        .map(state => (
+                                            <PastState
+                                                state={state}
+                                                key={state.source + state.modifiedOn}
+                                            />
+                                        ))}
+                                </div>
+                            )}
+                        </Card.Body>
+                    </Card>
+                ))
+            )}
         </div>
     )
 }

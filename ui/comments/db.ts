@@ -1,10 +1,18 @@
+import type { Db } from 'mongodb'
 import { ObjectID } from 'mongodb'
 import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
 import type { DocumentComment, NewDocumentComment } from './types'
 
-const COMMENTS_COLLECTION = 'Comments'
-
 class CommentsDb {
+    #COMMENTS_COLLECTION = 'Comments'
+    #db: Db
+
+    async connect(connectDb: () => Promise<Db>) {
+        if (!this.#db) {
+            this.#db = await connectDb()
+        }
+    }
+
     async getCommentForDocument(
         commentId: string,
         //? this method is called from a REST url, /models/{modelName}/documents/{documentTitle}/comments/{commentId}
@@ -13,8 +21,6 @@ class CommentsDb {
         documentTitle: string,
         modelName: string
     ) {
-        const db = await getDb()
-
         const query: any[] = [
             {
                 $match: {
@@ -29,7 +35,7 @@ class CommentsDb {
             },
         ]
 
-        const [comment = {}] = await db
+        const [comment = {}] = await this.#db
             .collection<DocumentComment>('Comments')
             .aggregate(query, { allowDiskUse: true })
             .toArray()
@@ -38,13 +44,11 @@ class CommentsDb {
     }
 
     async getCommentsForDocument(documentTitle: string, modelName: string) {
-        const db = await getDb()
-
         const query: any[] = [
             { $match: { $and: [{ documentId: documentTitle, model: modelName }] } },
         ]
 
-        const comments = await db
+        const comments = await this.#db
             .collection<DocumentComment>('Comments')
             .aggregate(query, { allowDiskUse: true })
             .toArray()
@@ -53,9 +57,8 @@ class CommentsDb {
     }
 
     async insertOne(comment: NewDocumentComment): Promise<DocumentComment> {
-        const db = await getDb()
-        const { insertedId } = await db
-            .collection<NewDocumentComment>(COMMENTS_COLLECTION)
+        const { insertedId } = await this.#db
+            .collection<NewDocumentComment>(this.#COMMENTS_COLLECTION)
             .insertOne(comment)
 
         return this.getCommentById(insertedId.toString())
@@ -65,9 +68,7 @@ class CommentsDb {
         commentId: string,
         newText: string
     ): Promise<DocumentComment> {
-        const db = await getDb()
-
-        await db.collection(COMMENTS_COLLECTION).updateOne(
+        await this.#db.collection(this.#COMMENTS_COLLECTION).updateOne(
             { _id: new ObjectID(commentId) },
             {
                 $set: {
@@ -83,9 +84,7 @@ class CommentsDb {
         commentId: string,
         resolvedByUserId: string
     ): Promise<DocumentComment> {
-        const db = await getDb()
-
-        await db.collection(COMMENTS_COLLECTION).updateMany(
+        await this.#db.collection(this.#COMMENTS_COLLECTION).updateMany(
             {
                 $or: [
                     { _id: new ObjectID(commentId) }, // resolve the requested comment
@@ -102,14 +101,20 @@ class CommentsDb {
     }
 
     private async getCommentById(commentId: string): Promise<DocumentComment> {
-        const db = await getDb()
-
-        const comment = (await db.collection(COMMENTS_COLLECTION).findOne({
+        const comment = await this.#db.collection(this.#COMMENTS_COLLECTION).findOne({
             _id: new ObjectID(commentId),
-        })) as DocumentComment
+        })
 
         return makeSafeObjectIDs(comment)
     }
 }
 
-export default new CommentsDb()
+const db = new CommentsDb()
+
+async function getCommentsDb() {
+    await db.connect(getDb)
+
+    return db
+}
+
+export { getCommentsDb }

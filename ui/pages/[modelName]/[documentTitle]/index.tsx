@@ -18,6 +18,7 @@ import SourceDialog from '../../../components/document/source-dialog'
 import JsonDiffViewer from '../../../components/json-diff-viewer'
 import PageTitle from '../../../components/page-title'
 import withAuthentication from '../../../components/with-authentication'
+import { getDocumentHistory } from '../../../documents/service'
 import { withApollo } from '../../../lib/apollo'
 import { refreshDataInPlace } from '../../../lib/next'
 import { treeify } from '../../../lib/treeify'
@@ -73,31 +74,25 @@ const MODEL_QUERY = gql`
     }
 `
 
-const HISTORY_QUERY = gql`
-    query getHistory($modelName: String!, $title: String!) {
-        documentHistory(modelName: $modelName, title: $title) {
-            modifiedOn
-            modifiedBy
-            state
-            states {
-                source
-                target
-                modifiedBy
-                modifiedOn(format: "M/dd/yyyy, h:mm a")
-            }
-        }
-    }
-`
-
-const EditDocumentPage = ({ user, version = null, theme, comments }) => {
+const EditDocumentPage = ({
+    user,
+    version = null,
+    theme,
+    comments,
+    documentHistory,
+}) => {
     const router = useRouter()
     const params = router.query
     const documentTitle = decodeURIComponent(params.documentTitle as string)
     // todo: this seems like a security concern; any way to sanitize against injection / allowlist models?
     const modelName = params.modelName as string
 
+    const [currentVersion, setCurrentVersion] = useState(null)
     const [form, setForm] = useState(null)
     const [formData, setFormData] = useState(null)
+    const [oldVersion, setOldVersion] = useState(null)
+    const [toggleJSON, setToggleJSON] = useState(false)
+
     const [activePanel, setActivePanel] = useLocalStorage<DocumentPanels>(
         'documentEditActivePanel',
         null
@@ -109,10 +104,6 @@ const EditDocumentPage = ({ user, version = null, theme, comments }) => {
     })
 
     const [loadModel, modelResponse] = useLazyQuery(MODEL_QUERY, {
-        fetchPolicy: 'network-only',
-    })
-
-    const [loadHistory, historyResponse] = useLazyQuery(HISTORY_QUERY, {
         fetchPolicy: 'network-only',
     })
 
@@ -141,15 +132,6 @@ const EditDocumentPage = ({ user, version = null, theme, comments }) => {
         }
 
         refreshDataInPlace(router)
-
-        if (!historyResponse.data) {
-            loadHistory({
-                variables: {
-                    modelName,
-                    title: documentTitle,
-                },
-            })
-        }
     }, [documentResponse.data])
 
     const currentPrivileges = modelResponse?.data?.model?.workflow
@@ -278,37 +260,31 @@ const EditDocumentPage = ({ user, version = null, theme, comments }) => {
     }
 
     useEffect(() => {
-        if (historyResponse.data) {
+        if (documentHistory?.length) {
             getOldAndNewVersion(documentTitle)
         }
-    }, [historyResponse.data])
-
-    const [currentVersion, setCurrentVersion] = useState(null)
-    const [oldVersion, setOldVersion] = useState(null)
+    }, [documentHistory, getOldAndNewVersion])
 
     function getOldAndNewVersion(version) {
-        const listOfHistory = historyResponse.data.documentHistory
-        const currentIndex = listOfHistory.findIndex(
+        const currentIndex = documentHistory?.findIndex(
             item => item.modifiedOn === version
         )
         const siblingIndex =
-            currentIndex + 1 === listOfHistory.length
+            currentIndex + 1 === documentHistory?.length
                 ? currentIndex
                 : currentIndex + 1
-        const previousVersion = listOfHistory[siblingIndex].modifiedOn
+        const previousVersion = documentHistory[siblingIndex].modifiedOn
 
         setOldVersion(previousVersion)
         setCurrentVersion(version)
     }
-
-    const [toggleJSON, setToggleJSON] = useState(false)
 
     function versionSelected(modifiedOn) {
         setOldVersion(modifiedOn)
     }
 
     function toggleJsonDiffer() {
-        getOldAndNewVersion(historyResponse.data.documentHistory[0].modifiedOn)
+        getOldAndNewVersion(documentHistory[0]?.modifiedOn)
         setToggleJSON(!toggleJSON)
     }
 
@@ -340,7 +316,7 @@ const EditDocumentPage = ({ user, version = null, theme, comments }) => {
                 toggleJsonDiffer={toggleJsonDiffer}
                 privileges={currentPrivileges}
                 comments={comments}
-                history={historyResponse?.data?.documentHistory}
+                history={documentHistory}
             />
 
             <div
@@ -351,7 +327,7 @@ const EditDocumentPage = ({ user, version = null, theme, comments }) => {
                     <div className={styles.jsonDiffView}>
                         <JsonDiffViewer
                             onVersionSelected={versionSelected}
-                            history={historyResponse?.data?.documentHistory}
+                            history={documentHistory}
                             currentVersion={currentVersion}
                             oldVersion={oldVersion}
                             documentTitle={documentTitle}
@@ -393,7 +369,7 @@ const EditDocumentPage = ({ user, version = null, theme, comments }) => {
                     onClose={closePanel}
                 >
                     <DocumentHistory
-                        history={historyResponse?.data?.documentHistory}
+                        history={documentHistory}
                         onVersionChange={loadDocumentVersion}
                         onJSONDiffChange={() => setToggleJSON(!toggleJSON)}
                         showJSONView={toggleJSON}
@@ -451,15 +427,17 @@ export async function getServerSideProps(ctx: NextPageContext) {
         decodeURIComponent(modelName.toString())
     )
 
-    if (!!commentsError) {
-        return {
-            props: { comments: null },
-        }
+    const [documentHistoryError, documentHistory] = await getDocumentHistory(
+        decodeURIComponent(documentTitle.toString()),
+        decodeURIComponent(modelName.toString())
+    )
+
+    const props = {
+        comments: !!commentsError ? null : treeify(comments),
+        documentHistory: !!documentHistoryError ? null : documentHistory,
     }
 
-    return {
-        props: { comments: treeify(comments) },
-    }
+    return { props }
 }
 
 export default withApollo({ ssr: false })(withAuthentication()(EditDocumentPage))
