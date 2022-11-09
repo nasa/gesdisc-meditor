@@ -4,7 +4,7 @@ import { getModel } from '../models/model'
 import type { Document, DocumentsSearchOptions, Workflow } from '../models/types'
 import { getWorkflow } from '../models/workflow'
 import { getDocumentsDb } from './db'
-import { DocumentHistory } from './types'
+import { DocumentHistory, DocumentPublications } from './types'
 
 // TODO: add OPTIONAL pagination (don't break existing scripts, perhaps the existence of pagination query params changes the output?)
 export async function getDocumentsForModel(
@@ -96,6 +96,29 @@ export async function getDocumentHistoryByVersion(
         )
 
         return [null, historyItem]
+    } catch (error) {
+        console.error(error)
+
+        return [error, null]
+    }
+}
+
+export async function getDocumentPublications(
+    documentTitle: string,
+    modelName: string
+): Promise<ErrorData<DocumentPublications[]>> {
+    try {
+        const documentsDb = await getDocumentsDb()
+        // todo: refactor once getModel is a class instance of modelsDb
+        const { titleProperty = '' } = await getModel(modelName)
+
+        const publications = await documentsDb.getDocumentPublications(
+            documentTitle,
+            modelName,
+            titleProperty
+        )
+
+        return [null, publications]
     } catch (error) {
         console.error(error)
 

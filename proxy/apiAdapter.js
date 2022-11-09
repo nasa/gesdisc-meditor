@@ -21,6 +21,11 @@ function passThroughHeaders(request, response) {
 
 /**
  * Adapt an incoming request to mEditor's first API to mEditor's new API.
+ * By convention:
+ *  - always pass through the HTTP method so that the underlying new API can handle appropriately.
+ *  - always pass through the HTTP headers with `passThroughHeaders`
+ *  - since the resource title can contain non-URL-friendly characters, encodeURIComponent
+ *
  * @param {NginxHTTPRequest} request
  */
 async function adapt(request) {
@@ -66,6 +71,34 @@ async function adapt(request) {
                         '/documents/' +
                         encodeURIComponent(args.title) +
                         '/history',
+                    { method }
+                );
+
+                passThroughHeaders(request, response);
+
+                request.return(response.status, response.responseBody);
+            } catch (error) {
+                ngx.log(ngx.ERR, error);
+
+                //* Do not expose the error to the end-user.
+                request.return(
+                    500,
+                    JSON.stringify({ message: 'Internal Server Error' })
+                );
+            }
+
+            break;
+        }
+
+        case BASE_PATH + 'getDocumentPublicationStatus': {
+            try {
+                const response = await request.subrequest(
+                    BASE_PATH +
+                        'models/' +
+                        encodeURIComponent(args.model) +
+                        '/documents/' +
+                        encodeURIComponent(args.title) +
+                        '/publications',
                     { method }
                 );
 

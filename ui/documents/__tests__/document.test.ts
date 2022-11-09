@@ -12,11 +12,12 @@ import modifyReviewPublishWorkflow from '../../models/__test__/fixtures/workflow
 import {
     getDocumentHistory,
     getDocumentHistoryByVersion,
+    getDocumentPublications,
     getDocumentsForModel,
     getTargetStatesFromWorkflow,
 } from '../service'
-
 import alertWithHistory from './__fixtures__/alertWithHistory.json'
+import alertWithPublication from './__fixtures__/alertWithPublication.json'
 
 describe('Documents', () => {
     let db: Db
@@ -390,6 +391,29 @@ describe('Documents', () => {
                   "state": "Draft",
                   "states": Array [],
                 }
+            `)
+        })
+    })
+
+    describe.only('getDocumentPublications', () => {
+        test('returns document publications', async () => {
+            await db.collection('Alerts').insertOne(alertWithPublication)
+
+            const [error, publications] = await getDocumentPublications(
+                'Issue with derived carbon monoxide mass mixing ratio from the CLIMCAPS processing system',
+                'Alerts'
+            )
+
+            expect(publications).toMatchInlineSnapshot(`
+                Array [
+                  Object {
+                    "message": "Document was successfully published to UUI-OPS",
+                    "publishedOn": 1666203423780,
+                    "statusCode": 200,
+                    "target": "uui",
+                    "url": "http://www.example.com",
+                  },
+                ]
             `)
         })
     })

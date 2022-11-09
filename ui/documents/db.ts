@@ -7,7 +7,7 @@ import {
 import type { Document, DocumentsSearchOptions } from '../models/types'
 import { BadRequestException } from '../utils/errors'
 import { convertLuceneQueryToMongo } from '../utils/search'
-import { DocumentHistory } from './types'
+import { DocumentHistory, DocumentPublications } from './types'
 
 class DocumentsDb {
     #DEFAULT_SORT = '-x-meditor.modifiedOn'
@@ -83,12 +83,35 @@ class DocumentsDb {
         return makeSafeObjectIDs(historyItem)
     }
 
+    /**
+     * Publications are tied to a document version. We'll treat this as a separate resource for now, and hopefully refactor the DB later...perhaps Publications as its own collection / table like comments.
+     */
+    async getDocumentPublications(
+        documentTitle: string,
+        modelName: string,
+        titleProperty: string
+    ): Promise<DocumentPublications[]> {
+        const pipeline = [
+            { $match: { [titleProperty]: documentTitle } },
+            { $sort: { 'x-meditor.modifiedOn': -1 } },
+            { $project: { _id: 0, 'x-meditor.publishedTo': 1 } },
+        ]
+
+        // Grab only the first publications entry (which will contain a DocumentPublications[]). Needed because documents are duplicated instead of overwritten (see $sort, above).
+        const [firstPublicationsEntry] = await this.#db
+            .collection(modelName)
+            .aggregate(pipeline, { allowDiskUse: true })
+            .toArray()
+
+        // There is no ObjectId to serialize since we $project it away from each entry.
+        return firstPublicationsEntry['x-meditor'].publishedTo
+    }
+
     async getDocumentsForModel(
         modelName: string,
         searchOptions: DocumentsSearchOptions,
         titleProperty: string
     ): Promise<Document[]> {
-        console.log(modelName, searchOptions, titleProperty)
         // parse out what we'll sort on, or fall back to the default
         const sortProperty = (searchOptions?.sort || this.#DEFAULT_SORT).replace(
             /^-/,

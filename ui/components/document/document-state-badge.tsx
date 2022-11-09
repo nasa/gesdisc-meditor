@@ -1,34 +1,35 @@
-import gql from 'graphql-tag'
-import Badge from 'react-bootstrap/Badge'
-import Popover from 'react-bootstrap/Popover'
-import Overlay from 'react-bootstrap/Overlay'
-import { useLazyQuery } from '@apollo/react-hooks'
-import styles from './document-state-badge.module.css'
-import { useEffect, useState, useRef } from 'react'
-import StateBadge from '../state-badge'
 import omitBy from 'lodash.omitby'
-import Modal from 'react-bootstrap/Modal'
+import { useEffect, useRef, useState } from 'react'
+import Badge from 'react-bootstrap/Badge'
 import Button from 'react-bootstrap/Button'
+import Modal from 'react-bootstrap/Modal'
+import Overlay from 'react-bootstrap/Overlay'
+import Popover from 'react-bootstrap/Popover'
+import { fetchDocumentPublications } from '../../documents/http'
+import { getRandomIntInclusive } from '../../utils/math'
+import StateBadge from '../state-badge'
+import styles from './document-state-badge.module.css'
 
-const POLL_FOR_PUBLICATIONSTATUS_MILLIS = 2000
+const POLL_FOR_PUBLICATIONSTATUS_MILLIS = 3000
 const REDIRECT_TO_URL_DELAY_MILLIS = 10000
 
-const QUERY = gql`
-    query getDocument($modelName: String!, $title: String!, $version: String) {
-        document(modelName: $modelName, title: $title, version: $version) {
-            title
-            publicationStatus {
-                url
-                redirectToUrl
-                message
-                target
-                statusCode
-                publishedOn
-                failedOn
-            }
-        }
-    }
-`
+async function fetchAndCleanDocumentPublications(title: string, modelName: string) {
+    const [error, publications] = await fetchDocumentPublications(title, modelName)
+
+    // If there are no publications, show an empty array so the UI can display the "empty" message.
+    const publicationStatus = !!error
+        ? []
+        : publications.filter(publication => {
+              // older documents may have an invalid publication status format, so filter out unneeded keys (null values and typename)
+              let testObj = omitBy(publication, value => !value)
+
+              delete testObj.__typename
+
+              return Object.keys(testObj).length > 0
+          })
+
+    return publicationStatus
+}
 
 const DocumentStateBadge = ({
     document,
@@ -40,9 +41,8 @@ const DocumentStateBadge = ({
     const refreshStatusTimer = useRef(null)
 
     const [publicationStatus, setPublicationStatus] = useState(null)
-    const [showPublicationStatusOverlay, setShowPublicationStatusOverlay] = useState(
-        false
-    )
+    const [showPublicationStatusOverlay, setShowPublicationStatusOverlay] =
+        useState(false)
 
     const [redirectToUrl, setRedirectToUrl] = useState(null)
     const redirectToUrlTimer = useRef(null)
@@ -57,50 +57,23 @@ const DocumentStateBadge = ({
     const canShowPublicationStatus =
         showPublicationStatus && publicationStatus != null
 
-    const [loadDocument, response] = useLazyQuery(QUERY, {
-        fetchPolicy: 'network-only',
-    })
-
-    // if showing publication status, query for it
     useEffect(() => {
-        if (!showPublicationStatus) return
-
-        clearTimeout(refreshStatusTimer.current)
-
-        // load the publication status
-        loadDocument({
-            variables: { modelName, title: document.title, version },
-        })
-    }, [showPublicationStatus])
-
-    // on response from the query, set local publication status state
-    useEffect(() => {
-        // older documents may have an invalid publication status format, filter these out
-        const publicationStatus = response?.data?.document?.publicationStatus?.filter(
-            status => {
-                // filter out unneeded keys (null values and typename)
-                let testObj = omitBy(status, value => !value)
-                delete testObj.__typename
-
-                return Object.keys(testObj).length > 0
-            }
-        )
-
-        if (publicationStatus) {
-            setPublicationStatus(publicationStatus)
+        if (showPublicationStatus) {
+            fetchAndCleanDocumentPublications(document.title, modelName)
+                .then(publications => setPublicationStatus(publications))
+                .catch(error => console.error(error))
         }
-    }, [response])
+    }, [])
 
     // if there are no responses from subscribers yet (empty publicationStatus array)
     // then set a timeout to check again
     useEffect(() => {
-        if (publicationStatus && publicationStatus.length <= 0) {
+        if (publicationStatus?.length === 0) {
             refreshStatusTimer.current = setTimeout(() => {
-                // load the publication status
-                loadDocument({
-                    variables: { modelName, title: document.title, version },
-                })
-            }, POLL_FOR_PUBLICATIONSTATUS_MILLIS)
+                fetchAndCleanDocumentPublications(document.title, modelName)
+                    .then(publications => setPublicationStatus(publications))
+                    .catch(error => console.error(error))
+            }, getRandomIntInclusive(2000, POLL_FOR_PUBLICATIONSTATUS_MILLIS))
         } else {
             redirectToUrlIfRequired()
         }
