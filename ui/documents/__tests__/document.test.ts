@@ -395,7 +395,7 @@ describe('Documents', () => {
         })
     })
 
-    describe.only('getDocumentPublications', () => {
+    describe('getDocumentPublications', () => {
         test('returns document publications', async () => {
             await db.collection('Alerts').insertOne(alertWithPublication)
 
