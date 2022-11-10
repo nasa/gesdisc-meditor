@@ -568,87 +568,6 @@ export interface Users {
 export const DefaultApiFetchParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * Change the state of a document; modifies the state of a document by a privileged user
-         * @summary Change the state of a document
-         * @param {string} model Name of the Model
-         * @param {string} title Title of the document
-         * @param {string} state Target state of the document
-         * @param {string} [version] Version of the document
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        changeDocumentState(
-            model: string,
-            title: string,
-            state: string,
-            version?: string,
-            options: any = {}
-        ): FetchArgs {
-            // verify required parameter 'model' is not null or undefined
-            if (model === null || model === undefined) {
-                throw new RequiredError(
-                    'model',
-                    'Required parameter model was null or undefined when calling changeDocumentState.'
-                )
-            }
-            // verify required parameter 'title' is not null or undefined
-            if (title === null || title === undefined) {
-                throw new RequiredError(
-                    'title',
-                    'Required parameter title was null or undefined when calling changeDocumentState.'
-                )
-            }
-            // verify required parameter 'state' is not null or undefined
-            if (state === null || state === undefined) {
-                throw new RequiredError(
-                    'state',
-                    'Required parameter state was null or undefined when calling changeDocumentState.'
-                )
-            }
-            const localVarPath = `/changeDocumentState`
-            const localVarUrlObj = url.parse(localVarPath, true)
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options)
-            const localVarHeaderParameter = {} as any
-            const localVarQueryParameter = {} as any
-
-            if (model !== undefined) {
-                localVarQueryParameter['model'] = model
-            }
-
-            if (title !== undefined) {
-                localVarQueryParameter['title'] = title
-            }
-
-            if (version !== undefined) {
-                localVarQueryParameter['version'] = version
-            }
-
-            if (state !== undefined) {
-                localVarQueryParameter['state'] = state
-            }
-
-            localVarUrlObj.query = Object.assign(
-                {},
-                localVarUrlObj.query,
-                localVarQueryParameter,
-                options.query
-            )
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search
-            localVarRequestOptions.headers = Object.assign(
-                {},
-                localVarHeaderParameter,
-                options.headers
-            )
-
-            localVarRequestOptions.credentials = 'include'
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            }
-        },
-        /**
          * Clones a document
          * @summary Clones a document
          * @param {string} model Name of the Model
@@ -1162,44 +1081,6 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
 export const DefaultApiFp = function (configuration?: Configuration) {
     return {
         /**
-         * Change the state of a document; modifies the state of a document by a privileged user
-         * @summary Change the state of a document
-         * @param {string} model Name of the Model
-         * @param {string} title Title of the document
-         * @param {string} state Target state of the document
-         * @param {string} [version] Version of the document
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        changeDocumentState(
-            model: string,
-            title: string,
-            state: string,
-            version?: string,
-            options?: any
-        ): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
-            const localVarFetchArgs = DefaultApiFetchParamCreator(
-                configuration
-            ).changeDocumentState(model, title, state, version, options)
-            return (
-                fetch: FetchAPI = portableFetch,
-                basePath: string = BASE_PATH
-            ) => {
-                return configuration
-                    .fetch(
-                        basePath + localVarFetchArgs.url,
-                        localVarFetchArgs.options
-                    )
-                    .then(response => {
-                        if (response.status >= 200 && response.status < 300) {
-                            return response.json()
-                        } else {
-                            throw response
-                        }
-                    })
-            }
-        },
-        /**
          * Clones a document
          * @summary Clones a document
          * @param {string} model Name of the Model
@@ -1533,31 +1414,6 @@ export const DefaultApiFactory = function (
 ) {
     return {
         /**
-         * Change the state of a document; modifies the state of a document by a privileged user
-         * @summary Change the state of a document
-         * @param {string} model Name of the Model
-         * @param {string} title Title of the document
-         * @param {string} state Target state of the document
-         * @param {string} [version] Version of the document
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        changeDocumentState(
-            model: string,
-            title: string,
-            state: string,
-            version?: string,
-            options?: any
-        ) {
-            return DefaultApiFp(configuration).changeDocumentState(
-                model,
-                title,
-                state,
-                version,
-                options
-            )(fetch, basePath)
-        },
-        /**
          * Clones a document
          * @summary Clones a document
          * @param {string} model Name of the Model
@@ -1690,33 +1546,6 @@ export const DefaultApiFactory = function (
  * @extends {BaseAPI}
  */
 export class DefaultApi extends BaseAPI {
-    /**
-     * Change the state of a document; modifies the state of a document by a privileged user
-     * @summary Change the state of a document
-     * @param {string} model Name of the Model
-     * @param {string} title Title of the document
-     * @param {string} state Target state of the document
-     * @param {string} [version] Version of the document
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DefaultApi
-     */
-    public changeDocumentState(
-        model: string,
-        title: string,
-        state: string,
-        version?: string,
-        options?: any
-    ) {
-        return DefaultApiFp(this.configuration).changeDocumentState(
-            model,
-            title,
-            state,
-            version,
-            options
-        )(this.fetch, this.basePath)
-    }
-
     /**
      * Clones a document
      * @summary Clones a document

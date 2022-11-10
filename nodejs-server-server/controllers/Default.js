@@ -3,20 +3,6 @@
 var utils = require('../utils/writer.js')
 var Default = require('../service/DefaultService')
 
-module.exports.changeDocumentState = function changeDocumentState(req, res, next) {
-    var model = req.swagger.params['model'].value
-    var title = req.swagger.params['title'].value
-    var state = req.swagger.params['state'].value
-    var version = req.swagger.params['version'].value
-    Default.changeDocumentState(model, title, state, version)
-        .then(function (response) {
-            utils.writeJson(res, response)
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response)
-        })
-}
-
 module.exports.getCsrfToken = function getCsrfToken(req, res, next) {
     Default.getCsrfToken()
         .then(function (response) {
