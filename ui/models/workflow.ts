@@ -7,7 +7,6 @@ export const WORKFLOWS_COLLECTION = 'Workflows'
 export const WORKFLOWS_TITLE_PROPERTY = 'name'
 
 export async function getWorkflowForModel(modelName: string): Promise<Workflow> {
-    const db = await getDb()
     const model = await getModel(modelName)
 
     return getWorkflow(model.workflow)

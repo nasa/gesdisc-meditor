@@ -1,4 +1,4 @@
-import { Db } from 'mongodb'
+import type { Db } from 'mongodb'
 import getDb from '../../lib/mongodb'
 import SpatialSearchIssue from '../../models/__test__/fixtures/alerts/spatial_search_issue.json'
 import GLDAS_CLM10SUBP_3H_001 from '../../models/__test__/fixtures/collection-metadata/GLDAS_CLM10SUBP_3H_001.json'
@@ -9,13 +9,18 @@ import collectionMetadataModel from '../../models/__test__/fixtures/models/colle
 import editPublishCmrWorkflow from '../../models/__test__/fixtures/workflows/edit-publish-cmr.json'
 import editPublishWorkflow from '../../models/__test__/fixtures/workflows/edit-publish.json'
 import modifyReviewPublishWorkflow from '../../models/__test__/fixtures/workflows/modify-review-publish.json'
+import { adaptDocumentToLegacyDocument } from '../adapters'
 import {
+    createSourceToTargetStateMap,
+    findAllowedUserRolesForModel,
+    getDocument,
     getDocumentHistory,
     getDocumentHistoryByVersion,
     getDocumentPublications,
     getDocumentsForModel,
     getTargetStatesFromWorkflow,
 } from '../service'
+import alertFromGql from './__fixtures__/alertFromGql.json'
 import alertWithHistory from './__fixtures__/alertWithHistory.json'
 import alertWithPublication from './__fixtures__/alertWithPublication.json'
 
@@ -41,6 +46,155 @@ describe('Documents', () => {
         await db.collection('Collection Metadata').deleteMany({})
         await db.collection('Alerts').deleteMany({})
         // await db.collection('Workflows').deleteMany({})
+    })
+
+    describe('findAllowedUserRolesForModel', () => {
+        test(`returns only matching roles`, () => {
+            const userRoles = [
+                { model: 'Alerts', role: 'Author' },
+                { model: 'News', role: 'Reviewer' },
+                { model: 'Alerts', role: 'Publisher' },
+            ]
+            const allowedRoles = findAllowedUserRolesForModel('Alerts', userRoles)
+
+            expect(allowedRoles).toMatchInlineSnapshot(`
+                Array [
+                  "Author",
+                  "Publisher",
+                ]
+            `)
+        })
+
+        test(`is case sensitive`, () => {
+            const userRoles = [
+                { model: 'alerts', role: 'Author' },
+                { model: 'News', role: 'Reviewer' },
+                { model: 'Alerts', role: 'publisher' },
+            ]
+            const allowedRoles = findAllowedUserRolesForModel('Alerts', userRoles)
+
+            expect(allowedRoles).toMatchInlineSnapshot(`
+                Array [
+                  "publisher",
+                ]
+            `)
+        })
+    })
+
+    describe('createSourceToTargetStateMap', () => {
+        test('returns matching state map', () => {
+            const workflowEdges = [
+                {
+                    label: 'Create',
+                    notify: false,
+                    role: 'Author',
+                    source: 'Init',
+                    target: 'Draft',
+                    allowErrors: true,
+                    skipValidation: true,
+                    allowValidationErrors: true,
+                },
+                {
+                    label: 'Submit for review',
+                    notify: true,
+                    role: 'Author',
+                    source: 'Draft',
+                    target: 'Under Review',
+                    allowErrors: true,
+                    skipValidation: false,
+                },
+                {
+                    label: 'Needs more work',
+                    notify: true,
+                    role: 'Reviewer',
+                    source: 'Under Review',
+                    target: 'Draft',
+                },
+                {
+                    label: 'Approve publication',
+                    notify: true,
+                    role: 'Reviewer',
+                    source: 'Under Review',
+                    target: 'Approved',
+                },
+                {
+                    label: 'Publish',
+                    notify: true,
+                    role: 'Publisher',
+                    source: 'Approved',
+                    target: 'Published',
+                },
+                {
+                    label: "I don't like it!",
+                    notify: true,
+                    role: 'Publisher',
+                    source: 'Approved',
+                    target: 'Under Review',
+                },
+                {
+                    label: 'Un-publish',
+                    notify: true,
+                    role: 'Publisher',
+                    source: 'Published',
+                    target: 'Hidden',
+                },
+                {
+                    label: 'Publish',
+                    notify: true,
+                    role: 'Publisher',
+                    source: 'Hidden',
+                    target: 'Published',
+                },
+                {
+                    label: 'Delete',
+                    notify: false,
+                    role: 'Publisher',
+                    source: 'Hidden',
+                    target: 'Deleted',
+                },
+                {
+                    label: 'Delete',
+                    notify: false,
+                    role: 'Author',
+                    source: 'Draft',
+                    target: 'Deleted',
+                },
+            ]
+
+            expect(createSourceToTargetStateMap(['Author'], workflowEdges))
+                .toMatchInlineSnapshot(`
+                Object {
+                  "Draft": Array [
+                    "Under Review",
+                    "Deleted",
+                  ],
+                  "Init": Array [
+                    "Draft",
+                  ],
+                }
+            `)
+
+            expect(createSourceToTargetStateMap(['Publisher'], workflowEdges))
+                .toMatchInlineSnapshot(`
+                Object {
+                  "Approved": Array [
+                    "Published",
+                    "Under Review",
+                  ],
+                  "Hidden": Array [
+                    "Published",
+                    "Deleted",
+                  ],
+                  "Published": Array [
+                    "Hidden",
+                  ],
+                }
+            `)
+
+            expect(
+                createSourceToTargetStateMap(['Admin'], workflowEdges)
+            ).toMatchInlineSnapshot(`Object {}`)
+        })
     })
 
     describe('getTargetStatesForModel', () => {
@@ -85,6 +239,73 @@ describe('Documents', () => {
                 expect(targetStates).toEqual(expectedTargetStates)
             }
         )
+    })
+
+    describe('getDocument', () => {
+        const user = {
+            id: 'a-db-id',
+            uid: 'johndoe',
+            created: 1052283628409,
+            emailAddress: 'john.r.dow@example.com',
+            firstName: 'John',
+            lastAccessed: 1000000000000,
+            lastName: 'Doe',
+            roles: [
+                { model: 'Models', role: 'Author' },
+                { model: 'Workflows', role: 'Author' },
+                { model: 'Users', role: 'Author' },
+                { model: 'Images', role: 'Author' },
+                { model: 'News', role: 'Author' },
+                { model: 'News', role: 'Reviewer' },
+                { model: 'Tags', role: 'Author' },
+            ],
+            name: 'John Doe',
+        }
+
+        test('returns document', async () => {
+            await db.collection('Alerts').insertMany(alertWithHistory)
+
+            const [error, document] = await getDocument(
+                'Reprocessed FLDAS Data',
+                'Alerts',
+                user
+            )
+
+            expect(error).toBeNull()
+            expect(document).toMatchSnapshot()
+        })
+
+        test('returns document at version', async () => {
+            await db.collection('Alerts').insertMany(alertWithHistory)
+
+            const [error, document] = await getDocument(
+                'Reprocessed FLDAS Data',
+                'Alerts',
+                user,
+                '2018-08-09T14:25:09.384Z'
+            )
+
+            expect(error).toBeNull()
+            expect(document).toMatchSnapshot()
+        })
+
+        describe('adaptDocumentToLegacyDocument', () => {
+            test('is identical to the previous data structure returned from GQL', async () => {
+                await db.collection('Alerts').insertMany(alertWithHistory)
+
+                const [error, document] = await getDocument(
+                    'Reprocessed FLDAS Data',
+                    'Alerts',
+                    user
+                )
+
+                const adaptedDocument = adaptDocumentToLegacyDocument(document)
+
+                expect(error).toBeNull()
+                //* I modified the alertFromGql to anonymize the data, remove the __typeName field, and equalize date formatting from ":00.000Z" to ":00Z".
+                expect(adaptedDocument).toEqual(alertFromGql)
+            })
+        })
     })
 
     describe('getDocumentsForModel', () => {
@@ -395,7 +616,7 @@ describe('Documents', () => {
         })
     })
 
-    describe.only('getDocumentPublications', () => {
+    describe('getDocumentPublications', () => {
         test('returns document publications', async () => {
             await db.collection('Alerts').insertOne(alertWithPublication)
 

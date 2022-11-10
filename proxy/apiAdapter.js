@@ -36,15 +36,13 @@ async function adapt(request) {
     switch (uri) {
         case BASE_PATH + 'getComments': {
             try {
-                const response = await request.subrequest(
-                    BASE_PATH +
-                        'models/' +
-                        encodeURIComponent(args.model) +
-                        '/documents/' +
-                        encodeURIComponent(args.title) +
-                        '/comments',
-                    { method }
-                );
+                const subrequestUrl = `${BASE_PATH}models/${encodeURIComponent(
+                    args.model
+                )}/documents/${encodeURIComponent(args.title)}/comments`;
+
+                const response = await request.subrequest(subrequestUrl, {
+                    method,
+                });
 
                 passThroughHeaders(request, response);
 
@@ -62,17 +60,43 @@ async function adapt(request) {
             break;
         }
 
+        case BASE_PATH + 'getDocument': {
+            try {
+                const subrequestUrl = `${BASE_PATH}models/${encodeURIComponent(
+                    args.model
+                )}/documents/${encodeURIComponent(args.title)}${
+                    !!args.version ? `/${encodeURIComponent(args.version)}` : ''
+                }`;
+
+                const response = await request.subrequest(subrequestUrl, {
+                    method,
+                });
+
+                passThroughHeaders(request, response);
+
+                request.return(response.status, response.responseBuffer);
+            } catch (error) {
+                ngx.log(ngx.ERR, error);
+
+                //* Do not expose the error to the end-user.
+                request.return(
+                    500,
+                    JSON.stringify({ message: 'Internal Server Error' })
+                );
+            }
+
+            break;
+        }
+
         case BASE_PATH + 'getDocumentHistory': {
             try {
-                const response = await request.subrequest(
-                    BASE_PATH +
-                        'models/' +
-                        encodeURIComponent(args.model) +
-                        '/documents/' +
-                        encodeURIComponent(args.title) +
-                        '/history',
-                    { method }
-                );
+                const subrequestUrl = `${BASE_PATH}models/${encodeURIComponent(
+                    args.model
+                )}/documents/${encodeURIComponent(args.title)}/history`;
+
+                const response = await request.subrequest(subrequestUrl, {
+                    method,
+                });
 
                 passThroughHeaders(request, response);
 
@@ -92,15 +116,13 @@ async function adapt(request) {
 
         case BASE_PATH + 'getDocumentPublicationStatus': {
             try {
-                const response = await request.subrequest(
-                    BASE_PATH +
-                        'models/' +
-                        encodeURIComponent(args.model) +
-                        '/documents/' +
-                        encodeURIComponent(args.title) +
-                        '/publications',
-                    { method }
-                );
+                const subrequestUrl = `${BASE_PATH}models/${encodeURIComponent(
+                    args.model
+                )}/documents/${encodeURIComponent(args.title)}/publications`;
+
+                const response = await request.subrequest(subrequestUrl, {
+                    method,
+                });
 
                 passThroughHeaders(request, response);
 

@@ -4,7 +4,9 @@ import cloneDeep from 'lodash.clonedeep'
 import type { NextPageContext } from 'next'
 import { useRouter } from 'next/router'
 import { useContext, useEffect, useState } from 'react'
+import { getLoggedInUser } from '../../../auth/user'
 import { getCommentsForDocument } from '../../../comments/service'
+import type { DocumentComment } from '../../../comments/types'
 import { AppContext } from '../../../components/app-store'
 import { Breadcrumb, Breadcrumbs } from '../../../components/breadcrumbs'
 import DocumentComments from '../../../components/document/document-comments'
@@ -18,7 +20,13 @@ import SourceDialog from '../../../components/document/source-dialog'
 import JsonDiffViewer from '../../../components/json-diff-viewer'
 import PageTitle from '../../../components/page-title'
 import withAuthentication from '../../../components/with-authentication'
-import { getDocumentHistory } from '../../../documents/service'
+import { adaptDocumentToLegacyDocument } from '../../../documents/adapters'
+import { fetchDocument } from '../../../documents/http'
+import { getDocument, getDocumentHistory } from '../../../documents/service'
+import type {
+    DocumentHistory as History,
+    LegacyDocumentWithMetadata,
+} from '../../../documents/types'
 import { withApollo } from '../../../lib/apollo'
 import { refreshDataInPlace } from '../../../lib/next'
 import { treeify } from '../../../lib/treeify'
@@ -27,20 +35,6 @@ import mEditorApi from '../../../service/'
 import styles from './document-edit.module.css'
 
 export type DocumentPanels = 'comments' | 'history' | 'source' | 'workflow'
-
-const DOCUMENT_QUERY = gql`
-    query getDocument($modelName: String!, $title: String!, $version: String) {
-        document(modelName: $modelName, title: $title, version: $version) {
-            title
-            doc
-            state
-            version
-            modifiedBy
-            modifiedOn
-            targetStates
-        }
-    }
-`
 
 const MODEL_QUERY = gql`
     query getModel($modelName: String!, $currentState: String!) {
@@ -74,24 +68,34 @@ const MODEL_QUERY = gql`
     }
 `
 
+type PropsType = {
+    comments: DocumentComment[]
+    documentHistory: History[]
+    pageDocument: LegacyDocumentWithMetadata
+    theme: any
+    user: any
+    version: string
+}
+
 const EditDocumentPage = ({
     user,
     version = null,
     theme,
     comments,
     documentHistory,
-}) => {
+    pageDocument,
+}: PropsType) => {
     const router = useRouter()
     const params = router.query
     const documentTitle = decodeURIComponent(params.documentTitle as string)
-    // todo: this seems like a security concern; any way to sanitize against injection / allowlist models?
     const modelName = params.modelName as string
 
     const [currentVersion, setCurrentVersion] = useState(null)
     const [form, setForm] = useState(null)
-    const [formData, setFormData] = useState(null)
+    const [formData, setFormData] = useState(pageDocument)
     const [oldVersion, setOldVersion] = useState(null)
     const [toggleJSON, setToggleJSON] = useState(false)
+    const [sourceChangeBlock, setSourceChangeBlock] = useState(false)
 
     const [activePanel, setActivePanel] = useLocalStorage<DocumentPanels>(
         'documentEditActivePanel',
@@ -99,40 +103,22 @@ const EditDocumentPage = ({
     )
     const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
 
-    const [loadDocument, documentResponse] = useLazyQuery(DOCUMENT_QUERY, {
-        fetchPolicy: 'network-only',
-    })
-
     const [loadModel, modelResponse] = useLazyQuery(MODEL_QUERY, {
         fetchPolicy: 'network-only',
     })
 
     useEffect(() => {
-        loadDocument({
-            variables: {
-                modelName,
-                title: documentTitle,
-                version,
-            },
-        })
-    }, [])
-
-    useEffect(() => {
-        if (!documentResponse.data) return
-
-        setFormData(documentResponse.data.document)
-
         if (!modelResponse.data) {
             loadModel({
                 variables: {
                     modelName,
-                    currentState: documentResponse.data.document.state,
+                    currentState: formData.state,
                 },
             })
         }
 
         refreshDataInPlace(router)
-    }, [documentResponse.data])
+    }, [formData.state, modelResponse.data, loadModel, refreshDataInPlace])
 
     const currentPrivileges = modelResponse?.data?.model?.workflow
         ? user.privilegesForModelAndWorkflowNode(
@@ -147,10 +133,25 @@ const EditDocumentPage = ({
         window.location.href = parser.href
     }
 
-    function loadDocumentVersion(version) {
-        loadDocument({
-            variables: { modelName, title: documentTitle, version },
-        })
+    async function loadDocumentVersion(version: string) {
+        if (formData.modifiedOn === version) {
+            return
+        }
+
+        // todo: decide on appropriate action for versioned document error
+        const [versionedDocumentError, versionedDocument] = await fetchDocument(
+            documentTitle,
+            modelName,
+            version
+        )
+
+        setSourceChangeBlock(true)
+
+        setFormData(adaptDocumentToLegacyDocument(versionedDocument))
+
+        setTimeout(() => {
+            setSourceChangeBlock(false)
+        }, 1000)
 
         getOldAndNewVersion(version)
     }
@@ -179,7 +180,7 @@ const EditDocumentPage = ({
         delete document['x-meditor'] // x-meditor metadata, shouldn't be there but ensure it isn't
 
         await fetch(
-            `/meditor/api/changeDocumentState?model=${modelName}&title=${documentTitle}&state=${state}&version=${documentResponse.data.document.version}`,
+            `/meditor/api/changeDocumentState?model=${modelName}&title=${documentTitle}&state=${state}&version=${formData.version}`,
             {
                 method: 'PUT',
                 headers: {
@@ -250,22 +251,23 @@ const EditDocumentPage = ({
         setActivePanel(null)
     }
 
-    function handleSourceChange(newSource) {
-        let formData = cloneDeep(documentResponse.data.document)
+    //* For updating formData when the user updates the document. Also triggers on document load and version change (hence sourceChangeBlock).
+    function handleSourceChange(newSource: any) {
+        if (sourceChangeBlock) {
+            return
+        }
 
-        newSource._id = formData.doc._id
-        formData.doc = newSource.doc || newSource
+        //* Get current document for its metadata.
+        const formDataLocal: LegacyDocumentWithMetadata = cloneDeep(formData)
 
-        setFormData(formData)
+        formDataLocal.doc = newSource
+        //* Updating the existing document, so reuse the DB's id.
+        formDataLocal.doc._id = formData.doc._id
+
+        setFormData(formDataLocal)
     }
 
-    useEffect(() => {
-        if (documentHistory?.length) {
-            getOldAndNewVersion(documentTitle)
-        }
-    }, [documentHistory, getOldAndNewVersion])
-
-    function getOldAndNewVersion(version) {
+    function getOldAndNewVersion(version: string) {
         const currentIndex = documentHistory?.findIndex(
             item => item.modifiedOn === version
         )
@@ -309,7 +311,7 @@ const EditDocumentPage = ({
             <DocumentHeader
                 activePanel={activePanel}
                 isJsonPanelOpen={toggleJSON}
-                document={documentResponse?.data?.document}
+                document={formData}
                 model={modelResponse?.data?.model}
                 version={version}
                 togglePanelOpen={togglePanel}
@@ -406,9 +408,7 @@ const EditDocumentPage = ({
                 onSave={saveDocument}
                 onUpdateState={updateDocumentState}
                 actions={modelResponse?.data?.model?.workflow?.currentEdges}
-                showActions={
-                    documentResponse?.data?.document?.targetStates?.length > 0
-                }
+                showActions={formData.targetStates?.length > 0}
                 confirmUnsavedChanges={true}
                 allowValidationErrors={
                     modelResponse?.data?.model.workflow.currentNode
@@ -421,6 +421,14 @@ const EditDocumentPage = ({
 
 export async function getServerSideProps(ctx: NextPageContext) {
     const { documentTitle, modelName } = ctx.query
+    const { req, res } = ctx
+    const user = await getLoggedInUser(req, res)
+
+    const [pageDocumentError, pageDocument] = await getDocument(
+        decodeURIComponent(documentTitle.toString()),
+        decodeURIComponent(modelName.toString()),
+        user
+    )
 
     const [commentsError, comments] = await getCommentsForDocument(
         decodeURIComponent(documentTitle.toString()),
@@ -434,7 +442,13 @@ export async function getServerSideProps(ctx: NextPageContext) {
 
     const props = {
         comments: !!commentsError ? null : treeify(comments),
+        pageDocument: adaptDocumentToLegacyDocument(pageDocument),
         documentHistory: !!documentHistoryError ? null : documentHistory,
+    }
+
+    // No point in displaying the page if our core resource has errored or is missing.
+    if (pageDocumentError || !Object.keys(pageDocument).length) {
+        return { notFound: true }
     }
 
     return { props }
