@@ -1,5 +1,5 @@
 import type { APIError } from '../declarations'
-import { ErrorData } from '../declarations'
+import type { ErrorData } from '../declarations'
 import type { DocumentPublications } from './types'
 
 async function fetchDocumentPublications(

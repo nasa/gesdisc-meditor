@@ -1,10 +1,10 @@
 import Fuse from 'fuse.js'
-import { ErrorData } from '../declarations'
+import type { ErrorData } from '../declarations'
 import { getModel } from '../models/model'
 import type { Document, DocumentsSearchOptions, Workflow } from '../models/types'
 import { getWorkflow } from '../models/workflow'
 import { getDocumentsDb } from './db'
-import { DocumentHistory, DocumentPublications } from './types'
+import type { DocumentHistory, DocumentPublications } from './types'
 
 // TODO: add OPTIONAL pagination (don't break existing scripts, perhaps the existence of pagination query params changes the output?)
 export async function getDocumentsForModel(
@@ -39,7 +39,7 @@ export async function getDocumentsForModel(
         }
 
         // add target states to documents
-        documents.forEach(document => ({
+        documents = documents.map(document => ({
             ...document,
             'x-meditor': {
                 ...document['x-meditor'],
