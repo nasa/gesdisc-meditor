@@ -1,0 +1,20 @@
+{
+    "groups": [],
+    "tags": [],
+    "datasets": [],
+    "title": "How do I?",
+    "answer": "<p>There are a number of ways</p>\n",
+    "x-meditor": {
+        "model": "FAQs",
+        "modifiedOn": "2022-10-11T13:02:50.792Z",
+        "modifiedBy": "system",
+        "states": [
+            {
+                "source": "Init",
+                "target": "Draft",
+                "modifiedOn": null
+            }
+        ],
+        "state": "Draft"
+    }
+}

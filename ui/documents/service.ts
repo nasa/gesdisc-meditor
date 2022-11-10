@@ -3,6 +3,7 @@ import type { ErrorData } from '../declarations'
 import { getModel } from '../models/model'
 import type { Document, DocumentsSearchOptions, Workflow } from '../models/types'
 import { getWorkflow } from '../models/workflow'
+import { BadRequestException } from '../utils/errors'
 import { getDocumentsDb } from './db'
 import type { DocumentHistory, DocumentPublications } from './types'
 
@@ -122,6 +123,55 @@ export async function getDocumentPublications(
     } catch (error) {
         console.error(error)
 
+        return [error, null]
+    }
+}
+
+export async function changeDocumentState(
+    documentTitle: string,
+    modelName: string,
+    newState: string // must be a string, not enum, due to states not existing at compile time
+): Promise<ErrorData<Document>> {
+    try {
+        const { titleProperty = '', workflow: workflowName = '' } = await getModel(
+            modelName
+        ) // todo: refactor once getModel is a class instance of modelsDb
+        const workflow = await getWorkflow(workflowName) // todo: refactor once getWorkflow is a class instance of workflowDb
+
+        // fetch the requested document
+        const documentsDb = await getDocumentsDb()
+        const document = await documentsDb.getDocument(
+            documentTitle,
+            modelName,
+            titleProperty
+        )
+
+        if (!newState) {
+            throw new BadRequestException('No state provided')
+        }
+
+        if (!document) {
+            throw new BadRequestException(
+                `Document, ${documentTitle}, in model, ${modelName}, does not exist`
+            )
+        }
+
+        if (newState === document['x-meditor'].state) {
+            throw new BadRequestException(
+                `Cannot transition to state [${newState}] as the document is in this state already`
+            )
+        }
+
+        const targetStates = getTargetStatesFromWorkflow(document, workflow)
+
+        if (targetStates.indexOf(newState) < 0) {
+            throw new BadRequestException(
+                `Cannot transition to state [${newState}] as it is not a valid state in the workflow`
+            )
+        }
+
+        return [null, document]
+    } catch (error) {
         return [error, null]
     }
 }

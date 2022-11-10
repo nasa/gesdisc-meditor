@@ -6,10 +6,14 @@ import OML1BRVG_003 from '../../models/__test__/fixtures/collection-metadata/OML
 import TEST_NO_STATE from '../../models/__test__/fixtures/collection-metadata/TEST_NO_STATE.json'
 import alertsModel from '../../models/__test__/fixtures/models/alerts.json'
 import collectionMetadataModel from '../../models/__test__/fixtures/models/collection-metadata.json'
+import faqsModel from '../../models/__test__/fixtures/models/faqs.json'
+import HowDoIFAQ from '../../models/__test__/fixtures/faqs/how-do-i.json'
+import WhereDoIFAQ from '../../models/__test__/fixtures/faqs/where-do-i.json'
 import editPublishCmrWorkflow from '../../models/__test__/fixtures/workflows/edit-publish-cmr.json'
 import editPublishWorkflow from '../../models/__test__/fixtures/workflows/edit-publish.json'
 import modifyReviewPublishWorkflow from '../../models/__test__/fixtures/workflows/modify-review-publish.json'
 import {
+    changeDocumentState,
     getDocumentHistory,
     getDocumentHistoryByVersion,
     getDocumentPublications,
@@ -32,15 +36,18 @@ describe('Documents', () => {
         // insert test models
         await db.collection('Models').insertOne(alertsModel)
         await db.collection('Models').insertOne(collectionMetadataModel)
+        await db.collection('Models').insertOne(faqsModel)
         await db.collection('Workflows').insertOne(editPublishCmrWorkflow)
         await db.collection('Workflows').insertOne(editPublishWorkflow)
+        await db.collection('Workflows').insertOne(modifyReviewPublishWorkflow)
     })
 
     afterEach(async () => {
         await db.collection('Models').deleteMany({})
         await db.collection('Collection Metadata').deleteMany({})
         await db.collection('Alerts').deleteMany({})
-        // await db.collection('Workflows').deleteMany({})
+        await db.collection('FAQs').deleteMany({})
+        await db.collection('Workflows').deleteMany({})
     })
 
     describe('getTargetStatesForModel', () => {
@@ -415,6 +422,73 @@ describe('Documents', () => {
                   },
                 ]
             `)
+        })
+    })
+
+    describe('changeDocumentState', () => {
+        beforeEach(async () => {
+            await db.collection('FAQs').insertOne(HowDoIFAQ)
+            await db.collection('FAQs').insertOne(WhereDoIFAQ)
+        })
+
+        afterEach(async () => {
+            await db.collection('FAQs').deleteMany({})
+        })
+
+        it('returns an error for a model that does not exist', async () => {
+            const [error, document] = await changeDocumentState(
+                'Bacon',
+                'Eggs',
+                'Foo'
+            )
+            expect(error).toMatchInlineSnapshot(`[Error: Model not found: Eggs]`)
+            expect(document).toBeNull()
+        })
+
+        it('returns an error for a document that does not exist', async () => {
+            const [error, document] = await changeDocumentState(
+                'Bacon',
+                'FAQs',
+                'Foo'
+            )
+            expect(error).toMatchInlineSnapshot(
+                `[Error: Document, Bacon, in model, FAQs, does not exist]`
+            )
+            expect(document).toBeNull()
+        })
+
+        it('returns an error if the state is not provided', async () => {
+            // @ts-expect-error
+            const [error, document] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs'
+            )
+            expect(error).toMatchInlineSnapshot(`[Error: No state provided]`)
+            expect(document).toBeNull()
+        })
+
+        it('returns an error if the provided state is the same as the current document state', async () => {
+            const [error, document] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs',
+                'Draft'
+            )
+            expect(error).toMatchInlineSnapshot(
+                `[Error: Cannot transition to state [Draft] as the document is in this state already]`
+            )
+            expect(document).toBeNull()
+        })
+
+        it('returns an error if the state is not a valid state in the workflow', async () => {
+            const [error, document] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs',
+                'Foo'
+            )
+            expect(error).toMatchInlineSnapshot(
+                `[Error: Cannot transition to state [Foo] as it is not a valid state in the workflow]`
+            )
+            expect(document).toBeNull()
         })
     })
 })
