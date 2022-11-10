@@ -39,7 +39,7 @@ export async function getDocumentsForModel(
         }
 
         // add target states to documents
-        documents.forEach(document => ({
+        documents = documents.map(document => ({
             ...document,
             'x-meditor': {
                 ...document['x-meditor'],
