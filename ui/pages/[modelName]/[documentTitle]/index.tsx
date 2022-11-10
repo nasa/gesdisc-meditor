@@ -95,6 +95,7 @@ const EditDocumentPage = ({
     const [formData, setFormData] = useState(pageDocument)
     const [oldVersion, setOldVersion] = useState(null)
     const [toggleJSON, setToggleJSON] = useState(false)
+    // todo: remove this hack when this page is refactored
     const [sourceChangeBlock, setSourceChangeBlock] = useState(false)
 
     const [activePanel, setActivePanel] = useLocalStorage<DocumentPanels>(

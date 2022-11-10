@@ -1,7 +1,7 @@
 import type { APIError, ErrorData } from '../declarations'
-import type { User } from './types'
+import type { UserDuringSetup } from './types'
 
-async function fetchSeedDb(users: User[]): Promise<ErrorData<null>> {
+async function fetchSeedDb(users: UserDuringSetup[]): Promise<ErrorData<null>> {
     try {
         const response = await fetch(`/meditor/api/admin/seed-db`, {
             body: JSON.stringify(users),
