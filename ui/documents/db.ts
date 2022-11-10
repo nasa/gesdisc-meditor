@@ -1,4 +1,4 @@
-import { Db } from 'mongodb'
+import type { Db } from 'mongodb'
 import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
 import {
     addStatesToDocument,
@@ -7,7 +7,7 @@ import {
 import type { Document, DocumentsSearchOptions } from '../models/types'
 import { BadRequestException } from '../utils/errors'
 import { convertLuceneQueryToMongo } from '../utils/search'
-import { DocumentHistory, DocumentPublications } from './types'
+import type { DocumentHistory, DocumentPublications } from './types'
 
 class DocumentsDb {
     #DEFAULT_SORT = '-x-meditor.modifiedOn'

@@ -1,4 +1,4 @@
-import { Db } from 'mongodb'
+import type { Db } from 'mongodb'
 import getDb from '../../lib/mongodb'
 import SpatialSearchIssue from '../../models/__test__/fixtures/alerts/spatial_search_issue.json'
 import GLDAS_CLM10SUBP_3H_001 from '../../models/__test__/fixtures/collection-metadata/GLDAS_CLM10SUBP_3H_001.json'
