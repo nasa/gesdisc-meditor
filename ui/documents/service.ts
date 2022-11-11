@@ -1,9 +1,10 @@
 import Fuse from 'fuse.js'
 import type { ErrorData } from '../declarations'
 import { getModel } from '../models/model'
-import type { Document, DocumentsSearchOptions, Workflow } from '../models/types'
+import type { Document, DocumentsSearchOptions } from '../models/types'
 import { getWorkflow } from '../models/workflow'
 import { BadRequestException } from '../utils/errors'
+import { getTargetStatesFromWorkflow } from '../workflows/service'
 import { getDocumentsDb } from './db'
 import type { DocumentHistory, DocumentPublications } from './types'
 
@@ -44,7 +45,10 @@ export async function getDocumentsForModel(
             ...document,
             'x-meditor': {
                 ...document['x-meditor'],
-                targetStates: getTargetStatesFromWorkflow(document, workflow), // populate document with states it can transition into
+                targetStates: getTargetStatesFromWorkflow(
+                    document['x-meditor'].state,
+                    workflow
+                ), // populate document with states it can transition into
             },
         }))
 
@@ -162,7 +166,10 @@ export async function changeDocumentState(
             )
         }
 
-        const targetStates = getTargetStatesFromWorkflow(document, workflow)
+        const targetStates = getTargetStatesFromWorkflow(
+            document['x-meditor'].state,
+            workflow
+        )
 
         if (targetStates.indexOf(newState) < 0) {
             throw new BadRequestException(
@@ -174,18 +181,4 @@ export async function changeDocumentState(
     } catch (error) {
         return [error, null]
     }
-}
-
-/**
- * the workflow contains a list of nodes the document can be in
- * given a document's current state (or the current node they are on) the document can transition to a subset of those workflow nodes
- *
- * example:
- * given a simple workflow: Draft -> Under Review -> Approved -> Published
- * if a document is in state "Under Review", targetStates would be ["Approved"]
- */
-export function getTargetStatesFromWorkflow(document: Document, workflow: Workflow) {
-    return workflow.edges
-        .filter(edge => edge.source == document['x-meditor'].state)
-        .map(edge => edge.target)
 }
