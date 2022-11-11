@@ -23,6 +23,7 @@ import {
 import alertFromGql from './__fixtures__/alertFromGql.json'
 import alertWithHistory from './__fixtures__/alertWithHistory.json'
 import alertWithPublication from './__fixtures__/alertWithPublication.json'
+import workflowEdges from './__fixtures__/workflowEdges.json'
 
 describe('Documents', () => {
     let db: Db
@@ -83,84 +84,6 @@ describe('Documents', () => {
 
     describe('createSourceToTargetStateMap', () => {
         test('returns matching state map', () => {
-            const workflowEdges = [
-                {
-                    label: 'Create',
-                    notify: false,
-                    role: 'Author',
-                    source: 'Init',
-                    target: 'Draft',
-                    allowErrors: true,
-                    skipValidation: true,
-                    allowValidationErrors: true,
-                },
-                {
-                    label: 'Submit for review',
-                    notify: true,
-                    role: 'Author',
-                    source: 'Draft',
-                    target: 'Under Review',
-                    allowErrors: true,
-                    skipValidation: false,
-                },
-                {
-                    label: 'Needs more work',
-                    notify: true,
-                    role: 'Reviewer',
-                    source: 'Under Review',
-                    target: 'Draft',
-                },
-                {
-                    label: 'Approve publication',
-                    notify: true,
-                    role: 'Reviewer',
-                    source: 'Under Review',
-                    target: 'Approved',
-                },
-                {
-                    label: 'Publish',
-                    notify: true,
-                    role: 'Publisher',
-                    source: 'Approved',
-                    target: 'Published',
-                },
-                {
-                    label: "I don't like it!",
-                    notify: true,
-                    role: 'Publisher',
-                    source: 'Approved',
-                    target: 'Under Review',
-                },
-                {
-                    label: 'Un-publish',
-                    notify: true,
-                    role: 'Publisher',
-                    source: 'Published',
-                    target: 'Hidden',
-                },
-                {
-                    label: 'Publish',
-                    notify: true,
-                    role: 'Publisher',
-                    source: 'Hidden',
-                    target: 'Published',
-                },
-                {
-                    label: 'Delete',
-                    notify: false,
-                    role: 'Publisher',
-                    source: 'Hidden',
-                    target: 'Deleted',
-                },
-                {
-                    label: 'Delete',
-                    notify: false,
-                    role: 'Author',
-                    source: 'Draft',
-                    target: 'Deleted',
-                },
-            ]
-
             expect(createSourceToTargetStateMap(['Author'], workflowEdges))
                 .toMatchInlineSnapshot(`
                 Object {
