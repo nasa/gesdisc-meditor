@@ -7,8 +7,9 @@ import SearchBar from '../../components/search/search-bar'
 import SearchList from '../../components/search/search-list'
 import withAuthentication from '../../components/with-authentication'
 import { getDocumentsForModel } from '../../documents/service'
-import { getModel, getModels } from '../../models/model'
-import type { Document, DocumentsSearchOptions, Model } from '../../models/types'
+import type { Document } from '../../documents/types'
+import { getModel, getModels } from '../../models/service'
+import type { DocumentsSearchOptions, Model } from '../../models/types'
 import type { User } from '../../service/api'
 
 function getSearchOptionsFromParams(query: ParsedUrlQuery): DocumentsSearchOptions {
@@ -146,8 +147,10 @@ const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
 
 export async function getServerSideProps(ctx: NextPageContext) {
     const modelName = ctx.query.modelName.toString()
-    const models = await getModels()
-    const model = await getModel(modelName)
+
+    //! TODO: handle getModels or getModel errors (show the user an error message?)
+    const [_modelsError, models] = await getModels()
+    const [_modelError, model] = await getModel(modelName)
 
     const searchOptions = getSearchOptionsFromParams(ctx.query)
 
@@ -159,7 +162,7 @@ export async function getServerSideProps(ctx: NextPageContext) {
 
     // todo: both stringify => parse should be moved to concern of db (see comments, documents)
     const props = {
-        allModels: JSON.parse(JSON.stringify(models)),
+        allModels: JSON.parse(JSON.stringify(models || [])),
         model: JSON.parse(JSON.stringify(model)),
         documents: !!documentsError ? null : documents,
     }

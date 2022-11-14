@@ -1,17 +1,16 @@
 import type { Db } from 'mongodb'
 import type { User } from '../auth/types'
 import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
-import {
-    addStatesToDocument,
-    latestVersionOfDocument,
-} from '../models/shared.queries'
-import type { DocumentsSearchOptions, WorkflowEdge } from '../models/types'
+import type { DocumentsSearchOptions } from '../models/types'
 import { BadRequestException } from '../utils/errors'
 import { convertLuceneQueryToMongo } from '../utils/search'
+import type { WorkflowEdge } from '../workflows/types'
 import { getDocumentInputSchema } from './schema'
 import type { DocumentHistory, DocumentPublications } from './types'
 
 class DocumentsDb {
+    #UNSPECIFIED_STATE_NAME = 'Unspecified'
+    #UNKNOWN_USER = 'Unknown'
     #DEFAULT_SORT = '-x-meditor.modifiedOn'
     #DISALLOWED_SELF_TRANSITIONS = ['Under Review', 'Approved']
     #db: Db
@@ -262,10 +261,10 @@ class DocumentsDb {
             },
 
             // make sure we only return the latest version of each document (collection holds document history)
-            ...latestVersionOfDocument(titleProperty),
+            ...this.latestVersionOfDocumentQuery(titleProperty),
 
             // add states to the document
-            ...addStatesToDocument(),
+            ...this.addStatesToDocumentQuery(),
 
             // sort the result
             {
@@ -293,6 +292,68 @@ class DocumentsDb {
             .toArray()
 
         return makeSafeObjectIDs(documents)
+    }
+
+    async getNumberOfUniqueDocumentsForModel(
+        modelName: string,
+        titleProperty: string
+    ): Promise<number> {
+        const documentCount = await this.#db
+            .collection(modelName)
+            .aggregate(
+                [
+                    { $group: { _id: '$' + titleProperty } },
+                    { $group: { _id: null, count: { $sum: 1 } } },
+                ],
+                { allowDiskUse: true }
+            )
+            .toArray()
+
+        return documentCount?.[0]?.count || 0
+    }
+
+    private addStatesToDocumentQuery() {
+        // build a state to return if the document version has no state
+        let unspecifiedState = {
+            target: this.#UNSPECIFIED_STATE_NAME,
+            source: this.#UNSPECIFIED_STATE_NAME,
+            modifiedBy: this.#UNKNOWN_USER,
+            modifiedOn: new Date().toISOString(),
+        }
+
+        return [
+            // Add unspecified state on docs with no states
+            {
+                $addFields: {
+                    'x-meditor.states': {
+                        $ifNull: ['$x-meditor.states', [unspecifiedState]],
+                    },
+                },
+            },
+            // Find last state
+            {
+                $addFields: {
+                    'x-meditor.state': {
+                        $arrayElemAt: ['$x-meditor.states.target', -1],
+                    },
+                },
+            },
+        ]
+    }
+
+    /**
+     * a commonly used query for retrieving the latest version of a document
+     * the property of the document used can differ between models (one calls it title, one may call it name)
+     */
+    private latestVersionOfDocumentQuery(titleProperty: string) {
+        return [
+            // Sort descending by version (date)
+            { $sort: { 'x-meditor.modifiedOn': -1 } },
+            // Grab all fields in the most recent version
+            { $group: { _id: `$${titleProperty}`, doc: { $first: '$$ROOT' } } },
+            // Put all fields of the most recent doc back into root of the document
+            { $replaceRoot: { newRoot: '$doc' } },
+        ]
     }
 }
 

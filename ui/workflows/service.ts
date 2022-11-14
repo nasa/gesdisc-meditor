@@ -1,5 +1,43 @@
-import type { Workflow, WorkflowEdge } from '../models/types'
-import { InternalServerErrorException } from '../utils/errors'
+import type { ErrorData } from '../declarations'
+import { getModel } from '../models/service'
+import type { Workflow, WorkflowEdge } from './types'
+import { InternalServerErrorException, NotFoundException } from '../utils/errors'
+import { getWorkflowsDb } from './db'
+
+export async function getWorkflowForModel(
+    modelName: string
+): Promise<ErrorData<Workflow>> {
+    try {
+        const [modelError, model] = await getModel(modelName)
+
+        if (modelError) {
+            return [modelError, null]
+        }
+
+        return getWorkflow(model.workflow)
+    } catch (error) {
+        return [error, null]
+    }
+}
+
+export async function getWorkflow(
+    workflowName: string
+): Promise<ErrorData<Workflow>> {
+    try {
+        const workflowsDb = await getWorkflowsDb()
+        const workflow = await workflowsDb.getWorkflow(workflowName)
+
+        if (!workflow) {
+            throw new NotFoundException(
+                `The requested workflow, ${workflowName}, was not found.`
+            )
+        }
+
+        return [null, workflow]
+    } catch (error) {
+        return [error, null]
+    }
+}
 
 /**
  * the workflow contains a list of edges between states.

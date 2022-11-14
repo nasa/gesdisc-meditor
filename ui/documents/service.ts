@@ -1,16 +1,11 @@
 import Fuse from 'fuse.js'
 import type { User, UserRole } from '../auth/types'
 import type { ErrorData } from '../declarations'
-import { getModel } from '../models/model'
-import type {
-    DocumentsSearchOptions,
-    Workflow,
-    WorkflowEdge,
-    WorkflowNode,
-} from '../models/types'
-import { getWorkflow } from '../models/workflow'
+import { getModel } from '../models/service'
+import type { DocumentsSearchOptions } from '../models/types'
 import { BadRequestException, NotFoundException } from '../utils/errors'
-import { getTargetStatesFromWorkflow } from '../workflows/service'
+import { getTargetStatesFromWorkflow, getWorkflow } from '../workflows/service'
+import type { Workflow, WorkflowEdge, WorkflowNode } from '../workflows/types'
 import { getDocumentsDb } from './db'
 import type { Document, DocumentHistory, DocumentPublications } from './types'
 
@@ -24,10 +19,18 @@ export async function getDocument(
         const documentsDb = await getDocumentsDb()
         const userRolesForModel = findAllowedUserRolesForModel(modelName, user?.roles)
 
-        const { titleProperty = 'title', workflow: workflowName } = await getModel(
-            modelName
-        )
-        const workflow = await getWorkflow(workflowName)
+        const [modelError, { titleProperty = 'title', workflow: workflowName }] =
+            await getModel(modelName)
+
+        if (modelError) {
+            throw modelError // failed to get the model associated with the document
+        }
+
+        const [workflowError, workflow] = await getWorkflow(workflowName)
+
+        if (workflowError) {
+            throw workflowError // failed to get the workflow associated with the document
+        }
 
         const sourceToTargetStateMap = createSourceToTargetStateMap(
             userRolesForModel,
@@ -58,12 +61,19 @@ export async function getDocumentsForModel(
 ): Promise<ErrorData<Document[]>> {
     try {
         const documentsDb = await getDocumentsDb()
-        // todo: refactor once getModel is a class instance of modelsDb
-        const { titleProperty = '', workflow: workflowName = '' } = await getModel(
-            modelName
-        ) // need the model to get the related workflow and title property
-        // todo: refactor once getWorkflow is a class instance of workflowDb
-        const workflow = await getWorkflow(workflowName)
+
+        const [modelError, { titleProperty = '', workflow: workflowName = '' }] =
+            await getModel(modelName) // need the model to get the related workflow and title property
+
+        if (modelError) {
+            throw modelError
+        }
+
+        const [workflowError, workflow] = await getWorkflow(workflowName)
+
+        if (workflowError) {
+            throw workflowError
+        }
 
         let documents = await documentsDb.getDocumentsForModel(
             modelName,
@@ -109,8 +119,11 @@ export async function getDocumentHistory(
 ): Promise<ErrorData<DocumentHistory[]>> {
     try {
         const documentsDb = await getDocumentsDb()
-        // todo: refactor once getModel is a class instance of modelsDb
-        const { titleProperty = '' } = await getModel(modelName)
+        const [modelError, { titleProperty = '' }] = await getModel(modelName)
+
+        if (modelError) {
+            throw modelError
+        }
 
         const historyItems = await documentsDb.getDocumentHistory(
             documentTitle,
@@ -133,8 +146,11 @@ export async function getDocumentHistoryByVersion(
 ): Promise<ErrorData<DocumentHistory>> {
     try {
         const documentsDb = await getDocumentsDb()
-        // todo: refactor once getModel is a class instance of modelsDb
-        const { titleProperty = '' } = await getModel(modelName)
+        const [modelError, { titleProperty = '' }] = await getModel(modelName)
+
+        if (modelError) {
+            throw modelError
+        }
 
         const historyItem = await documentsDb.getDocumentHistoryByVersion(
             documentTitle,
@@ -157,8 +173,11 @@ export async function getDocumentPublications(
 ): Promise<ErrorData<DocumentPublications[]>> {
     try {
         const documentsDb = await getDocumentsDb()
-        // todo: refactor once getModel is a class instance of modelsDb
-        const { titleProperty = '' } = await getModel(modelName)
+        const [modelError, { titleProperty = '' }] = await getModel(modelName)
+
+        if (modelError) {
+            throw modelError
+        }
 
         const publications = await documentsDb.getDocumentPublications(
             documentTitle,
@@ -185,8 +204,17 @@ export async function changeDocumentState(
             throw new BadRequestException('No state provided')
         }
 
-        const { workflow: workflowName } = await getModel(modelName)
-        const workflow = await getWorkflow(workflowName || '')
+        const [modelError, model] = await getModel(modelName)
+
+        if (modelError) {
+            throw modelError
+        }
+
+        const [workflowError, workflow] = await getWorkflow(model.workflow || '')
+
+        if (workflowError) {
+            throw workflowError
+        }
 
         // fetch the requested document
         const [documentError, document] = await getDocument(
@@ -196,8 +224,7 @@ export async function changeDocumentState(
         )
 
         if (documentError) {
-            // failed to get the requested document
-            return [documentError, null]
+            throw documentError
         }
 
         //! TODO: THIS SHOULD BE REMOVED BEFORE MERGING
