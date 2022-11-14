@@ -6,9 +6,10 @@ import OML1BRVG_003 from '../../models/__test__/fixtures/collection-metadata/OML
 import TEST_NO_STATE from '../../models/__test__/fixtures/collection-metadata/TEST_NO_STATE.json'
 import alertsModel from '../../models/__test__/fixtures/models/alerts.json'
 import collectionMetadataModel from '../../models/__test__/fixtures/models/collection-metadata.json'
-import editPublishCmrWorkflow from '../../models/__test__/fixtures/workflows/edit-publish-cmr.json'
-import editPublishWorkflow from '../../models/__test__/fixtures/workflows/edit-publish.json'
-import modifyReviewPublishWorkflow from '../../models/__test__/fixtures/workflows/modify-review-publish.json'
+import faqsModel from '../../models/__test__/fixtures/models/faqs.json'
+import editPublishCmrWorkflow from '../../workflows/__tests__/__fixtures__/edit-publish-cmr.json'
+import editPublishWorkflow from '../../workflows/__tests__/__fixtures__/edit-publish.json'
+import modifyReviewPublishWorkflow from '../../workflows/__tests__/__fixtures__/modify-review-publish.json'
 import { adaptDocumentToLegacyDocument } from '../adapters'
 import {
     createSourceToTargetStateMap,
@@ -18,7 +19,6 @@ import {
     getDocumentHistoryByVersion,
     getDocumentPublications,
     getDocumentsForModel,
-    getTargetStatesFromWorkflow,
 } from '../service'
 import alertFromGql from './__fixtures__/alertFromGql.json'
 import alertWithHistory from './__fixtures__/alertWithHistory.json'
@@ -38,15 +38,19 @@ describe('Documents', () => {
         // insert test models
         await db.collection('Models').insertOne(alertsModel)
         await db.collection('Models').insertOne(collectionMetadataModel)
+        await db.collection('Models').insertOne(faqsModel)
         await db.collection('Workflows').insertOne(editPublishCmrWorkflow)
         await db.collection('Workflows').insertOne(editPublishWorkflow)
+        await db.collection('Workflows').insertOne(modifyReviewPublishWorkflow)
     })
 
     afterEach(async () => {
         await db.collection('Models').deleteMany({})
         await db.collection('Collection Metadata').deleteMany({})
         await db.collection('Alerts').deleteMany({})
-        // await db.collection('Workflows').deleteMany({})
+        await db.collection('FAQs').deleteMany({})
+        await db.collection('Workflows').deleteMany({})
+        await db.collection('Workflows').deleteMany({})
     })
 
     describe('findAllowedUserRolesForModel', () => {
@@ -118,50 +122,6 @@ describe('Documents', () => {
                 createSourceToTargetStateMap(['Admin'], workflowEdges)
             ).toMatchInlineSnapshot(`Object {}`)
         })
-    })
-
-    describe('getTargetStatesForModel', () => {
-        interface DocumentStateToExpectedTargets {
-            documentState: string
-            workflowName: string
-            expectedTargetStates: string[]
-        }
-
-        test.each`
-            documentState     | workflowName                     | expectedTargetStates
-            ${'Init'}         | ${'editPublishCmrWorkflow'}      | ${['Draft']}
-            ${'Draft'}        | ${'editPublishCmrWorkflow'}      | ${['Published', 'Deleted']}
-            ${'Hidden'}       | ${'editPublishCmrWorkflow'}      | ${['Deleted']}
-            ${'Published'}    | ${'editPublishCmrWorkflow'}      | ${['Deleted']}
-            ${'Init'}         | ${'modifyReviewPublishWorkflow'} | ${['Draft']}
-            ${'Draft'}        | ${'modifyReviewPublishWorkflow'} | ${['Under Review', 'Deleted']}
-            ${'Under Review'} | ${'modifyReviewPublishWorkflow'} | ${['Draft', 'Approved']}
-            ${'Approved'}     | ${'modifyReviewPublishWorkflow'} | ${['Published', 'Under Review']}
-            ${'Published'}    | ${'modifyReviewPublishWorkflow'} | ${['Hidden', 'Deleted']}
-            ${'Hidden'}       | ${'modifyReviewPublishWorkflow'} | ${['Published', 'Deleted', 'Deleted']}
-        `(
-            'should return target states of `$expectedTargetStates` for a document in `$documentState` state of the workflow `$workflowName`',
-            ({
-                documentState,
-                workflowName,
-                expectedTargetStates,
-            }: DocumentStateToExpectedTargets) => {
-                const workflows = {
-                    editPublishCmrWorkflow,
-                    modifyReviewPublishWorkflow,
-                }
-                const targetStates = getTargetStatesFromWorkflow(
-                    {
-                        'x-meditor': {
-                            state: documentState,
-                        },
-                    } as any,
-                    workflows[workflowName]
-                )
-
-                expect(targetStates).toEqual(expectedTargetStates)
-            }
-        )
     })
 
     describe('getDocument', () => {
