@@ -9,7 +9,7 @@ import type {
     WorkflowNode,
 } from '../models/types'
 import { getWorkflow } from '../models/workflow'
-import { BadRequestException } from '../utils/errors'
+import { BadRequestException, NotFoundException } from '../utils/errors'
 import { getTargetStatesFromWorkflow } from '../workflows/service'
 import { getDocumentsDb } from './db'
 import type { Document, DocumentHistory, DocumentPublications } from './types'
@@ -181,21 +181,29 @@ export async function changeDocumentState(
     user: User
 ): Promise<ErrorData<Document>> {
     try {
-        const { titleProperty = '', workflow: workflowName = '' } = await getModel(
-            modelName
-        ) // todo: refactor once getModel is a class instance of modelsDb
-        const workflow = await getWorkflow(workflowName) // todo: refactor once getWorkflow is a class instance of workflowDb
-
-        // fetch the requested document
-        const documentsDb = await getDocumentsDb()
-        const document = await getDocument(documentTitle, modelName, user)
-
         if (!newState) {
             throw new BadRequestException('No state provided')
         }
 
-        if (!document) {
-            throw new BadRequestException(
+        const { workflow: workflowName } = await getModel(modelName)
+        const workflow = await getWorkflow(workflowName || '')
+
+        // fetch the requested document
+        const [documentError, document] = await getDocument(
+            documentTitle,
+            modelName,
+            user
+        )
+
+        if (documentError) {
+            // failed to get the requested document
+            return [documentError, null]
+        }
+
+        //! TODO: THIS SHOULD BE REMOVED BEFORE MERGING
+        // temporary fix for getDocument to handle a missing document
+        if (Object.keys(document).length <= 0) {
+            throw new NotFoundException(
                 `Document, ${documentTitle}, in model, ${modelName}, does not exist`
             )
         }
