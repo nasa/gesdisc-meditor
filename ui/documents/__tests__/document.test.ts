@@ -169,7 +169,7 @@ describe('Documents', () => {
             id: 'a-db-id',
             uid: 'johndoe',
             created: 1052283628409,
-            emailAddress: 'john.r.dow@example.com',
+            emailAddress: 'john.r.doe@example.com',
             firstName: 'John',
             lastAccessed: 1000000000000,
             lastName: 'Doe',

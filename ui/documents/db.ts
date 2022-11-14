@@ -14,12 +14,6 @@ import type { DocumentHistory, DocumentPublications } from './types'
 class DocumentsDb {
     #DEFAULT_SORT = '-x-meditor.modifiedOn'
     #DISALLOWED_SELF_TRANSITIONS = ['Under Review', 'Approved']
-    #FALLBACK_STATE = {
-        target: 'Unspecified',
-        source: 'Unspecified',
-        modifiedBy: 'Unknown',
-        modifiedOn: new Date().toISOString(),
-    }
     #db: Db
 
     // todo: use private class method after Next upgrade
@@ -90,7 +84,17 @@ class DocumentsDb {
                 $addFields: {
                     // Fall back to a default state if the document has no state records.
                     'x-meditor.states': {
-                        $ifNull: ['$x-meditor.states', [this.#FALLBACK_STATE]],
+                        $ifNull: [
+                            '$x-meditor.states',
+                            [
+                                {
+                                    target: 'Unspecified',
+                                    source: 'Unspecified',
+                                    modifiedBy: 'Unknown',
+                                    modifiedOn: new Date().toISOString(),
+                                },
+                            ],
+                        ],
                     },
                     // Add the model's title property and model name
                     'x-meditor.model': parsedInput.modelName,
