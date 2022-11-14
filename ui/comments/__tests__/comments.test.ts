@@ -189,23 +189,6 @@ describe('Comments Service', () => {
         expect(comment).toBeNull()
     })
 
-    it.skip('returns a BadRequestException if trying to update `text` and `resolved` at the same time', async () => {
-        const [error, comment] = await updateCommentAsUser(
-            {
-                _id: 'foo',
-                resolved: true,
-                text: 'Bacon',
-            },
-            BaconUser
-        )
-
-        expect(error).toMatchInlineSnapshot(`
-            [Error: 0: instance is not exactly one from [subschema 0],[subschema 1]
-            ]
-        `)
-        expect(comment).toBeNull()
-    })
-
     it('updates a comments text', async () => {
         // insert a new comment
         const [_error, { _id: insertedId, ...newComment }] =
