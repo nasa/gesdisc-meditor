@@ -1,8 +1,10 @@
 import { mongoClientPromise } from './lib/mongodb'
 
+// mocks console so when we are testing expected output we don't pollute the Jest output
 global.console = {
     ...console,
-    error: jest.fn(), // mocks console.error so when we are testing expected errors we don't pollute the Jest output
+    error: jest.fn(),
+    log: jest.fn(),
 }
 
 process.env.DB_NAME = 'mock-meditor'

@@ -1,15 +1,16 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { getLoggedInUser } from '../../../../../../auth/user'
-import { getDocument } from '../../../../../../documents/service'
+import { getLoggedInUser } from '../../../../../../../auth/user'
+import { getDocument } from '../../../../../../../documents/service'
 import {
     apiError,
     MethodNotAllowedException,
     NotFoundException,
-} from '../../../../../../utils/errors'
+} from '../../../../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
         const documentTitle = req.query.documentTitle.toString()
+        const documentVersion = req.query.documentVersion.toString()
         const modelName = req.query.modelName.toString()
         const user = await getLoggedInUser(req, res)
 
@@ -18,12 +19,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 const [error, document] = await getDocument(
                     decodeURIComponent(documentTitle),
                     decodeURIComponent(modelName),
-                    user
+                    user,
+                    decodeURIComponent(documentVersion)
                 )
 
                 if (error || !Object.keys(document).length) {
                     throw new NotFoundException(
-                        `Document not found for model '${modelName}' with document '${documentTitle}'.`
+                        `Document not found for model '${modelName}' with document '${documentTitle}' at version ${documentVersion}.`
                     )
                 }
 

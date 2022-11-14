@@ -1,4 +1,4 @@
-import { DocumentPublications } from '../documents/types'
+import type { DocumentMetadata } from '../documents/types'
 
 export interface DocumentsSearchOptions {
     searchTerm?: string
@@ -61,25 +61,6 @@ export interface WorkflowEdge {
     label: string
     notify?: boolean
     notifyRoles?: string
-}
-
-export interface DocumentMetadata {
-    model: string
-    modifiedOn: string
-    modifiedBy: string
-    state: string
-    targetStates: string[]
-    states: WorkflowState[]
-    publishedTo?: DocumentPublications[]
-}
-
-export interface Document {
-    _id?: string
-    'x-meditor'?: DocumentMetadata
-
-    // a document is dynamically built up from a model, so it doesn't have compile-time properties
-    // so instead we'll allow any additional properties
-    [key: string]: any
 }
 
 export interface WorkflowState {

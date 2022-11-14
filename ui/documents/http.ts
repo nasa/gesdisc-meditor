@@ -1,6 +1,33 @@
-import type { APIError } from '../declarations'
-import type { ErrorData } from '../declarations'
-import type { DocumentPublications } from './types'
+import type { APIError, ErrorData } from '../declarations'
+import type { DocumentPublications, Document } from './types'
+
+async function fetchDocument(
+    documentTitle: string,
+    modelName: string,
+    documentVersion?: string
+): Promise<ErrorData<Document>> {
+    try {
+        const response = await fetch(
+            `/meditor/api/models/${encodeURIComponent(
+                modelName
+            )}/documents/${encodeURIComponent(documentTitle)}${
+                documentVersion ? `/${documentVersion}` : ''
+            }`
+        )
+
+        if (!response.ok) {
+            const apiError: APIError = await response.json()
+
+            return [apiError, null]
+        }
+
+        const document = await response.json()
+
+        return [null, document]
+    } catch (error) {
+        return [error, null]
+    }
+}
 
 async function fetchDocumentPublications(
     documentTitle: string,
@@ -27,4 +54,4 @@ async function fetchDocumentPublications(
     }
 }
 
-export { fetchDocumentPublications }
+export { fetchDocument, fetchDocumentPublications }

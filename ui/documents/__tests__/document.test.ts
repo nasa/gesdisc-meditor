@@ -12,15 +12,21 @@ import WhereDoIFAQ from '../../models/__test__/fixtures/faqs/where-do-i.json'
 import editPublishCmrWorkflow from '../../workflows/__tests__/__fixtures__/edit-publish-cmr.json'
 import editPublishWorkflow from '../../workflows/__tests__/__fixtures__/edit-publish.json'
 import modifyReviewPublishWorkflow from '../../workflows/__tests__/__fixtures__/modify-review-publish.json'
+import { adaptDocumentToLegacyDocument } from '../adapters'
 import {
     changeDocumentState,
+    createSourceToTargetStateMap,
+    findAllowedUserRolesForModel,
+    getDocument,
     getDocumentHistory,
     getDocumentHistoryByVersion,
     getDocumentPublications,
     getDocumentsForModel,
 } from '../service'
+import alertFromGql from './__fixtures__/alertFromGql.json'
 import alertWithHistory from './__fixtures__/alertWithHistory.json'
 import alertWithPublication from './__fixtures__/alertWithPublication.json'
+import workflowEdges from './__fixtures__/workflowEdges.json'
 
 describe('Documents', () => {
     let db: Db
@@ -47,6 +53,145 @@ describe('Documents', () => {
         await db.collection('Alerts').deleteMany({})
         await db.collection('FAQs').deleteMany({})
         await db.collection('Workflows').deleteMany({})
+        await db.collection('Workflows').deleteMany({})
+    })
+
+    describe('findAllowedUserRolesForModel', () => {
+        test(`returns only matching roles`, () => {
+            const userRoles = [
+                { model: 'Alerts', role: 'Author' },
+                { model: 'News', role: 'Reviewer' },
+                { model: 'Alerts', role: 'Publisher' },
+            ]
+            const allowedRoles = findAllowedUserRolesForModel('Alerts', userRoles)
+
+            expect(allowedRoles).toMatchInlineSnapshot(`
+                Array [
+                  "Author",
+                  "Publisher",
+                ]
+            `)
+        })
+
+        test(`is case sensitive`, () => {
+            const userRoles = [
+                { model: 'alerts', role: 'Author' },
+                { model: 'News', role: 'Reviewer' },
+                { model: 'Alerts', role: 'publisher' },
+            ]
+            const allowedRoles = findAllowedUserRolesForModel('Alerts', userRoles)
+
+            expect(allowedRoles).toMatchInlineSnapshot(`
+                Array [
+                  "publisher",
+                ]
+            `)
+        })
+    })
+
+    describe('createSourceToTargetStateMap', () => {
+        test('returns matching state map', () => {
+            expect(createSourceToTargetStateMap(['Author'], workflowEdges))
+                .toMatchInlineSnapshot(`
+                Object {
+                  "Draft": Array [
+                    "Under Review",
+                    "Deleted",
+                  ],
+                  "Init": Array [
+                    "Draft",
+                  ],
+                }
+            `)
+
+            expect(createSourceToTargetStateMap(['Publisher'], workflowEdges))
+                .toMatchInlineSnapshot(`
+                Object {
+                  "Approved": Array [
+                    "Published",
+                    "Under Review",
+                  ],
+                  "Hidden": Array [
+                    "Published",
+                    "Deleted",
+                  ],
+                  "Published": Array [
+                    "Hidden",
+                  ],
+                }
+            `)
+
+            expect(
+                createSourceToTargetStateMap(['Admin'], workflowEdges)
+            ).toMatchInlineSnapshot(`Object {}`)
+        })
+    })
+
+    describe('getDocument', () => {
+        const user = {
+            id: 'a-db-id',
+            uid: 'johndoe',
+            created: 1052283628409,
+            emailAddress: 'john.r.doe@example.com',
+            firstName: 'John',
+            lastAccessed: 1000000000000,
+            lastName: 'Doe',
+            roles: [
+                { model: 'Models', role: 'Author' },
+                { model: 'Workflows', role: 'Author' },
+                { model: 'Users', role: 'Author' },
+                { model: 'Images', role: 'Author' },
+                { model: 'News', role: 'Author' },
+                { model: 'News', role: 'Reviewer' },
+                { model: 'Tags', role: 'Author' },
+            ],
+            name: 'John Doe',
+        }
+
+        test('returns document', async () => {
+            await db.collection('Alerts').insertMany(alertWithHistory)
+
+            const [error, document] = await getDocument(
+                'Reprocessed FLDAS Data',
+                'Alerts',
+                user
+            )
+
+            expect(error).toBeNull()
+            expect(document).toMatchSnapshot()
+        })
+
+        test('returns document at version', async () => {
+            await db.collection('Alerts').insertMany(alertWithHistory)
+
+            const [error, document] = await getDocument(
+                'Reprocessed FLDAS Data',
+                'Alerts',
+                user,
+                '2018-08-09T14:25:09.384Z'
+            )
+
+            expect(error).toBeNull()
+            expect(document).toMatchSnapshot()
+        })
+
+        describe('adaptDocumentToLegacyDocument', () => {
+            test('is identical to the previous data structure returned from GQL', async () => {
+                await db.collection('Alerts').insertMany(alertWithHistory)
+
+                const [error, document] = await getDocument(
+                    'Reprocessed FLDAS Data',
+                    'Alerts',
+                    user
+                )
+
+                const adaptedDocument = adaptDocumentToLegacyDocument(document)
+
+                expect(error).toBeNull()
+                //* I modified the alertFromGql to anonymize the data, remove the __typeName field, and equalize date formatting from ":00.000Z" to ":00Z".
+                expect(adaptedDocument).toEqual(alertFromGql)
+            })
+        })
     })
 
     describe('getDocumentsForModel', () => {
@@ -381,6 +526,26 @@ describe('Documents', () => {
     })
 
     describe('changeDocumentState', () => {
+        const user = {
+            id: 'a-db-id',
+            uid: 'johndoe',
+            created: 1052283628409,
+            emailAddress: 'john.r.doe@example.com',
+            firstName: 'John',
+            lastAccessed: 1000000000000,
+            lastName: 'Doe',
+            roles: [
+                { model: 'Models', role: 'Author' },
+                { model: 'Workflows', role: 'Author' },
+                { model: 'Users', role: 'Author' },
+                { model: 'Images', role: 'Author' },
+                { model: 'News', role: 'Author' },
+                { model: 'News', role: 'Reviewer' },
+                { model: 'Tags', role: 'Author' },
+            ],
+            name: 'John Doe',
+        }
+
         beforeEach(async () => {
             await db.collection('FAQs').insertOne(HowDoIFAQ)
             await db.collection('FAQs').insertOne(WhereDoIFAQ)
@@ -394,7 +559,8 @@ describe('Documents', () => {
             const [error, document] = await changeDocumentState(
                 'Bacon',
                 'Eggs',
-                'Foo'
+                'Foo',
+                user
             )
             expect(error).toMatchInlineSnapshot(`[Error: Model not found: Eggs]`)
             expect(document).toBeNull()
@@ -404,7 +570,8 @@ describe('Documents', () => {
             const [error, document] = await changeDocumentState(
                 'Bacon',
                 'FAQs',
-                'Foo'
+                'Foo',
+                user
             )
             expect(error).toMatchInlineSnapshot(
                 `[Error: Document, Bacon, in model, FAQs, does not exist]`
@@ -426,7 +593,8 @@ describe('Documents', () => {
             const [error, document] = await changeDocumentState(
                 HowDoIFAQ.title,
                 'FAQs',
-                'Draft'
+                'Draft',
+                user
             )
             expect(error).toMatchInlineSnapshot(
                 `[Error: Cannot transition to state [Draft] as the document is in this state already]`
@@ -438,7 +606,8 @@ describe('Documents', () => {
             const [error, document] = await changeDocumentState(
                 HowDoIFAQ.title,
                 'FAQs',
-                'Foo'
+                'Foo',
+                user
             )
             expect(error).toMatchInlineSnapshot(
                 `[Error: Cannot transition to state [Foo] as it is not a valid state in the workflow]`
