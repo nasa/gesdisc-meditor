@@ -1,9 +1,9 @@
-import { BadRequestException, NotFoundException } from '../utils/errors'
 import type { Model } from './types'
 import jsonpath from 'jsonpath'
 import type { ErrorData } from '../declarations'
 import { getModelsDb } from './db'
 import { getDocumentsDb } from '../documents/db'
+import { ErrorCode, HttpException } from '../utils/errors'
 
 type getModelOptions = {
     populateMacroTemplates?: boolean
@@ -26,21 +26,25 @@ export async function getModel(
 ): Promise<ErrorData<Model>> {
     try {
         if (!modelName) {
-            throw new BadRequestException('Model name is required')
+            throw new HttpException(ErrorCode.BadRequest, 'Model name is required')
         }
 
         const modelsDb = await getModelsDb()
         const model = await modelsDb.getModel(modelName)
 
         if (!model) {
-            throw new NotFoundException(`Model not found: ${modelName}`)
+            throw new HttpException(
+                ErrorCode.NotFound,
+                `Model not found: ${modelName}`
+            )
         }
 
         // see top level documentation for description of macro templates
         if (options.populateMacroTemplates) {
             // validate the model's schema before continuing
             if (!this.isJson(model.schema)) {
-                throw new BadRequestException(
+                throw new HttpException(
+                    ErrorCode.BadRequest,
                     `The schema for model, ${modelName}, contains invalid JSON`
                 )
             }
