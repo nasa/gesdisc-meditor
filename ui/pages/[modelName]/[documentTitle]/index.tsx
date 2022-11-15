@@ -1,5 +1,3 @@
-import { useLazyQuery } from '@apollo/react-hooks'
-import gql from 'graphql-tag'
 import cloneDeep from 'lodash.clonedeep'
 import type { NextPageContext } from 'next'
 import { useRouter } from 'next/router'
@@ -27,57 +25,28 @@ import type {
     DocumentHistory as History,
     LegacyDocumentWithMetadata,
 } from '../../../documents/types'
-import { withApollo } from '../../../lib/apollo'
 import { refreshDataInPlace } from '../../../lib/next'
 import { treeify } from '../../../lib/treeify'
 import { useLocalStorage } from '../../../lib/use-localstorage.hook'
+import { getModel } from '../../../models/service'
+import type { Model } from '../../../models/types'
 import mEditorApi from '../../../service/'
 import styles from './document-edit.module.css'
 
 export type DocumentPanels = 'comments' | 'history' | 'source' | 'workflow'
 
-const MODEL_QUERY = gql`
-    query getModel($modelName: String!, $currentState: String!) {
-        model(modelName: $modelName, currentState: $currentState) {
-            name
-            description
-            icon {
-                name
-                color
-            }
-            schema
-            layout
-            titleProperty
-            workflow {
-                currentNode {
-                    id
-                    privileges {
-                        role
-                        privilege
-                    }
-                    allowValidationErrors
-                }
-                currentEdges {
-                    role
-                    source
-                    target
-                    label
-                }
-            }
-        }
-    }
-`
-
 type PropsType = {
     comments: DocumentComment[]
     documentHistory: History[]
     pageDocument: LegacyDocumentWithMetadata
+    model: Model
     theme: any
     user: any
     version: string
 }
 
 const EditDocumentPage = ({
+    model,
     user,
     version = null,
     theme,
@@ -104,27 +73,14 @@ const EditDocumentPage = ({
     )
     const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
 
-    const [loadModel, modelResponse] = useLazyQuery(MODEL_QUERY, {
-        fetchPolicy: 'network-only',
-    })
-
     useEffect(() => {
-        if (!modelResponse.data) {
-            loadModel({
-                variables: {
-                    modelName,
-                    currentState: formData.state,
-                },
-            })
-        }
-
         refreshDataInPlace(router)
-    }, [formData.state, modelResponse.data, loadModel, refreshDataInPlace])
+    }, [formData.state, refreshDataInPlace])
 
-    const currentPrivileges = modelResponse?.data?.model?.workflow
+    const currentPrivileges = model?.workflow
         ? user.privilegesForModelAndWorkflowNode(
-              modelName,
-              modelResponse.data.model.workflow.currentNode
+              modelName
+              //! TODO: fix this before merge, what is this? model.workflow.currentNode
           )
         : []
 
@@ -291,8 +247,7 @@ const EditDocumentPage = ({
         setToggleJSON(!toggleJSON)
     }
 
-    const workflowShouldShow =
-        modelResponse.data?.model?.name?.toLowerCase() === 'workflows'
+    const workflowShouldShow = model?.name?.toLowerCase() === 'workflows'
 
     return (
         <div>
@@ -313,7 +268,7 @@ const EditDocumentPage = ({
                 activePanel={activePanel}
                 isJsonPanelOpen={toggleJSON}
                 document={formData}
-                model={modelResponse?.data?.model}
+                model={model}
                 version={version}
                 togglePanelOpen={togglePanel}
                 toggleJsonDiffer={toggleJsonDiffer}
@@ -339,16 +294,20 @@ const EditDocumentPage = ({
                     </div>
                 )}
 
-                {modelResponse?.data?.model && formData && (
+                {model && formData && (
                     <DocumentForm
-                        model={modelResponse?.data?.model}
+                        model={model}
                         document={formData}
                         onUpdateForm={setForm}
                         onChange={handleSourceChange}
                         readOnly={!currentPrivileges?.includes('edit')}
                         allowValidationErrors={
-                            modelResponse?.data?.model.workflow.currentNode
+                            true
+                            //! TODO: fix this berfore merge
+                            /*
+                            model.workflow.currentNode
                                 .allowValidationErrors
+                            */
                         }
                     />
                 )}
@@ -408,12 +367,11 @@ const EditDocumentPage = ({
                 formData={formData}
                 onSave={saveDocument}
                 onUpdateState={updateDocumentState}
-                actions={modelResponse?.data?.model?.workflow?.currentEdges}
+                actions={model?.workflow?.currentEdges}
                 showActions={formData.targetStates?.length > 0}
                 confirmUnsavedChanges={true}
                 allowValidationErrors={
-                    modelResponse?.data?.model.workflow.currentNode
-                        .allowValidationErrors
+                    model.workflow.currentNode.allowValidationErrors
                 }
             />
         </div>
@@ -431,6 +389,8 @@ export async function getServerSideProps(ctx: NextPageContext) {
         user
     )
 
+    const [modelError, model] = await getModel(modelName.toString())
+
     const [commentsError, comments] = await getCommentsForDocument(
         decodeURIComponent(documentTitle.toString()),
         decodeURIComponent(modelName.toString())
@@ -445,6 +405,7 @@ export async function getServerSideProps(ctx: NextPageContext) {
         comments: !!commentsError ? null : treeify(comments),
         pageDocument: adaptDocumentToLegacyDocument(pageDocument),
         documentHistory: !!documentHistoryError ? null : documentHistory,
+        model,
     }
 
     // No point in displaying the page if our core resource has errored or is missing.
@@ -455,4 +416,4 @@ export async function getServerSideProps(ctx: NextPageContext) {
     return { props }
 }
 
-export default withApollo({ ssr: false })(withAuthentication()(EditDocumentPage))
+export default withAuthentication()(EditDocumentPage)

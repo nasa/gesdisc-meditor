@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { IoMdArrowDropdown } from 'react-icons/io'
 import { findUnsavedDocumentsByModel } from '../../lib/unsaved-changes'
-import type { Document, DocumentsSearchOptions, Model } from '../../models/types'
+import type { DocumentsSearchOptions, Model } from '../../models/types'
+import type { Document } from '../../documents/types'
 import type { User } from '../../service/api'
 import Pagination from '../pagination'
 import styles from './search-list.module.css'
@@ -92,7 +93,6 @@ const SearchList = ({
                 model={model}
                 currentPage={currentPage}
                 itemsPerPage={itemsPerPage}
-                documentCount={offset}
                 totalDocumentCount={listDocuments.length}
                 onAddNew={onAddNew}
                 user={user}
