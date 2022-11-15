@@ -3,6 +3,7 @@ import type { User, UserRole } from '../auth/types'
 import type { ErrorData } from '../declarations'
 import { getModel } from '../models/service'
 import type { DocumentsSearchOptions } from '../models/types'
+import { ErrorCode, HttpException } from '../utils/errors'
 import { getTargetStatesFromWorkflow, getWorkflow } from '../workflows/service'
 import type { Workflow, WorkflowEdge, WorkflowNode } from '../workflows/types'
 import { getDocumentsDb } from './db'
@@ -18,7 +19,7 @@ export async function getDocument(
         const documentsDb = await getDocumentsDb()
         const userRolesForModel = findAllowedUserRolesForModel(modelName, user?.roles)
 
-        const [modelError, { titleProperty = 'title', workflow: workflowName }] =
+        const [modelError, { titleProperty = 'title', workflow: workflowName = '' }] =
             await getModel(modelName)
 
         if (modelError) {
@@ -44,6 +45,13 @@ export async function getDocument(
             titleProperty,
             user?.uid
         )
+
+        if (!document) {
+            throw new HttpException(
+                ErrorCode.NotFound,
+                `Requested document, ${documentTitle}, in model, ${modelName}, was not found`
+            )
+        }
 
         return [null, document]
     } catch (error) {
