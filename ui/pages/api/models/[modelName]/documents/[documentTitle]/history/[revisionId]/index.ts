@@ -1,4 +1,4 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import { getDocumentHistoryByVersion } from '../../../../../../../../documents/service'
 import {
     apiError,
