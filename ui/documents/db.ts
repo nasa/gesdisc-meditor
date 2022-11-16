@@ -171,7 +171,7 @@ class DocumentsDb {
 
         const historyItems = await this.#db
             .collection(modelName)
-            .aggregate(pipeline)
+            .aggregate(pipeline, { allowDiskUse: true })
             .map(this.formatHistoryItem)
             .toArray()
 
@@ -196,7 +196,7 @@ class DocumentsDb {
 
         const [historyItem = {}] = await this.#db
             .collection(modelName)
-            .aggregate(pipeline)
+            .aggregate(pipeline, { allowDiskUse: true })
             .map(this.formatHistoryItem)
             .toArray()
 
