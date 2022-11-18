@@ -9,7 +9,8 @@
         "graphql:dev": "nodemon -L --watch api api/graphql.js",
         "graphql:start": "node api/graphql.js",
         "test": "jest --detectOpenHandles",
-        "test:cypress": "cypress open"
+        "test:cypress": "npx cypress open",
+        "test:cypress-seed": "node cypress/seed/seed_db.js"
     },
     "dependencies": {
         "@apollo/react-hooks": "^3.1.5",
