@@ -1,5 +1,6 @@
 import log from 'log'
 import nodemailer from 'nodemailer'
+var AWS = require('aws-sdk');
 
 const HOST_NAME = process.env.HOST_NAME || 'disc.gsfc.nasa.gov'
 const MAIL_FROM_NAME = process.env.MAIL_FROM_NAME || 'mEditor'
@@ -20,57 +21,71 @@ const transporter = nodemailer.createTransport({
 
 export function sendMail(subject, text, html, to, cc = '') {
     if (ON_MCP == 'true') {
-	    var params = {
-  	Destination: { /* required */
-    CcAddresses: [
-      /* more CC email addresses */
-            'amberjungminlee@gmail.com',
-    ],
-    ToAddresses: [
-      /* more To email addresses */
-            'amberjungminlee@gmail.com',
-    ]
-  },
-  Message: {
-   Body: {
-    Html: {
-     Charset: "UTF-8",
-     Data: "This message body contains HTML formatting. It can, for example, contain links like this one: <a class=\"ulink\" href=\"http://docs.aws.amazon.com/ses/latest/DeveloperGuide\" target=\"_blank\">Amazon SES Developer Guide</a>."
-    },
-    Text: {
-     Charset: "UTF-8",
-     Data: "This is the message body in text format."
-    }
-   },
-   Subject: {
-    Charset: "UTF-8",
-    Data: "Test email"
-   }
-  },
-  Source: 'amberjungminlee@gmail.com', /* required */
-  ReplyToAddresses: [
-          'amberjungminlee@gmail.com'
-  ],
-};
+        console.log("ON_MCP: " + ON_MCP);
+        console.log("THIS IS ON MCP");
+        return new Promise((resolve, reject) => {
+            var params = {
+                Destination: { 
+                    CcAddresses: [
+                            cc
+                    ],
+                    ToAddresses: [
+                            to
+                    ]
+            },
+            Message: {
+                Body: {
+                    Html: {
+                        Charset: "UTF-8",
+                        Data: html
+                    }
+                },
+                Subject: {
+                    Charset: "UTF-8",
+                    Data: "Test email"
+                }
+                },
+                Source: `${MAIL_FROM_USERNAME}@${HOST_NAME}`, /* required */
+                ReplyToAddresses: [
+                        `${MAIL_FROM_USERNAME}@${HOST_NAME}`
+                ],
+            };
+            log.debug('Attempting to send message ', params)
+            try {
+                // Create the promise and SES service object
+                AWS.SES({apiVersion: '2010-12-01'}).sendEmail(params, (err, response) => {
+                    if (err) {
+                        throw(err)
+                    }
+                    else {
+                        resolve(response);
+                    }
+                })
+            } 
+            catch (e) {
+                reject(e)
+            }
+
+        })
     }
     else {
         return new Promise((resolve, reject) => {
-             const from = `${MAIL_FROM_NAME} <${MAIL_FROM_USERNAME}@${HOST_NAME}>`
-             const message = { from, subject, text, html, to, cc, }
+            const from = `${MAIL_FROM_NAME} <${MAIL_FROM_USERNAME}@${HOST_NAME}>`
+            const message = { from, subject, text, html, to, cc, }
 
             log.debug('Attempting to send message ', message)
 
-        try {
-            transporter.sendMail(message, (err, response) => {
-                if (err) {
-                    throw(err)
-                } else {
-                    resolve(response)
-                }
-            })
-        } catch (e) {
-            reject(e)
-        }
-    })
+            try {
+                transporter.sendMail(message, (err, response) => {
+                    if (err) {
+                        throw(err)
+                    } else {
+                        resolve(response)
+                    }
+                })
+            } catch (e) {
+                reject(e)
+            }
+        })
     }
 }
