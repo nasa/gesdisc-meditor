@@ -61,7 +61,10 @@ const SearchResult = ({
                               )}/${encodeURIComponent(document.title)}`
                     }
                 >
-                    <a dangerouslySetInnerHTML={{ __html: document.title }} />
+                    <a
+                        data-test="search-result-link"
+                        dangerouslySetInnerHTML={{ __html: document.title }}
+                    />
                 </Link>
             </div>
 

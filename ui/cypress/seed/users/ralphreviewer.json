@@ -1,0 +1,12 @@
+{
+    "id": "ralphreviewer",
+    "name": "Ralph Reviewer",
+    "roles": [{ "model": "Cypress Test Model", "role": "Reviewer" }],
+    "x-meditor": {
+        "model": "Users",
+        "modifiedOn": "2021-12-22T17:50:59.949Z",
+        "modifiedBy": "system",
+        "states": [{ "source": "Init", "target": "Draft", "modifiedOn": null }],
+        "publishedTo": []
+    }
+}

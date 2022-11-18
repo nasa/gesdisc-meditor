@@ -7,7 +7,8 @@
         "build": "next build",
         "start": "next start",
         "test": "jest --detectOpenHandles",
-        "test:cypress": "cypress open"
+        "test:cypress": "npm run test:cypress-seed && npx cypress open",
+        "test:cypress-seed": "node cypress/seed/seed_db.js"
     },
     "dependencies": {
         "@gesdisc/meditor-components": "^1.0.9",

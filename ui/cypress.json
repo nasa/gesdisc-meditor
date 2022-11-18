@@ -1,7 +1,0 @@
-{
-	"baseUrl": "http://localhost/meditor/api",
-	"chromeWebSecurity": false,
-	"env": {
-		"appUrl": "http://localhost/meditor"
-	}
-}
