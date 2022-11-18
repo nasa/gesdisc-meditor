@@ -1,7 +1,7 @@
 import { validate } from 'jsonschema'
 import type { User } from '../auth/types'
 import type { ErrorData } from '../declarations'
-import { BadRequestException, UnauthorizedException } from '../utils/errors'
+import { ErrorCode, HttpException } from '../utils/errors'
 import { getCommentsDb } from './db'
 import type {
     CreateCommentUserInput,
@@ -21,7 +21,7 @@ export async function createCommentAsUser(
         const commentsDb = await getCommentsDb()
 
         if (!user?.uid) {
-            throw new UnauthorizedException()
+            throw new HttpException(ErrorCode.Unauthorized, 'Unauthorized')
         }
 
         const validationResult = validate(
@@ -30,7 +30,7 @@ export async function createCommentAsUser(
         )
 
         if (!validationResult.valid) {
-            throw new BadRequestException(validationResult.toString())
+            throw new HttpException(ErrorCode.BadRequest, validationResult.toString())
         }
 
         const comment = await commentsDb.insertOne({
@@ -58,7 +58,7 @@ export async function updateCommentAsUser(
         const commentsDb = await getCommentsDb()
 
         if (!user?.uid) {
-            throw new UnauthorizedException()
+            throw new HttpException(ErrorCode.Unauthorized, 'Unauthorized')
         }
 
         const validationResult = validate(
@@ -67,7 +67,7 @@ export async function updateCommentAsUser(
         )
 
         if (!validationResult.valid) {
-            throw new BadRequestException(validationResult.toString())
+            throw new HttpException(ErrorCode.BadRequest, validationResult.toString())
         }
 
         if (commentChanges.resolved) {

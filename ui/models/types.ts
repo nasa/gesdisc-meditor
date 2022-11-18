@@ -1,4 +1,5 @@
 import type { DocumentMetadata } from '../documents/types'
+import type { Workflow, WorkflowEdge, WorkflowNode } from '../workflows/types'
 
 export interface DocumentsSearchOptions {
     searchTerm?: string
@@ -22,6 +23,10 @@ export interface Model {
     'x-meditor'?: ModelMetadata
     category?: string
     workflow?: string
+}
+
+export interface ModelWithWorkflow extends Omit<Model, 'workflow'> {
+    workflow: Workflow
 }
 
 export interface ModelIcon {

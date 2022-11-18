@@ -1,8 +1,8 @@
 import type { ErrorData } from '../declarations'
 import { getModel } from '../models/service'
 import type { Workflow, WorkflowEdge } from './types'
-import { InternalServerErrorException, NotFoundException } from '../utils/errors'
 import { getWorkflowsDb } from './db'
+import { ErrorCode, HttpException } from '../utils/errors'
 
 export async function getWorkflowForModel(
     modelName: string
@@ -28,12 +28,45 @@ export async function getWorkflow(
         const workflow = await workflowsDb.getWorkflow(workflowName)
 
         if (!workflow) {
-            throw new NotFoundException(
+            throw new HttpException(
+                ErrorCode.NotFound,
                 `The requested workflow, ${workflowName}, was not found.`
             )
         }
 
         return [null, workflow]
+    } catch (error) {
+        return [error, null]
+    }
+}
+
+/**
+ * adds the currentNode and currentEdges to the workflow for the given document state
+ *
+ * This is mainly here to avoid a major UI refactor as `model.workflow.currentNode and model.workflow.currentEdges` is used throughout
+ */
+export async function getWorkflowByDocumentState(
+    workflowName: string,
+    documentState?: string
+): Promise<ErrorData<Workflow>> {
+    try {
+        const [workflowError, workflow] = await getWorkflow(workflowName)
+
+        if (workflowError) {
+            throw workflowError
+        }
+
+        const { node: currentNode, edges: currentEdges } =
+            getWorkflowNodeAndEdgesForState(workflow, documentState)
+
+        return [
+            null,
+            {
+                ...workflow,
+                currentNode,
+                currentEdges,
+            },
+        ]
     } catch (error) {
         return [error, null]
     }
@@ -60,7 +93,8 @@ export function getWorkflowEdgeMatchingSourceAndTarget(
 
     //! if we find more than one edge, the workflow is misconfigured, this is a FATAL error and we should immediately throw
     if (matchingEdges.length > 1) {
-        throw new InternalServerErrorException(
+        throw new HttpException(
+            ErrorCode.InternalServerError,
             `The workflow, ${workflow.name}, is misconfigured due to having duplicate edges for [source=${source}, target=${target}].`
         )
     }
@@ -83,4 +117,19 @@ export function getTargetStatesFromWorkflow(
     return workflow.edges
         .filter(edge => edge.source == documentState)
         .map(edge => edge.target)
+}
+
+/**
+ * For a given workflow `state` (ex. "Draft"), this function returns the full workflow node and any edges
+ * branching from that node
+ */
+export function getWorkflowNodeAndEdgesForState(workflow: Workflow, state?: string) {
+    const node = state
+        ? workflow.nodes.find(node => node.id === state)
+        : workflow.nodes[0]
+
+    return {
+        node,
+        edges: workflow.edges.filter(edge => edge.source === node.id),
+    }
 }

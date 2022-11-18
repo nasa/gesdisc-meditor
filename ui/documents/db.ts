@@ -2,7 +2,7 @@ import type { Db } from 'mongodb'
 import type { User } from '../auth/types'
 import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
 import type { DocumentsSearchOptions } from '../models/types'
-import { BadRequestException } from '../utils/errors'
+import { ErrorCode, HttpException } from '../utils/errors'
 import { convertLuceneQueryToMongo } from '../utils/search'
 import type { WorkflowEdge } from '../workflows/types'
 import { getDocumentInputSchema } from './schema'
@@ -171,7 +171,7 @@ class DocumentsDb {
 
         const historyItems = await this.#db
             .collection(modelName)
-            .aggregate(pipeline)
+            .aggregate(pipeline, { allowDiskUse: true })
             .map(this.formatHistoryItem)
             .toArray()
 
@@ -196,7 +196,7 @@ class DocumentsDb {
 
         const [historyItem = {}] = await this.#db
             .collection(modelName)
-            .aggregate(pipeline)
+            .aggregate(pipeline, { allowDiskUse: true })
             .map(this.formatHistoryItem)
             .toArray()
 
@@ -282,7 +282,10 @@ class DocumentsDb {
                     $match: convertLuceneQueryToMongo(searchOptions.filter),
                 })
             } catch (err) {
-                throw new BadRequestException('Improperly formatted filter')
+                throw new HttpException(
+                    ErrorCode.BadRequest,
+                    'Improperly formatted filter'
+                )
             }
         }
 

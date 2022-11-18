@@ -8,8 +8,12 @@ import SearchList from '../../components/search/search-list'
 import withAuthentication from '../../components/with-authentication'
 import { getDocumentsForModel } from '../../documents/service'
 import type { Document } from '../../documents/types'
-import { getModel, getModels } from '../../models/service'
-import type { DocumentsSearchOptions, Model } from '../../models/types'
+import { getModels, getModelWithWorkflow } from '../../models/service'
+import type {
+    DocumentsSearchOptions,
+    Model,
+    ModelWithWorkflow,
+} from '../../models/types'
 import type { User } from '../../service/api'
 
 function getSearchOptionsFromParams(query: ParsedUrlQuery): DocumentsSearchOptions {
@@ -33,7 +37,7 @@ function getParamsFromSearchOptions(
 
 interface ModelPageProps {
     user: User
-    model: Model
+    model: ModelWithWorkflow
     allModels: Model[]
     documents: Document[]
 }
@@ -150,7 +154,7 @@ export async function getServerSideProps(ctx: NextPageContext) {
 
     //! TODO: handle getModels or getModel errors (show the user an error message?)
     const [_modelsError, models] = await getModels()
-    const [_modelError, model] = await getModel(modelName)
+    const [_modelError, model] = await getModelWithWorkflow(modelName)
 
     const searchOptions = getSearchOptionsFromParams(ctx.query)
 

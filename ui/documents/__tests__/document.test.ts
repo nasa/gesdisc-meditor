@@ -7,8 +7,6 @@ import TEST_NO_STATE from '../../models/__test__/fixtures/collection-metadata/TE
 import alertsModel from '../../models/__test__/fixtures/models/alerts.json'
 import collectionMetadataModel from '../../models/__test__/fixtures/models/collection-metadata.json'
 import faqsModel from '../../models/__test__/fixtures/models/faqs.json'
-import HowDoIFAQ from '../../models/__test__/fixtures/faqs/how-do-i.json'
-import WhereDoIFAQ from '../../models/__test__/fixtures/faqs/where-do-i.json'
 import editPublishCmrWorkflow from '../../workflows/__tests__/__fixtures__/edit-publish-cmr.json'
 import editPublishWorkflow from '../../workflows/__tests__/__fixtures__/edit-publish.json'
 import modifyReviewPublishWorkflow from '../../workflows/__tests__/__fixtures__/modify-review-publish.json'

@@ -1,6 +1,6 @@
 import type { ErrorData } from '../declarations'
 import { getModels } from '../models/service'
-import { BadRequestException } from '../utils/errors'
+import { ErrorCode, HttpException } from '../utils/errors'
 import { getSetupDb } from './db'
 import type { UserDuringSetup } from './types'
 
@@ -18,7 +18,10 @@ async function setUpNewInstallation(
         }
 
         if (!!models.length) {
-            throw new BadRequestException(`mEditor's DB has already been seeded.`)
+            throw new HttpException(
+                ErrorCode.BadRequest,
+                `mEditor's DB has already been seeded.`
+            )
         }
 
         await setupDb.seedDb(users)

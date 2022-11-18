@@ -7,12 +7,15 @@ export interface Workflow {
     nodes: WorkflowNode[]
     edges: WorkflowEdge[]
     'x-meditor': DocumentMetadata
+    currentNode?: WorkflowNode
+    currentEdges?: WorkflowEdge[]
 }
 
 export interface WorkflowNode {
     id: string
     privileges?: WorkflowPrivilege[]
     readyForUse?: boolean
+    allowValidationErrors?: boolean
 }
 
 export interface WorkflowPrivilege {

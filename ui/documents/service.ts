@@ -1,9 +1,9 @@
 import Fuse from 'fuse.js'
 import type { User, UserRole } from '../auth/types'
 import type { ErrorData } from '../declarations'
-import { getModel } from '../models/service'
+import { getModel, getModelWithWorkflow } from '../models/service'
 import type { DocumentsSearchOptions } from '../models/types'
-import { BadRequestException, NotFoundException } from '../utils/errors'
+import { ErrorCode, HttpException } from '../utils/errors'
 import { getTargetStatesFromWorkflow, getWorkflow } from '../workflows/service'
 import type { Workflow, WorkflowEdge, WorkflowNode } from '../workflows/types'
 import { getDocumentsDb } from './db'
@@ -19,17 +19,11 @@ export async function getDocument(
         const documentsDb = await getDocumentsDb()
         const userRolesForModel = findAllowedUserRolesForModel(modelName, user?.roles)
 
-        const [modelError, { titleProperty = 'title', workflow: workflowName }] =
-            await getModel(modelName)
+        const [modelError, { titleProperty = 'title', workflow }] =
+            await getModelWithWorkflow(modelName)
 
         if (modelError) {
             throw modelError // failed to get the model associated with the document
-        }
-
-        const [workflowError, workflow] = await getWorkflow(workflowName)
-
-        if (workflowError) {
-            throw workflowError // failed to get the workflow associated with the document
         }
 
         const sourceToTargetStateMap = createSourceToTargetStateMap(
@@ -45,6 +39,13 @@ export async function getDocument(
             titleProperty,
             user?.uid
         )
+
+        if (!document) {
+            throw new HttpException(
+                ErrorCode.NotFound,
+                `Requested document, ${documentTitle}, in model, ${modelName}, was not found`
+            )
+        }
 
         return [null, document]
     } catch (error) {
@@ -62,17 +63,11 @@ export async function getDocumentsForModel(
     try {
         const documentsDb = await getDocumentsDb()
 
-        const [modelError, { titleProperty = '', workflow: workflowName = '' }] =
-            await getModel(modelName) // need the model to get the related workflow and title property
+        const [modelError, { titleProperty = 'title', workflow }] =
+            await getModelWithWorkflow(modelName) // need the model to get the related workflow and title property
 
         if (modelError) {
             throw modelError
-        }
-
-        const [workflowError, workflow] = await getWorkflow(workflowName)
-
-        if (workflowError) {
-            throw workflowError
         }
 
         let documents = await documentsDb.getDocumentsForModel(
@@ -201,7 +196,7 @@ export async function changeDocumentState(
 ): Promise<ErrorData<Document>> {
     try {
         if (!newState) {
-            throw new BadRequestException('No state provided')
+            throw new HttpException(ErrorCode.BadRequest, 'No state provided')
         }
 
         const [modelError, model] = await getModel(modelName)
@@ -227,16 +222,9 @@ export async function changeDocumentState(
             throw documentError
         }
 
-        //! TODO: THIS SHOULD BE REMOVED BEFORE MERGING
-        // temporary fix for getDocument to handle a missing document
-        if (Object.keys(document).length <= 0) {
-            throw new NotFoundException(
-                `Document, ${documentTitle}, in model, ${modelName}, does not exist`
-            )
-        }
-
         if (newState === document['x-meditor'].state) {
-            throw new BadRequestException(
+            throw new HttpException(
+                ErrorCode.BadRequest,
                 `Cannot transition to state [${newState}] as the document is in this state already`
             )
         }
@@ -247,7 +235,8 @@ export async function changeDocumentState(
         )
 
         if (targetStates.indexOf(newState) < 0) {
-            throw new BadRequestException(
+            throw new HttpException(
+                ErrorCode.BadRequest,
                 `Cannot transition to state [${newState}] as it is not a valid state in the workflow`
             )
         }
