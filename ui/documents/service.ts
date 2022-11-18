@@ -1,7 +1,7 @@
 import Fuse from 'fuse.js'
 import type { User, UserRole } from '../auth/types'
 import type { ErrorData } from '../declarations'
-import { getModel } from '../models/service'
+import { getModel, getModelWithWorkflow } from '../models/service'
 import type { DocumentsSearchOptions } from '../models/types'
 import { ErrorCode, HttpException } from '../utils/errors'
 import { getTargetStatesFromWorkflow, getWorkflow } from '../workflows/service'
@@ -19,17 +19,11 @@ export async function getDocument(
         const documentsDb = await getDocumentsDb()
         const userRolesForModel = findAllowedUserRolesForModel(modelName, user?.roles)
 
-        const [modelError, { titleProperty = 'title', workflow: workflowName = '' }] =
-            await getModel(modelName)
+        const [modelError, { titleProperty = 'title', workflow }] =
+            await getModelWithWorkflow(modelName)
 
         if (modelError) {
             throw modelError // failed to get the model associated with the document
-        }
-
-        const [workflowError, workflow] = await getWorkflow(workflowName)
-
-        if (workflowError) {
-            throw workflowError // failed to get the workflow associated with the document
         }
 
         const sourceToTargetStateMap = createSourceToTargetStateMap(
@@ -69,17 +63,11 @@ export async function getDocumentsForModel(
     try {
         const documentsDb = await getDocumentsDb()
 
-        const [modelError, { titleProperty = '', workflow: workflowName = '' }] =
-            await getModel(modelName) // need the model to get the related workflow and title property
+        const [modelError, { titleProperty = 'title', workflow }] =
+            await getModelWithWorkflow(modelName) // need the model to get the related workflow and title property
 
         if (modelError) {
             throw modelError
-        }
-
-        const [workflowError, workflow] = await getWorkflow(workflowName)
-
-        if (workflowError) {
-            throw workflowError
         }
 
         let documents = await documentsDb.getDocumentsForModel(
