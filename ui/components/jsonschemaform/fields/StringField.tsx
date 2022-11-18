@@ -73,12 +73,12 @@ function StringField(props) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                query: `query { validLink(url:"${props.formData}") { isValid, message } }`,
+                url: props.formData,
             }),
         })
             .then(response => response.json())
             .then(response => {
-                if (response.data.validLink.isValid) {
+                if (response.isValid) {
                     setLinkIsValid(true)
                 } else {
                     setLinkIsValid(false)

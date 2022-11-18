@@ -8,7 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const [error] = await setUpNewInstallation(req.body)
 
             if (!!error) {
-                return apiError(error)
+                return apiError(error, res)
             }
 
             return res.status(204).end()

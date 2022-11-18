@@ -1,3 +1,5 @@
+import type { NextApiResponse } from 'next'
+
 export enum ErrorCode {
     NotFound = 'NotFound',
     BadRequest = 'BadRequest',
@@ -68,15 +70,10 @@ export class HttpException extends Error {
  * converts errors to a JSON api response
  * To prevent leaking implementation details to an end-user, if the error isn't an instance of HttpException, only return a generic error.
  */
-export function apiError(error: Error | HttpException) {
+export function apiError(error: Error | HttpException, response: NextApiResponse) {
     const safeError = error.cause
         ? (error as HttpException)
         : new HttpException(ErrorCode.InternalServerError, 'Internal Server Error')
 
-    return new Response(safeError.toJson(), {
-        status: safeError.cause.status,
-        headers: {
-            'content-type': 'application/json',
-        },
-    })
+    return response.status(safeError.cause.status).json(safeError.toJson())
 }

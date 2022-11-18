@@ -11,7 +11,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const user = await getLoggedInUser(req, res)
 
     if (!user) {
-        return apiError(new HttpException(ErrorCode.Unauthorized, 'Unauthorized'))
+        return apiError(
+            new HttpException(ErrorCode.Unauthorized, 'Unauthorized'),
+            res
+        )
     }
 
     const modelName = req.query.modelName.toString()
@@ -25,7 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             )
 
             if (error) {
-                return apiError(error)
+                return apiError(error, res)
             }
 
             return res.status(200).json(comments)
@@ -42,7 +45,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             )
 
             if (error) {
-                return apiError(error)
+                return apiError(error, res)
             }
 
             return res.status(200).json(newComment)

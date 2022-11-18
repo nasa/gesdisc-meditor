@@ -15,7 +15,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const user = await getLoggedInUser(req, res)
 
     if (!user) {
-        return apiError(new HttpException(ErrorCode.Unauthorized, 'Unauthorized'))
+        return apiError(
+            new HttpException(ErrorCode.Unauthorized, 'Unauthorized'),
+            res
+        )
     }
 
     switch (req.method) {
@@ -29,7 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             )
 
             if (error) {
-                return apiError(error)
+                return apiError(error, res)
             }
 
             return res.status(200).json(comment)
@@ -49,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             if (error) {
                 // if we see an error here, it's most likely due to a database issue. Without exposing the error itself, the best we can do
                 // is ask the user to try again
-                return apiError(error)
+                return apiError(error, res)
             }
 
             return res.status(200).json(updatedComment)
