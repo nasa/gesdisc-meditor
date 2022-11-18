@@ -23,10 +23,6 @@ http {
         server ${DOCS_HOST}:3030;
     }
 
-    upstream graphql {
-        server ${UI_HOST}:4000;
-    }
-
     upstream monitor {
         server ${MONITOR_HOST}:9000;
     }
@@ -43,11 +39,6 @@ http {
 
         location /meditor/docs/ {
             proxy_pass         http://docs;
-            include /etc/nginx/proxy.conf;
-        }
-
-        location /meditor/graphql {
-            proxy_pass         http://graphql;
             include /etc/nginx/proxy.conf;
         }
 
