@@ -31,6 +31,11 @@ import { useLocalStorage } from '../../../lib/use-localstorage.hook'
 import { getModel } from '../../../models/service'
 import type { Model } from '../../../models/types'
 import mEditorApi from '../../../service/'
+import {
+    getWorkflow,
+    getWorkflowNodeAndEdgesForState,
+} from '../../../workflows/service'
+import type { Workflow, WorkflowEdge, WorkflowNode } from '../../../workflows/types'
 import styles from './document-edit.module.css'
 
 export type DocumentPanels = 'comments' | 'history' | 'source' | 'workflow'
@@ -40,6 +45,9 @@ type PropsType = {
     documentHistory: History[]
     pageDocument: LegacyDocumentWithMetadata
     model: Model
+    workflow: Workflow
+    currentNode: WorkflowNode
+    currentEdges: WorkflowEdge[]
     theme: any
     user: any
     version: string
@@ -47,6 +55,9 @@ type PropsType = {
 
 const EditDocumentPage = ({
     model,
+    workflow,
+    currentNode,
+    currentEdges,
     user,
     version = null,
     theme,
@@ -78,10 +89,7 @@ const EditDocumentPage = ({
     }, [formData.state, refreshDataInPlace])
 
     const currentPrivileges = model?.workflow
-        ? user.privilegesForModelAndWorkflowNode(
-              modelName
-              //! TODO: fix this before merge, what is this? model.workflow.currentNode
-          )
+        ? user.privilegesForModelAndWorkflowNode(modelName, currentNode)
         : []
 
     function reloadDocument() {
@@ -301,14 +309,7 @@ const EditDocumentPage = ({
                         onUpdateForm={setForm}
                         onChange={handleSourceChange}
                         readOnly={!currentPrivileges?.includes('edit')}
-                        allowValidationErrors={
-                            true
-                            //! TODO: fix this berfore merge
-                            /*
-                            model.workflow.currentNode
-                                .allowValidationErrors
-                            */
-                        }
+                        allowValidationErrors={currentNode.allowValidationErrors}
                     />
                 )}
 
@@ -367,12 +368,10 @@ const EditDocumentPage = ({
                 formData={formData}
                 onSave={saveDocument}
                 onUpdateState={updateDocumentState}
-                actions={model?.workflow?.currentEdges}
+                actions={currentEdges}
                 showActions={formData.targetStates?.length > 0}
                 confirmUnsavedChanges={true}
-                allowValidationErrors={
-                    model.workflow.currentNode.allowValidationErrors
-                }
+                allowValidationErrors={currentNode.allowValidationErrors}
             />
         </div>
     )
@@ -389,7 +388,17 @@ export async function getServerSideProps(ctx: NextPageContext) {
         user
     )
 
-    const [modelError, model] = await getModel(modelName.toString())
+    // No point in displaying the page if our core resource has errored or is missing.
+    if (pageDocumentError || !Object.keys(pageDocument).length) {
+        return { notFound: true }
+    }
+
+    const [_modelError, model] = await getModel(modelName.toString())
+    const [_workflowError, workflow] = await getWorkflow(model.workflow)
+    const { node, edges } = getWorkflowNodeAndEdgesForState(
+        workflow,
+        pageDocument['x-meditor'].state
+    )
 
     const [commentsError, comments] = await getCommentsForDocument(
         decodeURIComponent(documentTitle.toString()),
@@ -406,11 +415,9 @@ export async function getServerSideProps(ctx: NextPageContext) {
         pageDocument: adaptDocumentToLegacyDocument(pageDocument),
         documentHistory: !!documentHistoryError ? null : documentHistory,
         model,
-    }
-
-    // No point in displaying the page if our core resource has errored or is missing.
-    if (pageDocumentError || !Object.keys(pageDocument).length) {
-        return { notFound: true }
+        workflow,
+        currentNode: node,
+        currentEdges: edges,
     }
 
     return { props }

@@ -5,6 +5,7 @@ import {
     getWorkflow,
     getWorkflowEdgeMatchingSourceAndTarget,
     getWorkflowForModel,
+    getWorkflowNodeAndEdgesForState,
 } from '../service'
 import editPublishCmrWorkflow from './__fixtures__/edit-publish-cmr.json'
 import editPublishWorkflow from './__fixtures__/edit-publish.json'
@@ -195,5 +196,47 @@ describe('Workflows', () => {
 
             expect(edge).toBeUndefined()
         })
+    })
+
+    describe('getWorkflowNodeAndEdgesForState', () => {
+        interface StateToResults {
+            workflowName: string
+            state: string
+            nodeId: string
+            edgeLabels: string[]
+        }
+
+        test.each`
+            workflowName                     | state             | nodeId            | edgeLabels
+            ${'editPublishCmrWorkflow'}      | ${undefined}      | ${'Init'}         | ${['Add New']}
+            ${'editPublishCmrWorkflow'}      | ${'Init'}         | ${'Init'}         | ${['Add New']}
+            ${'editPublishCmrWorkflow'}      | ${'Draft'}        | ${'Draft'}        | ${['Publish', 'Delete Permanently']}
+            ${'editPublishCmrWorkflow'}      | ${'Published'}    | ${'Published'}    | ${['Delete Permanently']}
+            ${'editPublishCmrWorkflow'}      | ${'Hidden'}       | ${'Hidden'}       | ${['Delete Permanently']}
+            ${'editPublishCmrWorkflow'}      | ${'Deleted'}      | ${'Deleted'}      | ${[]}
+            ${'modifyReviewPublishWorkflow'} | ${undefined}      | ${'Init'}         | ${['Create']}
+            ${'modifyReviewPublishWorkflow'} | ${'Init'}         | ${'Init'}         | ${['Create']}
+            ${'modifyReviewPublishWorkflow'} | ${'Draft'}        | ${'Draft'}        | ${['Submit for review', 'Delete Permanently']}
+            ${'modifyReviewPublishWorkflow'} | ${'Under Review'} | ${'Under Review'} | ${['Needs more work', 'Approve publication']}
+            ${'modifyReviewPublishWorkflow'} | ${'Approved'}     | ${'Approved'}     | ${['Publish', `I don't like it!`]}
+            ${'modifyReviewPublishWorkflow'} | ${'Published'}    | ${'Published'}    | ${['Un-publish', 'Delete Permanently']}
+            ${'modifyReviewPublishWorkflow'} | ${'Hidden'}       | ${'Hidden'}       | ${['Publish', 'Delete Permanently', 'Delete Permanently']}
+            ${'modifyReviewPublishWorkflow'} | ${'Deleted'}      | ${'Deleted'}      | ${[]}
+        `(
+            'should return a node with id of `$nodeId` and edges `$edgeLabels` for a state of `$state` state of the workflow `$workflowName`',
+            ({ workflowName, state, nodeId, edgeLabels }: StateToResults) => {
+                const workflows = {
+                    editPublishCmrWorkflow,
+                    modifyReviewPublishWorkflow,
+                }
+                const results = getWorkflowNodeAndEdgesForState(
+                    workflows[workflowName],
+                    state
+                )
+
+                expect(results.node.id).toEqual(nodeId)
+                expect(results.edges.map(edge => edge.label)).toEqual(edgeLabels)
+            }
+        )
     })
 })

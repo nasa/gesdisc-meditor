@@ -8,12 +8,16 @@ import Pagination from '../pagination'
 import styles from './search-list.module.css'
 import SearchResult from './search-result'
 import SearchStatusBar from './search-status-bar'
+import type { Workflow, WorkflowEdge, WorkflowNode } from '../../workflows/types'
 
 interface SearchListProps {
     documents: Document[]
     model: Model
+    workflow: Workflow
     user: User
     searchOptions: DocumentsSearchOptions
+    currentNode: WorkflowNode
+    currentEdges: WorkflowEdge[]
     onAddNew: Function
     onRefreshList: Function
     onSortChange: Function
@@ -26,6 +30,9 @@ interface SearchListProps {
 const SearchList = ({
     documents,
     model,
+    workflow,
+    currentNode,
+    currentEdges,
     onAddNew,
     onRefreshList,
     user,
@@ -91,6 +98,9 @@ const SearchList = ({
         <div>
             <SearchStatusBar
                 model={model}
+                workflow={workflow}
+                currentNode={currentNode}
+                currentEdges={currentEdges}
                 currentPage={currentPage}
                 itemsPerPage={itemsPerPage}
                 totalDocumentCount={listDocuments.length}

@@ -21,8 +21,12 @@ import {
 } from '../../../lib/unsaved-changes'
 import { getModel } from '../../../models/service'
 import mEditorApi from '../../../service'
+import {
+    getWorkflow,
+    getWorkflowNodeAndEdgesForState,
+} from '../../../workflows/service'
 
-const NewDocumentPage = ({ user, model }) => {
+const NewDocumentPage = ({ user, model, workflow, currentEdges, currentNode }) => {
     const router = useRouter()
 
     const params = router.query
@@ -43,11 +47,8 @@ const NewDocumentPage = ({ user, model }) => {
     const [form, setForm] = useState(null)
     const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
 
-    const currentPrivileges = model?.workflow
-        ? user.privilegesForModelAndWorkflowNode(
-              modelName,
-              model.workflow.currentNode
-          )
+    const currentPrivileges = workflow
+        ? user.privilegesForModelAndWorkflowNode(modelName, currentNode)
         : []
 
     // set initial formData
@@ -147,9 +148,7 @@ const NewDocumentPage = ({ user, model }) => {
                 document={localChanges?.formData}
                 onUpdateForm={setForm}
                 onChange={onChange}
-                allowValidationErrors={
-                    model.workflow.currentNode.allowValidationErrors
-                }
+                allowValidationErrors={currentNode.allowValidationErrors}
             />
 
             {form?.state && (
@@ -185,9 +184,7 @@ const NewDocumentPage = ({ user, model }) => {
                             )}
                         </span>
                     }
-                    allowValidationErrors={
-                        model.workflow.currentNode.allowValidationErrors
-                    }
+                    allowValidationErrors={currentNode.allowValidationErrors}
                 />
             )}
         </div>
@@ -197,13 +194,19 @@ const NewDocumentPage = ({ user, model }) => {
 export async function getServerSideProps(ctx: NextPageContext) {
     const { modelName } = ctx.query
 
-    const [modelError, model] = await getModel(modelName.toString())
+    const [_modelError, model] = await getModel(modelName.toString())
+    const [_workflowError, workflow] = await getWorkflow(model.workflow)
+
+    const { node, edges } = getWorkflowNodeAndEdgesForState(workflow)
 
     //! TODO: handle a modelError
 
     return {
         props: {
-            model: !!modelError ? null : model,
+            model,
+            workflow,
+            currentNode: node,
+            currentEdges: edges,
         },
     }
 }

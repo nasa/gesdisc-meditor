@@ -13,6 +13,7 @@ export interface WorkflowNode {
     id: string
     privileges?: WorkflowPrivilege[]
     readyForUse?: boolean
+    allowValidationErrors?: boolean
 }
 
 export interface WorkflowPrivilege {

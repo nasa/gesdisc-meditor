@@ -86,3 +86,18 @@ export function getTargetStatesFromWorkflow(
         .filter(edge => edge.source == documentState)
         .map(edge => edge.target)
 }
+
+/**
+ * For a given workflow `state` (ex. "Draft"), this function returns the full workflow node and any edges
+ * branching from that node
+ */
+export function getWorkflowNodeAndEdgesForState(workflow: Workflow, state?: string) {
+    const node = state
+        ? workflow.nodes.find(node => node.id === state)
+        : workflow.nodes[0]
+
+    return {
+        node,
+        edges: workflow.edges.filter(edge => edge.source === node.id),
+    }
+}
