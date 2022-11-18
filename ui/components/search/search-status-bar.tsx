@@ -8,9 +8,6 @@ import SearchFilter from './search-filter'
 
 const SearchStatusBar = ({
     model,
-    workflow,
-    currentNode,
-    currentEdges,
     currentPage,
     itemsPerPage,
     totalDocumentCount = 0,
@@ -27,7 +24,7 @@ const SearchStatusBar = ({
     const layout = JSON.parse(model?.uiSchema || model?.layout || '{}')
 
     const states =
-        workflow?.nodes
+        model.workflow.nodes
             ?.filter(node => node.id !== 'Init' && node.id !== 'Deleted')
             .map(node => node.id)
             .sort() || []
@@ -44,11 +41,14 @@ const SearchStatusBar = ({
         filterFields[field].schema = schema?.properties?.[field]
     })
 
-    const currentPrivileges = model?.workflow
-        ? user.privilegesForModelAndWorkflowNode(modelName, currentNode)
+    const currentPrivileges = model.workflow
+        ? user.privilegesForModelAndWorkflowNode(
+              modelName,
+              model.workflow.currentNode
+          )
         : []
-    const availableEdges =
-        currentEdges?.filter(edge => {
+    const currentEdges =
+        model.workflow.currentEdges?.filter(edge => {
             return user.rolesForModel(modelName).includes(edge.role)
         }) || []
 
@@ -56,14 +56,14 @@ const SearchStatusBar = ({
         return (
             <Alert variant="info">
                 No documents found.
-                {currentPrivileges.includes('create') && availableEdges.length && (
+                {currentPrivileges.includes('create') && currentEdges.length && (
                     <Button
                         variant="secondary"
                         onClick={onAddNew}
                         style={{ marginLeft: 20 }}
                     >
                         <MdAdd />
-                        {availableEdges[0].label}
+                        {currentEdges[0].label}
                     </Button>
                 )}
             </Alert>
@@ -112,10 +112,10 @@ const SearchStatusBar = ({
 
                 {currentPrivileges.includes('create') && (
                     <div className={styles.action}>
-                        {availableEdges.length && (
+                        {currentEdges.length && (
                             <Button variant="secondary" onClick={onAddNew}>
                                 <MdAdd />
-                                {availableEdges[0].label}
+                                {currentEdges[0].label}
                             </Button>
                         )}
                     </div>

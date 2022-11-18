@@ -41,6 +41,38 @@ export async function getWorkflow(
 }
 
 /**
+ * adds the currentNode and currentEdges to the workflow for the given document state
+ *
+ * This is mainly here to avoid a major UI refactor as `model.workflow.currentNode and model.workflow.currentEdges` is used throughout
+ */
+export async function getWorkflowByDocumentState(
+    workflowName: string,
+    documentState?: string
+): Promise<ErrorData<Workflow>> {
+    try {
+        const [workflowError, workflow] = await getWorkflow(workflowName)
+
+        if (workflowError) {
+            throw workflowError
+        }
+
+        const { node: currentNode, edges: currentEdges } =
+            getWorkflowNodeAndEdgesForState(workflow, documentState)
+
+        return [
+            null,
+            {
+                ...workflow,
+                currentNode,
+                currentEdges,
+            },
+        ]
+    } catch (error) {
+        return [error, null]
+    }
+}
+
+/**
  * the workflow contains a list of edges between states.
  *
  * For states of "Draft", "Under Review", and "Published", the edges could be:

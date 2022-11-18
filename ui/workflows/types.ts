@@ -7,6 +7,8 @@ export interface Workflow {
     nodes: WorkflowNode[]
     edges: WorkflowEdge[]
     'x-meditor': DocumentMetadata
+    currentNode?: WorkflowNode
+    currentEdges?: WorkflowEdge[]
 }
 
 export interface WorkflowNode {

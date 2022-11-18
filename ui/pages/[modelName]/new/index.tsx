@@ -19,14 +19,16 @@ import {
     UNTITLED_DOCUMENT_TITLE,
     updateUnsavedDocumentInLS,
 } from '../../../lib/unsaved-changes'
-import { getModel } from '../../../models/service'
+import { getModelWithWorkflow } from '../../../models/service'
 import mEditorApi from '../../../service'
-import {
-    getWorkflow,
-    getWorkflowNodeAndEdgesForState,
-} from '../../../workflows/service'
+import type { ModelWithWorkflow } from '../../../models/types'
 
-const NewDocumentPage = ({ user, model, workflow, currentEdges, currentNode }) => {
+interface NewDocumentPageProps {
+    user: any
+    model: ModelWithWorkflow
+}
+
+const NewDocumentPage = ({ user, model }: NewDocumentPageProps) => {
     const router = useRouter()
 
     const params = router.query
@@ -47,8 +49,11 @@ const NewDocumentPage = ({ user, model, workflow, currentEdges, currentNode }) =
     const [form, setForm] = useState(null)
     const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
 
-    const currentPrivileges = workflow
-        ? user.privilegesForModelAndWorkflowNode(modelName, currentNode)
+    const currentPrivileges = model.workflow
+        ? user.privilegesForModelAndWorkflowNode(
+              modelName,
+              model.workflow.currentNode
+          )
         : []
 
     // set initial formData
@@ -101,7 +106,7 @@ const NewDocumentPage = ({ user, model, workflow, currentEdges, currentNode }) =
     }
 
     function onChange(formData: any) {
-        let titleProperty = model?.titleProperty
+        let titleProperty = model.titleProperty
         let title =
             titleProperty && formData[titleProperty]
                 ? formData[titleProperty]
@@ -148,7 +153,9 @@ const NewDocumentPage = ({ user, model, workflow, currentEdges, currentNode }) =
                 document={localChanges?.formData}
                 onUpdateForm={setForm}
                 onChange={onChange}
-                allowValidationErrors={currentNode.allowValidationErrors}
+                allowValidationErrors={
+                    model.workflow.currentNode.allowValidationErrors
+                }
             />
 
             {form?.state && (
@@ -184,7 +191,9 @@ const NewDocumentPage = ({ user, model, workflow, currentEdges, currentNode }) =
                             )}
                         </span>
                     }
-                    allowValidationErrors={currentNode.allowValidationErrors}
+                    allowValidationErrors={
+                        model.workflow.currentNode.allowValidationErrors
+                    }
                 />
             )}
         </div>
@@ -194,19 +203,13 @@ const NewDocumentPage = ({ user, model, workflow, currentEdges, currentNode }) =
 export async function getServerSideProps(ctx: NextPageContext) {
     const { modelName } = ctx.query
 
-    const [_modelError, model] = await getModel(modelName.toString())
-    const [_workflowError, workflow] = await getWorkflow(model.workflow)
-
-    const { node, edges } = getWorkflowNodeAndEdgesForState(workflow)
+    const [_modelError, model] = await getModelWithWorkflow(modelName.toString())
 
     //! TODO: handle a modelError
 
     return {
         props: {
             model,
-            workflow,
-            currentNode: node,
-            currentEdges: edges,
         },
     }
 }

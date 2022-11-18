@@ -28,14 +28,9 @@ import type {
 import { refreshDataInPlace } from '../../../lib/next'
 import { treeify } from '../../../lib/treeify'
 import { useLocalStorage } from '../../../lib/use-localstorage.hook'
-import { getModel } from '../../../models/service'
-import type { Model } from '../../../models/types'
+import { getModelWithWorkflow } from '../../../models/service'
+import type { ModelWithWorkflow } from '../../../models/types'
 import mEditorApi from '../../../service/'
-import {
-    getWorkflow,
-    getWorkflowNodeAndEdgesForState,
-} from '../../../workflows/service'
-import type { Workflow, WorkflowEdge, WorkflowNode } from '../../../workflows/types'
 import styles from './document-edit.module.css'
 
 export type DocumentPanels = 'comments' | 'history' | 'source' | 'workflow'
@@ -44,10 +39,7 @@ type PropsType = {
     comments: DocumentComment[]
     documentHistory: History[]
     pageDocument: LegacyDocumentWithMetadata
-    model: Model
-    workflow: Workflow
-    currentNode: WorkflowNode
-    currentEdges: WorkflowEdge[]
+    model: ModelWithWorkflow
     theme: any
     user: any
     version: string
@@ -55,9 +47,6 @@ type PropsType = {
 
 const EditDocumentPage = ({
     model,
-    workflow,
-    currentNode,
-    currentEdges,
     user,
     version = null,
     theme,
@@ -88,8 +77,11 @@ const EditDocumentPage = ({
         refreshDataInPlace(router)
     }, [formData.state, refreshDataInPlace])
 
-    const currentPrivileges = model?.workflow
-        ? user.privilegesForModelAndWorkflowNode(modelName, currentNode)
+    const currentPrivileges = model.workflow
+        ? user.privilegesForModelAndWorkflowNode(
+              modelName,
+              model.workflow.currentNode
+          )
         : []
 
     function reloadDocument() {
@@ -255,7 +247,7 @@ const EditDocumentPage = ({
         setToggleJSON(!toggleJSON)
     }
 
-    const workflowShouldShow = model?.name?.toLowerCase() === 'workflows'
+    const workflowShouldShow = model.name?.toLowerCase() === 'workflows'
 
     return (
         <div>
@@ -309,7 +301,9 @@ const EditDocumentPage = ({
                         onUpdateForm={setForm}
                         onChange={handleSourceChange}
                         readOnly={!currentPrivileges?.includes('edit')}
-                        allowValidationErrors={currentNode.allowValidationErrors}
+                        allowValidationErrors={
+                            model.workflow.currentNode.allowValidationErrors
+                        }
                     />
                 )}
 
@@ -368,10 +362,12 @@ const EditDocumentPage = ({
                 formData={formData}
                 onSave={saveDocument}
                 onUpdateState={updateDocumentState}
-                actions={currentEdges}
+                actions={model.workflow.currentEdges}
                 showActions={formData.targetStates?.length > 0}
                 confirmUnsavedChanges={true}
-                allowValidationErrors={currentNode.allowValidationErrors}
+                allowValidationErrors={
+                    model.workflow.currentNode.allowValidationErrors
+                }
             />
         </div>
     )
@@ -393,11 +389,9 @@ export async function getServerSideProps(ctx: NextPageContext) {
         return { notFound: true }
     }
 
-    const [_modelError, model] = await getModel(modelName.toString())
-    const [_workflowError, workflow] = await getWorkflow(model.workflow)
-    const { node, edges } = getWorkflowNodeAndEdgesForState(
-        workflow,
-        pageDocument['x-meditor'].state
+    // TODO: handle an error retrieving the model
+    const [modelError, modelWithWorkflow] = await getModelWithWorkflow(
+        modelName.toString()
     )
 
     const [commentsError, comments] = await getCommentsForDocument(
@@ -414,10 +408,7 @@ export async function getServerSideProps(ctx: NextPageContext) {
         comments: !!commentsError ? null : treeify(comments),
         pageDocument: adaptDocumentToLegacyDocument(pageDocument),
         documentHistory: !!documentHistoryError ? null : documentHistory,
-        model,
-        workflow,
-        currentNode: node,
-        currentEdges: edges,
+        modelWithWorkflow,
     }
 
     return { props }

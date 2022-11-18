@@ -1,23 +1,23 @@
 import { useEffect, useState } from 'react'
 import { IoMdArrowDropdown } from 'react-icons/io'
 import { findUnsavedDocumentsByModel } from '../../lib/unsaved-changes'
-import type { DocumentsSearchOptions, Model } from '../../models/types'
+import type {
+    DocumentsSearchOptions,
+    Model,
+    ModelWithWorkflow,
+} from '../../models/types'
 import type { Document } from '../../documents/types'
 import type { User } from '../../service/api'
 import Pagination from '../pagination'
 import styles from './search-list.module.css'
 import SearchResult from './search-result'
 import SearchStatusBar from './search-status-bar'
-import type { Workflow, WorkflowEdge, WorkflowNode } from '../../workflows/types'
 
 interface SearchListProps {
     documents: Document[]
-    model: Model
-    workflow: Workflow
+    model: ModelWithWorkflow
     user: User
     searchOptions: DocumentsSearchOptions
-    currentNode: WorkflowNode
-    currentEdges: WorkflowEdge[]
     onAddNew: Function
     onRefreshList: Function
     onSortChange: Function
@@ -30,9 +30,6 @@ interface SearchListProps {
 const SearchList = ({
     documents,
     model,
-    workflow,
-    currentNode,
-    currentEdges,
     onAddNew,
     onRefreshList,
     user,
@@ -98,9 +95,6 @@ const SearchList = ({
         <div>
             <SearchStatusBar
                 model={model}
-                workflow={workflow}
-                currentNode={currentNode}
-                currentEdges={currentEdges}
                 currentPage={currentPage}
                 itemsPerPage={itemsPerPage}
                 totalDocumentCount={listDocuments.length}

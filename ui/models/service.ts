@@ -1,9 +1,10 @@
-import type { Model } from './types'
+import type { Model, ModelWithWorkflow } from './types'
 import jsonpath from 'jsonpath'
 import type { ErrorData } from '../declarations'
 import { getModelsDb } from './db'
 import { getDocumentsDb } from '../documents/db'
 import { ErrorCode, HttpException } from '../utils/errors'
+import { getWorkflowByDocumentState } from '../workflows/service'
 
 type getModelOptions = {
     populateMacroTemplates?: boolean
@@ -96,6 +97,44 @@ export async function getModel(
         }
 
         return [null, model]
+    } catch (err) {
+        return [err, null]
+    }
+}
+
+/**
+ * allows you to retrieve the model, workflow, and current node/edges at once
+ *
+ * retrieving all of these is a frequent need throughout the application. We can avoid errors by moving the logic for
+ * retrieval and error handling into a service method
+ */
+export async function getModelWithWorkflow(
+    modelName: string,
+    documentState?: string
+): Promise<ErrorData<ModelWithWorkflow>> {
+    try {
+        const [modelError, model] = await getModel(modelName)
+
+        if (modelError) {
+            throw modelError
+        }
+
+        const [workflowError, workflow] = await getWorkflowByDocumentState(
+            model.workflow,
+            documentState
+        )
+
+        if (workflowError) {
+            throw workflowError
+        }
+
+        return [
+            null,
+            {
+                ...model,
+                workflow,
+            },
+        ]
     } catch (err) {
         return [err, null]
     }
