@@ -1,0 +1,122 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Documents getDocument returns document 1`] = `
+Object {
+  "_id": "5b6c4effc2d8adf60f742042",
+  "body": "<p>All of the FLDAS products have been reprocessed for improvements and corrections in the file metadata, specifically in regards to the &lsquo;time&rsquo; metadata.&nbsp; All FLDAS data are now accessible and available for download at the GES DISC.&nbsp; If you downloaded FLDAS data before August 7, please be aware that the file metadata may be incorrect.&nbsp; Please contact the GES DISC Help Desk at gsfc-nasa-disc@lists.nasa.gov if you have any questions.</p>
+",
+  "datasets": Array [
+    "FLDAS_VIC025_A_SA_M_001",
+    "FLDAS_VIC025_A_WA_D_001",
+    "FLDAS_NOAH01_A_SA_D_001",
+    "FLDAS_NOAH01_C_EA_MC_001",
+    "FLDAS_NOAH01_A_EA_M_001",
+    "FLDAS_VIC025_A_EA_D_001",
+    "FLDAS_NOAH01_A_WA_D_001",
+    "FLDAS_VIC025_C_SA_M_001",
+    "FLDAS_NOAH01_A_EA_D_001",
+    "FLDAS_NOAH01_C_WA_MA_001",
+    "FLDAS_NOAH01_C_WA_MC_001",
+    "FLDAS_NOAH01_C_EA_MA_001",
+    "FLDAS_VIC025_C_WA_M_001",
+    "FLDAS_VIC025_A_WA_M_001",
+    "FLDAS_NOAH01_A_SA_M_001",
+    "FLDAS_VIC025_A_EA_M_001",
+    "FLDAS_NOAH01_A_WA_M_001",
+    "FLDAS_VIC025_C_EA_M_001",
+    "FLDAS_NOAH01_C_WA_M_001",
+    "FLDAS_NOAH01_C_SA_M_001",
+    "FLDAS_NOAH01_C_SA_MC_001",
+    "FLDAS_NOAH01_C_EA_M_001",
+    "FLDAS_VIC025_A_SA_D_001",
+    "FLDAS_NOAH01_C_SA_MA_001",
+  ],
+  "expiration": "2018-09-09T04:00:00Z",
+  "severity": "normal",
+  "start": "2018-08-09T04:00:00Z",
+  "tags": Array [
+    "hydrology",
+    "fldas",
+  ],
+  "title": "Reprocessed FLDAS Data",
+  "x-meditor": Object {
+    "banTransitions": false,
+    "model": "Alerts",
+    "modifiedBy": "jdoe",
+    "modifiedOn": "2018-08-09T14:26:07.541Z",
+    "state": "Published",
+    "states": Array [
+      Object {
+        "modifiedOn": "2018-08-09T14:26:07.541Z",
+        "source": "Init",
+        "target": "Draft",
+      },
+      Object {
+        "modifiedOn": "2018-08-09T14:26:07.541Z",
+        "source": "Approved",
+        "target": "Published",
+      },
+    ],
+    "targetStates": Array [],
+    "titleProperty": "title",
+  },
+}
+`;
+
+exports[`Documents getDocument returns document at version 1`] = `
+Object {
+  "_id": "5b6c4ebcc2d8adf60f741fba",
+  "body": "<p>All of the FLDAS products have been reprocessed for improvements and corrections in the file metadata, specifically in regards to the &lsquo;time&rsquo; metadata.&nbsp; All FLDAS data are now accessible and available for download at the GES DISC.&nbsp; If you downloaded FLDAS data before August 7, please be aware that the file metadata may be incorrect.&nbsp; Please contact the GES DISC Help Desk at gsfc-nasa-disc@lists.nasa.gov if you have any questions.</p>
+",
+  "datasets": Array [
+    "FLDAS_VIC025_A_SA_M_001",
+    "FLDAS_VIC025_A_WA_D_001",
+    "FLDAS_NOAH01_A_SA_D_001",
+    "FLDAS_NOAH01_C_EA_MC_001",
+    "FLDAS_NOAH01_A_EA_M_001",
+    "FLDAS_VIC025_A_EA_D_001",
+    "FLDAS_NOAH01_A_WA_D_001",
+    "FLDAS_VIC025_C_SA_M_001",
+    "FLDAS_NOAH01_A_EA_D_001",
+    "FLDAS_NOAH01_C_WA_MA_001",
+    "FLDAS_NOAH01_C_WA_MC_001",
+    "FLDAS_NOAH01_C_EA_MA_001",
+    "FLDAS_VIC025_C_WA_M_001",
+    "FLDAS_VIC025_A_WA_M_001",
+    "FLDAS_NOAH01_A_SA_M_001",
+    "FLDAS_VIC025_A_EA_M_001",
+    "FLDAS_NOAH01_A_WA_M_001",
+    "FLDAS_VIC025_C_EA_M_001",
+    "FLDAS_NOAH01_C_WA_M_001",
+    "FLDAS_NOAH01_C_SA_M_001",
+    "FLDAS_NOAH01_C_SA_MC_001",
+    "FLDAS_NOAH01_C_EA_M_001",
+    "FLDAS_VIC025_A_SA_D_001",
+    "FLDAS_NOAH01_C_SA_MA_001",
+  ],
+  "expiration": "2018-09-09T04:00:00Z",
+  "severity": "normal",
+  "start": "2018-08-09T04:00:00Z",
+  "tags": Array [
+    "hydrology",
+    "fldas",
+  ],
+  "title": "Reprocessed FLDAS Data",
+  "x-meditor": Object {
+    "banTransitions": false,
+    "model": "Alerts",
+    "modifiedBy": "jdoe",
+    "modifiedOn": "2018-08-09T14:25:09.384Z",
+    "state": "Draft",
+    "states": Array [
+      Object {
+        "modifiedOn": "2018-08-09T14:25:09.384Z",
+        "source": "Init",
+        "target": "Draft",
+      },
+    ],
+    "targetStates": Array [],
+    "titleProperty": "title",
+  },
+}
+`;

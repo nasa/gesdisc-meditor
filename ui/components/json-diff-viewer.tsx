@@ -1,22 +1,14 @@
-import ReactDiffViewer from 'react-diff-viewer'
-import gql from 'graphql-tag'
-import { useQuery } from '@apollo/react-hooks'
-import Form from 'react-bootstrap/Form'
-import Col from 'react-bootstrap/Col'
-import { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import styles from './json-diff-viewer.module.css'
+import { useEffect, useState } from 'react'
+import { Dropdown, DropdownButton, Row } from 'react-bootstrap'
 import Button from 'react-bootstrap/Button'
-import { Container, DropdownButton, Dropdown, Row } from 'react-bootstrap'
+import Col from 'react-bootstrap/Col'
+import ReactDiffViewer from 'react-diff-viewer'
+import { adaptDocumentToLegacyDocument } from '../documents/adapters'
+import { fetchDocument } from '../documents/http'
+import type { LegacyDocumentWithMetadata } from '../documents/types'
 import DocumentStateBadge from './document/document-state-badge'
-
-const VERSIONDOCUMENT_QUERY = gql`
-    query getDocument($modelName: String!, $title: String!, $version: String) {
-        document(modelName: $modelName, title: $title, version: $version) {
-            doc
-        }
-    }
-`
+import styles from './json-diff-viewer.module.css'
 
 const JsonDiffViewer = ({
     currentVersion,
@@ -26,29 +18,25 @@ const JsonDiffViewer = ({
     history,
     onVersionSelected,
 }) => {
-    const {
-        loading: loadingCurrent,
-        error: currentError,
-        data: currentDocument,
-    } = useQuery(VERSIONDOCUMENT_QUERY, {
-        fetchPolicy: 'no-cache',
-        variables: {
-            modelName,
-            title: documentTitle,
-            version: currentVersion,
-        },
-    })
-    const { loading: loadingOld, error: oldError, data: oldDocument } = useQuery(
-        VERSIONDOCUMENT_QUERY,
-        {
-            fetchPolicy: 'no-cache',
-            variables: {
-                modelName,
-                title: documentTitle,
-                version: oldVersion,
-            },
-        }
-    )
+    const [currentDocument, setCurrentDocument] =
+        useState<LegacyDocumentWithMetadata>(null)
+    const [oldDocument, setOldDocument] = useState<LegacyDocumentWithMetadata>(null)
+
+    useEffect(() => {
+        Promise.all([
+            fetchDocument(documentTitle, modelName, currentVersion),
+            fetchDocument(documentTitle, modelName, oldVersion),
+        ])
+            .then(([currentDocumentResponse, oldDocumentResponse]) => {
+                const [currentDocumentError, currentDocument] =
+                    currentDocumentResponse
+                const [oldDocumentError, oldDocument] = oldDocumentResponse
+
+                setCurrentDocument(adaptDocumentToLegacyDocument(currentDocument))
+                setOldDocument(adaptDocumentToLegacyDocument(oldDocument))
+            })
+            .catch(error => console.error(error))
+    }, [documentTitle, oldVersion, currentVersion, modelName])
 
     function determineDisabled(versionOption, index) {
         const currentVersionIndex = history
@@ -87,9 +75,12 @@ const JsonDiffViewer = ({
         e.target.closest('.dropdown-item').classList.add('active')
     }
 
-    function cleanDocument(doc = { _id: null }) {
-        let { _id, ...cleanDoc } = doc
-        return cleanDoc
+    function cleanDocument(key, value) {
+        if (key === '_id') {
+            return undefined
+        }
+
+        return value
     }
 
     return (
@@ -143,16 +134,8 @@ const JsonDiffViewer = ({
                 </Row>
             </div>
             <ReactDiffViewer
-                oldValue={`${JSON.stringify(
-                    cleanDocument(oldDocument?.document?.doc),
-                    null,
-                    4
-                )}`}
-                newValue={`${JSON.stringify(
-                    cleanDocument(currentDocument?.document?.doc),
-                    null,
-                    4
-                )}`}
+                oldValue={`${JSON.stringify(oldDocument, cleanDocument, 4)}`}
+                newValue={`${JSON.stringify(currentDocument, cleanDocument, 4)}`}
                 splitView={splitView}
                 showDiffOnly={false}
             />

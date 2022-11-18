@@ -9,15 +9,21 @@ import collectionMetadataModel from '../../models/__test__/fixtures/models/colle
 import editPublishCmrWorkflow from '../../models/__test__/fixtures/workflows/edit-publish-cmr.json'
 import editPublishWorkflow from '../../models/__test__/fixtures/workflows/edit-publish.json'
 import modifyReviewPublishWorkflow from '../../models/__test__/fixtures/workflows/modify-review-publish.json'
+import { adaptDocumentToLegacyDocument } from '../adapters'
 import {
+    createSourceToTargetStateMap,
+    findAllowedUserRolesForModel,
+    getDocument,
     getDocumentHistory,
     getDocumentHistoryByVersion,
     getDocumentPublications,
     getDocumentsForModel,
     getTargetStatesFromWorkflow,
 } from '../service'
+import alertFromGql from './__fixtures__/alertFromGql.json'
 import alertWithHistory from './__fixtures__/alertWithHistory.json'
 import alertWithPublication from './__fixtures__/alertWithPublication.json'
+import workflowEdges from './__fixtures__/workflowEdges.json'
 
 describe('Documents', () => {
     let db: Db
@@ -41,6 +47,77 @@ describe('Documents', () => {
         await db.collection('Collection Metadata').deleteMany({})
         await db.collection('Alerts').deleteMany({})
         // await db.collection('Workflows').deleteMany({})
+    })
+
+    describe('findAllowedUserRolesForModel', () => {
+        test(`returns only matching roles`, () => {
+            const userRoles = [
+                { model: 'Alerts', role: 'Author' },
+                { model: 'News', role: 'Reviewer' },
+                { model: 'Alerts', role: 'Publisher' },
+            ]
+            const allowedRoles = findAllowedUserRolesForModel('Alerts', userRoles)
+
+            expect(allowedRoles).toMatchInlineSnapshot(`
+                Array [
+                  "Author",
+                  "Publisher",
+                ]
+            `)
+        })
+
+        test(`is case sensitive`, () => {
+            const userRoles = [
+                { model: 'alerts', role: 'Author' },
+                { model: 'News', role: 'Reviewer' },
+                { model: 'Alerts', role: 'publisher' },
+            ]
+            const allowedRoles = findAllowedUserRolesForModel('Alerts', userRoles)
+
+            expect(allowedRoles).toMatchInlineSnapshot(`
+                Array [
+                  "publisher",
+                ]
+            `)
+        })
+    })
+
+    describe('createSourceToTargetStateMap', () => {
+        test('returns matching state map', () => {
+            expect(createSourceToTargetStateMap(['Author'], workflowEdges))
+                .toMatchInlineSnapshot(`
+                Object {
+                  "Draft": Array [
+                    "Under Review",
+                    "Deleted",
+                  ],
+                  "Init": Array [
+                    "Draft",
+                  ],
+                }
+            `)
+
+            expect(createSourceToTargetStateMap(['Publisher'], workflowEdges))
+                .toMatchInlineSnapshot(`
+                Object {
+                  "Approved": Array [
+                    "Published",
+                    "Under Review",
+                  ],
+                  "Hidden": Array [
+                    "Published",
+                    "Deleted",
+                  ],
+                  "Published": Array [
+                    "Hidden",
+                  ],
+                }
+            `)
+
+            expect(
+                createSourceToTargetStateMap(['Admin'], workflowEdges)
+            ).toMatchInlineSnapshot(`Object {}`)
+        })
     })
 
     describe('getTargetStatesForModel', () => {
@@ -85,6 +162,73 @@ describe('Documents', () => {
                 expect(targetStates).toEqual(expectedTargetStates)
             }
         )
+    })
+
+    describe('getDocument', () => {
+        const user = {
+            id: 'a-db-id',
+            uid: 'johndoe',
+            created: 1052283628409,
+            emailAddress: 'john.r.doe@example.com',
+            firstName: 'John',
+            lastAccessed: 1000000000000,
+            lastName: 'Doe',
+            roles: [
+                { model: 'Models', role: 'Author' },
+                { model: 'Workflows', role: 'Author' },
+                { model: 'Users', role: 'Author' },
+                { model: 'Images', role: 'Author' },
+                { model: 'News', role: 'Author' },
+                { model: 'News', role: 'Reviewer' },
+                { model: 'Tags', role: 'Author' },
+            ],
+            name: 'John Doe',
+        }
+
+        test('returns document', async () => {
+            await db.collection('Alerts').insertMany(alertWithHistory)
+
+            const [error, document] = await getDocument(
+                'Reprocessed FLDAS Data',
+                'Alerts',
+                user
+            )
+
+            expect(error).toBeNull()
+            expect(document).toMatchSnapshot()
+        })
+
+        test('returns document at version', async () => {
+            await db.collection('Alerts').insertMany(alertWithHistory)
+
+            const [error, document] = await getDocument(
+                'Reprocessed FLDAS Data',
+                'Alerts',
+                user,
+                '2018-08-09T14:25:09.384Z'
+            )
+
+            expect(error).toBeNull()
+            expect(document).toMatchSnapshot()
+        })
+
+        describe('adaptDocumentToLegacyDocument', () => {
+            test('is identical to the previous data structure returned from GQL', async () => {
+                await db.collection('Alerts').insertMany(alertWithHistory)
+
+                const [error, document] = await getDocument(
+                    'Reprocessed FLDAS Data',
+                    'Alerts',
+                    user
+                )
+
+                const adaptedDocument = adaptDocumentToLegacyDocument(document)
+
+                expect(error).toBeNull()
+                //* I modified the alertFromGql to anonymize the data, remove the __typeName field, and equalize date formatting from ":00.000Z" to ":00Z".
+                expect(adaptedDocument).toEqual(alertFromGql)
+            })
+        })
     })
 
     describe('getDocumentsForModel', () => {
