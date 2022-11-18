@@ -1,7 +1,7 @@
 {
     "id": "pattypublisher",
     "name": "Patty Publisher",
-    "roles": [{ "model": "Cypress Test Model", "role": "Publisher" }],
+    "roles": [{ "model": "Cypress Example News", "role": "Publisher" }],
     "x-meditor": {
         "model": "Users",
         "modifiedOn": "2021-12-22T17:50:59.949Z",

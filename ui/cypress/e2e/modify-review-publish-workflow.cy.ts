@@ -1,20 +1,23 @@
 /// <reference types="../support" />
 
+// @ts-nocheck
+
 const LoremIpsum = require('lorem-ipsum').LoremIpsum
 
-const TEST_MODEL = 'Example News'
+const TEST_MODEL = 'Cypress Example News'
 const AUTHOR_UID = 'andyauthor'
-const REVIEWER_UID = 'joereviewer'
+const REVIEWER_UID = 'ralphreviewer'
 const PUBLISHER_UID = 'pattypublisher'
 
 const lorem = new LoremIpsum()
 
 describe('Edit-Review-Publish Workflow', () => {
     it('author can create a new document', () => {
+        cy.task('db:seed', 'default')
+
         cy.login(AUTHOR_UID)
 
         cy.getMe().then(user => {
-            // @ts-ignore
             cy.wrap(user).its('uid').should('eq', AUTHOR_UID)
 
             // intercept future /me requests to avoid the Earthdata redirect
@@ -24,17 +27,17 @@ describe('Edit-Review-Publish Workflow', () => {
             // visit homepage
             cy.visit(Cypress.env('appUrl'))
 
-            console.log('made it through')
-
             // find and visit model
             cy.contains(new RegExp(`^${TEST_MODEL}`))
                 .parent()
                 .click()
-            cy.url().should('contain', `/${TEST_MODEL}`)
+
+            cy.url().should('contain', `/${encodeURIComponent(TEST_MODEL)}`)
 
             // click create button
             cy.contains('button', 'Create').click()
-            cy.url().should('contain', `/${TEST_MODEL}/new`)
+
+            cy.url().should('contain', `/${encodeURIComponent(TEST_MODEL)}/new`)
 
             // fill out required fields (with random title)
             cy.get('input[id="root_title"]').type(
@@ -75,7 +78,7 @@ describe('Edit-Review-Publish Workflow', () => {
                 .parent()
                 .click()
             cy.get('div[class^="search-result_result"] a').first().click()
-            cy.get('span[class^="document-state-badge"]').should(
+            cy.get('span[class^="state-badge_badge"]').should(
                 'contain',
                 'Under Review'
             )
@@ -102,10 +105,7 @@ describe('Edit-Review-Publish Workflow', () => {
                 .parent()
                 .click()
             cy.get('div[class^="search-result_result"] a').first().click()
-            cy.get('span[class^="document-state-badge"]').should(
-                'contain',
-                'Under Review'
-            )
+            cy.get('span[class^="state-badge_badge"]').should('contain', 'Approved')
             cy.contains('button', 'Publish').click()
         })
     })

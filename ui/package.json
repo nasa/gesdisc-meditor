@@ -7,7 +7,7 @@
         "build": "next build",
         "start": "next start",
         "test": "jest --detectOpenHandles",
-        "test:cypress": "npm run test:cypress-seed && npx cypress open",
+        "test:cypress": "npx cypress open",
         "test:cypress-seed": "node cypress/seed/seed_db.js"
     },
     "dependencies": {
