@@ -1,4 +1,4 @@
-import { DocumentPublications } from '../documents/types'
+import type { DocumentPublications } from '../documents/types'
 
 export interface DocumentsSearchOptions {
     searchTerm?: string
