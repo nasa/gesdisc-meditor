@@ -53,7 +53,7 @@ export function sendMail(subject, text, html, to, cc = '') {
             log.debug('Attempting to send message ', params)
             try {
                 // Create the promise and SES service object
-                AWS.SES({apiVersion: '2010-12-01'}).sendEmail(params, (err, response) => {
+                var sendPromise = new AWS.SES({apiVersion: '2010-12-01'}).sendEmail(params, (err, response) => {
                     if (err) {
                         throw(err)
                     }
