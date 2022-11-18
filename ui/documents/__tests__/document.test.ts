@@ -25,6 +25,8 @@ import alertFromGql from './__fixtures__/alertFromGql.json'
 import alertWithHistory from './__fixtures__/alertWithHistory.json'
 import alertWithPublication from './__fixtures__/alertWithPublication.json'
 import workflowEdges from './__fixtures__/workflowEdges.json'
+import HowDoIFAQ from '../../models/__test__/fixtures/faqs/how-do-i.json'
+import WhereDoIFAQ from '../../models/__test__/fixtures/faqs/where-do-i.json'
 
 describe('Documents', () => {
     let db: Db
