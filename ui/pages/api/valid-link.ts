@@ -3,7 +3,7 @@ import { getLoggedInUser } from '../../auth/user'
 import { apiError, ErrorCode, HttpException } from '../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    // this isn't really a secure endpoint BUT this is just an extra step to ensure no anonymous users are
+    // this doesn't really need to be a secure endpoint BUT this is just an extra step to ensure no anonymous users are
     // hitting the link checker API
     const user = await getLoggedInUser(req, res)
 
