@@ -391,7 +391,8 @@ export async function getServerSideProps(ctx: NextPageContext) {
 
     // TODO: handle an error retrieving the model
     const [modelError, modelWithWorkflow] = await getModelWithWorkflow(
-        modelName.toString()
+        modelName.toString(),
+        pageDocument['x-meditor'].state
     )
 
     const [commentsError, comments] = await getCommentsForDocument(
@@ -408,7 +409,7 @@ export async function getServerSideProps(ctx: NextPageContext) {
         comments: !!commentsError ? null : treeify(comments),
         pageDocument: adaptDocumentToLegacyDocument(pageDocument),
         documentHistory: !!documentHistoryError ? null : documentHistory,
-        modelWithWorkflow,
+        model: modelWithWorkflow,
     }
 
     return { props }
