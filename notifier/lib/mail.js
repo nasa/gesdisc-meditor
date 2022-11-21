@@ -5,7 +5,8 @@ var AWS = require('aws-sdk');
 const HOST_NAME = process.env.HOST_NAME || 'disc.gsfc.nasa.gov'
 const MAIL_FROM_NAME = process.env.MAIL_FROM_NAME || 'mEditor'
 const MAIL_FROM_USERNAME = process.env.MAIL_FROM_USERNAME || 'info'
-const ON_MCP = process.env.ON_MCP || 'false'
+const ON_MCP = process.env.ON_MCP || false
+const AWS_REGION = process.env.AWS_REGION || 'us-east-1'
 
 log.debug('Sending mail from host name: %s', HOST_NAME)
 log.debug('Using mail host: %s', process.env.MAIL_HOST)
@@ -20,17 +21,18 @@ const transporter = nodemailer.createTransport({
 })
 
 export function sendMail(subject, text, html, to, cc = '') {
-    if (ON_MCP == 'true') {
-        console.log("ON_MCP: " + ON_MCP);
-        console.log("THIS IS ON MCP");
+    /* If using AWS MCP environment, need to use AWS SDK to send email */
+    if (ON_MCP) {
         return new Promise((resolve, reject) => {
+	    AWS.config.update({region: AWS_REGION});
+	    var split_to = to.split(" ");
+	    var to_address = split_to[split_to.length-1].replace("<", "").replace(">", "");
             var params = {
                 Destination: { 
                     CcAddresses: [
-                            cc
                     ],
                     ToAddresses: [
-                            to
+                            to_address
                     ]
             },
             Message: {
@@ -50,6 +52,11 @@ export function sendMail(subject, text, html, to, cc = '') {
                         `${MAIL_FROM_USERNAME}@${HOST_NAME}`
                 ],
             };
+	    if (cc) {
+		var split_cc = cc.split(" ");
+		var cc_address = split_cc[split_cc.length-1].replace("<", "").replace(">", "");
+		params["Destination"]["CcAddresses"].push(cc_address);
+	    }
             log.debug('Attempting to send message ', params)
             try {
                 // Create the promise and SES service object
@@ -68,6 +75,7 @@ export function sendMail(subject, text, html, to, cc = '') {
 
         })
     }
+    /* Sending email in on-prem environment */
     else {
         return new Promise((resolve, reject) => {
             const from = `${MAIL_FROM_NAME} <${MAIL_FROM_USERNAME}@${HOST_NAME}>`
