@@ -66,12 +66,6 @@ export class HttpException extends Error {
     }
 }
 
-export class InternalServerErrorException extends HttpException {
-    constructor(message: string = 'Internal Server Error') {
-        super(500, message)
-    }
-}
-
 /**
  * converts errors to a JSON api response
  * To prevent leaking implementation details to an end-user, if the error isn't an instance of HttpException, only return a generic error.
