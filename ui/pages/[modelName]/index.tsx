@@ -153,7 +153,7 @@ export async function getServerSideProps(ctx: NextPageContext) {
     const modelName = ctx.query.modelName.toString()
 
     //! TODO: handle getModels or getModel errors (show the user an error message?)
-    const [_modelsError, models] = await getModels()
+    const [_modelsError, allModels] = await getModels()
     const [_modelError, model] = await getModelWithWorkflow(modelName)
 
     const searchOptions = getSearchOptionsFromParams(ctx.query)
@@ -164,10 +164,9 @@ export async function getServerSideProps(ctx: NextPageContext) {
         searchOptions
     )
 
-    // todo: both stringify => parse should be moved to concern of db (see comments, documents)
     const props = {
-        allModels: JSON.parse(JSON.stringify(models || [])),
-        model: JSON.parse(JSON.stringify(model)),
+        allModels,
+        model,
         documents: !!documentsError ? null : documents,
     }
 

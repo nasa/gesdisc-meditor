@@ -385,7 +385,7 @@ export async function getServerSideProps(ctx: NextPageContext) {
     )
 
     // No point in displaying the page if our core resource has errored or is missing.
-    if (pageDocumentError || !Object.keys(pageDocument).length) {
+    if (pageDocumentError) {
         return { notFound: true }
     }
 
