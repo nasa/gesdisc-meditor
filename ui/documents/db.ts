@@ -134,7 +134,7 @@ class DocumentsDb {
             },
         ]
 
-        const [document = {}] = await this.#db
+        const [document] = await this.#db
             .collection(parsedInput.modelName)
             .aggregate(pipeline)
             .map(document => {

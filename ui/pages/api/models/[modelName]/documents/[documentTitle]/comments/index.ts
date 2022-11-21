@@ -34,7 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return res.status(200).json(comments)
         }
 
-        case 'POST':
+        case 'POST': {
             const [error, newComment] = await createCommentAsUser(
                 {
                     ...req.body,
@@ -49,6 +49,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
 
             return res.status(200).json(newComment)
+        }
 
         default:
             return res.status(405)
