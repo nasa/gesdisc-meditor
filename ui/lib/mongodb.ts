@@ -40,7 +40,7 @@ const getDb = async (dbName?: string) => {
 // Next doesn't know how to process the Mongo _id property, as it's an object, not a string. So this hack parses ahead of time
 // https://github.com/vercel/next.js/issues/11993
 function makeSafeObjectIDs(records: Record<string, any> | Record<string, any>[]) {
-    return JSON.parse(JSON.stringify(records))
+    return !!records ? JSON.parse(JSON.stringify(records)) : records
 }
 
 export { getDb as default, makeSafeObjectIDs, mongoClientPromise }
