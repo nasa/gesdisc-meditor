@@ -24,16 +24,31 @@ export function sendMail(subject, text, html, to, cc = '') {
     /* If using AWS MCP environment, need to use AWS SDK to send email */
     if (ON_MCP) {
         return new Promise((resolve, reject) => {
-	    AWS.config.update({region: AWS_REGION});
-	    var split_to = to.split(" ");
-	    var to_address = split_to[split_to.length-1].replace("<", "").replace(">", "");
+            log.debug("Sending email using AWS SDK...")
+            AWS.config.update({region: AWS_REGION});
+            
+            // Parse To addresses
+            var to_addresses = []
+            var to_users = to.split(",")
+            for (let i = 0; i < to_users.length; i++) {
+                var split_to = to_users[i].split(" ");
+                var to_address = split_to[split_to.length-1].replace("<", "").replace(">", "");
+                to_addresses.push(to_address)
+            }
+            // Parse CC addresses
+            var cc_addresses = []
+            if (cc) {
+                var cc_users = cc.split(",")
+                for (let i = 0; i < cc_users.length; i++) {
+                    var split_cc = cc_users[i].split(" ");
+                    var cc_address = split_cc[split_cc.length-1].replace("<", "").replace(">", "");
+                    cc_addresses.push(cc_address)
+                }
+            }
             var params = {
                 Destination: { 
-                    CcAddresses: [
-                    ],
-                    ToAddresses: [
-                            to_address
-                    ]
+                    CcAddresses: cc_addresses,
+                    ToAddresses: to_addresses
             },
             Message: {
                 Body: {
@@ -52,11 +67,7 @@ export function sendMail(subject, text, html, to, cc = '') {
                         `${MAIL_FROM_USERNAME}@${HOST_NAME}`
                 ],
             };
-	    if (cc) {
-		var split_cc = cc.split(" ");
-		var cc_address = split_cc[split_cc.length-1].replace("<", "").replace(">", "");
-		params["Destination"]["CcAddresses"].push(cc_address);
-	    }
+            
             log.debug('Attempting to send message ', params)
             try {
                 // Create the promise and SES service object
