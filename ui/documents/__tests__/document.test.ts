@@ -574,7 +574,7 @@ describe('Documents', () => {
                 user
             )
             expect(error).toMatchInlineSnapshot(
-                `[Error: Document, Bacon, in model, FAQs, does not exist]`
+                `[Error: Requested document, Bacon, in model, FAQs, was not found]`
             )
             expect(document).toBeNull()
         })
