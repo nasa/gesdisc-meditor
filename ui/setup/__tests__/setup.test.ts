@@ -1,12 +1,24 @@
+import type { Db } from 'mongodb'
 import { getDocumentsForModel } from '../../documents/service'
 import { getModels } from '../../models/service'
 import { setUpNewInstallation } from '../service'
+import getDb from '../../lib/mongodb'
 
 const mockUser = { name: 'Test User', uid: 'testuser' }
 let lastModified: string
 
 //* these tests carry state forward
 describe('Setup', () => {
+    let db: Db
+
+    beforeAll(async () => {
+        db = await getDb()
+    })
+
+    afterAll(async () => {
+        await db.collection('Models').deleteMany({})
+    })
+
     test('DB is empty before setup', async () => {
         const [error, models] = await getModels()
 
