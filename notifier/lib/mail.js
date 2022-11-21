@@ -42,7 +42,7 @@ export function sendMail(subject, text, html, to, cc = '') {
                 },
                 Subject: {
                     Charset: "UTF-8",
-                    Data: "Test email"
+                    Data: subject
                 }
                 },
                 Source: `${MAIL_FROM_USERNAME}@${HOST_NAME}`, /* required */
