@@ -199,16 +199,10 @@ export async function changeDocumentState(
             throw new HttpException(ErrorCode.BadRequest, 'No state provided')
         }
 
-        const [modelError, model] = await getModel(modelName)
+        const [modelError, model] = await getModelWithWorkflow(modelName)
 
         if (modelError) {
             throw modelError
-        }
-
-        const [workflowError, workflow] = await getWorkflow(model.workflow || '')
-
-        if (workflowError) {
-            throw workflowError
         }
 
         // fetch the requested document
@@ -231,7 +225,7 @@ export async function changeDocumentState(
 
         const targetStates = getTargetStatesFromWorkflow(
             document['x-meditor'].state,
-            workflow
+            model.workflow
         )
 
         if (targetStates.indexOf(newState) < 0) {
