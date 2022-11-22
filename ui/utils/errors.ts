@@ -1,4 +1,5 @@
 import type { NextApiResponse } from 'next'
+import type { APIError } from '../declarations'
 
 export enum ErrorCode {
     NotFound = 'NotFound',

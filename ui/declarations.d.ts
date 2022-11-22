@@ -11,6 +11,11 @@ declare global {
     var CKEDITOR: CKEditor
 }
 
+export type APIError = {
+    status: number
+    error: string
+}
+
 export type ErrorData<T> = [Error | HttpException | null, T | null]
 
 type gReactProps<T> = {

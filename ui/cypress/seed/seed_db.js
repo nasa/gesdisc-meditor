@@ -14,6 +14,7 @@ async function main() {
 
     console.log('Successfully connected to Mongo')
 
+    await seedUsersUrs(db)
     await seedUsers(db)
     await seedModels(db)
     await seedWorkflows(db)
@@ -24,6 +25,16 @@ async function main() {
 
     process.stdin.end()
     process.exit(0)
+}
+
+async function seedUsersUrs(db) {
+    const fullDirPath = `${__dirname}/users-urs/`
+
+    console.log(`Seeding users-urs, from directory, ${fullDirPath}`)
+
+    const users = await seedDocsFromDirectory(db, fullDirPath, 'users-urs', 'uid')
+
+    console.log('Seeded ', users)
 }
 
 async function seedUsers(db) {
