@@ -1,36 +1,10 @@
 import Alert from 'react-bootstrap/Alert'
-import { useQuery } from '@apollo/react-hooks'
 import styles from './search-status-bar.module.css'
 import Button from 'react-bootstrap/Button'
 import { MdAdd } from 'react-icons/md'
 import { useRouter } from 'next/router'
-import gql from 'graphql-tag'
-import { withApollo } from '../../lib/apollo'
 import pickby from 'lodash.pickby'
 import SearchFilter from './search-filter'
-
-const QUERY = gql`
-    query getModel($modelName: String!) {
-        model(modelName: $modelName) {
-            name
-            workflow {
-                nodes {
-                    id
-                }
-                currentNode {
-                    privileges {
-                        role
-                        privilege
-                    }
-                }
-                currentEdges {
-                    role
-                    label
-                }
-            }
-        }
-    }
-`
 
 const SearchStatusBar = ({
     model,
@@ -46,16 +20,11 @@ const SearchStatusBar = ({
     const router = useRouter()
     const { modelName } = router.query
 
-    const { error, data } = useQuery(QUERY, {
-        variables: { modelName },
-        fetchPolicy: 'cache-and-network',
-    })
-
     const schema = JSON.parse(model?.schema || '{}')
     const layout = JSON.parse(model?.uiSchema || model?.layout || '{}')
 
     const states =
-        data?.model?.workflow?.nodes
+        model.workflow.nodes
             ?.filter(node => node.id !== 'Init' && node.id !== 'Deleted')
             .map(node => node.id)
             .sort() || []
@@ -72,21 +41,16 @@ const SearchStatusBar = ({
         filterFields[field].schema = schema?.properties?.[field]
     })
 
-    const currentPrivileges = data?.model?.workflow
+    const currentPrivileges = model.workflow
         ? user.privilegesForModelAndWorkflowNode(
               modelName,
-              data.model.workflow.currentNode
+              model.workflow.currentNode
           )
         : []
     const currentEdges =
-        data?.model?.workflow?.currentEdges?.filter(edge => {
+        model.workflow.currentEdges?.filter(edge => {
             return user.rolesForModel(modelName).includes(edge.role)
         }) || []
-
-    if (error) {
-        // something went wrong, but there's nowhere to show the error, log it
-        console.error(error)
-    }
 
     if (!totalDocumentCount) {
         return (
@@ -161,4 +125,4 @@ const SearchStatusBar = ({
     )
 }
 
-export default withApollo({ ssr: true })(SearchStatusBar)
+export default SearchStatusBar

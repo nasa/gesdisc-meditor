@@ -1,9 +1,9 @@
-import getDb from '../lib/mongodb'
-import { getModel, getModels, getModelsWithDocumentCount } from './model'
-import alertsModel from './__test__/fixtures/models/alerts.json'
-import collectionMetadataModel from './__test__/fixtures/models/collection-metadata.json'
-import GLDAS_CLM10SUBP_3H_001 from './__test__/fixtures/collection-metadata/GLDAS_CLM10SUBP_3H_001.json'
-import OML1BRVG_003 from './__test__/fixtures/collection-metadata/OML1BRVG_003.json'
+import getDb from '../../lib/mongodb'
+import { getModel, getModels, getModelsWithDocumentCount } from '../service'
+import alertsModel from './fixtures/models/alerts.json'
+import collectionMetadataModel from './fixtures/models/collection-metadata.json'
+import GLDAS_CLM10SUBP_3H_001 from './fixtures/collection-metadata/GLDAS_CLM10SUBP_3H_001.json'
+import OML1BRVG_003 from './fixtures/collection-metadata/OML1BRVG_003.json'
 
 describe('Model', () => {
     let db
@@ -33,30 +33,38 @@ describe('Model', () => {
 
     describe('getModel', () => {
         it('should return the requested models', async () => {
-            expect(await getModel('Alerts')).toEqual(alertsModel)
-            expect(await getModel('Collection Metadata')).toEqual(
-                collectionMetadataModel
+            const [alertsError, alerts] = await getModel('Alerts')
+            const [collectionMetadataError, collectionMetadata] = await getModel(
+                'Collection Metadata'
             )
+
+            expect(alerts.name).toEqual(alertsModel.name)
+            expect(alertsError).toBeNull()
+            expect(collectionMetadata.name).toEqual(collectionMetadataModel.name)
+            expect(collectionMetadataError).toBeNull()
         })
 
-        it('should throw if model not passed in', async () => {
-            await expect(async () =>
-                // @ts-ignore intentionally ignore, we're testing runtime validation here
-                getModel()
-            ).rejects.toThrowErrorMatchingInlineSnapshot(`"Model name is required"`)
+        it('should return an error if model not passed in', async () => {
+            // @ts-expect-error
+            const [error, model] = await getModel()
+
+            expect(model).toBeNull()
+            expect(error).toMatchInlineSnapshot(`[Error: Model name is required]`)
         })
 
-        it('should throw for a model that does not exist', async () => {
-            await expect(async () =>
-                getModel('Foo')
-            ).rejects.toThrowErrorMatchingInlineSnapshot(`"Model not found: Foo"`)
+        it('should return an error for a model that does not exist', async () => {
+            const [error, model] = await getModel('Foo')
+
+            expect(error).toMatchInlineSnapshot(`[Error: Model not found: Foo]`)
+            expect(model).toBeNull()
         })
     })
 
     describe('getModels', () => {
         test('returns latest version of all models', async () => {
-            const models = await getModels()
+            const [error, models] = await getModels()
 
+            expect(error).toBeNull()
             expect(models.length).toBe(2)
             expect(
                 // version retrieved is the latest version
@@ -78,12 +86,13 @@ describe('Model', () => {
             // we want to test with no documents, so clear the collection metadata out
             await db.collection('Collection Metadata').deleteMany({})
 
-            const models = await getModelsWithDocumentCount()
+            const [error, models] = await getModelsWithDocumentCount()
             const alerts = models.find(model => model.name == 'Alerts')
             const collectionMetadata = models.find(
                 model => model.name == 'Collection Metadata'
             )
 
+            expect(error).toBeNull()
             expect(models.length).toBe(2)
             expect(alerts['x-meditor'].count).toEqual(0)
             expect(alerts['x-meditor'].countAll).toEqual(0)
@@ -92,12 +101,13 @@ describe('Model', () => {
         })
 
         test('returns a document count for models with documents', async () => {
-            const models = await getModelsWithDocumentCount()
+            const [error, models] = await getModelsWithDocumentCount()
             const alerts = models.find(model => model.name == 'Alerts')
             const collectionMetadata = models.find(
                 model => model.name == 'Collection Metadata'
             )
 
+            expect(error).toBeNull()
             expect(models.length).toBe(2)
             expect(alerts['x-meditor'].count).toEqual(0)
             expect(alerts['x-meditor'].countAll).toEqual(0)
