@@ -15,7 +15,7 @@ import IconButton from '../components/jsonschemaform/components/IconButton'
 import Loading from '../components/loading'
 import PageTitle from '../components/page-title'
 import { refreshDataInPlace } from '../lib/next'
-import { getModels } from '../models/model'
+import { getModels } from '../models/service'
 import { fetchSeedDb } from '../setup/http'
 import type { UserDuringSetup } from '../setup/types'
 import styles from './installation.module.css'
@@ -355,9 +355,9 @@ const InstallationPage = () => {
 }
 
 export async function getServerSideProps(context: NextPageContext) {
-    const models = await getModels()
+    const [error, models] = await getModels()
 
-    if (models?.length) {
+    if (error || models?.length) {
         // there are already models! redirect back to the dashboard
         return {
             redirect: {

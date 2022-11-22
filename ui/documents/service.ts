@@ -1,14 +1,11 @@
 import Fuse from 'fuse.js'
 import type { User, UserRole } from '../auth/types'
 import type { ErrorData } from '../declarations'
-import { getModel } from '../models/model'
-import type {
-    DocumentsSearchOptions,
-    Workflow,
-    WorkflowEdge,
-    WorkflowNode,
-} from '../models/types'
-import { getWorkflow } from '../models/workflow'
+import { getModel, getModelWithWorkflow } from '../models/service'
+import type { DocumentsSearchOptions } from '../models/types'
+import { ErrorCode, HttpException } from '../utils/errors'
+import { getTargetStatesFromWorkflow, getWorkflow } from '../workflows/service'
+import type { Workflow, WorkflowEdge, WorkflowNode } from '../workflows/types'
 import { getDocumentsDb } from './db'
 import type { Document, DocumentHistory, DocumentPublications } from './types'
 
@@ -22,10 +19,12 @@ export async function getDocument(
         const documentsDb = await getDocumentsDb()
         const userRolesForModel = findAllowedUserRolesForModel(modelName, user?.roles)
 
-        const { titleProperty = 'title', workflow: workflowName } = await getModel(
-            modelName
-        )
-        const workflow = await getWorkflow(workflowName)
+        const [modelError, { titleProperty = 'title', workflow }] =
+            await getModelWithWorkflow(modelName)
+
+        if (modelError) {
+            throw modelError // failed to get the model associated with the document
+        }
 
         const sourceToTargetStateMap = createSourceToTargetStateMap(
             userRolesForModel,
@@ -40,6 +39,13 @@ export async function getDocument(
             titleProperty,
             user?.uid
         )
+
+        if (!document) {
+            throw new HttpException(
+                ErrorCode.NotFound,
+                `Requested document, ${documentTitle}, in model, ${modelName}, was not found`
+            )
+        }
 
         return [null, document]
     } catch (error) {
@@ -56,12 +62,13 @@ export async function getDocumentsForModel(
 ): Promise<ErrorData<Document[]>> {
     try {
         const documentsDb = await getDocumentsDb()
-        // todo: refactor once getModel is a class instance of modelsDb
-        const { titleProperty = '', workflow: workflowName = '' } = await getModel(
-            modelName
-        ) // need the model to get the related workflow and title property
-        // todo: refactor once getWorkflow is a class instance of workflowDb
-        const workflow = await getWorkflow(workflowName)
+
+        const [modelError, { titleProperty = 'title', workflow }] =
+            await getModelWithWorkflow(modelName) // need the model to get the related workflow and title property
+
+        if (modelError) {
+            throw modelError
+        }
 
         let documents = await documentsDb.getDocumentsForModel(
             modelName,
@@ -86,7 +93,10 @@ export async function getDocumentsForModel(
             ...document,
             'x-meditor': {
                 ...document['x-meditor'],
-                targetStates: getTargetStatesFromWorkflow(document, workflow), // populate document with states it can transition into
+                targetStates: getTargetStatesFromWorkflow(
+                    document['x-meditor'].state,
+                    workflow
+                ), // populate document with states it can transition into
             },
         }))
 
@@ -104,8 +114,11 @@ export async function getDocumentHistory(
 ): Promise<ErrorData<DocumentHistory[]>> {
     try {
         const documentsDb = await getDocumentsDb()
-        // todo: refactor once getModel is a class instance of modelsDb
-        const { titleProperty = '' } = await getModel(modelName)
+        const [modelError, { titleProperty = '' }] = await getModel(modelName)
+
+        if (modelError) {
+            throw modelError
+        }
 
         const historyItems = await documentsDb.getDocumentHistory(
             documentTitle,
@@ -128,8 +141,11 @@ export async function getDocumentHistoryByVersion(
 ): Promise<ErrorData<DocumentHistory>> {
     try {
         const documentsDb = await getDocumentsDb()
-        // todo: refactor once getModel is a class instance of modelsDb
-        const { titleProperty = '' } = await getModel(modelName)
+        const [modelError, { titleProperty = '' }] = await getModel(modelName)
+
+        if (modelError) {
+            throw modelError
+        }
 
         const historyItem = await documentsDb.getDocumentHistoryByVersion(
             documentTitle,
@@ -152,8 +168,11 @@ export async function getDocumentPublications(
 ): Promise<ErrorData<DocumentPublications[]>> {
     try {
         const documentsDb = await getDocumentsDb()
-        // todo: refactor once getModel is a class instance of modelsDb
-        const { titleProperty = '' } = await getModel(modelName)
+        const [modelError, { titleProperty = '' }] = await getModel(modelName)
+
+        if (modelError) {
+            throw modelError
+        }
 
         const publications = await documentsDb.getDocumentPublications(
             documentTitle,
@@ -167,20 +186,6 @@ export async function getDocumentPublications(
 
         return [error, null]
     }
-}
-
-/**
- * the workflow contains a list of nodes the document can be in
- * given a document's current state (or the current node they are on) the document can transition to a subset of those workflow nodes
- *
- * example:
- * given a simple workflow: Draft -> Under Review -> Approved -> Published
- * if a document is in state "Under Review", targetStates would be ["Approved"]
- */
-export function getTargetStatesFromWorkflow(document: Document, workflow: Workflow) {
-    return workflow.edges
-        .filter(edge => edge.source == document['x-meditor'].state)
-        .map(edge => edge.target)
 }
 
 /**

@@ -7,8 +7,13 @@ import SearchBar from '../../components/search/search-bar'
 import SearchList from '../../components/search/search-list'
 import withAuthentication from '../../components/with-authentication'
 import { getDocumentsForModel } from '../../documents/service'
-import { getModel, getModels } from '../../models/model'
-import type { Document, DocumentsSearchOptions, Model } from '../../models/types'
+import type { Document } from '../../documents/types'
+import { getModels, getModelWithWorkflow } from '../../models/service'
+import type {
+    DocumentsSearchOptions,
+    Model,
+    ModelWithWorkflow,
+} from '../../models/types'
 import type { User } from '../../service/api'
 
 function getSearchOptionsFromParams(query: ParsedUrlQuery): DocumentsSearchOptions {
@@ -32,7 +37,7 @@ function getParamsFromSearchOptions(
 
 interface ModelPageProps {
     user: User
-    model: Model
+    model: ModelWithWorkflow
     allModels: Model[]
     documents: Document[]
 }
@@ -146,8 +151,10 @@ const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
 
 export async function getServerSideProps(ctx: NextPageContext) {
     const modelName = ctx.query.modelName.toString()
-    const models = await getModels()
-    const model = await getModel(modelName)
+
+    //! TODO: handle getModels or getModel errors (show the user an error message?)
+    const [_modelsError, allModels] = await getModels()
+    const [_modelError, model] = await getModelWithWorkflow(modelName)
 
     const searchOptions = getSearchOptionsFromParams(ctx.query)
 
@@ -157,10 +164,9 @@ export async function getServerSideProps(ctx: NextPageContext) {
         searchOptions
     )
 
-    // todo: both stringify => parse should be moved to concern of db (see comments, documents)
     const props = {
-        allModels: JSON.parse(JSON.stringify(models)),
-        model: JSON.parse(JSON.stringify(model)),
+        allModels,
+        model,
         documents: !!documentsError ? null : documents,
     }
 

@@ -1,4 +1,5 @@
 import type { DocumentMetadata } from '../documents/types'
+import type { Workflow } from '../workflows/types'
 
 export interface DocumentsSearchOptions {
     searchTerm?: string
@@ -24,6 +25,10 @@ export interface Model {
     workflow?: string
 }
 
+export interface ModelWithWorkflow extends Omit<Model, 'workflow'> {
+    workflow: Workflow
+}
+
 export interface ModelIcon {
     name: string
     color: string
@@ -32,39 +37,4 @@ export interface ModelIcon {
 export interface ModelMetadata extends DocumentMetadata {
     count?: number
     countAll?: number
-}
-
-export interface Workflow {
-    _id?: string
-    name: string
-    roles: string[]
-    nodes: WorkflowNode[]
-    edges: WorkflowEdge[]
-    'x-meditor': DocumentMetadata
-}
-
-export interface WorkflowNode {
-    id: string
-    privileges?: WorkflowPrivilege[]
-    readyForUse?: boolean
-}
-
-export interface WorkflowPrivilege {
-    role: string
-    privilege: string[]
-}
-
-export interface WorkflowEdge {
-    role: string
-    source: string
-    target: string
-    label: string
-    notify?: boolean
-    notifyRoles?: string
-}
-
-export interface WorkflowState {
-    source: string
-    target: string
-    modifiedOn: string | null
 }

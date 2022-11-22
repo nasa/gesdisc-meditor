@@ -4,7 +4,7 @@ import Button from 'react-bootstrap/Button'
 import ModelIcon from '../components/model-icon'
 import PageTitle from '../components/page-title'
 import UnderMaintenance from '../components/under-maintenance'
-import { getModelsWithDocumentCount } from '../models/model'
+import { getModelsWithDocumentCount } from '../models/service'
 import type { ModelCategory } from '../models/types'
 import { sortModels } from '../utils/sort'
 import styles from './dashboard.module.css'
@@ -54,7 +54,9 @@ const DashboardPage = ({ modelCategories }: DashboardPageProps) => {
 }
 
 export async function getServerSideProps(context: NextPageContext) {
-    const models = (await getModelsWithDocumentCount()).sort(sortModels)
+    // TODO: handle error when retrieving models with document count, show user an error message?
+    const [_error, modelsWithDocumentCount] = await getModelsWithDocumentCount()
+    const models = (modelsWithDocumentCount || []).sort(sortModels)
 
     if (!models.length) {
         return {

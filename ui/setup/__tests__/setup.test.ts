@@ -1,5 +1,5 @@
 import { getDocumentsForModel } from '../../documents/service'
-import { getModels } from '../../models/model'
+import { getModels } from '../../models/service'
 import { setUpNewInstallation } from '../service'
 
 const mockUser = { name: 'Test User', uid: 'testuser' }
@@ -8,7 +8,7 @@ let lastModified: string
 //* these tests carry state forward
 describe('Setup', () => {
     test('DB is empty before setup', async () => {
-        const models = await getModels()
+        const [error, models] = await getModels()
 
         expect(models.length).toBe(0)
     })
@@ -16,7 +16,7 @@ describe('Setup', () => {
     test('DB is populated after setup', async () => {
         await setUpNewInstallation([mockUser])
 
-        const models = await getModels()
+        const [modelsError, models] = await getModels()
 
         expect(models.length).toBe(4)
 
@@ -28,7 +28,7 @@ describe('Setup', () => {
     })
 
     test('DB has user', async () => {
-        const models = await getModels()
+        const [modelsError, models] = await getModels()
         const [error, users] = await getDocumentsForModel('Users')
         const [user] = users
 

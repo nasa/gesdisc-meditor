@@ -1,43 +1,69 @@
 import type { NextApiResponse } from 'next'
+import type { APIError } from '../declarations'
+
+export enum ErrorCode {
+    NotFound = 'NotFound',
+    BadRequest = 'BadRequest',
+    ValidationError = 'ValidationError',
+    MethodNotAllowed = 'MethodNotAllowed',
+    Unauthorized = 'Unauthorized',
+    InternalServerError = 'InternalServerError',
+}
+
+export interface ErrorCause {
+    status: number
+    code: ErrorCode
+}
 
 export class HttpException extends Error {
-    status: number
+    cause: ErrorCause
 
-    constructor(status: number, message: string) {
+    constructor(code: ErrorCode, message: string) {
         super(message)
 
-        this.status = status
+        this.cause = this.mapCodeToCause(code)
     }
 
     toJson() {
-        return {
-            status: this.status,
+        return JSON.stringify({
+            status: this.cause.status,
             error: this.message,
+        })
+    }
+
+    private mapCodeToCause(code: ErrorCode): ErrorCause {
+        let status
+
+        switch (code) {
+            case ErrorCode.NotFound:
+                status = 404
+                break
+
+            case ErrorCode.BadRequest:
+            case ErrorCode.ValidationError:
+                status = 400
+                break
+
+            case ErrorCode.MethodNotAllowed:
+                status = 405
+                break
+
+            case ErrorCode.Unauthorized:
+                status = 401
+                break
+
+            case ErrorCode.InternalServerError:
+                status = 500
+                break
+
+            default:
+                status = 500 // unknown error
         }
-    }
-}
 
-export class BadRequestException extends HttpException {
-    constructor(message: string = 'Bad Request') {
-        super(400, message)
-    }
-}
-
-export class NotFoundException extends HttpException {
-    constructor(message: string = 'Not Found') {
-        super(404, message)
-    }
-}
-
-export class MethodNotAllowedException extends HttpException {
-    constructor(message: string = 'Method Not Allowed') {
-        super(405, message)
-    }
-}
-
-export class UnauthorizedException extends HttpException {
-    constructor(message: string = 'Unauthorized') {
-        super(401, message)
+        return {
+            status,
+            code,
+        }
     }
 }
 
@@ -45,15 +71,10 @@ export class UnauthorizedException extends HttpException {
  * converts errors to a JSON api response
  * To prevent leaking implementation details to an end-user, if the error isn't an instance of HttpException, only return a generic error.
  */
-export function apiError(response: NextApiResponse, error: Error | HttpException) {
-    if (error instanceof HttpException) {
-        response.status(error.status).json(error.toJson())
-    } else {
-        console.error(error)
+export function apiError(error: Error | HttpException, response: NextApiResponse) {
+    const safeError = error.cause
+        ? (error as HttpException)
+        : new HttpException(ErrorCode.InternalServerError, 'Internal Server Error')
 
-        response.status(500).json({
-            status: 500,
-            error: 'Internal Server Error',
-        })
-    }
+    return response.status(safeError.cause.status).json(safeError.toJson())
 }

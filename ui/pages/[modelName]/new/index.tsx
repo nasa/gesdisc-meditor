@@ -1,10 +1,8 @@
-import { useQuery } from '@apollo/react-hooks'
 import format from 'date-fns/format'
-import gql from 'graphql-tag'
 import omitBy from 'lodash.omitby'
+import type { NextPageContext } from 'next'
 import { useRouter } from 'next/router'
 import { useContext, useEffect, useState } from 'react'
-import Alert from 'react-bootstrap/Alert'
 import Spinner from 'react-bootstrap/Spinner'
 import { AiOutlineCheck } from 'react-icons/ai'
 import { AppContext } from '../../../components/app-store'
@@ -12,11 +10,8 @@ import { Breadcrumb, Breadcrumbs } from '../../../components/breadcrumbs'
 import DocumentHeader from '../../../components/document/document-header'
 import Form from '../../../components/document/form'
 import FormActions from '../../../components/document/form-actions'
-import Loading from '../../../components/loading'
 import PageTitle from '../../../components/page-title'
-import RenderResponse from '../../../components/render-response'
 import withAuthentication from '../../../components/with-authentication'
-import { withApollo } from '../../../lib/apollo'
 import {
     getNewUnsavedDocument,
     removeUnsavedDocumentFromLS,
@@ -24,34 +19,16 @@ import {
     UNTITLED_DOCUMENT_TITLE,
     updateUnsavedDocumentInLS,
 } from '../../../lib/unsaved-changes'
+import { getModelWithWorkflow } from '../../../models/service'
 import mEditorApi from '../../../service'
+import type { ModelWithWorkflow } from '../../../models/types'
 
-const MODEL_QUERY = gql`
-    query getModel($modelName: String!) {
-        model(modelName: $modelName) {
-            name
-            description
-            icon {
-                name
-                color
-            }
-            schema
-            layout
-            titleProperty
-            workflow {
-                currentNode {
-                    privileges {
-                        role
-                        privilege
-                    }
-                    allowValidationErrors
-                }
-            }
-        }
-    }
-`
+interface NewDocumentPageProps {
+    user: any
+    model: ModelWithWorkflow
+}
 
-const NewDocumentPage = ({ user }) => {
+const NewDocumentPage = ({ user, model }: NewDocumentPageProps) => {
     const router = useRouter()
 
     const params = router.query
@@ -72,14 +49,10 @@ const NewDocumentPage = ({ user }) => {
     const [form, setForm] = useState(null)
     const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
 
-    const { loading, error, data } = useQuery(MODEL_QUERY, {
-        variables: { modelName },
-    })
-
-    const currentPrivileges = data?.model?.workflow
+    const currentPrivileges = model.workflow
         ? user.privilegesForModelAndWorkflowNode(
               modelName,
-              data.model.workflow.currentNode
+              model.workflow.currentNode
           )
         : []
 
@@ -105,7 +78,7 @@ const NewDocumentPage = ({ user }) => {
     }, [localChanges])
 
     function redirectToDocumentEdit(document) {
-        let documentName = encodeURIComponent(document[data.model.titleProperty])
+        let documentName = encodeURIComponent(document[model.titleProperty])
         router.push(
             '/[modelName]/[documentTitle]',
             `/${encodeURIComponent(modelName)}/${documentName}`
@@ -133,7 +106,7 @@ const NewDocumentPage = ({ user }) => {
     }
 
     function onChange(formData: any) {
-        let titleProperty = data?.model?.titleProperty
+        let titleProperty = model.titleProperty
         let title =
             titleProperty && formData[titleProperty]
                 ? formData[titleProperty]
@@ -173,77 +146,72 @@ const NewDocumentPage = ({ user }) => {
                 <Breadcrumb title="New" />
             </Breadcrumbs>
 
-            <DocumentHeader model={data?.model} togglePanelOpen toggleJsonDiffer />
+            <DocumentHeader model={model} togglePanelOpen toggleJsonDiffer />
 
-            <RenderResponse
-                loading={loading}
-                error={error}
-                loadingComponent={<Loading text={`Loading...`} />}
-                errorComponent={
-                    <Alert variant="danger">
-                        <p>Failed to load the page.</p>
-                        <p>
-                            This is most likely temporary, please wait a bit and
-                            refresh the page.
-                        </p>
-                        <p>
-                            If the error continues to occur, please open a support
-                            ticket.
-                        </p>
-                    </Alert>
+            <Form
+                model={model}
+                document={localChanges?.formData}
+                onUpdateForm={setForm}
+                onChange={onChange}
+                allowValidationErrors={
+                    model.workflow.currentNode.allowValidationErrors
                 }
-            >
-                <Form
-                    model={data?.model}
-                    document={localChanges?.formData}
-                    onUpdateForm={setForm}
-                    onChange={onChange}
+            />
+
+            {form?.state && (
+                <FormActions
+                    privileges={currentPrivileges}
+                    form={form}
+                    formData={localChanges?.formData}
+                    onSave={createDocument}
+                    onDelete={hasFormData ? deleteUnsavedDocument : null}
+                    CustomActions={
+                        <span className="ml-5 text-secondary">
+                            {autosavingTimer ? (
+                                <>
+                                    <Spinner
+                                        animation="border"
+                                        variant="secondary"
+                                        role="status"
+                                        as="span"
+                                        size="sm"
+                                        className="mr-2"
+                                    />
+                                    Saving your changes...
+                                </>
+                            ) : (
+                                <>
+                                    <AiOutlineCheck className="mr-2" />
+                                    Saved locally on{' '}
+                                    {format(
+                                        new Date(localChanges.modifiedOn),
+                                        'M/d/yy, h:mm aaa'
+                                    )}
+                                </>
+                            )}
+                        </span>
+                    }
                     allowValidationErrors={
-                        data?.model.workflow.currentNode.allowValidationErrors
+                        model.workflow.currentNode.allowValidationErrors
                     }
                 />
-
-                {form?.state && (
-                    <FormActions
-                        privileges={currentPrivileges}
-                        form={form}
-                        formData={localChanges?.formData}
-                        onSave={createDocument}
-                        onDelete={hasFormData ? deleteUnsavedDocument : null}
-                        CustomActions={
-                            <span className="ml-5 text-secondary">
-                                {autosavingTimer ? (
-                                    <>
-                                        <Spinner
-                                            animation="border"
-                                            variant="secondary"
-                                            role="status"
-                                            as="span"
-                                            size="sm"
-                                            className="mr-2"
-                                        />
-                                        Saving your changes...
-                                    </>
-                                ) : (
-                                    <>
-                                        <AiOutlineCheck className="mr-2" />
-                                        Saved locally on{' '}
-                                        {format(
-                                            new Date(localChanges.modifiedOn),
-                                            'M/d/yy, h:mm aaa'
-                                        )}
-                                    </>
-                                )}
-                            </span>
-                        }
-                        allowValidationErrors={
-                            data?.model.workflow.currentNode.allowValidationErrors
-                        }
-                    />
-                )}
-            </RenderResponse>
+            )}
         </div>
     )
 }
 
-export default withApollo({ ssr: true })(withAuthentication()(NewDocumentPage))
+export async function getServerSideProps(ctx: NextPageContext) {
+    const { modelName } = ctx.query
+
+    const [_modelError, model] = await getModelWithWorkflow(modelName.toString())
+
+    //! TODO: handle a modelError
+
+    return {
+        props: {
+            model,
+        },
+    }
+}
+
+export default withAuthentication()(NewDocumentPage)

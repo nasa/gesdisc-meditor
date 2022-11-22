@@ -1,5 +1,6 @@
 import type { APIError, ErrorData } from '../declarations'
-import type { DocumentPublications } from './types'
+import { ErrorCode, HttpException } from '../utils/errors'
+import type { DocumentPublications, Document } from './types'
 
 async function fetchDocument(
     documentTitle: string,
@@ -16,9 +17,9 @@ async function fetchDocument(
         )
 
         if (!response.ok) {
-            const apiError: APIError = await response.json()
+            const { status, error }: APIError = await response.json()
 
-            return [apiError, null]
+            throw new HttpException(ErrorCode.BadRequest, error) // TODO: figure out proper error code using the status
         }
 
         const document = await response.json()
@@ -41,9 +42,9 @@ async function fetchDocumentPublications(
         )
 
         if (!response.ok) {
-            const apiError: APIError = await response.json()
+            const { status, error }: APIError = await response.json()
 
-            return [apiError, null]
+            throw new HttpException(ErrorCode.BadRequest, error) // TODO: figure out proper error code using the status
         }
 
         const publications = await response.json()

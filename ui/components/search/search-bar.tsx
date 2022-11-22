@@ -8,7 +8,7 @@ import ModelIcon from '../model-icon'
 import { MdSearch } from 'react-icons/md'
 import { useInput } from '../../lib/use-input.hook'
 import { useDebounce } from '../../lib/use-debounce.hook'
-import type { Model } from '../../models/types'
+import type { Model, ModelWithWorkflow } from '../../models/types'
 
 /**
  * returns an option to be rendered in the Model list
@@ -23,7 +23,7 @@ const formatOptionLabel = model => (
 
 type SearchBarProps = {
     allModels: Model[]
-    model: Model
+    model: ModelWithWorkflow
     modelName: string
     initialInput: string
     onInput?: Function

@@ -1,6 +1,7 @@
 import { JSX as LocalJSX } from '@gesdisc/meditor-components/loader'
 import type { CKEditor } from 'ckeditor4-react'
 import { DetailedHTMLProps, HTMLAttributes } from 'react'
+import type { HttpException } from './utils/errors'
 
 declare global {
     export namespace JSX {
@@ -15,7 +16,7 @@ export type APIError = {
     error: string
 }
 
-export type ErrorData<T> = [Error | APIError | null, T | null]
+export type ErrorData<T> = [Error | HttpException | null, T | null]
 
 type gReactProps<T> = {
     [P in keyof T]?: DetailedHTMLProps<HTMLAttributes<T[P]>, T[P]>
