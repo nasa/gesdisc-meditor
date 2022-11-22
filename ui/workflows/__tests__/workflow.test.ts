@@ -10,7 +10,7 @@ import {
 import editPublishCmrWorkflow from './__fixtures__/edit-publish-cmr.json'
 import editPublishWorkflow from './__fixtures__/edit-publish.json'
 import modifyReviewPublishWorkflow from './__fixtures__/modify-review-publish.json'
-import collectionMetadataModel from '../../models/__test__/fixtures/models/collection-metadata.json'
+import collectionMetadataModel from '../../models/__tests__/fixtures/models/collection-metadata.json'
 
 describe('Workflows', () => {
     let db: Db
