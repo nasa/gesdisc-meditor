@@ -10,6 +10,7 @@ import faqsModel from '../../models/__tests__/fixtures/models/faqs.json'
 import editPublishCmrWorkflow from '../../workflows/__tests__/__fixtures__/edit-publish-cmr.json'
 import editPublishWorkflow from '../../workflows/__tests__/__fixtures__/edit-publish.json'
 import modifyReviewPublishWorkflow from '../../workflows/__tests__/__fixtures__/modify-review-publish.json'
+import duplicateEdgesWorkflow from './__fixtures__/duplicate-edges-workflow.json'
 import { adaptDocumentToLegacyDocument } from '../adapters'
 import {
     changeDocumentState,
@@ -45,6 +46,7 @@ describe('Documents', () => {
         await db.collection('Workflows').insertOne(editPublishCmrWorkflow)
         await db.collection('Workflows').insertOne(editPublishWorkflow)
         await db.collection('Workflows').insertOne(modifyReviewPublishWorkflow)
+        await db.collection('Workflows').insertOne(duplicateEdgesWorkflow)
     })
 
     afterEach(async () => {
@@ -52,7 +54,6 @@ describe('Documents', () => {
         await db.collection('Collection Metadata').deleteMany({})
         await db.collection('Alerts').deleteMany({})
         await db.collection('FAQs').deleteMany({})
-        await db.collection('Workflows').deleteMany({})
         await db.collection('Workflows').deleteMany({})
     })
 
@@ -672,6 +673,28 @@ describe('Documents', () => {
                 `[Error: User does not have the permissions to transition to state Approved.]`
             )
             expect(document).toBeNull()
+        })
+
+        it('should return an error if the workflow has duplicate edges', async () => {
+            // reset FAQs to have an invalid workflow
+            await db.collection('Models').deleteMany({ name: faqsModel.name })
+            await db.collection('Models').insertOne({
+                ...faqsModel,
+                workflow: duplicateEdgesWorkflow.name,
+            })
+
+            // because there are multiple edges to get to "Under Review", we should get an error here
+            const [error, document] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs',
+                'Under Review',
+                user_FAQAuthorAndReviewer
+            )
+
+            expect(document).toBeNull()
+            expect(error).toMatchInlineSnapshot(
+                `[Error: Workflow, Duplicate Edges, is misconfigured! There are duplicate edges from 'Draft' to 'Under Review'.]`
+            )
         })
     })
 })

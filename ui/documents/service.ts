@@ -251,6 +251,19 @@ export async function changeDocumentState(
             )
         }
 
+        const currentEdge = model.workflow.edges.filter(
+            edge =>
+                edge.source === document['x-meditor'].state &&
+                edge.target === newState
+        )
+
+        if (currentEdge.length !== 1) {
+            throw new HttpException(
+                ErrorCode.InternalServerError,
+                `Workflow, ${model.workflow.name}, is misconfigured! There are duplicate edges from '${document['x-meditor'].state}' to '${newState}'.`
+            )
+        }
+
         const documentsDb = await getDocumentsDb()
 
         // create the new document state
@@ -266,6 +279,7 @@ export async function changeDocumentState(
 
         if (!ok) {
             // safety check, not sure how this would actually happen, but just in case it does, this stops the user from thinking the update went through
+            //? why? because the underlying DB call would only fail if the document didn't exist. We just queried for it above and we never actually delete documents
             throw new HttpException(
                 ErrorCode.InternalServerError,
                 'Failed to change document state'
