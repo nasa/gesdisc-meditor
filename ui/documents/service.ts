@@ -188,6 +188,19 @@ export async function getDocumentPublications(
     }
 }
 
+export async function putDocument(
+    documentTitle: string,
+    modelName: string
+): Promise<ErrorData<null>> {
+    try {
+        return [null, null]
+    } catch (error) {
+        console.error(error)
+
+        return [error, null]
+    }
+}
+
 /**
  * The workflow edges describe all possible transitions for a workflow. Given an array of roles, return as a map the workflow edges matching those roles.
  */

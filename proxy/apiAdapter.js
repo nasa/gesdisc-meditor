@@ -140,6 +140,55 @@ async function adapt(request) {
             break;
         }
 
+        case BASE_PATH + 'putDocument': {
+            try {
+                // ! I think forwarding this to the correct RESTful endpoint may require several API calls:
+                // ! I need the modelName (on x-meditor), the title property (to get the title), and the document title.
+                //? how can I parse the incoming request's formData?
+                const formDataRequestUrl = `${BASE_PATH}parse/form-data`;
+                const formDataResponse = await request.subrequest(
+                    formDataRequestUrl,
+                    {
+                        method,
+                        body: request.requestBuffer,
+                    }
+                );
+
+                ngx.log(ngx.ERR, formDataResponse.responseText);
+                // const incomingRequest = request.responseText;
+                // const modelSubrequestUrl = `${BASE_PATH}models/${encodeURIComponent(
+                //     args.model
+                // )}`;
+                // const modelResponse = await request.subrequest(
+                //     modelSubrequestUrl,
+                //     { method: 'GET' }
+                // );
+                //! this doesn't work...
+                // const modelJson = await modelResponse.json();
+
+                // const subrequestUrl = `${BASE_PATH}/putDocument`;
+                //
+                // const response = await request.subrequest(subrequestUrl, {
+                //     method,
+                // });
+                //
+                // passThroughHeaders(request, response);
+                //
+                // request.return(response.status, response.responseBody);
+                request.return(200, 'okay');
+            } catch (error) {
+                ngx.log(ngx.ERR, error);
+
+                //* Do not expose the error to the end-user.
+                request.return(
+                    500,
+                    JSON.stringify({ message: 'Internal Server Error' })
+                );
+            }
+
+            break;
+        }
+
         default: {
             ngx.log(
                 ngx.ERR,

@@ -114,6 +114,8 @@ const EditDocumentPage = ({
     }
 
     async function saveDocument(document) {
+        console.log('*** saveDocument ***')
+        console.log(document)
         delete document._id
         delete document.banTransitions
         document['x-meditor'] = {}
