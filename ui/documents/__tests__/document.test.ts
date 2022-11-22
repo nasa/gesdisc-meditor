@@ -526,7 +526,7 @@ describe('Documents', () => {
     })
 
     describe('changeDocumentState', () => {
-        const user = {
+        const user_noFAQRole = {
             id: 'a-db-id',
             uid: 'johndoe',
             created: 1052283628409,
@@ -546,6 +546,14 @@ describe('Documents', () => {
             name: 'John Doe',
         }
 
+        const user_FAQAuthorAndReviewer = {
+            ...user_noFAQRole,
+            roles: [].concat(user_noFAQRole.roles, [
+                { model: 'FAQs', role: 'Author' },
+                { model: 'FAQs', role: 'Reviewer' },
+            ]),
+        }
+
         beforeEach(async () => {
             await db.collection('FAQs').insertOne(HowDoIFAQ)
             await db.collection('FAQs').insertOne(WhereDoIFAQ)
@@ -560,7 +568,7 @@ describe('Documents', () => {
                 'Bacon',
                 'Eggs',
                 'Foo',
-                user
+                user_noFAQRole
             )
             expect(error).toMatchInlineSnapshot(`[Error: Model not found: Eggs]`)
             expect(document).toBeNull()
@@ -571,7 +579,7 @@ describe('Documents', () => {
                 'Bacon',
                 'FAQs',
                 'Foo',
-                user
+                user_noFAQRole
             )
             expect(error).toMatchInlineSnapshot(
                 `[Error: Requested document, Bacon, in model, FAQs, was not found]`
@@ -594,7 +602,7 @@ describe('Documents', () => {
                 HowDoIFAQ.title,
                 'FAQs',
                 'Draft',
-                user
+                user_noFAQRole
             )
             expect(error).toMatchInlineSnapshot(
                 `[Error: Cannot transition to state [Draft] as the document is in this state already]`
@@ -607,12 +615,66 @@ describe('Documents', () => {
                 HowDoIFAQ.title,
                 'FAQs',
                 'Foo',
-                user
+                user_noFAQRole
             )
             expect(error).toMatchInlineSnapshot(
                 `[Error: Cannot transition to state [Foo] as it is not a valid state in the workflow]`
             )
             expect(document).toBeNull()
         })
+
+        it('returns an error if the user does not have the appropriate role', async () => {
+            const [error, document] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs',
+                'Under Review',
+                user_noFAQRole
+            )
+            expect(error).toMatchInlineSnapshot(
+                `[Error: User does not have the permissions to transition to state Under Review.]`
+            )
+            expect(document).toBeNull()
+        })
+
+        it('should transition Draft -> Under Review if user has Author role', async () => {
+            const [error, document] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs',
+                'Under Review',
+                user_FAQAuthorAndReviewer
+            )
+            expect(error).toBeNull()
+            expect(document).toHaveProperty('_id')
+            expect(document['x-meditor'].state).toEqual('Under Review')
+        })
+
+        /*
+        it('should return an error if user tries to Approve a document that same user submitted for review (no consecutive transitions)', async () => {
+            // first submit for review
+            const [reviewError, reviewDocument] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs',
+                'Under Review',
+                user_FAQAuthorAndReviewer
+            )
+
+            expect(reviewError).toBeNull()
+            expect(reviewDocument).toBeNull()
+
+            // then try to approve it
+            const [error, document] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs',
+                'Approved',
+                user_FAQAuthorAndReviewer
+            )
+
+            console.log(error)
+            console.log(document)
+
+            expect(error).not.toBeNull()
+            expect(document).toBeNull()
+        })
+        */
     })
 })

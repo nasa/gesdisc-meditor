@@ -199,6 +199,10 @@ export async function changeDocumentState(
             throw new HttpException(ErrorCode.BadRequest, 'No state provided')
         }
 
+        if (!user) {
+            throw new HttpException(ErrorCode.Unauthorized, 'User is not logged in')
+        }
+
         const [modelError, model] = await getModelWithWorkflow(modelName)
 
         if (modelError) {
@@ -228,6 +232,12 @@ export async function changeDocumentState(
             model.workflow
         )
 
+        console.log(
+            'get target states from workflow ',
+            document['x-meditor'].state,
+            targetStates
+        )
+
         if (targetStates.indexOf(newState) < 0) {
             throw new HttpException(
                 ErrorCode.BadRequest,
@@ -235,7 +245,29 @@ export async function changeDocumentState(
             )
         }
 
-        return [null, document]
+        if (document['x-meditor'].targetStates.indexOf(newState) < 0) {
+            throw new HttpException(
+                ErrorCode.BadRequest,
+                `User does not have the permissions to transition to state ${newState}.`
+            )
+        }
+
+        const documentsDb = await getDocumentsDb()
+
+        const updatedDocument = await documentsDb.addDocumentStateChange(
+            document._id.toString(),
+            modelName,
+            {
+                source: document['x-meditor'].state,
+                target: newState,
+                modifiedOn: new Date().toISOString(),
+                modifiedBy: user.uid,
+            }
+        )
+
+        console.log('updated document ', updatedDocument)
+
+        return [null, updatedDocument]
     } catch (error) {
         return [error, null]
     }

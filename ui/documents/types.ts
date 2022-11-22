@@ -47,7 +47,7 @@ export type DocumentPublications = {
     url?: string
 }
 
-type DocumentState = {
+export type DocumentState = {
     source: string
     target: string
     modifiedOn: string | null

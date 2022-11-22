@@ -1,12 +1,13 @@
-import type { Db } from 'mongodb'
+import { Db, ObjectID } from 'mongodb'
 import type { User } from '../auth/types'
+import type { ErrorData } from '../declarations'
 import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
 import type { DocumentsSearchOptions } from '../models/types'
 import { ErrorCode, HttpException } from '../utils/errors'
 import { convertLuceneQueryToMongo } from '../utils/search'
 import type { WorkflowEdge } from '../workflows/types'
 import { getDocumentInputSchema } from './schema'
-import type { DocumentHistory, DocumentPublications } from './types'
+import type { DocumentHistory, DocumentPublications, DocumentState } from './types'
 
 class DocumentsDb {
     #UNSPECIFIED_STATE_NAME = 'Unspecified'
@@ -313,6 +314,32 @@ class DocumentsDb {
             .toArray()
 
         return documentCount?.[0]?.count || 0
+    }
+
+    /**
+     * documents have an `x-meditor.states` property, containing the states the document has transitioned through
+     * this method provides the mechanism to add a new state to the document
+     */
+    async addDocumentStateChange(
+        documentId: string,
+        modelName: string,
+        newState: DocumentState
+    ) {
+        const {
+            result: { ok },
+        } = await this.#db.collection(modelName).updateOne(
+            {
+                // updating an existing document, use the _id instead of the documentTitle, this ensures no race conditions where two users are creating/updating simultaneously
+                _id: new ObjectID(documentId),
+            },
+            {
+                $push: {
+                    'x-meditor.states': newState,
+                },
+            }
+        )
+
+        return {}
     }
 
     private addStatesToDocumentQuery() {
