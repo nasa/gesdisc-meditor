@@ -7,7 +7,12 @@ import { ErrorCode, HttpException } from '../utils/errors'
 import { convertLuceneQueryToMongo } from '../utils/search'
 import type { WorkflowEdge } from '../workflows/types'
 import { getDocumentInputSchema } from './schema'
-import type { DocumentHistory, DocumentPublications, DocumentState } from './types'
+import type {
+    Document,
+    DocumentHistory,
+    DocumentPublications,
+    DocumentState,
+} from './types'
 
 class DocumentsDb {
     #UNSPECIFIED_STATE_NAME = 'Unspecified'
@@ -320,17 +325,13 @@ class DocumentsDb {
      * documents have an `x-meditor.states` property, containing the states the document has transitioned through
      * this method provides the mechanism to add a new state to the document
      */
-    async addDocumentStateChange(
-        documentId: string,
-        modelName: string,
-        newState: DocumentState
-    ) {
+    async addDocumentStateChange(document: Document, newState: DocumentState) {
         const {
             result: { ok },
-        } = await this.#db.collection(modelName).updateOne(
+        } = await this.#db.collection(document['x-meditor'].model).updateOne(
             {
                 // updating an existing document, use the _id instead of the documentTitle, this ensures no race conditions where two users are creating/updating simultaneously
-                _id: new ObjectID(documentId),
+                _id: new ObjectID(document._id),
             },
             {
                 $push: {
@@ -339,7 +340,7 @@ class DocumentsDb {
             }
         )
 
-        return {}
+        return Boolean(ok)
     }
 
     private addStatesToDocumentQuery() {

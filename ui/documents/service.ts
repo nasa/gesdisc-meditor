@@ -7,7 +7,12 @@ import { ErrorCode, HttpException } from '../utils/errors'
 import { getTargetStatesFromWorkflow, getWorkflow } from '../workflows/service'
 import type { Workflow, WorkflowEdge, WorkflowNode } from '../workflows/types'
 import { getDocumentsDb } from './db'
-import type { Document, DocumentHistory, DocumentPublications } from './types'
+import type {
+    Document,
+    DocumentHistory,
+    DocumentPublications,
+    DocumentState,
+} from './types'
 
 export async function getDocument(
     documentTitle: string,
@@ -232,12 +237,6 @@ export async function changeDocumentState(
             model.workflow
         )
 
-        console.log(
-            'get target states from workflow ',
-            document['x-meditor'].state,
-            targetStates
-        )
-
         if (targetStates.indexOf(newState) < 0) {
             throw new HttpException(
                 ErrorCode.BadRequest,
@@ -254,18 +253,34 @@ export async function changeDocumentState(
 
         const documentsDb = await getDocumentsDb()
 
-        const updatedDocument = await documentsDb.addDocumentStateChange(
-            document._id.toString(),
+        // create the new document state
+        const state: DocumentState = {
+            source: document['x-meditor'].state,
+            target: newState,
+            modifiedOn: new Date().toISOString(),
+            modifiedBy: user.uid,
+        }
+
+        // update the documents state in the database
+        const ok = await documentsDb.addDocumentStateChange(document, state)
+
+        if (!ok) {
+            // safety check, not sure how this would actually happen, but just in case it does, this stops the user from thinking the update went through
+            throw new HttpException(
+                ErrorCode.InternalServerError,
+                'Failed to change document state'
+            )
+        }
+
+        const [updatedDocumentError, updatedDocument] = await getDocument(
+            documentTitle,
             modelName,
-            {
-                source: document['x-meditor'].state,
-                target: newState,
-                modifiedOn: new Date().toISOString(),
-                modifiedBy: user.uid,
-            }
+            user
         )
 
-        console.log('updated document ', updatedDocument)
+        if (updatedDocumentError) {
+            throw updatedDocumentError
+        }
 
         return [null, updatedDocument]
     } catch (error) {

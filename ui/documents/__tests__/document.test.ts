@@ -1,12 +1,12 @@
 import type { Db } from 'mongodb'
 import getDb from '../../lib/mongodb'
-import SpatialSearchIssue from '../../models/__test__/fixtures/alerts/spatial_search_issue.json'
-import GLDAS_CLM10SUBP_3H_001 from '../../models/__test__/fixtures/collection-metadata/GLDAS_CLM10SUBP_3H_001.json'
-import OML1BRVG_003 from '../../models/__test__/fixtures/collection-metadata/OML1BRVG_003.json'
-import TEST_NO_STATE from '../../models/__test__/fixtures/collection-metadata/TEST_NO_STATE.json'
-import alertsModel from '../../models/__test__/fixtures/models/alerts.json'
-import collectionMetadataModel from '../../models/__test__/fixtures/models/collection-metadata.json'
-import faqsModel from '../../models/__test__/fixtures/models/faqs.json'
+import SpatialSearchIssue from '../../models/__tests__/fixtures/alerts/spatial_search_issue.json'
+import GLDAS_CLM10SUBP_3H_001 from '../../models/__tests__/fixtures/collection-metadata/GLDAS_CLM10SUBP_3H_001.json'
+import OML1BRVG_003 from '../../models/__tests__/fixtures/collection-metadata/OML1BRVG_003.json'
+import TEST_NO_STATE from '../../models/__tests__/fixtures/collection-metadata/TEST_NO_STATE.json'
+import alertsModel from '../../models/__tests__/fixtures/models/alerts.json'
+import collectionMetadataModel from '../../models/__tests__/fixtures/models/collection-metadata.json'
+import faqsModel from '../../models/__tests__/fixtures/models/faqs.json'
 import editPublishCmrWorkflow from '../../workflows/__tests__/__fixtures__/edit-publish-cmr.json'
 import editPublishWorkflow from '../../workflows/__tests__/__fixtures__/edit-publish.json'
 import modifyReviewPublishWorkflow from '../../workflows/__tests__/__fixtures__/modify-review-publish.json'
@@ -25,8 +25,8 @@ import alertFromGql from './__fixtures__/alertFromGql.json'
 import alertWithHistory from './__fixtures__/alertWithHistory.json'
 import alertWithPublication from './__fixtures__/alertWithPublication.json'
 import workflowEdges from './__fixtures__/workflowEdges.json'
-import HowDoIFAQ from '../../models/__test__/fixtures/faqs/how-do-i.json'
-import WhereDoIFAQ from '../../models/__test__/fixtures/faqs/where-do-i.json'
+import HowDoIFAQ from '../../models/__tests__/fixtures/faqs/how-do-i.json'
+import WhereDoIFAQ from '../../models/__tests__/fixtures/faqs/where-do-i.json'
 
 describe('Documents', () => {
     let db: Db
@@ -648,7 +648,6 @@ describe('Documents', () => {
             expect(document['x-meditor'].state).toEqual('Under Review')
         })
 
-        /*
         it('should return an error if user tries to Approve a document that same user submitted for review (no consecutive transitions)', async () => {
             // first submit for review
             const [reviewError, reviewDocument] = await changeDocumentState(
@@ -659,7 +658,7 @@ describe('Documents', () => {
             )
 
             expect(reviewError).toBeNull()
-            expect(reviewDocument).toBeNull()
+            expect(reviewDocument['x-meditor'].state).toEqual('Under Review')
 
             // then try to approve it
             const [error, document] = await changeDocumentState(
@@ -669,12 +668,10 @@ describe('Documents', () => {
                 user_FAQAuthorAndReviewer
             )
 
-            console.log(error)
-            console.log(document)
-
-            expect(error).not.toBeNull()
+            expect(error).toMatchInlineSnapshot(
+                `[Error: User does not have the permissions to transition to state Approved.]`
+            )
             expect(document).toBeNull()
         })
-        */
     })
 })

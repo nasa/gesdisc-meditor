@@ -1,16 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Documents changeDocumentState should transition Draft -> Under Review if user has Author role 1`] = `
-Object {
-  "answer": "<p>There are a number of ways</p>
-",
-  "datasets": Array [],
-  "groups": Array [],
-  "tags": Array [],
-  "title": "How do I?",
-}
-`;
-
 exports[`Documents getDocument returns document 1`] = `
 Object {
   "_id": "5b6c4effc2d8adf60f742042",
