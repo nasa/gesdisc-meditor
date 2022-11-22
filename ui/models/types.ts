@@ -1,5 +1,5 @@
 import type { DocumentMetadata } from '../documents/types'
-import type { Workflow, WorkflowEdge, WorkflowNode } from '../workflows/types'
+import type { Workflow } from '../workflows/types'
 
 export interface DocumentsSearchOptions {
     searchTerm?: string
