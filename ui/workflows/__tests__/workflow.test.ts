@@ -1,6 +1,7 @@
 import type { Db } from 'mongodb'
 import getDb from '../../lib/mongodb'
 import {
+    getTargetEdges,
     getTargetStatesFromWorkflow,
     getWorkflow,
     getWorkflowEdgeMatchingSourceAndTarget,
@@ -236,6 +237,36 @@ describe('Workflows', () => {
 
                 expect(results.node.id).toEqual(nodeId)
                 expect(results.edges.map(edge => edge.label)).toEqual(edgeLabels)
+            }
+        )
+    })
+
+    describe('getTargetEdges', () => {
+        test.each`
+            workflowName               | state             | expectedEdgeLabels
+            ${'Modify-Review-Publish'} | ${'Init'}         | ${['Create']}
+            ${'Modify-Review-Publish'} | ${'Draft'}        | ${['Submit for review', 'Delete Permanently']}
+            ${'Modify-Review-Publish'} | ${'Under Review'} | ${['Needs more work', 'Approve publication']}
+            ${'Modify-Review-Publish'} | ${'Approved'}     | ${['Publish', "I don't like it!"]}
+            ${'Modify-Review-Publish'} | ${'Published'}    | ${['Un-publish', 'Delete Permanently']}
+            ${'Modify-Review-Publish'} | ${'Hidden'}       | ${['Publish', 'Delete Permanently', 'Delete Permanently']}
+        `(
+            'should return `$expectedEdgeLabels` for a document state of `$state` in workflow `$workflowName`',
+            async ({
+                workflowName,
+                state,
+                expectedEdgeLabels,
+            }: {
+                workflowName: string
+                state: string
+                expectedEdgeLabels: string[]
+            }) => {
+                const [error, workflow] = await getWorkflow(workflowName)
+
+                expect(error).toBeNull()
+                expect(
+                    getTargetEdges(workflow.edges, state).map(edge => edge.label)
+                ).toEqual(expectedEdgeLabels)
             }
         )
     })

@@ -3,6 +3,7 @@ import { getModel } from '../models/service'
 import type { Workflow, WorkflowEdge } from './types'
 import { getWorkflowsDb } from './db'
 import { ErrorCode, HttpException } from '../utils/errors'
+import { onlyUnique } from '../utils/array'
 
 export async function getWorkflowForModel(
     modelName: string
@@ -132,4 +133,44 @@ export function getWorkflowNodeAndEdgesForState(workflow: Workflow, state?: stri
         node,
         edges: workflow.edges.filter(edge => edge.source === node.id),
     }
+}
+
+/**
+ * given a list of edges and a state, get a list of edges that the document can move into
+ * ex. a document in "Under Review" state could have target edges: ["Approve", "Reject"]
+ */
+export function getTargetEdges(edges: WorkflowEdge[], state: string) {
+    // retrieve edges that branch off the current state
+    return edges.filter(edge => edge.source === state).filter(onlyUnique)
+}
+
+/**
+ * given a list of edges and a state, will return a list of roles that can transition from this state
+ *
+ * if the currentEdge has a notifyRoles property set, we'll use that specified role instead
+ */
+export function getTargetUserRoles(
+    edges: WorkflowEdge[],
+    state: string,
+    currentEdge: WorkflowEdge
+) {
+    if (currentEdge && 'notifyRoles' in currentEdge) {
+        // the current edge has specific roles set, return those instead of trying to figure it out dynamically
+        return typeof currentEdge.notifyRoles === 'string'
+            ? currentEdge.notifyRoles.split(',')
+            : currentEdge.notifyRoles
+    }
+
+    // roles are based on edges, so get edges that branch from the state
+    const targetEdges = getTargetEdges(edges, state)
+
+    // return list of unique roles
+    return targetEdges.map(edge => edge.role).filter(onlyUnique)
+}
+
+/**
+ * retrieves a list of target nodes a document can move into, given a list of target edges
+ */
+export function getNodesFromEdges(edges: WorkflowEdge[]) {
+    return edges.map(edge => edge.target).filter(onlyUnique)
 }
