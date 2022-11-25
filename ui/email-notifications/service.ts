@@ -1,11 +1,86 @@
 import type { ModelWithWorkflow } from '../models/types'
-import { getTargetEdges, getTargetUserRoles } from '../workflows/service'
+import {
+    getNodesFromEdges,
+    getTargetEdges,
+    getTargetUserRoles,
+} from '../workflows/service'
 import type { Workflow, WorkflowEdge } from '../workflows/types'
 import { getUsersDb } from '../auth/db'
-import type { User } from '../auth/types'
+import type { User, UserContactInformation } from '../auth/types'
 import mustache from 'mustache'
 import type { Document } from '../documents/types'
 import he from 'he'
+import type { EmailMessage, EmailMessageLink } from './types'
+
+export async function constructEmailMessageForStateChange(
+    model: ModelWithWorkflow,
+    document: Document,
+    newState: string,
+    currentEdge: WorkflowEdge,
+    user: User
+): Promise<EmailMessage> {
+    // if the workflow does not have it's own email message configured, we'll use this default message
+    const DEFAULT_EMAIL_TEMPLATE =
+        `An {{modelName}} document drafted by {{authorName}} has been marked by {{role}} {{userFirstName}} {{userLastName}} as '{{label}}' and is now in a '{{target}}' state.\n\n` +
+        `An action is required to transition the document to one of the [{{targets}}] states. {{modelNotificationTemplate}}`
+
+    let emailToUsers = await getUsersToNotifyOfStateChange(
+        model,
+        document['x-meditor'].state,
+        currentEdge
+    )
+    let emailCcUsers = await getUsersToCc(
+        document['x-meditor'].modifiedBy,
+        user.uid,
+        emailToUsers
+    )
+
+    if (!emailToUsers.length && !emailCcUsers.length) {
+        // need at least one user to notify!
+        throw new Error('Could not find users to notify of the state change')
+    }
+
+    const targetNodes = getNodesFromEdges(model.workflow.currentEdges)
+
+    // populate a email message
+    const emailMessage = await populateEmailMessageTemplate(
+        model,
+        document,
+        targetNodes,
+        currentEdge,
+        document['x-meditor'].modifiedBy,
+        user,
+        DEFAULT_EMAIL_TEMPLATE
+    )
+
+    // TODO: consider putting the version back on, was removed to avoid acting on old documents
+    const emailLink: EmailMessageLink = {
+        label: document[model.titleProperty],
+        url: `${
+            process.env.APP_URL || 'http://localhost'
+        }/meditor/${serializeLinkUrlParamsForEmail([
+            model.name,
+            document[model.titleProperty],
+        ])}`,
+    }
+
+    return {
+        // emails to send to. (use "cc" users if no "to" users found)
+        to: (!emailToUsers.length ? emailCcUsers : emailToUsers).map(user =>
+            formatUserForEmail(user)
+        ),
+
+        // emails to "CC". (don't duplicate if using "cc" users in the "to" line already)
+        cc: (!emailToUsers.length ? [] : emailCcUsers).map(user =>
+            formatUserForEmail(user)
+        ),
+
+        subject: `${model.name} document is now ${newState}`,
+        body: emailMessage,
+        link: emailLink,
+        createdOn: new Date().toISOString(),
+    }
+}
 
 /**
  * determines if email notifications should be sent for a particular document state change in a workflow
@@ -52,7 +127,6 @@ export function shouldNotifyUsersOfStateChange(
  */
 export async function getUsersToNotifyOfStateChange(
     model: ModelWithWorkflow,
-    workflow: Workflow,
     documentState: string,
     currentEdge: WorkflowEdge
 ) {
@@ -66,7 +140,7 @@ export async function getUsersToNotifyOfStateChange(
 
     // get list of workflow edges the document can follow. For example. a document in "Under Review" state
     // can be "Approved" or "Rejected", so the target edges would be ["Approve", "Reject"]
-    const targetEdges = getTargetEdges(workflow.edges, documentState)
+    const targetEdges = getTargetEdges(model.workflow.edges, documentState)
 
     console.debug('Target edges ', targetEdges)
     console.debug('Current edge ', currentEdge)
@@ -110,7 +184,7 @@ export async function getUsersToNotifyOfStateChange(
 export async function getUsersToCc(
     originalAuthorUid: string,
     loggedInUserUid: string,
-    ignoreUsers: User[] = []
+    ignoreUsers: UserContactInformation[] = []
 ) {
     const usersDb = await getUsersDb()
 
@@ -145,13 +219,9 @@ export async function populateEmailMessageTemplate(
     targetNodes: string[],
     currentEdge: WorkflowEdge,
     authorUid: string,
-    user: User
+    user: User,
+    defaultEmailTemplate: string
 ) {
-    // if the workflow does not have it's own email message configured, we'll use this default message
-    const DEFAULT_EMAIL_TEMPLATE =
-        `An {{modelName}} document drafted by {{authorName}} has been marked by {{role}} {{userFirstName}} {{userLastName}} as '{{label}}' and is now in a '{{target}}' state.\n\n` +
-        `An action is required to transition the document to one of the [{{targets}}] states. {{modelNotificationTemplate}}`
-
     const usersDb = await getUsersDb()
     const [author] = await usersDb.getContactInformationForUsers([authorUid])
 
@@ -166,7 +236,7 @@ export async function populateEmailMessageTemplate(
     const { emailMessage: customEmailTemplate } = model.workflow.nodes.find(
         node => node.id === currentEdge.target
     )
-    const emailTemplate = customEmailTemplate || DEFAULT_EMAIL_TEMPLATE
+    const emailTemplate = customEmailTemplate || defaultEmailTemplate
 
     // render the template with a few commonly used variables user's may find helpful to see in an email
     return he.decode(
@@ -183,4 +253,15 @@ export async function populateEmailMessageTemplate(
             modelNotificationTemplate,
         })
     )
+}
+
+/**
+ * emails end up being rendered in a way that breaks URL params when the user clicks links inside the email
+ * this attempts to normalize url params by first replacing /'s and then encoding
+ */
+function serializeLinkUrlParamsForEmail(params: any[]) {
+    return params
+        .map(param => param.replace(/\//g, '%252F')) // replace /'s in URL (will be double encoded and break links if not encoded ahead of time)
+        .map(param => encodeURIComponent(param))
+        .join('/')
 }

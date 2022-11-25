@@ -6,6 +6,7 @@ import {
     getUsersToCc,
     getUsersToNotifyOfStateChange,
     shouldNotifyUsersOfStateChange,
+    constructEmailMessageForStateChange,
 } from '../service'
 import alertsModel from '../../models/__tests__/fixtures/models/alerts.json'
 import faqsModel from '../../models/__tests__/fixtures/models/faqs.json'
@@ -19,6 +20,9 @@ import {
 } from '../../workflows/service'
 import baconUser from '../../auth/__tests__/__fixtures__/bacon-user.json'
 import type { ModelWithWorkflow } from '../../models/types'
+import alertWithPublication from '../../documents/__tests__/__fixtures__/alertWithPublication.json'
+import { getDocument } from '../../documents/service'
+import howDoIFAQ from '../../models/__tests__/fixtures/faqs/how-do-i.json'
 
 describe('Email Notifications', () => {
     let db: Db
@@ -68,12 +72,16 @@ describe('Email Notifications', () => {
         await db.collection('Models').insertOne(alertsModel)
         await db.collection('Workflows').insertOne(modifyReviewPublishWorkflow)
         await db.collection('Workflows').insertOne(editPublishWorkflow)
+        await db.collection('Alerts').insertOne(alertWithPublication)
+        await db.collection('FAQs').insertOne(howDoIFAQ)
     })
 
     afterAll(async () => {
         await db.collection('Users').deleteMany({})
         await db.collection('Models').deleteMany({})
         await db.collection('Workflows').deleteMany({})
+        await db.collection('Alerts').deleteMany({})
+        await db.collection('FAQs').deleteMany({})
     })
 
     describe('shouldNotifyUsersOfStateChange', () => {
@@ -157,7 +165,6 @@ describe('Email Notifications', () => {
 
             const users = await getUsersToNotifyOfStateChange(
                 model,
-                workflow,
                 documentState,
                 currentEdge
             )
@@ -226,6 +233,10 @@ describe('Email Notifications', () => {
         let targetNodes
         let currentEdge
 
+        const defaultEmailTemplate =
+            `An {{modelName}} document drafted by {{authorName}} has been marked by {{role}} {{userFirstName}} {{userLastName}} as '{{label}}' and is now in a '{{target}}' state.\n\n` +
+            `An action is required to transition the document to one of the [{{targets}}] states. {{modelNotificationTemplate}}`
+
         beforeAll(async () => {
             const [_error, modelWithWorkflow] = await getModelWithWorkflow(
                 faqsModel.name,
@@ -248,7 +259,8 @@ describe('Email Notifications', () => {
                 targetNodes,
                 currentEdge,
                 'hashbrowns',
-                baconUser
+                baconUser,
+                defaultEmailTemplate
             )
 
             expect(emailMessage).toMatchInlineSnapshot(`
@@ -267,7 +279,8 @@ describe('Email Notifications', () => {
                 targetNodes,
                 currentEdge,
                 'hashbrowns',
-                baconUser
+                baconUser,
+                defaultEmailTemplate
             )
 
             expect(emailMessage).toMatchInlineSnapshot(`
@@ -317,12 +330,61 @@ describe('Email Notifications', () => {
                 targetNodes,
                 currentEdge,
                 'hashbrowns',
-                baconUser
+                baconUser,
+                defaultEmailTemplate
             )
 
             expect(emailTemplate).toMatchInlineSnapshot(
                 `"Model name: FAQs, Author name: Hashbrowns User, Author UID: hashbrowns, Role: Author, Label: Submit for review, User First Name: Bacon, User Last Name: User, Targets: Draft, Approved, Target: Under Review, Model Notification Template: <p><strong>Latest Comment:</strong></p>"`
             )
+        })
+    })
+
+    describe('constructEmailMessageForStateChange', () => {
+        let mockDate = new Date(2022, 0, 1)
+        let dateSpy
+        let model
+        let currentEdge
+
+        beforeAll(async () => {
+            const [_error, modelWithWorkflow] = await getModelWithWorkflow(
+                faqsModel.name,
+                'Under Review'
+            )
+
+            model = modelWithWorkflow
+            currentEdge = getWorkflowEdgeMatchingSourceAndTarget(
+                model.workflow,
+                'Draft',
+                'Under Review'
+            )
+        })
+
+        beforeEach(() => {
+            dateSpy = jest
+                .spyOn(global, 'Date')
+                .mockImplementation(() => mockDate as unknown as string)
+        })
+
+        afterEach(() => {
+            dateSpy.mockRestore()
+        })
+
+        it('should return a default email message if no custom email message is setup in the workflow', async () => {
+            const [_error, faq] = await getDocument(
+                howDoIFAQ.title,
+                'FAQs',
+                baconUser
+            )
+            const emailMessage = await constructEmailMessageForStateChange(
+                model,
+                faq,
+                'Under Review',
+                currentEdge,
+                baconUser
+            )
+
+            expect(emailMessage).toMatchSnapshot()
         })
     })
 })
