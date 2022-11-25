@@ -22,6 +22,7 @@ import {
     getDocumentPublications,
     getDocumentsForModel,
 } from '../service'
+import * as emailNotifications from '../../email-notifications/service'
 import alertFromGql from './__fixtures__/alertFromGql.json'
 import alertWithHistory from './__fixtures__/alertWithHistory.json'
 import alertWithPublication from './__fixtures__/alertWithPublication.json'
@@ -527,6 +528,11 @@ describe('Documents', () => {
     })
 
     describe('changeDocumentState', () => {
+        const notificationsSpy = jest.spyOn<typeof emailNotifications, any>(
+            emailNotifications,
+            'constructEmailMessageForStateChange'
+        )
+
         const user_noFAQRole = {
             id: 'a-db-id',
             uid: 'johndoe',
@@ -562,6 +568,8 @@ describe('Documents', () => {
 
         afterEach(async () => {
             await db.collection('FAQs').deleteMany({})
+
+            notificationsSpy.mockClear()
         })
 
         it('returns an error for a model that does not exist', async () => {
@@ -695,6 +703,33 @@ describe('Documents', () => {
             expect(error).toMatchInlineSnapshot(
                 `[Error: Workflow, Duplicate Edges, is misconfigured! There are duplicate edges from 'Draft' to 'Under Review'.]`
             )
+        })
+
+        it('should send an email notification by default', async () => {
+            const [error, document] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs',
+                'Under Review',
+                user_FAQAuthorAndReviewer
+            )
+
+            expect(error).toBeNull()
+            expect(document).not.toBeNull()
+            expect(notificationsSpy).toHaveBeenCalledTimes(1)
+        })
+
+        it('should not send an email notification if requested to disable', async () => {
+            const [error, document] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs',
+                'Under Review',
+                user_FAQAuthorAndReviewer,
+                { disableEmailNotifications: true }
+            )
+
+            expect(error).toBeNull()
+            expect(document).not.toBeNull()
+            expect(notificationsSpy).toHaveBeenCalledTimes(0)
         })
     })
 })

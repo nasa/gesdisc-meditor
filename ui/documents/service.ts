@@ -1,8 +1,12 @@
 import Fuse from 'fuse.js'
 import type { User, UserRole } from '../auth/types'
 import type { ErrorData } from '../declarations'
+import {
+    constructEmailMessageForStateChange,
+    shouldNotifyUsersOfStateChange,
+} from '../email-notifications/service'
 import { getModel, getModelWithWorkflow } from '../models/service'
-import type { DocumentsSearchOptions } from '../models/types'
+import type { DocumentsSearchOptions, ModelWithWorkflow } from '../models/types'
 import { ErrorCode, HttpException } from '../utils/errors'
 import { getTargetStatesFromWorkflow, getWorkflow } from '../workflows/service'
 import type { Workflow, WorkflowEdge, WorkflowNode } from '../workflows/types'
@@ -197,7 +201,10 @@ export async function changeDocumentState(
     documentTitle: string,
     modelName: string,
     newState: string, // must be a string, not enum, due to states not existing at compile time,
-    user: User
+    user: User,
+
+    // changeDocumentState options
+    options?: { disableEmailNotifications?: boolean }
 ): Promise<ErrorData<Document>> {
     try {
         if (!newState) {
@@ -296,9 +303,52 @@ export async function changeDocumentState(
             throw updatedDocumentError
         }
 
+        // send email notification of state change
+        if (!options?.disableEmailNotifications) {
+            await safelyNotifyOfStateChange(
+                model,
+                document,
+                newState,
+                currentEdge[0],
+                user
+            )
+        } else {
+            console.debug(
+                'User requested to change document state without sending email notifications'
+            )
+        }
+
+        //! TODO publish to nats
+        //! TODO delete document
+
         return [null, updatedDocument]
     } catch (error) {
         return [error, null]
+    }
+}
+
+export async function safelyNotifyOfStateChange(
+    model: ModelWithWorkflow,
+    document: Document,
+    newState: string,
+    currentEdge: WorkflowEdge,
+    user: User
+) {
+    try {
+        if (shouldNotifyUsersOfStateChange(newState, currentEdge)) {
+            const emailMessage = await constructEmailMessageForStateChange(
+                model,
+                document,
+                newState,
+                currentEdge,
+                user
+            )
+
+            //! TODO: send to NATS Queue
+        }
+    } catch (err) {
+        //! log the error but failing to send an email notification should NOT stop the state change as it is a side effect
+        console.error(err)
     }
 }
 

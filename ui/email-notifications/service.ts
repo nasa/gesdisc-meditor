@@ -4,7 +4,7 @@ import {
     getTargetEdges,
     getTargetUserRoles,
 } from '../workflows/service'
-import type { Workflow, WorkflowEdge } from '../workflows/types'
+import type { WorkflowEdge } from '../workflows/types'
 import { getUsersDb } from '../auth/db'
 import type { User, UserContactInformation } from '../auth/types'
 import mustache from 'mustache'
