@@ -201,6 +201,11 @@ export async function getDocumentPublications(
     }
 }
 
+/**
+ * one of the central parts of mEditor, responsible for transitioning a document through a workflow by changing it's state.
+ *
+ * after changing the document state, will notify the user and send out a publication message
+ */
 export async function changeDocumentState(
     documentTitle: string,
     modelName: string,
@@ -219,9 +224,11 @@ export async function changeDocumentState(
             throw new HttpException(ErrorCode.Unauthorized, 'User is not logged in')
         }
 
+        const documentsDb = await getDocumentsDb()
         const [modelError, model] = await getModelWithWorkflow(modelName)
 
         if (modelError) {
+            // model must exist
             throw modelError
         }
 
@@ -233,59 +240,14 @@ export async function changeDocumentState(
         )
 
         if (documentError) {
+            // document must exist
             throw documentError
         }
 
-        if (newState === document['x-meditor'].state) {
-            throw new HttpException(
-                ErrorCode.BadRequest,
-                `Cannot transition to state [${newState}] as the document is in this state already`
-            )
-        }
+        // try to construct a new state, this will throw if any of the business rules fail
+        const state = await constructNewDocumentState(document, model, newState, user)
 
-        const targetStates = getTargetStatesFromWorkflow(
-            document['x-meditor'].state,
-            model.workflow
-        )
-
-        if (targetStates.indexOf(newState) < 0) {
-            throw new HttpException(
-                ErrorCode.BadRequest,
-                `Cannot transition to state [${newState}] as it is not a valid state in the workflow`
-            )
-        }
-
-        if (document['x-meditor'].targetStates.indexOf(newState) < 0) {
-            throw new HttpException(
-                ErrorCode.BadRequest,
-                `User does not have the permissions to transition to state ${newState}.`
-            )
-        }
-
-        const currentEdge = model.workflow.edges.filter(
-            edge =>
-                edge.source === document['x-meditor'].state &&
-                edge.target === newState
-        )
-
-        if (currentEdge.length !== 1) {
-            throw new HttpException(
-                ErrorCode.InternalServerError,
-                `Workflow, ${model.workflow.name}, is misconfigured! There are duplicate edges from '${document['x-meditor'].state}' to '${newState}'.`
-            )
-        }
-
-        const documentsDb = await getDocumentsDb()
-
-        // create the new document state
-        const state: DocumentState = {
-            source: document['x-meditor'].state,
-            target: newState,
-            modifiedOn: new Date().toISOString(),
-            modifiedBy: user.uid,
-        }
-
-        // update the documents state in the database
+        // got a new state, update the documents state in the database
         const ok = await documentsDb.addDocumentStateChange(document, state)
 
         if (!ok) {
@@ -297,6 +259,7 @@ export async function changeDocumentState(
             )
         }
 
+        // get the updated document from the database
         const [updatedDocumentError, updatedDocument] = await getDocument(
             documentTitle,
             modelName,
@@ -313,7 +276,11 @@ export async function changeDocumentState(
                 model,
                 document,
                 newState,
-                currentEdge[0],
+                getWorkflowEdgesMatchingSourceAndTarget(
+                    model.workflow,
+                    document['x-meditor'].state,
+                    newState
+                )[0],
                 user
             )
         } else {
@@ -328,6 +295,74 @@ export async function changeDocumentState(
         return [null, updatedDocument]
     } catch (error) {
         return [error, null]
+    }
+}
+
+/**
+ * responsible for constructing a new state for the document
+ *
+ * This has many business rules, the summarized version of the rules is:
+ *
+ *  - new state has to be a valid state in the workflow
+ *  - new state must not be the same as the current state
+ *  - user must be authenticated and have roles for the given model
+ *  - workflow must be properly configured, no duplicate edges (how do we know which edge to follow to get to the requested state?)
+ */
+export async function constructNewDocumentState(
+    document: Document,
+    model: ModelWithWorkflow,
+    newState: string,
+    user: User
+): Promise<DocumentState> {
+    const targetStates = getTargetStatesFromWorkflow(
+        document['x-meditor'].state,
+        model.workflow
+    )
+
+    const matchingEdges = getWorkflowEdgesMatchingSourceAndTarget(
+        model.workflow,
+        document['x-meditor'].state,
+        newState
+    )
+
+    //! can't transition to a state the document is already in
+    if (newState === document['x-meditor'].state) {
+        throw new HttpException(
+            ErrorCode.BadRequest,
+            `Cannot transition to state [${newState}] as the document is in this state already`
+        )
+    }
+
+    //! can't transition to a state that isn't in the workflow
+    if (targetStates.indexOf(newState) < 0) {
+        throw new HttpException(
+            ErrorCode.BadRequest,
+            `Cannot transition to state [${newState}] as it is not a valid state in the workflow`
+        )
+    }
+
+    //! can't transition to a state the user does not have permission to transition to
+    if (document['x-meditor'].targetStates.indexOf(newState) < 0) {
+        throw new HttpException(
+            ErrorCode.BadRequest,
+            `User does not have the permissions to transition to state ${newState}.`
+        )
+    }
+
+    //! can't transition if the workflow has two edges with the same source and same target (how do we know which edge to follow?)
+    if (matchingEdges.length !== 1) {
+        throw new HttpException(
+            ErrorCode.InternalServerError,
+            `Workflow, ${model.workflow.name}, is misconfigured! There are duplicate edges from '${document['x-meditor'].state}' to '${newState}'.`
+        )
+    }
+
+    // create the new document state!
+    return {
+        source: document['x-meditor'].state,
+        target: newState,
+        modifiedOn: new Date().toISOString(),
+        modifiedBy: user.uid,
     }
 }
 
@@ -424,4 +459,14 @@ function findWorkflowNodesReadyForUse(workflow: Workflow): WorkflowNode['id'][] 
 
         return accumulator
     }, [])
+}
+
+function getWorkflowEdgesMatchingSourceAndTarget(
+    workflow: Workflow,
+    source: string,
+    target: string
+): WorkflowEdge[] {
+    return workflow.edges.filter(
+        edge => edge.source === source && edge.target === target
+    )
 }
