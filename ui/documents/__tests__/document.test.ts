@@ -23,6 +23,7 @@ import {
     getDocumentsForModel,
 } from '../service'
 import * as emailNotifications from '../../email-notifications/service'
+import * as publicationQueue from '../../publication-queue/service'
 import alertFromGql from './__fixtures__/alertFromGql.json'
 import alertWithHistory from './__fixtures__/alertWithHistory.json'
 import alertWithPublication from './__fixtures__/alertWithPublication.json'
@@ -533,6 +534,11 @@ describe('Documents', () => {
             'constructEmailMessageForStateChange'
         )
 
+        const queueSpy = jest.spyOn<typeof publicationQueue, any>(
+            publicationQueue,
+            'publishMessageToQueueChannel'
+        )
+
         const user_noFAQRole = {
             id: 'a-db-id',
             uid: 'johndoe',
@@ -564,12 +570,25 @@ describe('Documents', () => {
         beforeEach(async () => {
             await db.collection('FAQs').insertOne(HowDoIFAQ)
             await db.collection('FAQs').insertOne(WhereDoIFAQ)
+
+            // mock the notifications service to return a test email
+            notificationsSpy.mockImplementation(async () => {
+                return {
+                    subject: 'a test email',
+                }
+            })
+
+            // mock the queue service so we don't actually queue up an email!
+            queueSpy.mockImplementation(async () => {
+                return 'foo'
+            })
         })
 
         afterEach(async () => {
             await db.collection('FAQs').deleteMany({})
 
             notificationsSpy.mockClear()
+            queueSpy.mockClear()
         })
 
         it('returns an error for a model that does not exist', async () => {
@@ -730,6 +749,36 @@ describe('Documents', () => {
             expect(error).toBeNull()
             expect(document).not.toBeNull()
             expect(notificationsSpy).toHaveBeenCalledTimes(0)
+        })
+
+        it('should publish the email message to the publication queue', async () => {
+            const [error, document] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs',
+                'Under Review',
+                user_FAQAuthorAndReviewer
+            )
+
+            expect(error).toBeNull()
+            expect(document).not.toBeNull()
+            expect(queueSpy).toHaveBeenCalledTimes(1)
+            expect(queueSpy).toHaveBeenCalledWith('meditor-notifications', {
+                subject: 'a test email',
+            })
+        })
+
+        it('should not publish the email message to the publication queue, if requested to disable notifications', async () => {
+            const [error, document] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs',
+                'Under Review',
+                user_FAQAuthorAndReviewer,
+                { disableEmailNotifications: true }
+            )
+
+            expect(error).toBeNull()
+            expect(document).not.toBeNull()
+            expect(queueSpy).toHaveBeenCalledTimes(0)
         })
     })
 })
