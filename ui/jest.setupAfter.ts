@@ -10,6 +10,7 @@ global.console = {
 }
 
 process.env.DB_NAME = 'mock-meditor'
+process.env.MEDITOR_NATS_NOTIFICATIONS_CHANNEL = 'meditor-notifications-test'
 
 afterAll(async () => {
     // close mongo connection after all tests run

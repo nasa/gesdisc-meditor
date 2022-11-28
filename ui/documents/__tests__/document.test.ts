@@ -762,7 +762,7 @@ describe('Documents', () => {
             expect(error).toBeNull()
             expect(document).not.toBeNull()
             expect(queueSpy).toHaveBeenCalledTimes(1)
-            expect(queueSpy).toHaveBeenCalledWith('meditor-notifications', {
+            expect(queueSpy).toHaveBeenCalledWith('meditor-notifications-test', {
                 subject: 'a test email',
             })
         })
