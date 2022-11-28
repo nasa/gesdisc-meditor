@@ -21,6 +21,7 @@ import {
     getDocumentHistoryByVersion,
     getDocumentPublications,
     getDocumentsForModel,
+    shouldPublishStateChangeToQueue,
 } from '../service'
 import * as emailNotifications from '../../email-notifications/service'
 import * as publicationQueue from '../../publication-queue/service'
@@ -729,7 +730,8 @@ describe('Documents', () => {
                 HowDoIFAQ.title,
                 'FAQs',
                 'Under Review',
-                user_FAQAuthorAndReviewer
+                user_FAQAuthorAndReviewer,
+                { disableQueuePublication: true }
             )
 
             expect(error).toBeNull()
@@ -743,7 +745,7 @@ describe('Documents', () => {
                 'FAQs',
                 'Under Review',
                 user_FAQAuthorAndReviewer,
-                { disableEmailNotifications: true }
+                { disableEmailNotifications: true, disableQueuePublication: true }
             )
 
             expect(error).toBeNull()
@@ -756,7 +758,8 @@ describe('Documents', () => {
                 HowDoIFAQ.title,
                 'FAQs',
                 'Under Review',
-                user_FAQAuthorAndReviewer
+                user_FAQAuthorAndReviewer,
+                { disableQueuePublication: true }
             )
 
             expect(error).toBeNull()
@@ -773,12 +776,109 @@ describe('Documents', () => {
                 'FAQs',
                 'Under Review',
                 user_FAQAuthorAndReviewer,
-                { disableEmailNotifications: true }
+                { disableEmailNotifications: true, disableQueuePublication: true }
             )
 
             expect(error).toBeNull()
             expect(document).not.toBeNull()
             expect(queueSpy).toHaveBeenCalledTimes(0)
+        })
+
+        it('should publish the state change to the queue by default', async () => {
+            const [error, document] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs',
+                'Under Review',
+                user_FAQAuthorAndReviewer,
+                { disableEmailNotifications: true }
+            )
+
+            expect(error).toBeNull()
+            expect(document).not.toBeNull()
+            expect(queueSpy).toHaveBeenCalledTimes(1)
+        })
+    })
+
+    describe('shouldPublishStateChangeToQueue', () => {
+        it('should return true if no nodes in the workflow are set to publishable', () => {
+            const model1: any = {
+                workflow: {
+                    nodes: [],
+                },
+            }
+
+            const model2: any = {
+                workflow: {
+                    nodes: [
+                        {
+                            id: 'Under Review',
+                        },
+                    ],
+                },
+            }
+
+            expect(shouldPublishStateChangeToQueue(model1, 'Under Review')).toEqual(
+                true
+            )
+            expect(shouldPublishStateChangeToQueue(model2, 'Under Review')).toEqual(
+                true
+            )
+        })
+
+        it('should return true if workflow has publishable nodes and the node matching the state is publishable', () => {
+            const model1: any = {
+                workflow: {
+                    nodes: [
+                        {
+                            id: 'Published',
+                            publishable: true,
+                        },
+                    ],
+                },
+            }
+
+            const model2: any = {
+                workflow: {
+                    nodes: [
+                        {
+                            id: 'Published',
+                            publishable: false,
+                        },
+                        {
+                            id: 'Under Review',
+                            publishable: true,
+                        },
+                    ],
+                },
+            }
+
+            expect(shouldPublishStateChangeToQueue(model1, 'Under Review')).toEqual(
+                true
+            )
+            expect(shouldPublishStateChangeToQueue(model2, 'Under Review')).toEqual(
+                true
+            )
+        })
+
+        it('should return false if workflow has publishable nodes AND the node matching the state has publishable === false', () => {
+            const model: any = {
+                workflow: {
+                    nodes: [
+                        {
+                            id: 'Published',
+                            publishable: true,
+                        },
+                        {
+                            id: 'Under Review',
+                            publishable: false,
+                        },
+                    ],
+                },
+            }
+
+            expect(shouldPublishStateChangeToQueue(model, 'Under Review')).toEqual(
+                false
+            )
         })
     })
 })

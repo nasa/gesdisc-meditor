@@ -213,7 +213,10 @@ export async function changeDocumentState(
     user: User,
 
     // changeDocumentState options
-    options?: { disableEmailNotifications?: boolean }
+    options?: {
+        disableEmailNotifications?: boolean
+        disableQueuePublication?: boolean
+    }
 ): Promise<ErrorData<Document>> {
     try {
         if (!newState) {
@@ -289,7 +292,14 @@ export async function changeDocumentState(
             )
         }
 
-        //! TODO publish to nats
+        if (!options?.disableQueuePublication) {
+            await safelyPublishStateChangeToQueue(model, document, newState)
+        } else {
+            console.debug(
+                'User requested to change document state without publishing the state change to the queue'
+            )
+        }
+
         //! TODO delete document
 
         return [null, updatedDocument]
@@ -394,6 +404,64 @@ export async function safelyNotifyOfStateChange(
         //! log the error but failing to send an email notification should NOT stop the state change as it is a side effect
         console.error(err)
     }
+}
+
+export async function safelyPublishStateChangeToQueue(
+    model: ModelWithWorkflow,
+    document: Document,
+    state: string
+) {
+    try {
+        if (shouldPublishStateChangeToQueue(model, state)) {
+            // turns "Data Release" into "Data-Release"
+            const channelName = model.name.replace(/ /g, '-')
+
+            // publish the document state change to the right channel
+            //? One or more subscribers can be subscribed to this particular channel, these are external subscribers
+            //? (ex. an external subscriber that can publish "UMM-C" model documents to CMR)
+            await publishMessageToQueueChannel(channelName, {
+                id: document._id,
+                document,
+                model: {
+                    titleProperty: model.titleProperty,
+                },
+                state,
+                time: Date.now(),
+            })
+        }
+    } catch (err) {
+        //! log the error but failing to publish should NOT stop the state change as it is a side effect
+        console.error(err)
+    }
+}
+
+/**
+ * should only block publishing a state change if the workflow is using "publishable" on states/nodes
+ * and someone has explicitly set a node to not publishable
+ */
+export function shouldPublishStateChangeToQueue(
+    model: ModelWithWorkflow,
+    state: string
+) {
+    if (model.workflow.nodes.find(node => node.publishable)) {
+        // this workflow supports "publishable"
+        console.debug(
+            `The workflow, ${model.workflow.name}, has at least one node with "publishable" set.`
+        )
+
+        const matchingNode = model.workflow.nodes.find(node => node.id === state)
+
+        //! don't combine these into !matchingNode?.publishable, this is intentionally separately checking that the node exists AND is not publishable
+        if (matchingNode && !matchingNode.publishable) {
+            console.debug(
+                `State, ${state}, is not publishable, skipping publication.`
+            )
+            return false
+        }
+    }
+
+    // return true by default
+    return true
 }
 
 /**

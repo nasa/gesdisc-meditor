@@ -53,3 +53,15 @@ export type DocumentState = {
     modifiedOn: string | null
     modifiedBy?: string
 }
+
+export interface DocumentMessage {
+    id: string
+    document: Document
+    model: DocumentMessageModel
+    state: string
+    time: number
+}
+
+export interface DocumentMessageModel {
+    titleProperty: string
+}
