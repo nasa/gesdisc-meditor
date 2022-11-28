@@ -2,7 +2,11 @@ import { Db, ObjectID } from 'mongodb'
 import type { User } from '../auth/types'
 import type { ErrorData } from '../declarations'
 import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
-import type { DocumentsSearchOptions } from '../models/types'
+import type {
+    DocumentsSearchOptions,
+    Model,
+    ModelWithWorkflow,
+} from '../models/types'
 import { ErrorCode, HttpException } from '../utils/errors'
 import { convertLuceneQueryToMongo } from '../utils/search'
 import type { WorkflowEdge } from '../workflows/types'
@@ -341,6 +345,31 @@ class DocumentsDb {
         )
 
         return Boolean(ok)
+    }
+
+    /**
+     * we don't actually delete things from the database, rather we set deleted properties so the documents are no longer included
+     * in query results. This allows documents to be recovered if accidentally deleted (which has happened more than a few times)
+     */
+    async deleteDocument(
+        model: Model | ModelWithWorkflow,
+        documentTitle: string,
+        userUid: string
+    ) {
+        await this.#db.collection(model.name).updateMany(
+            {
+                [model.titleProperty]: documentTitle,
+                'x-meditor.deletedOn': {
+                    $exists: false,
+                },
+            },
+            {
+                $set: {
+                    'x-meditor.deletedOn': new Date().toISOString(),
+                    'x-meditor.deletedBy': userUid,
+                },
+            }
+        )
     }
 
     private addStatesToDocumentQuery() {

@@ -21,6 +21,7 @@ import type {
 
 const EMAIL_NOTIFICATIONS_QUEUE_CHANNEL =
     process.env.MEDITOR_NATS_NOTIFICATIONS_CHANNEL || 'meditor-notifications'
+const DELETED_STATE = 'Deleted'
 
 export async function getDocument(
     documentTitle: string,
@@ -300,7 +301,9 @@ export async function changeDocumentState(
             )
         }
 
-        //! TODO delete document
+        if (newState === DELETED_STATE) {
+            await safelyDeleteDocument(model, document, user)
+        }
 
         return [null, updatedDocument]
     } catch (error) {
@@ -431,6 +434,36 @@ export async function safelyPublishStateChangeToQueue(
         }
     } catch (err) {
         //! log the error but failing to publish should NOT stop the state change as it is a side effect
+        console.error(err)
+    }
+}
+
+export async function safelyDeleteDocument(
+    model: ModelWithWorkflow,
+    document: Document,
+    user: User
+) {
+    try {
+        console.debug(
+            `Handling delete document for ${model.name} - ${
+                document[model.titleProperty]
+            }`
+        )
+
+        const documentsDb = await getDocumentsDb()
+        await documentsDb.deleteDocument(
+            model,
+            document[model.titleProperty],
+            user.uid
+        )
+
+        console.debug(
+            `Deleted ${model.name} - ${document[model.titleProperty]} (deleted by: ${
+                user.uid
+            })`
+        )
+    } catch (err) {
+        //! log the error but don't block state change
         console.error(err)
     }
 }
