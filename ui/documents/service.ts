@@ -7,8 +7,9 @@ import {
 } from '../email-notifications/service'
 import { getModel, getModelWithWorkflow } from '../models/service'
 import type { DocumentsSearchOptions, ModelWithWorkflow } from '../models/types'
+import { publishMessageToQueueChannel } from '../publication-queue/service'
 import { ErrorCode, HttpException } from '../utils/errors'
-import { getTargetStatesFromWorkflow, getWorkflow } from '../workflows/service'
+import { getTargetStatesFromWorkflow } from '../workflows/service'
 import type { Workflow, WorkflowEdge, WorkflowNode } from '../workflows/types'
 import { getDocumentsDb } from './db'
 import type {
@@ -17,6 +18,9 @@ import type {
     DocumentPublications,
     DocumentState,
 } from './types'
+
+const EMAIL_NOTIFICATIONS_QUEUE_CHANNEL =
+    process.env.MEDITOR_NATS_NOTIFICATIONS_CHANNEL || 'meditor-notifications'
 
 export async function getDocument(
     documentTitle: string,
@@ -344,7 +348,12 @@ export async function safelyNotifyOfStateChange(
                 user
             )
 
-            //! TODO: send to NATS Queue
+            // publish the email to the "notifications" queue channel
+            //? A separate microservice, "meditor-notifier", is responsible for actually sending the email
+            await publishMessageToQueueChannel(
+                EMAIL_NOTIFICATIONS_QUEUE_CHANNEL,
+                emailMessage
+            )
         }
     } catch (err) {
         //! log the error but failing to send an email notification should NOT stop the state change as it is a side effect

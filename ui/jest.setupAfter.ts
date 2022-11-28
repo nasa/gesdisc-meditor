@@ -6,6 +6,7 @@ global.console = {
     ...console,
     error: jest.fn(),
     debug: jest.fn(),
+    info: jest.fn(),
 }
 
 process.env.DB_NAME = 'mock-meditor'
