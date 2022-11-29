@@ -401,6 +401,17 @@ export async function safelyNotifyOfStateChange(
                 user
             )
 
+            if (process.env.DISABLE_EMAIL_NOTIFICATIONS) {
+                console.log(
+                    `The 'DISABLE_EMAIL_NOTIFICATIONS' environment variable is set to 'true'!`
+                )
+                console.log(
+                    `Email notifications were disabled while attempting to send the following email:`
+                )
+                console.log(emailMessage)
+                return
+            }
+
             // publish the email to the "notifications" queue channel
             //? A separate microservice, "meditor-notifier", is responsible for actually sending the email
             await publishMessageToQueueChannel(
