@@ -217,6 +217,7 @@ export async function changeDocumentState(
     options?: {
         disableEmailNotifications?: boolean
         disableQueuePublication?: boolean
+        dangerouslyUpdateDocumentProperties?: Document
     }
 ): Promise<ErrorData<Document>> {
     try {
@@ -252,7 +253,11 @@ export async function changeDocumentState(
         const state = await constructNewDocumentState(document, model, newState, user)
 
         // got a new state, update the documents state in the database
-        const ok = await documentsDb.addDocumentStateChange(document, state)
+        const ok = await documentsDb.addDocumentStateChange(
+            document,
+            state,
+            options?.dangerouslyUpdateDocumentProperties
+        )
 
         if (!ok) {
             // safety check, not sure how this would actually happen, but just in case it does, this stops the user from thinking the update went through

@@ -150,7 +150,7 @@ async function adapt(request) {
                         encodeURIComponent(args.title) +
                         '/change-document-state',
                     {
-                        method: 'POST', // old API used GET/PUT for changeDocumentState, use POST instead
+                        method: request.method || 'GET',
                         args: 'state=' + encodeURIComponent(args.state), // add state as a query param
                     }
                 );

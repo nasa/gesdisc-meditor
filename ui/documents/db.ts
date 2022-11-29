@@ -329,7 +329,39 @@ class DocumentsDb {
      * documents have an `x-meditor.states` property, containing the states the document has transitioned through
      * this method provides the mechanism to add a new state to the document
      */
-    async addDocumentStateChange(document: Document, newState: DocumentState) {
+    async addDocumentStateChange(
+        document: Document,
+        newState: DocumentState,
+
+        // allows for optionally updating the document while changing the document state.
+        // this should rarely be done so the name is a bit dramatic and intentionally is not it's own method
+        dangerouslyUpdateDocumentProperties?: Document
+    ) {
+        let updateQuery = {
+            $push: {
+                'x-meditor.states': newState,
+            },
+        }
+
+        if (dangerouslyUpdateDocumentProperties) {
+            // pull out the _id and x-meditor fields
+            const {
+                _id,
+                'x-meditor': xMeditor,
+                ...documentPropertiesToUpdate
+            } = dangerouslyUpdateDocumentProperties
+
+            // if additional properties to update are included, set those as well
+            updateQuery = {
+                ...updateQuery,
+                ...(documentPropertiesToUpdate && {
+                    $set: {
+                        ...documentPropertiesToUpdate,
+                    },
+                }),
+            }
+        }
+
         const {
             result: { ok },
         } = await this.#db.collection(document['x-meditor'].model).updateOne(
@@ -337,11 +369,7 @@ class DocumentsDb {
                 // updating an existing document, use the _id instead of the documentTitle, this ensures no race conditions where two users are creating/updating simultaneously
                 _id: new ObjectID(document._id),
             },
-            {
-                $push: {
-                    'x-meditor.states': newState,
-                },
-            }
+            updateQuery
         )
 
         return Boolean(ok)
