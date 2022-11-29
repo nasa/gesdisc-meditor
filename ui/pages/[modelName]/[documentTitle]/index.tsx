@@ -147,6 +147,8 @@ const EditDocumentPage = ({
                 documentTitle
             )}/change-document-state?state=${state}&version=${formData.version}`,
             {
+                method: 'POST',
+
                 // optionally update the document by switching to a PUT
                 ...(canUpdateDocument && {
                     method: 'PUT',

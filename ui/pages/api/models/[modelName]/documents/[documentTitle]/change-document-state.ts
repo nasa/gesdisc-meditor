@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const user = await getLoggedInUser(req, res)
 
-    if (req.method !== 'PUT' && req.method !== 'GET') {
+    if (req.method !== 'PUT' && req.method !== 'POST') {
         return apiError(
             new HttpException(ErrorCode.MethodNotAllowed, 'Method not allowed'),
             res
@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const shouldUpdateDocument =
         req.method === 'PUT' && req.body && Object.keys(req.body).length > 0
 
-    // update state done for a GET and a PUT
+    // update state done for a POST and a PUT
     const [error, document] = await changeDocumentState(
         decodeURIComponent(documentTitle),
         decodeURIComponent(modelName),

@@ -150,7 +150,8 @@ async function adapt(request) {
                         encodeURIComponent(args.title) +
                         '/change-document-state',
                     {
-                        method: request.method || 'GET',
+                        method:
+                            request.method === 'GET' ? 'POST' : request.method,
                         args: 'state=' + encodeURIComponent(args.state), // add state as a query param
                     }
                 );
