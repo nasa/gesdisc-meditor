@@ -7,7 +7,7 @@ import type { UserDuringSetup } from './types'
 async function setUpNewInstallation(
     users: UserDuringSetup[] = []
 ): Promise<ErrorData<null>> {
-    console.log('Request to set up mEditor received. Adding users: ', users)
+    console.debug('Request to set up mEditor received. Adding users: ', users)
 
     try {
         const setupDb = await getSetupDb()

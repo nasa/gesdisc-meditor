@@ -34,6 +34,38 @@ async function adapt(request) {
     const uri = request.uri;
 
     switch (uri) {
+        case BASE_PATH + 'changeDocumentState': {
+            try {
+                const response = await request.subrequest(
+                    BASE_PATH +
+                        'models/' +
+                        encodeURIComponent(args.model) +
+                        '/documents/' +
+                        encodeURIComponent(args.title) +
+                        '/change-document-state',
+                    {
+                        method:
+                            request.method === 'GET' ? 'POST' : request.method,
+                        args: 'state=' + encodeURIComponent(args.state), // add state as a query param
+                    }
+                );
+
+                passThroughHeaders(request, response);
+
+                request.return(response.status, response.responseBody);
+            } catch (error) {
+                ngx.log(ngx.ERR, error);
+
+                //* Do not expose the error to the end-user.
+                request.return(
+                    500,
+                    JSON.stringify({ message: 'Internal Server Error' })
+                );
+            }
+
+            break;
+        }
+
         case BASE_PATH + 'getComments': {
             try {
                 const subrequestUrl = `${BASE_PATH}models/${encodeURIComponent(

@@ -2,12 +2,21 @@ import type { Db } from 'mongodb'
 import { ObjectID } from 'mongodb'
 import type { User } from '../auth/types'
 import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
-import type { DocumentsSearchOptions } from '../models/types'
+import type {
+    DocumentsSearchOptions,
+    Model,
+    ModelWithWorkflow,
+} from '../models/types'
 import { ErrorCode, HttpException } from '../utils/errors'
 import { convertLuceneQueryToMongo } from '../utils/search'
 import type { WorkflowEdge } from '../workflows/types'
 import { getDocumentInputSchema } from './schema'
-import type { DocumentHistory, DocumentPublications } from './types'
+import type {
+    Document,
+    DocumentHistory,
+    DocumentPublications,
+    DocumentState,
+} from './types'
 
 class DocumentsDb {
     #UNSPECIFIED_STATE_NAME = 'Unspecified'
@@ -324,6 +333,81 @@ class DocumentsDb {
         const insertedDocument = await this.getDocumentById(insertedId, modelName)
 
         return insertedDocument
+    }
+
+    /**
+     * documents have an `x-meditor.states` property, containing the states the document has transitioned through
+     * this method provides the mechanism to add a new state to the document
+     */
+    async addDocumentStateChange(
+        document: Document,
+        newState: DocumentState,
+
+        // allows for optionally updating the document while changing the document state.
+        // this should rarely be done so the name is a bit dramatic and intentionally is not it's own method
+        dangerouslyUpdateDocumentProperties?: Document
+    ) {
+        let updateQuery = {
+            $push: {
+                'x-meditor.states': newState,
+            },
+        }
+
+        if (dangerouslyUpdateDocumentProperties) {
+            // pull out the _id and x-meditor fields
+            const {
+                _id,
+                'x-meditor': xMeditor,
+                ...documentPropertiesToUpdate
+            } = dangerouslyUpdateDocumentProperties
+
+            // if additional properties to update are included, set those as well
+            updateQuery = {
+                ...updateQuery,
+                ...(documentPropertiesToUpdate && {
+                    $set: {
+                        ...documentPropertiesToUpdate,
+                    },
+                }),
+            }
+        }
+
+        const {
+            result: { ok },
+        } = await this.#db.collection(document['x-meditor'].model).updateOne(
+            {
+                // updating an existing document, use the _id instead of the documentTitle, this ensures no race conditions where two users are creating/updating simultaneously
+                _id: new ObjectID(document._id),
+            },
+            updateQuery
+        )
+
+        return Boolean(ok)
+    }
+
+    /**
+     * we don't actually delete things from the database, rather we set deleted properties so the documents are no longer included
+     * in query results. This allows documents to be recovered if accidentally deleted (which has happened more than a few times)
+     */
+    async deleteDocument(
+        model: Model | ModelWithWorkflow,
+        documentTitle: string,
+        userUid: string
+    ) {
+        await this.#db.collection(model.name).updateMany(
+            {
+                [model.titleProperty]: documentTitle,
+                'x-meditor.deletedOn': {
+                    $exists: false,
+                },
+            },
+            {
+                $set: {
+                    'x-meditor.deletedOn': new Date().toISOString(),
+                    'x-meditor.deletedBy': userUid,
+                },
+            }
+        )
     }
 
     private addStatesToDocumentQuery() {

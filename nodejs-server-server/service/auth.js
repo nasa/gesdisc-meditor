@@ -10,7 +10,6 @@ const PROTECTED_URLS = [
     '/meditor/api/putDocument',
     '/meditor/api/cloneDocument',
     '/meditor/api/getDocument?model=Users',
-    '/meditor/api/changeDocumentState',
     '/meditor/api/logout',
     '/meditor/api/me',
     '/meditor/api/getCsrfToken',

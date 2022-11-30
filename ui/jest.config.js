@@ -4,7 +4,12 @@ const mongoPreset = require('@shelf/jest-mongodb/jest-preset')
 
 const jestOverwrites = {
     testEnvironment: 'node',
-    testPathIgnorePatterns: ['<rootDir>/cypress/'],
+    watchPathIgnorePatterns: [
+        '<rootDir>/cypress/',
+        '<rootDir>/.next/',
+        '<rootDir>/node_modules/',
+        '<rootDir>/globalConfig.json',
+    ],
     setupFilesAfterEnv: ['<rootDir>/jest.setupAfter.ts'],
 }
 

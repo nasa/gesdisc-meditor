@@ -141,18 +141,27 @@ const EditDocumentPage = ({
         const { _id, ...document } = formData.doc
         delete document['x-meditor'] // x-meditor metadata, shouldn't be there but ensure it isn't
 
-        await fetch(
-            `/meditor/api/changeDocumentState?model=${modelName}&title=${documentTitle}&state=${state}&version=${formData.version}`,
-            {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+        // only allow updating the document during a state change if the user has edit privileges
+        // this leaves it up to the workflow to determine whether updating via state change is allowed
+        const canUpdateDocument = currentPrivileges?.includes('edit') && document
 
-                // only allow updating the document during a state change if the user has edit privileges
-                // this leaves it up to the workflow to determine whether updating via state change is allowed
-                ...(currentPrivileges?.includes('edit') &&
-                    document && { body: JSON.stringify(document) }),
+        await fetch(
+            `/meditor/api/models/${encodeURIComponent(
+                modelName
+            )}/documents/${encodeURIComponent(
+                documentTitle
+            )}/change-document-state?state=${state}&version=${formData.version}`,
+            {
+                method: 'POST',
+
+                // optionally update the document by switching to a PUT
+                ...(canUpdateDocument && {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(document),
+                }),
             }
         )
 

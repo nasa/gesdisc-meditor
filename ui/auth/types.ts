@@ -16,3 +16,8 @@ export interface UserRole {
     model: string
     role: string
 }
+
+export type UserContactInformation = Pick<
+    User,
+    'uid' | 'emailAddress' | 'firstName' | 'lastName'
+>

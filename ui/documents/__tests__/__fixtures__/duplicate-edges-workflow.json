@@ -102,6 +102,13 @@
         },
         {
             "role": "Reviewer",
+            "source": "Draft",
+            "target": "Under Review",
+            "label": "Submit for review",
+            "notify": true
+        },
+        {
+            "role": "Reviewer",
             "source": "Under Review",
             "target": "Draft",
             "label": "Needs more work",
@@ -140,7 +147,7 @@
             "source": "Hidden",
             "target": "Published",
             "label": "Publish",
-            "notify": true
+            "notify": false
         },
         {
             "label": "Delete Permanently",
@@ -171,20 +178,19 @@
             "target": "Deleted"
         }
     ],
-    "name": "Modify-Review-Publish",
+    "name": "Duplicate Edges",
     "x-meditor": {
         "model": "Workflows",
-        "modifiedOn": "2021-04-20T14:05:29.366Z",
-        "modifiedBy": "jdcarlso",
+        "modifiedOn": "2021-12-27T19:48:27.429Z",
+        "modifiedBy": "meditor_dev",
         "states": [
             {
                 "source": "Init",
                 "target": "Draft",
-                "modifiedOn": null
+                "modifiedOn": "2021-04-20T14:05:29.366Z"
             }
         ],
         "publishedTo": [],
-        "state": "Draft",
-        "targetStates": []
+        "state": "Draft"
     }
 }

@@ -16,6 +16,8 @@ export interface WorkflowNode {
     privileges?: WorkflowPrivilege[]
     readyForUse?: boolean
     allowValidationErrors?: boolean
+    emailMessage?: string
+    publishable?: boolean
 }
 
 export interface WorkflowPrivilege {
