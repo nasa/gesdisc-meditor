@@ -19,7 +19,10 @@ import JsonDiffViewer from '../../../components/json-diff-viewer'
 import PageTitle from '../../../components/page-title'
 import withAuthentication from '../../../components/with-authentication'
 import { adaptDocumentToLegacyDocument } from '../../../documents/adapters'
-import { fetchDocument } from '../../../documents/http'
+import {
+    createDocument as httpCreateDocument,
+    fetchDocument,
+} from '../../../documents/http'
 import { getDocument, getDocumentHistory } from '../../../documents/service'
 import type {
     DocumentHistory as History,
@@ -30,7 +33,6 @@ import { treeify } from '../../../lib/treeify'
 import { useLocalStorage } from '../../../lib/use-localstorage.hook'
 import { getModelWithWorkflow } from '../../../models/service'
 import type { ModelWithWorkflow } from '../../../models/types'
-import mEditorApi from '../../../service/'
 import styles from './document-edit.module.css'
 
 export type DocumentPanels = 'comments' | 'history' | 'source' | 'workflow'
@@ -114,24 +116,25 @@ const EditDocumentPage = ({
     }
 
     async function saveDocument(document) {
-        console.log('*** saveDocument ***')
-        console.log(document)
         delete document._id
         delete document.banTransitions
         document['x-meditor'] = {}
         document['x-meditor'].model = modelName
 
-        let documentBlob = new Blob([JSON.stringify(document)])
+        const [error, _createdDocument] = await httpCreateDocument(
+            document,
+            modelName
+        )
 
-        try {
-            await mEditorApi.putDocument(documentBlob)
+        if (error) {
+            setErrorNotification('Failed to update the document')
 
-            setSuccessNotification('Successfully updated the document')
-            reloadDocument()
-        } catch (err) {
-            console.error('Failed to create document ', err)
-            setErrorNotification('Failed to create the document')
+            return
         }
+
+        setSuccessNotification('Successfully updated the document')
+
+        reloadDocument()
     }
 
     async function updateDocumentState(state) {

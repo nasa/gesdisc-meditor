@@ -1,10 +1,10 @@
-import type { Model, ModelWithWorkflow } from './types'
 import jsonpath from 'jsonpath'
 import type { ErrorData } from '../declarations'
-import { getModelsDb } from './db'
 import { getDocumentsDb } from '../documents/db'
 import { ErrorCode, HttpException } from '../utils/errors'
 import { getWorkflowByDocumentState } from '../workflows/service'
+import { getModelsDb } from './db'
+import type { Model, ModelWithWorkflow } from './types'
 
 type getModelOptions = {
     populateMacroTemplates?: boolean
@@ -107,6 +107,7 @@ export async function getModel(
  *
  * retrieving all of these is a frequent need throughout the application. We can avoid errors by moving the logic for
  * retrieval and error handling into a service method
+ * Requires that the document already exist.
  */
 export async function getModelWithWorkflow(
     modelName: string,

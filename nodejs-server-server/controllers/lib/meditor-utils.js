@@ -414,6 +414,8 @@ function computeAndAddEdgeMapping(meta, workflowRoot, oldEdge) {
     }
 }
 
+//! DbName is meditor.
+//! modelDoc is the document ()
 function handleModelChanges(meta, DbName, modelDoc) {
     // 1. Get the ultimate version of the model
     // 2. Get pen-ultimate version of the model
@@ -429,9 +431,17 @@ function handleModelChanges(meta, DbName, modelDoc) {
     //   7.b. Replace every edge (transition) according to the mapping
     //   7.c. Collapse duplicate adjuscent transitions
 
+    /**
+     * ! since I'm not passing in meta, identify all properties on meta used here:
+        * edgeMapping
+        * newModel
+        * oldModel
+        * workflows
+     */
     console.log('Remapping state change history for documents in ' + modelDoc.name)
     const workflowRoot = module.exports.WORKFLOW_ROOT
     const workflowRootEdge = module.exports.WORKFLOW_ROOT_EDGE
+
     return Promise.resolve()
         .then(function () {
             return meta.dbo

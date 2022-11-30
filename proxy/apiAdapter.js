@@ -142,9 +142,7 @@ async function adapt(request) {
 
         case BASE_PATH + 'putDocument': {
             try {
-                // ! I think forwarding this to the correct RESTful endpoint may require several API calls:
-                // ! I need the modelName (on x-meditor), the title property (to get the title), and the document title.
-                //? how can I parse the incoming request's formData?
+                //* Parse the form-data through an API call so that we can know to which modelName this document belongs.
                 const formDataRequestUrl = `${BASE_PATH}parse/form-data`;
                 const formDataResponse = await request.subrequest(
                     formDataRequestUrl,
@@ -154,28 +152,27 @@ async function adapt(request) {
                     }
                 );
 
-                ngx.log(ngx.ERR, formDataResponse.responseText);
-                // const incomingRequest = request.responseText;
-                // const modelSubrequestUrl = `${BASE_PATH}models/${encodeURIComponent(
-                //     args.model
-                // )}`;
-                // const modelResponse = await request.subrequest(
-                //     modelSubrequestUrl,
-                //     { method: 'GET' }
-                // );
-                //! this doesn't work...
-                // const modelJson = await modelResponse.json();
+                const parsedFormDataResponse = JSON.parse(
+                    formDataResponse.responseText
+                );
 
-                // const subrequestUrl = `${BASE_PATH}/putDocument`;
-                //
-                // const response = await request.subrequest(subrequestUrl, {
-                //     method,
-                // });
-                //
-                // passThroughHeaders(request, response);
-                //
-                // request.return(response.status, response.responseBody);
-                request.return(200, 'okay');
+                //* multipart/form-data could contain multiple boundary-separated documents (though in practice, we know that putDocument only attaches one). Loop through the responses and send a subrequest for each document.
+                parsedFormDataResponse.forEach(async (documentString) => {
+                    const document = JSON.parse(documentString);
+
+                    const subrequestUrl = `${BASE_PATH}models/${encodeURIComponent(
+                        document['x-meditor'].model
+                    )}/documents`;
+
+                    const response = await request.subrequest(subrequestUrl, {
+                        method,
+                        body: documentString,
+                    });
+
+                    passThroughHeaders(request, response);
+
+                    request.return(response.status, response.responseBody);
+                });
             } catch (error) {
                 ngx.log(ngx.ERR, error);
 

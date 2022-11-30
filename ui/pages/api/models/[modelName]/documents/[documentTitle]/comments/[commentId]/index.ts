@@ -58,6 +58,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return res.status(200).json(updatedComment)
 
         default:
-            return res.status(405)
+            return res.status(405).end()
     }
 }

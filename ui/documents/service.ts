@@ -1,13 +1,104 @@
 import Fuse from 'fuse.js'
+import { validate } from 'jsonschema'
 import type { User, UserRole } from '../auth/types'
 import type { ErrorData } from '../declarations'
 import { getModel, getModelWithWorkflow } from '../models/service'
 import type { DocumentsSearchOptions } from '../models/types'
 import { ErrorCode, HttpException } from '../utils/errors'
+import { formatValidationErrorMessage } from '../utils/jsonschema-validate'
 import { getTargetStatesFromWorkflow, getWorkflow } from '../workflows/service'
 import type { Workflow, WorkflowEdge, WorkflowNode } from '../workflows/types'
 import { getDocumentsDb } from './db'
+import { legacyHandleModelChanges } from './service.legacy'
 import type { Document, DocumentHistory, DocumentPublications } from './types'
+
+const GENERIC_WORKFLOW_EDGE = { source: 'Init', target: 'Draft' }
+const GENERIC_WORKFLOW_ROOT = 'Init'
+
+export async function createDocument(
+    document: any,
+    modelName: string,
+    user: User
+): Promise<ErrorData<{ insertedDocument: Document; location: string }>> {
+    try {
+        const documentsDb = await getDocumentsDb()
+
+        // ToDo: Right now we allow additional properties in our schema validation (see `validate` in this function) because we put metadata on the document record. We could pull off the metadata, strictly validate the document, then proceed. Before implementing that, we need to make sure that we've removed all "legacy" extra properties on the document like `banTransitions`. See "ref: validate", below.
+        // const { ['x-meditor']: metadata, ...documentWithoutMetadata } = document
+
+        //* Get the model to validate its schema. We need to workflow name to determine how to handle validation errors.
+        const [modelError, model] = await getModel(modelName)
+
+        if (modelError) {
+            throw modelError
+        }
+
+        const { schema, titleProperty, workflow: workflowName } = model
+
+        //* Get the model's workflow so that we can find information about the draft node, which is the only node that applies to creating a document.
+        const [workflowError, workflow] = await getWorkflow(workflowName)
+
+        if (workflowError) {
+            throw workflowError
+        }
+
+        const { allowValidationErrors } = workflow.nodes.find(
+            node => node.id === 'Draft'
+        )
+
+        //! "ref: validate"
+        // const { errors } = validate(documentWithoutMetadata, JSON.parse(schema))
+        //* The schema does not allow for our 'x-meditor' metadata property, so we have to allow all additional properties.
+        const schemaWithAdditionalProperties = {
+            ...JSON.parse(schema),
+            additionalProperties: true,
+        }
+        const { errors } = validate(document, schemaWithAdditionalProperties)
+
+        if (errors.length && !allowValidationErrors) {
+            throw new HttpException(
+                ErrorCode.ValidationError,
+                `Document "${
+                    document[titleProperty]
+                }" does not validate against the schema for model "${modelName}": ${JSON.stringify(
+                    errors.map(formatValidationErrorMessage)
+                )}`
+            )
+        }
+
+        //! <refactor>
+        // ToDo:  Refactor this, once the larger RESTful API refactor has time to deploy and settle.
+        //* This logic (and associated TODO) is ported from Meditor.js, saveDocument. Minimal modifications were made.
+        const rootState = { ...GENERIC_WORKFLOW_EDGE }
+        // @ts-ignore
+        rootState.modifiedOn = document['x-meditor'].modifiedOn
+        document['x-meditor'].modifiedOn = new Date().toISOString()
+        document['x-meditor'].modifiedBy = user.uid
+        // TODO: replace with actual model init state
+        document['x-meditor'].states = [rootState]
+        document['x-meditor'].publishedTo = []
+        //! </refactor>
+
+        const insertedDocument = await documentsDb.insertDocument(document, modelName)
+
+        // ToDo: Review this fn and see if there's a more maintainable answer to models changing workflows.
+        if (modelName === 'Models') {
+            legacyHandleModelChanges(insertedDocument)
+        }
+
+        // ToDo: publish to queue service
+
+        return [
+            null,
+            {
+                insertedDocument,
+                location: `/api/models/${modelName}/documents/${document[titleProperty]}`,
+            },
+        ]
+    } catch (error) {
+        return [error, null]
+    }
+}
 
 export async function getDocument(
     documentTitle: string,
@@ -181,19 +272,6 @@ export async function getDocumentPublications(
         )
 
         return [null, publications]
-    } catch (error) {
-        console.error(error)
-
-        return [error, null]
-    }
-}
-
-export async function putDocument(
-    documentTitle: string,
-    modelName: string
-): Promise<ErrorData<null>> {
-    try {
-        return [null, null]
     } catch (error) {
         console.error(error)
 

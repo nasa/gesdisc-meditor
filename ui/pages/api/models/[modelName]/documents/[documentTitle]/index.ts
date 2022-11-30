@@ -23,12 +23,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return res.status(200).json(document)
         }
 
-        //! /putDocument is really only used to create a new document, so it should be a POST to /models/modelName/documents. Remove this...
-        case 'PUT': {
-            console.log(req.body)
-            return res.status(200).json({ message: 'PUT was used' })
-        }
-
         default:
             return res.status(405).end()
     }

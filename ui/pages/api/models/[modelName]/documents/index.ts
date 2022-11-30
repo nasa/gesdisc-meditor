@@ -1,8 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { getDocumentsForModel } from '../../../../../documents/service'
-import { apiError } from '../../../../../utils/errors'
+import { getLoggedInUser } from '../../../../../auth/user'
+import {
+    createDocument,
+    getDocumentsForModel,
+} from '../../../../../documents/service'
+import { apiError, ErrorCode, HttpException } from '../../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    const user = await getLoggedInUser(req, res)
     const modelName = req.query.modelName.toString()
 
     switch (req.method) {
@@ -23,16 +28,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         case 'POST': {
-            // todo: Implement a RESTful POST operation to /api/models/{modelName}/documents that creates a document.
-            /**
-             * from https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-p2-semantics-16#section-7.1.2
-             *
-             * If a resource has been created on the origin server, the response SHOULD be 201 (Created) and contain a representation which describes the status of the request and refers to the new resource, and a Location header field (see Section 9.4).
-             */
-            return res.status(200)
+            if (!user) {
+                return apiError(
+                    new HttpException(ErrorCode.Unauthorized, 'Unauthorized'),
+                    res
+                )
+            }
+
+            const parsedDocument = JSON.parse(req.body)
+            // ToDo: Discuss which modelName should take priority, because they could be in conflict.
+            // const modelName = parsedDocument['x-meditor'].model
+
+            const [error, { insertedDocument, location }] = await createDocument(
+                parsedDocument,
+                modelName,
+                user
+            )
+            const { _id, ...apiSafeDocument } = insertedDocument
+
+            if (error) {
+                return apiError(error, res)
+            }
+
+            res.setHeader('Location', location)
+
+            return res.status(201).json(apiSafeDocument)
         }
 
         default:
-            return res.status(405)
+            return res.status(405).end()
     }
 }

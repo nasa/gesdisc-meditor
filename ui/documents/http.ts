@@ -1,6 +1,31 @@
 import type { APIError, ErrorData } from '../declarations'
 import { ErrorCode, HttpException } from '../utils/errors'
-import type { DocumentPublications, Document } from './types'
+import type { Document, DocumentPublications } from './types'
+
+async function createDocument(
+    document: any,
+    modelName: string
+): Promise<ErrorData<Document>> {
+    try {
+        const response = await fetch(
+            `/meditor/api/models/${encodeURIComponent(modelName)}/documents`,
+            { body: JSON.stringify(document), method: 'POST' }
+        )
+
+        if (!response.ok) {
+            const { status, error }: APIError = await response.json()
+
+            //? This would be a bit harder to do with positional arguments, but perhaps we can accept either an error code OR a status code, where the class has a `mapStatusToErrorCode` method or something.
+            throw new HttpException(ErrorCode.BadRequest, error) // TODO: figure out proper error code using the status
+        }
+
+        const createdDocument = await response.json()
+
+        return [null, createdDocument]
+    } catch (error) {
+        return [error, null]
+    }
+}
 
 async function fetchDocument(
     documentTitle: string,
@@ -55,4 +80,4 @@ async function fetchDocumentPublications(
     }
 }
 
-export { fetchDocument, fetchDocumentPublications }
+export { createDocument, fetchDocument, fetchDocumentPublications }

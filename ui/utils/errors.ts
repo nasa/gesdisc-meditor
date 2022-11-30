@@ -1,5 +1,4 @@
 import type { NextApiResponse } from 'next'
-import type { APIError } from '../declarations'
 
 export enum ErrorCode {
     NotFound = 'NotFound',
@@ -24,7 +23,7 @@ export class HttpException extends Error {
         this.cause = this.mapCodeToCause(code)
     }
 
-    toJson() {
+    toString() {
         return JSON.stringify({
             status: this.cause.status,
             error: this.message,
@@ -76,5 +75,5 @@ export function apiError(error: Error | HttpException, response: NextApiResponse
         ? (error as HttpException)
         : new HttpException(ErrorCode.InternalServerError, 'Internal Server Error')
 
-    return response.status(safeError.cause.status).json(safeError.toJson())
+    return response.status(safeError.cause.status).json(safeError.toString())
 }

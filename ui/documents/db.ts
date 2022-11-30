@@ -1,4 +1,5 @@
 import type { Db } from 'mongodb'
+import { ObjectID } from 'mongodb'
 import type { User } from '../auth/types'
 import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
 import type { DocumentsSearchOptions } from '../models/types'
@@ -315,6 +316,16 @@ class DocumentsDb {
         return documentCount?.[0]?.count || 0
     }
 
+    async insertDocument(document: any, modelName: string) {
+        const { insertedId } = await this.#db
+            .collection(modelName)
+            .insertOne(document)
+
+        const insertedDocument = await this.getDocumentById(insertedId, modelName)
+
+        return insertedDocument
+    }
+
     private addStatesToDocumentQuery() {
         // build a state to return if the document version has no state
         let unspecifiedState = {
@@ -344,6 +355,16 @@ class DocumentsDb {
         ]
     }
 
+    private async getDocumentById(
+        documentId: string,
+        modelName: string
+    ): Promise<Document> {
+        const comment = await this.#db.collection(modelName).findOne({
+            _id: new ObjectID(documentId),
+        })
+
+        return makeSafeObjectIDs(comment)
+    }
     /**
      * a commonly used query for retrieving the latest version of a document
      * the property of the document used can differ between models (one calls it title, one may call it name)
