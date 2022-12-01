@@ -76,6 +76,12 @@ http {
             js_content apiAdapter.adapt;
         }
 
+        location /meditor/api/cloneDocument {
+            include /etc/nginx/proxy.conf;
+
+            js_content apiAdapter.adapt;
+        }
+
         location /meditor/api/putDocument {
             include /etc/nginx/proxy.conf;
             # proxy_pass         http://api/meditor/api/putDocument;
@@ -89,11 +95,6 @@ http {
         ###
         location /meditor/api/getModel {
             proxy_pass         http://api/meditor/api/getModel;
-            include /etc/nginx/proxy.conf;
-        }
-
-        location /meditor/api/cloneDocument {
-            proxy_pass         http://api/meditor/api/cloneDocument;
             include /etc/nginx/proxy.conf;
         }
 

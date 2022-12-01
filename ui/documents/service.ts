@@ -4,7 +4,7 @@ import type { User, UserRole } from '../auth/types'
 import type { ErrorData } from '../declarations'
 import {
     constructEmailMessageForStateChange,
-    shouldNotifyUsersOfStateChange
+    shouldNotifyUsersOfStateChange,
 } from '../email-notifications/service'
 import { getModel, getModelWithWorkflow } from '../models/service'
 import type { DocumentsSearchOptions, ModelWithWorkflow } from '../models/types'
@@ -15,7 +15,12 @@ import { getTargetStatesFromWorkflow, getWorkflow } from '../workflows/service'
 import type { Workflow, WorkflowEdge, WorkflowNode } from '../workflows/types'
 import { getDocumentsDb } from './db'
 import { legacyHandleModelChanges } from './service.legacy'
-import type { Document, DocumentHistory, DocumentPublications, DocumentState } from './types'
+import type {
+    Document,
+    DocumentHistory,
+    DocumentPublications,
+    DocumentState,
+} from './types'
 
 const EMAIL_NOTIFICATIONS_QUEUE_CHANNEL =
     process.env.MEDITOR_NATS_NOTIFICATIONS_CHANNEL || 'meditor-notifications'
@@ -283,6 +288,62 @@ export async function getDocumentPublications(
     } catch (error) {
         console.error(error)
 
+        return [error, null]
+    }
+}
+
+export async function cloneDocument(
+    titleOfDocumentToClone: string,
+    titleOfNewDocument: string,
+    modelName: string,
+    user: User
+): Promise<ErrorData<Document>> {
+    try {
+        if (!user) {
+            throw new HttpException(
+                ErrorCode.Unauthorized,
+                'User is not authenticated'
+            )
+        }
+
+        const documentsDb = await getDocumentsDb()
+
+        // get the document we'll be cloning
+        const [documentToCloneError, documentToClone] = await getDocument(
+            titleOfDocumentToClone,
+            modelName,
+            user
+        )
+
+        if (documentToCloneError) {
+            // something went wrong while getting the document to clone
+            throw documentToCloneError
+        }
+
+        const titleProperty = documentToClone['x-meditor'].titleProperty
+
+        // create the new document with the new title
+        const { _id, ...newDocument } = {
+            ...documentToClone,
+            [titleProperty]: titleOfNewDocument,
+        }
+
+        // make sure no document exists with the new title
+        const newDocumentAlreadyExists = await documentsDb.documentExists(
+            newDocument[titleProperty],
+            modelName,
+            titleProperty
+        )
+
+        if (newDocumentAlreadyExists) {
+            throw new HttpException(
+                ErrorCode.BadRequest,
+                `A document already exists with the title: '${newDocument[titleProperty]}'`
+            )
+        }
+
+        return createDocument(newDocument, modelName, user)
+    } catch (error) {
         return [error, null]
     }
 }

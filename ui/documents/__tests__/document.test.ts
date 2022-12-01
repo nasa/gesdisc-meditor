@@ -14,6 +14,7 @@ import duplicateEdgesWorkflow from './__fixtures__/duplicate-edges-workflow.json
 import { adaptDocumentToLegacyDocument } from '../adapters'
 import {
     changeDocumentState,
+    cloneDocument,
     createSourceToTargetStateMap,
     findAllowedUserRolesForModel,
     getDocument,
@@ -879,6 +880,95 @@ describe('Documents', () => {
             expect(shouldPublishStateChangeToQueue(model, 'Under Review')).toEqual(
                 false
             )
+        })
+    })
+
+    describe('cloneDocument', () => {
+        const user_noFAQRole = {
+            id: 'a-db-id',
+            uid: 'johndoe',
+            created: 1052283628409,
+            emailAddress: 'john.r.doe@example.com',
+            firstName: 'John',
+            lastAccessed: 1000000000000,
+            lastName: 'Doe',
+            roles: [],
+            name: 'John Doe',
+        }
+
+        const user_FAQAuthor = {
+            ...user_noFAQRole,
+            roles: [].concat(user_noFAQRole.roles, [
+                { model: 'FAQs', role: 'Author' },
+            ]),
+        }
+
+        beforeEach(async () => {
+            await db.collection('FAQs').insertOne(HowDoIFAQ)
+            await db.collection('FAQs').insertOne(WhereDoIFAQ)
+        })
+
+        afterEach(async () => {
+            await db.collection('FAQs').deleteMany({})
+        })
+
+        it('should require user authentication', async () => {
+            // @ts-expect-error
+            const [error, document] = await cloneDocument('Bacon', 'Eggs', 'FAQs')
+
+            expect(error).toMatchInlineSnapshot(`[Error: User is not authenticated]`)
+            expect(document).toBeNull()
+        })
+
+        it('should return an error if the original document does not exist', async () => {
+            const [error, document] = await cloneDocument(
+                'Bacon',
+                'Eggs',
+                'FAQs',
+                user_FAQAuthor
+            )
+
+            expect(error).toMatchInlineSnapshot(
+                `[Error: Requested document, Bacon, in model, FAQs, was not found]`
+            )
+            expect(document).toBeNull()
+        })
+
+        it('should return an error if a document with the new title already exists', async () => {
+            const [error, document] = await cloneDocument(
+                HowDoIFAQ.title,
+                WhereDoIFAQ.title,
+                'FAQs',
+                user_FAQAuthor
+            )
+
+            expect(error).toMatchInlineSnapshot(
+                `[Error: A document already exists with the title: 'Where do I?']`
+            )
+            expect(document).toBeNull()
+        })
+
+        it('should clone the requested document using the new title', async () => {
+            const [error, result] = await cloneDocument(
+                HowDoIFAQ.title,
+                'Eggs',
+                'FAQs',
+                user_FAQAuthor
+            )
+
+            expect(error).toBeNull()
+            expect(result.insertedDocument).toBeDefined()
+            expect(result.insertedDocument.title).toEqual('Eggs') // make sure the title was changed
+
+            const [cloneError, clone] = await getDocument(
+                'Eggs',
+                'FAQs',
+                user_FAQAuthor
+            )
+
+            expect(cloneError).toBeNull()
+            expect(clone).toBeDefined()
+            expect(clone.title).toEqual('Eggs')
         })
     })
 })
