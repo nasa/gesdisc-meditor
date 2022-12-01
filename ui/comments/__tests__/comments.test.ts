@@ -1,7 +1,7 @@
 import type { Db } from 'mongodb'
 import BaconUser from '../../auth/__tests__/__fixtures__/bacon-user.json'
 import getDb from '../../lib/mongodb'
-import alertsModel from '../../models/__tests__/fixtures/models/alerts.json'
+import alertsModel from '../../models/__tests__/__fixtures__/models/alerts.json'
 import { getCommentsDb } from '../db'
 import {
     createCommentAsUser,

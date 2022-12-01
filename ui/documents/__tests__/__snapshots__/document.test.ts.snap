@@ -1,5 +1,57 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Documents createDocument creates a new document for create or update operations 1`] = `
+Object {
+  "body": "<p>JS epoch / Unix time will overflow.</p>
+",
+  "datasets": Array [],
+  "expiration": "2038-01-19T03:04:07Z",
+  "notes": "",
+  "severity": "normal",
+  "start": "1111-11-11T11:11:11Z",
+  "tags": Array [],
+  "title": "Year 2038 Problem",
+  "x-meditor": Object {
+    "model": "Alerts",
+    "modifiedBy": "johndoe",
+    "publishedTo": Array [],
+    "states": Array [
+      Object {
+        "modifiedOn": "",
+        "source": "Init",
+        "target": "Draft",
+      },
+    ],
+  },
+}
+`;
+
+exports[`Documents createDocument creates a new document for create or update operations 2`] = `
+Object {
+  "body": "<p>JS epoch / Unix time will overflow.</p>
+",
+  "datasets": Array [],
+  "expiration": "2038-01-19T03:04:07Z",
+  "notes": "This has been called the Epochalypse.",
+  "severity": "normal",
+  "start": "1111-11-11T11:11:11Z",
+  "tags": Array [],
+  "title": "Year 2038 Problem",
+  "x-meditor": Object {
+    "model": "Alerts",
+    "modifiedBy": "johndoe",
+    "publishedTo": Array [],
+    "states": Array [
+      Object {
+        "modifiedOn": null,
+        "source": "Init",
+        "target": "Draft",
+      },
+    ],
+  },
+}
+`;
+
 exports[`Documents getDocument returns document 1`] = `
 Object {
   "_id": "5b6c4effc2d8adf60f742042",
