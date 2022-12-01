@@ -79,17 +79,6 @@ module.exports.logout = function logout(req, res, next) {
         })
 }
 
-module.exports.putDocument = function putDocument(req, res, next) {
-    var file = req.swagger.params['file'].value
-    Default.putDocument(file)
-        .then(function (response) {
-            utils.writeJson(res, response)
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response)
-        })
-}
-
 module.exports.cloneDocument = function cloneDocument(req, res, next) {
     var model = req.swagger.params['model'].value
     var title = req.swagger.params['title'].value
