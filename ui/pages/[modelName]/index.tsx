@@ -14,7 +14,7 @@ import type {
     Model,
     ModelWithWorkflow,
 } from '../../models/types'
-import type { User } from '../../service/api'
+import type { User } from '../../auth/types'
 
 function getSearchOptionsFromParams(query: ParsedUrlQuery): DocumentsSearchOptions {
     return {
