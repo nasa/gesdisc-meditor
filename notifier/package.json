@@ -13,7 +13,8 @@
     "log-node": "^7.0.0",
     "node-nats-streaming": "^0.2.6",
     "nodemailer": "^6.4.2",
-    "nodemon": "^2.0.2"
+    "nodemon": "^2.0.2",
+    "aws-sdk": "^2.1258.0"
   },
   "devDependencies": {
     "babel-plugin-transform-runtime": "^6.23.0",

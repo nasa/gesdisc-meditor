@@ -11,7 +11,7 @@ import type { DocumentsSearchOptions, ModelWithWorkflow } from '../models/types'
 import { publishMessageToQueueChannel } from '../publication-queue/service'
 import { ErrorCode, HttpException } from '../utils/errors'
 import { formatValidationErrorMessage } from '../utils/jsonschema-validate'
-import { getTargetStatesFromWorkflow, getWorkflow } from '../workflows/service'
+import { getTargetStatesFromWorkflow } from '../workflows/service'
 import type { Workflow, WorkflowEdge } from '../workflows/types'
 import { getDocumentsDb } from './db'
 import { legacyHandleModelChanges } from './service.legacy'
@@ -35,31 +35,19 @@ export async function createDocument(
     try {
         const documentsDb = await getDocumentsDb()
 
-        // ToDo: Right now we allow additional properties in our schema validation (see `validate` in this function) because we put metadata on the document record. We could pull off the metadata, strictly validate the document, then proceed. Before implementing that, we need to make sure that we've removed all "legacy" extra properties on the document like `banTransitions`. See "ref: validate", below.
-        // const { ['x-meditor']: metadata, ...documentWithoutMetadata } = document
+        //* Get the model to validate its schema and the workflow so that we can find information about the draft node, which is the only node that applies to creating a document.
+        const [modelWithWorkflowError, modelWithWorkflow] =
+            await getModelWithWorkflow(modelName)
 
-        //* Get the model to validate its schema. We need to workflow name to determine how to handle validation errors.
-        const [modelError, model] = await getModel(modelName)
-
-        if (modelError) {
-            throw modelError
+        if (modelWithWorkflowError) {
+            throw modelWithWorkflowError
         }
 
-        const { schema, titleProperty, workflow: workflowName } = model
-
-        //* Get the model's workflow so that we can find information about the draft node, which is the only node that applies to creating a document.
-        const [workflowError, workflow] = await getWorkflow(workflowName)
-
-        if (workflowError) {
-            throw workflowError
-        }
-
+        const { schema, titleProperty, workflow } = modelWithWorkflow
         const { allowValidationErrors } = workflow.nodes.find(
             node => node.id === 'Draft'
         )
 
-        //! "ref: validate"
-        // const { errors } = validate(documentWithoutMetadata, JSON.parse(schema))
         //* The schema does not allow for our 'x-meditor' metadata property, so we have to allow all additional properties.
         const schemaWithAdditionalProperties = {
             ...JSON.parse(schema),
@@ -78,8 +66,6 @@ export async function createDocument(
             )
         }
 
-        //! <refactor>
-        // ToDo:  Refactor this, once the larger RESTful API refactor has time to deploy and settle.
         //* This logic (and associated TODO) is ported from Meditor.js, saveDocument. Minimal modifications were made.
         const rootState = { ...GENERIC_WORKFLOW_EDGE }
         // @ts-ignore
@@ -89,7 +75,6 @@ export async function createDocument(
         // TODO: replace with actual model init state
         document['x-meditor'].states = [rootState]
         document['x-meditor'].publishedTo = []
-        //! </refactor>
 
         const insertedDocument = await documentsDb.insertDocument(document, modelName)
 
@@ -102,19 +87,8 @@ export async function createDocument(
         const [last] = insertedDocument['x-meditor'].states.slice(-1)
         const targetState = last.target
 
-        //* At this point the document exists, so it's safe to call `getModelWithWorkflow`.
-        const [modelWithWorkflowError, modelWithWorkflow] =
-            await getModelWithWorkflow(modelName)
-
-        //* getModelWithWorkflow's return type means that if there's not an error, we proceed.
-        if (!modelWithWorkflowError) {
-            //! Since publishing to queue is a side effect outside the concerns of createDocument, we do not await the result.
-            safelyPublishDocumentChangeToQueue(
-                modelWithWorkflow,
-                document,
-                targetState
-            )
-        }
+        //! Since publishing to queue is a side effect outside the concerns of createDocument, we do not await the result.
+        safelyPublishDocumentChangeToQueue(modelWithWorkflow, document, targetState)
 
         return [
             null,
