@@ -1014,63 +1014,6 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
                 options: localVarRequestOptions,
             }
         },
-        /**
-         * Puts a document
-         * @summary Puts a document
-         * @param {any} file Uploaded document file (JSON)
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        putDocument(file: any, options: any = {}): FetchArgs {
-            // verify required parameter 'file' is not null or undefined
-            if (file === null || file === undefined) {
-                throw new RequiredError(
-                    'file',
-                    'Required parameter file was null or undefined when calling putDocument.'
-                )
-            }
-            const localVarPath = `/putDocument`
-            const localVarUrlObj = url.parse(localVarPath, true)
-            const localVarRequestOptions = Object.assign({ method: 'POST' }, options)
-            const localVarHeaderParameter = {} as any
-            const localVarQueryParameter = {} as any
-            const localVarFormParams = new FormData()
-
-            // authentication URS4 required
-            // oauth required
-            if (configuration && configuration.accessToken) {
-                const localVarAccessTokenValue =
-                    typeof configuration.accessToken === 'function'
-                        ? configuration.accessToken('URS4', ['read', 'write'])
-                        : configuration.accessToken
-                localVarHeaderParameter['Authorization'] =
-                    'Bearer ' + localVarAccessTokenValue
-            }
-
-            if (file !== undefined) {
-                localVarFormParams.append('file', file)
-            }
-
-            //localVarHeaderParameter['Content-Type'] = 'multipart/form-data';
-
-            localVarUrlObj.query = Object.assign(
-                {},
-                localVarUrlObj.query,
-                localVarQueryParameter,
-                options.query
-            )
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search
-            localVarRequestOptions.headers = Object.assign({}, options.headers)
-            localVarRequestOptions.body = localVarFormParams //.toString();
-
-            localVarRequestOptions.credentials = 'include'
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            }
-        },
     }
 }
 
@@ -1368,38 +1311,6 @@ export const DefaultApiFp = function (configuration?: Configuration) {
                     })
             }
         },
-        /**
-         * Puts a document
-         * @summary Puts a document
-         * @param {any} file Uploaded document file (JSON)
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        putDocument(
-            file: any,
-            options?: any
-        ): (fetch?: FetchAPI, basePath?: string) => Promise<Success> {
-            const localVarFetchArgs = DefaultApiFetchParamCreator(
-                configuration
-            ).putDocument(file, options)
-            return (
-                fetch: FetchAPI = portableFetch,
-                basePath: string = BASE_PATH
-            ) => {
-                return configuration
-                    .fetch(
-                        basePath + localVarFetchArgs.url,
-                        localVarFetchArgs.options
-                    )
-                    .then(response => {
-                        if (response.status >= 200 && response.status < 300) {
-                            return response.json()
-                        } else {
-                            throw response
-                        }
-                    })
-            }
-        },
     }
 }
 
@@ -1522,19 +1433,6 @@ export const DefaultApiFactory = function (
          */
         logout(options?: any) {
             return DefaultApiFp(configuration).logout(options)(fetch, basePath)
-        },
-        /**
-         * Puts a document
-         * @summary Puts a document
-         * @param {any} file Uploaded document file (JSON)
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        putDocument(file: any, options?: any) {
-            return DefaultApiFp(configuration).putDocument(file, options)(
-                fetch,
-                basePath
-            )
         },
     }
 }
@@ -1691,21 +1589,6 @@ export class DefaultApi extends BaseAPI {
      */
     public logout(options?: any) {
         return DefaultApiFp(this.configuration).logout(options)(
-            this.fetch,
-            this.basePath
-        )
-    }
-
-    /**
-     * Puts a document
-     * @summary Puts a document
-     * @param {any} file Uploaded document file (JSON)
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DefaultApi
-     */
-    public putDocument(file: any, options?: any) {
-        return DefaultApiFp(this.configuration).putDocument(file, options)(
             this.fetch,
             this.basePath
         )

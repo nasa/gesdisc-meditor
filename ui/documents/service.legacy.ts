@@ -144,7 +144,7 @@ async function legacyHandleModelChanges(document: Document) {
 
         await Promise.all(updateQueue)
 
-        console.log(`Done updating state history for documents in ${documentTitle}`)
+        console.log(`Done updating state history for documents in ${documentTitle}.`)
     } catch (error) {
         console.error(error)
 

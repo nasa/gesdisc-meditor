@@ -84,7 +84,8 @@ http {
 
         location /meditor/api/putDocument {
             include /etc/nginx/proxy.conf;
-            # proxy_pass         http://api/meditor/api/putDocument;
+
+            js_content apiAdapter.adapt;
         }
 
         ###

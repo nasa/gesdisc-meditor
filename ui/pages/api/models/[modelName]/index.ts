@@ -7,7 +7,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     switch (req.method) {
         case 'GET': {
-            // todo: refactor to ErrorData tuple when getModel is refactored.
             const [error, model] = await getModel(decodeURIComponent(modelName))
 
             if (error) {

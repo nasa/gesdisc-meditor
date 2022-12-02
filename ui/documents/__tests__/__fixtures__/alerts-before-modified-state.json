@@ -1,0 +1,272 @@
+[
+    {
+        "_id": "584f299be01b045f7d3429ee",
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2011-12-05T21:26:51.000Z",
+            "modifiedBy": "jdoe",
+            "states": [
+                {
+                    "source": "Init",
+                    "target": "Draft",
+                    "modifiedOn": "2011-12-05T21:26:51.000Z"
+                },
+                {
+                    "source": "Approved",
+                    "target": "Published",
+                    "modifiedOn": "2011-12-05T21:26:51.000Z"
+                }
+            ]
+        },
+        "title": "AIRS NRT data gaps for 12/05/2011",
+        "body": "<p>Due to a guard test and maneuver, there is gaps in the AIRS NRT data for DOY 339     starting from 10:41:24 - 10:59:24 and 18:53:24 - 18:59:24.</p>\n",
+        "expiration": "2011-12-09T21:00:00Z",
+        "start": "2011-12-05T21:00:00Z",
+        "tags": ["nrt"],
+        "datasets": [],
+        "notes": "Imported from Plone http://disc.gsfc.nasa.gov/alerts/airs-nrt-data-gaps-for-12-05-2011......."
+    },
+    {
+        "_id": "584f299be01b045f7d3429f1",
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2016-10-26T00:18:47.000Z",
+            "modifiedBy": "jdoe",
+            "states": [
+                {
+                    "source": "Init",
+                    "target": "Draft",
+                    "modifiedOn": "2016-10-26T00:18:47.000Z"
+                },
+                {
+                    "source": "Approved",
+                    "target": "Published",
+                    "modifiedOn": "2016-10-26T00:18:47.000Z"
+                }
+            ]
+        },
+        "title": "TRMM GrADS DODS Server",
+        "body": "<p>The GES DISC TRMM GDS services are temporarily suspended until the respective GrADS-DODS server is updated, and we can ensure it is properly maintained. The TRMM GDS has been exposing incomplete data series, as well as data we can no longer provide support for. The tentative timeline to resume this service is February, 2017.</p><p>Meanwhile, Users are encouraged to explore the OPeNDAP hyrax server:</p><p>http://disc2.gesdisc.eosdis.nasa.gov/opendap/TRMM_RT/contents.html </p><div></div>\n",
+        "expiration": "2016-11-01T04:00:00Z",
+        "start": "2016-10-14T04:00:00Z",
+        "tags": [],
+        "datasets": [],
+        "notes": "Imported from Plone http://disc.gsfc.nasa.gov/alerts/trmm-grads-dods-server"
+    },
+    {
+        "_id": "584f299be01b045f7d3429f4",
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2013-07-24T20:33:41.000Z",
+            "modifiedBy": "jdoe",
+            "states": [
+                {
+                    "source": "Init",
+                    "target": "Draft",
+                    "modifiedOn": "2013-07-24T20:33:41.000Z"
+                },
+                {
+                    "source": "Approved",
+                    "target": "Published",
+                    "modifiedOn": "2013-07-24T20:33:41.000Z"
+                }
+            ]
+        },
+        "title": "LANCE-AIRS Near-Real Time (60)",
+        "body": "<p></p><p>Due to a AQUA maneuver, There is gaps in the AIRS NRT data starting from 2013-07-24 14:23:22 - 17:35:23.</p>\n",
+        "expiration": "2013-07-29T20:00:00Z",
+        "start": "2013-07-24T20:00:00Z",
+        "tags": ["nrt"],
+        "datasets": [],
+        "notes": "Imported from Plone http://disc.gsfc.nasa.gov/alerts/lance-airs-near-real-time-41"
+    },
+    {
+        "_id": "584f299be01b045f7d3429f7",
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2016-10-06T12:53:09.000Z",
+            "modifiedBy": "jdoe",
+            "states": [
+                {
+                    "source": "Init",
+                    "target": "Draft",
+                    "modifiedOn": "2016-10-06T12:53:09.000Z"
+                },
+                {
+                    "source": "Approved",
+                    "target": "Published",
+                    "modifiedOn": "2016-10-06T12:53:09.000Z"
+                }
+            ]
+        },
+        "title": "Republishing F16SSMIS, F17SSMIS and F18SSMIS data",
+        "body": "<p>Due to an error, the Precipitation Processing System will reprocess V04 L1-L3 SSMIS data starting with the last orbit of July 18, 2016. The new files will be recognizable bythe \"V04B\" in the file name.</p><p>An error was introduced into the SSMIS L1 products during a small bug fix inJuly 2016. The 22Vcross-pol correction was unexpectedly turned off and caused the 22V channel Tbto be off by 3 - 6 K.</p><p>This error also affected the SSMIS L2 – L3 precipitation products. </p><p>Please note that the L2 and L3 Climatology products will also be V04B startingwith July 1, 2016.</p><p>If you have already obtained any of these V04A products from our archives orthrough a Standing order, etc., please discard these and use the replacementV04B products. </p><p>The following orbital products and related browse files will be replaced withV04B data:</p><p>DataType     Orbit  StartTime</p><p>1CF16SSMIS    65791  2016-07-18 23:22:37 -&gt; current date</p><p>1CF17SSMIS    50073  2016-07-18 22:32:47 -&gt; current date</p><p>1CF18SSMIS    34811  2016-07-18 22:19:44 -&gt; current date</p><p></p><p>2AGPROFF16SSMIS 65791  2016-07-18 23:22:37 -&gt; current date</p><p>2AGPROFF17SSMIS 50073  2016-07-18 22:32:47 -&gt; current date</p><p>2AGPROFF18SSMIS 34811  2016-07-18 22:19:44 -&gt; current date</p><p></p><p>The following daily products will be replaced with V04B data:</p><p></p><p>3GPROFF16SSMIS_DAY  2016-07-19 00:00:00 -&gt; current date</p><p>3GPROFF17SSMIS_DAY  2016-07-19 00:00:00 -&gt; current date</p><p>3GPROFF18SSMIS_DAY  2016-07-19 00:00:00 -&gt; current date</p><p>3GIDEG_GPM_DAY    2016-07-19 00:00:00 -&gt; current date</p><p></p><p>The following monthly products will be replace with V04B data:</p><p></p><p>3GPROFF16SSMIS  2016-07-01 00:00:00 -&gt; 2016-09-01</p><p>3GPROFF17SSMIS  2016-07-01 00:00:00 -&gt; 2016-09-01</p><p>3GPROFF18SSMIS  2016-07-01 00:00:00-&gt; 2016-09-01</p><div></div>\n",
+        "expiration": "2016-10-20T04:00:00Z",
+        "start": "2016-10-06T12:45:00Z",
+        "tags": ["TRMM", "gpm", "hydrology", "precipitation", "water-cycle"],
+        "datasets": [],
+        "notes": "Imported from Plone http://disc.gsfc.nasa.gov/alerts/republishing-f16ssmis-f17ssmis-and-f18ssmis-data"
+    },
+    {
+        "_id": "584f299be01b045f7d3429fa",
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2014-05-19T18:54:41.000Z",
+            "modifiedBy": "jdoe",
+            "states": [
+                {
+                    "source": "Init",
+                    "target": "Draft",
+                    "modifiedOn": "2014-05-19T18:54:41.000Z"
+                },
+                {
+                    "source": "Approved",
+                    "target": "Published",
+                    "modifiedOn": "2014-05-19T18:54:41.000Z"
+                }
+            ]
+        },
+        "title": "IMPORTANT: TRMM Data Rollback and Replacement for May 17, 2014 (DOY 137)",
+        "body": "<p></p><p class=\"MsoNormal\"></p><p class=\"MsoNormal\"></p><p class=\"MsoPlainText\"></p>  <p class=\"MsoPlainText\"></p>  <p class=\"MsoPlainText\">Dear Science User,</p>  <p class=\"MsoPlainText\">PPS is rolling back and replacing certain TRMM PR data products for May 17, 2014 (DOY 137).</p>    <p class=\"MsoPlainText\">The following files were affected and have been replaced:</p>    <p class=\"MsoPlainText\">1A21</p>    <p class=\"MsoPlainText\">1B21</p>  <p class=\"MsoPlainText\">1C21 &amp; BROWSE</p>  <p class=\"MsoPlainText\">2A21 &amp; BROWSE</p>  <p class=\"MsoPlainText\">2A23 &amp; BROWSE</p>  <p class=\"MsoPlainText\">2A25 &amp; BROWSE</p>  <p class=\"MsoPlainText\">If you had obtained any of the TRMM data products earlier that are listed (above) for May 17, 2014 - either through Standing Order/s or directly from our archives , please discard this data and use the current replacement products.</p>        <p class=\"MsoPlainText\">This rollback and<span style=\"mso-spacerun:yes\"> </span>replacement was necessary because PACOR notified us that missing packets were recovered and an improved Level Zero PR_2 file (L0PR.140517.2) was available for that date.<span style=\"mso-spacerun:yes\"> </span>PPS Processing had already concluded for that day since the Level Zero PR_2 data met criteria.</p>    <p class=\"MsoPlainText\">Thank you for your patience and understanding.<span style=\"mso-spacerun:yes\"> </span>Please let us know if you have any concerns or questions.</p>    <p class=\"MsoPlainText\"></p>  <p></p>  <p></p>\n",
+        "expiration": "2014-06-19T04:00:00Z",
+        "start": "2014-05-19T04:00:00Z",
+        "tags": ["TRMM", "giovanni", "precipitation"],
+        "datasets": [],
+        "notes": "Imported from Plone http://disc.gsfc.nasa.gov/alerts/important-trmm-data-rollback-and-replacement-for-may-17-2014-doy-137"
+    },
+    {
+        "_id": "584f299be01b045f7d3429fd",
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2014-01-03T15:32:30.000Z",
+            "modifiedBy": "jdoe",
+            "states": [
+                {
+                    "source": "Init",
+                    "target": "Draft",
+                    "modifiedOn": "2014-01-03T15:32:30.000Z"
+                },
+                {
+                    "source": "Approved",
+                    "target": "Published",
+                    "modifiedOn": "2014-01-03T15:32:30.000Z"
+                }
+            ]
+        },
+        "title": "TRMM Data Rollback and Replacement for December 28, 2013",
+        "body": "<p></p><p class=\"MsoPlainText\">From PPS: PPS had to rollback and replace all TRMM data products for December 28,</p>  <p class=\"MsoPlainText\">2013 (DOY 362).<span style=\"mso-spacerun:yes\"> </span>This was because PACOR notified PPS that improved Level Zero PR, TMI and VIRS data from WSC was available and recovered after initially thought to be unrecoverable. (See message below)</p>  <p class=\"MsoPlainText\">If you had obtained any December 28, 2013 TRMM data earlier either through Standing Order/s or directly from our archives , please discard this data and use the replacement products with the processing date of December 31,2013.</p>    <p class=\"MsoPlainText\">We apologize for this inconvenience and the prior confusion and greatly appreciate your patience during this time.</p>    <p></p>\n",
+        "expiration": "2014-02-15T05:00:00Z",
+        "start": "2014-01-02T15:21:26Z",
+        "tags": ["TRMM", "precipitation"],
+        "datasets": [],
+        "notes": "Imported from Plone http://disc.gsfc.nasa.gov/alerts/important-trmm-data-rollback-and-replacement-for-december-28-2013"
+    },
+    {
+        "_id": "584f299be01b045f7d342a00",
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2013-04-09T19:46:26.000Z",
+            "modifiedBy": "jdoe",
+            "states": [
+                {
+                    "source": "Init",
+                    "target": "Draft",
+                    "modifiedOn": "2013-04-09T19:46:26.000Z"
+                },
+                {
+                    "source": "Approved",
+                    "target": "Published",
+                    "modifiedOn": "2013-04-09T19:46:26.000Z"
+                }
+            ]
+        },
+        "title": "LANCE-AIRS Near-Real Time (62)",
+        "body": "<p>Due to a AQUA maneuver, There is gaps in the AIRS NRT data starting from 2013-04-09 15:17:22 - 17:29:23.</p>\n",
+        "expiration": "2013-04-13T19:00:00Z",
+        "start": "2013-04-09T19:00:00Z",
+        "tags": ["nrt"],
+        "datasets": [],
+        "notes": "Imported from Plone http://disc.gsfc.nasa.gov/alerts/lance-airs-near-real-time-33"
+    },
+    {
+        "_id": "584f299be01b045f7d342a03",
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2011-10-14T18:12:20.000Z",
+            "modifiedBy": "jdoe",
+            "states": [
+                {
+                    "source": "Init",
+                    "target": "Draft",
+                    "modifiedOn": "2011-10-14T18:12:20.000Z"
+                },
+                {
+                    "source": "Approved",
+                    "target": "Published",
+                    "modifiedOn": "2011-10-14T18:12:20.000Z"
+                }
+            ]
+        },
+        "title": "TRMM PR Anomaly - Availability of PR Data",
+        "body": "<pre wrap=\"\">From TSDIS/PPS Help Desk:Dear Science User,PPS is now producing operational PR data from June 19, 2009 through present using new calibration coefficients from JAXA. The new calibration is valid for times after the switch to PR-B operation to recover from the PR anomaly in May, 2009.The post-anomaly data will be showing up on the PPS Public FTP area and on STORM for normal orders very soon.  We anticipate availability on Monday December 21, 2009 or shortly thereafter.Some PR data was lost and empty granules have been generated for these times.  The empty PR products exist from May, 29, 2009 (orbit 65716) through June, 18, 2009 (orbit 66038).  The first orbit with data after the PR anomaly is June 19, 2009 (orbit 66039).PPS will continue to trend the PR data throughout this post anomaly period.  In addition, JAXA will provide details of the calibration and an assessment of any impacts to data fields in the near future.Please also be aware of the following issue for TRMM PR Level 3 products after TRMM PR switched to the B side:The PR anomaly has caused the loss of PR data from 29 May 2009 to 19 June 2009.  As a result, the June 2009 Level 3 PR products contain only 12 days of data. This makes the June 2009 products less reliable due to the lack of sufficient data upon which to base the statistics.  Please take care when using the June 2009 product for quantitative analysis.Thank you for your patience during this period.Have a great Holiday Season,PPS Help Desk</pre>\n",
+        "expiration": "2010-03-02T21:20:00Z",
+        "start": "2010-03-02T21:20:00Z",
+        "tags": ["precipitation"],
+        "datasets": [],
+        "notes": "Imported from Plone http://disc.gsfc.nasa.gov/alerts/trmm-pr-anomaly-availability-of-pr-data"
+    },
+    {
+        "_id": "584f299be01b045f7d342a06",
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2014-09-03T14:24:08.000Z",
+            "modifiedBy": "jdoe",
+            "states": [
+                {
+                    "source": "Init",
+                    "target": "Draft",
+                    "modifiedOn": "2014-09-03T14:24:08.000Z"
+                },
+                {
+                    "source": "Approved",
+                    "target": "Published",
+                    "modifiedOn": "2014-09-03T14:24:08.000Z"
+                }
+            ]
+        },
+        "title": "IMPORTANT: PPS TRMM V7 Data Processing Start -Product Distribution Delay and Important Information",
+        "body": "<pre id=\"comment_text_0\" class=\"bz_comment_text\">PPS will transition to Version 7 TRMM production starting with July 01, 2011(DOY 182) TRMM data.PPS Version 6 data production will end on Saturday July 02, 2011 with thecompletion of Level 3 TRMM data processing for June 2011 (except for the 3B4Xproducts which will be available later in July after all inputs are receivedand verified).  After July 02, 2011 no new TRMM data will be available forpublic distribution until the science team verifies the newV7 products for release.  This effort is expected to last for up to 14 days.TRMM Realtime users will not be affected.  PPS will continue to produce Version6 data until Version 7 data is verified and implemented.Users with Standing Orders will receive all expected TRMM V6 data through June2011 including 3B42 and 3B43 products when complete.All IP data products beginning with July 01, 2011 data will be Version 7. Version 6 data products will continue to be accessible until they arereprocessed for Version 7.Science Users can use our new PPS Toolkit for reading the TRMM Version 7products.  The V7 Toolkit (TKIO 1.6.1) can be found at<a href=\"ftp://gpmweb2.pps.eosdis.nasa.gov/pub/PPStoolkit/CURRENT_RELEASE/\">ftp://gpmweb2.pps.eosdis.nasa.gov/pub/PPStoolkit/CURRENT_RELEASE/</a>TRMM Version 7 filespecs can be found at:<a href=\"http://pps.gsfc.nasa.gov/tsdis_redesign/SelectedDocs.html\">http://pps.gsfc.nasa.gov/tsdis_redesign/SelectedDocs.html</a>We appreciate your understanding and kind patience during this importanttransition period.  We will issue any update notifications as needed.Please let us know if you have any questions or concerns.</pre>\n",
+        "expiration": "2011-07-05T19:50:00Z",
+        "start": "2011-07-05T19:50:00Z",
+        "tags": ["precipitation"],
+        "datasets": [],
+        "notes": "Imported from Plone http://disc.gsfc.nasa.gov/alerts/important-pps-trmm-v7-data-processing-start-product-distribution-delay-and-important-information"
+    },
+    {
+        "_id": "584f299be01b045f7d342a09",
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2012-02-17T15:46:26.000Z",
+            "modifiedBy": "jdoe",
+            "states": [
+                {
+                    "source": "Init",
+                    "target": "Draft",
+                    "modifiedOn": "2012-02-17T15:46:26.000Z"
+                },
+                {
+                    "source": "Approved",
+                    "target": "Published",
+                    "modifiedOn": "2012-02-17T15:46:26.000Z"
+                }
+            ]
+        },
+        "title": "AIRS NRT data gaps for 02/17/2012",
+        "body": "<p>There was a delay in receiving NRT data early this morning from the provider. There is a six minute gap in the AIRS NRT data due to processing failure starting from  2012-02-17 02:23:24 - 02:29:24.</p>\n",
+        "expiration": "2012-02-21T16:00:00Z",
+        "start": "2012-02-17T15:00:00Z",
+        "tags": ["nrt"],
+        "datasets": [],
+        "notes": "Imported from Plone http://disc.gsfc.nasa.gov/alerts/airs-nrt-data-gaps-for-02-17-2012-......."
+    }
+]

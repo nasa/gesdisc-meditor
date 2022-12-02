@@ -1,28 +1,28 @@
 import type { Db } from 'mongodb'
-import getDb from '../../lib/mongodb'
-import {
-    populateEmailMessageTemplate,
-    formatUserForEmail,
-    getUsersToCc,
-    getUsersToNotifyOfStateChange,
-    shouldNotifyUsersOfStateChange,
-    constructEmailMessageForStateChange,
-} from '../service'
-import alertsModel from '../../models/__tests__/fixtures/models/alerts.json'
-import faqsModel from '../../models/__tests__/fixtures/models/faqs.json'
-import editPublishWorkflow from '../../workflows/__tests__/__fixtures__/edit-publish.json'
-import modifyReviewPublishWorkflow from '../../workflows/__tests__/__fixtures__/modify-review-publish.json'
-import { getModelWithWorkflow } from '../../models/service'
 import { getUsersDb } from '../../auth/db'
+import baconUser from '../../auth/__tests__/__fixtures__/bacon-user.json'
+import { getDocument } from '../../documents/service'
+import alertWithPublication from '../../documents/__tests__/__fixtures__/alertWithPublication.json'
+import getDb from '../../lib/mongodb'
+import { getModelWithWorkflow } from '../../models/service'
+import type { ModelWithWorkflow } from '../../models/types'
+import howDoIFAQ from '../../models/__tests__/__fixtures__/faqs/how-do-i.json'
+import alertsModel from '../../models/__tests__/__fixtures__/models/alerts.json'
+import faqsModel from '../../models/__tests__/__fixtures__/models/faqs.json'
 import {
     getNodesFromEdges,
     getWorkflowEdgeMatchingSourceAndTarget,
 } from '../../workflows/service'
-import baconUser from '../../auth/__tests__/__fixtures__/bacon-user.json'
-import type { ModelWithWorkflow } from '../../models/types'
-import alertWithPublication from '../../documents/__tests__/__fixtures__/alertWithPublication.json'
-import { getDocument } from '../../documents/service'
-import howDoIFAQ from '../../models/__tests__/fixtures/faqs/how-do-i.json'
+import editPublishWorkflow from '../../workflows/__tests__/__fixtures__/edit-publish.json'
+import modifyReviewPublishWorkflow from '../../workflows/__tests__/__fixtures__/modify-review-publish.json'
+import {
+    constructEmailMessageForStateChange,
+    formatUserForEmail,
+    getUsersToCc,
+    getUsersToNotifyOfStateChange,
+    populateEmailMessageTemplate,
+    shouldNotifyUsersOfStateChange,
+} from '../service'
 
 describe('Email Notifications', () => {
     let db: Db

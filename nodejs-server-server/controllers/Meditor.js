@@ -8,7 +8,6 @@ var MongoClient = mongo.MongoClient
 var ObjectID = mongo.ObjectID
 var jsonpath = require('jsonpath')
 var macros = require('./Macros')
-var mUtils = require('./lib/meditor-utils')
 var Validator = require('jsonschema').Validator
 var nats = require('./lib/nats-connection')
 var escape = require('mongo-escape').escape
@@ -350,39 +349,6 @@ function getExtraDocumentMetadata(meta, doc) {
     return extraMeta
 }
 
-/**
- * cleans up schema validation error messages
- * error messages can include things like enums that are very large
- */
-function mapValidationErrorMessage(error) {
-    let enumKey = 'enum values:'
-
-    // enum values can be very large, remove enum values from error messages
-    let message =
-        error.message.indexOf(enumKey) > -1
-            ? error.message.substring(
-                  0,
-                  error.message.indexOf(enumKey) + enumKey.length - 1
-              )
-            : error.message
-    let stack =
-        error.stack.indexOf(enumKey) > -1
-            ? error.stack.substring(
-                  0,
-                  error.stack.indexOf(enumKey) + enumKey.length - 1
-              )
-            : error.stack
-
-    return {
-        property: error.property,
-        name: error.name,
-        argument:
-            error.argument && error.argument.length <= 100 ? error.argument : [],
-        message,
-        stack,
-    }
-}
-
 function DocumentNotFoundException(documentTitle) {
     this.message = `Document was not found: '${documentTitle}'`
     this.toString = function () {
@@ -435,120 +401,6 @@ async function retrieveDocument(client, request, includeTitleProperty = false) {
     }
 
     return document
-}
-
-/**
- * saves a document
- * TODO: use explicit parameters, not the whole request object
- * TODO: refactor to not use "that" object
- */
-async function saveDocument(client, request, document, model) {
-    let that = {}
-    that.model = model || document['x-meditor'].model
-    that.dbo = client
-
-    // get the model metadata first
-    _.assign(
-        that,
-        await getDocumentModelMetadata(client, request, {
-            model: that.model,
-        })
-    )
-
-    let rootState = _.cloneDeep(mUtils.WORKFLOW_ROOT_EDGE)
-    rootState.modifiedOn = document['x-meditor'].modifiedOn
-    document['x-meditor'].modifiedOn = new Date().toISOString()
-    document['x-meditor'].modifiedBy = request.user.uid
-    // TODO: replace with actual model init state
-    document['x-meditor'].states = [rootState]
-    document['x-meditor'].publishedTo = []
-
-    // save document
-    await client.db(DbName).collection(that.model.name).insertOne(document)
-
-    // if needed, act on document changes
-    await mUtils.actOnDocumentChanges(that, DbName, document)
-
-    // publish document save
-    let state =
-        document['x-meditor'].states[document['x-meditor'].states.length - 1].target
-    await mUtils.publishToNats(client, document, that.model, state)
-}
-
-//Exported method to add a Document
-module.exports.putDocument = function putDocument(request, response, next) {
-    var that = {}
-    // Parse uploaded file
-    var file = request.swagger.params['file'].value
-    // Ensure it is well formed JSON
-    var doc
-    try {
-        doc = safelyParseJSON(file.buffer.toString())
-    } catch (err) {
-        console.log(err)
-        return handleError(response, {
-            status: 400,
-            message: 'Failed to parse the Document',
-        })
-    }
-
-    return MongoClient.connect(MongoUrl)
-        .then(res => {
-            that.dbo = res
-        })
-        .then(() => {
-            return getModelContent(doc['x-meditor'].model, that.dbo.db(DbName))
-        })
-        .then(model => {
-            if (!model || !model.schema)
-                throw new Error('Failed to find the requested model')
-
-            that.model = model
-            return model
-        })
-        .then(async model => {
-            //* Get the model's workflow so that we can find information about the draft node, which is the only node that applies to putDocument.
-            const [workflow] = await that.dbo
-                .db(DbName)
-                .collection('Workflows')
-                .find({ name: that.model.workflow })
-                .sort({ 'x-meditor.modifiedOn': -1 })
-                .limit(1)
-                .toArray()
-            const draftNode = workflow.nodes.find(node => node.id === 'Draft')
-            const { allowValidationErrors } = draftNode
-
-            // validate the document against the schema
-            var v = new Validator()
-            var schema = JSON.parse(model.schema)
-            schema.additionalProperties = true
-            var result = v.validate(doc, schema)
-
-            if (result.errors.length > 0 && !allowValidationErrors) {
-                throw {
-                    status: 400,
-                    message: `Document does not validate against the ${doc['x-meditor'].model} schema`,
-                    errors: result.errors.map(error =>
-                        mapValidationErrorMessage(error)
-                    ),
-                }
-            }
-        })
-        .then(() => {
-            return saveDocument(that.dbo, request, doc)
-        })
-        .then(
-            res => (
-                that.dbo.close(),
-                handleSuccess(response, { message: 'Inserted document' })
-            )
-        )
-        .catch(err => {
-            try {
-                that.dbo.close()
-            } catch (e) {}
-            handleError(response, err)
-        })
 }
 
 // Exported method to get a document

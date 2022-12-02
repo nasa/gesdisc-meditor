@@ -1,0 +1,131 @@
+{
+    "name": "Edit-Review-Publish",
+    "roles": ["Author", "Reviewer", "Publisher"],
+    "nodes": [
+        {
+            "id": "Init",
+            "privileges": [
+                {
+                    "role": "Author",
+                    "privilege": ["create"]
+                },
+                {
+                    "role": "Reviewer"
+                }
+            ],
+            "readyForUse": false
+        },
+        {
+            "id": "Draft",
+            "privileges": [
+                {
+                    "role": "Author",
+                    "privilege": ["edit", "comment"]
+                }
+            ],
+            "readyForUse": false
+        },
+        {
+            "id": "Under Review",
+            "privileges": [
+                {
+                    "role": "Author",
+                    "privilege": ["comment", "edit"]
+                },
+                {
+                    "role": "Reviewer",
+                    "privilege": ["comment"]
+                }
+            ],
+            "readyForUse": false
+        },
+        {
+            "id": "Approved",
+            "privileges": [
+                {
+                    "role": "Author",
+                    "privilege": ["comment", "edit"]
+                },
+                {
+                    "role": "Reviewer",
+                    "privilege": ["comment"]
+                },
+                {
+                    "role": "Publisher",
+                    "privilege": ["comment"]
+                }
+            ],
+            "readyForUse": false
+        },
+        {
+            "id": "Published",
+            "privileges": [
+                {
+                    "role": "Author",
+                    "privilege": ["comment", "edit"]
+                }
+            ],
+            "readyForUse": true
+        }
+    ],
+    "edges": [
+        {
+            "role": "Author",
+            "source": "Init",
+            "target": "Draft",
+            "label": "Add New",
+            "notify": false
+        },
+        {
+            "role": "Author",
+            "source": "Draft",
+            "target": "Under Review",
+            "label": "Submit for Review",
+            "notify": true
+        },
+        {
+            "role": "Reviewer",
+            "source": "Under Review",
+            "target": "Approved",
+            "label": "Approve for Publication",
+            "notify": true
+        },
+        {
+            "role": "Publisher",
+            "source": "Approved",
+            "target": "Published",
+            "label": "Publish",
+            "notify": true
+        },
+        {
+            "role": "Reviewer",
+            "source": "Under Review",
+            "target": "Draft",
+            "label": "Needs more Work",
+            "notify": true
+        },
+        {
+            "role": "Publisher",
+            "source": "Approved",
+            "target": "Under Review",
+            "label": "I don't like it",
+            "notify": true
+        }
+    ],
+    "x-meditor": {
+        "model": "Workflows",
+        "modifiedOn": "2019-03-05T20:48:23.969Z",
+        "modifiedBy": "meditor_dev",
+        "states": [
+            {
+                "source": "Init",
+                "target": "Draft",
+                "modifiedOn": "2019-03-05T20:48:23.969Z"
+            }
+        ],
+        "titleProperty": "name",
+        "state": "Draft",
+        "banTransitions": false,
+        "targetStates": []
+    }
+}

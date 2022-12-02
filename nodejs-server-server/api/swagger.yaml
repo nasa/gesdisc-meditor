@@ -43,45 +43,6 @@ paths:
                     schema:
                         $ref: '#/definitions/error'
             x-swagger-router-controller: 'Meditor'
-    /putDocument:
-        post:
-            summary: 'Puts a document'
-            description: 'Puts a document'
-            operationId: 'putDocument'
-            consumes:
-                - 'multipart/form-data'
-            parameters:
-                - name: 'file'
-                  in: 'formData'
-                  description: 'Uploaded document file (JSON)'
-                  required: true
-                  type: 'file'
-            responses:
-                200:
-                    description: 'Successful response'
-                    schema:
-                        $ref: '#/definitions/success'
-                400:
-                    description: 'Bad request'
-                    schema:
-                        $ref: '#/definitions/error'
-                403:
-                    description: 'Access denied'
-                    schema:
-                        $ref: '#/definitions/error'
-                422:
-                    description: 'Invalid syntax'
-                    schema:
-                        $ref: '#/definitions/error'
-                500:
-                    description: 'Server error'
-                    schema:
-                        $ref: '#/definitions/error'
-                503:
-                    description: 'Service not available'
-                    schema:
-                        $ref: '#/definitions/error'
-            x-swagger-router-controller: 'Meditor'
     /getDocument:
         get:
             summary: 'Gets a document'

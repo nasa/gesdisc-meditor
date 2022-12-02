@@ -1,9 +1,9 @@
 import getDb from '../../lib/mongodb'
 import { getModel, getModels, getModelsWithDocumentCount } from '../service'
-import alertsModel from './fixtures/models/alerts.json'
-import collectionMetadataModel from './fixtures/models/collection-metadata.json'
-import GLDAS_CLM10SUBP_3H_001 from './fixtures/collection-metadata/GLDAS_CLM10SUBP_3H_001.json'
-import OML1BRVG_003 from './fixtures/collection-metadata/OML1BRVG_003.json'
+import GLDAS_CLM10SUBP_3H_001 from './__fixtures__/collection-metadata/GLDAS_CLM10SUBP_3H_001.json'
+import OML1BRVG_003 from './__fixtures__/collection-metadata/OML1BRVG_003.json'
+import alertsModel from './__fixtures__/models/alerts.json'
+import collectionMetadataModel from './__fixtures__/models/collection-metadata.json'
 
 describe('Model', () => {
     let db
