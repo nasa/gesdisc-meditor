@@ -4,15 +4,15 @@ import { getDocument } from '../../../../../../documents/service'
 import { apiError } from '../../../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const documentTitle = req.query.documentTitle.toString()
-    const modelName = req.query.modelName.toString()
+    const documentTitle = decodeURIComponent(req.query.documentTitle.toString())
+    const modelName = decodeURIComponent(req.query.modelName.toString())
     const user = await getLoggedInUser(req, res)
 
     switch (req.method) {
         case 'GET': {
             const [error, document] = await getDocument(
-                decodeURIComponent(documentTitle),
-                decodeURIComponent(modelName),
+                documentTitle,
+                modelName,
                 user
             )
 

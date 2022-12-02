@@ -7,8 +7,8 @@ import {
 import { apiError, ErrorCode, HttpException } from '../../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    const modelName = decodeURIComponent(req.query.modelName.toString())
     const user = await getLoggedInUser(req, res)
-    const modelName = req.query.modelName.toString()
 
     switch (req.method) {
         case 'GET': {

@@ -3,11 +3,11 @@ import { getModel } from '../../../../models/service'
 import { apiError } from '../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const modelName = req.query.modelName.toString()
+    const modelName = decodeURIComponent(req.query.modelName.toString())
 
     switch (req.method) {
         case 'GET': {
-            const [error, model] = await getModel(decodeURIComponent(modelName))
+            const [error, model] = await getModel(modelName)
 
             if (error) {
                 return apiError(error, res)

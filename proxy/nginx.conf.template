@@ -76,6 +76,12 @@ http {
             js_content apiAdapter.adapt;
         }
 
+        location /meditor/api/listDocuments {
+            include /etc/nginx/proxy.conf;
+
+            js_content apiAdapter.adapt;
+        }
+
         location /meditor/api/listModels {
             include /etc/nginx/proxy.conf;
 

@@ -786,50 +786,6 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
             }
         },
         /**
-         * Lists documents of a given Model
-         * @summary Lists documents of a given Model
-         * @param {string} model Name of the Model
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listDocuments(model: string, options: any = {}): FetchArgs {
-            // verify required parameter 'model' is not null or undefined
-            if (model === null || model === undefined) {
-                throw new RequiredError(
-                    'model',
-                    'Required parameter model was null or undefined when calling listDocuments.'
-                )
-            }
-            const localVarPath = `/listDocuments`
-            const localVarUrlObj = url.parse(localVarPath, true)
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options)
-            const localVarHeaderParameter = {} as any
-            const localVarQueryParameter = {} as any
-
-            if (model !== undefined) {
-                localVarQueryParameter['model'] = model
-            }
-
-            localVarUrlObj.query = Object.assign(
-                {},
-                localVarUrlObj.query,
-                localVarQueryParameter,
-                options.query
-            )
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search
-            localVarRequestOptions.headers = Object.assign(
-                {},
-                localVarHeaderParameter,
-                options.headers
-            )
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            }
-        },
-        /**
          * Logs in a user
          * @summary Login
          * @param {string} [code] URS authentication code
@@ -1032,38 +988,6 @@ export const DefaultApiFp = function (configuration?: Configuration) {
             }
         },
         /**
-         * Lists documents of a given Model
-         * @summary Lists documents of a given Model
-         * @param {string} model Name of the Model
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listDocuments(
-            model: string,
-            options?: any
-        ): (fetch?: FetchAPI, basePath?: string) => Promise<Array<DocCatalogEntry>> {
-            const localVarFetchArgs = DefaultApiFetchParamCreator(
-                configuration
-            ).listDocuments(model, options)
-            return (
-                fetch: FetchAPI = portableFetch,
-                basePath: string = BASE_PATH
-            ) => {
-                return configuration
-                    .fetch(
-                        basePath + localVarFetchArgs.url,
-                        localVarFetchArgs.options
-                    )
-                    .then(response => {
-                        if (response.status >= 200 && response.status < 300) {
-                            return response.json()
-                        } else {
-                            throw response
-                        }
-                    })
-            }
-        },
-        /**
          * Logs in a user
          * @summary Login
          * @param {string} [code] URS authentication code
@@ -1186,19 +1110,6 @@ export const DefaultApiFactory = function (
             )
         },
         /**
-         * Lists documents of a given Model
-         * @summary Lists documents of a given Model
-         * @param {string} model Name of the Model
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listDocuments(model: string, options?: any) {
-            return DefaultApiFp(configuration).listDocuments(model, options)(
-                fetch,
-                basePath
-            )
-        },
-        /**
          * Logs in a user
          * @summary Login
          * @param {string} [code] URS authentication code
@@ -1289,21 +1200,6 @@ export class DefaultApi extends BaseAPI {
      */
     public getModel(name: string, options?: any) {
         return DefaultApiFp(this.configuration).getModel(name, options)(
-            this.fetch,
-            this.basePath
-        )
-    }
-
-    /**
-     * Lists documents of a given Model
-     * @summary Lists documents of a given Model
-     * @param {string} model Name of the Model
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DefaultApi
-     */
-    public listDocuments(model: string, options?: any) {
-        return DefaultApiFp(this.configuration).listDocuments(model, options)(
             this.fetch,
             this.basePath
         )
