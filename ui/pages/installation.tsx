@@ -114,12 +114,12 @@ const InstallationPage = () => {
                         <Card.Body>
                             <p>
                                 You are almost ready to start using mEditor! Before
-                                you login, we'll guide you through setting up mEditor
-                                for the first time.
+                                you login, we&apos;ll guide you through setting up
+                                mEditor for the first time.
                             </p>
                             <p>
-                                This should only take a few minutes, and then you'll
-                                be on your way!
+                                This should only take a few minutes, and then
+                                you&apos;ll be on your way!
                             </p>
                             <p>
                                 <Button variant="primary" onClick={() => goToStep(2)}>
@@ -144,10 +144,10 @@ const InstallationPage = () => {
                     <Accordion.Collapse eventKey={'2'}>
                         <Card.Body>
                             <p>
-                                You'll need to add at least one user who has access to
-                                modifying users and models.
+                                You&apos;ll need to add at least one user who has
+                                access to modifying users and models.
                             </p>
-                            <p>Don't worry, you can always change this later.</p>
+                            <p>Don&apos;t worry, you can always change this later.</p>
 
                             <h5 className="mt-4">Users</h5>
 
@@ -294,25 +294,29 @@ const InstallationPage = () => {
                                 <>
                                     <p>
                                         We have everything we need to populate the
-                                        database for the first time. We'll be adding
-                                        the following to the database:
+                                        database for the first time. We&apos;ll be
+                                        adding the following to the database:
                                     </p>
 
                                     <ul>
                                         <li>
-                                            Base mEditor models: "Models",
-                                            "Workflows", and "Users"
+                                            Base mEditor models: &quot;Models&quot;,
+                                            &quot;Workflows&quot;, and
+                                            &quot;Users&quot;
                                         </li>
                                         <li>
                                             Two workflows to start with:
-                                            "Edit-Review-Publish" and "Edit"
+                                            &quot;Edit-Review-Publish&quot; and
+                                            &quot;Edit&quot;
                                         </li>
                                         <li>
                                             The {users.length}{' '}
                                             {pluralize('user', users.length)} that you
                                             requested
                                         </li>
-                                        <li>An example model: "Example News"</li>
+                                        <li>
+                                            An example model: &quot;Example News&quot;
+                                        </li>
                                     </ul>
 
                                     <Button variant="primary" onClick={runSetup}>

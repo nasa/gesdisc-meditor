@@ -26,8 +26,8 @@ class CollapseMenuAction extends Component {
                 )
                 return (
                     <h2 className="warning bg-error" style={{ color: 'red' }}>
-                        Can't find <b>{action.component}</b> in <b>formContext</b>.
-                        <b>allActions</b>
+                        Can&apos;t find <b>{action.component}</b> in{' '}
+                        <b>formContext</b>.<b>allActions</b>
                     </h2>
                 )
             }
@@ -157,14 +157,14 @@ class CollapseLegend extends Component {
                 )
                 return (
                     <h2 className="warning bg-error" style={{ color: 'red' }}>
-                        Can't find <b>{legend.component}</b> in <b>formContext</b>.
-                        <b>legends</b>
+                        Can&apos;t find <b>{legend.component}</b> in{' '}
+                        <b>formContext</b>.<b>legends</b>
                     </h2>
                 )
             }
             return <Component {...legend.props} />
         }
-        return <div>I'm a legend</div>
+        return <div>I&apos;m a legend</div>
     }
 }
 

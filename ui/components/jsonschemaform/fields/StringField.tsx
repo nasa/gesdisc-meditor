@@ -109,7 +109,7 @@ function StringField(props) {
                                 id={`broken-link-tooltip-${fieldProps.name}`}
                                 {...props}
                             >
-                                URL doesn't exist
+                                URL doesn&apos;t exist
                             </Tooltip>
                         )}
                     >

@@ -56,7 +56,8 @@ body {
 }
 
 .model-select .model-select__single-value > div > span {
-    flex: 1 0 2em;
+    width: 2em;
+    height: 2em;
 }
 
 .form-group {

@@ -1,3 +1,5 @@
+@import 'reactflow/dist/style.css';
+
 .workflow.controls {
     bottom: unset;
     top: 1rem;

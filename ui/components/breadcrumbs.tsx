@@ -5,7 +5,7 @@ export const Breadcrumb = props => {
     return (
         <li className={styles.li}>
             {props.href ? (
-                <Link href={props.href} as={props.as}>
+                <Link href={props.href} as={props.as} legacyBehavior>
                     <a dangerouslySetInnerHTML={{ __html: props.title }} />
                 </Link>
             ) : (
