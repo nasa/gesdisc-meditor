@@ -7,7 +7,7 @@ import {
     removeUnsavedDocumentFromLS,
     UnsavedDocument,
 } from '../../lib/unsaved-changes'
-import type { Document } from '../../models/types'
+import type { Document } from '../../documents/types'
 import { AppContext } from '../app-store'
 import CloneDocumentModal from '../document/clone-document-modal'
 import DocumentStateBadge from '../document/document-state-badge'

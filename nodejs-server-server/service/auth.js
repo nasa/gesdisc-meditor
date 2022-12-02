@@ -8,7 +8,6 @@ const PROTECTED_URLS = [
     '/meditor/api/getModel?name=Users',
     '/meditor/api/listDocuments?model=Users',
     '/meditor/api/putDocument',
-    '/meditor/api/cloneDocument',
     '/meditor/api/getDocument?model=Users',
     '/meditor/api/logout',
     '/meditor/api/me',
