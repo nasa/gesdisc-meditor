@@ -1,8 +1,8 @@
 import LoginDialog from '../components/login-dialog'
 import { useEffect } from 'react'
-import { attachInterceptor } from '../service/'
 import { useRouter } from 'next/router'
 import { getMe } from '../auth/http'
+import { attachInterceptor } from '../lib/fetch-interceptors'
 
 export interface Role {
     model: string
