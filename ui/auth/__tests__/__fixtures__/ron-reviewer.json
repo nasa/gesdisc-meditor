@@ -1,0 +1,10 @@
+{
+    "id": "ronreviewer",
+    "name": "Ron Reviewer",
+    "roles": [
+        {
+            "model": "FAQs",
+            "role": "Reviewer"
+        }
+    ]
+}

@@ -1,17 +1,19 @@
 import type { Db } from 'mongodb'
 import getDb from '../../lib/mongodb'
-import SpatialSearchIssue from '../../models/__test__/fixtures/alerts/spatial_search_issue.json'
-import GLDAS_CLM10SUBP_3H_001 from '../../models/__test__/fixtures/collection-metadata/GLDAS_CLM10SUBP_3H_001.json'
-import OML1BRVG_003 from '../../models/__test__/fixtures/collection-metadata/OML1BRVG_003.json'
-import TEST_NO_STATE from '../../models/__test__/fixtures/collection-metadata/TEST_NO_STATE.json'
-import alertsModel from '../../models/__test__/fixtures/models/alerts.json'
-import collectionMetadataModel from '../../models/__test__/fixtures/models/collection-metadata.json'
-import faqsModel from '../../models/__test__/fixtures/models/faqs.json'
+import SpatialSearchIssue from '../../models/__tests__/fixtures/alerts/spatial_search_issue.json'
+import GLDAS_CLM10SUBP_3H_001 from '../../models/__tests__/fixtures/collection-metadata/GLDAS_CLM10SUBP_3H_001.json'
+import OML1BRVG_003 from '../../models/__tests__/fixtures/collection-metadata/OML1BRVG_003.json'
+import TEST_NO_STATE from '../../models/__tests__/fixtures/collection-metadata/TEST_NO_STATE.json'
+import alertsModel from '../../models/__tests__/fixtures/models/alerts.json'
+import collectionMetadataModel from '../../models/__tests__/fixtures/models/collection-metadata.json'
+import faqsModel from '../../models/__tests__/fixtures/models/faqs.json'
 import editPublishCmrWorkflow from '../../workflows/__tests__/__fixtures__/edit-publish-cmr.json'
 import editPublishWorkflow from '../../workflows/__tests__/__fixtures__/edit-publish.json'
 import modifyReviewPublishWorkflow from '../../workflows/__tests__/__fixtures__/modify-review-publish.json'
+import duplicateEdgesWorkflow from './__fixtures__/duplicate-edges-workflow.json'
 import { adaptDocumentToLegacyDocument } from '../adapters'
 import {
+    changeDocumentState,
     createSourceToTargetStateMap,
     findAllowedUserRolesForModel,
     getDocument,
@@ -19,11 +21,16 @@ import {
     getDocumentHistoryByVersion,
     getDocumentPublications,
     getDocumentsForModel,
+    shouldPublishStateChangeToQueue,
 } from '../service'
+import * as emailNotifications from '../../email-notifications/service'
+import * as publicationQueue from '../../publication-queue/service'
 import alertFromGql from './__fixtures__/alertFromGql.json'
 import alertWithHistory from './__fixtures__/alertWithHistory.json'
 import alertWithPublication from './__fixtures__/alertWithPublication.json'
 import workflowEdges from './__fixtures__/workflowEdges.json'
+import HowDoIFAQ from '../../models/__tests__/fixtures/faqs/how-do-i.json'
+import WhereDoIFAQ from '../../models/__tests__/fixtures/faqs/where-do-i.json'
 
 describe('Documents', () => {
     let db: Db
@@ -42,6 +49,7 @@ describe('Documents', () => {
         await db.collection('Workflows').insertOne(editPublishCmrWorkflow)
         await db.collection('Workflows').insertOne(editPublishWorkflow)
         await db.collection('Workflows').insertOne(modifyReviewPublishWorkflow)
+        await db.collection('Workflows').insertOne(duplicateEdgesWorkflow)
     })
 
     afterEach(async () => {
@@ -49,7 +57,6 @@ describe('Documents', () => {
         await db.collection('Collection Metadata').deleteMany({})
         await db.collection('Alerts').deleteMany({})
         await db.collection('FAQs').deleteMany({})
-        await db.collection('Workflows').deleteMany({})
         await db.collection('Workflows').deleteMany({})
     })
 
@@ -519,6 +526,359 @@ describe('Documents', () => {
                   },
                 ]
             `)
+        })
+    })
+
+    describe('changeDocumentState', () => {
+        const notificationsSpy = jest.spyOn<typeof emailNotifications, any>(
+            emailNotifications,
+            'constructEmailMessageForStateChange'
+        )
+
+        const queueSpy = jest.spyOn<typeof publicationQueue, any>(
+            publicationQueue,
+            'publishMessageToQueueChannel'
+        )
+
+        const user_noFAQRole = {
+            id: 'a-db-id',
+            uid: 'johndoe',
+            created: 1052283628409,
+            emailAddress: 'john.r.doe@example.com',
+            firstName: 'John',
+            lastAccessed: 1000000000000,
+            lastName: 'Doe',
+            roles: [
+                { model: 'Models', role: 'Author' },
+                { model: 'Workflows', role: 'Author' },
+                { model: 'Users', role: 'Author' },
+                { model: 'Images', role: 'Author' },
+                { model: 'News', role: 'Author' },
+                { model: 'News', role: 'Reviewer' },
+                { model: 'Tags', role: 'Author' },
+            ],
+            name: 'John Doe',
+        }
+
+        const user_FAQAuthorAndReviewer = {
+            ...user_noFAQRole,
+            roles: [].concat(user_noFAQRole.roles, [
+                { model: 'FAQs', role: 'Author' },
+                { model: 'FAQs', role: 'Reviewer' },
+            ]),
+        }
+
+        beforeEach(async () => {
+            await db.collection('FAQs').insertOne(HowDoIFAQ)
+            await db.collection('FAQs').insertOne(WhereDoIFAQ)
+
+            // mock the notifications service to return a test email
+            notificationsSpy.mockImplementation(async () => {
+                return {
+                    subject: 'a test email',
+                }
+            })
+
+            // mock the queue service so we don't actually queue up an email!
+            queueSpy.mockImplementation(async () => {
+                return 'foo'
+            })
+        })
+
+        afterEach(async () => {
+            await db.collection('FAQs').deleteMany({})
+
+            notificationsSpy.mockClear()
+            queueSpy.mockClear()
+        })
+
+        it('returns an error for a model that does not exist', async () => {
+            const [error, document] = await changeDocumentState(
+                'Bacon',
+                'Eggs',
+                'Foo',
+                user_noFAQRole
+            )
+            expect(error).toMatchInlineSnapshot(`[Error: Model not found: Eggs]`)
+            expect(document).toBeNull()
+        })
+
+        it('returns an error for a document that does not exist', async () => {
+            const [error, document] = await changeDocumentState(
+                'Bacon',
+                'FAQs',
+                'Foo',
+                user_noFAQRole
+            )
+            expect(error).toMatchInlineSnapshot(
+                `[Error: Requested document, Bacon, in model, FAQs, was not found]`
+            )
+            expect(document).toBeNull()
+        })
+
+        it('returns an error if the state is not provided', async () => {
+            // @ts-expect-error
+            const [error, document] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs'
+            )
+            expect(error).toMatchInlineSnapshot(`[Error: No state provided]`)
+            expect(document).toBeNull()
+        })
+
+        it('returns an error if the provided state is the same as the current document state', async () => {
+            const [error, document] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs',
+                'Draft',
+                user_noFAQRole
+            )
+            expect(error).toMatchInlineSnapshot(
+                `[Error: Cannot transition to state [Draft] as the document is in this state already]`
+            )
+            expect(document).toBeNull()
+        })
+
+        it('returns an error if the state is not a valid state in the workflow', async () => {
+            const [error, document] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs',
+                'Foo',
+                user_noFAQRole
+            )
+            expect(error).toMatchInlineSnapshot(
+                `[Error: Cannot transition to state [Foo] as it is not a valid state in the workflow]`
+            )
+            expect(document).toBeNull()
+        })
+
+        it('returns an error if the user does not have the appropriate role', async () => {
+            const [error, document] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs',
+                'Under Review',
+                user_noFAQRole
+            )
+            expect(error).toMatchInlineSnapshot(
+                `[Error: User does not have the permissions to transition to state Under Review.]`
+            )
+            expect(document).toBeNull()
+        })
+
+        it('should transition Draft -> Under Review if user has Author role', async () => {
+            const [error, document] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs',
+                'Under Review',
+                user_FAQAuthorAndReviewer
+            )
+            expect(error).toBeNull()
+            expect(document).toHaveProperty('_id')
+            expect(document['x-meditor'].state).toEqual('Under Review')
+        })
+
+        it('should return an error if user tries to Approve a document that same user submitted for review (no consecutive transitions)', async () => {
+            // first submit for review
+            const [reviewError, reviewDocument] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs',
+                'Under Review',
+                user_FAQAuthorAndReviewer
+            )
+
+            expect(reviewError).toBeNull()
+            expect(reviewDocument['x-meditor'].state).toEqual('Under Review')
+
+            // then try to approve it
+            const [error, document] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs',
+                'Approved',
+                user_FAQAuthorAndReviewer
+            )
+
+            expect(error).toMatchInlineSnapshot(
+                `[Error: User does not have the permissions to transition to state Approved.]`
+            )
+            expect(document).toBeNull()
+        })
+
+        it('should return an error if the workflow has duplicate edges', async () => {
+            // reset FAQs to have an invalid workflow
+            await db.collection('Models').deleteMany({ name: faqsModel.name })
+            await db.collection('Models').insertOne({
+                ...faqsModel,
+                workflow: duplicateEdgesWorkflow.name,
+            })
+
+            // because there are multiple edges to get to "Under Review", we should get an error here
+            const [error, document] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs',
+                'Under Review',
+                user_FAQAuthorAndReviewer
+            )
+
+            expect(document).toBeNull()
+            expect(error).toMatchInlineSnapshot(
+                `[Error: Workflow, Duplicate Edges, is misconfigured! There are duplicate edges from 'Draft' to 'Under Review'.]`
+            )
+        })
+
+        it('should send an email notification by default', async () => {
+            const [error, document] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs',
+                'Under Review',
+                user_FAQAuthorAndReviewer,
+                { disableQueuePublication: true }
+            )
+
+            expect(error).toBeNull()
+            expect(document).not.toBeNull()
+            expect(notificationsSpy).toHaveBeenCalledTimes(1)
+        })
+
+        it('should not send an email notification if requested to disable', async () => {
+            const [error, document] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs',
+                'Under Review',
+                user_FAQAuthorAndReviewer,
+                { disableEmailNotifications: true, disableQueuePublication: true }
+            )
+
+            expect(error).toBeNull()
+            expect(document).not.toBeNull()
+            expect(notificationsSpy).toHaveBeenCalledTimes(0)
+        })
+
+        it('should publish the email message to the publication queue', async () => {
+            const [error, document] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs',
+                'Under Review',
+                user_FAQAuthorAndReviewer,
+                { disableQueuePublication: true }
+            )
+
+            expect(error).toBeNull()
+            expect(document).not.toBeNull()
+            expect(queueSpy).toHaveBeenCalledTimes(1)
+            expect(queueSpy).toHaveBeenCalledWith('meditor-notifications-test', {
+                subject: 'a test email',
+            })
+        })
+
+        it('should not publish the email message to the publication queue, if requested to disable notifications', async () => {
+            const [error, document] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs',
+                'Under Review',
+                user_FAQAuthorAndReviewer,
+                { disableEmailNotifications: true, disableQueuePublication: true }
+            )
+
+            expect(error).toBeNull()
+            expect(document).not.toBeNull()
+            expect(queueSpy).toHaveBeenCalledTimes(0)
+        })
+
+        it('should publish the state change to the queue by default', async () => {
+            const [error, document] = await changeDocumentState(
+                HowDoIFAQ.title,
+                'FAQs',
+                'Under Review',
+                user_FAQAuthorAndReviewer,
+                { disableEmailNotifications: true }
+            )
+
+            expect(error).toBeNull()
+            expect(document).not.toBeNull()
+            expect(queueSpy).toHaveBeenCalledTimes(1)
+        })
+    })
+
+    describe('shouldPublishStateChangeToQueue', () => {
+        it('should return true if no nodes in the workflow are set to publishable', () => {
+            const model1: any = {
+                workflow: {
+                    nodes: [],
+                },
+            }
+
+            const model2: any = {
+                workflow: {
+                    nodes: [
+                        {
+                            id: 'Under Review',
+                        },
+                    ],
+                },
+            }
+
+            expect(shouldPublishStateChangeToQueue(model1, 'Under Review')).toEqual(
+                true
+            )
+            expect(shouldPublishStateChangeToQueue(model2, 'Under Review')).toEqual(
+                true
+            )
+        })
+
+        it('should return true if workflow has publishable nodes and the node matching the state is publishable', () => {
+            const model1: any = {
+                workflow: {
+                    nodes: [
+                        {
+                            id: 'Published',
+                            publishable: true,
+                        },
+                    ],
+                },
+            }
+
+            const model2: any = {
+                workflow: {
+                    nodes: [
+                        {
+                            id: 'Published',
+                            publishable: false,
+                        },
+                        {
+                            id: 'Under Review',
+                            publishable: true,
+                        },
+                    ],
+                },
+            }
+
+            expect(shouldPublishStateChangeToQueue(model1, 'Under Review')).toEqual(
+                true
+            )
+            expect(shouldPublishStateChangeToQueue(model2, 'Under Review')).toEqual(
+                true
+            )
+        })
+
+        it('should return false if workflow has publishable nodes AND the node matching the state has publishable === false', () => {
+            const model: any = {
+                workflow: {
+                    nodes: [
+                        {
+                            id: 'Published',
+                            publishable: true,
+                        },
+                        {
+                            id: 'Under Review',
+                            publishable: false,
+                        },
+                    ],
+                },
+            }
+
+            expect(shouldPublishStateChangeToQueue(model, 'Under Review')).toEqual(
+                false
+            )
         })
     })
 })

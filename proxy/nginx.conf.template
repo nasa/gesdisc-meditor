@@ -70,6 +70,12 @@ http {
             js_content apiAdapter.adapt;
         }
 
+        location /meditor/api/changeDocumentState {
+            include /etc/nginx/proxy.conf;
+
+            js_content apiAdapter.adapt;
+        }
+
         ###
         ### by default all routes under /meditor/api go to the Next app
         ### the following override routes go to the old NodeJS/Express API instead
@@ -88,11 +94,6 @@ http {
 
         location /meditor/api/cloneDocument {
             proxy_pass         http://api/meditor/api/cloneDocument;
-            include /etc/nginx/proxy.conf;
-        }
-
-        location /meditor/api/changeDocumentState {
-            proxy_pass         http://api/meditor/api/changeDocumentState;
             include /etc/nginx/proxy.conf;
         }
 

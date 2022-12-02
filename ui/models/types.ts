@@ -23,6 +23,7 @@ export interface Model {
     'x-meditor'?: ModelMetadata
     category?: string
     workflow?: string
+    notificationTemplate?: string
 }
 
 export interface ModelWithWorkflow extends Omit<Model, 'workflow'> {
