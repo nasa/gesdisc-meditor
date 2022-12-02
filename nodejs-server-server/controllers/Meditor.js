@@ -371,7 +371,6 @@ async function retrieveDocument(client, request, includeTitleProperty = false) {
     // get the model metadata first
     let modelMetadata = await getDocumentModelMetadata(client, request)
 
-    // build the getDocument query
     let query = getDocumentAggregationQuery(modelMetadata)
     query.push({ $limit: 1 })
 
@@ -450,31 +449,6 @@ module.exports.cloneDocument = async function (request, response, next) {
             handleNotFound(response, err.message)
         } else if (err instanceof DocumentAlreadyExistsException) {
             handleBadRequest(response, err.message)
-        } else {
-            handleError(response, err)
-        }
-    } finally {
-        client.close()
-    }
-}
-
-// Exported method to get a document
-module.exports.getDocument = async function (request, response) {
-    let client = new MongoClient(MongoUrl)
-
-    try {
-        await client.connect()
-
-        // retrieve the document
-        let document = await retrieveDocument(client, request)
-
-        // respond with document
-        handleSuccess(response, document)
-    } catch (err) {
-        console.error(err)
-
-        if (err instanceof DocumentNotFoundException) {
-            handleNotFound(response, err.message)
         } else {
             handleError(response, err)
         }

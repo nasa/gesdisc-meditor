@@ -686,72 +686,6 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
             }
         },
         /**
-         * Gets a document
-         * @summary Gets a document
-         * @param {string} model Name of the Model
-         * @param {string} title Title of the document
-         * @param {string} [version] Version of the document
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getDocument(
-            model: string,
-            title: string,
-            version?: string,
-            options: any = {}
-        ): FetchArgs {
-            // verify required parameter 'model' is not null or undefined
-            if (model === null || model === undefined) {
-                throw new RequiredError(
-                    'model',
-                    'Required parameter model was null or undefined when calling getDocument.'
-                )
-            }
-            // verify required parameter 'title' is not null or undefined
-            if (title === null || title === undefined) {
-                throw new RequiredError(
-                    'title',
-                    'Required parameter title was null or undefined when calling getDocument.'
-                )
-            }
-            const localVarPath = `/getDocument`
-            const localVarUrlObj = url.parse(localVarPath, true)
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options)
-            const localVarHeaderParameter = {} as any
-            const localVarQueryParameter = {} as any
-
-            if (model !== undefined) {
-                localVarQueryParameter['model'] = model
-            }
-
-            if (title !== undefined) {
-                localVarQueryParameter['title'] = title
-            }
-
-            if (version !== undefined) {
-                localVarQueryParameter['version'] = version
-            }
-
-            localVarUrlObj.query = Object.assign(
-                {},
-                localVarUrlObj.query,
-                localVarQueryParameter,
-                options.query
-            )
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search
-            localVarRequestOptions.headers = Object.assign(
-                {},
-                localVarHeaderParameter,
-                options.headers
-            )
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            }
-        },
-        /**
          * Gets user info
          * @summary Gets user info
          * @param {*} [options] Override http request option.
@@ -1089,42 +1023,6 @@ export const DefaultApiFp = function (configuration?: Configuration) {
             }
         },
         /**
-         * Gets a document
-         * @summary Gets a document
-         * @param {string} model Name of the Model
-         * @param {string} title Title of the document
-         * @param {string} [version] Version of the document
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getDocument(
-            model: string,
-            title: string,
-            version?: string,
-            options?: any
-        ): (fetch?: FetchAPI, basePath?: string) => Promise<any> {
-            const localVarFetchArgs = DefaultApiFetchParamCreator(
-                configuration
-            ).getDocument(model, title, version, options)
-            return (
-                fetch: FetchAPI = portableFetch,
-                basePath: string = BASE_PATH
-            ) => {
-                return configuration
-                    .fetch(
-                        basePath + localVarFetchArgs.url,
-                        localVarFetchArgs.options
-                    )
-                    .then(response => {
-                        if (response.status >= 200 && response.status < 300) {
-                            return response.json()
-                        } else {
-                            throw response
-                        }
-                    })
-            }
-        },
-        /**
          * Gets user info
          * @summary Gets user info
          * @param {*} [options] Override http request option.
@@ -1351,23 +1249,6 @@ export const DefaultApiFactory = function (
             return DefaultApiFp(configuration).getCsrfToken(options)(fetch, basePath)
         },
         /**
-         * Gets a document
-         * @summary Gets a document
-         * @param {string} model Name of the Model
-         * @param {string} title Title of the document
-         * @param {string} [version] Version of the document
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getDocument(model: string, title: string, version?: string, options?: any) {
-            return DefaultApiFp(configuration).getDocument(
-                model,
-                title,
-                version,
-                options
-            )(fetch, basePath)
-        },
-        /**
          * Gets user info
          * @summary Gets user info
          * @param {*} [options] Override http request option.
@@ -1480,30 +1361,6 @@ export class DefaultApi extends BaseAPI {
             this.fetch,
             this.basePath
         )
-    }
-
-    /**
-     * Gets a document
-     * @summary Gets a document
-     * @param {string} model Name of the Model
-     * @param {string} title Title of the document
-     * @param {string} [version] Version of the document
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DefaultApi
-     */
-    public getDocument(
-        model: string,
-        title: string,
-        version?: string,
-        options?: any
-    ) {
-        return DefaultApiFp(this.configuration).getDocument(
-            model,
-            title,
-            version,
-            options
-        )(this.fetch, this.basePath)
     }
 
     /**

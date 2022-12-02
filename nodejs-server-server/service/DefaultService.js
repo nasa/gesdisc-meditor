@@ -21,27 +21,6 @@ exports.getCsrfToken = function () {
 }
 
 /**
- * Gets a document
- * Gets a document
- *
- * model String Name of the Model
- * title String Title of the document
- * version String Version of the document (optional)
- * returns Object
- **/
-exports.getDocument = function (model, title, version) {
-    return new Promise(function (resolve, reject) {
-        var examples = {}
-        examples['application/json'] = '{}'
-        if (Object.keys(examples).length > 0) {
-            resolve(examples[Object.keys(examples)[0]])
-        } else {
-            resolve()
-        }
-    })
-}
-
-/**
  * Gets user info
  * Gets user info
  *
