@@ -23,10 +23,6 @@ module.exports = {
     async rewrites() {
         return [
             {
-                source: '/api/listModels',
-                destination: '/api/models',
-            },
-            {
                 source: '/api/listDocuments',
                 has: [
                     {

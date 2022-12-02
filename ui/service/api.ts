@@ -830,56 +830,6 @@ export const DefaultApiFetchParamCreator = function (configuration?: Configurati
             }
         },
         /**
-         * Lists 'Model' objects each with an icon, description and count of number of instances of an object.
-         * @summary Lists Models
-         * @param {Array<string>} [properties] Comma-separated list of fields to be returned
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listModels(properties?: Array<string>, options: any = {}): FetchArgs {
-            const localVarPath = `/listModels`
-            const localVarUrlObj = url.parse(localVarPath, true)
-            const localVarRequestOptions = Object.assign({ method: 'GET' }, options)
-            const localVarHeaderParameter = {} as any
-            const localVarQueryParameter = {} as any
-
-            // authentication URS4 required
-            // oauth required
-            if (configuration && configuration.accessToken) {
-                const localVarAccessTokenValue =
-                    typeof configuration.accessToken === 'function'
-                        ? configuration.accessToken('URS4', ['read', 'write'])
-                        : configuration.accessToken
-                localVarHeaderParameter['Authorization'] =
-                    'Bearer ' + localVarAccessTokenValue
-            }
-
-            if (properties) {
-                localVarQueryParameter['properties'] = properties.join(
-                    COLLECTION_FORMATS['csv']
-                )
-            }
-
-            localVarUrlObj.query = Object.assign(
-                {},
-                localVarUrlObj.query,
-                localVarQueryParameter,
-                options.query
-            )
-            // fix override query string Detail: https://stackoverflow.com/a/7517673/1077943
-            delete localVarUrlObj.search
-            localVarRequestOptions.headers = Object.assign(
-                {},
-                localVarHeaderParameter,
-                options.headers
-            )
-
-            return {
-                url: url.format(localVarUrlObj),
-                options: localVarRequestOptions,
-            }
-        },
-        /**
          * Logs in a user
          * @summary Login
          * @param {string} [code] URS authentication code
@@ -1114,41 +1064,6 @@ export const DefaultApiFp = function (configuration?: Configuration) {
             }
         },
         /**
-         * Lists 'Model' objects each with an icon, description and count of number of instances of an object.
-         * @summary Lists Models
-         * @param {Array<string>} [properties] Comma-separated list of fields to be returned
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listModels(
-            properties?: Array<string>,
-            options?: any
-        ): (
-            fetch?: FetchAPI,
-            basePath?: string
-        ) => Promise<Array<ModelCatalogEntry>> {
-            const localVarFetchArgs = DefaultApiFetchParamCreator(
-                configuration
-            ).listModels(properties, options)
-            return (
-                fetch: FetchAPI = portableFetch,
-                basePath: string = BASE_PATH
-            ) => {
-                return configuration
-                    .fetch(
-                        basePath + localVarFetchArgs.url,
-                        localVarFetchArgs.options
-                    )
-                    .then(response => {
-                        if (response.status >= 200 && response.status < 300) {
-                            return response.json()
-                        } else {
-                            throw response
-                        }
-                    })
-            }
-        },
-        /**
          * Logs in a user
          * @summary Login
          * @param {string} [code] URS authentication code
@@ -1284,19 +1199,6 @@ export const DefaultApiFactory = function (
             )
         },
         /**
-         * Lists 'Model' objects each with an icon, description and count of number of instances of an object.
-         * @summary Lists Models
-         * @param {Array<string>} [properties] Comma-separated list of fields to be returned
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        listModels(properties?: Array<string>, options?: any) {
-            return DefaultApiFp(configuration).listModels(properties, options)(
-                fetch,
-                basePath
-            )
-        },
-        /**
          * Logs in a user
          * @summary Login
          * @param {string} [code] URS authentication code
@@ -1402,21 +1304,6 @@ export class DefaultApi extends BaseAPI {
      */
     public listDocuments(model: string, options?: any) {
         return DefaultApiFp(this.configuration).listDocuments(model, options)(
-            this.fetch,
-            this.basePath
-        )
-    }
-
-    /**
-     * Lists 'Model' objects each with an icon, description and count of number of instances of an object.
-     * @summary Lists Models
-     * @param {Array<string>} [properties] Comma-separated list of fields to be returned
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof DefaultApi
-     */
-    public listModels(properties?: Array<string>, options?: any) {
-        return DefaultApiFp(this.configuration).listModels(properties, options)(
             this.fetch,
             this.basePath
         )
