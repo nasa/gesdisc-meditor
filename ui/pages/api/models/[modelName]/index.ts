@@ -1,8 +1,22 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { getModel } from '../../../../models/service'
+import { apiError } from '../../../../utils/errors'
 
-export default async function handler(_req: NextApiRequest, res: NextApiResponse) {
-    // TODO: implement
-    res.status(501).json({
-        message: 'Not Implemented',
-    })
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    const modelName = req.query.modelName.toString()
+
+    switch (req.method) {
+        case 'GET': {
+            const [error, model] = await getModel(decodeURIComponent(modelName))
+
+            if (error) {
+                return apiError(error, res)
+            }
+
+            return res.status(200).json(model)
+        }
+
+        default:
+            return res.status(405).end()
+    }
 }

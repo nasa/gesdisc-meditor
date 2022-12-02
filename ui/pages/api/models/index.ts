@@ -15,6 +15,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         default:
-            return res.status(405)
+            return res.status(405).end()
     }
 }

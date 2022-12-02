@@ -46,6 +46,12 @@ http {
         ### These location blocks declare mEditor's first API and introduce a js_content
         ### compatibility layer. You can find the API adapter in `apiAdapter.js`.
         ###
+        location /meditor/api/changeDocumentState {
+            include /etc/nginx/proxy.conf;
+
+            js_content apiAdapter.adapt;
+        }
+
         location /meditor/api/getComments {
             include /etc/nginx/proxy.conf;
 
@@ -70,7 +76,7 @@ http {
             js_content apiAdapter.adapt;
         }
 
-        location /meditor/api/changeDocumentState {
+        location /meditor/api/putDocument {
             include /etc/nginx/proxy.conf;
 
             js_content apiAdapter.adapt;
@@ -84,11 +90,6 @@ http {
         ###
         location /meditor/api/getModel {
             proxy_pass         http://api/meditor/api/getModel;
-            include /etc/nginx/proxy.conf;
-        }
-
-        location /meditor/api/putDocument {
-            proxy_pass         http://api/meditor/api/putDocument;
             include /etc/nginx/proxy.conf;
         }
 

@@ -1,4 +1,5 @@
 import Fuse from 'fuse.js'
+import { validate } from 'jsonschema'
 import type { User, UserRole } from '../auth/types'
 import type { ErrorData } from '../declarations'
 import {
@@ -9,9 +10,11 @@ import { getModel, getModelWithWorkflow } from '../models/service'
 import type { DocumentsSearchOptions, ModelWithWorkflow } from '../models/types'
 import { publishMessageToQueueChannel } from '../publication-queue/service'
 import { ErrorCode, HttpException } from '../utils/errors'
+import { formatValidationErrorMessage } from '../utils/jsonschema-validate'
 import { getTargetStatesFromWorkflow } from '../workflows/service'
-import type { Workflow, WorkflowEdge, WorkflowNode } from '../workflows/types'
+import type { Workflow, WorkflowEdge } from '../workflows/types'
 import { getDocumentsDb } from './db'
+import { legacyHandleModelChanges } from './service.legacy'
 import type {
     Document,
     DocumentHistory,
@@ -22,6 +25,82 @@ import type {
 const EMAIL_NOTIFICATIONS_QUEUE_CHANNEL =
     process.env.MEDITOR_NATS_NOTIFICATIONS_CHANNEL || 'meditor-notifications'
 const DELETED_STATE = 'Deleted'
+const GENERIC_WORKFLOW_EDGE = { source: 'Init', target: 'Draft' }
+
+export async function createDocument(
+    document: any,
+    modelName: string,
+    user: User
+): Promise<ErrorData<{ insertedDocument: Document; location: string }>> {
+    try {
+        const documentsDb = await getDocumentsDb()
+
+        //* Get the model to validate its schema and the workflow so that we can find information about the draft node, which is the only node that applies to creating a document.
+        const [modelWithWorkflowError, modelWithWorkflow] =
+            await getModelWithWorkflow(modelName)
+
+        if (modelWithWorkflowError) {
+            throw modelWithWorkflowError
+        }
+
+        const { schema, titleProperty, workflow } = modelWithWorkflow
+        const { allowValidationErrors } = workflow.nodes.find(
+            node => node.id === 'Draft'
+        )
+
+        //* The schema does not allow for our 'x-meditor' metadata property, so we have to allow all additional properties.
+        const schemaWithAdditionalProperties = {
+            ...JSON.parse(schema),
+            additionalProperties: true,
+        }
+        const { errors } = validate(document, schemaWithAdditionalProperties)
+
+        if (errors.length && !allowValidationErrors) {
+            throw new HttpException(
+                ErrorCode.ValidationError,
+                `Document "${
+                    document[titleProperty]
+                }" does not validate against the schema for model "${modelName}": ${JSON.stringify(
+                    errors.map(formatValidationErrorMessage)
+                )}`
+            )
+        }
+
+        //* This logic (and associated TODO) is ported from Meditor.js, saveDocument. Minimal modifications were made.
+        const rootState = { ...GENERIC_WORKFLOW_EDGE }
+        // @ts-ignore
+        rootState.modifiedOn = document['x-meditor'].modifiedOn
+        document['x-meditor'].modifiedOn = new Date().toISOString()
+        document['x-meditor'].modifiedBy = user.uid
+        // TODO: replace with actual model init state
+        document['x-meditor'].states = [rootState]
+        document['x-meditor'].publishedTo = []
+
+        const insertedDocument = await documentsDb.insertDocument(document, modelName)
+
+        // ToDo: Review this fn and see if there's a more maintainable answer to models changing workflows.
+        if (modelName === 'Models') {
+            await legacyHandleModelChanges(insertedDocument)
+        }
+
+        //* We don't have consistency in [x-meditor] for all records, so the insertedDocument might not have a `state` property in metadata. Calling `getDocument` would return us the document's current state as [x-meditor].state because it is dynamically computed, but that call requires a lot of other information. At this point, it's simpler to use duplicated business logic here:
+        const [last] = insertedDocument['x-meditor'].states.slice(-1)
+        const targetState = last.target
+
+        //! Since publishing to queue is a side effect outside the concerns of createDocument, we do not await the result.
+        safelyPublishDocumentChangeToQueue(modelWithWorkflow, document, targetState)
+
+        return [
+            null,
+            {
+                insertedDocument,
+                location: `/api/models/${modelName}/documents/${document[titleProperty]}`,
+            },
+        ]
+    } catch (error) {
+        return [error, null]
+    }
+}
 
 export async function getDocument(
     documentTitle: string,
@@ -299,7 +378,7 @@ export async function changeDocumentState(
         }
 
         if (!options?.disableQueuePublication) {
-            await safelyPublishStateChangeToQueue(model, document, newState)
+            await safelyPublishDocumentChangeToQueue(model, document, newState)
         } else {
             console.debug(
                 'User requested to change document state without publishing the state change to the queue'
@@ -425,13 +504,16 @@ export async function safelyNotifyOfStateChange(
     }
 }
 
-export async function safelyPublishStateChangeToQueue(
+/**
+ * Publishes to queue, but does not rethrow any errors. This function is a good choice when a queue publishing failure should not halt the functions lower in the call stack.
+ */
+export async function safelyPublishDocumentChangeToQueue(
     model: ModelWithWorkflow,
     document: Document,
     state: string
 ) {
     try {
-        if (shouldPublishStateChangeToQueue(model, state)) {
+        if (isPublishableWithWorkflowSupport(model, state)) {
             // turns "Data Release" into "Data-Release"
             const channelName = model.name.replace(/ /g, '-')
 
@@ -488,7 +570,7 @@ export async function safelyDeleteDocument(
  * should only block publishing a state change if the workflow is using "publishable" on states/nodes
  * and someone has explicitly set a node to not publishable
  */
-export function shouldPublishStateChangeToQueue(
+export function isPublishableWithWorkflowSupport(
     model: ModelWithWorkflow,
     state: string
 ) {
@@ -543,35 +625,6 @@ export function findAllowedUserRolesForModel(
     return roles.reduce((accumulator, role) => {
         if (role.model === modelName) {
             return [...accumulator, role.role]
-        }
-
-        return accumulator
-    }, [])
-}
-
-/**
- * Returns all workflow edges that a user's permissions allow.
- * todo: delete the following note after complete refactor of old mEditor API:
- * this is like `getDocumentModelMetadata`'s `that.sourceStates` and `that.targetStates` without actually finding unique source and target values (this gives you the base info to do that).
- */
-function findAllowedWorkflowEdgesForUserRoles(
-    roles: User['roles'] = [],
-    workflow: Workflow
-): WorkflowEdge[] {
-    return workflow.edges.filter(workflowNode => {
-        return !!roles.find(permission => permission.role === workflowNode.role)
-    })
-}
-
-/**
- * Returns all workflow nodes that are marked `readyForUse: true`.
- * todo: delete the following note after complete refactor of old mEditor API:
- * this is `getDocumentModelMetadata`'s `that.readyNodes`
- */
-function findWorkflowNodesReadyForUse(workflow: Workflow): WorkflowNode['id'][] {
-    return workflow.nodes.reduce((accumulator, workflowNode) => {
-        if (workflowNode.readyForUse) {
-            return [...accumulator, workflowNode.id]
         }
 
         return accumulator

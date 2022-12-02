@@ -12,6 +12,7 @@ import Form from '../../../components/document/form'
 import FormActions from '../../../components/document/form-actions'
 import PageTitle from '../../../components/page-title'
 import withAuthentication from '../../../components/with-authentication'
+import { createDocument as httpCreateDocument } from '../../../documents/http'
 import {
     getNewUnsavedDocument,
     removeUnsavedDocumentFromLS,
@@ -20,7 +21,6 @@ import {
     updateUnsavedDocumentInLS,
 } from '../../../lib/unsaved-changes'
 import { getModelWithWorkflow } from '../../../models/service'
-import mEditorApi from '../../../service'
 import type { ModelWithWorkflow } from '../../../models/types'
 
 interface NewDocumentPageProps {
@@ -89,20 +89,23 @@ const NewDocumentPage = ({ user, model }: NewDocumentPageProps) => {
         document['x-meditor'] = {}
         document['x-meditor'].model = modelName
 
-        let documentBlob = new Blob([JSON.stringify(document)])
+        const [error, _createdDocument] = await httpCreateDocument(
+            document,
+            modelName
+        )
 
-        try {
-            await mEditorApi.putDocument(documentBlob)
-
-            // remove the unsaved changes from LS now that the user has saved
-            removeUnsavedDocumentFromLS(localChanges)
-
-            setSuccessNotification('Successfully created the document')
-            redirectToDocumentEdit(document)
-        } catch (err) {
-            console.error('Failed to create document ', err)
+        if (error) {
             setErrorNotification('Failed to create the document')
+
+            return
         }
+
+        // remove the unsaved changes from LS now that the user has saved
+        removeUnsavedDocumentFromLS(localChanges)
+
+        setSuccessNotification('Successfully created the document')
+
+        redirectToDocumentEdit(document)
     }
 
     function onChange(formData: any) {

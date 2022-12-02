@@ -1,8 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { getDocumentsForModel } from '../../../../../documents/service'
-import { apiError } from '../../../../../utils/errors'
+import { getLoggedInUser } from '../../../../../auth/user'
+import {
+    createDocument,
+    getDocumentsForModel,
+} from '../../../../../documents/service'
+import { apiError, ErrorCode, HttpException } from '../../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    const user = await getLoggedInUser(req, res)
     const modelName = req.query.modelName.toString()
 
     switch (req.method) {
@@ -22,7 +27,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return res.status(200).json(documents)
         }
 
+        case 'POST': {
+            if (!user) {
+                return apiError(
+                    new HttpException(ErrorCode.Unauthorized, 'Unauthorized'),
+                    res
+                )
+            }
+
+            const parsedDocument = JSON.parse(req.body)
+            const [error, { insertedDocument, location }] = await createDocument(
+                parsedDocument,
+                modelName,
+                user
+            )
+            const { _id, ...apiSafeDocument } = insertedDocument
+
+            if (error) {
+                return apiError(error, res)
+            }
+
+            res.setHeader('Location', location)
+
+            return res.status(201).json(apiSafeDocument)
+        }
+
         default:
-            return res.status(405)
+            return res.status(405).end()
     }
 }

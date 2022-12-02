@@ -1,6 +1,6 @@
 import type { Document, LegacyDocumentWithMetadata } from './types'
 
-export function adaptDocumentToLegacyDocument(document: Document) {
+export function adaptDocumentToLegacyDocument(document: Document = {}) {
     const { ['x-meditor']: metadata, ...documentWithoutMetadata } = document
     const { modifiedBy, modifiedOn, state, targetStates, titleProperty } = metadata
 

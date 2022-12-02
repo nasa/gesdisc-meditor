@@ -1,19 +1,25 @@
 import type { Db } from 'mongodb'
+import * as emailNotifications from '../../email-notifications/service'
 import getDb from '../../lib/mongodb'
-import SpatialSearchIssue from '../../models/__tests__/fixtures/alerts/spatial_search_issue.json'
-import GLDAS_CLM10SUBP_3H_001 from '../../models/__tests__/fixtures/collection-metadata/GLDAS_CLM10SUBP_3H_001.json'
-import OML1BRVG_003 from '../../models/__tests__/fixtures/collection-metadata/OML1BRVG_003.json'
-import TEST_NO_STATE from '../../models/__tests__/fixtures/collection-metadata/TEST_NO_STATE.json'
-import alertsModel from '../../models/__tests__/fixtures/models/alerts.json'
-import collectionMetadataModel from '../../models/__tests__/fixtures/models/collection-metadata.json'
-import faqsModel from '../../models/__tests__/fixtures/models/faqs.json'
+import SpatialSearchIssue from '../../models/__tests__/__fixtures__/alerts/spatial_search_issue.json'
+import GLDAS_CLM10SUBP_3H_001 from '../../models/__tests__/__fixtures__/collection-metadata/GLDAS_CLM10SUBP_3H_001.json'
+import OML1BRVG_003 from '../../models/__tests__/__fixtures__/collection-metadata/OML1BRVG_003.json'
+import TEST_NO_STATE from '../../models/__tests__/__fixtures__/collection-metadata/TEST_NO_STATE.json'
+import HowDoIFAQ from '../../models/__tests__/__fixtures__/faqs/how-do-i.json'
+import WhereDoIFAQ from '../../models/__tests__/__fixtures__/faqs/where-do-i.json'
+import alertsModel from '../../models/__tests__/__fixtures__/models/alerts.json'
+import collectionMetadataModel from '../../models/__tests__/__fixtures__/models/collection-metadata.json'
+import faqsModel from '../../models/__tests__/__fixtures__/models/faqs.json'
+import modelsModel from '../../models/__tests__/__fixtures__/models/models.json'
+import * as publicationQueue from '../../publication-queue/service'
 import editPublishCmrWorkflow from '../../workflows/__tests__/__fixtures__/edit-publish-cmr.json'
 import editPublishWorkflow from '../../workflows/__tests__/__fixtures__/edit-publish.json'
+import editReviewPublishWorkflow from '../../workflows/__tests__/__fixtures__/edit-review-publish.json'
 import modifyReviewPublishWorkflow from '../../workflows/__tests__/__fixtures__/modify-review-publish.json'
-import duplicateEdgesWorkflow from './__fixtures__/duplicate-edges-workflow.json'
 import { adaptDocumentToLegacyDocument } from '../adapters'
 import {
     changeDocumentState,
+    createDocument,
     createSourceToTargetStateMap,
     findAllowedUserRolesForModel,
     getDocument,
@@ -21,16 +27,16 @@ import {
     getDocumentHistoryByVersion,
     getDocumentPublications,
     getDocumentsForModel,
-    shouldPublishStateChangeToQueue,
+    isPublishableWithWorkflowSupport,
 } from '../service'
-import * as emailNotifications from '../../email-notifications/service'
-import * as publicationQueue from '../../publication-queue/service'
 import alertFromGql from './__fixtures__/alertFromGql.json'
+import alertsAfterCreateDocumentModification from './__fixtures__/alerts-after-createDocument-modifies-state.json'
+import alertsAfterV1Modification from './__fixtures__/alerts-after-v1-putDocument-modifies-state.json'
+import alertsBeforeModification from './__fixtures__/alerts-before-modified-state.json'
 import alertWithHistory from './__fixtures__/alertWithHistory.json'
 import alertWithPublication from './__fixtures__/alertWithPublication.json'
+import duplicateEdgesWorkflow from './__fixtures__/duplicate-edges-workflow.json'
 import workflowEdges from './__fixtures__/workflowEdges.json'
-import HowDoIFAQ from '../../models/__tests__/fixtures/faqs/how-do-i.json'
-import WhereDoIFAQ from '../../models/__tests__/fixtures/faqs/where-do-i.json'
 
 describe('Documents', () => {
     let db: Db
@@ -46,10 +52,13 @@ describe('Documents', () => {
         await db.collection('Models').insertOne(alertsModel)
         await db.collection('Models').insertOne(collectionMetadataModel)
         await db.collection('Models').insertOne(faqsModel)
+        await db.collection('Models').insertOne(modelsModel)
         await db.collection('Workflows').insertOne(editPublishCmrWorkflow)
         await db.collection('Workflows').insertOne(editPublishWorkflow)
         await db.collection('Workflows').insertOne(modifyReviewPublishWorkflow)
         await db.collection('Workflows').insertOne(duplicateEdgesWorkflow)
+        await db.collection('Workflows').insertOne(editReviewPublishWorkflow)
+        await db.collection('Alerts').insertMany(alertsBeforeModification)
     })
 
     afterEach(async () => {
@@ -58,6 +67,156 @@ describe('Documents', () => {
         await db.collection('Alerts').deleteMany({})
         await db.collection('FAQs').deleteMany({})
         await db.collection('Workflows').deleteMany({})
+    })
+
+    describe('createDocument', () => {
+        const queueSpy = jest.spyOn<typeof publicationQueue, any>(
+            publicationQueue,
+            'publishMessageToQueueChannel'
+        )
+
+        afterEach(async () => {
+            queueSpy.mockClear()
+        })
+
+        const minimalAlert = {
+            'x-meditor': {
+                model: 'Alerts',
+                modifiedOn: '',
+                modifiedBy: '',
+                states: [],
+            },
+            title: 'Year 2038 Problem',
+            body: '<p>JS epoch / Unix time will overflow.</p>\n',
+            expiration: '2038-01-19T03:04:07Z',
+            severity: 'normal',
+            start: '1111-11-11T11:11:11Z',
+            tags: [],
+            datasets: [],
+            notes: '',
+        }
+
+        const user = {
+            id: 'a-db-id',
+            uid: 'johndoe',
+            created: 1052283628409,
+            emailAddress: 'john.r.doe@example.com',
+            firstName: 'John',
+            lastAccessed: 1000000000000,
+            lastName: 'Doe',
+            roles: [
+                { model: 'Models', role: 'Author' },
+                { model: 'Workflows', role: 'Author' },
+                { model: 'Users', role: 'Author' },
+                { model: 'Images', role: 'Author' },
+                { model: 'News', role: 'Author' },
+                { model: 'News', role: 'Reviewer' },
+                { model: 'Tags', role: 'Author' },
+            ],
+            name: 'John Doe',
+        }
+
+        test('modifies related documents when a Model is edited', async () => {
+            const alertModel = await db
+                .collection('Models')
+                .findOne({ name: 'Alerts' })
+            const allAlertsBeforeTestModification = await db
+                .collection('Alerts')
+                .find()
+                .sort({ modifiedOn: -1 })
+                .toArray()
+
+            const originalFixtureStates = alertsBeforeModification.map(alert => {
+                return alert['x-meditor'].states
+            })
+            const originalTestStates = allAlertsBeforeTestModification.map(alert => {
+                return alert['x-meditor'].states
+            })
+            const statesAfterV1Modification = alertsAfterV1Modification.map(alert => {
+                return alert['x-meditor'].states
+            })
+            const statesAfterCreateDocumentModification =
+                alertsAfterCreateDocumentModification.map(alert => {
+                    return alert['x-meditor'].states
+                })
+
+            //* This baseline assertion shows that nothing was modified up to this point: the fixture (inserted into the test DB) equals the result of querying the test DB.
+            expect(originalFixtureStates).toStrictEqual(originalTestStates)
+            //* This asserts that the manual testing I ran (from which these two fixtures were created) means that, for Alerts, changing the workflow from 'Edit-Publish' to 'Edit-Review-Publish' netted the same result in the legacy code as in the current code.
+            expect(statesAfterCreateDocumentModification).toStrictEqual(
+                statesAfterV1Modification
+            )
+
+            //* Sets up a baseline assertion for the original workflow.
+            expect(alertModel.workflow).toBe('Edit-Publish')
+            alertModel.workflow = 'Edit-Review-Publish'
+            //* Asserting that the modification worked.
+            expect(alertModel.workflow).toBe('Edit-Review-Publish')
+
+            //* Prevents conflicting ObjectID upon insertion.
+            delete alertModel._id
+            //* This should modify all Alerts, since we're changing the Alerts model's workflow.
+            const [error, insertedDocument] = await createDocument(
+                alertModel,
+                'Models',
+                user
+            )
+
+            const allAlertsAfterTestModification = await db
+                .collection('Alerts')
+                .find()
+                .sort({ modifiedOn: -1 })
+                .toArray()
+            const statesAfterTestModification = allAlertsAfterTestModification.map(
+                alert => {
+                    return alert['x-meditor'].states
+                }
+            )
+
+            //* Even though we asserted their equality previously, we're gong to explicitly compare our test DB results with both fixture results.
+            expect(statesAfterTestModification).toStrictEqual(
+                statesAfterV1Modification
+            )
+            expect(statesAfterTestModification).toStrictEqual(
+                statesAfterCreateDocumentModification
+            )
+        })
+
+        test('creates a new document for create or update operations', async () => {
+            const baselineCount = await db.collection('Alerts').find().count()
+            expect(await db.collection('Alerts').find().count()).toBe(baselineCount)
+
+            const [firstError, { insertedDocument: firstInsertedAlert }] =
+                await createDocument(minimalAlert, 'Alerts', user)
+            //* Normalize by deleting properties that will always have a time-based fresh value.
+            delete firstInsertedAlert._id
+            delete firstInsertedAlert['x-meditor'].modifiedOn
+            expect(firstInsertedAlert).toMatchSnapshot()
+            expect(await db.collection('Alerts').find().count()).toBe(11)
+
+            //* Modify the alert, keeping the same "title", which is what determines a unique record for mEditor.
+            firstInsertedAlert.notes = 'This has been called the Epochalypse.'
+            const [secondError, { insertedDocument: secondInsertedAlert }] =
+                await createDocument(firstInsertedAlert, 'Alerts', user)
+
+            //* Normalize by deleting properties that will always have a time-based fresh value.
+            delete secondInsertedAlert._id
+            delete secondInsertedAlert['x-meditor'].modifiedOn
+            expect(secondInsertedAlert).toMatchSnapshot()
+            expect(await db.collection('Alerts').find().count()).toBe(
+                baselineCount + 2
+            )
+        })
+
+        test('attempts to publish document change to queue', async () => {
+            const [error, { insertedDocument }] = await createDocument(
+                minimalAlert,
+                'Alerts',
+                user
+            )
+
+            expect(queueSpy).toHaveBeenCalledTimes(1)
+        })
     })
 
     describe('findAllowedUserRolesForModel', () => {
@@ -208,6 +367,7 @@ describe('Documents', () => {
         })
 
         it('should return a list of documents for a model that has documents', async () => {
+            const baselineLength = await db.collection('Alerts').find().count()
             await db.collection('Alerts').insertOne(SpatialSearchIssue)
             await db
                 .collection('Collection Metadata')
@@ -219,7 +379,7 @@ describe('Documents', () => {
                 'Collection Metadata'
             )
 
-            expect(alerts.length).toBe(1)
+            expect(alerts.length).toBe(baselineLength + 1)
             expect(collections.length).toBe(2)
         })
 
@@ -817,10 +977,10 @@ describe('Documents', () => {
                 },
             }
 
-            expect(shouldPublishStateChangeToQueue(model1, 'Under Review')).toEqual(
+            expect(isPublishableWithWorkflowSupport(model1, 'Under Review')).toEqual(
                 true
             )
-            expect(shouldPublishStateChangeToQueue(model2, 'Under Review')).toEqual(
+            expect(isPublishableWithWorkflowSupport(model2, 'Under Review')).toEqual(
                 true
             )
         })
@@ -852,10 +1012,10 @@ describe('Documents', () => {
                 },
             }
 
-            expect(shouldPublishStateChangeToQueue(model1, 'Under Review')).toEqual(
+            expect(isPublishableWithWorkflowSupport(model1, 'Under Review')).toEqual(
                 true
             )
-            expect(shouldPublishStateChangeToQueue(model2, 'Under Review')).toEqual(
+            expect(isPublishableWithWorkflowSupport(model2, 'Under Review')).toEqual(
                 true
             )
         })
@@ -876,7 +1036,7 @@ describe('Documents', () => {
                 },
             }
 
-            expect(shouldPublishStateChangeToQueue(model, 'Under Review')).toEqual(
+            expect(isPublishableWithWorkflowSupport(model, 'Under Review')).toEqual(
                 false
             )
         })

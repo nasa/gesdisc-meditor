@@ -1,10 +1,10 @@
-import type { Model, ModelWithWorkflow } from './types'
 import jsonpath from 'jsonpath'
 import type { ErrorData } from '../declarations'
-import { getModelsDb } from './db'
 import { getDocumentsDb } from '../documents/db'
 import { ErrorCode, HttpException } from '../utils/errors'
 import { getWorkflowByDocumentState } from '../workflows/service'
+import { getModelsDb } from './db'
+import type { Model, ModelWithWorkflow } from './types'
 
 type getModelOptions = {
     populateMacroTemplates?: boolean

@@ -19,13 +19,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             )
 
             if (error) {
-                return apiError(error)
+                return apiError(error, res)
             }
 
             return res.status(200).json(document)
         }
 
         default:
-            return res.status(405)
+            return res.status(405).end()
     }
 }

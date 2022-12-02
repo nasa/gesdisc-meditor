@@ -1,6 +1,6 @@
-import { Db, ObjectID } from 'mongodb'
+import type { Db } from 'mongodb'
+import { ObjectID } from 'mongodb'
 import type { User } from '../auth/types'
-import type { ErrorData } from '../declarations'
 import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
 import type {
     DocumentsSearchOptions,
@@ -325,6 +325,16 @@ class DocumentsDb {
         return documentCount?.[0]?.count || 0
     }
 
+    async insertDocument(document: any, modelName: string) {
+        const { insertedId } = await this.#db
+            .collection(modelName)
+            .insertOne(document)
+
+        const insertedDocument = await this.getDocumentById(insertedId, modelName)
+
+        return insertedDocument
+    }
+
     /**
      * documents have an `x-meditor.states` property, containing the states the document has transitioned through
      * this method provides the mechanism to add a new state to the document
@@ -429,6 +439,16 @@ class DocumentsDb {
         ]
     }
 
+    private async getDocumentById(
+        documentId: string,
+        modelName: string
+    ): Promise<Document> {
+        const comment = await this.#db.collection(modelName).findOne({
+            _id: new ObjectID(documentId),
+        })
+
+        return makeSafeObjectIDs(comment)
+    }
     /**
      * a commonly used query for retrieving the latest version of a document
      * the property of the document used can differ between models (one calls it title, one may call it name)

@@ -161,28 +161,6 @@ exports.logout = function () {
 }
 
 /**
- * Puts a document
- * Puts a document
- *
- * file File Uploaded document file (JSON)
- * returns success
- **/
-exports.putDocument = function (file) {
-    return new Promise(function (resolve, reject) {
-        var examples = {}
-        examples['application/json'] = {
-            code: 0,
-            description: 'description',
-        }
-        if (Object.keys(examples).length > 0) {
-            resolve(examples[Object.keys(examples)[0]])
-        } else {
-            resolve()
-        }
-    })
-}
-
-/**
  * Clones a document
  * Clones a document
  *

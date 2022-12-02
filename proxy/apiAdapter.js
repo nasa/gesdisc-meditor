@@ -34,6 +34,38 @@ async function adapt(request) {
     const uri = request.uri;
 
     switch (uri) {
+        case BASE_PATH + 'changeDocumentState': {
+            try {
+                const response = await request.subrequest(
+                    BASE_PATH +
+                        'models/' +
+                        encodeURIComponent(args.model) +
+                        '/documents/' +
+                        encodeURIComponent(args.title) +
+                        '/change-document-state',
+                    {
+                        method:
+                            request.method === 'GET' ? 'POST' : request.method,
+                        args: 'state=' + encodeURIComponent(args.state), // add state as a query param
+                    }
+                );
+
+                passThroughHeaders(request, response);
+
+                request.return(response.status, response.responseBody);
+            } catch (error) {
+                ngx.log(ngx.ERR, error);
+
+                //* Do not expose the error to the end-user.
+                request.return(
+                    500,
+                    JSON.stringify({ message: 'Internal Server Error' })
+                );
+            }
+
+            break;
+        }
+
         case BASE_PATH + 'getComments': {
             try {
                 const subrequestUrl = `${BASE_PATH}models/${encodeURIComponent(
@@ -140,25 +172,39 @@ async function adapt(request) {
             break;
         }
 
-        case BASE_PATH + 'changeDocumentState': {
+        case BASE_PATH + 'putDocument': {
             try {
-                const response = await request.subrequest(
-                    BASE_PATH +
-                        'models/' +
-                        encodeURIComponent(args.model) +
-                        '/documents/' +
-                        encodeURIComponent(args.title) +
-                        '/change-document-state',
+                //* Parse the form-data through an API call so that we can know to which modelName this document belongs.
+                const formDataRequestUrl = `${BASE_PATH}parse/form-data`;
+                const formDataResponse = await request.subrequest(
+                    formDataRequestUrl,
                     {
-                        method:
-                            request.method === 'GET' ? 'POST' : request.method,
-                        args: 'state=' + encodeURIComponent(args.state), // add state as a query param
+                        method,
+                        body: request.requestBuffer,
                     }
                 );
 
-                passThroughHeaders(request, response);
+                const parsedFormDataResponse = JSON.parse(
+                    formDataResponse.responseText
+                );
 
-                request.return(response.status, response.responseBody);
+                //* multipart/form-data could contain multiple boundary-separated documents (though in practice, we know that putDocument only attaches one). Loop through the responses and send a subrequest for each document.
+                parsedFormDataResponse.forEach(async (documentString) => {
+                    const document = JSON.parse(documentString);
+
+                    const subrequestUrl = `${BASE_PATH}models/${encodeURIComponent(
+                        document['x-meditor'].model
+                    )}/documents`;
+
+                    const response = await request.subrequest(subrequestUrl, {
+                        method,
+                        body: documentString,
+                    });
+
+                    passThroughHeaders(request, response);
+
+                    request.return(response.status, response.responseBody);
+                });
             } catch (error) {
                 ngx.log(ngx.ERR, error);
 
