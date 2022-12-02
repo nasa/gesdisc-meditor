@@ -36,9 +36,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
 
             const parsedDocument = JSON.parse(req.body)
-            // ToDo: Discuss which modelName should take priority, because they could be in conflict.
-            // const modelName = parsedDocument['x-meditor'].model
-
             const [error, { insertedDocument, location }] = await createDocument(
                 parsedDocument,
                 modelName,

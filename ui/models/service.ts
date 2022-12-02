@@ -107,7 +107,6 @@ export async function getModel(
  *
  * retrieving all of these is a frequent need throughout the application. We can avoid errors by moving the logic for
  * retrieval and error handling into a service method
- * Requires that the document already exist.
  */
 export async function getModelWithWorkflow(
     modelName: string,
