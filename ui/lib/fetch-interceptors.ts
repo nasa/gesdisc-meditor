@@ -1,7 +1,18 @@
+/**
+ * Migrated from the Swagger generated mEditorAPI
+ *
+ * TODO: remove after migration to NextAuth
+ */
+
+const fetchIntercept = attach()
+
 let interceptors = []
 
 function interceptor(fetch, ...args) {
-    const reversedInterceptors = interceptors.reduce((array, interceptor) => [interceptor].concat(array), [])
+    const reversedInterceptors = interceptors.reduce(
+        (array, interceptor) => [interceptor].concat(array),
+        []
+    )
     let promise = Promise.resolve(args)
 
     // Register request interceptors
@@ -30,14 +41,14 @@ export function attach() {
     }
 
     // @ts-ignore
-    fetch = (function(fetch) {
-        return function(...args) {
+    fetch = (function (fetch) {
+        return function (...args) {
             return interceptor(fetch, ...args)
         }
     })(fetch)
 
     return {
-        register: function(interceptor) {
+        register: function (interceptor) {
             interceptors.push(interceptor)
             return () => {
                 const index = interceptors.indexOf(interceptor)
@@ -46,8 +57,12 @@ export function attach() {
                 }
             }
         },
-        clear: function() {
+        clear: function () {
             interceptors = []
         },
     }
+}
+
+export function attachInterceptor(registration) {
+    return fetchIntercept.register(registration)
 }

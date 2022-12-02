@@ -268,6 +268,34 @@ async function adapt(request) {
             break;
         }
 
+        case BASE_PATH + 'cloneDocument': {
+            try {
+                const subrequestUrl = `${BASE_PATH}models/${encodeURIComponent(
+                    args.model
+                )}/documents/${encodeURIComponent(
+                    args.title
+                )}/clone-document?newTitle=${args.newTitle}`;
+
+                const response = await request.subrequest(subrequestUrl, {
+                    method,
+                });
+
+                passThroughHeaders(request, response);
+
+                request.return(response.status, response.responseBody);
+            } catch (error) {
+                ngx.log(ngx.ERR, error);
+
+                //* Do not expose the error to the end-user.
+                request.return(
+                    500,
+                    JSON.stringify({ message: 'Internal Server Error' })
+                );
+            }
+
+            break;
+        }
+
         default: {
             ngx.log(
                 ngx.ERR,

@@ -281,6 +281,62 @@ export async function getDocumentPublications(
     }
 }
 
+export async function cloneDocument(
+    titleOfDocumentToClone: string,
+    titleOfNewDocument: string,
+    modelName: string,
+    user: User
+): Promise<ErrorData<Document>> {
+    try {
+        if (!user) {
+            throw new HttpException(
+                ErrorCode.Unauthorized,
+                'User is not authenticated'
+            )
+        }
+
+        const documentsDb = await getDocumentsDb()
+
+        // get the document we'll be cloning
+        const [documentToCloneError, documentToClone] = await getDocument(
+            titleOfDocumentToClone,
+            modelName,
+            user
+        )
+
+        if (documentToCloneError) {
+            // something went wrong while getting the document to clone
+            throw documentToCloneError
+        }
+
+        const titleProperty = documentToClone['x-meditor'].titleProperty
+
+        // create the new document with the new title
+        const { _id, ...newDocument } = {
+            ...documentToClone,
+            [titleProperty]: titleOfNewDocument,
+        }
+
+        // make sure no document exists with the new title
+        const newDocumentAlreadyExists = await documentsDb.documentExists(
+            newDocument[titleProperty],
+            modelName,
+            titleProperty
+        )
+
+        if (newDocumentAlreadyExists) {
+            throw new HttpException(
+                ErrorCode.BadRequest,
+                `A document already exists with the title: '${newDocument[titleProperty]}'`
+            )
+        }
+
+        return createDocument(newDocument, modelName, user)
+    } catch (error) {
+        return [error, null]
+    }
+}
+
 /**
  * one of the central parts of mEditor, responsible for transitioning a document through a workflow by changing it's state.
  *

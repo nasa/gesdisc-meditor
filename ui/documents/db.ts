@@ -46,6 +46,22 @@ class DocumentsDb {
         }
     }
 
+    /**
+     * a lightweight check if a document exists, filtering out "deleted" documents
+     */
+    async documentExists(
+        documentTitle: string,
+        modelName: string,
+        titleProperty: string
+    ) {
+        const document = await this.#db.collection(modelName).findOne({
+            [titleProperty]: documentTitle,
+            'x-meditor.deletedOn': { $exists: false },
+        })
+
+        return !!document
+    }
+
     async getDocument(
         documentTitle: string,
         documentVersion: string,

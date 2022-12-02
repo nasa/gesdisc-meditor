@@ -6,7 +6,6 @@ var log = require('log')
 //* e.g., 'meditor/api/cloneDocument' will match itself or itself plus any query parameters.
 const PROTECTED_URLS = [
     '/meditor/api/getModel?name=Users',
-    '/meditor/api/cloneDocument',
     '/meditor/api/logout',
     '/meditor/api/me',
     '/meditor/api/getCsrfToken',

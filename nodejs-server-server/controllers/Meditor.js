@@ -402,61 +402,6 @@ async function retrieveDocument(client, request, includeTitleProperty = false) {
     return document
 }
 
-// Exported method to clone a document
-module.exports.cloneDocument = async function (request, response, next) {
-    let client = new MongoClient(MongoUrl)
-
-    log.debug('Cloning document ', request.query)
-
-    try {
-        await client.connect()
-
-        let document = await retrieveDocument(client, request, true)
-        let titleProperty = document['x-meditor'].titleProperty
-
-        // make sure the new title doesn't match an existing document
-        try {
-            // attempt to retrieve a document with the new title
-            request.swagger.params.title.value = request.swagger.params.newTitle.value
-            await retrieveDocument(client, request)
-
-            // if we hit this point, then we found a document matching the new title, throw an error
-            throw new DocumentAlreadyExistsException(
-                request.swagger.params.title.value
-            )
-        } catch (err) {
-            if (err instanceof DocumentNotFoundException) {
-                // we WANT the document not to exist, but rethrow any other errors
-                log.debug(
-                    'New title does not match any existing documents, proceeding with cloning.'
-                )
-            } else {
-                throw err
-            }
-        }
-
-        // change the documents title and make document cloneable
-        delete document._id
-        document[titleProperty || 'title'] = request.query.newTitle
-
-        await saveDocument(client, request, document, request.query.model)
-
-        handleSuccess(response, document)
-    } catch (err) {
-        console.error(err)
-
-        if (err instanceof DocumentNotFoundException) {
-            handleNotFound(response, err.message)
-        } else if (err instanceof DocumentAlreadyExistsException) {
-            handleBadRequest(response, err.message)
-        } else {
-            handleError(response, err)
-        }
-    } finally {
-        client.close()
-    }
-}
-
 // Internal method to list documents
 function getModelContent(name, dbo) {
     return new Promise(function (resolve, reject) {
