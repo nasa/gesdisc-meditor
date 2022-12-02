@@ -80,4 +80,33 @@ async function fetchDocumentPublications(
     }
 }
 
-export { createDocument, fetchDocument, fetchDocumentPublications }
+async function cloneDocument(
+    modelName: string,
+    documentTitle: string,
+    newTitle: string
+): Promise<ErrorData<Document>> {
+    try {
+        const response = await fetch(
+            `/meditor/api/models/${encodeURIComponent(
+                modelName
+            )}/documents/${encodeURIComponent(
+                documentTitle
+            )}/clone-document?newTitle=${newTitle}`,
+            { method: 'POST' }
+        )
+
+        if (!response.ok) {
+            const { error }: APIError = await response.json()
+
+            throw new HttpException(ErrorCode.BadRequest, error) // TODO: figure out proper error code using the status
+        }
+
+        const newDocument = await response.json()
+
+        return [null, newDocument]
+    } catch (error) {
+        return [error, null]
+    }
+}
+
+export { createDocument, fetchDocument, fetchDocumentPublications, cloneDocument }

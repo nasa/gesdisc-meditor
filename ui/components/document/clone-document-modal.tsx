@@ -3,7 +3,7 @@ import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import { useState, useEffect, useContext } from 'react'
 import { AppContext } from '../app-store'
-import mEditorApi from '../../service/'
+import { cloneDocument } from '../../documents/http'
 
 const CloneDocumentModal = ({
     modelName,
@@ -31,19 +31,25 @@ const CloneDocumentModal = ({
 
         setBusy(true)
 
-        try {
-            await mEditorApi.cloneDocument(modelName, documentTitle, newTitle)
-            setSuccessNotification('Successfully cloned document')
+        const [error] = await cloneDocument(modelName, documentTitle, newTitle)
+
+        setBusy(false)
+
+        if (error) {
+            setErrorNotification(error.message || 'Failed to clone document')
+        } else {
             onSuccess()
-        } catch (err) {
-            setErrorNotification((await err.json()).description)
-        } finally {
-            setBusy(false)
         }
     }
 
     return (
-        <Modal show={show} onHide={onCancel} backdrop="static" keyboard={false} centered>
+        <Modal
+            show={show}
+            onHide={onCancel}
+            backdrop="static"
+            keyboard={false}
+            centered
+        >
             <Modal.Header closeButton>
                 <Modal.Title>{modalTitle}</Modal.Title>
             </Modal.Header>
@@ -55,12 +61,14 @@ const CloneDocumentModal = ({
                         <Form.Control
                             type="text"
                             value={newTitle}
-                            onChange={(e) => setNewTitle(e.target.value)}
+                            onChange={e => setNewTitle(e.target.value)}
                             isInvalid={isInvalid}
                             onBlur={() => setIsDirty(true)}
                         />
 
-                        <Form.Text className={isInvalid ? 'text-danger' : 'text-muted'}>
+                        <Form.Text
+                            className={isInvalid ? 'text-danger' : 'text-muted'}
+                        >
                             Please enter a unique title for this cloned document.
                         </Form.Text>
                     </Form.Group>
@@ -72,7 +80,11 @@ const CloneDocumentModal = ({
                     Cancel
                 </Button>
 
-                <Button variant="primary" onClick={clone} disabled={isInvalid || busy}>
+                <Button
+                    variant="primary"
+                    onClick={clone}
+                    disabled={isInvalid || busy}
+                >
                     Clone
                 </Button>
             </Modal.Footer>
