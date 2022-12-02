@@ -20,7 +20,6 @@ import { fetchSeedDb } from '../setup/http'
 import type { UserDuringSetup } from '../setup/types'
 import styles from './installation.module.css'
 
-// import mEditorApi from '../service/'
 /**
  * renders the install page ONLY if there aren't any models created yet (fresh install)
  */

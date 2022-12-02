@@ -1,8 +1,8 @@
 import LoginDialog from '../components/login-dialog'
 import { useEffect } from 'react'
-import mEditorAPI from '../service/'
 import { attachInterceptor } from '../service/'
 import { useRouter } from 'next/router'
+import { getMe } from '../auth/http'
 
 export interface Role {
     model: string
@@ -73,10 +73,12 @@ const UserAuthentication = ({
         !automaticallySendUserToLoginProvider
 
     async function fetchUser() {
-        try {
-            handleLoggedInUser(await mEditorAPI.getMe())
-        } catch (err) {
+        const [error, user] = await getMe()
+
+        if (error) {
             handleLoggedOutUser()
+        } else {
+            handleLoggedInUser(user)
         }
     }
 
