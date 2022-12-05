@@ -1,13 +1,6 @@
 import dagre from 'dagre'
 import React, { useCallback, useEffect } from 'react'
-import ReactFlow, {
-    Background,
-    ControlButton,
-    Controls,
-    applyEdgeChanges,
-    applyNodeChanges,
-    addEdge,
-} from 'reactflow'
+import ReactFlow, { Background, ControlButton, Controls } from 'reactflow'
 import type { Node, Edge } from 'reactflow'
 import { MdRefresh } from 'react-icons/md'
 import { useImmer } from 'use-immer'
@@ -156,21 +149,23 @@ function initNodesAndEdges({
             : []
     })
 
-    nodes.forEach(node => {
+    const workflowAndLabelNodes = [...workflowNodes, ...labelNodes]
+
+    workflowAndLabelNodes.forEach(node => {
         dagreGraph.setNode(node.id, {
             width: NODE_WIDTH,
             height: NODE_HEIGHT,
         })
     })
 
-    edges.forEach(edge => {
+    workflowEdges.forEach(edge => {
         dagreGraph.setEdge(edge.source, edge.target)
     })
 
     dagre.layout(dagreGraph)
 
     return {
-        nodes: [...workflowNodes, ...labelNodes].map(node => ({
+        nodes: workflowAndLabelNodes.map(node => ({
             ...node,
             position: dagreGraph.node(node.id),
         })),
@@ -204,15 +199,6 @@ const DocumentWorkflow = ({ workflow }) => {
     return (
         <>
             <p className="h4 text-muted">{workflow?.name}</p>
-
-            {/*
-            <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      onConnect={onConnect}
-    />*/}
 
             <ReactFlow
                 nodes={elements.nodes}

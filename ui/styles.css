@@ -1,3 +1,4 @@
+@import '~reactflow/dist/style.css';
 @import '~bootstrap/dist/css/bootstrap.min.css';
 @import '~flatpickr/dist/themes/light.css';
 @import '~@yaireo/tagify/dist/tagify.css';

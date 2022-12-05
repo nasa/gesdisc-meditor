@@ -24,6 +24,7 @@ const Header = ({ user, isAuthenticated }) => {
                         alt="mEditor"
                         src="/meditor/logo.png"
                         width="156"
+                        height="80"
                         className="d-inline-block align-top"
                     />
                 </Navbar.Brand>
