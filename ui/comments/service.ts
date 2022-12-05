@@ -12,6 +12,7 @@ import {
     NewDocumentCommentUserInputSchema,
     UpdateDocumentCommentUserInputSchema,
 } from './validation.schemas'
+import log from '../lib/log'
 
 export async function createCommentAsUser(
     newComment: CreateCommentUserInput,
@@ -44,7 +45,7 @@ export async function createCommentAsUser(
 
         return [null, comment]
     } catch (err: any) {
-        console.error(err)
+        log.error(err)
 
         return [err, null]
     }
@@ -88,7 +89,7 @@ export async function updateCommentAsUser(
 
         return [null, updatedComment]
     } catch (err: any) {
-        console.error(err)
+        log.error(err)
 
         return [err, null]
     }
@@ -110,7 +111,7 @@ export async function getCommentForDocument(
 
         return [null, comment]
     } catch (error) {
-        console.error(error)
+        log.error(error)
 
         return [error, null]
     }
@@ -130,7 +131,7 @@ export async function getCommentsForDocument(
 
         return [null, comments]
     } catch (error) {
-        console.error(error)
+        log.error(error)
 
         return [error, null]
     }
