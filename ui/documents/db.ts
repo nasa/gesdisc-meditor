@@ -391,17 +391,13 @@ class DocumentsDb {
             }
         }
 
-        const { upsertedCount } = await this.#db
-            .collection(document['x-meditor'].model)
-            .updateOne(
-                {
-                    // updating an existing document, use the _id instead of the documentTitle, this ensures no race conditions where two users are creating/updating simultaneously
-                    _id: new ObjectID(document._id),
-                },
-                updateQuery
-            )
-
-        return upsertedCount > 0
+        await this.#db.collection(document['x-meditor'].model).updateOne(
+            {
+                // updating an existing document, use the _id instead of the documentTitle, this ensures no race conditions where two users are creating/updating simultaneously
+                _id: new ObjectID(document._id),
+            },
+            updateQuery
+        )
     }
 
     /**

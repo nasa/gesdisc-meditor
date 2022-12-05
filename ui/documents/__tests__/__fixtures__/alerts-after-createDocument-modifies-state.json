@@ -1,6 +1,5 @@
 [
     {
-        "_id": "584f299be01b045f7d3429ee",
         "x-meditor": {
             "model": "Alerts",
             "modifiedOn": "2011-12-05T21:26:51.000Z",
@@ -51,7 +50,6 @@
         "notes": "Imported from Plone http://disc.gsfc.nasa.gov/alerts/airs-nrt-data-gaps-for-12-05-2011......."
     },
     {
-        "_id": "584f299be01b045f7d3429f1",
         "x-meditor": {
             "model": "Alerts",
             "modifiedOn": "2016-10-26T00:18:47.000Z",
@@ -102,7 +100,6 @@
         "notes": "Imported from Plone http://disc.gsfc.nasa.gov/alerts/trmm-grads-dods-server"
     },
     {
-        "_id": "584f299be01b045f7d3429f4",
         "x-meditor": {
             "model": "Alerts",
             "modifiedOn": "2013-07-24T20:33:41.000Z",
@@ -153,7 +150,6 @@
         "notes": "Imported from Plone http://disc.gsfc.nasa.gov/alerts/lance-airs-near-real-time-41"
     },
     {
-        "_id": "584f299be01b045f7d3429f7",
         "x-meditor": {
             "model": "Alerts",
             "modifiedOn": "2016-10-06T12:53:09.000Z",
@@ -204,7 +200,6 @@
         "notes": "Imported from Plone http://disc.gsfc.nasa.gov/alerts/republishing-f16ssmis-f17ssmis-and-f18ssmis-data"
     },
     {
-        "_id": "584f299be01b045f7d3429fa",
         "x-meditor": {
             "model": "Alerts",
             "modifiedOn": "2014-05-19T18:54:41.000Z",
@@ -255,7 +250,6 @@
         "notes": "Imported from Plone http://disc.gsfc.nasa.gov/alerts/important-trmm-data-rollback-and-replacement-for-may-17-2014-doy-137"
     },
     {
-        "_id": "584f299be01b045f7d3429fd",
         "x-meditor": {
             "model": "Alerts",
             "modifiedOn": "2014-01-03T15:32:30.000Z",
@@ -306,7 +300,6 @@
         "notes": "Imported from Plone http://disc.gsfc.nasa.gov/alerts/important-trmm-data-rollback-and-replacement-for-december-28-2013"
     },
     {
-        "_id": "584f299be01b045f7d342a00",
         "x-meditor": {
             "model": "Alerts",
             "modifiedOn": "2013-04-09T19:46:26.000Z",
@@ -357,7 +350,6 @@
         "notes": "Imported from Plone http://disc.gsfc.nasa.gov/alerts/lance-airs-near-real-time-33"
     },
     {
-        "_id": "584f299be01b045f7d342a03",
         "x-meditor": {
             "model": "Alerts",
             "modifiedOn": "2011-10-14T18:12:20.000Z",
@@ -408,7 +400,6 @@
         "notes": "Imported from Plone http://disc.gsfc.nasa.gov/alerts/trmm-pr-anomaly-availability-of-pr-data"
     },
     {
-        "_id": "584f299be01b045f7d342a06",
         "x-meditor": {
             "model": "Alerts",
             "modifiedOn": "2014-09-03T14:24:08.000Z",
@@ -459,7 +450,6 @@
         "notes": "Imported from Plone http://disc.gsfc.nasa.gov/alerts/important-pps-trmm-v7-data-processing-start-product-distribution-delay-and-important-information"
     },
     {
-        "_id": "584f299be01b045f7d342a09",
         "x-meditor": {
             "model": "Alerts",
             "modifiedOn": "2012-02-17T15:46:26.000Z",

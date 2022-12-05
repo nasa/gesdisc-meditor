@@ -18,7 +18,7 @@ if (process.env.NODE_ENV === 'development') {
     // In development mode, use a global variable so that the value
     // is preserved across module reloads caused by HMR (Hot Module Replacement).
     if (!globalThis._mongoClientPromise) {
-        console.log('Connecting to MongoDB (DEV): ', uri)
+        console.info('Connecting to MongoDB (DEV): ', uri)
 
         mongoClient = new MongoClient(uri)
         // @ts-ignore in development
@@ -27,7 +27,7 @@ if (process.env.NODE_ENV === 'development') {
     // @ts-ignore in development
     mongoClientPromise = global._mongoClientPromise
 } else {
-    console.log('Connecting to MongoDB: ', uri)
+    console.info('Connecting to MongoDB: ', uri)
 
     // In production mode, it's best to not use a global variable.
     mongoClient = new MongoClient(uri)

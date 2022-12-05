@@ -388,20 +388,11 @@ export async function changeDocumentState(
         const state = await constructNewDocumentState(document, model, newState, user)
 
         // got a new state, update the documents state in the database
-        const ok = await documentsDb.addDocumentStateChange(
+        await documentsDb.addDocumentStateChange(
             document,
             state,
             options?.dangerouslyUpdateDocumentProperties
         )
-
-        if (!ok) {
-            // safety check, not sure how this would actually happen, but just in case it does, this stops the user from thinking the update went through
-            //? why? because the underlying DB call would only fail if the document didn't exist. We just queried for it above and we never actually delete documents
-            throw new HttpException(
-                ErrorCode.InternalServerError,
-                'Failed to change document state'
-            )
-        }
 
         // get the updated document from the database
         const [updatedDocumentError, updatedDocument] = await getDocument(
