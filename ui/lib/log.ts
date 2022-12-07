@@ -2,11 +2,19 @@ import log4js from 'log4js'
 
 const log = log4js.getLogger('meditor-app')
 
+const TEN_MEGABYTES = 10 * 1024 * 1024
+
 // define where log messages go
 log4js.configure({
     appenders: {
         out: { type: 'stdout' },
-        app: { type: 'file', filename: 'logs/app.log' },
+        app: {
+            type: 'file',
+            filename: 'logs/app.log',
+            maxLogSize: TEN_MEGABYTES,
+            backups: 3,
+            compress: true,
+        },
     },
     categories: {
         default: { appenders: ['out', 'app'], level: 'debug' },
