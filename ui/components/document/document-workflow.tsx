@@ -1,8 +1,8 @@
 import dagre from 'dagre'
-import React, { useCallback, useEffect } from 'react'
-import ReactFlow, { Background, ControlButton, Controls } from 'reactflow'
-import type { Node, Edge } from 'reactflow'
+import { useCallback, useEffect } from 'react'
 import { MdRefresh } from 'react-icons/md'
+import type { Edge, Node, NodeChange, NodePositionChange } from 'reactflow'
+import ReactFlow, { Background, ControlButton, Controls } from 'reactflow'
 import { useImmer } from 'use-immer'
 import styles from './document-workflow.module.css'
 
@@ -196,6 +196,30 @@ const DocumentWorkflow = ({ workflow }) => {
         setElements(elements)
     }, [workflow])
 
+    function handleNodeChanges(changes: NodeChange[]) {
+        const { edges, nodes } = elements
+        //* A NodeChange could be many things, but we're only interested in dragging position changes.
+        const positionChanges = changes.filter(change => {
+            return change.type === 'position' && change.dragging === true
+        })
+
+        //* In practice, there seems to be only one change in the NodeChange[], but loop anyway.
+        ;(positionChanges as NodePositionChange[]).forEach(positionChange => {
+            const changingNode = nodes.find(node => {
+                return node.id === positionChange.id
+            })
+
+            const notChangingNodes = nodes.filter(node => {
+                return node.id !== positionChange.id
+            })
+
+            changingNode.position.x = positionChange.position.x
+            changingNode.position.y = positionChange.position.y
+
+            setElements({ edges, nodes: [...notChangingNodes, changingNode] })
+        })
+    }
+
     return (
         <>
             <p className="h4 text-muted">{workflow?.name}</p>
@@ -207,6 +231,7 @@ const DocumentWorkflow = ({ workflow }) => {
                     [0, 0],
                     [768, 1920],
                 ]}
+                onNodesChange={handleNodeChanges}
             >
                 <Controls className={`${styles.workflow} ${styles.controls}`}>
                     <ControlButton
