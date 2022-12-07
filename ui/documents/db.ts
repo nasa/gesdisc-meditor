@@ -70,7 +70,7 @@ class DocumentsDb {
             [key: WorkflowEdge['source']]: WorkflowEdge['target'][]
         },
         titleProperty: string,
-        uid: User['uid']
+        uid?: User['uid']
     ) {
         // Parse input to make sure DB calls are with expected inputs.
         const parsedInput = getDocumentInputSchema.parse({
@@ -148,7 +148,7 @@ class DocumentsDb {
                                             this.#DISALLOWED_SELF_TRANSITIONS,
                                         ],
                                     },
-                                    then: parsedInput.uid,
+                                    then: parsedInput.uid || '',
                                     else: '',
                                 },
                             },
