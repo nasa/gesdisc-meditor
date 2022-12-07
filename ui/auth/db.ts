@@ -1,4 +1,5 @@
 import type { Db } from 'mongodb'
+import type { Document } from '../documents/types'
 import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
 import type { Model, ModelWithWorkflow } from '../models/types'
 import type { UserContactInformation } from './types'
@@ -60,10 +61,10 @@ class UsersDb {
             return []
         }
 
-        return await this.#db
+        return this.#db
             .collection(this.#ACCOUNTS_COLLECTION)
             .find({ uid: { $in: userIds } })
-            .project({
+            .project<UserContactInformation>({
                 _id: 0,
                 emailAddress: 1,
                 firstName: 1,

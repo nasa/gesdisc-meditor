@@ -315,7 +315,7 @@ describe('Documents', () => {
         test('returns document', async () => {
             await db.collection('Alerts').insertMany(alertWithHistory)
 
-            const [error, document] = await getDocument(
+            const [error, { _id, ...document }] = await getDocument(
                 'Reprocessed FLDAS Data',
                 'Alerts',
                 user
@@ -328,7 +328,7 @@ describe('Documents', () => {
         test('returns document at version', async () => {
             await db.collection('Alerts').insertMany(alertWithHistory)
 
-            const [error, document] = await getDocument(
+            const [error, { _id, ...document }] = await getDocument(
                 'Reprocessed FLDAS Data',
                 'Alerts',
                 user,
@@ -343,7 +343,7 @@ describe('Documents', () => {
             test('is identical to the previous data structure returned from GQL', async () => {
                 await db.collection('Alerts').insertMany(alertWithHistory)
 
-                const [error, document] = await getDocument(
+                const [error, { _id, ...document }] = await getDocument(
                     'Reprocessed FLDAS Data',
                     'Alerts',
                     user

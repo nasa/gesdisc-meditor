@@ -1,5 +1,5 @@
 import React from 'react'
-import CKEditor from 'ckeditor4-react'
+import { CKEditor } from 'ckeditor4-react'
 import * as plugins from './ckeditor-plugins/'
 
 function registerPluginsWithCkEditorInstance(CKEDITOR) {
@@ -62,9 +62,8 @@ function CKEditorWidget(props) {
 
     return (
         <CKEditor
-            className="form-control"
             config={config}
-            data={props.value}
+            initData={props.value}
             onBlur={event => {
                 let value = event.editor.getData() || undefined
                 props.onBlur(props.id, value)
@@ -76,7 +75,7 @@ function CKEditorWidget(props) {
             onInstanceReady={event => {
                 event.editor.setReadOnly(props.readonly || false)
             }}
-            onBeforeLoad={(CKEDITOR, b) => {
+            onBeforeLoad={CKEDITOR => {
                 CKEDITOR.disableAutoInline = true
 
                 registerPluginsWithCkEditorInstance(CKEDITOR)

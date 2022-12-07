@@ -138,7 +138,6 @@ http {
 
         location /meditor/monitor/ {
             proxy_pass         http://monitor/;
-            proxy_http_version 1.1;
             proxy_set_header   Connection "";
             include /etc/nginx/proxy.conf;
         }
