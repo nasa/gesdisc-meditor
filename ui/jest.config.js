@@ -10,6 +10,7 @@ const jestOverwrites = {
         '<rootDir>/node_modules/',
         '<rootDir>/globalConfig.json',
     ],
+    setupFiles: ['<rootDir>/jest.setup.ts'],
     setupFilesAfterEnv: ['<rootDir>/jest.setupAfter.ts'],
 }
 

@@ -1,3 +1,4 @@
+import log from '../lib/log'
 import natsClientPromise from '../lib/nats'
 import type { QueueMessage } from './types'
 
@@ -14,20 +15,20 @@ export function publishMessageToQueueChannel(
             ? NATS_QUEUE_PREFIX + channelName
             : channelName // ensure the channel name follows the "meditor-NAME" pattern
 
-        console.log(`Publishing message to channel ${fullChannelName}`)
-        console.debug(message)
+        log.info(`Publishing message to channel ${fullChannelName}`)
+        log.debug(message)
 
         natsClient.publish(
             fullChannelName,
             JSON.stringify(message),
             (err: Error | undefined, guid: string) => {
                 if (err) {
-                    console.error('Failed to publish queue message ', err)
+                    log.error('Failed to publish queue message ', err)
                     reject(err)
                     return
                 }
 
-                console.log('Successfully published queue message ', guid)
+                log.info('Successfully published queue message ', guid)
                 resolve(guid)
             }
         )

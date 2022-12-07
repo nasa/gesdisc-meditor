@@ -11,6 +11,7 @@ import mustache from 'mustache'
 import type { Document } from '../documents/types'
 import he from 'he'
 import type { EmailMessage, EmailMessageLink } from './types'
+import log from '../lib/log'
 
 export async function constructEmailMessageForStateChange(
     model: ModelWithWorkflow,
@@ -94,7 +95,7 @@ export function shouldNotifyUsersOfStateChange(
     const DISABLE_NOTIFICATIONS_FOR_STATES = ['Init']
 
     if (DISABLE_NOTIFICATIONS_FOR_STATES.includes(documentState)) {
-        console.debug(
+        log.debug(
             'Skipping notifications, document is in an initial state: ',
             documentState
         )
@@ -105,7 +106,7 @@ export function shouldNotifyUsersOfStateChange(
 
     if (currentEdge && !currentEdge.notify) {
         // don't notify if current edge has the "notify" property set to false
-        console.debug(
+        log.debug(
             'Skipping notifications, current edge is set to not notify: ',
             currentEdge
         )
@@ -142,8 +143,8 @@ export async function getUsersToNotifyOfStateChange(
     // can be "Approved" or "Rejected", so the target edges would be ["Approve", "Reject"]
     const targetEdges = getTargetEdges(model.workflow.edges, documentState)
 
-    console.debug('Target edges ', targetEdges)
-    console.debug('Current edge ', currentEdge)
+    log.debug('Target edges ', targetEdges)
+    log.debug('Current edge ', currentEdge)
 
     // get roles that can transition the document into the next state
     const targetRoles = await getTargetUserRoles(
@@ -152,7 +153,7 @@ export async function getUsersToNotifyOfStateChange(
         currentEdge
     )
 
-    console.debug('Target roles ', targetRoles)
+    log.debug('Target roles ', targetRoles)
 
     // get users that have that role
     const usersWithMatchingRoles = await usersDb.getUserIdsWithModelRoles(
@@ -160,7 +161,7 @@ export async function getUsersToNotifyOfStateChange(
         targetRoles
     )
 
-    console.debug(
+    log.debug(
         `There are ${usersWithMatchingRoles.length} users with matching roles: `,
         usersWithMatchingRoles
     )
@@ -170,7 +171,7 @@ export async function getUsersToNotifyOfStateChange(
         usersWithMatchingRoles
     )
 
-    console.debug('Users with contact info', usersToNotify.length)
+    log.debug('Users with contact info', usersToNotify.length)
 
     return usersToNotify || []
 }
