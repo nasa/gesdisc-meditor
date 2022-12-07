@@ -172,6 +172,34 @@ async function adapt(request) {
             break;
         }
 
+        case BASE_PATH + 'getModel': {
+            try {
+                const subrequestUrl = `${BASE_PATH}models/${encodeURIComponent(
+                    args.name
+                )}`;
+
+                const response = await request.subrequest(subrequestUrl, {
+                    method,
+                    //* The new API does not default to populating macro templates, but the old API does.
+                    args: 'populateMacroTemplates',
+                });
+
+                passThroughHeaders(request, response);
+
+                request.return(response.status, response.responseBuffer);
+            } catch (error) {
+                ngx.log(ngx.ERR, error);
+
+                //* Do not expose the error to the end-user.
+                request.return(
+                    500,
+                    JSON.stringify({ message: 'Internal Server Error' })
+                );
+            }
+
+            break;
+        }
+
         case BASE_PATH + 'listDocuments': {
             try {
                 const subrequestUrl = `${BASE_PATH}models/${encodeURIComponent(

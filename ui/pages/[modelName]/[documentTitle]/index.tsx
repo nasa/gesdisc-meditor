@@ -406,7 +406,8 @@ export async function getServerSideProps(ctx: NextPageContext) {
     // TODO: handle an error retrieving the model
     const [modelError, modelWithWorkflow] = await getModelWithWorkflow(
         modelName.toString(),
-        pageDocument['x-meditor'].state
+        pageDocument['x-meditor'].state,
+        { populateMacroTemplates: true }
     )
 
     const [commentsError, comments] = await getCommentsForDocument(

@@ -82,6 +82,12 @@ http {
             js_content apiAdapter.adapt;
         }
 
+        location /meditor/api/getModel {
+            include /etc/nginx/proxy.conf;
+
+            js_content apiAdapter.adapt;
+        }
+
         location /meditor/api/listDocuments {
             include /etc/nginx/proxy.conf;
 
@@ -106,10 +112,6 @@ http {
         ###
         ### as API endpoints are migrated to Next, the entry here should be removed
         ###
-        location /meditor/api/getModel {
-            proxy_pass         http://api/meditor/api/getModel;
-            include /etc/nginx/proxy.conf;
-        }
 
         location /meditor/api/login {
             proxy_pass         http://api/meditor/api/login;

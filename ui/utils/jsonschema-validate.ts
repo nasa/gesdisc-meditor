@@ -87,3 +87,13 @@ export function formatValidationErrorMessage(error: any) {
         stack,
     }
 }
+
+export function isJson(data: string) {
+    try {
+        JSON.parse(data)
+
+        return true
+    } catch (error) {
+        return false
+    }
+}

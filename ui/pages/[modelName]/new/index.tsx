@@ -206,7 +206,11 @@ const NewDocumentPage = ({ user, model }: NewDocumentPageProps) => {
 export async function getServerSideProps(ctx: NextPageContext) {
     const { modelName } = ctx.query
 
-    const [_modelError, model] = await getModelWithWorkflow(modelName.toString())
+    const [_modelError, model] = await getModelWithWorkflow(
+        modelName.toString(),
+        undefined,
+        { populateMacroTemplates: true }
+    )
 
     //! TODO: handle a modelError
 

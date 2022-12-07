@@ -62,7 +62,7 @@ const Form = ({
                 onInit={onUpdateForm}
                 onChange={(event: any) => onChange(event?.formData)}
                 imageUploadUrl={process.env.NEXT_PUBLIC_IMAGE_UPLOAD_URL}
-                linkCheckerUrl="/meditor/graphql"
+                linkCheckerUrl="/meditor/api/validate/url-resolves"
                 allowValidationErrors={allowValidationErrors}
             />
         </>
