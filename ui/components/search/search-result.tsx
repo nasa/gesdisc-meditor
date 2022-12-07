@@ -60,6 +60,7 @@ const SearchResult = ({
                                   document.model
                               )}/${encodeURIComponent(document.title)}`
                     }
+                    legacyBehavior
                 >
                     <a
                         data-test="search-result-link"

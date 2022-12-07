@@ -6,6 +6,7 @@ import {
     constructEmailMessageForStateChange,
     shouldNotifyUsersOfStateChange,
 } from '../email-notifications/service'
+import log from '../lib/log'
 import { getModel, getModelWithWorkflow } from '../models/service'
 import type { DocumentsSearchOptions, ModelWithWorkflow } from '../models/types'
 import { publishMessageToQueueChannel } from '../publication-queue/service'
@@ -142,7 +143,7 @@ export async function getDocument(
 
         return [null, document]
     } catch (error) {
-        console.error(error)
+        log.error(error)
 
         return [error, null]
     }
@@ -195,7 +196,7 @@ export async function getDocumentsForModel(
 
         return [null, documents]
     } catch (error) {
-        console.error(error)
+        log.error(error)
 
         return [error, null]
     }
@@ -221,7 +222,7 @@ export async function getDocumentHistory(
 
         return [null, historyItems]
     } catch (error) {
-        console.error(error)
+        log.error(error)
 
         return [error, null]
     }
@@ -249,7 +250,7 @@ export async function getDocumentHistoryByVersion(
 
         return [null, historyItem]
     } catch (error) {
-        console.error(error)
+        log.error(error)
 
         return [error, null]
     }
@@ -275,7 +276,7 @@ export async function getDocumentPublications(
 
         return [null, publications]
     } catch (error) {
-        console.error(error)
+        log.error(error)
 
         return [error, null]
     }
@@ -388,20 +389,11 @@ export async function changeDocumentState(
         const state = await constructNewDocumentState(document, model, newState, user)
 
         // got a new state, update the documents state in the database
-        const ok = await documentsDb.addDocumentStateChange(
+        await documentsDb.addDocumentStateChange(
             document,
             state,
             options?.dangerouslyUpdateDocumentProperties
         )
-
-        if (!ok) {
-            // safety check, not sure how this would actually happen, but just in case it does, this stops the user from thinking the update went through
-            //? why? because the underlying DB call would only fail if the document didn't exist. We just queried for it above and we never actually delete documents
-            throw new HttpException(
-                ErrorCode.InternalServerError,
-                'Failed to change document state'
-            )
-        }
 
         // get the updated document from the database
         const [updatedDocumentError, updatedDocument] = await getDocument(
@@ -428,7 +420,7 @@ export async function changeDocumentState(
                 user
             )
         } else {
-            console.debug(
+            log.debug(
                 'User requested to change document state without sending email notifications'
             )
         }
@@ -436,7 +428,7 @@ export async function changeDocumentState(
         if (!options?.disableQueuePublication) {
             await safelyPublishDocumentChangeToQueue(model, document, newState)
         } else {
-            console.debug(
+            log.debug(
                 'User requested to change document state without publishing the state change to the queue'
             )
         }
@@ -537,13 +529,13 @@ export async function safelyNotifyOfStateChange(
             )
 
             if (process.env.DISABLE_EMAIL_NOTIFICATIONS) {
-                console.log(
+                log.warn(
                     `The 'DISABLE_EMAIL_NOTIFICATIONS' environment variable is set to 'true'!`
                 )
-                console.log(
+                log.warn(
                     `Email notifications were disabled while attempting to send the following email:`
                 )
-                console.log(emailMessage)
+                log.debug(emailMessage)
                 return
             }
 
@@ -556,7 +548,7 @@ export async function safelyNotifyOfStateChange(
         }
     } catch (err) {
         //! log the error but failing to send an email notification should NOT stop the state change as it is a side effect
-        console.error(err)
+        log.error(err)
     }
 }
 
@@ -588,7 +580,7 @@ export async function safelyPublishDocumentChangeToQueue(
         }
     } catch (err) {
         //! log the error but failing to publish should NOT stop the state change as it is a side effect
-        console.error(err)
+        log.error(err)
     }
 }
 
@@ -598,7 +590,7 @@ export async function safelyDeleteDocument(
     user: User
 ) {
     try {
-        console.debug(
+        log.debug(
             `Handling delete document for ${model.name} - ${
                 document[model.titleProperty]
             }`
@@ -611,14 +603,14 @@ export async function safelyDeleteDocument(
             user.uid
         )
 
-        console.debug(
+        log.debug(
             `Deleted ${model.name} - ${document[model.titleProperty]} (deleted by: ${
                 user.uid
             })`
         )
     } catch (err) {
         //! log the error but don't block state change
-        console.error(err)
+        log.error(err)
     }
 }
 
@@ -632,7 +624,7 @@ export function isPublishableWithWorkflowSupport(
 ) {
     if (model.workflow.nodes.find(node => node.publishable)) {
         // this workflow supports "publishable"
-        console.debug(
+        log.debug(
             `The workflow, ${model.workflow.name}, has at least one node with "publishable" set.`
         )
 
@@ -640,9 +632,7 @@ export function isPublishableWithWorkflowSupport(
 
         //! don't combine these into !matchingNode?.publishable, this is intentionally separately checking that the node exists AND is not publishable
         if (matchingNode && !matchingNode.publishable) {
-            console.debug(
-                `State, ${state}, is not publishable, skipping publication.`
-            )
+            log.debug(`State, ${state}, is not publishable, skipping publication.`)
             return false
         }
     }

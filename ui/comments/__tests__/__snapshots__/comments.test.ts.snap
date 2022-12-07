@@ -3,7 +3,6 @@
 exports[`Comments Service collection return all comments for an existing model and document with comments 1`] = `
 Array [
   Object {
-    "_id": "634de0e7e9cb15002e80a9c8",
     "createdBy": "Test User",
     "createdOn": "2022-10-04T14:52:31.105Z",
     "documentId": "Mock Alert w/ Comments & Troublesome Title",
@@ -17,7 +16,6 @@ Array [
     "version": "2022-08-15T15:17:04.357Z",
   },
   Object {
-    "_id": "633de0e7e9ca15002e8089c6",
     "createdBy": "Test User",
     "createdOn": "2022-10-05T19:54:15.575Z",
     "documentId": "Mock Alert w/ Comments & Troublesome Title",
@@ -31,7 +29,6 @@ Array [
     "version": "2022-08-15T15:17:04.357Z",
   },
   Object {
-    "_id": "634035c35e1978002fead5a1",
     "createdBy": "Test User",
     "createdOn": "2022-10-07T14:20:51.049Z",
     "documentId": "Mock Alert w/ Comments & Troublesome Title",

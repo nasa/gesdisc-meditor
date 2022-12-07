@@ -1,6 +1,5 @@
 [
     {
-        "_id": "5b6c4ebcc2d8adf60f741fba",
         "x-meditor": {
             "model": "Alerts",
             "modifiedOn": "2018-08-09T14:25:09.384Z",
@@ -47,7 +46,6 @@
         ]
     },
     {
-        "_id": "5b6c4ec5c2d8adf60f741fd6",
         "x-meditor": {
             "model": "Alerts",
             "modifiedOn": "2018-08-09T14:26:07.538Z",
@@ -94,7 +92,6 @@
         ]
     },
     {
-        "_id": "5b6c4ec6c2d8adf60f741fd9",
         "x-meditor": {
             "model": "Alerts",
             "modifiedOn": "2018-08-09T14:25:10.834Z",
@@ -141,7 +138,6 @@
         ]
     },
     {
-        "_id": "5b6c4effc2d8adf60f742042",
         "x-meditor": {
             "model": "Alerts",
             "modifiedOn": "2018-08-09T14:26:07.541Z",

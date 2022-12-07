@@ -1,32 +1,16 @@
 import dagre from 'dagre'
-import React, { useCallback, useEffect } from 'react'
-import ReactFlow, {
-    Background,
-    ControlButton,
-    Controls,
-    Elements,
-    isNode,
-} from 'react-flow-renderer'
+import { useCallback, useEffect } from 'react'
 import { MdRefresh } from 'react-icons/md'
+import type { Edge, Node, NodeChange, NodePositionChange } from 'reactflow'
+import ReactFlow, { Background, ControlButton, Controls } from 'reactflow'
 import { useImmer } from 'use-immer'
 import styles from './document-workflow.module.css'
 
 export type WorkflowNodeType = 'input' | 'output' | 'default'
 
-export interface WorkflowNode {
-    [key: string]: any
-    __typename: 'WorkflowNode'
-    id: string
-}
-
-export interface WorkflowEdge {
-    [key: string]: any
-    __typename: 'WorkflowEdge'
-    label: string
-    notify: boolean
-    role: string
-    source: string
-    target: string
+export interface WorkflowNodesAndEdges {
+    nodes: Node[]
+    edges: Edge[]
 }
 
 const NODE_WIDTH = 116
@@ -43,18 +27,15 @@ dagreGraph.setGraph({
 })
 dagreGraph.setDefaultEdgeLabel(() => ({}))
 
-const nodeIsReferencedByEdgeSource = (edges: WorkflowEdge[], id: string) =>
+const nodeIsReferencedByEdgeSource = (edges: Edge[], id: string) =>
     edges.some(edge => edge.source === id)
-const nodeIsReferencedByEdgeTarget = (edges: WorkflowEdge[], id: string) =>
+const nodeIsReferencedByEdgeTarget = (edges: Edge[], id: string) =>
     edges.some(edge => edge.target === id)
 
 function filterInvalidWorkflowNodes({
     edges = [],
     nodes = [],
-}: {
-    edges: WorkflowEdge[]
-    nodes: WorkflowNode[]
-}) {
+}: WorkflowNodesAndEdges) {
     return nodes
         .filter(node => !!node.id)
         .filter(
@@ -67,20 +48,14 @@ function filterInvalidWorkflowNodes({
 function filterInvalidWorkflowEdges({
     edges = [],
     nodes = [],
-}: {
-    edges: WorkflowEdge[]
-    nodes: WorkflowNode[]
-}) {
+}: WorkflowNodesAndEdges) {
     return edges.filter(edge => !!edge.label && !!edge.source && !!edge.target)
 }
 
 function initNodesAndEdges({
     edges = [],
     nodes = [],
-}: {
-    edges: WorkflowEdge[]
-    nodes: WorkflowNode[]
-}): Elements {
+}: WorkflowNodesAndEdges): WorkflowNodesAndEdges {
     const safeNodes = filterInvalidWorkflowNodes({ edges, nodes })
     const safeEdges = filterInvalidWorkflowEdges({ edges, nodes })
 
@@ -174,46 +149,44 @@ function initNodesAndEdges({
             : []
     })
 
-    return [...workflowNodes, ...labelNodes, ...workflowEdges] as Elements
-}
+    const workflowAndLabelNodes = [...workflowNodes, ...labelNodes]
 
-function layoutDagreGraph(elements: Elements) {
-    elements.forEach(element => {
-        if (isNode(element)) {
-            dagreGraph.setNode(element.id, {
-                width: NODE_WIDTH,
-                height: NODE_HEIGHT,
-            })
-        } else {
-            dagreGraph.setEdge(element.source, element.target)
-        }
+    workflowAndLabelNodes.forEach(node => {
+        dagreGraph.setNode(node.id, {
+            width: NODE_WIDTH,
+            height: NODE_HEIGHT,
+        })
+    })
+
+    workflowEdges.forEach(edge => {
+        dagreGraph.setEdge(edge.source, edge.target)
     })
 
     dagre.layout(dagreGraph)
 
-    return elements.map(element => {
-        if (isNode(element)) {
-            const { x, y } = dagreGraph.node(element.id)
-
-            element.position = { x, y }
-        }
-
-        return element
-    })
+    return {
+        nodes: workflowAndLabelNodes.map(node => ({
+            ...node,
+            position: dagreGraph.node(node.id),
+        })),
+        edges: workflowEdges,
+    }
 }
 
 const DocumentWorkflow = ({ workflow }) => {
     //* `useImmer` prevents accidental state mutation (though in this case a shallow clone would work fine). Unlike cloneDeep, allows for memoization (https://github.com/immerjs/immer/issues/619).
-    const [elements, setElements] = useImmer<Elements>([])
-    const workflowElements: {
-        edges: WorkflowEdge[]
-        nodes: WorkflowNode[]
-    } = {
+    const [elements, setElements] = useImmer<WorkflowNodesAndEdges>({
+        nodes: [],
+        edges: [],
+    })
+
+    const workflowElements: WorkflowNodesAndEdges = {
         edges: workflow?.edges,
         nodes: workflow?.nodes,
     }
+
     const initNodesAndEdgesMemoized = useCallback(
-        workflowElements => layoutDagreGraph(initNodesAndEdges(workflowElements)),
+        workflowElements => initNodesAndEdges(workflowElements),
         [workflowElements]
     )
 
@@ -223,15 +196,42 @@ const DocumentWorkflow = ({ workflow }) => {
         setElements(elements)
     }, [workflow])
 
+    function handleNodeChanges(changes: NodeChange[]) {
+        const { edges, nodes } = elements
+        //* A NodeChange could be many things, but we're only interested in dragging position changes.
+        const positionChanges = changes.filter(change => {
+            return change.type === 'position' && change.dragging === true
+        })
+
+        //* In practice, there seems to be only one change in the NodeChange[], but loop anyway.
+        ;(positionChanges as NodePositionChange[]).forEach(positionChange => {
+            const changingNode = nodes.find(node => {
+                return node.id === positionChange.id
+            })
+
+            const notChangingNodes = nodes.filter(node => {
+                return node.id !== positionChange.id
+            })
+
+            changingNode.position.x = positionChange.position.x
+            changingNode.position.y = positionChange.position.y
+
+            setElements({ edges, nodes: [...notChangingNodes, changingNode] })
+        })
+    }
+
     return (
         <>
             <p className="h4 text-muted">{workflow?.name}</p>
+
             <ReactFlow
-                elements={elements}
+                nodes={elements.nodes}
+                edges={elements.edges}
                 nodeExtent={[
                     [0, 0],
                     [768, 1920],
                 ]}
+                onNodesChange={handleNodeChanges}
             >
                 <Controls className={`${styles.workflow} ${styles.controls}`}>
                     <ControlButton

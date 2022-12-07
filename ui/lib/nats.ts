@@ -1,5 +1,6 @@
 import { connect } from 'node-nats-streaming'
 import type { Stan } from 'node-nats-streaming'
+import log from './log'
 
 const clusterID = process.env.MEDITOR_NATS_CLUSTER_ID || 'test-cluster'
 const clientID = 'meditor-app'
@@ -9,7 +10,7 @@ let natsClient: Stan
 let natsClientPromise: Promise<Stan>
 
 function connectToNats() {
-    console.info(
+    log.info(
         `Connecting with client ${clientID} to NATS (Cluster: ${clusterID}, Server: ${server})`
     )
 
@@ -26,12 +27,12 @@ function connectToNats() {
         stanConnectPromise: new Promise<Stan>(resolve => {
             // wait for the connection to complete
             stan.on('connect', () => {
-                console.log('Connected to NATS')
+                log.info('Connected to NATS')
                 resolve(stan)
             })
 
             stan.on('error', (error: any) => {
-                console.error(error) //? do anything beyond logging?
+                log.error(error) //? do anything beyond logging?
             })
         }),
     }

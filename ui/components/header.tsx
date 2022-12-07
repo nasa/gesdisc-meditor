@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { useState } from 'react'
 import Button from 'react-bootstrap/Button'
 import Dropdown from 'react-bootstrap/Dropdown'
@@ -19,10 +20,11 @@ const Header = ({ user, isAuthenticated }) => {
                 }}
             >
                 <Navbar.Brand href="/meditor">
-                    <img
+                    <Image
                         alt="mEditor"
                         src="/meditor/logo.png"
                         width="156"
+                        height="80"
                         className="d-inline-block align-top"
                     />
                 </Navbar.Brand>

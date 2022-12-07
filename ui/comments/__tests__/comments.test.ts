@@ -38,10 +38,12 @@ describe('Comments Service', () => {
     })
 
     test('collection return all comments for an existing model and document with comments', async () => {
-        const [error, comments] = await getCommentsForDocument(
+        const [error, commentsWithIds] = await getCommentsForDocument(
             'Mock Alert w/ Comments & Troublesome Title',
             'Alerts'
         )
+
+        const comments = commentsWithIds.map(({ _id, ...comment }) => comment)
 
         expect(error).toBeNull()
         expect(comments).toHaveLength(3)
@@ -49,10 +51,12 @@ describe('Comments Service', () => {
     })
 
     test('collection returns no comments for an existing model and document without comments', async () => {
-        const [error, comments] = await getCommentsForDocument(
+        const [error, commentsWithIds] = await getCommentsForDocument(
             'Mock Alert without Comments',
             'Alerts'
         )
+
+        const comments = commentsWithIds.map(({ _id, ...comment }) => comment)
 
         expect(error).toBeNull()
         expect(comments).toHaveLength(0)
@@ -61,9 +65,9 @@ describe('Comments Service', () => {
 
     // todo: figure out why this is failing; the underlying service works well when consumed through our API
     test.skip('singleton returns one comment for an existing model and document with comments', async () => {
-        const [mockComment] = mockComments
+        const [mockComment] = mockComments as any[]
 
-        const [error, comment] = await getCommentForDocument(
+        const [error, { _id, ...comment }] = await getCommentForDocument(
             mockComment._id,
             mockComment.documentId,
             mockComment.model
@@ -75,7 +79,7 @@ describe('Comments Service', () => {
     })
 
     test('singleton returns no comment for an existing model and document without comments', async () => {
-        const [error, comment] = await getCommentForDocument(
+        const [error, { _id, ...comment }] = await getCommentForDocument(
             '5c269eaa7f40f1002dfe85f1',
             'Mock Alert w/ Comments & Troublesome Title',
             'Alerts'

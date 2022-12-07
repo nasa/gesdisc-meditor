@@ -1,7 +1,6 @@
 {
     "title": "Reprocessed FLDAS Data",
     "doc": {
-        "_id": "5b6c4effc2d8adf60f742042",
         "title": "Reprocessed FLDAS Data",
         "body": "<p>All of the FLDAS products have been reprocessed for improvements and corrections in the file metadata, specifically in regards to the &lsquo;time&rsquo; metadata.&nbsp; All FLDAS data are now accessible and available for download at the GES DISC.&nbsp; If you downloaded FLDAS data before August 7, please be aware that the file metadata may be incorrect.&nbsp; Please contact the GES DISC Help Desk at gsfc-nasa-disc@lists.nasa.gov if you have any questions.</p>\n",
         "expiration": "2018-09-09T04:00:00Z",

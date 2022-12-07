@@ -1,4 +1,4 @@
-import type { Db, UpdateWriteOpResult } from 'mongodb'
+import type { Db, UpdateResult } from 'mongodb'
 import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
 import type { Document } from './types'
 
@@ -18,7 +18,7 @@ class DocumentsDbLegacy {
 
     async getAllCollectionRecordsForModel(documentTitle: any): Promise<Document[]> {
         const allRecordsInCollection = this.#db
-            .collection(documentTitle)
+            .collection<Document>(documentTitle)
             .find()
             .toArray()
 
@@ -69,7 +69,7 @@ class DocumentsDbLegacy {
         id: string,
         newStateHistory: any,
         oldHistory: any
-    ): Promise<UpdateWriteOpResult> {
+    ): Promise<UpdateResult> {
         const result = this.#db.collection(documentTitle).updateOne(
             { _id: id },
             {

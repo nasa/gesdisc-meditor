@@ -181,16 +181,19 @@ const DocumentStateBadge = ({
                             <Popover.Title as="h3">Publication Status</Popover.Title>
 
                             <Popover.Content>
-                                {publicationStatus && publicationStatus.length <= 0 && (
-                                    <div>
-                                        <p>
-                                            This document has not been published yet.
-                                        </p>
-                                        <p>
-                                            Waiting for a response from subscribers.
-                                        </p>
-                                    </div>
-                                )}
+                                {publicationStatus &&
+                                    publicationStatus.length <= 0 && (
+                                        <div>
+                                            <p>
+                                                This document has not been published
+                                                yet.
+                                            </p>
+                                            <p>
+                                                Waiting for a response from
+                                                subscribers.
+                                            </p>
+                                        </div>
+                                    )}
 
                                 {publicationStatus?.length > 0 &&
                                     publicationStatus.map(status => (
@@ -246,8 +249,8 @@ const DocumentStateBadge = ({
                         </p>
 
                         <p>
-                            If you'd rather stay in mEditor, you can click "Go Back"
-                            below to return to the document.
+                            If you&apos;d rather stay in mEditor, you can click
+                            &quot;Go Back&quot; below to return to the document.
                         </p>
                     </Modal.Body>
 

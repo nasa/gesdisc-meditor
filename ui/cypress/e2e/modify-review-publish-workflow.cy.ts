@@ -1,6 +1,6 @@
-/// <reference types="../support" />
-
 // @ts-nocheck
+
+export {} // needed to allow compilation
 
 const LoremIpsum = require('lorem-ipsum').LoremIpsum
 

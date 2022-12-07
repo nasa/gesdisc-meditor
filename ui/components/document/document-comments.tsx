@@ -100,6 +100,12 @@ const CommentCard = ({
                                     comment.userUid || 'undefined'
                                 )}
                                 roundedCircle
+                                alt={
+                                    'User avatar' +
+                                    (comment.userUid && ` for ${comment.userUid}`)
+                                }
+                                width={40}
+                                height={40}
                             />
                         </div>
 
