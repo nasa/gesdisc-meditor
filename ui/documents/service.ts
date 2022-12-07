@@ -7,7 +7,7 @@ import {
     shouldNotifyUsersOfStateChange,
 } from '../email-notifications/service'
 import log from '../lib/log'
-import { getModel, getModelWithWorkflow } from '../models/service'
+import { getModel, getModelWithWorkflow, userCanAccessModel } from '../models/service'
 import type { DocumentsSearchOptions, ModelWithWorkflow } from '../models/types'
 import { publishMessageToQueueChannel } from '../publication-queue/service'
 import { ErrorCode, HttpException } from '../utils/errors'
@@ -106,10 +106,17 @@ export async function createDocument(
 export async function getDocument(
     documentTitle: string,
     modelName: string,
-    user: User,
+    user?: User,
     documentVersion?: string
 ): Promise<ErrorData<Document>> {
     try {
+        if (!userCanAccessModel(modelName, user)) {
+            throw new HttpException(
+                ErrorCode.ForbiddenError,
+                'User does not have permission to access this document'
+            )
+        }
+
         const documentsDb = await getDocumentsDb()
         const userRolesForModel = findAllowedUserRolesForModel(modelName, user?.roles)
 
@@ -152,9 +159,17 @@ export async function getDocument(
 // TODO: add OPTIONAL pagination (don't break existing scripts, perhaps the existence of pagination query params changes the output?)
 export async function getDocumentsForModel(
     modelName: string,
-    searchOptions?: DocumentsSearchOptions
+    searchOptions?: DocumentsSearchOptions,
+    user?: User
 ): Promise<ErrorData<Document[]>> {
     try {
+        if (!userCanAccessModel(modelName, user)) {
+            throw new HttpException(
+                ErrorCode.ForbiddenError,
+                'User does not have permission to the requested model'
+            )
+        }
+
         const documentsDb = await getDocumentsDb()
 
         const [modelError, { titleProperty = 'title', workflow }] =

@@ -1,10 +1,13 @@
 import jsonpath from 'jsonpath'
+import type { User } from '../auth/types'
 import type { ErrorData } from '../declarations'
 import { getDocumentsDb } from '../documents/db'
 import { ErrorCode, HttpException } from '../utils/errors'
 import { getWorkflowByDocumentState } from '../workflows/service'
 import { getModelsDb } from './db'
 import type { Model, ModelWithWorkflow } from './types'
+
+const MODELS_REQUIRING_AUTHENTICATION = ['Users']
 
 type getModelOptions = {
     populateMacroTemplates?: boolean
@@ -23,11 +26,19 @@ type getModelOptions = {
  */
 export async function getModel(
     modelName: string,
-    options: getModelOptions = { includeId: true }
+    options: getModelOptions = { includeId: true },
+    user?: User
 ): Promise<ErrorData<Model>> {
     try {
         if (!modelName) {
             throw new HttpException(ErrorCode.BadRequest, 'Model name is required')
+        }
+
+        if (!userCanAccessModel(modelName, user)) {
+            throw new HttpException(
+                ErrorCode.ForbiddenError,
+                'User does not have access to the requested model'
+            )
         }
 
         const modelsDb = await getModelsDb()
@@ -188,4 +199,11 @@ export async function getModelsWithDocumentCount(): Promise<ErrorData<Model[]>> 
     } catch (err) {
         return [err, null]
     }
+}
+
+/**
+ * if user is not authenticated, verify the requested model is not in the list of models requiring authentication
+ */
+export function userCanAccessModel(modelName: string, user?: User) {
+    return !!user?.uid || !MODELS_REQUIRING_AUTHENTICATION.includes(modelName)
 }

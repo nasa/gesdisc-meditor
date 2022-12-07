@@ -12,13 +12,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     switch (req.method) {
         case 'GET': {
-            const [error, documents] = await getDocumentsForModel(modelName, {
-                ...(req.query.filter && { filter: req.query.filter.toString() }),
-                ...(req.query.sort && { sort: req.query.sort.toString() }),
-                ...(req.query.searchTerm && {
-                    searchTerm: req.query.searchTerm.toString(),
-                }),
-            })
+            const [error, documents] = await getDocumentsForModel(
+                modelName,
+                {
+                    ...(req.query.filter && { filter: req.query.filter.toString() }),
+                    ...(req.query.sort && { sort: req.query.sort.toString() }),
+                    ...(req.query.searchTerm && {
+                        searchTerm: req.query.searchTerm.toString(),
+                    }),
+                },
+                user
+            )
 
             if (error) {
                 return apiError(error, res)

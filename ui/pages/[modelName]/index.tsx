@@ -15,6 +15,7 @@ import type {
     ModelWithWorkflow,
 } from '../../models/types'
 import type { User } from '../../auth/types'
+import { getLoggedInUser } from '../../auth/user'
 
 function getSearchOptionsFromParams(query: ParsedUrlQuery): DocumentsSearchOptions {
     return {
@@ -151,6 +152,7 @@ const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
 
 export async function getServerSideProps(ctx: NextPageContext) {
     const modelName = ctx.query.modelName.toString()
+    const user = await getLoggedInUser(ctx.req, ctx.res)
 
     //! TODO: handle getModels or getModel errors (show the user an error message?)
     const [_modelsError, allModels] = await getModels()
@@ -161,7 +163,8 @@ export async function getServerSideProps(ctx: NextPageContext) {
     // fetch documents, applying search, filter, or sort
     const [documentsError, documents] = await getDocumentsForModel(
         modelName,
-        searchOptions
+        searchOptions,
+        user
     )
 
     const props = {

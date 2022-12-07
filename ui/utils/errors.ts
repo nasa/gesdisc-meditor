@@ -7,6 +7,7 @@ export enum ErrorCode {
     MethodNotAllowed = 'MethodNotAllowed',
     Unauthorized = 'Unauthorized',
     InternalServerError = 'InternalServerError',
+    ForbiddenError = 'ForbiddenError',
 }
 
 export interface ErrorCause {
@@ -42,6 +43,10 @@ export class HttpException extends Error {
 
             case ErrorCode.Unauthorized:
                 status = 401
+                break
+
+            case ErrorCode.ForbiddenError:
+                status = 403
                 break
 
             case ErrorCode.InternalServerError:
