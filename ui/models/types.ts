@@ -24,7 +24,7 @@ export interface Model {
     category?: string
     workflow?: string
     notificationTemplate?: string
-    templates?: Template[] | PopulatedTemplate[]
+    templates?: Template[]
 }
 
 export interface ModelWithWorkflow extends Omit<Model, 'workflow'> {
@@ -47,5 +47,5 @@ export type Template = {
 }
 
 export type PopulatedTemplate = Template & {
-    result: any[]
+    result: any
 }

@@ -180,8 +180,6 @@ async function adapt(request) {
 
                 const response = await request.subrequest(subrequestUrl, {
                     method,
-                    //* The new API does not default to populating macro templates, but the old API does.
-                    args: 'populateMacroTemplates',
                 });
 
                 passThroughHeaders(request, response);

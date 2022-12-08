@@ -10,11 +10,7 @@ class MacrosDb {
         }
     }
 
-    async getUniqueFieldValues(
-        fieldName: string,
-        modelName: string,
-        titleProperty: string
-    ) {
+    async getUniqueFieldValues(fieldName: string, modelName: string) {
         const documents = await this.#db
             .collection(modelName)
             .aggregate([
@@ -22,7 +18,7 @@ class MacrosDb {
                 { $sort: { 'x-meditor.modifiedOn': -1 } }, // Sort so that later queries can get only the latest version.
                 {
                     $group: {
-                        _id: `$${titleProperty}`,
+                        _id: `$${fieldName}`,
                         field: { $first: `$${fieldName}` },
                     },
                 }, // Put only the first (see sort, above) desired field on the grouped document.
@@ -33,33 +29,24 @@ class MacrosDb {
         return documents.map(document => document.field)
     }
 
-    /**
-     * returns a list of all possible user roles
-     */
-    async userRoles() {
-        let roleList = []
-        let workflows = await this.#db
-            .collection('Models')
-            .aggregate(
-                [
-                    {
-                        $lookup: {
-                            from: 'Workflows',
-                            localField: 'workflow',
-                            foreignField: 'name',
-                            as: 'graph',
-                        },
+    async getDependenciesByTitle(dependentField, modelName) {
+        const documents = await this.#db
+            .collection(modelName)
+            .aggregate([
+                { $sort: { 'x-meditor.modifiedOn': -1 } }, // Sort descending by version (date)
+                { $group: { _id: '$title', doc: { $first: '$$ROOT' } } }, // Grab all fields in the most recent version
+                { $replaceRoot: { newRoot: '$doc' } }, // Put all fields of the most recent doc back into root of the document
+                {
+                    $project: {
+                        _id: 0,
+                        title: 1,
+                        [dependentField]: 1,
                     },
-                    { $project: { _id: 0, name: 1, 'graph.roles': 1 } },
-                    { $unwind: '$graph' },
-                ],
-                { allowDiskUse: true }
-            )
+                },
+            ])
             .toArray()
-        workflows.forEach(workflow => {
-            roleList = roleList.concat(workflow.graph.roles)
-        })
-        return roleList
+
+        return documents
     }
 }
 

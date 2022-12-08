@@ -4,15 +4,15 @@ import { apiError } from '../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const modelName = decodeURIComponent(req.query.modelName.toString())
-    //* Allow search param to optionally populate macro templates (consumed as boolean attribute).
-    const populateMacroTemplates = 'populateMacroTemplates' in req.query
+    const disableMacros = 'disableMacros' in req.query
 
     switch (req.method) {
         case 'GET': {
             const [error, model] = await getModel(modelName, {
                 //* Do not expose DB ID to API.
                 includeId: false,
-                populateMacroTemplates,
+                //* Allow boolean search param to optionally disable template macros. Defaults to running macros.
+                populateMacroTemplates: !disableMacros,
             })
 
             if (error) {
