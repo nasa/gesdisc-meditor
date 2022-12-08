@@ -18,13 +18,13 @@ services:
 
   ui:
     container_name: meditor_ui
-    build: ui
+    build: app
     env_file:
       - .env
     ports:
       - "4000:4000"
     volumes:
-      - ./ui:/usr/src/app
+      - ./app:/usr/src/app
       - /usr/src/app/node_modules
 
   docs:

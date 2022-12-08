@@ -2,7 +2,7 @@ Seeds the database with Cypress specific workflows, models, and users. Should be
 
 ### How to run
 
-`seed_db.js` is automatically run when using the npm script `npm run test:cypress` from the `/ui` folder
+`seed_db.js` is automatically run when using the npm script `npm run test:cypress` from the `/app` folder
 
 ### Adding seeded data
 
