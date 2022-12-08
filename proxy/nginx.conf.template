@@ -37,7 +37,7 @@ http {
             include /etc/nginx/proxy.conf;
         }
 
-        location /meditor/docs/ {
+        location /meditor/docs {
             proxy_pass         http://docs;
             include /etc/nginx/proxy.conf;
         }

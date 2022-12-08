@@ -1,53 +1,40 @@
-# Welcome to Remix!
+# Template
 
-- [Remix Docs](https://remix.run/docs)
+This template is built for [Docusaurus 2](https://docusaurus.io/), a modern static website generator.
 
-## Development
+### Usage
 
-From your terminal:
-
-```sh
-npm run dev
+```bash
+npx create-docusaurus@2.2.0 my-website --package-manager yarn
 ```
 
-This starts your app in development mode, rebuilding assets on file changes.
+> When prompted to select a template choose `Git repository`.
 
-## Deployment
+Template Repository URL:
 
-First, build your app for production:
-
-```sh
-npm run build
+```bash
+https://github.com/PaloAltoNetworks/docusaurus-template-openapi-docs.git
 ```
 
-Then run the app in production mode:
+> When asked how the template repo should be cloned choose "copy" (unless you know better).
 
-```sh
-npm start
+```bash
+cd my-website
+yarn
 ```
 
-Now you'll need to pick a host to deploy it to.
+### Local Development
 
-### DIY
-
-If you're familiar with deploying node applications, the built-in Remix app server is production-ready.
-
-Make sure to deploy the output of `remix build`
-
-- `build/`
-- `public/build/`
-
-### Using a Template
-
-When you ran `npx create-remix@latest` there were a few choices for hosting. You can run that again to create a new project, then copy over your `app/` folder to the new project that's pre-configured for your target server.
-
-```sh
-cd ..
-# create a new project, and pick a pre-configured host
-npx create-remix@latest
-cd my-new-remix-app
-# remove the new project's app (not the old one!)
-rm -rf app
-# copy your app over
-cp -R ../my-old-remix-app/app app
+```bash
+yarn start
 ```
+
+This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
+
+### Build
+
+```bash
+yarn build
+```
+
+This command generates static content into the `build` directory and can be served using any static contents hosting service.
