@@ -6,7 +6,9 @@ var clientID = 'publisher'
 var server = process.env.MEDITOR_NATS_SERVER || 'nats://meditor_nats:4222'
 var stan = require('node-nats-streaming').connect(clusterID, clientID, server)
 
-log.notice(`Connecting with client ${clientID} to NATS (Cluster: ${clusterID}, Server: ${server})`)
+log.notice(
+    `Connecting with client ${clientID} to NATS (Cluster: ${clusterID}, Server: ${server})`
+)
 
 // close connection when API shuts down
 process.on('SIGTERM', () => stan.close())
