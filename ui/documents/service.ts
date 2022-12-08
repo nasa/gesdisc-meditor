@@ -7,7 +7,7 @@ import {
     shouldNotifyUsersOfStateChange,
 } from '../email-notifications/service'
 import log from '../lib/log'
-import { getModel, getModelWithWorkflow, userCanAccessModel } from '../models/service'
+import { getModel, getModelWithWorkflow } from '../models/service'
 import type { DocumentsSearchOptions, ModelWithWorkflow } from '../models/types'
 import { publishMessageToQueueChannel } from '../publication-queue/service'
 import { ErrorCode, HttpException } from '../utils/errors'
@@ -110,18 +110,10 @@ export async function getDocument(
     documentVersion?: string
 ): Promise<ErrorData<Document>> {
     try {
-        if (!userCanAccessModel(modelName, user)) {
-            throw new HttpException(
-                ErrorCode.ForbiddenError,
-                'User does not have permission to access this document'
-            )
-        }
-
         const documentsDb = await getDocumentsDb()
         const userRolesForModel = findAllowedUserRolesForModel(modelName, user?.roles)
 
-        const [modelError, { titleProperty = 'title', workflow }] =
-            await getModelWithWorkflow(modelName)
+        const [modelError, model] = await getModelWithWorkflow(modelName)
 
         if (modelError) {
             throw modelError // failed to get the model associated with the document
@@ -129,7 +121,7 @@ export async function getDocument(
 
         const sourceToTargetStateMap = createSourceToTargetStateMap(
             userRolesForModel,
-            workflow.edges
+            model.workflow.edges
         )
 
         const document = await documentsDb.getDocument(
@@ -137,7 +129,7 @@ export async function getDocument(
             documentVersion,
             modelName,
             sourceToTargetStateMap,
-            titleProperty,
+            model.titleProperty,
             user?.uid
         )
 
@@ -159,21 +151,12 @@ export async function getDocument(
 // TODO: add OPTIONAL pagination (don't break existing scripts, perhaps the existence of pagination query params changes the output?)
 export async function getDocumentsForModel(
     modelName: string,
-    searchOptions?: DocumentsSearchOptions,
-    user?: User
+    searchOptions?: DocumentsSearchOptions
 ): Promise<ErrorData<Document[]>> {
     try {
-        if (!userCanAccessModel(modelName, user)) {
-            throw new HttpException(
-                ErrorCode.ForbiddenError,
-                'User does not have permission to the requested model'
-            )
-        }
-
         const documentsDb = await getDocumentsDb()
 
-        const [modelError, { titleProperty = 'title', workflow }] =
-            await getModelWithWorkflow(modelName) // need the model to get the related workflow and title property
+        const [modelError, model] = await getModelWithWorkflow(modelName) // need the model to get the related workflow and title property
 
         if (modelError) {
             throw modelError
@@ -182,13 +165,13 @@ export async function getDocumentsForModel(
         let documents = await documentsDb.getDocumentsForModel(
             modelName,
             searchOptions,
-            titleProperty
+            model.titleProperty
         )
 
         if (searchOptions?.searchTerm) {
             // user is attempting a search. Mongo text search is VERY basic, so we'll utilize fuse.js to do the search
             const fuse = new Fuse(documents, {
-                keys: [titleProperty], // TODO: investigate searching more than just the title property
+                keys: [model.titleProperty], // TODO: investigate searching more than just the title property
             })
 
             // fuse.js returns search results with extra information, we just need the matching document
@@ -204,7 +187,7 @@ export async function getDocumentsForModel(
                 ...document['x-meditor'],
                 targetStates: getTargetStatesFromWorkflow(
                     document['x-meditor'].state,
-                    workflow
+                    model.workflow
                 ), // populate document with states it can transition into
             },
         }))
@@ -223,7 +206,7 @@ export async function getDocumentHistory(
 ): Promise<ErrorData<DocumentHistory[]>> {
     try {
         const documentsDb = await getDocumentsDb()
-        const [modelError, { titleProperty = '' }] = await getModel(modelName)
+        const [modelError, model] = await getModel(modelName)
 
         if (modelError) {
             throw modelError
@@ -232,7 +215,7 @@ export async function getDocumentHistory(
         const historyItems = await documentsDb.getDocumentHistory(
             documentTitle,
             modelName,
-            titleProperty
+            model.titleProperty
         )
 
         return [null, historyItems]
@@ -250,7 +233,7 @@ export async function getDocumentHistoryByVersion(
 ): Promise<ErrorData<DocumentHistory>> {
     try {
         const documentsDb = await getDocumentsDb()
-        const [modelError, { titleProperty = '' }] = await getModel(modelName)
+        const [modelError, model] = await getModel(modelName)
 
         if (modelError) {
             throw modelError
@@ -259,7 +242,7 @@ export async function getDocumentHistoryByVersion(
         const historyItem = await documentsDb.getDocumentHistoryByVersion(
             documentTitle,
             modelName,
-            titleProperty,
+            model.titleProperty,
             versionId
         )
 
@@ -277,7 +260,7 @@ export async function getDocumentPublications(
 ): Promise<ErrorData<DocumentPublications[]>> {
     try {
         const documentsDb = await getDocumentsDb()
-        const [modelError, { titleProperty = '' }] = await getModel(modelName)
+        const [modelError, model] = await getModel(modelName)
 
         if (modelError) {
             throw modelError
@@ -286,7 +269,7 @@ export async function getDocumentPublications(
         const publications = await documentsDb.getDocumentPublications(
             documentTitle,
             modelName,
-            titleProperty
+            model.titleProperty
         )
 
         return [null, publications]

@@ -4,25 +4,29 @@ import {
     createDocument,
     getDocumentsForModel,
 } from '../../../../../documents/service'
+import { userCanAccessModel } from '../../../../../models/service'
 import { apiError, ErrorCode, HttpException } from '../../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const user = await getLoggedInUser(req, res)
     const modelName = req.query.modelName.toString()
 
+    if (!userCanAccessModel(modelName, user)) {
+        throw new HttpException(
+            ErrorCode.ForbiddenError,
+            'User does not have permission to the requested model'
+        )
+    }
+
     switch (req.method) {
         case 'GET': {
-            const [error, documents] = await getDocumentsForModel(
-                modelName,
-                {
-                    ...(req.query.filter && { filter: req.query.filter.toString() }),
-                    ...(req.query.sort && { sort: req.query.sort.toString() }),
-                    ...(req.query.searchTerm && {
-                        searchTerm: req.query.searchTerm.toString(),
-                    }),
-                },
-                user
-            )
+            const [error, documents] = await getDocumentsForModel(modelName, {
+                ...(req.query.filter && { filter: req.query.filter.toString() }),
+                ...(req.query.sort && { sort: req.query.sort.toString() }),
+                ...(req.query.searchTerm && {
+                    searchTerm: req.query.searchTerm.toString(),
+                }),
+            })
 
             if (error) {
                 return apiError(error, res)

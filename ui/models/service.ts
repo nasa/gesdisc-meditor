@@ -26,19 +26,11 @@ type getModelOptions = {
  */
 export async function getModel(
     modelName: string,
-    options: getModelOptions = { includeId: true },
-    user?: User
+    options: getModelOptions = { includeId: true }
 ): Promise<ErrorData<Model>> {
     try {
         if (!modelName) {
             throw new HttpException(ErrorCode.BadRequest, 'Model name is required')
-        }
-
-        if (!userCanAccessModel(modelName, user)) {
-            throw new HttpException(
-                ErrorCode.ForbiddenError,
-                'User does not have access to the requested model'
-            )
         }
 
         const modelsDb = await getModelsDb()
@@ -204,6 +196,6 @@ export async function getModelsWithDocumentCount(): Promise<ErrorData<Model[]>> 
 /**
  * if user is not authenticated, verify the requested model is not in the list of models requiring authentication
  */
-export function userCanAccessModel(modelName: string, user?: User) {
+export function userCanAccessModel(modelName: string, user: User) {
     return !!user?.uid || !MODELS_REQUIRING_AUTHENTICATION.includes(modelName)
 }
