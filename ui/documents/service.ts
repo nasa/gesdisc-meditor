@@ -106,7 +106,7 @@ export async function createDocument(
 export async function getDocument(
     documentTitle: string,
     modelName: string,
-    user?: User,
+    user: User,
     documentVersion?: string
 ): Promise<ErrorData<Document>> {
     try {
