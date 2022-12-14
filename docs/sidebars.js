@@ -18,10 +18,10 @@ const sidebars = {
             },
             items: [
                 'user-guide/quick-start',
+                'user-guide/working-with-documents',
+                'user-guide/workflows-and-roles',
                 'user-guide/using-comments',
                 'user-guide/versions-and-history',
-                'user-guide/workflows-and-roles',
-                'user-guide/working-with-documents',
             ],
         },
     ],

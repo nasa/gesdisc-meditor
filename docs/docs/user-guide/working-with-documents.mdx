@@ -1,23 +1,21 @@
 ---
 title: Working with Documents
-
-sidebar_position: 1
 ---
 
 ## Move a Document through its Workflow
 
-Most documents must go through the standard [workflow](#workflows) (add/edit > review > publish). What you are allowed to do with a document is determined by roles. Roles are assigned by model types (e.g., some users have authoring privileges for alerts, while others have authoring privileges for how-to documents). Roles consist of an author, reviewer and a publisher. If you are an author, you will be able to create new documents, edit existing documents, make comments, resolve comments, and submit a document for review. If you are a reviewer, you are able to make comments, resolve comments, and indicate the document is ready for publication or needs additional work. If you are a publisher, you can make comments, resolve comments, and publish the document. See [Workflows & Roles](#workflows-and-roles) and [Using Comments](#using-comments) for a more detailed explanation. To find out what roles you are currently assigned, see [Determining Your Roles](#determining-your-roles). If you need additional roles for other models, submit a Bugzilla ticket and choose "Meditor" as the product and then select the appropriate component ([https://discette.gsfc.nasa.gov/tt/enter_bug.cgi?product=mEditor](https://discette.gsfc.nasa.gov/tt/enter_bug.cgi?product=mEditor)).
+Most documents must go through the standard [workflow](/user-guide/workflows-and-roles#workflows) (add/edit > review > publish). What you are allowed to do with a document is determined by roles. Roles are assigned by model types (e.g., some users have authoring privileges for alerts, while others have authoring privileges for how-to documents). Roles consist of an author, reviewer and a publisher. If you are an author, you will be able to create new documents, edit existing documents, make comments, resolve comments, and submit a document for review. If you are a reviewer, you are able to make comments, resolve comments, and indicate the document is ready for publication or needs additional work. If you are a publisher, you can make comments, resolve comments, and publish the document. See [Workflows & Roles](/user-guide/workflows-and-roles) and [Using Comments](/user-guide/using-comments) for a more detailed explanation. To find out what roles you are currently assigned, see [Determining Your Roles](/user-guide/quick-start#determining-your-roles). If you need additional roles for other models, submit a Bugzilla ticket and choose "Meditor" as the product and then select the appropriate component ([https://discette.gsfc.nasa.gov/tt/enter_bug.cgi?product=mEditor](https://discette.gsfc.nasa.gov/tt/enter_bug.cgi?product=mEditor)).
 
 ### Adding a Document
 
 Before you can add a new document, you must have the role of author for the specific model type (e.g., news, howto's, etc).
 
-1. From the mEditor [Home screen](#meditor-home-screen) select the model type you wish to add. This will take you to the document listing page for that model.
+1. From the mEditor [Home screen](/user-guide/quick-start#meditor-home-screen) select the model type you wish to add. This will take you to the document listing page for that model.
 1. Click the "\+ Add New" button in the upper right-hand corner of the page. A blank editing form for that model type will be presented.
 1. Enter information into the input fields. Required fields are denoted by an \* and must be completed before the "Save" button is enabled and the document can be saved.
 1. Click the "Save" button.
 
-Your document is now saved and is in the "Draft" state. An initial version of the document is created in the [History](#versions-and-history) panel. You can reopen the document to make additional [edits](#editing-a-document-and-submitting-it-for-review).
+Your document is now saved and is in the "Draft" state. An initial version of the document is created in the [History](/user-guide/versions-and-history) panel. You can reopen the document to make additional [edits](#editing-a-document-and-submitting-it-for-review).
 
 ![Add form for FAQs model with "Save" button](/images/user-guide/working-with-documents__add-document.png)
 
@@ -31,11 +29,11 @@ To edit an existing document and submit it for review you must have the role of 
 
 You can edit a previously saved document as often as you like, even after it has been submitted for review.
 
-1. First locate the document in the [list of documents](#viewing-documents) within the models type. Use the keyword search to filter the list making it easier to find your document.
+1. First locate the document in the [list of documents](/user-guide/quick-start#viewing-documents) within the models type. Use the keyword search to filter the list making it easier to find your document.
 1. Click on the document link to open the editing form.
 1. Make your changes to the content in the form fields
 1. Use the "Revision Comment" field at the bottom of the form to summarize your edits. This is helpful to track changes between document versions.
-1. Click "Save" to save your changes. Each save creates a new version in the [History](#versions-and-history) panel.
+1. Click "Save" to save your changes. Each save creates a new version in the [History](/user-guide/versions-and-history) panel.
 1. Click "Submit for Review" button if you are finished with the document and ready to have it reviewed. See [Submitting a Document for Review](#submitting-a-document-for-review) for more details.
 
 #### Editing a Reviewed Document
@@ -46,14 +44,14 @@ As part of the review process you will need to make edits to your document is re
 1. Click on the "Comments" button to open the Comment panel and read the reviewer's comment(s). ![comment icon showing one comment](/images/user-guide/comment-icon--1.png)
 1. If you need more information, reply to the reviewer's comment(s) by clicking the "Reply" button ![icon symbolizing "reply"](/images/user-guide/comment-reply-button.png)for each comment that needs further clarification and write a response.
 1. If the reviewer's comment(s) provides enough detail, make edits based on their feedback.
-1. Click "Submit for Review" button once you have satisfied all of the reviewer's comments with the document and are ready to have it re-reviewed. The document is saved and creates a new version in the [History](#versions-and-history) panel. See [Submitting a Document for Review](#submitting-a-document-for-review) for more details.
+1. Click "Submit for Review" button once you have satisfied all of the reviewer's comments with the document and are ready to have it re-reviewed. The document is saved and creates a new version in the [History](/user-guide/versions-and-history) panel. See [Submitting a Document for Review](#submitting-a-document-for-review) for more details.
    ![Edit form for FAQs model with "Comment" , "History" and "Submit for Review" buttons.](/images/user-guide/working-with-documents__edit-document.png)
 
 Figure 6: Edit form for FAQs model with "Comment" , "History" and "Submit for Review" buttons. This is the "Author" view of a document.
 
 #### Submitting a Document for Review
 
-To submit a document for review, click "Submit for Review" button. If you made any changes, they are saved and submitted for review. The document's state is changed from "Draft" to "Under Review". A notification email is sent to the reviewer(s) of this content (e.g., reviewers of "how-to" documents). You and a reviewer will use the [Comments](#using-comments) and [History](#versions-and-history) features to refine the document until it is ready for publication. Each time you reopen the document to make additional edits and save those edits, the document reverts to a "Draft" state and needs to be re-submitted for review. Any comments associated with the previous version of the document are retained and maintained in that specific version and will not appear in your latest draft. This is all part of the review process.
+To submit a document for review, click "Submit for Review" button. If you made any changes, they are saved and submitted for review. The document's state is changed from "Draft" to "Under Review". A notification email is sent to the reviewer(s) of this content (e.g., reviewers of "how-to" documents). You and a reviewer will use the [Comments](/user-guide/using-comments) and [History](/user-guide/versions-and-history) features to refine the document until it is ready for publication. Each time you reopen the document to make additional edits and save those edits, the document reverts to a "Draft" state and needs to be re-submitted for review. Any comments associated with the previous version of the document are retained and maintained in that specific version and will not appear in your latest draft. This is all part of the review process.
 
 ### Reviewing a Document
 
@@ -68,13 +66,13 @@ NOTE: mEditor will not allow an Author to be a Reviewer on an author-created doc
 1. If you feel changes or additions need to be made, click the "Comment" button to open the Comment panel.
 1. Click the "New comment" button and enter your suggested edits. Then either click the "Close" button or click outside the Comment panel to hide comments.
 1. Click the "Needs more Work" button. The document is returned to the "Draft" state and the author is notified via email that additional edits need to be made.
-   ![Document under review with Comment panel opened and new comment entere](/images/user-guide/working-with-documents__review-document.png)
+   ![Document under review with Comment panel opened and new comment entered](/images/user-guide/working-with-documents__review-document.png)
 
     Figure 7: Document under review with Comment panel opened and new comment entered
 
 ### Publishing a Document
 
-You must have the role of publisher for the specific model type (e.g., news, howto, etc) to publish a document. You will be notified via email that a request has been made to publish a document. As a publisher you can not make edits to the document; instead you will give the document a final review. If you feel additional refinements need to be made, make a [comment](#using-comments) and click the "I don't like it" button. If you feel the document is ready to go public, click the "Publish" button to push it to the public site.
+You must have the role of publisher for the specific model type (e.g., news, howto, etc) to publish a document. You will be notified via email that a request has been made to publish a document. As a publisher you can not make edits to the document; instead you will give the document a final review. If you feel additional refinements need to be made, make a [comment](/user-guide/using-comments) and click the "I don't like it" button. If you feel the document is ready to go public, click the "Publish" button to push it to the public site.
 
 1. Open the document either by clicking the link in the email notification or searching the document list.
 1. Review the document and if you feel it is ready for to be published, click the "Publish" button. The document state is changed from "Approved" to "Published". An email is sent to everyone involved notifying them that the content is now public.

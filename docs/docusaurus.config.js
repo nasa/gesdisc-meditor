@@ -32,7 +32,10 @@ const config = {
                     docLayoutComponent: '@theme/DocPage',
                     docItemComponent: '@theme/ApiItem',
                 },
-                blog: false,
+                blog: {
+                    blogTitle: 'Changelog',
+                    routeBasePath: '/changelog',
+                },
                 theme: {
                     customCss: require.resolve('./src/css/custom.css'),
                 },
@@ -66,6 +69,11 @@ const config = {
                         position: 'left',
                         to: '/api',
                     },
+                    // {
+                    //     label: 'Changelog',
+                    //     position: 'left',
+                    //     to: '/changelog',
+                    // },
                     {
                         href: 'https://git.earthdata.nasa.gov/projects/MEDITOR/repos/meditor/browse',
                         label: 'Code',
@@ -104,10 +112,13 @@ const config = {
                 docsPluginId: 'classic',
                 config: {
                     meditor: {
-                        specPath: 'api-spec/meditor.yaml',
+                        //* to better understand what a completed spec does for the UI, use something like this:
+                        // specPath:
+                        // 'https://raw.githubusercontent.com/apideck-libraries/openapi-specs/master/accounting.yml',
+                        specPath: 'api-spec/v1.yaml',
                         outputDir: 'docs/meditor-api',
                         downloadUrl:
-                            'https://raw.githubusercontent.com/PaloAltoNetworks/docusaurus-template-openapi-docs/main/examples/petstore.yaml',
+                            'https://git.earthdata.nasa.gov/projects/MEDITOR/repos/meditor/raw/docs/api-spec/v1.yaml',
                         sidebarOptions: {
                             groupPathsBy: 'tag',
                             categoryLinkSource: 'tag',

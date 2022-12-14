@@ -10,21 +10,32 @@ api:
         'tags': ['models'],
         'description': 'Get a list of all models.',
         'operationId': 'getModels',
-        'responses': ['200'],
-        'x-codeSamples': null,
+        'responses':
+            {
+                '200': { 'description': 'OK' },
+                '500': { 'description': 'Internal Server Error' },
+            },
         'method': 'get',
         'path': '/models',
         'servers':
             [
                 {
-                    'url': 'http://localhost/meditor/api',
+                    'url': '{API_ORIGIN}/meditor/api',
+                    'variables':
+                        {
+                            'API_ORIGIN':
+                                {
+                                    'description': 'The origin of the API server.',
+                                    'default': 'http://localhost',
+                                },
+                        },
                     'description': 'Local Server',
                 },
             ],
         'info':
             {
-                'description': "This is mEditor's API documentation. You can execute live requests against the server and read how to use the API.\n\n## OpenAPI Specification\nThis API is documented in **OpenAPI format**.\n\n## Cross-Origin Resource Sharing\nThis API features Cross-Origin Resource Sharing (CORS) implemented in compliance with  [W3C spec](https://www.w3.org/TR/cors/).\nAnd that allows cross-domain communication from the browser.\nAll responses have a wildcard same-origin which makes them completely public and accessible to everyone, including any code on any site.\n\n## Authentication\n",
-                'version': '2.0.0',
+                'description': "This is mEditor's API documentation. You can execute live requests against the server and read how to use the API.\n",
+                'version': '1.0.0',
                 'title': 'mEditor API Yaml',
             },
         'postman':
@@ -59,11 +70,13 @@ import TabItem from '@theme/TabItem'
 
 Get a list of all models.
 
-<div>
-    <ApiTabs>
-        <TabItem label={'0'} value={'0'}>
-            <div></div>
-            <div></div>
-        </TabItem>
-    </ApiTabs>
-</div>
+<div><ApiTabs><TabItem label={"200"} value={"200"}><div>
+
+OK
+
+</div><div></div></TabItem><TabItem label={"500"} value={"500"}><div>
+
+Internal Server Error
+
+</div><div></div></TabItem></ApiTabs></div>
+
