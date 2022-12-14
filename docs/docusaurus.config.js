@@ -59,10 +59,9 @@ const config = {
                 },
                 items: [
                     {
-                        type: 'doc',
-                        docId: 'introduction',
-                        position: 'left',
                         label: 'User Guide',
+                        position: 'left',
+                        to: '/user-guide',
                     },
                     {
                         label: 'API',

@@ -42,7 +42,6 @@
         "monquery": "^0.2.0",
         "mustache": "^4.2.0",
         "next": "^13.0.5",
-        "next-swagger-doc": "^0.3.6",
         "node-nats-streaming": "^0.3.2",
         "parse-multipart-data": "^1.5.0",
         "pluralize": "^8.0.0",
@@ -58,7 +57,6 @@
         "react-window": "^1.8.5",
         "reactflow": "^11.3.2",
         "shortid": "^2.2.16",
-        "swagger-ui-react": "^4.15.5",
         "use-immer": "^0.8.1",
         "uuid": "^8.2.0",
         "zod": "^3.19.1"
