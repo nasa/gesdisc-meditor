@@ -22,6 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 return apiError(error, res)
             }
 
+            // todo: discuss this vs createDocument's 201 w/ location header; api-safe?
             return res.status(200).json(document)
         }
 
