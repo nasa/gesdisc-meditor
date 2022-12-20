@@ -8,7 +8,7 @@ dl = DictLoader(
 {%- extends 'lab/index.html.j2' -%}
 
 {% block extra_css %}
-<base target="_parent" />
+<base target="_blank" />
 {% endblock extra_css %}
 
 {%- block body_header -%}
