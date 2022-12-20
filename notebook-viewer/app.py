@@ -10,7 +10,7 @@ DOMAIN_WHITELIST_REGEX = "^https://([a-zA-Z0-9]+\.)*(nasa\.gov|github\.com|githu
 
 app = Flask('mEditor Notebook Viewer')
 
-@app.route("/convert-notebook-to-html")
+@app.route("/meditor/notebookviewer/")
 def getNotebookAsHtml():
     return convertNotebookToHtml()
 

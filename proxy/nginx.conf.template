@@ -31,6 +31,10 @@ http {
         server ${MONITOR_HOST}:9000;
     }
 
+    upstream notebookviewer {
+        server ${NOTEBOOKVIEWER_HOST}:8080;
+    }
+
     server {
         listen 8080;
         access_log /var/log/nginx/access.log compression;
@@ -38,6 +42,11 @@ http {
 
         location /meditor {
             proxy_pass         http://web;
+            include /etc/nginx/proxy.conf;
+        }
+
+        location /meditor/notebookviewer/ {
+            proxy_pass         http://notebookviewer;
             include /etc/nginx/proxy.conf;
         }
 

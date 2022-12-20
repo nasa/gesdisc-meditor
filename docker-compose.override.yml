@@ -4,8 +4,6 @@ services:
   notebookviewer:
     container_name: meditor_notebookviewer
     build: notebook-viewer
-    ports:
-      - "8087:8080"
     environment:
       - FLASK_ENV=development
     env_file:
