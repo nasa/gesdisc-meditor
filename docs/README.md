@@ -5,7 +5,7 @@ This template is built for [Docusaurus 2](https://docusaurus.io/), a modern stat
 ### Usage
 
 ```bash
-npx create-docusaurus@2.2.0 my-website --package-manager yarn
+npx create-docusaurus@2.2.0 my-website
 ```
 
 > When prompted to select a template choose `Git repository`.
@@ -20,13 +20,13 @@ https://github.com/PaloAltoNetworks/docusaurus-template-openapi-docs.git
 
 ```bash
 cd my-website
-yarn
+npm i
 ```
 
 ### Local Development
 
 ```bash
-yarn start
+npm start
 ```
 
 This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
@@ -34,7 +34,7 @@ This command starts a local development server and opens up a browser window. Mo
 ### Build
 
 ```bash
-yarn build
+npm run build
 ```
 
 This command generates static content into the `build` directory and can be served using any static contents hosting service.

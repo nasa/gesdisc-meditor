@@ -1,18 +1,17 @@
 ARG REGISTRY
-FROM ${REGISTRY}node:18.12.1
+FROM ${REGISTRY}node:18.12.1 as base
 
-WORKDIR /usr/src/app
+ENV NPM_CONFIG_LOGLEVEL=warn
 
-RUN corepack enable
-RUN corepack prepare yarn@3.3.0 --activate
+WORKDIR /home/node/app
 
-COPY . .
-RUN yarn install
+COPY --chown=node:node . /home/node/app/
+RUN npm install
 
-RUN yarn clear
-RUN yarn clean-api-docs all
-RUN yarn gen-api-docs all
+FROM base as production
+RUN npm run gen-api-docs all
+RUN npm run build
 
 EXPOSE 3030
 
-CMD yarn build && yarn serve
+CMD npm run serve
