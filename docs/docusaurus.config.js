@@ -8,7 +8,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula')
 const config = {
     title: 'mEditor Documentation',
     tagline: 'How to use the GES DISC Model Editor application and API',
-    url: 'https://your-docusaurus-test-site.com',
+    url: 'https://lb.gesdisc.eosdis.nasa.gov',
     baseUrl: '/meditor/docs',
     onBrokenLinks: 'throw',
     onBrokenMarkdownLinks: 'warn',
