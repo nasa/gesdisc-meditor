@@ -113,8 +113,7 @@ export async function getDocument(
         const documentsDb = await getDocumentsDb()
         const userRolesForModel = findAllowedUserRolesForModel(modelName, user?.roles)
 
-        const [modelError, { titleProperty = 'title', workflow }] =
-            await getModelWithWorkflow(modelName)
+        const [modelError, model] = await getModelWithWorkflow(modelName)
 
         if (modelError) {
             throw modelError // failed to get the model associated with the document
@@ -122,7 +121,7 @@ export async function getDocument(
 
         const sourceToTargetStateMap = createSourceToTargetStateMap(
             userRolesForModel,
-            workflow.edges
+            model.workflow.edges
         )
 
         const document = await documentsDb.getDocument(
@@ -130,7 +129,7 @@ export async function getDocument(
             documentVersion,
             modelName,
             sourceToTargetStateMap,
-            titleProperty,
+            model.titleProperty,
             user?.uid
         )
 
@@ -157,8 +156,7 @@ export async function getDocumentsForModel(
     try {
         const documentsDb = await getDocumentsDb()
 
-        const [modelError, { titleProperty = 'title', workflow }] =
-            await getModelWithWorkflow(modelName) // need the model to get the related workflow and title property
+        const [modelError, model] = await getModelWithWorkflow(modelName) // need the model to get the related workflow and title property
 
         if (modelError) {
             throw modelError
@@ -167,13 +165,13 @@ export async function getDocumentsForModel(
         let documents = await documentsDb.getDocumentsForModel(
             modelName,
             searchOptions,
-            titleProperty
+            model.titleProperty
         )
 
         if (searchOptions?.searchTerm) {
             // user is attempting a search. Mongo text search is VERY basic, so we'll utilize fuse.js to do the search
             const fuse = new Fuse(documents, {
-                keys: [titleProperty], // TODO: investigate searching more than just the title property
+                keys: [model.titleProperty], // TODO: investigate searching more than just the title property
             })
 
             // fuse.js returns search results with extra information, we just need the matching document
@@ -189,7 +187,7 @@ export async function getDocumentsForModel(
                 ...document['x-meditor'],
                 targetStates: getTargetStatesFromWorkflow(
                     document['x-meditor'].state,
-                    workflow
+                    model.workflow
                 ), // populate document with states it can transition into
             },
         }))
@@ -208,7 +206,7 @@ export async function getDocumentHistory(
 ): Promise<ErrorData<DocumentHistory[]>> {
     try {
         const documentsDb = await getDocumentsDb()
-        const [modelError, { titleProperty = '' }] = await getModel(modelName)
+        const [modelError, model] = await getModel(modelName)
 
         if (modelError) {
             throw modelError
@@ -217,7 +215,7 @@ export async function getDocumentHistory(
         const historyItems = await documentsDb.getDocumentHistory(
             documentTitle,
             modelName,
-            titleProperty
+            model.titleProperty
         )
 
         return [null, historyItems]
@@ -235,7 +233,7 @@ export async function getDocumentHistoryByVersion(
 ): Promise<ErrorData<DocumentHistory>> {
     try {
         const documentsDb = await getDocumentsDb()
-        const [modelError, { titleProperty = '' }] = await getModel(modelName)
+        const [modelError, model] = await getModel(modelName)
 
         if (modelError) {
             throw modelError
@@ -244,7 +242,7 @@ export async function getDocumentHistoryByVersion(
         const historyItem = await documentsDb.getDocumentHistoryByVersion(
             documentTitle,
             modelName,
-            titleProperty,
+            model.titleProperty,
             versionId
         )
 
@@ -262,7 +260,7 @@ export async function getDocumentPublications(
 ): Promise<ErrorData<DocumentPublications[]>> {
     try {
         const documentsDb = await getDocumentsDb()
-        const [modelError, { titleProperty = '' }] = await getModel(modelName)
+        const [modelError, model] = await getModel(modelName)
 
         if (modelError) {
             throw modelError
@@ -271,7 +269,7 @@ export async function getDocumentPublications(
         const publications = await documentsDb.getDocumentPublications(
             documentTitle,
             modelName,
-            titleProperty
+            model.titleProperty
         )
 
         return [null, publications]
