@@ -1,5 +1,3 @@
-const NBVIEWER_PREFIX_DEFAULT = 'https://nbviewer.org/urls/'
-
 /**
  * a valid Jupyter Notebook URL is:
  *     - valid URL starting with http or https
@@ -28,22 +26,14 @@ export function isValidNotebookUrl(testStr) {
     return true
 }
 
-/**
- * https://nbviewer.org/ is a Jupyter provided tool for rendering a notebook given a url
- *
- * this function converts a normal URL to a .ipynb file into a nbviewer url, for example:
- *
- * https://docserver.gesdisc.eosdis.nasa.gov/public/project/notebooks/How_To_Access_MERRA2_Using_OPeNDAP_with_Python3_Calculate_Weekly_from_Hourly.ipynb
- *
- * converts to
- *
- * https://nbviewer.org/urls/docserver.gesdisc.eosdis.nasa.gov/public/project/notebooks/How_To_Access_MERRA2_Using_OPeNDAP_with_Python3_Calculate_Weekly_from_Hourly.ipynb
- */
 export function convertUrlToNbViewerUrl(url) {
     if (!isValidNotebookUrl(url)) {
         return url // not a notebook url so not convertable
     }
 
-    // fallback to using the default prefix
-    return url.replace('https://', NBVIEWER_PREFIX_DEFAULT)
+    return (
+        process.env.NEXT_PUBLIC_NOTEBOOKVIEWER_URL +
+        '?notebookUrl=' +
+        encodeURIComponent(url)
+    )
 }
