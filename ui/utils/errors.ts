@@ -7,6 +7,7 @@ export enum ErrorCode {
     MethodNotAllowed = 'MethodNotAllowed',
     Unauthorized = 'Unauthorized',
     InternalServerError = 'InternalServerError',
+    ForbiddenError = 'ForbiddenError',
 }
 
 export interface ErrorCause {
@@ -21,13 +22,6 @@ export class HttpException extends Error {
         super(message)
 
         this.cause = this.mapCodeToCause(code)
-    }
-
-    toString() {
-        return JSON.stringify({
-            status: this.cause.status,
-            error: this.message,
-        })
     }
 
     private mapCodeToCause(code: ErrorCode): ErrorCause {
@@ -49,6 +43,10 @@ export class HttpException extends Error {
 
             case ErrorCode.Unauthorized:
                 status = 401
+                break
+
+            case ErrorCode.ForbiddenError:
+                status = 403
                 break
 
             case ErrorCode.InternalServerError:
@@ -75,5 +73,8 @@ export function apiError(error: Error | HttpException, response: NextApiResponse
         ? (error as HttpException)
         : new HttpException(ErrorCode.InternalServerError, 'Internal Server Error')
 
-    return response.status(safeError.cause.status).json(safeError.toString())
+    return response.status(safeError.cause.status).json({
+        status: safeError.cause.status,
+        error: safeError.message,
+    })
 }

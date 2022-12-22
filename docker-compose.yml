@@ -1,6 +1,10 @@
 version: "3.3"
 
 services:
+  notebookviewer:
+    depends_on:
+      - server
+
   proxy:
     ports:
       - "80:8080"
@@ -9,6 +13,7 @@ services:
       - nats
       - ui
       - database
+      - notebookviewer
 
   notifier:
     depends_on:

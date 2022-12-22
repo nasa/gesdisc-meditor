@@ -6,7 +6,7 @@ const getDocumentInputSchema = z.object({
     modelName: z.string().min(1),
     sourceToTargetStateMap: z.any(),
     titleProperty: z.string().min(1),
-    uid: z.string().min(1),
+    uid: z.string().min(1).optional(),
 })
 
 export { getDocumentInputSchema }
