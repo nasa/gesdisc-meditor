@@ -29,7 +29,7 @@ class MacrosDb {
         return documents.map(document => document.field)
     }
 
-    async getDependenciesByTitle(dependentField, modelName) {
+    async getDependenciesByTitle(dependentField: string, modelName: string) {
         const documents = await this.#db
             .collection(modelName)
             .aggregate([

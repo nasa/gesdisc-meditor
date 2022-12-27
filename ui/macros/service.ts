@@ -4,6 +4,7 @@ import type { Model, PopulatedTemplate, Template } from '../models/types'
 import { ErrorCode, HttpException } from '../utils/errors'
 import { getMacrosDb } from './db'
 
+//* Macros are a map of external to internal: externally, mEditor can have template macros defined. Those macros have names. Internally, we make those macro names execute a function by mapping the macro name to a function via this map (e.g., macros.set('external-macro-name', internalMacroFunction)). See ReadMe in this file for more context.
 const macros = new Map<
     string,
     (...args: any[]) => Promise<ErrorData<PopulatedTemplate['result']>>
@@ -67,8 +68,8 @@ async function listDependenciesByTitle(
             [modelName]: {
                 oneOf: results
                     //* Filter out invalid results.
-                    .filter(result => typeof result.title !== 'undefined')
-                    .map(result => ({
+                    .filter((result: any) => typeof result.title !== 'undefined')
+                    .map((result: any) => ({
                         properties: {
                             [modelName]: {
                                 enum: [result.title],
@@ -105,6 +106,7 @@ async function listUniqueFieldValues(
     }
 }
 
+//* The exported "runModelTemplate" below and these macro names (consumed programmatically in "runModelTemplate" are the exposed interface that mEditor template macros will use. See the ReadMe in this file for more context.
 macros.set('list', listUniqueFieldValues)
 macros.set('listDependenciesByTitle', listDependenciesByTitle)
 
