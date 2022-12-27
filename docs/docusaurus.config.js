@@ -32,10 +32,11 @@ const config = {
                     docLayoutComponent: '@theme/DocPage',
                     docItemComponent: '@theme/ApiItem',
                 },
-                blog: {
-                    blogTitle: 'Changelog',
-                    routeBasePath: '/changelog',
-                },
+                blog: false,
+                // blog: {
+                //     blogTitle: 'Making mEditor',
+                //     routeBasePath: '/blog',
+                // },
                 theme: {
                     customCss: require.resolve('./src/css/custom.css'),
                 },
@@ -55,27 +56,42 @@ const config = {
                 title: 'mEditor Docs',
                 logo: {
                     alt: 'mEditor',
-                    src: 'images/logo.png',
+                    src: 'images/mEditor-icon.svg',
                 },
                 items: [
+                    {
+                        label: 'API',
+                        position: 'left',
+                        to: '/api',
+                    },
+                    {
+                        label: 'Read Me',
+                        position: 'left',
+                        to: '/readme',
+                    },
                     {
                         label: 'User Guide',
                         position: 'left',
                         to: '/user-guide',
                     },
                     {
-                        label: 'API',
-                        position: 'left',
-                        to: '/api',
+                        label: 'Changelog',
+                        position: 'right',
+                        to: '/changelog',
                     },
-                    // {
-                    //     label: 'Changelog',
-                    //     position: 'left',
-                    //     to: '/changelog',
-                    // },
                     {
-                        href: 'https://git.earthdata.nasa.gov/projects/MEDITOR/repos/meditor/browse',
-                        label: 'Code',
+                        label: 'Contributing',
+                        position: 'right',
+                        to: '/contributing',
+                    },
+                    {
+                        label: 'Code of Conduct',
+                        position: 'right',
+                        to: '/code-of-conduct',
+                    },
+                    {
+                        href: 'https://github.com/nasa/gesdisc-meditor',
+                        label: 'GitHub',
                         position: 'right',
                     },
                 ],
