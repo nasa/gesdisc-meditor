@@ -26,6 +26,7 @@ services:
   docs:
     depends_on:
       - server
+      - ui
 
   server:
     depends_on:

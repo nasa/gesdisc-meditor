@@ -1,6 +1,19 @@
-node_modules
+# Dependencies
+/node_modules
 
-/.cache
-meditor/docs/build
-public/meditor/docs/build
-.env
+# Production
+/build
+
+# Generated files
+.docusaurus
+.cache-loader
+docs/meditor-api
+
+# Misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*

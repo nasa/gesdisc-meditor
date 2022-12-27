@@ -1,21 +1,17 @@
 ARG REGISTRY
-FROM ${REGISTRY}node:16.11.0
+FROM ${REGISTRY}node:18.12.1 as base
 
-ARG node_env
+ENV NPM_CONFIG_LOGLEVEL=warn
 
-WORKDIR /usr/src/app
+WORKDIR /home/node/app
 
-COPY package*.json ./
-RUN npm ci
-COPY . .
+COPY --chown=node:node . /home/node/app/
+RUN npm install
+
+FROM base as production
+RUN npm run gen-api-docs all
 RUN npm run build
 
 EXPOSE 3030
-EXPOSE 8002
 
-CMD if [ "$NODE_ENV" = "production" ]; \
-    then \
-    npm run start; \
-    else \
-    npm run dev; \
-    fi
+CMD npm run serve

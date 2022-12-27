@@ -41,13 +41,13 @@ http {
             include /etc/nginx/proxy.conf;
         }
 
-        location /meditor/notebookviewer/ {
-            proxy_pass         http://notebookviewer;
+        location /meditor/docs {
+            proxy_pass         http://docs;
             include /etc/nginx/proxy.conf;
         }
 
-        location /meditor/docs/ {
-            proxy_pass         http://docs;
+        location /meditor/notebookviewer/ {
+            proxy_pass         http://notebookviewer;
             include /etc/nginx/proxy.conf;
         }
 
