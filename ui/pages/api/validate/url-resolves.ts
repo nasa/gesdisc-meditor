@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { getLoggedInUser } from '../../auth/user'
-import { apiError, ErrorCode, HttpException } from '../../utils/errors'
+import { getLoggedInUser } from '../../../auth/user'
+import { apiError, ErrorCode, HttpException } from '../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     // this doesn't really need to be a secure endpoint BUT this is just an extra step to ensure no anonymous users are

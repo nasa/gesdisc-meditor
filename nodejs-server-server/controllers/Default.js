@@ -13,19 +13,6 @@ module.exports.getCsrfToken = function getCsrfToken(req, res, next) {
         })
 }
 
-module.exports.getDocument = function getDocument(req, res, next) {
-    var model = req.swagger.params['model'].value
-    var title = req.swagger.params['title'].value
-    var version = req.swagger.params['version'].value
-    Default.getDocument(model, title, version)
-        .then(function (response) {
-            utils.writeJson(res, response)
-        })
-        .catch(function (response) {
-            utils.writeJson(res, response)
-        })
-}
-
 module.exports.getMe = function getMe(req, res, next) {
     Default.getMe()
         .then(function (response) {

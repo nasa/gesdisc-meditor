@@ -10,22 +10,4 @@ module.exports = {
         }
         return config
     },
-    async rewrites() {
-        return [
-            {
-                source: '/api/listModels',
-                destination: '/api/models',
-            },
-            {
-                source: '/api/listDocuments',
-                has: [
-                    {
-                        type: 'query',
-                        key: 'model',
-                    },
-                ],
-                destination: '/api/models/:model/documents',
-            },
-        ]
-    },
 }

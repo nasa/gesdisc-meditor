@@ -4,7 +4,8 @@ import { getModel, userCanAccessModel } from '../../../../models/service'
 import { apiError, ErrorCode, HttpException } from '../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const modelName = req.query.modelName.toString()
+    const modelName = decodeURIComponent(req.query.modelName.toString())
+    const disableMacros = 'disableMacros' in req.query
     const user = await getLoggedInUser(req, res)
 
     if (!userCanAccessModel(modelName, user)) {
@@ -16,7 +17,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     switch (req.method) {
         case 'GET': {
-            const [error, model] = await getModel(decodeURIComponent(modelName))
+            const [error, model] = await getModel(modelName, {
+                //* Do not expose DB ID to API.
+                includeId: false,
+                //* Allow boolean search param to optionally disable template macros. Defaults to running macros.
+                populateMacroTemplates: !disableMacros,
+            })
 
             if (error) {
                 return apiError(error, res)

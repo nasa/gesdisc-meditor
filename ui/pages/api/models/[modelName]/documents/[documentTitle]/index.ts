@@ -5,8 +5,8 @@ import { userCanAccessModel } from '../../../../../../models/service'
 import { apiError, ErrorCode, HttpException } from '../../../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const documentTitle = req.query.documentTitle.toString()
-    const modelName = req.query.modelName.toString()
+    const documentTitle = decodeURIComponent(req.query.documentTitle.toString())
+    const modelName = decodeURIComponent(req.query.modelName.toString())
     const user = await getLoggedInUser(req, res)
 
     if (!userCanAccessModel(modelName, user)) {
@@ -19,8 +19,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     switch (req.method) {
         case 'GET': {
             const [error, document] = await getDocument(
-                decodeURIComponent(documentTitle),
-                decodeURIComponent(modelName),
+                documentTitle,
+                modelName,
                 user
             )
 

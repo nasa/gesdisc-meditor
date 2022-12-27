@@ -4,17 +4,17 @@ import { cloneDocument } from '../../../../../../documents/service'
 import { apiError, ErrorCode, HttpException } from '../../../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const documentTitle = req.query.documentTitle.toString()
-    const newTitle = req.query.newTitle.toString()
-    const modelName = req.query.modelName.toString()
+    const documentTitle = decodeURIComponent(req.query.documentTitle.toString())
+    const modelName = decodeURIComponent(req.query.modelName.toString())
+    const newTitle = decodeURIComponent(req.query.newTitle.toString())
     const user = await getLoggedInUser(req, res)
 
     switch (req.method) {
         case 'POST': {
             const [error, document] = await cloneDocument(
-                decodeURIComponent(documentTitle),
-                decodeURIComponent(newTitle),
-                decodeURIComponent(modelName),
+                documentTitle,
+                newTitle,
+                modelName,
                 user
             )
 

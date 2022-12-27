@@ -24,6 +24,7 @@ export interface Model {
     category?: string
     workflow?: string
     notificationTemplate?: string
+    templates?: Template[]
 }
 
 export interface ModelWithWorkflow extends Omit<Model, 'workflow'> {
@@ -38,4 +39,13 @@ export interface ModelIcon {
 export interface ModelMetadata extends DocumentMetadata {
     count?: number
     countAll?: number
+}
+
+export type Template = {
+    jsonpath: string
+    macro: string
+}
+
+export type PopulatedTemplate = Template & {
+    result: any
 }

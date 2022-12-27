@@ -4,9 +4,9 @@ import { changeDocumentState } from '../../../../../../documents/service'
 import { apiError, ErrorCode, HttpException } from '../../../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const documentTitle = req.query.documentTitle.toString()
-    const modelName = req.query.modelName.toString()
-    const newState = req.query.state?.toString()
+    const documentTitle = decodeURIComponent(req.query.documentTitle.toString())
+    const modelName = decodeURIComponent(req.query.modelName.toString())
+    const newState = decodeURIComponent(req.query.state?.toString())
 
     const user = await getLoggedInUser(req, res)
 
@@ -22,8 +22,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // update state done for a POST and a PUT
     const [error, document] = await changeDocumentState(
-        decodeURIComponent(documentTitle),
-        decodeURIComponent(modelName),
+        documentTitle,
+        modelName,
         newState,
         user,
         {

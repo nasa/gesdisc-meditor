@@ -26,8 +26,7 @@ node_modules
 # misc
 /.sass-cache
 /connect.lock
-/coverage
-/ui/coverage
+coverage
 /libpeerconnection.log
 npm-debug.log
 yarn-error.log

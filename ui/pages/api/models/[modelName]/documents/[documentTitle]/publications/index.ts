@@ -3,14 +3,14 @@ import { getDocumentPublications } from '../../../../../../../documents/service'
 import { apiError } from '../../../../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const modelName = req.query.modelName.toString()
-    const documentTitle = req.query.documentTitle.toString()
+    const documentTitle = decodeURIComponent(req.query.documentTitle.toString())
+    const modelName = decodeURIComponent(req.query.modelName.toString())
 
     switch (req.method) {
         case 'GET': {
             const [error, publications] = await getDocumentPublications(
-                decodeURIComponent(documentTitle),
-                decodeURIComponent(modelName)
+                documentTitle,
+                modelName
             )
 
             if (error) {

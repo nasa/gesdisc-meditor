@@ -11,9 +11,12 @@ import {
 } from '../../../../../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    // user should be logged in for any comments related activity
+    const commentId = decodeURIComponent(req.query.commentId.toString())
+    const documentTitle = decodeURIComponent(req.query.documentTitle.toString())
+    const modelName = decodeURIComponent(req.query.modelName.toString())
     const user = await getLoggedInUser(req, res)
 
+    // user should be logged in for any comments related activity
     if (!user) {
         return apiError(
             new HttpException(ErrorCode.Unauthorized, 'Unauthorized'),
@@ -23,12 +26,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     switch (req.method) {
         case 'GET': {
-            const { commentId, documentTitle, modelName } = req.query
-
             const [error, comment] = await getCommentForDocument(
-                decodeURIComponent(commentId.toString()),
-                decodeURIComponent(documentTitle.toString()),
-                decodeURIComponent(modelName.toString())
+                commentId,
+                documentTitle,
+                modelName
             )
 
             if (error) {

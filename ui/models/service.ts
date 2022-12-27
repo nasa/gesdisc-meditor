@@ -2,7 +2,9 @@ import jsonpath from 'jsonpath'
 import type { User } from '../auth/types'
 import type { ErrorData } from '../declarations'
 import { getDocumentsDb } from '../documents/db'
+import { runModelTemplates } from '../macros/service'
 import { ErrorCode, HttpException } from '../utils/errors'
+import { isJson } from '../utils/jsonschema-validate'
 import { getWorkflowByDocumentState } from '../workflows/service'
 import { getModelsDb } from './db'
 import type { Model, ModelWithWorkflow } from './types'
@@ -46,7 +48,7 @@ export async function getModel(
         // see top level documentation for description of macro templates
         if (options.populateMacroTemplates) {
             // validate the model's schema before continuing
-            if (!this.isJson(model.schema)) {
+            if (!isJson(model.schema)) {
                 throw new HttpException(
                     ErrorCode.BadRequest,
                     `The schema for model, ${modelName}, contains invalid JSON`
@@ -54,9 +56,7 @@ export async function getModel(
             }
 
             // execute the macro templates for this model and get their values
-            // TODO: add support for macros
-            //let populatedTemplates = await this.getPopulatedModelTemplates(model)
-            let populatedTemplates = []
+            const populatedTemplates = await runModelTemplates(model)
 
             // parse the schema into an object
             let schema =
@@ -64,10 +64,10 @@ export async function getModel(
                     ? JSON.parse(model.schema)
                     : model.schema
 
-            // can also set macro templates for the layout, parse it's JSON as well if this model has a layout
+            // can also set macro templates for the layout, parse its JSON as well if this model has a layout
             let layout = null
 
-            if (model.layout && this.isJson(model.layout)) {
+            if (model.layout && isJson(model.layout)) {
                 layout =
                     typeof model.layout === 'string'
                         ? JSON.parse(model.layout)
@@ -100,8 +100,8 @@ export async function getModel(
         }
 
         return [null, model]
-    } catch (err) {
-        return [err, null]
+    } catch (error) {
+        return [error, null]
     }
 }
 
@@ -113,10 +113,11 @@ export async function getModel(
  */
 export async function getModelWithWorkflow(
     modelName: string,
-    documentState?: string
+    documentState?: string,
+    getModelOptions?: getModelOptions
 ): Promise<ErrorData<ModelWithWorkflow>> {
     try {
-        const [modelError, model] = await getModel(modelName)
+        const [modelError, model] = await getModel(modelName, getModelOptions)
 
         if (modelError) {
             throw modelError

@@ -3,14 +3,16 @@ import { getDocumentHistoryByVersion } from '../../../../../../../../documents/s
 import { apiError } from '../../../../../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    const documentTitle = decodeURIComponent(req.query.documentTitle.toString())
+    const modelName = decodeURIComponent(req.query.modelName.toString())
+    const revisionId = decodeURIComponent(req.query.revisionId.toString())
+
     switch (req.method) {
         case 'GET': {
-            const { revisionId, documentTitle, modelName } = req.query
-
             const [error, history] = await getDocumentHistoryByVersion(
-                decodeURIComponent(revisionId.toString()),
-                decodeURIComponent(documentTitle.toString()),
-                decodeURIComponent(modelName.toString())
+                revisionId,
+                documentTitle,
+                modelName
             )
 
             if (error) {
