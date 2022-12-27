@@ -2,11 +2,11 @@ import { getCookies } from 'cookies-next'
 import type { IncomingMessage, ServerResponse } from 'http'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-const LEGACY_API_HOST = process.env.API_HOST || 'meditor_server:8081'
+const LEGACY_API_HOST = process.env.API_HOST || 'meditor_legacy-api:8081'
 const LEGACY_MEDITOR_SESSION_COOKIE = '__mEditor'
 
 /**
- * for the time being, authentication is ONLY handled in the legacy API (/nodejs-server-server)
+ * for the time being, authentication is ONLY handled in the legacy API (/legacy-api)
  *
  * In the future, we'll want to use NextAuth (without breaking .netrc based logins). This function matches the parameter definition
  * of the "unstable_getServerSideSession" function in NextAuth and can be augmented.

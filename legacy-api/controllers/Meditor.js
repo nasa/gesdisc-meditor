@@ -10,7 +10,6 @@ var escape = require('mongo-escape').escape
 var MongoUrl = process.env.MONGOURL || 'mongodb://meditor_database:27017/'
 var DbName = 'meditor'
 
-
 // subscribe to publication acknowledgements
 nats.subscribeToChannel('meditor-Acknowledge').on(
     'message',

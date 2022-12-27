@@ -1,0 +1,215 @@
+---
+swagger: '2.0'
+info:
+    version: '0.0.1'
+    title: 'Model Editor API'
+host: 'localhost:8081'
+basePath: '/meditor/api'
+schemes:
+    - 'http'
+security:
+    - URS4: [read, write]
+paths:
+    /login:
+        get:
+            summary: 'Login'
+            description: 'Redirect to configured identity provider for login'
+            operationId: 'login'
+            parameters:
+                - name: 'code'
+                  in: 'query'
+                  description: 'URS authentication code'
+                  required: false
+                  type: 'string'
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        $ref: '#/definitions/success'
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                422:
+                    description: 'Invalid syntax'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            security: []
+            x-swagger-router-controller: 'Users'
+        post:
+            summary: 'Login Post'
+            description: 'Log in with username and password to Cognito'
+            operationId: 'loginPost'
+            parameters:
+                - name: 'loginInfo'
+                  in: 'body'
+                  description: 'login information'
+                  required: true
+                  schema:
+                      $ref: '#/definitions/LoginPost'
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        $ref: '#/definitions/success'
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                422:
+                    description: 'Invalid syntax'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            security: []
+            x-swagger-router-controller: 'Users'
+    /logout:
+        get:
+            summary: 'Logout'
+            description: 'Logs out the user'
+            operationId: 'logout'
+            parameters: []
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        $ref: '#/definitions/success'
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                422:
+                    description: 'Invalid syntax'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            security: []
+            x-swagger-router-controller: 'Users'
+    /me:
+        get:
+            summary: 'Gets user info'
+            description: 'Gets user info'
+            operationId: 'getMe'
+            parameters: []
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        $ref: '#/definitions/user'
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                422:
+                    description: 'Invalid syntax'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            x-swagger-router-controller: 'Users'
+    /getCsrfToken:
+        get:
+            summary: 'Gets a new csrf token'
+            description: 'Gets a new csrf token'
+            operationId: 'getCsrfToken'
+            parameters: []
+            responses:
+                200:
+                    description: 'Successful response'
+                    schema:
+                        $ref: '#/definitions/csrf'
+                400:
+                    description: 'Bad request'
+                    schema:
+                        $ref: '#/definitions/error'
+                422:
+                    description: 'Invalid syntax'
+                    schema:
+                        $ref: '#/definitions/error'
+                500:
+                    description: 'Server error'
+                    schema:
+                        $ref: '#/definitions/error'
+                503:
+                    description: 'Service not available'
+                    schema:
+                        $ref: '#/definitions/error'
+            x-swagger-router-controller: 'Users'
+securityDefinitions:
+    URS4:
+        type: 'oauth2'
+        authorizationUrl: 'https://example.com/oauth/authorize'
+        tokenUrl: 'https://example.com/oauth/token'
+        flow: 'accessCode'
+        scopes:
+            read: 'Grants read access'
+            write: 'Grants write access'
+            admin: 'Grants read and write access to administrative information'
+definitions:
+    error:
+        type: 'object'
+        properties:
+            code:
+                type: 'integer'
+            description:
+                type: 'string'
+        title: 'ServerError'
+    success:
+        type: 'object'
+        properties:
+            code:
+                type: 'integer'
+            description:
+                type: 'string'
+        title: 'ServerSuccess'
+        example:
+            code: 0
+            description: 'description'
+    user:
+        properties:
+            name:
+                type: 'string'
+                description: 'Name of the user'
+        example:
+            name: 'John Doe'
+    csrf:
+        properties:
+            csrfToken:
+                type: 'string'
+                description: 'CSRF token'
+        example:
+            csrfToken: 'SFfkaSD-dksfjfjsSKJ33DN-fdS-fSf'
+    LoginPost:
+        properties:
+            username:
+                type: 'string'
+            password:
+                type: 'string'

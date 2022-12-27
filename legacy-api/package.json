@@ -6,8 +6,7 @@
     "scripts": {
         "dev": "sleep 20 && nodemon --exitcrash -L --exec npm run start",
         "prod": "sleep 20 && npm run start",
-        "start": "node index.js --hostname 0.0.0.0",
-        "test": "jest"
+        "start": "node index.js --hostname 0.0.0.0"
     },
     "keywords": [
         "swagger"

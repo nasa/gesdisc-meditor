@@ -3,15 +3,15 @@ version: "3.3"
 services:
   notebookviewer:
     depends_on:
-      - server
+      - legacy-api
 
   proxy:
     ports:
       - "80:8080"
     depends_on:
-      - server
+      - legacy-api
       - nats
-      - ui
+      - app
       - database
       - notebookviewer
 
@@ -19,16 +19,16 @@ services:
     depends_on:
       - nats
 
-  ui:
+  app:
     depends_on:
-      - server
+      - legacy-api
 
   docs:
     depends_on:
-      - server
-      - ui
+      - legacy-api
+      - app
 
-  server:
+  legacy-api:
     depends_on:
       - database
       - nats
@@ -58,6 +58,7 @@ services:
 
 volumes:
   monitor_data:
+
 
 networks:
   default:

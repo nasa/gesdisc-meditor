@@ -1,8 +1,8 @@
 #!/usr/bin/env sh
 set -eu
 
-SERVER_HOST="${SERVER_HOST:-meditor_server}" \
-UI_HOST="${UI_HOST:-meditor_ui}" \
+SERVER_HOST="${SERVER_HOST:-meditor_legacy-api}" \
+UI_HOST="${UI_HOST:-meditor_app}" \
 DOCS_HOST="${DOCS_HOST:-meditor_docs}" \
 NATS_HOST="${NATS_HOST:-meditor_nats}" \
 MONITOR_HOST="${MONITOR_HOST:-meditor_monitor}" \
