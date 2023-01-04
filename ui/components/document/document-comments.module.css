@@ -1,0 +1,98 @@
+.buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
+.cardActions {
+    display: flex;
+    margin-top: 10px;
+}
+
+.button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48%;
+}
+
+.button svg {
+    font-size: 1.2em;
+    margin-right: 5px;
+}
+
+.card {
+    margin-top: 10px;
+}
+
+.title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.title img {
+    width: 40px;
+}
+
+.title h5 {
+    margin: 0;
+}
+
+.title small {
+    color: rgba(0, 0, 0, .54);
+}
+
+.title div:first-child {
+    width: 40px;
+    height: 40px;
+    margin-right: 15px;
+}
+
+.title div:last-child {
+    display: flex;
+    flex-direction: column;
+}
+
+.body {
+    margin-bottom: 15px;
+}
+
+.resolved {
+    opacity: .7;
+}
+
+.childComments {
+    background: #f0f0f0;
+    border-top: 1px solid rgba(0, 0, 0, .125);
+    position: relative;
+}
+
+.rootCard > .childComments:before {
+    content: "";
+    width: 0; 
+    height: 0; 
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    border-bottom: 9px solid rgba(0, 0, 0, .25);
+    position: absolute;
+    top: -9px;
+    left: 25px;
+}
+
+.rootCard > .childComments:after {
+    content: "";
+    width: 0; 
+    height: 0; 
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid #f0f0f0;
+    position: absolute;
+    top: -8px;
+    left: 26px;
+}
+
+.childComments .card {
+    background: none;
+    border: none;
+    border-radius: 0;
+}

@@ -1,0 +1,20 @@
+.workflow.controls {
+    bottom: unset;
+    top: 1rem;
+}
+
+.workflow.refreshIcon {
+    max-height: 1rem;
+    max-width: 1rem;
+}
+
+.workflow.label {
+    border: none;
+    background: #fff;
+    padding: 0;
+}
+
+.workflow.label > div {
+    background: transparent;
+    border: none;
+}

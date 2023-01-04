@@ -1,0 +1,17 @@
+[
+    {
+        "x-meditor": {
+            "model": "Example News",
+            "modifiedOn": "2020-01-01T00:00:00.000Z",
+            "modifiedBy": "system",
+            "states": [{ "source": "Init", "target": "Draft", "modifiedOn": "2020-00-00T00:00:00.000Z" }]
+        },
+        "title": "Lorem ipsum dolor sit amet",
+        "abstract": "Vitae aliquet nec ullamcorper sit amet risus nullam eget.",
+        "body": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut sem viverra aliquet eget sit. Elit ut aliquam purus sit amet. Vitae nunc sed velit dignissim sodales ut eu sem integer. Mattis ullamcorper velit sed ullamcorper morbi tincidunt ornare. Scelerisque eu ultrices vitae auctor. Pellentesque habitant morbi tristique senectus et netus et malesuada fames. Gravida in fermentum et sollicitudin. Egestas dui id ornare arcu odio. Morbi tristique senectus et netus et malesuada fames ac turpis.</p>",
+        "type": "News",
+        "imageCaption": "No image available for the document",
+        "notes": "",
+        "image": "https://blogs.nasa.gov/hurricanes/wp-content/uploads/sites/288/2020/08/Marco-Terra-Tuesday-copy-768x796.jpg"
+    }
+]

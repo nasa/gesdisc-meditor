@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Email Notifications constructEmailMessageForStateChange should return a default email message if no custom email message is setup in the workflow 1`] = `
+Object {
+  "body": "An FAQs document drafted by Eggs User has been marked by Author Bacon User as 'Submit for review' and is now in a 'Under Review' state.
+
+An action is required to transition the document to one of the [Draft, Approved] states. <p><strong>Latest Comment:</strong></p>",
+  "cc": Array [
+    "\\"Eggs User\\" <eggs@mock.nasa.gov>",
+  ],
+  "createdOn": "2022-01-01T05:00:00.000Z",
+  "link": Object {
+    "label": "How do I?",
+    "url": "http://localhost/meditor/FAQs/How%20do%20I%3F",
+  },
+  "subject": "FAQs document is now Under Review",
+  "to": Array [
+    "\\"Bacon User\\" <bacon@mock.nasa.gov>",
+  ],
+}
+`;

@@ -1,0 +1,464 @@
+{
+    "Entry_ID": {
+        "Short_Name": "OML1BRVG",
+        "Version": "003"
+    },
+    "Entry_Title": "OMI/Aura Level 1B VIS Global Geolocated Earth Shine Radiances 1-orbit L2 Swath 13x24 km V003 (OML1BRVG) at GES DISC",
+    "Dataset_Citation": [
+        {
+            "Dataset_Creator": "Marcel Dobber",
+            "Dataset_Title": "OMI/Aura Level 1B VIS Global Geolocated Earth Shine Radiances 1-orbit L2 Swath 13x24 km V003",
+            "Dataset_Series_Name": "OML1BRVG",
+            "Dataset_Release_Date": "2007-09-20",
+            "Dataset_Release_Place": "Greenbelt, MD, USA",
+            "Dataset_Publisher": "Goddard Earth Sciences Data and Information Services Center (GES DISC)",
+            "Version": "003",
+            "Data_Presentation_Form": "Digital Science Data",
+            "Persistent_Identifier": {
+                "Type": "DOI",
+                "Identifier": "10.5067/Aura/OMI/DATA1004",
+                "HasDOI": true
+            },
+            "Online_Resource": "https://disc.gsfc.nasa.gov/datacollection/OML1BRVG_003.html"
+        }
+    ],
+    "Personnel": [
+        {
+            "Role": ["INVESTIGATOR"],
+            "Contact_Person": [
+                {
+                    "First_Name": "MARCEL",
+                    "Last_Name": "DOBBER, PH. D",
+                    "Address": [
+                        {
+                            "Street_Address": ["KNMI", "P.O.Box 201"],
+                            "City": "De Bilt",
+                            "State_Province": "AE",
+                            "Postal_Code": "3730",
+                            "Country": "NL"
+                        }
+                    ]
+                }
+            ],
+            "Personnel_Type": "Contact_Person"
+        },
+        {
+            "Role": ["METADATA AUTHOR"],
+            "Contact_Person": [
+                {
+                    "First_Name": "JEROME",
+                    "Middle_Name": "M.",
+                    "Last_Name": "ALFRED",
+                    "Address": [
+                        {
+                            "Street_Address": [
+                                "Goddard Earth Sciences Data and Information Services Center",
+                                "Code 610.2",
+                                "NASA Goddard Space Flight Center"
+                            ],
+                            "City": "Greenbelt",
+                            "State_Province": "MD",
+                            "Postal_Code": "20771",
+                            "Country": "USA"
+                        }
+                    ],
+                    "Phone": [
+                        {
+                            "Number": "301-286-8337",
+                            "Type": "Telephone"
+                        }
+                    ],
+                    "Email": ["jerome.m.alfred@nasa.gov"]
+                }
+            ],
+            "Personnel_Type": "Contact_Person"
+        }
+    ],
+    "Science_Keywords": [
+        "EARTH SCIENCE > SPECTRAL/ENGINEERING > VISIBLE WAVELENGTHS > VISIBLE RADIANCE"
+    ],
+    "ISO_Topic_Category": ["CLIMATOLOGY/METEOROLOGY/ATMOSPHERE"],
+    "Ancillary_Keyword": [
+        "Atmospheric Radiances",
+        "Radiometric Calibrated and Geolocated Earth Atmospher Radiances",
+        "EOSDIS"
+    ],
+    "Platform": [
+        {
+            "Instrument": [
+                {
+                    "Name": "OMI > Ozone Monitoring Instrument"
+                }
+            ],
+            "Name": "Space-based Platforms > Earth Observation Satellites > Aura > Earth Observing System, Aura"
+        }
+    ],
+    "Temporal_Coverage": [
+        {
+            "Ends_At_Present_Flag": "true",
+            "Range_DateTime": [
+                {
+                    "Beginning_Date_Time": "2004-10-01"
+                }
+            ]
+        }
+    ],
+    "Dataset_Progress": "IN WORK",
+    "Use_Constraints": "The Earth Observing System Data and Information System (EOSDIS) data use policy for NASA data can be accessed at https://earthdata.nasa.gov/earth-observation-data/data-use-policy. For information on how to properly cite and acknowledge data from the NASA GES DISC, refer to https://disc.gsfc.nasa.gov/information/documents?title=data-policy.",
+    "Spatial_Coverage": {
+        "Spatial_Coverage_Type": "Orbit",
+        "Granule_Spatial_Representation": "ORBIT",
+        "Geometry": {
+            "Coordinate_System": "GEODETIC",
+            "Bounding_Rectangle": [
+                {
+                    "Southernmost_Latitude": -90,
+                    "Northernmost_Latitude": 90,
+                    "Westernmost_Longitude": -180,
+                    "Easternmost_Longitude": 180
+                }
+            ]
+        },
+        "Orbit_Parameters": [
+            {
+                "Swath_Width": 2600,
+                "Period": 98.83,
+                "Inclination_Angle": 98.22,
+                "Number_Of_Orbits": 1,
+                "Start_Circular_Latitude": -90
+            }
+        ]
+    },
+    "Location": ["GEOGRAPHIC REGION > GLOBAL"],
+    "Data_Resolution": [
+        {
+            "Latitude_Resolution": "13 km at nadir (along track)",
+            "Longitude_Resolution": "24 km at nadir (cross track)",
+            "Temporal_Resolution": "98 minutes"
+        }
+    ],
+    "Project": [
+        {
+            "Name": "Aura > Earth Observing System (EOS), Aura"
+        }
+    ],
+    "Quality": "*NISE erroneous data*\n\nOMI data users must be aware of the following:\n\nFrom April 5th 2016 onwards, the information derived from the Nominal Ice and Snow Extent (NISE) maps that is stored in the OMI Level-1B Ground Pixel Quality Flags is not been updating. The information in these flags is therefore now based on the latest available NISE map from April 4 2016. This is due to problems with the 37V channel of the DMSP F17 satellite from which the NISE maps are derived. This 37V channel generates erroneous data. No alternative source for these NISE maps is currently available. Note that this also impacts the quality of the Level-2 products.\n\nThe version 003 Level-1B product is the first public release. The quality of this product is not fully validated yet. Before using it in any publication please contact algorithm team leads for the current known problems and updates.",
+    "Access_Constraints": "None",
+    "Dataset_Language": "English",
+    "Originating_Center": "OSIPS",
+    "Organization": [
+        {
+            "Organization_Type": "ARCHIVER",
+            "Organization_Name": {
+                "Short_Name": "NASA/GSFC/SED/ESD/GCDC/GESDISC",
+                "Long_Name": "Goddard Earth Sciences Data and Information Services Center (formerly Goddard DAAC), Global Change Data Center, Earth Sciences Division, Science and Exploration Directorate, Goddard Space Flight Center, NASA"
+            },
+            "Organization_URL": "https://disc.gsfc.nasa.gov/",
+            "Personnel": [
+                {
+                    "Role": "DATA CENTER CONTACT",
+                    "Contact_Group": [
+                        {
+                            "Name": "GES DISC HELP DESK SUPPORT GROUP",
+                            "Address": {
+                                "Street_Address": [
+                                    "Goddard Earth Sciences Data and Information Services Center",
+                                    "Code 610.2",
+                                    "NASA Goddard Space Flight Center"
+                                ],
+                                "City": "Greenbelt",
+                                "State_Province": "MD",
+                                "Postal_Code": "20771",
+                                "Country": "USA"
+                            },
+                            "Phone": [
+                                {
+                                    "Number": "301-614-5224",
+                                    "Type": "Telephone"
+                                },
+                                {
+                                    "Number": "301-614-5268",
+                                    "Type": "Fax"
+                                }
+                            ],
+                            "Email": ["gsfc-dl-help-disc@mail.nasa.gov"]
+                        }
+                    ],
+                    "Personnel_Type": "Contact_Group"
+                }
+            ]
+        }
+    ],
+    "Distribution": [
+        {
+            "Distribution_Media": "Online Archive",
+            "Distribution_Size": "190 MB per file",
+            "Distribution_Format": "HDF-EOS",
+            "Fees": "None"
+        }
+    ],
+    "Multimedia_Sample": [
+        {
+            "File": "https://disc.gsfc.nasa.gov/OMI/images/OML1BRVG.png",
+            "URL": "https://docserver.gesdisc.eosdis.nasa.gov/public/project/Images/OML1BRVG_003.png",
+            "Format": "PNG",
+            "Caption": "OMI sample image"
+        }
+    ],
+    "Reference": [
+        {
+            "Citation": "Ahmad, S. P., P. F. Levelt, P. K. Bhartia, E. Hilsenrath, G. W. Leppelmeier,and J. E. Johnson, \"Atmospheric Products from the Ozone Monitoring Instrument (OMI)\", Proceedings of SPIE conference on Earth Observing Systems VIII, San Diego, California, Aug 3-8, 2003.",
+            "Author": "Ahmad, S. P., P. F. Levelt, P. K. Bhartia, E. Hilsenrath, G. W. Leppelmeier,and J. E. Johnson",
+            "Publication_Date": "2003/08",
+            "Title": "Atmospheric Products from the Ozone Monitoring Instrument (OMI)",
+            "Series": "Proceedings of SPIE conference on Earth Observing Systems VIII, San Diego, California"
+        },
+        {
+            "Citation": "Bhartia, P. K., P. F. Levelt, J. Tamminen, O. Torres, Recent results from the Ozone Monitoring Instrument (OMI) on EOS Aura, Proceedings of SPIE conference on Remote Sensing of the Atmosphere and Clouds, Volume 6408, Si-Chee Tsay et al. (Ed.), 64080Y, Goa, India, Nov 28, 2006",
+            "Author": "Bhartia, P. K., P. F. Levelt, J. Tamminen, O. Torres",
+            "Publication_Date": "Nov 28, 2006",
+            "Title": "Recent results from the Ozone Monitoring Instrument (OMI) on EOS Aura",
+            "Series": "Proceedings of SPIE conference on Remote Sensing of the Atmosphere and Clouds",
+            "Volume": "6408"
+        },
+        {
+            "Citation": "Brinksma, E. J., K. F. Boersma, and P. F. Levelt, OMI-Validation Requirements, May 16, 2003.",
+            "Author": "Brinksma, E. J., K. F. Boersma, and P. F. Levelt",
+            "Publication_Date": "May 16, 2003",
+            "Title": "OMI-Validation Requirements"
+        },
+        {
+            "Citation": "Dirksen, R., M.R. Dobber, R. Voors and P. Levelt, Pre-launch characterization of the Ozone Monitoring Instrument transfer function in the spectral domain, Appl. Optics, 2006, 45, no 17, 3972-3981 .",
+            "Author": "Dirksen, R., M.R. Dobber, R. Voors and P. Level",
+            "Publication_Date": "2006-06-10",
+            "Title": "Pre-launch characterization of the Ozone Monitoring Instrument transfer function in the spectral domain",
+            "Series": "Appl. Optics",
+            "Volume": "45",
+            "Issue": "17",
+            "Pages": "3972-81"
+        },
+        {
+            "Citation": "Dobber, M.R., R. Dirksen, P. Levelt, G.H.J. van den Oord, R. Voors, Q. Kleipool, G. Jaross, M. Kowalewski, E. Hilsenrath, G. Leppelmeier, J. de Vries, W. Dierssen and N. Rozemeijer, Ozone Monitoring Instrument calibration, IEEE Trans. Geo. Rem. Sens., 2006, Vol. 44, No. 5, 1209-1238, doi:10.1109/TGRS.2006.869987.",
+            "Author": "Dobber, M.R., R. Dirksen, P. Levelt, G.H.J. van den Oord, R. Voors, Q. Kleipool, G. Jaross, M. Kowalewski, E. Hilsenrath, G. Leppelmeier, J. de Vries, W. Dierssen and N. Rozemeijer",
+            "Publication_Date": "2006/05",
+            "Title": "Ozone Monitoring Instrument Calibrtation",
+            "Series": "IEEE Trans. Geo. Rem. Sens",
+            "Volume": "44",
+            "Issue": "5",
+            "Pages": "1209-1238",
+            "Persistent_Identifier": {
+                "Type": "DOI",
+                "Identifier": "10.1109/TGRS.2006.869987"
+            }
+        },
+        {
+            "Citation": "Dobber, M.R., R. Dirksen, P. Levelt, G.H.J. van den Oord, R. Voors, Q. Kleipool, G. Jaross en M. Kowalewski, Ozone Monitoring Instrument in-flight performance and calibration, Proceedings SPIE Optical Systems Design 2005, 12-16 September 2005, Jena, Germany, 2006",
+            "Author": "Dobber, M.R., R. Dirksen, P. Levelt, G.H.J. van den Oord, R. Voors, Q. Kleipool, G. Jaross en M. Kowalewski",
+            "Publication_Date": "2005/09",
+            "Title": "Ozone Monitoring Instrument in-flight performance and calibration",
+            "Series": "Proceedings SPIE Optical Systems Design 2005, 12-16 September 2005, Jena, Germany, 2006"
+        },
+        {
+            "Citation": "Kowalewski, J.M.G., G.R. Jaross, R.P Cebula, S.L. Taylor, G.H.J. van den Oord, M.R. Dobber, R.J. Dirksen, Evaluation of OMI pre-launch radiometric calibration and on-orbit performance using in-flight data, Proceedings SPIE's Annual Meeting, San Diego (U.S.A.), 31 July - 4 August 2005, Optical Science, Engineering, and Instrumentation. Earth observing systems X (vol. 5882).",
+            "Author": "Kowalewski, J.M.G., G.R. Jaross, R.P Cebula, S.L. Taylor, G.H.J. van den Oord, M.R. Dobber, R.J. Dirksen",
+            "Publication_Date": "2005/08",
+            "Title": "Evaluation of OMI pre-launch radiometric calibration and on-orbit performance using in-flight data",
+            "Series": "Proceedings SPIE's Annual Meeting, San Diego (U.S.A.), 31 July - 4 August 2005, Optical Science, Engineering, and Instrumentation. Earth observing systems",
+            "Edition": "X",
+            "Volume": "5882"
+        },
+        {
+            "Citation": "Levelt, P.F., J. P. Veefkind, R. H. M. Voors, and J. de Vries, Instrument Description, Algorithm Theoretical Baseline Document: OMI Instrument, Level 0 - 1B processor, Calibration & Operations, P. F. Levelt (ed.), vol. I, ATBD-OMI-01, version 2, Aug. 2002.",
+            "Author": "Levelt, P.F., J. P. Veefkind, R. H. M. Voors, and J. de Vries",
+            "Publication_Date": "2002/08",
+            "Title": "Instrument Description, Algorithm Theoretical Baseline Document: OMI Instrument, Level 0 - 1B processor, Calibration & Operations"
+        },
+        {
+            "Citation": "Oord, G.H.J. van den, N.C. Rozemeijer, V. Schenkelaars, P.F. Levelt, M.R. Dobber, R.H.M. Voors, J. Claas, J. de Vries, M. ter Linden, C. De Haan and T. van den Berg, OMI level 0 to 1b processing and operational aspects, IEEE Trans. Geo. Rem. Sens., 2006, Vol. 44, No. 5, 1380-1397, doi:10.1109/TGRS.2006.872935.",
+            "Author": "Oord, G.H.J. van den, N.C. Rozemeijer, V. Schenkelaars, P.F. Levelt, M.R. Dobber, R.H.M. Voors, J. Claas, J. de Vries, M. ter Linden, C. De Haan and T. van den Berg",
+            "Publication_Date": "2006",
+            "Title": "OMI level 0 to 1b processing and operational aspects",
+            "Series": "IEEE Trans. Geo. Rem. Sens.",
+            "Volume": "44",
+            "Issue": "5",
+            "Pages": "1380-1397",
+            "Persistent_Identifier": {
+                "Type": "DOI",
+                "Identifier": "10.1109/TGRS.2006.872935"
+            }
+        },
+        {
+            "Citation": "Vries, J. de, R.H.M. Voors, R.J. Dirksen, and M.R. Dobber, In-orbit performance of the Ozone Monitoring Instrument, Proceedings SPIE Remote Sensing Europe conference, Bruges, Belgium, 19-22 September 2005.",
+            "Author": "Vries, J. de, R.H.M. Voors, R.J. Dirksen, and M.R. Dobber",
+            "Publication_Date": "2005/10",
+            "Title": "In-orbit performance of the Ozone Monitoring Instrument",
+            "Series": "Proceedings of SPIE - The International Society for Optical Engineering",
+            "Persistent_Identifier": {
+                "Type": "DOI",
+                "Identifier": "10.1117/12.627013"
+            }
+        }
+    ],
+    "Summary": {
+        "Abstract": "The Aura Ozone Monitoring Instrument (OMI) Level-1B (L1B) Geo-located Earth View VIS Radiance, Global-Mode (OML1BRVG) Version-3 product contains geo-located Earth view spectral radiances from the VIS detector in the wavelength range of 349 to 504 nm conducted in the global measurement mode. In the standard global measurement mode, OMI observes 60 ground pixels (13 km x 24 km at nadir) across the swath (13 km x 48 km at nadir). Each file contains data from the day lit portion of an orbit (~60 minutes) and is roughly 200 MB in size. There are approximately 14 orbits per day. Once a month, in one orbit, OMI performs dark measurements, it does not perform radiance measurements. In addition, OMI performs spatial zoom measurements one day per month. For that day, this product also contains UV2 measurements that are rebinned from the spatial zoom-in measurements. In original spatial zoom mode the nadir ground pixel size is 13 x 12 km and measurements are available only for the UV2 and VIS wavelengths (306 to 432 nm). The shortname for this OMI Level-1B Product is OML1BRVG. The lead algorithm scientist for this product is Dr. Marcel Dobber from the Royal Netherlands Meteorological Institude (KNMI).\n\nThe OML1BRVG files are stored in the HDF4 based EOS Hierarchical Data Format (HDF-EOS). The radiances for the earth measurements (also referred as signal) and its precision are stored as a 16-bit mantissa and an 8-bit exponent. The signal can be computed using the equation: signal = mantissa x 10^exponent. For the precision, the same exponent is used as for the signal."
+    },
+    "Related_URL": [
+        {
+            "URL_Content_Type": {
+                "Type_Subtype": "DATA SET LANDING PAGE"
+            },
+            "URL": "https://disc.gsfc.nasa.gov/datacollection/OML1BRVG_003.html",
+            "Title": "Dataset Landing Page",
+            "Description": "Access the dataset landing page from the GES DISC website."
+        },
+        {
+            "URL_Content_Type": {
+                "Type_Subtype": "GET DATA > DATA TREE"
+            },
+            "URL": "https://aura.gesdisc.eosdis.nasa.gov/data/Aura_OMI_Level1/OML1BRVG.003/",
+            "Title": "Online Archive",
+            "Description": "Access the data via HTTPS."
+        },
+        {
+            "URL_Content_Type": {
+                "Type_Subtype": "GET DATA > Earthdata Search"
+            },
+            "URL": "https://search.earthdata.nasa.gov/search?q=OML1BRVG_003",
+            "Title": "EARTHDATA Search",
+            "Description": "Use the Earthdata Search to find and retrieve data sets across multiple data centers."
+        },
+        {
+            "URL_Content_Type": {
+                "Type_Subtype": "VIEW RELATED INFORMATION > READ-ME"
+            },
+            "URL": "https://aura.gesdisc.eosdis.nasa.gov/data/Aura_OMI_Level1/OML1BRVG.003/doc/README.OML1B.pdf",
+            "Title": "User's Guide",
+            "Description": "README Document"
+        },
+        {
+            "URL_Content_Type": {
+                "Type_Subtype": "VIEW RELATED INFORMATION > ALGORITHM THEORETICAL BASIS DOCUMENT (ATBD)"
+            },
+            "URL": "https://docserver.gesdisc.eosdis.nasa.gov/repository/Mission/OMI/3.3_ScienceDataProductDocumentation/3.3.4_ProductGenerationAlgorithm/ATBD-OMI-01.pdf",
+            "Description": "OMI Algorithm Theoretical Basis Documents"
+        },
+        {
+            "URL_Content_Type": {
+                "Type_Subtype": "VIEW RELATED INFORMATION > READ-ME"
+            },
+            "URL": "https://docserver.gesdisc.eosdis.nasa.gov/repository/Mission/OMI/3.3_ScienceDataProductDocumentation/3.3.2_ProductRequirements_Designs/README.OMI_DUG.pdf",
+            "Title": "User's Guide",
+            "Description": "OMI Data User's Guide"
+        },
+        {
+            "URL_Content_Type": {
+                "Type_Subtype": "VIEW RELATED INFORMATION > PI DOCUMENTATION"
+            },
+            "URL": "https://docserver.gesdisc.eosdis.nasa.gov/repository/Mission/OMI/3.3_ScienceDataProductDocumentation/3.3.2_ProductRequirements_Designs/RD01_SD467_IODS_Vol_2_issue8.pdf",
+            "Title": "PI Documentation",
+            "Description": "File Specification Document"
+        },
+        {
+            "URL_Content_Type": {
+                "Type_Subtype": "VIEW RELATED INFORMATION > PI DOCUMENTATION"
+            },
+            "URL": "https://docserver.gesdisc.eosdis.nasa.gov/repository/Mission/OMI/3.3_ScienceDataProductDocumentation/3.3.2_ProductRequirements_Designs/known_instrumental_effects_l1b_data_omi_v6.pdf",
+            "Description": "Known instrumental issues"
+        },
+        {
+            "URL_Content_Type": {
+                "Type_Subtype": "PROJECT HOME PAGE"
+            },
+            "URL": "https://aura.gsfc.nasa.gov/",
+            "Title": "Project Home Page",
+            "Description": "Aura Project Home Page"
+        },
+        {
+            "URL_Content_Type": {
+                "Type_Subtype": "PROJECT HOME PAGE"
+            },
+            "URL": "http://projects.knmi.nl/omi/research/news/newsWrap.php?language=only_enhttps://www.knmi.nl/omitimeFrame=latesthttps://www.knmi.nl/omichoise=page",
+            "Title": "Project Home Page",
+            "Description": "OMI KNMI Home Page"
+        },
+        {
+            "URL_Content_Type": {
+                "Type_Subtype": "VIEW RELATED INFORMATION > PUBLICATIONS"
+            },
+            "URL": "http://projects.knmi.nl/omi/research/documents/",
+            "Title": "Publications"
+        }
+    ],
+    "IDN_Node": [
+        {
+            "Short_Name": "USA/NASA"
+        }
+    ],
+    "Originating_Metadata_Node": "GCMD",
+    "Metadata_Name": "CEOS IDN DIF",
+    "Metadata_Version": "VERSION 10.2",
+    "DIF_Revision_History": "2009-09-22, S. Ritz: updated Summary to change Netherlands Agency for Aerospace Programs (NIVR) to Netherlands Space Office (NSO).\n2015-06-02, J. Johnson: cleaned up Science Keywords and Project.\n2016-02-26, J. Alfred: upgraded to DIF 10.2 format.\n2017-05-25, J. Alfred: cleaned up related_urls.\n2017-08-10, J. Alfred: Cleaned up related URLs.\n2017-10-20, J. Johnson: implemented ARC finding suggestions.\n2018-05-11, J. Alfred: Added start_circular_latitude = -90 to orbit_parameters.\n2018-11-30, J. Johnson: implemented ARC 2 finding suggestions.",
+    "Metadata_Dates": {
+        "Metadata_Creation": "2007-08-03",
+        "Metadata_Last_Revision": "2018-11-30",
+        "Data_Creation": "2004-08-09",
+        "Data_Last_Revision": "2007-09-20"
+    },
+    "Product_Level_Id": "1B",
+    "Collection_Data_Type": ["SCIENCE_QUALITY"],
+    "Extended_Metadata": [
+        {
+            "Metadata": [
+                {
+                    "Name": "Data Granularity",
+                    "Description": "The time coverage of individual data granules.",
+                    "Value": ["98.8 minutes"]
+                }
+            ]
+        },
+        {
+            "Metadata": [
+                {
+                    "Group": "gov.nasa.gsfc.gcmd",
+                    "Name": "metadata.tool",
+                    "Value": ["2018-05-11:docbuilder"]
+                }
+            ]
+        }
+    ],
+    "Combined_EntryID": "OML1BRVG_003",
+    "x-meditor": {
+        "model": "Collection Metadata",
+        "modifiedOn": "2022-04-04T01:56:57.894Z",
+        "modifiedBy": "jdoe",
+        "states": [
+            {
+                "source": "Init",
+                "target": "Draft",
+                "modifiedOn": null
+            },
+            {
+                "source": "Draft",
+                "target": "Published",
+                "modifiedOn": "2022-04-05T00:43:26.755Z",
+                "modifiedBy": "jdoe"
+            }
+        ],
+        "publishedTo": [
+            {
+                "message": "Document OML1BRVG_003 with concept Id C1239966754-GES_DISC at revision 30 was published to CMR-PROD",
+                "target": "cmr",
+                "statusCode": 200,
+                "publishedOn": 1649119408801
+            },
+            {
+                "url": "https://disc.gsfc.nasa.gov/information/collection-metadata?title=OML1BRVG_003",
+                "message": "Document was successfully published to UUI-OPS",
+                "target": "uui",
+                "statusCode": 200,
+                "publishedOn": 1649119408806
+            }
+        ],
+        "state": "Published"
+    }
+}

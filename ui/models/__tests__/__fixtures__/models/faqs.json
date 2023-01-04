@@ -1,0 +1,39 @@
+{
+    "icon": {
+        "name": "fa-question",
+        "color": "#868146"
+    },
+    "titleProperty": "title",
+    "name": "FAQs",
+    "description": "Answers to frequently asked questions.",
+    "category": "GESDISC",
+    "workflow": "Modify-Review-Publish",
+    "schema": "{\n    \"$schema\": \"http://json-schema.org/schema#\",\n    \"$id\": \"https://disc.gsfc.nasa.gov/schemas/model.json\",\n    \"type\": \"object\",\n    \"required\": [\"title\", \"answer\"],\n    \"properties\": {\n        \"title\": {\n            \"type\": \"string\",\n            \"title\": \"Question\",\n            \"description\": \"The question being answered in the content. This will appear as a title.\"\n        },\n        \"answer\": {\n            \"type\": \"string\",\n            \"contentMediaType\": \"text/html\",\n            \"description\": \"The answer to the question being presented in the content. Images can be embedded using the Image icon. If images are embedded, please include captions.\"\n        },\n        \"groups\": {\n            \"type\": \"array\",\n            \"title\": \"Groups\",\n            \"items\": {\n                \"type\": \"string\",\n                \"enum\": [\n                    \"A-Train\",\n                    \"ACOS\",\n                    \"AIRS\",\n                    \"Atmospheric Composition\",\n                    \"CMS\",\n                    \"Data Rods\",\n                    \"FLDAS\",\n                    \"GDS\",\n                    \"Giovanni\",\n                    \"GLDAS\",\n                    \"GPM\",\n                    \"HIRDLS\",\n                    \"Hydrology\",\n                    \"LIMS\",\n                    \"LPRM\",\n                    \"MDISC\",\n                    \"MERRA\",\n                    \"MERRA-2\",\n                    \"MEaSUREs\",\n                    \"Mirador\",\n                    \"MLS\",\n                    \"MSU\",\n                    \"NEESPI\",\n                    \"NEWS\",\n                    \"NLDAS\",\n                    \"OCO-2\",\n                    \"OMI\",\n                    \"OMPS\",\n                    \"OPeNDAP\",\n                    \"Precipitation\",\n                    \"SBUV\",\n                    \"Services\",\n                    \"SORCE\",\n                    \"SSBUV\",\n                    \"SSW\",\n                    \"TCTE\",\n                    \"TOMS\",\n                    \"TRMM\",\n                    \"UARS\"\n                ]\n            },\n            \"description\": \"Choose from a selection of mission and/or service names that are relevant to the content.\",\n            \"uniqueItems\": true\n        },\n        \"tags\": {\n            \"type\": \"array\",\n            \"title\": \"Tags\",\n            \"items\": {\n                \"type\": \"string\",\n                \"enum\": [\"placeholder\"]\n            },\n            \"description\": \"Relevant search keywords for this content, including missions or prior portals.\",\n            \"uniqueItems\": true\n        },\n        \"datasets\": {\n            \"type\": \"array\",\n            \"title\": \"Related Datasets\",\n            \"items\": {\n                \"type\": \"string\",\n                \"enum\": [\"placeholder\"]\n            },\n            \"description\": \"List datasets relevant to the content that will automatically link to the dataset landing page.\",\n            \"uniqueItems\": true\n        },\n        \"notes\": {\n            \"type\": \"string\",\n            \"title\": \"Author Comments\",\n            \"description\": \"This comment field is designated for the author to describe changes made. Reviewer comments should be written in the comment tool, by navigating to the first icon above the document title.  The comment panel will appear on the right side of the screen.\" \n        }\n    }\n}\n",
+    "layout": "{\n    \"ui:order\": [\n        \"title\",\n        \"answer\",\n        \"datasets\",\n        \"tags\",\n        \"groups\",\n        \"notes\",\n        \"*\"\n    ],\n    \"answer\": {\n        \"ui:widget\": \"ckeditor\"\n    },\n    \"datasets\": {\n        \"ui:widget\": \"multi-select\"\n    },\n    \"tags\": {\n        \"ui:widget\": \"multi-select\"\n    },\n    \"groups\": {\n        \"ui:widget\": \"multi-select\"\n    }\n}\n",
+    "notificationTemplate": "<p><strong>Latest Comment:</strong></p>{{ notes }}",
+    "templates": [
+        {
+            "jsonpath": "$.properties.tags.items.enum",
+            "macro": "list Tags.title"
+        },
+        {
+            "jsonpath": "$.properties.datasets.items.enum",
+            "macro": "list Collection%20Metadata.Combined_EntryID"
+        }
+    ],
+    "x-meditor": {
+        "model": "Models",
+        "modifiedOn": "2020-12-01T17:22:40.604Z",
+        "modifiedBy": "jdcarlso",
+        "states": [
+            {
+                "source": "Init",
+                "target": "Draft",
+                "modifiedOn": null
+            }
+        ],
+        "publishedTo": [],
+        "state": "Draft",
+        "targetStates": ["Under Review"]
+    }
+}

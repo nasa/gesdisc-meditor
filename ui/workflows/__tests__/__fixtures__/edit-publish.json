@@ -1,0 +1,106 @@
+{
+    "roles": ["Author", "Post-Publish Reviewer"],
+    "nodes": [
+        {
+            "id": "Init",
+            "privileges": [
+                {
+                    "role": "Author",
+                    "privilege": ["create"]
+                }
+            ],
+            "readyForUse": false
+        },
+        {
+            "id": "Draft",
+            "privileges": [
+                {
+                    "role": "Author",
+                    "privilege": ["edit", "comment"]
+                }
+            ],
+            "readyForUse": false
+        },
+        {
+            "id": "Published",
+            "privileges": [
+                {
+                    "role": "Author",
+                    "privilege": ["comment", "edit"]
+                }
+            ],
+            "readyForUse": false
+        },
+        {
+            "id": "Hidden",
+            "privileges": [
+                {
+                    "role": "Post-Publish Reviewer",
+                    "privilege": ["comment"]
+                },
+                {
+                    "role": "Author",
+                    "privilege": ["edit", "comment"]
+                }
+            ],
+            "readyForUse": false
+        },
+        {
+            "id": "Deleted"
+        }
+    ],
+    "edges": [
+        {
+            "role": "Author",
+            "source": "Init",
+            "target": "Draft",
+            "label": "Add New",
+            "notify": false
+        },
+        {
+            "role": "Author",
+            "source": "Draft",
+            "target": "Published",
+            "label": "Publish",
+            "notify": true,
+            "notifyRoles": "Post-Publish Reviewer"
+        },
+        {
+            "label": "Delete Permanently",
+            "notify": false,
+            "role": "Author",
+            "source": "Draft",
+            "target": "Deleted"
+        },
+        {
+            "label": "Delete Permanently",
+            "notify": false,
+            "role": "Author",
+            "source": "Hidden",
+            "target": "Deleted"
+        },
+        {
+            "label": "Un-publish",
+            "notify": true,
+            "role": "Author",
+            "source": "Published",
+            "target": "Hidden",
+            "notifyRoles": "Post-Publish Reviewer"
+        }
+    ],
+    "name": "Edit-Publish",
+    "x-meditor": {
+        "model": "Workflows",
+        "modifiedOn": "2021-12-27T19:48:07.975Z",
+        "modifiedBy": "meditor_dev",
+        "states": [
+            {
+                "source": "Init",
+                "target": "Draft",
+                "modifiedOn": "2021-05-10T17:03:44.341Z"
+            }
+        ],
+        "publishedTo": [],
+        "state": "Draft"
+    }
+}

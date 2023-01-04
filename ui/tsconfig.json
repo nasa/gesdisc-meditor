@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "target": "ES2015",
+        "lib": ["dom", "dom.iterable", "esnext"],
+        "allowJs": true,
+        "skipLibCheck": true,
+        "strict": false,
+        "forceConsistentCasingInFileNames": true,
+        "noEmit": true,
+        "esModuleInterop": true,
+        "module": "esnext",
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "jsx": "preserve",
+        // allows `import type { foo }...` syntax on auto-import / quick fix
+        "importsNotUsedAsValues": "error",
+        "incremental": true
+    },
+    "exclude": ["node_modules"],
+    "include": ["next-env.d.ts", "declarations.d.ts", "**/*.ts", "**/*.tsx"]
+}

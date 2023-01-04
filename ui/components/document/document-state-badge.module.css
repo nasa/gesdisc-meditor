@@ -1,0 +1,11 @@
+.badgeHoverable {
+    cursor: pointer;
+}
+
+.publicationBadge {
+    margin-left: 5px;
+}
+
+.spinner {
+    margin-left: 5px;
+}

@@ -1,0 +1,37 @@
+.card {
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.card:hover {
+    background: #eee;
+}
+
+.body {
+    display: flex;
+    justify-content: space-between;
+}
+
+.body a,
+.body a:hover {
+    text-decoration: underline;
+    text-decoration-color: #00f;
+    color: #00f;
+}
+
+.meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.button{
+    margin-top: 10px;
+}
+
+.note{
+    background-color: lightblue;
+    border-left: 2px solid blue;
+    border-radius: 2px;
+    width: 60%;
+    padding: 0 10px;
+}
