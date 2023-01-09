@@ -250,13 +250,18 @@ async function adapt(request) {
 
         case BASE_PATH + 'putDocument': {
             try {
+                // this endpoint used a request body file, so we'll first have to read the buffer in as a file
+                const requestBuffer = require('fs').readFileSync(
+                    request.variables.request_body_file
+                );
+
                 //* Parse the form-data through an API call so that we can know to which modelName this document belongs.
                 const formDataRequestUrl = `${BASE_PATH}parse/form-data`;
                 const formDataResponse = await request.subrequest(
                     formDataRequestUrl,
                     {
                         method,
-                        body: request.requestBuffer,
+                        body: requestBuffer,
                     }
                 );
 
