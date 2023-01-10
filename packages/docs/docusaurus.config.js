@@ -8,7 +8,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula')
 const config = {
     title: 'mEditor Documentation',
     tagline: 'How to use the GES DISC Model Editor application and API',
-    url: 'https://lb.gesdisc.eosdis.nasa.gov',
+    url: process.env.MEDITOR_ORIGIN || 'http://localhost',
     baseUrl: '/meditor/docs',
     onBrokenLinks: 'throw',
     onBrokenMarkdownLinks: 'warn',
@@ -128,12 +128,10 @@ const config = {
                 config: {
                     meditor: {
                         //* to better understand what a completed spec does for the UI, use something like this:
-                        // specPath:
-                        // 'https://raw.githubusercontent.com/apideck-libraries/openapi-specs/master/accounting.yml',
                         specPath: 'api-spec/v1.yaml',
                         outputDir: 'docs/meditor-api',
                         downloadUrl:
-                            'https://git.earthdata.nasa.gov/projects/MEDITOR/repos/meditor/raw/docs/api-spec/v1.yaml',
+                            'https://github.com/nasa/gesdisc-meditor/blob/main/packages/docs/api-spec/v1.yaml',
                         sidebarOptions: {
                             groupPathsBy: 'tag',
                             categoryLinkSource: 'tag',

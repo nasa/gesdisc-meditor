@@ -43,3 +43,7 @@ debug.log
 # System Files
 .DS_Store
 Thumbs.db
+
+# Docker Bind Mounts
+/mongo-data/
+/nats-data/

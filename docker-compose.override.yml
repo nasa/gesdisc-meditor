@@ -3,64 +3,62 @@ version: "3.3"
 services:
   notebookviewer:
     container_name: meditor_notebookviewer
-    build: notebook-viewer
+    build: packages/notebook-viewer
     environment:
       - FLASK_ENV=development
     env_file:
       - .env
     volumes:
-      - ./notebook-viewer:/usr/src/app
+      - ./packages/notebook-viewer:/usr/src/app
 
   proxy:
     container_name: meditor_proxy
-    build: proxy
+    build: packages/proxy
     restart: on-failure
 
   notifier:
     container_name: meditor_notifier
-    build: notifier
+    build: packages/notifier
     restart: on-failure
     env_file:
       - .env
     volumes:
-      - ./notifier:/usr/src/app
+      - ./packages/notifier:/usr/src/app
       - /usr/src/app/node_modules
 
   app:
     container_name: meditor_app
-    build: app
+    build: packages/app
     env_file:
       - .env
     ports:
       - "4000:4000"
     volumes:
-      - ./app:/usr/src/app
+      - ./packages/app:/usr/src/app
       - /usr/src/app/node_modules
 
   docs:
     container_name: meditor_docs
-    build: docs
+    build: packages/docs
     env_file:
       - .env
-    environment:
-      - API_ORIGIN=http://host.docker.internal
     ports:
       - "3030:3030"
 
   legacy-api:
     container_name: meditor_legacy-api
-    build: legacy-api
+    build: packages/legacy-api
     restart: always
     env_file:
       - .env
     volumes:
-      - ./legacy-api:/usr/src/app
+      - ./packages/legacy-api:/usr/src/app
       - /usr/src/app/node_modules
 
   database:
     container_name: meditor_database
     volumes:
-      - ./data:/data/db
+      - ./mongo-data:/data/db
     ports:
       - "27018:27017"
 
@@ -74,23 +72,3 @@ services:
 
   agent:
     container_name: meditor_agent
-
-  example-subscriber:
-    container_name: meditor_example_subscriber
-    build: examples/subscriber
-    restart: always
-    env_file:
-      - .env
-    volumes:
-      - ./examples/subscriber:/usr/src/app
-      - /usr/src/app/node_modules
-
-  example-subscriber-with-redirect:
-    container_name: meditor_example_subscriber_with_redirect
-    build: examples/subscriber-with-redirect
-    restart: always
-    env_file:
-      - .env
-    volumes:
-      - ./examples/subscriber-with-redirect:/usr/src/app
-      - /usr/src/app/node_modules

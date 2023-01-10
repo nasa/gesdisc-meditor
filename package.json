@@ -1,0 +1,15 @@
+{
+  "name": "meditor",
+  "version": "1.9.12",
+  "description": "mEditor, the model editor",
+  "directories": {
+    "example": "examples",
+    "lib": "packages/app"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@github.com:nasa/gesdisc-meditor.git"
+  },
+  "author": "",
+  "license": "MIT"
+}
