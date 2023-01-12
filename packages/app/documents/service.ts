@@ -38,7 +38,9 @@ export async function createDocument(
 
         //* Get the model to validate its schema and the workflow so that we can find information about the draft node, which is the only node that applies to creating a document.
         const [modelWithWorkflowError, modelWithWorkflow] =
-            await getModelWithWorkflow(modelName)
+            await getModelWithWorkflow(modelName, undefined, {
+                populateMacroTemplates: true,
+            })
 
         if (modelWithWorkflowError) {
             throw modelWithWorkflowError

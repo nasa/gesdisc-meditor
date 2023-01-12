@@ -112,6 +112,10 @@ http {
         location /meditor/api/putDocument {
             include /etc/nginx/proxy.conf;
 
+            # put the request into a body file and "clean" the temporary files after processing (this mimics the original legacy API functionality used by external scripts)
+            # http://nginx.org/en/docs/http/ngx_http_core_module.html#client_body_in_file_only
+            client_body_in_file_only clean;
+
             js_content apiAdapter.adapt;
         }
 

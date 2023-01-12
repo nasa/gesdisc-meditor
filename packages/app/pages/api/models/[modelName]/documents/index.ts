@@ -44,18 +44,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
 
             const parsedDocument = JSON.parse(req.body)
-            const [error, { insertedDocument, location }] = await createDocument(
+            const [error, data] = await createDocument(
                 parsedDocument,
                 modelName,
                 user
             )
-            const { _id, ...apiSafeDocument } = insertedDocument
 
             if (error) {
                 return apiError(error, res)
             }
 
-            res.setHeader('Location', location)
+            const { _id, ...apiSafeDocument } = data.insertedDocument
+
+            res.setHeader('Location', data.location)
 
             return res.status(201).json(apiSafeDocument)
         }
