@@ -75,3 +75,12 @@
     content: 'patch';
     background-color: var(--openapi-code-orange);
 }
+
+.details__demo-panel button {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.details__demo-panel input {
+    box-shadow: inset 0px 0px 0px 2px var(--openapi-input-border) !important;
+}

@@ -1,11 +1,11 @@
 # https://spec.openapis.org/oas/v3.1.0
 openapi: 3.1.0
 servers:
-    - url: '{API_ORIGIN}/meditor/api'
+    - url: '{MEDITOR_ORIGIN}/meditor/api'
       variables:
-          API_ORIGIN:
-              description: The origin of the API server.
-              default: http://localhost
+          MEDITOR_ORIGIN:
+              description: mEditor's URL origin (where it is hosted). Might look like "https://example.com".
+              default: CHANGE-ME
       description: Local Server
 info:
     description: |

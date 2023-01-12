@@ -44,7 +44,7 @@ services:
     command: -H unix:///var/run/docker.sock
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - monitor_data:/data
+      - monitor-data:/data
 
   agent:
     image: ${REGISTRY}portainer/agent:1.1.2
@@ -57,7 +57,7 @@ services:
       - "9001:9001"
 
 volumes:
-  monitor_data:
+  monitor-data:
 
 
 networks:
