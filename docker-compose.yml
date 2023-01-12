@@ -3,15 +3,15 @@ version: "3.3"
 services:
   notebookviewer:
     depends_on:
-      - server
+      - legacy-api
 
   proxy:
     ports:
       - "80:8080"
     depends_on:
-      - server
+      - legacy-api
       - nats
-      - ui
+      - app
       - database
       - notebookviewer
 
@@ -19,16 +19,16 @@ services:
     depends_on:
       - nats
 
-  ui:
+  app:
     depends_on:
-      - server
+      - legacy-api
 
   docs:
     depends_on:
-      - server
-      - ui
+      - legacy-api
+      - app
 
-  server:
+  legacy-api:
     depends_on:
       - database
       - nats
@@ -44,7 +44,7 @@ services:
     command: -H unix:///var/run/docker.sock
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - monitor_data:/data
+      - monitor-data:/data
 
   agent:
     image: ${REGISTRY}portainer/agent:1.1.2
@@ -57,7 +57,8 @@ services:
       - "9001:9001"
 
 volumes:
-  monitor_data:
+  monitor-data:
+
 
 networks:
   default:

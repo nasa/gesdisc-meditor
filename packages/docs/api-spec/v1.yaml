@@ -1,0 +1,534 @@
+# https://spec.openapis.org/oas/v3.1.0
+openapi: 3.1.0
+servers:
+    - url: '{MEDITOR_ORIGIN}/meditor/api'
+      variables:
+          MEDITOR_ORIGIN:
+              description: mEditor's URL origin (where it is hosted). Might look like "https://example.com".
+              default: CHANGE-ME
+      description: Local Server
+info:
+    description: |
+        This documentation showcases mEditor's API and lets you make requests against the live API.
+    version: 1.0.0
+    title: mEditor API Yaml
+tags:
+    - name: models
+      x-displayName: Models
+    - name: documents
+      x-displayName: Documents
+    - name: comments
+      x-displayName: Comments
+    - name: history
+      x-displayName: History
+    - name: publications
+      x-displayName: Publications
+paths:
+    /models:
+        get:
+            tags:
+                - models
+            summary: get all models
+            description: Get a list of all models.
+            operationId: getModels
+            responses:
+                '200':
+                    description: OK
+                '500':
+                    description: Internal Server Error
+    /models/{modelName}:
+        get:
+            tags:
+                - models
+            summary: get one model
+            description: Get one model with (optional) template macros filled.
+            operationId: getModel
+            parameters:
+                - name: modelName
+                  in: path
+                  description: name of model
+                  required: true
+                  schema:
+                      type: string
+                # - name: disableMacros
+                #   in: query
+                #   description: include to disable filling template macros
+                #   required: false
+                #   allowEmptyValue: true
+                #   schema:
+                #       type: string
+            responses:
+                '200':
+                    description: OK
+                '400':
+                    description: Bad Request
+                '404':
+                    description: Not Found
+                '500':
+                    description: Internal Server Error
+    /models/{modelName}/documents:
+        get:
+            tags:
+                - documents
+            summary: get all documents
+            description: Get all documents for a model. These documents have only partial content until we implement pagination.
+            operationId: getDocuments
+            parameters:
+                - name: modelName
+                  in: path
+                  description: name of model
+                  required: true
+                  schema:
+                      type: string
+                - name: searchTerm
+                  in: query
+                  description: term to search for
+                  required: false
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: OK
+                '500':
+                    description: Internal Server Error
+        post:
+            tags:
+                - documents
+            summary: create a document
+            description: Create a document for a model.
+            operationId: createDocument
+            parameters:
+                - name: modelName
+                  in: path
+                  description: name of model
+                  required: true
+                  schema:
+                      type: string
+            requestBody:
+                content:
+                    application/json: {}
+                description: document to create
+                required: true
+            responses:
+                '201':
+                    description: Created
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '404':
+                    description: Not Found
+                '500':
+                    description: Internal Server Error
+    /models/{modelName}/documents/{documentTitle}:
+        get:
+            tags:
+                - documents
+            summary: get one document
+            description: Get one document for a model.
+            operationId: getDocument
+            parameters:
+                - name: modelName
+                  in: path
+                  description: name of model
+                  required: true
+                  schema:
+                      type: string
+                - name: documentTitle
+                  in: path
+                  description: title of document
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: OK
+                '400':
+                    description: Bad Request
+                '404':
+                    description: Not Found
+                '500':
+                    description: Internal Server Error
+    /models/{modelName}/documents/{documentTitle}/clone-document:
+        post:
+            tags:
+                - documents
+            summary: clone a document
+            description: Clone an existing document for a model.
+            operationId: cloneDocument
+            parameters:
+                - name: modelName
+                  in: path
+                  description: name of model
+                  required: true
+                  schema:
+                      type: string
+                - name: documentTitle
+                  in: path
+                  description: title of document
+                  required: true
+                  schema:
+                      type: string
+                - name: newTitle
+                  in: query
+                  description: a unique title for the new document
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: OK
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '404':
+                    description: Not Found
+                '500':
+                    description: Internal Server Error
+    /models/{modelName}/documents/{documentTitle}/change-document-state:
+        post:
+            tags:
+                - documents
+            summary: change a document's state
+            description: Change a document's state.
+            operationId: postChangeDocumentState
+            parameters:
+                - name: modelName
+                  in: path
+                  description: name of model
+                  required: true
+                  schema:
+                      type: string
+                - name: documentTitle
+                  in: path
+                  description: title of document
+                  required: true
+                  schema:
+                      type: string
+                - name: newState
+                  in: query
+                  description: the document's desired state
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: OK
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '404':
+                    description: Not Found
+                '500':
+                    description: Internal Server Error
+        put:
+            tags:
+                - documents
+            summary: change a document's state
+            description: Change a document's state while updating the document's content.
+            operationId: putChangeDocumentState
+            parameters:
+                - name: modelName
+                  in: path
+                  description: name of model
+                  required: true
+                  schema:
+                      type: string
+                - name: documentTitle
+                  in: path
+                  description: title of document
+                  required: true
+                  schema:
+                      type: string
+                - name: newState
+                  in: query
+                  description: the document's desired state
+                  required: true
+                  schema:
+                      type: string
+            # todo: describe the additional service parameters required in the request body
+            requestBody:
+                content:
+                    application/json: {}
+                description: document to update
+                required: true
+            responses:
+                '200':
+                    description: OK
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '404':
+                    description: Not Found
+                '500':
+                    description: Internal Server Error
+
+    /models/{modelName}/documents/{documentTitle}/{documentVersion}:
+        get:
+            tags:
+                - documents
+            summary: get one document at a version
+            description: Get one document at a specific version for a model.
+            operationId: getDocumentVersion
+            parameters:
+                - name: modelName
+                  in: path
+                  description: name of model
+                  required: true
+                  schema:
+                      type: string
+                - name: documentTitle
+                  in: path
+                  description: title of document
+                  required: true
+                  schema:
+                      type: string
+                - name: documentVersion
+                  in: path
+                  description: version of document
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: OK
+                '400':
+                    description: Bad Request
+                '404':
+                    description: Not Found
+                '500':
+                    description: Internal Server Error
+    /models/{modelName}/documents/{documentTitle}/comments:
+        get:
+            tags:
+                - comments
+            summary: get all comments
+            description: Get all comments for a document for a model.
+            operationId: getComments
+            parameters:
+                - name: modelName
+                  in: path
+                  description: name of model
+                  required: true
+                  schema:
+                      type: string
+                - name: documentTitle
+                  in: path
+                  description: title of document
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: OK
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '404':
+                    description: Not Found
+                '500':
+                    description: Internal Server Error
+        post:
+            tags:
+                - comments
+            summary: create a comment
+            description: Create a comment for a document for a model.
+            operationId: createComment
+            parameters:
+                - name: modelName
+                  in: path
+                  description: name of model
+                  required: true
+                  schema:
+                      type: string
+                - name: documentTitle
+                  in: path
+                  description: title of document
+                  required: true
+                  schema:
+                      type: string
+            requestBody:
+                content:
+                    application/json: {}
+                description: comment to create
+                required: true
+            responses:
+                '200':
+                    description: OK
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '500':
+                    description: Internal Server Error
+    /models/{modelName}/documents/{documentTitle}/comments/{commendId}:
+        get:
+            tags:
+                - comments
+            summary: get one comment
+            description: Get one comment for a document for a model.
+            operationId: getComment
+            parameters:
+                - name: modelName
+                  in: path
+                  description: name of model
+                  required: true
+                  schema:
+                      type: string
+                - name: documentTitle
+                  in: path
+                  description: title of document
+                  required: true
+                  schema:
+                      type: string
+                - name: commentId
+                  in: path
+                  description: identifier of comment
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: OK
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '404':
+                    description: Not Found
+                '500':
+                    description: Internal Server Error
+        put:
+            tags:
+                - comments
+            summary: update one comment
+            description: Update one comment for a document for a model.
+            operationId: putComment
+            parameters:
+                - name: modelName
+                  in: path
+                  description: name of model
+                  required: true
+                  schema:
+                      type: string
+                - name: documentTitle
+                  in: path
+                  description: title of document
+                  required: true
+                  schema:
+                      type: string
+                - name: commentId
+                  in: path
+                  description: database identifier of comment
+                  required: true
+                  schema:
+                      type: string
+            requestBody:
+                content:
+                    application/json: {}
+                description: comment to update
+                required: true
+            responses:
+                '200':
+                    description: OK
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '500':
+                    description: Internal Server Error
+    /models/{modelName}/documents/{documentTitle}/history:
+        get:
+            tags:
+                - history
+            summary: get histories
+            description: Get all histories for a document for a model. Will return the history of documents that are not the current working version.
+            operationId: getHistories
+            parameters:
+                - name: modelName
+                  in: path
+                  description: name of model
+                  required: true
+                  schema:
+                      type: string
+                - name: documentTitle
+                  in: path
+                  description: title of document
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: OK
+                '400':
+                    description: Bad Request
+                '404':
+                    description: Not Found
+                '500':
+                    description: Internal Server Error
+    /models/{modelName}/documents/{documentTitle}/history/{revisionId}:
+        get:
+            tags:
+                - history
+            summary: get history
+            description: Get one history entry for a document for a model.
+            operationId: getHistory
+            parameters:
+                - name: modelName
+                  in: path
+                  description: name of model
+                  required: true
+                  schema:
+                      type: string
+                - name: documentTitle
+                  in: path
+                  description: title of document
+                  required: true
+                  schema:
+                      type: string
+                - name: revisionId
+                  in: path
+                  description: timestamp of document version
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: OK
+                '400':
+                    description: Bad Request
+                '404':
+                    description: Not Found
+                '500':
+                    description: Internal Server Error
+    /models/{modelName}/documents/{documentTitle}/publications:
+        get:
+            tags:
+                - publications
+            summary: get all publications
+            description: Get all publications for a document for a model.
+            operationId: getPublications
+            parameters:
+                - name: modelName
+                  in: path
+                  description: name of model
+                  required: true
+                  schema:
+                      type: string
+                - name: documentTitle
+                  in: path
+                  description: title of document
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: OK
+                '400':
+                    description: Bad Request
+                '500':
+                    description: Internal Server Error
