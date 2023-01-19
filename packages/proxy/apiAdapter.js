@@ -20,6 +20,45 @@ function passThroughHeaders(request, response) {
 }
 
 /**
+ * The mEditor legacy API used query params extensively. For NextJS we are using path-based resources instead.
+ * This function pulls out "reserved" keys from the request args and returns the rest as URLSearchParams
+ *
+ * The equivalent to a spread operation: `const params = { keyword1, keyword2, ...therest } = args`
+ *
+ * @param {*}           obj
+ * @param {object}      options
+ * @param {string[]}    options.keysToOmit
+ * @returns
+ */
+function requestArgsToQueryString(requestArgs, options) {
+    if (options.keysToOmit) {
+        options.keysToOmit.forEach((key) => {
+            delete requestArgs[key];
+        });
+    }
+
+    /**
+     * converts an object of request args to an array of key/value pairs
+     * if the value of the arg is an array, we only use the first item in the array
+     *
+     * example:
+     * `"pretty": ["true", "false"]` would be turned into `pretty=true`
+     */
+    const queryStringParts = Object.keys(requestArgs).reduce(
+        (queryString, key) => {
+            const value = Array.isArray(requestArgs[key])
+                ? requestArgs[key][0]
+                : requestArgs[key];
+            queryString.push(`${key}=${value}`);
+            return queryString;
+        },
+        []
+    );
+
+    return queryStringParts.join('&');
+}
+
+/**
  * Adapt an incoming request to mEditor's first API to mEditor's new API.
  * By convention:
  *  - always pass through the HTTP method so that the underlying new API can handle appropriately.
@@ -47,6 +86,7 @@ async function adapt(request) {
                         method:
                             request.method === 'GET' ? 'POST' : request.method,
                         args: 'state=' + encodeURIComponent(args.state), // add state as a query param
+                        // TODO: pass through query params?
                     }
                 );
 
@@ -74,6 +114,9 @@ async function adapt(request) {
 
                 const response = await request.subrequest(subrequestUrl, {
                     method,
+                    args: requestArgsToQueryString(args, {
+                        keysToOmit: ['model', 'title'],
+                    }),
                 });
 
                 passThroughHeaders(request, response);
@@ -102,6 +145,9 @@ async function adapt(request) {
 
                 const response = await request.subrequest(subrequestUrl, {
                     method,
+                    args: requestArgsToQueryString(args, {
+                        keysToOmit: ['model', 'title', 'version'],
+                    }),
                 });
 
                 passThroughHeaders(request, response);
@@ -128,6 +174,9 @@ async function adapt(request) {
 
                 const response = await request.subrequest(subrequestUrl, {
                     method,
+                    args: requestArgsToQueryString(args, {
+                        keysToOmit: ['model', 'title'],
+                    }),
                 });
 
                 passThroughHeaders(request, response);
@@ -154,6 +203,9 @@ async function adapt(request) {
 
                 const response = await request.subrequest(subrequestUrl, {
                     method,
+                    args: requestArgsToQueryString(args, {
+                        keysToOmit: ['model', 'title'],
+                    }),
                 });
 
                 passThroughHeaders(request, response);
@@ -180,6 +232,9 @@ async function adapt(request) {
 
                 const response = await request.subrequest(subrequestUrl, {
                     method,
+                    args: requestArgsToQueryString(args, {
+                        keysToOmit: ['name'],
+                    }),
                 });
 
                 passThroughHeaders(request, response);
@@ -206,6 +261,9 @@ async function adapt(request) {
 
                 const response = await request.subrequest(subrequestUrl, {
                     method,
+                    args: requestArgsToQueryString(args, {
+                        keysToOmit: ['model'],
+                    }),
                 });
 
                 passThroughHeaders(request, response);
@@ -230,6 +288,7 @@ async function adapt(request) {
 
                 const response = await request.subrequest(subrequestUrl, {
                     method,
+                    args: requestArgsToQueryString(args),
                 });
 
                 passThroughHeaders(request, response);
@@ -280,6 +339,7 @@ async function adapt(request) {
                     const response = await request.subrequest(subrequestUrl, {
                         method,
                         body: documentString,
+                        // TODO: pass through query params?
                     });
 
                     passThroughHeaders(request, response);
@@ -309,6 +369,7 @@ async function adapt(request) {
 
                 const response = await request.subrequest(subrequestUrl, {
                     method,
+                    // TODO: pass through query params?
                 });
 
                 passThroughHeaders(request, response);
