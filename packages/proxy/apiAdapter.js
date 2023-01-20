@@ -49,7 +49,7 @@ function requestArgsToQueryString(requestArgs, options) {
             const value = Array.isArray(requestArgs[key])
                 ? requestArgs[key][0]
                 : requestArgs[key];
-            queryString.push(`${key}=${value}`);
+            queryString.push(`${key}=${encodeURIComponent(value)}`);
             return queryString;
         },
         []
@@ -85,8 +85,9 @@ async function adapt(request) {
                     {
                         method:
                             request.method === 'GET' ? 'POST' : request.method,
-                        args: 'state=' + encodeURIComponent(args.state), // add state as a query param
-                        // TODO: pass through query params?
+                        args: requestArgsToQueryString(args, {
+                            keysToOmit: ['model', 'title'],
+                        }),
                     }
                 );
 
@@ -339,7 +340,7 @@ async function adapt(request) {
                     const response = await request.subrequest(subrequestUrl, {
                         method,
                         body: documentString,
-                        // TODO: pass through query params?
+                        args: requestArgsToQueryString(args),
                     });
 
                     passThroughHeaders(request, response);
@@ -369,7 +370,9 @@ async function adapt(request) {
 
                 const response = await request.subrequest(subrequestUrl, {
                     method,
-                    // TODO: pass through query params?
+                    args: requestArgsToQueryString(args, {
+                        keysToOmit: ['model', 'title', 'newTitle'],
+                    }),
                 });
 
                 passThroughHeaders(request, response);
