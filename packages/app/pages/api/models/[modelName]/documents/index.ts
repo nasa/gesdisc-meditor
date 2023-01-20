@@ -5,6 +5,7 @@ import {
     getDocumentsForModel,
 } from '../../../../../documents/service'
 import { userCanAccessModel } from '../../../../../models/service'
+import { respondAsJson } from '../../../../../utils/api'
 import { apiError, ErrorCode, HttpException } from '../../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -32,7 +33,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 return apiError(error, res)
             }
 
-            return res.status(200).json(documents)
+            return respondAsJson(documents, req, res)
         }
 
         case 'POST': {
@@ -58,7 +59,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             res.setHeader('Location', data.location)
 
-            return res.status(201).json(apiSafeDocument)
+            return respondAsJson(apiSafeDocument, req, res, {
+                httpStatusCode: 201,
+            })
         }
 
         default:

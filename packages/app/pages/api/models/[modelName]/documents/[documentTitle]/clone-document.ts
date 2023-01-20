@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getLoggedInUser } from '../../../../../../auth/user'
 import { cloneDocument } from '../../../../../../documents/service'
+import { respondAsJson } from '../../../../../../utils/api'
 import { apiError, ErrorCode, HttpException } from '../../../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -23,7 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
 
             // todo: discuss this vs createDocument's 201 w/ location header; api-safe?
-            return res.status(200).json(document)
+            return respondAsJson(document, req, res)
         }
 
         default:

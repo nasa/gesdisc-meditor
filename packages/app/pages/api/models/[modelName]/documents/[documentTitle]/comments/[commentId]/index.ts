@@ -4,6 +4,7 @@ import {
     getCommentForDocument,
     updateCommentAsUser,
 } from '../../../../../../../../comments/service'
+import { respondAsJson } from '../../../../../../../../utils/api'
 import {
     apiError,
     ErrorCode,
@@ -36,7 +37,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 return apiError(error, res)
             }
 
-            return res.status(200).json(comment)
+            return respondAsJson(comment, req, res)
         }
 
         case 'PUT':
@@ -56,7 +57,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 return apiError(error, res)
             }
 
-            return res.status(200).json(updatedComment)
+            return respondAsJson(updatedComment, req, res)
 
         default:
             return res.status(405).end()
