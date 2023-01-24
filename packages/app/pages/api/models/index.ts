@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getModels } from '../../../models/service'
+import { respondAsJson } from '../../../utils/api'
 import { apiError } from '../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -11,7 +12,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 return apiError(error, res)
             }
 
-            res.status(200).json(models)
+            return respondAsJson(models, req, res)
         }
 
         default:

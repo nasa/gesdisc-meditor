@@ -4,6 +4,7 @@ import {
     createCommentAsUser,
     getCommentsForDocument,
 } from '../../../../../../../comments/service'
+import { respondAsJson } from '../../../../../../../utils/api'
 import { apiError, ErrorCode, HttpException } from '../../../../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -31,7 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 return apiError(error, res)
             }
 
-            return res.status(200).json(comments)
+            return respondAsJson(comments, req, res)
         }
 
         case 'POST': {
@@ -48,7 +49,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 return apiError(error, res)
             }
 
-            return res.status(200).json(newComment)
+            return respondAsJson(newComment, req, res)
         }
 
         default:
