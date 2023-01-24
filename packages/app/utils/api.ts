@@ -12,12 +12,12 @@ export function respondAsJson(
         httpStatusCode: 200,
     }
 ) {
-    if (request.query.noOutput) {
+    if ('noOutput' in request.query) {
         // user requested no output, only return the HTTP status code
         return response.status(options.httpStatusCode).end()
     }
 
-    if (request.query.pretty) {
+    if ('pretty' in request.query) {
         // user requested the JSON output to be prettified
         response.setHeader('Content-Type', 'application/json')
         return response
