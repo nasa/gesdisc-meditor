@@ -31,7 +31,7 @@ function passThroughHeaders(request, response) {
  * @returns
  */
 function requestArgsToQueryString(requestArgs, options) {
-    if (options.keysToOmit) {
+    if (options && options.keysToOmit) {
         options.keysToOmit.forEach((key) => {
             delete requestArgs[key];
         });
