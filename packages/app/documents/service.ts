@@ -29,11 +29,13 @@ const DELETED_STATE = 'Deleted'
 const GENERIC_WORKFLOW_EDGE = { source: 'Init', target: 'Draft' }
 
 export async function createDocument(
-    document: any,
+    documentToCreate: any,
     modelName: string,
     user: User
 ): Promise<ErrorData<{ insertedDocument: Document; location: string }>> {
     try {
+        const { _id, ...document } = documentToCreate // remove the database _id property
+
         const documentsDb = await getDocumentsDb()
 
         //* Get the model to validate its schema and the workflow so that we can find information about the draft node, which is the only node that applies to creating a document.
@@ -91,7 +93,11 @@ export async function createDocument(
         const targetState = last.target
 
         //! Since publishing to queue is a side effect outside the concerns of createDocument, we do not await the result.
-        safelyPublishDocumentChangeToQueue(modelWithWorkflow, document, targetState)
+        safelyPublishDocumentChangeToQueue(
+            modelWithWorkflow,
+            insertedDocument,
+            targetState
+        )
 
         return [
             null,
@@ -101,6 +107,8 @@ export async function createDocument(
             },
         ]
     } catch (error) {
+        log.error(error)
+
         return [error, null]
     }
 }
@@ -334,6 +342,8 @@ export async function cloneDocument(
 
         return createDocument(newDocument, modelName, user)
     } catch (error) {
+        log.error(error)
+
         return [error, null]
     }
 }
@@ -439,6 +449,8 @@ export async function changeDocumentState(
 
         return [null, updatedDocument]
     } catch (error) {
+        log.error(error)
+
         return [error, null]
     }
 }
