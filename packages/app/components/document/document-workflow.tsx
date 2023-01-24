@@ -1,5 +1,5 @@
 import dagre from 'dagre'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { MdRefresh } from 'react-icons/md'
 import type { Edge, Node, NodeChange, NodePositionChange } from 'reactflow'
 import ReactFlow, { Background, ControlButton, Controls } from 'reactflow'
@@ -180,21 +180,23 @@ const DocumentWorkflow = ({ workflow }) => {
         edges: [],
     })
 
-    const workflowElements: WorkflowNodesAndEdges = {
-        edges: workflow?.edges,
-        nodes: workflow?.nodes,
-    }
+    const workflowElements: WorkflowNodesAndEdges = useMemo(() => {
+        return {
+            edges: workflow?.edges,
+            nodes: workflow?.nodes,
+        }
+    }, [workflow?.edges, workflow?.nodes])
 
     const initNodesAndEdgesMemoized = useCallback(
         workflowElements => initNodesAndEdges(workflowElements),
-        [workflowElements]
+        []
     )
 
     useEffect(() => {
         const elements = initNodesAndEdgesMemoized(workflowElements)
 
         setElements(elements)
-    }, [workflow])
+    }, [initNodesAndEdgesMemoized, setElements, workflow, workflowElements])
 
     function handleNodeChanges(changes: NodeChange[]) {
         const { edges, nodes } = elements
