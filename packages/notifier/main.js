@@ -3,6 +3,10 @@ import nats from 'node-nats-streaming'
 import { sendMail } from './lib/mail'
 require('log-node')()
 
+const express = require('express')
+const app = express()
+const router = express.Router();
+
 const CLUSTER_ID = process.env.MEDITOR_NATS_CLUSTER_ID || 'test-cluster'
 const CLIENT_ID = process.env.MEDITOR_NATS_CLIENT_ID || 'meditor_notifier'
 const SERVER = process.env.MEDITOR_NATS_SERVER || 'nats://meditor_nats:4222'
@@ -25,6 +29,22 @@ process.on('SIGTERM', () => {
     stan.close()
 })
 
+// define the notifier page route
+router.use('/', (req, res, next) => {
+    res.send('Meditor notifier is running')
+    next()
+  })
+
+// To make sure meditor notifier is healthy
+router.get('/health', (req, res) => {
+    try{
+        res.status(200).json({ isHealthy: 'true' });  
+    }catch (err) {
+        res.status(500).json({ isHealthy: 'false' });  
+      }
+  });
+
+  app.use('meditor_notifier', router);
 /**
  * handle message received from the subscribed NATS channel
  * @param {*} message 
