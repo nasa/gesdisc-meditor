@@ -1,8 +1,8 @@
-import styles from './document-panel.module.css'
-import IconButton from '../icon-button'
+import { useEffect, useState } from 'react'
 import { MdClose } from 'react-icons/md'
 import { Rnd } from 'react-rnd'
-import { useState, useEffect } from 'react'
+import IconButton from '../icon-button'
+import styles from './document-panel.module.css'
 
 const DEFAULT_DIMENSIONS = {
     x: 1300,
@@ -54,7 +54,7 @@ const DocumentPanel = ({ title, children, onClose, open = false, large = false }
             >
                 <h3>{title}</h3>
 
-                {children}
+                {open && children}
 
                 <div className={styles.close}>
                     <IconButton alt="Close" tooltipPlacement="left">

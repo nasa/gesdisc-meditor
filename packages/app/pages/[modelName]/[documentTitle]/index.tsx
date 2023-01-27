@@ -261,8 +261,6 @@ const EditDocumentPage = ({
         setToggleJSON(!toggleJSON)
     }
 
-    const workflowShouldShow = model.name?.toLowerCase() === 'workflows'
-
     return (
         <div>
             <PageTitle title={[documentTitle, modelName]} />
@@ -361,12 +359,13 @@ const EditDocumentPage = ({
 
                 <DocumentPanel
                     onClose={closePanel}
-                    open={activePanel == 'workflow' && workflowShouldShow}
+                    open={
+                        activePanel == 'workflow' &&
+                        model.name?.toLowerCase() === 'workflows'
+                    }
                     title="Workflow"
                 >
-                    {workflowShouldShow && (
-                        <DocumentWorkflow workflow={formData?.doc} />
-                    )}
+                    <DocumentWorkflow workflow={formData?.doc} />
                 </DocumentPanel>
             </div>
 
