@@ -4,6 +4,7 @@ import type { Workflow, WorkflowEdge } from './types'
 import { getWorkflowsDb } from './db'
 import { ErrorCode, HttpException } from '../utils/errors'
 import { onlyUnique } from '../utils/array'
+import log from '../lib/log'
 
 export async function getWorkflowForModel(
     modelName: string
@@ -17,6 +18,7 @@ export async function getWorkflowForModel(
 
         return getWorkflow(model.workflow)
     } catch (error) {
+        log.error(error)
         return [error, null]
     }
 }
@@ -37,6 +39,7 @@ export async function getWorkflow(
 
         return [null, workflow]
     } catch (error) {
+        log.error(error)
         return [error, null]
     }
 }
@@ -69,6 +72,7 @@ export async function getWorkflowByDocumentState(
             },
         ]
     } catch (error) {
+        log.error(error)
         return [error, null]
     }
 }

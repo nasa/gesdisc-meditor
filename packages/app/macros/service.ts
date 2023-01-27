@@ -1,5 +1,6 @@
 import cloneDeep from 'lodash.clonedeep'
 import type { ErrorData } from '../declarations'
+import log from '../lib/log'
 import type { Model, PopulatedTemplate, Template } from '../models/types'
 import { ErrorCode, HttpException } from '../utils/errors'
 import { getMacrosDb } from './db'
@@ -84,6 +85,8 @@ async function listDependenciesByTitle(
 
         return [null, dependencies]
     } catch (error) {
+        log.error(error)
+
         return [error, null]
     }
 }
@@ -102,6 +105,8 @@ async function listUniqueFieldValues(
 
         return [null, results]
     } catch (error) {
+        log.error(error)
+
         return [error, null]
     }
 }

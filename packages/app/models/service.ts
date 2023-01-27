@@ -2,6 +2,7 @@ import jsonpath from 'jsonpath'
 import type { User } from '../auth/types'
 import type { ErrorData } from '../declarations'
 import { getDocumentsDb } from '../documents/db'
+import log from '../lib/log'
 import { runModelTemplates } from '../macros/service'
 import { ErrorCode, HttpException } from '../utils/errors'
 import { isJson } from '../utils/jsonschema-validate'
@@ -101,6 +102,7 @@ export async function getModel(
 
         return [null, model]
     } catch (error) {
+        log.error(error)
         return [error, null]
     }
 }
@@ -139,8 +141,9 @@ export async function getModelWithWorkflow(
                 workflow,
             },
         ]
-    } catch (err) {
-        return [err, null]
+    } catch (error) {
+        log.error(error)
+        return [error, null]
     }
 }
 
@@ -150,8 +153,10 @@ export async function getModels(): Promise<ErrorData<Model[]>> {
         const models = await modelsDb.getModels()
 
         return [null, models]
-    } catch (err) {
-        return [err, null]
+    } catch (error) {
+        log.error(error)
+
+        return [error, null]
     }
 }
 
@@ -189,8 +194,10 @@ export async function getModelsWithDocumentCount(): Promise<ErrorData<Model[]>> 
         )
 
         return [null, modelsWithDocumentCount]
-    } catch (err) {
-        return [err, null]
+    } catch (error) {
+        log.error(error)
+
+        return [error, null]
     }
 }
 
