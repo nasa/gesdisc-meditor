@@ -16,13 +16,16 @@ log.notice(`Attempting to connect client (${CLIENT_ID}) to NATS (Cluster: ${CLUS
 
 const stan = nats.connect(CLUSTER_ID, CLIENT_ID, SERVER)
 
+//globle varieble to test if NATS is healthy
 let isHealthy = false
 stan.on('connect', () => {
     isHealthy = true
     log.notice('Connected to NATS successfully')
+
+    //callback that gets trigger when NATS is unhealthy
     stan.on('connection_lost', (error) => {
         isHealthy= false
-        console.log('disconnected from stan', error)
+        console.log('disconnected from NATS', error)
       })
     const subscription = getDurableSubscriptionToChannel(CHANNEL_NAME)
     subscription.on('message', handleMessage)
@@ -35,7 +38,7 @@ process.on('SIGTERM', () => {
 })
 
 
-// To make sure meditor notifier is healthy
+// route handler to check meditor notifier it self is healthy 
 app.get('/health', (req, res) => {
     try{
         res.status(200).json({isHealthy});  
