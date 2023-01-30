@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 
 const healthcheck = {
     services: {
-        emailnotifier: {
+        "email-notifier": {
             isHealthy: true
         }
     }
