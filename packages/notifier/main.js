@@ -5,7 +5,7 @@ require('log-node')()
 
 const express = require('express')
 const app = express()
-const router = express.Router();
+const port = 3000
 
 const CLUSTER_ID = process.env.MEDITOR_NATS_CLUSTER_ID || 'test-cluster'
 const CLIENT_ID = process.env.MEDITOR_NATS_CLIENT_ID || 'meditor_notifier'
@@ -16,9 +16,14 @@ log.notice(`Attempting to connect client (${CLIENT_ID}) to NATS (Cluster: ${CLUS
 
 const stan = nats.connect(CLUSTER_ID, CLIENT_ID, SERVER)
 
+let isHealthy = false
 stan.on('connect', () => {
+    isHealthy = true
     log.notice('Connected to NATS successfully')
-
+    stan.on('connection_lost', (error) => {
+        isHealthy= false
+        console.log('disconnected from stan', error)
+      })
     const subscription = getDurableSubscriptionToChannel(CHANNEL_NAME)
     subscription.on('message', handleMessage)
 })
@@ -29,22 +34,20 @@ process.on('SIGTERM', () => {
     stan.close()
 })
 
-// define the notifier page route
-router.use('/', (req, res, next) => {
-    res.send('Meditor notifier is running')
-    next()
-  })
 
 // To make sure meditor notifier is healthy
-router.get('/health', (req, res) => {
+app.get('/health', (req, res) => {
     try{
-        res.status(200).json({ isHealthy: 'true' });  
+        res.status(200).json({isHealthy});  
     }catch (err) {
-        res.status(500).json({ isHealthy: 'false' });  
+        res.status(500).json({ message: 'Notifier is not connected', err });  
       }
   });
 
-  app.use('meditor_notifier', router);
+  app.listen(port, () => {
+    console.log(`Meditor notifier listening on port ${port}`)
+  })
+  
 /**
  * handle message received from the subscribed NATS channel
  * @param {*} message 
