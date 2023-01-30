@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 
 const healthcheck = {
     services: {
-        "email-notifier": {
+        "email_notifier": {
             isHealthy: true
         }
     }
@@ -14,7 +14,7 @@ export default async function handler(_req: NextApiRequest, res: NextApiResponse
         'http://meditor_notifier:3000/health')
     const result = await response.json()
 
-    healthcheck.services.emailnotifier.isHealthy = result.isHealthy
+    healthcheck.services.email_notifier.isHealthy = result.isHealthy
 
     //To make sure Meditor API it self is healhty
     try {
