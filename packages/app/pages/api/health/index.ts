@@ -16,10 +16,9 @@ export default async function handler(_req: NextApiRequest, res: NextApiResponse
 
     healthcheck.services.emailnotifier.isHealthy = result.isHealthy
 
-    console.log(JSON.stringify(healthcheck, null, 4))
     //To make sure Meditor API it self is healhty
     try {
-        res.status(200).json(healthcheck)
+        res.status(200).send(JSON.stringify(healthcheck,null,2))
     } catch (err) {
         res.status(500).json({ message: 'Meditor API is not healthy', err })
     }
