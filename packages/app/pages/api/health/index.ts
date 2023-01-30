@@ -1,6 +1,4 @@
-//import { useRouter } from 'next/router'
 import type { NextApiRequest, NextApiResponse } from 'next' 
-
 
 const healthcheck = {
     services: {
@@ -10,16 +8,16 @@ const healthcheck = {
       }
   }
 
-export default async function handler(request: NextApiRequest, response: NextApiResponse) { 
+export default async function handler(_req: NextApiRequest, res: NextApiResponse) { 
    
- const res = await fetch(
+ const response = await fetch(
         'http://meditor_notifier:3000/health')
-        const result = await res.json()
+        const result = await response.json()
        
         healthcheck.services.emailnotifier.isHealthy = result.isHealthy
         try{
-            response.status(200).json(healthcheck)
+            res.status(200).json(healthcheck)
         }catch (err) {
-            response.status(500).json({ isHealthy: 'false' })
+            res.status(500).json({ isHealthy: 'false' })
           }
 }
