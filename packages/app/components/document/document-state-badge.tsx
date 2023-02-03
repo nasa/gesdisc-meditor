@@ -222,7 +222,13 @@ const DocumentStateBadge = ({
                                             {status.url && (
                                                 <>
                                                     <p>
-                                                        <a href="">{status.url}</a>
+                                                        <a
+                                                            href={status.url}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                        >
+                                                            {status.url}
+                                                        </a>
                                                     </p>
                                                 </>
                                             )}
