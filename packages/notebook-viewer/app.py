@@ -31,12 +31,10 @@ def convertNotebookToHtml():
         return "We cannot convert a notebook from the provided domain", 400
 
     githubUrl = ''
-    binderUrl = ''
-
-    # if we're including a github.com URL, we'll provide some additional links to the original github repo and binder (to execute the notebook)
+    
+    # if we're including a github.com URL, we'll provide some additional links to the original github repo
     if notebookUrl.startswith('https://github.com'):
         githubUrl = notebookUrl
-        binderUrl = notebookUrl.replace('https://github.com/', '').replace('/blob/', '/').replace('/main/', '/main?filepath=')
         notebookUrl = notebookUrl.replace(
             "https://github.com", "https://raw.githubusercontent.com").replace("/blob/", "/")
 
@@ -48,7 +46,6 @@ def convertNotebookToHtml():
     (body, resources) = html_exporter.from_notebook_node(notebook, resources={
         'notebookUrl': notebookUrl,
         'githubUrl': githubUrl,
-        'binderUrl': binderUrl,
     })
 
     return body
