@@ -57,7 +57,7 @@ export async function getModel(
             }
 
             // execute the macro templates for this model and get their values
-            const populatedTemplates = await runModelTemplates(model)
+            const [error, populatedTemplates] = await runModelTemplates(model)
 
             // parse the schema into an object
             let schema =
