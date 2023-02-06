@@ -11,41 +11,49 @@ const macros = new Map<
     (...args: any[]) => Promise<ErrorData<PopulatedTemplate['result']>>
 >()
 
-async function runModelTemplates(model: Model): Promise<PopulatedTemplate[]> {
-    if (!model.hasOwnProperty('templates')) {
-        return []
+async function runModelTemplates(
+    model: Model
+): Promise<ErrorData<PopulatedTemplate[]>> {
+    try {
+        if (!model.hasOwnProperty('templates')) {
+            return [null, []]
+        }
+
+        const templates: Model['templates'] = cloneDeep(model.templates)
+
+        const populatedTemplates = await Promise.all(
+            templates.map(async (template: Template & { result: any }) => {
+                const [macroName, macroArgument] = template.macro.split(/\s+/)
+                const macroService = macros.get(macroName)
+
+                if (!macroService) {
+                    throw new HttpException(
+                        ErrorCode.BadRequest,
+                        `Macro, ${macroName}, not supported.`
+                    )
+                }
+
+                const [error, filledTemplate] = await macroService(macroArgument)
+
+                if (error) {
+                    throw new HttpException(
+                        ErrorCode.InternalServerError,
+                        `Template macro ${macroName} did not run.`
+                    )
+                }
+
+                template.result = filledTemplate
+
+                return template
+            })
+        )
+
+        return [null, populatedTemplates]
+    } catch (error) {
+        log.error(error)
+
+        return [error, null]
     }
-
-    const templates: Model['templates'] = cloneDeep(model.templates)
-
-    const populatedTemplates = await Promise.all(
-        templates.map(async (template: Template & { result: any }) => {
-            const [macroName, macroArgument] = template.macro.split(/\s+/)
-            const macroService = macros.get(macroName)
-
-            if (!macroService) {
-                throw new HttpException(
-                    ErrorCode.BadRequest,
-                    `Macro, ${macroName}, not supported.`
-                )
-            }
-
-            const [error, filledTemplate] = await macroService(macroArgument)
-
-            if (error) {
-                throw new HttpException(
-                    ErrorCode.InternalServerError,
-                    `Template macro ${macroName} did not run.`
-                )
-            }
-
-            template.result = filledTemplate
-
-            return template
-        })
-    )
-
-    return populatedTemplates
 }
 
 async function listDependenciesByTitle(
