@@ -33,18 +33,6 @@ dl = DictLoader(
             </svg>
         </a>
         {% endif %}
-
-        {% if resources.binderUrl != '' %}
-        <a href="https://mybinder.org/v2/gh/{{ resources.binderUrl }}" title="Execute on Binder" style="margin-left: 10px;">
-            <svg width="23" viewBox="0 0 34 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M21.879 22.481C27.1489 22.481 31.421 18.2089 31.421 12.939C31.421 7.6691 27.1489 3.397 21.879 3.397C16.6091 3.397 12.337 7.6691 12.337 12.939C12.337 18.2089 16.6091 22.481 21.879 22.481Z" stroke="#F5A252" stroke-width="4.8342" stroke-miterlimit="10"/>
-                <path d="M21.879 41.042C27.1495 41.042 31.422 36.7695 31.422 31.499C31.422 26.2286 27.1495 21.956 21.879 21.956C16.6085 21.956 12.336 26.2286 12.336 31.499C12.336 36.7695 16.6085 41.042 21.879 41.042Z" stroke="#579ACA" stroke-width="4.8342" stroke-miterlimit="10"/>
-                <path d="M12.551 31.832C17.8214 31.832 22.094 27.5595 22.094 22.289C22.094 17.0185 17.8214 12.746 12.551 12.746C7.28054 12.746 3.008 17.0185 3.008 22.289C3.008 27.5595 7.28054 31.832 12.551 31.832Z" stroke="#E66581" stroke-width="4.8342" stroke-miterlimit="10"/>
-                <path d="M14.196 25.836C14.955 24.805 15.936 23.909 17.117 23.229C21.683 20.599 27.518 22.169 30.148 26.736" stroke="#579ACA" stroke-width="4.8342" stroke-miterlimit="10"/>
-                <path d="M13.61 17.701C10.98 13.135 12.549 7.3 17.117 4.669C21.684 2.039 27.518 3.61 30.148 8.177" stroke="#F5A252" stroke-width="4.8342" stroke-miterlimit="10"/>
-            </svg>
-        </a>
-        {% endif %}
     </nav>
 </header>
 {%- endblock body_header -%}

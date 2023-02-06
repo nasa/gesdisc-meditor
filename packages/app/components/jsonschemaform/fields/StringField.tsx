@@ -82,7 +82,7 @@ function StringField(props) {
                     setLinkIsValid(true)
                 } else {
                     setLinkIsValid(false)
-                    console.debug(response.data.validLink.message)
+                    console.debug(response.data?.validLink?.message)
                 }
             })
     }
