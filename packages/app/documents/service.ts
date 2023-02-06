@@ -92,8 +92,7 @@ export async function createDocument(
         const [last] = insertedDocument['x-meditor'].states.slice(-1)
         const targetState = last.target
 
-        //! Since publishing to queue is a side effect outside the concerns of createDocument, we do not await the result.
-        safelyPublishDocumentChangeToQueue(
+        await safelyPublishDocumentChangeToQueue(
             modelWithWorkflow,
             insertedDocument,
             targetState
