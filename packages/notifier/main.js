@@ -40,11 +40,7 @@ process.on('SIGTERM', () => {
 
 // route handler to check meditor notifier it self is healthy 
 app.get('/health', (req, res) => {
-    try{
-        res.status(200).json({isHealthy});  
-    }catch (err) {
-        res.status(500).json({ message: 'Notifier is not connected', err });  
-      }
+    res.status(200).json({isHealthy});  
   });
 
   app.listen(port, () => {
