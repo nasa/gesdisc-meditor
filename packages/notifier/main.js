@@ -24,9 +24,9 @@ stan.on('connect', () => {
 
     //callback that gets trigger when NATS is unhealthy
     stan.on('connection_lost', (error) => {
-        isHealthy= false
+        isHealthy = false
         console.log('disconnected from NATS', error)
-      })
+    })
     const subscription = getDurableSubscriptionToChannel(CHANNEL_NAME)
     subscription.on('message', handleMessage)
 })
@@ -40,13 +40,13 @@ process.on('SIGTERM', () => {
 
 // route handler to check meditor notifier it self is healthy 
 app.get('/health', (req, res) => {
-    res.status(200).json({isHealthy});  
-  });
+    res.status(200).json({ isHealthy });
+});
 
-  app.listen(port, () => {
+app.listen(port, () => {
     console.log(`Meditor notifier listening on port ${port}`)
-  })
-  
+})
+
 /**
  * handle message received from the subscribed NATS channel
  * @param {*} message 
@@ -58,15 +58,15 @@ async function handleMessage(message) {
 
     try {
         await sendMail(
-            parsedMessage.subject, 
+            parsedMessage.subject,
             parsedMessage.body,
             `${parsedMessage.body}<p>See <a href="${parsedMessage.link.url}">${parsedMessage.link.label}</a> for more details.</p>`,
             parsedMessage.to.join(),
             parsedMessage.cc.join(),
         )
-        
+
         log.debug('Successfully processed message, sending acknowledgement to NATS')
-        
+
         message.ack()
     } catch (err) {
         console.error('Failed to process message', err)
