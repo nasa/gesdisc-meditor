@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "baseUrl": ".", // allows for importing starting at root folder (https://nextjs.org/docs/advanced-features/module-path-aliases)
         "target": "ES2015",
         "lib": ["dom", "dom.iterable", "esnext"],
         "allowJs": true,
