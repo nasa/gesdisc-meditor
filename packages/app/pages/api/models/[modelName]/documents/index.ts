@@ -1,12 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { getLoggedInUser } from '../../../../../auth/user'
-import {
-    createDocument,
-    getDocumentsForModel,
-} from '../../../../../documents/service'
-import { userCanAccessModel } from '../../../../../models/service'
-import { respondAsJson } from '../../../../../utils/api'
-import { apiError, ErrorCode, HttpException } from '../../../../../utils/errors'
+import { getLoggedInUser } from 'auth/user'
+import { createDocument, getDocumentsForModel } from 'documents/service'
+import { userCanAccessModel } from 'models/service'
+import { respondAsJson } from 'utils/api'
+import { apiError, ErrorCode, HttpException } from 'utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const modelName = decodeURIComponent(req.query.modelName.toString())
