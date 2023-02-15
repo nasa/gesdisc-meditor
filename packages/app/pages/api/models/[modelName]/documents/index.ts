@@ -5,7 +5,7 @@ import {
     getDocumentsForModel,
 } from '../../../../../documents/service'
 import { userCanAccessModel } from '../../../../../models/service'
-import { respondAsJson } from '../../../../../lib/api'
+import { respondAsJson } from '../../../../../utils/api'
 import { apiError, ErrorCode, HttpException } from '../../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

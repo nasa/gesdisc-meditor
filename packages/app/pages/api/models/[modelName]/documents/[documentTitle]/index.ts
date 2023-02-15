@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { getLoggedInUser } from '../../../../../../auth/user'
 import { getDocument } from '../../../../../../documents/service'
 import { userCanAccessModel } from '../../../../../../models/service'
-import { respondAsJson } from '../../../../../../lib/api'
+import { respondAsJson } from '../../../../../../utils/api'
 import { apiError, ErrorCode, HttpException } from '../../../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
