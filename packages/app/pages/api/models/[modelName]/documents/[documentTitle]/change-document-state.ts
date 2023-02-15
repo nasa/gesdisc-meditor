@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getLoggedInUser } from '../../../../../../auth/user'
 import { changeDocumentState } from '../../../../../../documents/service'
-import { respondAsJson } from '../../../../../../utils/api'
+import { respondAsJson } from '../../../../../../lib/api'
 import { apiError, ErrorCode, HttpException } from '../../../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

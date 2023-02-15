@@ -4,7 +4,7 @@ import {
     getCommentForDocument,
     updateCommentAsUser,
 } from '../../../../../../../../comments/service'
-import { respondAsJson } from '../../../../../../../../utils/api'
+import { respondAsJson } from '../../../../../../../../lib/api'
 import {
     apiError,
     ErrorCode,

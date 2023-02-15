@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getDocumentPublications } from '../../../../../../../documents/service'
-import { respondAsJson } from '../../../../../../../utils/api'
+import { respondAsJson } from '../../../../../../../lib/api'
 import { apiError } from '../../../../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
