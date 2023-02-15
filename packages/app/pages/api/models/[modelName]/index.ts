@@ -10,9 +10,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const user = await getLoggedInUser(req, res)
 
     if (!userCanAccessModel(modelName, user)) {
-        throw new HttpException(
-            ErrorCode.ForbiddenError,
-            'User does not have access to the requested model'
+        return apiError(
+            new HttpException(
+                ErrorCode.ForbiddenError,
+                'User does not have access to the requested model'
+            ),
+            res
         )
     }
 
