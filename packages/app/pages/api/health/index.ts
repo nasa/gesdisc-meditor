@@ -11,6 +11,8 @@ const healthcheck = {
 export default async function handler(_req: NextApiRequest, res: NextApiResponse) {
     //timeout for fetch request sice meditor_notifier is an internal service
     const controller = new AbortController();
+
+    try {
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
     //fetching response from meditor_notifier whether it is healthy or not
@@ -23,9 +25,12 @@ export default async function handler(_req: NextApiRequest, res: NextApiResponse
     healthcheck.services.email_notifier.isHealthy = result.isHealthy
 
     //To make sure Meditor API it self is healhty
-    try {
-        res.status(200).send(JSON.stringify(healthcheck, null, 2))
+    res.status(200).send(JSON.stringify(healthcheck, null, 2))
+
     } catch (err) {
+
+        console.error(err);
+        
         res.status(500).json({ message: 'Meditor API is not healthy', err })
     }
 }
