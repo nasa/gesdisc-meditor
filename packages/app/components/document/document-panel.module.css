@@ -1,13 +1,14 @@
 .panel {
     border: 1px solid rgba(0, 0, 0, 0.12);
+    position: relative;
     background: #fff;
     padding: 20px;
     height: calc(100% - 80px);
-    overflow-y: auto;
-    top: 80px;
+    overflow-y: auto; 
     flex: 0 auto 430px;
     transition: transform 0.1s linear;
-    margin-right: 20px;
+    margin-right: 12px;  
+    bottom:60px
 }
 
 .panelLarge {
@@ -21,7 +22,7 @@
 
 .panelOpen {
     transform: translateX(0px);
-}
+}   
 
 .close {
     position: absolute;
