@@ -1,12 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getLoggedInUser } from 'auth/user'
-import { getDocument } from 'documents/service'
-import { userCanAccessModel } from 'models/service'
+import { getModel, userCanAccessModel } from 'models/service'
 import { respondAsJson } from 'utils/api'
 import { apiError, ErrorCode, HttpException } from 'utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const documentTitle = decodeURIComponent(req.query.documentTitle.toString())
     const modelName = decodeURIComponent(req.query.modelName.toString())
     const user = await getLoggedInUser(req, res)
 
@@ -22,17 +20,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     switch (req.method) {
         case 'GET': {
-            const [error, document] = await getDocument(
-                documentTitle,
-                modelName,
-                user
-            )
+            const [error, model] = await getModel(modelName, {
+                includeId: false,
+                populateMacroTemplates: true,
+            })
 
             if (error) {
                 return apiError(error, res)
             }
 
-            return respondAsJson(document, req, res)
+            return respondAsJson(JSON.parse(model.schema), req, res)
         }
 
         default:
