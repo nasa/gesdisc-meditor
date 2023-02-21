@@ -3,6 +3,10 @@ import nats from 'node-nats-streaming'
 import { sendMail } from './lib/mail'
 require('log-node')()
 
+const express = require('express')
+const app = express()
+const port = 3000
+
 const CLUSTER_ID = process.env.MEDITOR_NATS_CLUSTER_ID || 'test-cluster'
 const CLIENT_ID = process.env.MEDITOR_NATS_CLIENT_ID || 'meditor_notifier'
 const SERVER = process.env.MEDITOR_NATS_SERVER || 'nats://meditor_nats:4222'
@@ -12,9 +16,17 @@ log.notice(`Attempting to connect client (${CLIENT_ID}) to NATS (Cluster: ${CLUS
 
 const stan = nats.connect(CLUSTER_ID, CLIENT_ID, SERVER)
 
+//globle varieble to test if NATS is healthy
+let isHealthy = false
 stan.on('connect', () => {
+    isHealthy = true
     log.notice('Connected to NATS successfully')
 
+    //callback that gets trigger when NATS is unhealthy
+    stan.on('connection_lost', (error) => {
+        isHealthy = false
+        console.log('disconnected from NATS', error)
+    })
     const subscription = getDurableSubscriptionToChannel(CHANNEL_NAME)
     subscription.on('message', handleMessage)
 })
@@ -23,6 +35,16 @@ stan.on('connect', () => {
 process.on('SIGTERM', () => {
     log.notice('SIGTERM received, closing NATS connection and shutting down')
     stan.close()
+})
+
+
+// route handler to check meditor notifier it self is healthy 
+app.get('/health', (req, res) => {
+    res.status(200).json({ isHealthy });
+});
+
+app.listen(port, () => {
+    console.log(`Meditor notifier listening on port ${port}`)
 })
 
 /**
@@ -36,15 +58,15 @@ async function handleMessage(message) {
 
     try {
         await sendMail(
-            parsedMessage.subject, 
+            parsedMessage.subject,
             parsedMessage.body,
             `${parsedMessage.body}<p>See <a href="${parsedMessage.link.url}">${parsedMessage.link.label}</a> for more details.</p>`,
             parsedMessage.to.join(),
             parsedMessage.cc.join(),
         )
-        
+
         log.debug('Successfully processed message, sending acknowledgement to NATS')
-        
+
         message.ack()
     } catch (err) {
         console.error('Failed to process message', err)
