@@ -4,6 +4,7 @@ import { userCanAccessModel } from 'models/service'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { respondAsJson } from 'utils/api'
 import { apiError, ErrorCode, HttpException } from 'utils/errors'
+import { safeParseJSON } from 'utils/json'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const modelName = decodeURIComponent(req.query.modelName.toString())
@@ -44,29 +45,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 )
             }
 
-            try {
-                const parsedDocument =
-                    typeof req.body === 'object' ? req.body : JSON.parse(req.body)
-                const [error, data] = await createDocument(
-                    parsedDocument,
-                    modelName,
-                    user
-                )
+            const [parsingError, parsedDocument] = safeParseJSON(req.body)
 
-                if (error) {
-                    return apiError(error, res)
-                }
-
-                const { _id, ...apiSafeDocument } = data.insertedDocument
-
-                res.setHeader('Location', data.location)
-
-                return respondAsJson(apiSafeDocument, req, res, {
-                    httpStatusCode: 201,
-                })
-            } catch (error) {
-                return apiError(error, res)
+            if (parsingError) {
+                return apiError(parsingError, res)
             }
+
+            const [documentError, data] = await createDocument(
+                parsedDocument,
+                modelName,
+                user
+            )
+
+            if (documentError) {
+                return apiError(documentError, res)
+            }
+
+            const { _id, ...apiSafeDocument } = data.insertedDocument
+
+            res.setHeader('Location', data.location)
+
+            return respondAsJson(apiSafeDocument, req, res, {
+                httpStatusCode: 201,
+            })
         }
 
         default:
