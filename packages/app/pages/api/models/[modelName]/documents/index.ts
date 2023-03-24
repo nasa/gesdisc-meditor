@@ -1,7 +1,7 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
 import { getLoggedInUser } from 'auth/user'
 import { createDocument, getDocumentsForModel } from 'documents/service'
 import { userCanAccessModel } from 'models/service'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import { respondAsJson } from 'utils/api'
 import { apiError, ErrorCode, HttpException } from 'utils/errors'
 
@@ -44,24 +44,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 )
             }
 
-            const parsedDocument = JSON.parse(req.body)
-            const [error, data] = await createDocument(
-                parsedDocument,
-                modelName,
-                user
-            )
+            try {
+                const parsedDocument =
+                    typeof req.body === 'object' ? req.body : JSON.parse(req.body)
+                const [error, data] = await createDocument(
+                    parsedDocument,
+                    modelName,
+                    user
+                )
 
-            if (error) {
+                if (error) {
+                    return apiError(error, res)
+                }
+
+                const { _id, ...apiSafeDocument } = data.insertedDocument
+
+                res.setHeader('Location', data.location)
+
+                return respondAsJson(apiSafeDocument, req, res, {
+                    httpStatusCode: 201,
+                })
+            } catch (error) {
                 return apiError(error, res)
             }
-
-            const { _id, ...apiSafeDocument } = data.insertedDocument
-
-            res.setHeader('Location', data.location)
-
-            return respondAsJson(apiSafeDocument, req, res, {
-                httpStatusCode: 201,
-            })
         }
 
         default:

@@ -98,13 +98,17 @@ The theme is now set. If you also have `UI_ALLOWED_URL_THEME` set, please note T
 
 ## Authentication
 
-mEditor allows a user to log in through its user interface or through a POST request to its login endpoint. Earthdata Login and AWS Cognito are both supported for login through the UI, but only AWS Cognito is supported for login through the API. This guide assumes that you know how to set up AWS Cognito for login through the UI.
+mEditor allows a user to log in through its user interface or through a POST request to its login endpoint. Earthdata Login and AWS Cognito are both supported for login through the UI. This guide assumes that you know how to set up AWS Cognito for login through the UI.
 
 ### Login through UI
 
 To learn more about logging in through mEditor's UI, see [Logging In](https://lb.gesdisc.eosdis.nasa.gov/meditor/docs/user-guide/quick-start#logging-in) within the User Guide.
 
 ### Login through API
+
+mEditor currently supports two authentication services, [AWS Cognito](https://aws.amazon.com/cognito/) and [Earthdata Login](https://urs.earthdata.nasa.gov/documentation).
+
+#### AWS Cognito
 
 To log in through mEditor's API, first (and only once) set up a new AWS Cognito App Client within your existing User Pool. Set the environment variable `COGNITO_INITIATE_AUTH_CLIENT_ID` to the value of this new Cognito Client ID.
 
@@ -136,3 +140,17 @@ curl -X GET 'localhost/meditor/api/me' \
 ```
 
 A user will be returned if your session is still active.
+
+#### Earthdata Login
+
+To log in through the mEditor API, you'll need to send a curl request to mEditor's login endpoint. The example below assumes that you have a `.netrc` file set up with your Earthdata Login (EDL) credentials. General information can be found on `.netrc` can be found in [cURL's documentation](https://everything.curl.dev/usingcurl/netrc); EDL-specific `.netrc` information can be found in the first part Earthdata Login's documentation on [How To Access Data With cURL And Wget](https://urs.earthdata.nasa.gov/documentation/for_users/data_access/curl_and_wget).
+
+```sh
+curl -b ~/.edl_cookies -c ~/.edl_cookies -L -n http://localhost/meditor/api/login > /dev/null
+```
+
+You can then interact with the API via cURL as in the following example:
+
+```sh
+curl -b ~/.edl_cookies -c ~/.edl_cookies -L -n -H 'Content-Type: application/json' -d @./upload.json http://localhost/meditor/api/models/{some-model}/documents
+```
