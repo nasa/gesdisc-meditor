@@ -10,12 +10,31 @@ export function clearEmpties(o: any) {
             delete o[k] // clear undefined or null values
         }
 
+        if (Array.isArray(o[k])) {
+            // delete the array if it's length is 0
+            if (o[k].length === 0) {
+                delete o[k]
+            } else {
+                // recursively clearEmpties on each item in the array
+                clearEmpties(o[k])
+
+                // filter out any undefined/null values, as well as empty objects
+                o[k] = o[k].filter(
+                    val =>
+                        typeof val !== 'undefined' &&
+                        val != null &&
+                        (typeof val !== 'object' || Object.keys(val).length > 0)
+                )
+            }
+        }
+
         if (typeof o[k] !== 'object') {
             continue // if not an object, skip to the next iteration
         }
 
         // The property is an object
         clearEmpties(o[k]) // <-- Make a recursive call on the nested object
+
         if (Object.keys(o[k]).length === 0) {
             delete o[k] // The object had no properties, so delete that property
         }
