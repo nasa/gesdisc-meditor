@@ -78,3 +78,22 @@ export function apiError(error: Error | HttpException, response: NextApiResponse
         error: safeError.message,
     })
 }
+
+/**
+ * compare an unknown error to see if it matches an expected error code
+ *
+ * ex. errorMatchesErrorCode(myError, ErrorCode.NotFound)
+ */
+export function errorMatchesErrorCode(
+    error: Error | HttpException | undefined,
+    errorCode: ErrorCode
+) {
+    return error && error instanceof HttpException && error.cause.code === errorCode
+}
+
+/**
+ * helper function as this is a fairly common use-case
+ */
+export function isNotFoundError(error?: Error | HttpException) {
+    return errorMatchesErrorCode(error, ErrorCode.NotFound)
+}

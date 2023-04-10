@@ -15,6 +15,7 @@ import type {
     ModelWithWorkflow,
 } from '../../models/types'
 import type { User } from '../../auth/types'
+import { isNotFoundError } from 'utils/errors'
 
 function getSearchOptionsFromParams(query: ParsedUrlQuery): DocumentsSearchOptions {
     return {
@@ -115,7 +116,7 @@ const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
                 {documents === null ? (
                     <p className="text-center py-4 text-danger">
                         mEditor had an error getting documents for{' '}
-                        {model.name || 'this model'}. Please verify that your{' '}
+                        {model?.name || 'this model'}. Please verify that your{' '}
                         <a
                             target="_blank"
                             rel="noopener noreferrer"
@@ -152,9 +153,14 @@ const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
 export async function getServerSideProps(ctx: NextPageContext) {
     const modelName = ctx.query.modelName.toString()
 
-    //! TODO: handle getModels or getModel errors (show the user an error message?)
-    const [_modelsError, allModels] = await getModels()
-    const [_modelError, model] = await getModelWithWorkflow(modelName)
+    const [_modelsError, allModels] = await getModels() // TODO: handle getModels error?
+    const [modelError, model] = await getModelWithWorkflow(modelName)
+
+    if (isNotFoundError(modelError)) {
+        return {
+            notFound: true,
+        }
+    }
 
     const searchOptions = getSearchOptionsFromParams(ctx.query)
 
