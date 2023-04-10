@@ -1,10 +1,14 @@
+import cloneDeep from 'lodash.clonedeep'
+
 /**
  * recursively removes from an object:
  *      - empty objects
  *      - null/undefined values
  * https://stackoverflow.com/questions/42736031/remove-empty-objects-from-an-object
  */
-export function clearEmpties(o: any) {
+export function clearEmpties(originalObject: any) {
+    let o = cloneDeep(originalObject)
+
     for (var k in o) {
         if (typeof o[k] == 'undefined' || o[k] == null) {
             delete o[k] // clear undefined or null values
@@ -16,7 +20,7 @@ export function clearEmpties(o: any) {
                 delete o[k]
             } else {
                 // recursively clearEmpties on each item in the array
-                clearEmpties(o[k])
+                o[k] = clearEmpties(o[k])
 
                 // filter out any undefined/null values, as well as empty objects
                 o[k] = o[k].filter(
@@ -33,7 +37,7 @@ export function clearEmpties(o: any) {
         }
 
         // The property is an object
-        clearEmpties(o[k]) // <-- Make a recursive call on the nested object
+        o[k] = clearEmpties(o[k]) // <-- Make a recursive call on the nested object
 
         if (Object.keys(o[k]).length === 0) {
             delete o[k] // The object had no properties, so delete that property
