@@ -23,7 +23,7 @@ function DescriptionField(props) {
                 </Tooltip>
             )}
         >
-            <FaQuestionCircle />
+            <FaQuestionCircle className="mr-2" />
         </OverlayTrigger>
     )
 }
