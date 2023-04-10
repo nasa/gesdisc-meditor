@@ -76,6 +76,10 @@ describe('Documents', () => {
             'publishMessageToQueueChannel'
         )
 
+        queueSpy.mockImplementation(async () => {
+            return Promise.resolve()
+        })
+
         afterEach(async () => {
             queueSpy.mockClear()
         })
@@ -184,8 +188,8 @@ describe('Documents', () => {
         })
 
         test('creates a new document for create or update operations', async () => {
-            const baselineCount = await db.collection('Alerts').find().count()
-            expect(await db.collection('Alerts').find().count()).toBe(baselineCount)
+            const baselineCount = await db.collection('Alerts').countDocuments()
+            expect(await db.collection('Alerts').countDocuments()).toBe(baselineCount)
 
             const [firstError, { insertedDocument: firstInsertedAlert }] =
                 await createDocument(minimalAlert, 'Alerts', user)
@@ -193,7 +197,7 @@ describe('Documents', () => {
             delete firstInsertedAlert._id
             delete firstInsertedAlert['x-meditor'].modifiedOn
             expect(firstInsertedAlert).toMatchSnapshot()
-            expect(await db.collection('Alerts').find().count()).toBe(11)
+            expect(await db.collection('Alerts').countDocuments()).toBe(11)
 
             //* Modify the alert, keeping the same "title", which is what determines a unique record for mEditor.
             firstInsertedAlert.notes = 'This has been called the Epochalypse.'
@@ -204,7 +208,7 @@ describe('Documents', () => {
             delete secondInsertedAlert._id
             delete secondInsertedAlert['x-meditor'].modifiedOn
             expect(secondInsertedAlert).toMatchSnapshot()
-            expect(await db.collection('Alerts').find().count()).toBe(
+            expect(await db.collection('Alerts').countDocuments()).toBe(
                 baselineCount + 2
             )
         })
@@ -368,7 +372,7 @@ describe('Documents', () => {
         })
 
         it('should return a list of documents for a model that has documents', async () => {
-            const baselineLength = await db.collection('Alerts').find().count()
+            const baselineLength = await db.collection('Alerts').countDocuments()
             await db.collection('Alerts').insertOne(SpatialSearchIssue)
             await db
                 .collection('Collection Metadata')

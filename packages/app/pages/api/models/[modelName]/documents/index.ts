@@ -1,9 +1,10 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
 import { getLoggedInUser } from 'auth/user'
 import { createDocument, getDocumentsForModel } from 'documents/service'
 import { userCanAccessModel } from 'models/service'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import { respondAsJson } from 'utils/api'
 import { apiError, ErrorCode, HttpException } from 'utils/errors'
+import { safeParseJSON } from 'utils/json'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const modelName = decodeURIComponent(req.query.modelName.toString())
@@ -44,15 +45,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 )
             }
 
-            const parsedDocument = JSON.parse(req.body)
-            const [error, data] = await createDocument(
+            const [parsingError, parsedDocument] = safeParseJSON(req.body)
+
+            if (parsingError) {
+                return apiError(parsingError, res)
+            }
+
+            const [documentError, data] = await createDocument(
                 parsedDocument,
                 modelName,
                 user
             )
 
-            if (error) {
-                return apiError(error, res)
+            if (documentError) {
+                return apiError(documentError, res)
             }
 
             const { _id, ...apiSafeDocument } = data.insertedDocument
