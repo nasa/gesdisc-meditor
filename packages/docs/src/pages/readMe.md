@@ -143,14 +143,14 @@ A user will be returned if your session is still active.
 
 #### Earthdata Login
 
-To log in through the mEditor API, you'll need to send a curl request to mEditor's login endpoint. The example below assumes that you have a `.netrc` file set up with your Earthdata Login (EDL) credentials. General information can be found on `.netrc` can be found in [cURL's documentation](https://everything.curl.dev/usingcurl/netrc); EDL-specific `.netrc` information can be found in the first part Earthdata Login's documentation on [How To Access Data With cURL And Wget](https://urs.earthdata.nasa.gov/documentation/for_users/data_access/curl_and_wget).
+To log in through the mEditor API, you'll need to send a curl request to mEditor's login endpoint. The example below assumes that you have a `.netrc` file set up with your Earthdata Login (EDL) credentials. If you don't, general information on `.netrc` can be found in [cURL's documentation](https://everything.curl.dev/usingcurl/netrc), and EDL-specific `.netrc` information can be found in the first part of Earthdata Login's documentation on [How To Access Data With cURL And Wget](https://urs.earthdata.nasa.gov/documentation/for_users/data_access/curl_and_wget). After your `.netrc` is configured, you can log in through mEditor's API with the following command:
 
 ```sh
-curl -b ~/.edl_cookies -c ~/.edl_cookies -L -n http://localhost/meditor/api/login > /dev/null
+curl -b ~/.urs_cookies -c ~/.urs_cookies  -L -n http://localhost/meditor/api/login > /dev/null
 ```
 
 You can then interact with the API via cURL as in the following example:
 
 ```sh
-curl -b ~/.edl_cookies -c ~/.edl_cookies -L -n -H 'Content-Type: application/json' -d @./upload.json http://localhost/meditor/api/models/{some-model}/documents
+curl -b ~/.urs_cookies -c ~/.urs_cookies -L -n -H 'Content-Type: application/json' -d @./upload.json http://localhost/meditor/api/models/{some-model}/documents
 ```
