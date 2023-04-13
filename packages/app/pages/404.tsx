@@ -1,5 +1,6 @@
 import { Breadcrumbs, Breadcrumb } from 'components/breadcrumbs'
 import PageTitle from 'components/page-title'
+import Link from 'next/link'
 
 export default function Custom404() {
     const pageTitle = '404 - Page Not Found'
@@ -24,9 +25,9 @@ export default function Custom404() {
                         The page you&apos;re looking for doesn&apos;t exist.
                     </p>
 
-                    <a href="/meditor" className="btn btn-primary">
+                    <Link href="/" className="btn btn-primary">
                         Return to Homepage
-                    </a>
+                    </Link>
                 </div>
             </div>
         </>
