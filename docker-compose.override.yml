@@ -32,7 +32,7 @@ services:
     env_file:
       - .env
     ports:
-      - "4000:4000"
+      - "127.0.0.1:4000:4000"
     volumes:
       - ./packages/app:/usr/src/app
       - /usr/src/app/node_modules
@@ -43,7 +43,7 @@ services:
     env_file:
       - .env
     ports:
-      - "3030:3030"
+      - "127.0.0.1:3030:3030"
 
   legacy-api:
     container_name: meditor_legacy-api
@@ -60,15 +60,15 @@ services:
     volumes:
       - ./mongo-data:/data/db
     ports:
-      - "27018:27017"
+      - "127.0.0.1:27018:27017"
 
   nats:
     container_name: meditor_nats
     volumes:
       - ./nats-data:/nats/data
     ports:
-      - 4222:4222
-      - 8222:8222
+      - "127.0.0.1:4222:4222"
+      - "127.0.0.1:8222:8222"
 
   monitor:
     container_name: meditor_monitor
