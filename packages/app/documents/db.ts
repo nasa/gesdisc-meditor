@@ -263,7 +263,7 @@ class DocumentsDb {
             },
             {
                 $set: {
-                    'x-meditor.publishedTo': {},
+                    'x-meditor.publishedTo': [],
                 },
             }
         )
