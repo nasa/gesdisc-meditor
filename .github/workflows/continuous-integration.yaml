@@ -8,7 +8,7 @@ on:
       - main
 
 jobs:
-  prettier:
+  app-jest:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,10 +20,17 @@ jobs:
           # This is important to fetch the changes to the previous commit
           fetch-depth: 0
 
-      - name: Prettify code
-        uses: creyD/prettier_action@v4.3
-        with:
-          dry: True
-          # This part is also where you can pass other options, for example:
-          #prettier_options:
-          only_changed: True
+      - name: Install dependencies
+        working-directory: ./packages/app
+        run: npm install
+
+      - name: Run tests
+        working-directory: ./packages/app
+        run: npm run test
+#- name: Prettify code
+#uses: creyD/prettier_action@v4.3
+##with:
+#dry: True
+# This part is also where you can pass other options, for example:
+#prettier_options:#
+#only_changed: True
