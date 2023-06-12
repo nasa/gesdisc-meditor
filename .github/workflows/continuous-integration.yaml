@@ -17,7 +17,7 @@ jobs:
       fail-fast: true
     defaults:
       run:
-        working-directory: app
+        working-directory: packages/app
 
     steps:
       - name: Checkout latest code from branch
