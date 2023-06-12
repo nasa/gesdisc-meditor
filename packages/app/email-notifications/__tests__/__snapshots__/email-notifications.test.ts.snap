@@ -8,7 +8,7 @@ An action is required to transition the document to one of the [Draft, Approved]
   "cc": Array [
     "\\"Eggs User\\" <eggs@mock.nasa.gov>",
   ],
-  "createdOn": "2022-01-01T00:00:00.000Z",
+  "createdOn": "2022-01-01T05:00:00.000Z",
   "link": Object {
     "label": "How do I?",
     "url": "http://localhost/meditor/FAQs/How%20do%20I%3F",
