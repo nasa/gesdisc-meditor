@@ -15,9 +15,6 @@ jobs:
       matrix:
         node: [16] # One or more Node versions to test against
       fail-fast: true
-    defaults:
-      run:
-        working-directory: packages/app
 
     steps:
       - name: Checkout latest code from branch
@@ -33,10 +30,12 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           cache: "npm"
-          cache-dependency-path: "packages/app"
+          cache-dependency-path: packages/app/package-lock.json
 
       - name: Install package dependencies
+        working-directory: packages/app
         run: npm install
 
       - name: Run tests
+        working-directory: packages/app
         run: npm run test
