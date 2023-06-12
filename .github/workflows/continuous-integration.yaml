@@ -17,27 +17,18 @@ jobs:
         with:
           # Make sure the actual branch is checked out when running on pull requests
           ref: ${{ github.head_ref }}
-          # This is important to fetch the changes to the previous commit
+          # Fetch only the changes to the previous commit
           fetch-depth: 0
 
-      - name: Cache node modules
-        id: cache-node-modules
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-node-modules
+      - name: Setup Node and npm cache
+        uses: actions/setup-node@v3
         with:
-          path: packages/app/node_modules
-          # cache is reset if any new dependencies are installed
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
+          node-version: 16
+          cache: "npm"
+          cache-dependency-path: packages/app/package-lock.json
 
-      - name: Install package dependencies (package.json)
+      - name: Install package dependencies (npm install)
         working-directory: ./packages/app
-        # don't install if we can reuse the cached node_modules
-        if: steps.cache-nodemodules.outputs.cache-hit != 'true'
         run: npm ci
 
       - name: Run tests
