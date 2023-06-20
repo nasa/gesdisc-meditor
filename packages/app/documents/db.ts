@@ -1,5 +1,5 @@
 import type { Db } from 'mongodb'
-import { ObjectID } from 'mongodb'
+import { ObjectId } from 'mongodb'
 import type { User } from '../auth/types'
 import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
 import type {
@@ -253,6 +253,22 @@ class DocumentsDb {
         return firstPublicationsEntry['x-meditor'].publishedTo
     }
 
+    /**
+     * removes all document publications for a given Mongo document _id
+     */
+    async removeAllDocumentPublications(documentId: string, modelName: string) {
+        await this.#db.collection(modelName).updateOne(
+            {
+                _id: new ObjectId(documentId),
+            },
+            {
+                $set: {
+                    'x-meditor.publishedTo': [],
+                },
+            }
+        )
+    }
+
     async getDocumentsForModel(
         modelName: string,
         searchOptions: DocumentsSearchOptions,
@@ -394,7 +410,7 @@ class DocumentsDb {
         await this.#db.collection(document['x-meditor'].model).updateOne(
             {
                 // updating an existing document, use the _id instead of the documentTitle, this ensures no race conditions where two users are creating/updating simultaneously
-                _id: new ObjectID(document._id),
+                _id: new ObjectId(document._id),
             },
             updateQuery
         )
@@ -459,7 +475,7 @@ class DocumentsDb {
         modelName: string
     ): Promise<Document> {
         const comment = await this.#db.collection(modelName).findOne({
-            _id: new ObjectID(documentId),
+            _id: new ObjectId(documentId),
         })
 
         return makeSafeObjectIDs(comment)
