@@ -573,8 +573,14 @@ export async function safelyPublishDocumentChangeToQueue(
 ) {
     try {
         if (isPublishableWithWorkflowSupport(model, state)) {
+            const documentsDb = await getDocumentsDb()
+
             // turns "Data Release" into "Data-Release"
             const channelName = model.name.replace(/ /g, '-')
+
+            // before we publish, first delete existing publication statuses
+            //? if we don't, user may be confused and think the old publication statuses still apply
+            await documentsDb.removeAllDocumentPublications(document._id, model.name)
 
             // publish the document state change to the right channel
             //? One or more subscribers can be subscribed to this particular channel, these are external subscribers

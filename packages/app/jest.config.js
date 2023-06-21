@@ -2,6 +2,8 @@
 const tsPreset = require('ts-jest/jest-preset')
 const mongoPreset = require('@shelf/jest-mongodb/jest-preset')
 
+process.env.TZ = 'GMT' // ensure all tests use GMT time, both locally and on CI servers
+
 const jestOverwrites = {
     testEnvironment: 'node',
     watchPathIgnorePatterns: [

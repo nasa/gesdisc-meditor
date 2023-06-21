@@ -341,7 +341,7 @@ describe('Email Notifications', () => {
     })
 
     describe('constructEmailMessageForStateChange', () => {
-        let mockDate = new Date(2022, 0, 1)
+        let mockDate = new Date(2022, 0, 1, 0, 0, 0, 0)
         let dateSpy
         let model
         let currentEdge
