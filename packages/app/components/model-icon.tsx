@@ -26,9 +26,7 @@ import {
     FaBook,
     FaSearch,
 } from 'react-icons/fa'
-import {
-    MdWarning,
-} from 'react-icons/md'
+import { MdWarning } from 'react-icons/md'
 import styles from './model-icon.module.css'
 
 const DEFAULT_ICON = 'FaFile'
@@ -67,7 +65,7 @@ const ModelIcon = ({ name = '', color = '#000' }) => {
     if (!name.length) return <></>
 
     // TODO: Model schema's icon list should use `FaIcon` naming style instead of `fa-icon` naming style, then refactor this
-    let camelCasedIcon = name.replace(/-([a-z])/g, (g) => g[1].toUpperCase())
+    let camelCasedIcon = name.replace(/-([a-z])/g, g => g[1].toUpperCase())
     camelCasedIcon = camelCasedIcon[0].toUpperCase() + camelCasedIcon.slice(1)
 
     // TODO: remove custom icons from the list

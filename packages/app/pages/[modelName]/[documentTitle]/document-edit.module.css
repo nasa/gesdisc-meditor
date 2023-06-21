@@ -1,5 +1,5 @@
 .stage {
     padding-right: 0;
-    transition: padding .1s linear;
+    transition: padding 0.1s linear;
     overflow: hidden;
 }

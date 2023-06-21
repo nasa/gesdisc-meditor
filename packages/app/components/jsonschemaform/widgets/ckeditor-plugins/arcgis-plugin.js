@@ -56,9 +56,14 @@ export const arcgisstorymap = {
                                         } else {
                                             if (
                                                 this.getValue().length === 0 ||
-                                                this.getValue().indexOf('maps.arcgis.com') < 0
+                                                this.getValue().indexOf(
+                                                    'maps.arcgis.com'
+                                                ) < 0
                                             ) {
-                                                alert(editor.lang.arcgisstorymap.invalidUrl)
+                                                alert(
+                                                    editor.lang.arcgisstorymap
+                                                        .invalidUrl
+                                                )
                                                 return false
                                             }
                                         }
@@ -77,7 +82,11 @@ export const arcgisstorymap = {
                                 validate: function () {
                                     let width = this.getValue()
 
-                                    if (!width || (width.indexOf('px') < 0 && width.indexOf('%') < 0)) {
+                                    if (
+                                        !width ||
+                                        (width.indexOf('px') < 0 &&
+                                            width.indexOf('%') < 0)
+                                    ) {
                                         alert(editor.lang.arcgisstorymap.invalidWidth)
                                         return false
                                     }
@@ -95,8 +104,14 @@ export const arcgisstorymap = {
                                 validate: function () {
                                     let height = this.getValue()
 
-                                    if (!height || (height.indexOf('px') < 0 && height.indexOf('%') < 0)) {
-                                        alert(editor.lang.arcgisstorymap.invalidHeight)
+                                    if (
+                                        !height ||
+                                        (height.indexOf('px') < 0 &&
+                                            height.indexOf('%') < 0)
+                                    ) {
+                                        alert(
+                                            editor.lang.arcgisstorymap.invalidHeight
+                                        )
                                         return false
                                     }
                                 },
@@ -116,13 +131,21 @@ export const arcgisstorymap = {
                 onOk: function () {
                     var content = ''
 
-                    var url = this.getContentElement('arcgisstorymapPlugin', 'txtUrl').getValue(),
+                    var url = this.getContentElement(
+                            'arcgisstorymapPlugin',
+                            'txtUrl'
+                        ).getValue(),
                         params = [],
                         paramAutoplay = ''
                     var width = this.getValueOf('arcgisstorymapPlugin', 'txtWidth')
                     var height = this.getValueOf('arcgisstorymapPlugin', 'txtHeight')
 
-                    if (this.getContentElement('arcgisstorymapPlugin', 'chkAutoplay').getValue() === true) {
+                    if (
+                        this.getContentElement(
+                            'arcgisstorymapPlugin',
+                            'chkAutoplay'
+                        ).getValue() === true
+                    ) {
                         params.push('autoplay')
                         paramAutoplay = 'autoplay'
                     }

@@ -1,4 +1,4 @@
-const RenderResponse = (props) => {
+const RenderResponse = props => {
     if (props.loading) {
         return props.loadingComponent || <></>
     }
@@ -7,11 +7,7 @@ const RenderResponse = (props) => {
         return props.errorComponent || <></>
     }
 
-    return (
-        <>
-            {props.children}
-        </>
-    )
+    return <>{props.children}</>
 }
 
 export default RenderResponse

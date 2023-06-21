@@ -5,7 +5,10 @@ import styles from './icon-button.module.css'
 
 function renderTooltip(props: any, alt: string) {
     return (
-        <Tooltip {...props} id={`icon-button-${alt.replace(/ /gi, '').toLowerCase()}-tooltip`}>
+        <Tooltip
+            {...props}
+            id={`icon-button-${alt.replace(/ /gi, '').toLowerCase()}-tooltip`}
+        >
             {alt}
         </Tooltip>
     )
@@ -30,7 +33,12 @@ const IconButton = ({
 
     function renderButton() {
         return (
-            <Button {...buttonProps} className={styles.button} onClick={onClick} type={type}>
+            <Button
+                {...buttonProps}
+                className={styles.button}
+                onClick={onClick}
+                type={type}
+            >
                 {children}
 
                 <span className="sr-only">{alt}</span>
@@ -46,7 +54,7 @@ const IconButton = ({
         <OverlayTrigger
             {...overlayProps}
             delay={{ show: 100, hide: 100 }}
-            overlay={(props) => renderTooltip(props, alt)}
+            overlay={props => renderTooltip(props, alt)}
         >
             {renderButton()}
         </OverlayTrigger>

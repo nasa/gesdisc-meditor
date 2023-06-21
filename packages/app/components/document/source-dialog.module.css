@@ -24,11 +24,11 @@
     flex-direction: column;
 }
 
-.button{
+.button {
     margin-top: 10px;
 }
 
-.note{
+.note {
     background-color: lightblue;
     border-left: 2px solid blue;
     border-radius: 2px;

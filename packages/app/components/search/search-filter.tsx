@@ -24,7 +24,14 @@ const SearchFilter = ({ label, field, value = '', filterOptions = [], onChange }
             <label>
                 {type == 'boolean' && (
                     <>
-                        <input type="checkbox" className="form-check-input mr-2" checked={Boolean(value) == true} onChange={(e) => onChange(label, e.target.checked ? 'true' : '')} />
+                        <input
+                            type="checkbox"
+                            className="form-check-input mr-2"
+                            checked={Boolean(value) == true}
+                            onChange={e =>
+                                onChange(label, e.target.checked ? 'true' : '')
+                            }
+                        />
                         {label}
                     </>
                 )}
@@ -35,11 +42,11 @@ const SearchFilter = ({ label, field, value = '', filterOptions = [], onChange }
                         <select
                             className="form-control"
                             value={value}
-                            onChange={(e) => onChange(label, e.target.value)}
+                            onChange={e => onChange(label, e.target.value)}
                         >
                             <option value=""></option>
 
-                            {enumOptions.map((fieldOption) => (
+                            {enumOptions.map(fieldOption => (
                                 <option key={fieldOption} value={fieldOption}>
                                     {fieldOption}
                                 </option>
