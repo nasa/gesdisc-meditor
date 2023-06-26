@@ -107,7 +107,7 @@
             "target": "Draft",
             "label": "Needs more work",
             "notify": true,
-            "notifyRoles": "Author"
+            "notifyRoles": "Reviewer"
         },
         {
             "role": "Reviewer",
@@ -115,7 +115,7 @@
             "target": "Approved",
             "label": "Approve publication",
             "notify": true,
-            "notifyRoles": "Reviewer"
+            "notifyRoles": "Publisher"
         },
         {
             "role": "Publisher",
@@ -131,7 +131,7 @@
             "target": "Under Review",
             "label": "I don't like it!",
             "notify": true,
-            "notifyRoles": "Publisher"
+            "notifyRoles": "Reviewer"
         },
         {
             "role": "Publisher",

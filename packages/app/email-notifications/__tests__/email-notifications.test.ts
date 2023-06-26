@@ -132,7 +132,7 @@ describe('Email Notifications', () => {
         ${'Init'}         | ${''}             | ${'FAQs'}   | ${modifyReviewPublishWorkflow} | ${[]}
         ${'Draft'}        | ${'Init'}         | ${'FAQs'}   | ${modifyReviewPublishWorkflow} | ${[]}
         ${'Under Review'} | ${'Draft'}        | ${'FAQs'}   | ${modifyReviewPublishWorkflow} | ${['eggs', 'hashbrowns']}
-        ${'Draft'}        | ${'Under Review'} | ${'FAQs'}   | ${modifyReviewPublishWorkflow} | ${['bacon']}
+        ${'Draft'}        | ${'Under Review'} | ${'FAQs'}   | ${modifyReviewPublishWorkflow} | ${['eggs', 'hashbrowns']}
         ${'Approved'}     | ${'Under Review'} | ${'FAQs'}   | ${modifyReviewPublishWorkflow} | ${['grits', 'gravy']}
         ${'Under Review'} | ${'Approved'}     | ${'FAQs'}   | ${modifyReviewPublishWorkflow} | ${['eggs', 'hashbrowns']}
         ${'Published'}    | ${'Approved'}     | ${'FAQs'}   | ${modifyReviewPublishWorkflow} | ${['grits', 'gravy']}
