@@ -31,7 +31,10 @@ export function getNewUnsavedDocument(modelName, uid): UnsavedDocument {
     }
 }
 
-export function retrieveUnsavedDocumentFromLS(modelName: string, localId: string): UnsavedDocument {
+export function retrieveUnsavedDocumentFromLS(
+    modelName: string,
+    localId: string
+): UnsavedDocument {
     return JSON.parse(localStorage.getItem(getLocalStorageKey(modelName, localId)))
 }
 
@@ -41,8 +44,11 @@ export function updateUnsavedDocumentInLS(document: UnsavedDocument) {
         removeUnsavedDocumentFromLS(document)
         return
     }
-    
-    localStorage.setItem(getLocalStorageKey(document.model, document.localId), JSON.stringify(document))
+
+    localStorage.setItem(
+        getLocalStorageKey(document.model, document.localId),
+        JSON.stringify(document)
+    )
 }
 
 export function removeUnsavedDocumentFromLS(document: UnsavedDocument) {

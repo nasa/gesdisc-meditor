@@ -1,9 +1,9 @@
 /**
  * given all of, or a portion of, a JSON schema, will do a deep search for a given key
- * 
- * @param key 
+ *
+ * @param key
  * @param schema
- * @returns boolean whether the key exists in the schema or not 
+ * @returns boolean whether the key exists in the schema or not
  */
 export const keyExistsInSchema = (key: string, schema: any): boolean => {
     if (key in schema) {

@@ -2,14 +2,24 @@ import { default as BSPagination } from 'react-bootstrap/Pagination'
 
 const MAX_PAGES_VISIBLE = 5 // make sure this is an odd number!
 
-const Pagination = ({ className = '', onPageChange, currentPage, totalItems, itemsPerPage }) => {
+const Pagination = ({
+    className = '',
+    onPageChange,
+    currentPage,
+    totalItems,
+    itemsPerPage,
+}) => {
     const lastPage = Math.ceil(totalItems / itemsPerPage) - 1
     const onFirstPage = currentPage <= 0
     const onLastPage = currentPage >= lastPage
 
     function renderItem(pageNum) {
         return (
-            <BSPagination.Item key={pageNum} active={pageNum == currentPage} onClick={() => onPageChange(pageNum)}>
+            <BSPagination.Item
+                key={pageNum}
+                active={pageNum == currentPage}
+                onClick={() => onPageChange(pageNum)}
+            >
                 {pageNum + 1}
             </BSPagination.Item>
         )
@@ -36,21 +46,37 @@ const Pagination = ({ className = '', onPageChange, currentPage, totalItems, ite
 
     return (
         <BSPagination className={className}>
-            <BSPagination.First disabled={onFirstPage} onClick={() => onPageChange(0)} />
-            <BSPagination.Prev disabled={onFirstPage} onClick={() => onPageChange(currentPage - 1)} />
+            <BSPagination.First
+                disabled={onFirstPage}
+                onClick={() => onPageChange(0)}
+            />
+            <BSPagination.Prev
+                disabled={onFirstPage}
+                onClick={() => onPageChange(currentPage - 1)}
+            />
 
             {currentPage > MAX_PAGES_VISIBLE - 1 && (
-                <BSPagination.Ellipsis onClick={() => onPageChange(currentPage - MAX_PAGES_VISIBLE)} />
+                <BSPagination.Ellipsis
+                    onClick={() => onPageChange(currentPage - MAX_PAGES_VISIBLE)}
+                />
             )}
 
             {renderItems()}
 
             {currentPage < lastPage - MAX_PAGES_VISIBLE + 1 && (
-                <BSPagination.Ellipsis onClick={() => onPageChange(currentPage + MAX_PAGES_VISIBLE)} />
+                <BSPagination.Ellipsis
+                    onClick={() => onPageChange(currentPage + MAX_PAGES_VISIBLE)}
+                />
             )}
 
-            <BSPagination.Next disabled={onLastPage} onClick={() => onPageChange(currentPage + 1)} />
-            <BSPagination.Last disabled={onLastPage} onClick={() => onPageChange(lastPage)} />
+            <BSPagination.Next
+                disabled={onLastPage}
+                onClick={() => onPageChange(currentPage + 1)}
+            />
+            <BSPagination.Last
+                disabled={onLastPage}
+                onClick={() => onPageChange(lastPage)}
+            />
         </BSPagination>
     )
 }

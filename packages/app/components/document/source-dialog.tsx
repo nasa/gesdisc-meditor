@@ -7,7 +7,6 @@ import { useState, useEffect } from 'react'
 import CodeEditor from '../code-editor'
 import cloneDeep from 'lodash.clonedeep'
 
-
 function isValidJSON(str) {
     try {
         JSON.parse(str)
@@ -33,9 +32,9 @@ const SourceDialog = ({ source, title, onChange }) => {
 
     /**
      * when the source changes, make sure its valid JSON and update the local source
-     * @param source 
+     * @param source
      */
-    const handleSourceChange = (source) => {
+    const handleSourceChange = source => {
         setValidJson(true)
 
         if (!source || typeof source !== 'string') {
@@ -59,23 +58,37 @@ const SourceDialog = ({ source, title, onChange }) => {
     }
 
     return (
+        <Card className={styles.card}>
+            <Card.Body>
+                <div className={styles.note}>
+                    <p>
+                        <b>Note:</b> To undo an action press Ctrl+Z (or Cmd+Z on Mac)
+                    </p>
+                </div>
 
-            <Card className={styles.card}>
-                <Card.Body>
-                    <div className={styles.note}>
-                        <p><b>Note:</b> To undo an action press Ctrl+Z (or Cmd+Z on Mac)</p>
-                    </div>
-
-                    {currentSource && <>
+                {currentSource && (
+                    <>
                         <CodeEditor
-                            text={currentSource ? JSON.stringify(currentSource, null, 2) : ""}
-                            style={{ width: '100%', height: '400px', display: 'block' }}
+                            text={
+                                currentSource
+                                    ? JSON.stringify(currentSource, null, 2)
+                                    : ''
+                            }
+                            style={{
+                                width: '100%',
+                                height: '400px',
+                                display: 'block',
+                            }}
                             onTextChange={handleSourceChange}
                             onBlur={handleBlur}
                             theme="tomorrow"
                         />
 
-                        {!validJson && <Alert variant="danger">Invalid JSON, please review and fix any JSON errors.</Alert>}
+                        {!validJson && (
+                            <Alert variant="danger">
+                                Invalid JSON, please review and fix any JSON errors.
+                            </Alert>
+                        )}
 
                         <div>
                             <a
@@ -84,13 +97,16 @@ const SourceDialog = ({ source, title, onChange }) => {
                                 )}`}
                                 download={`${title}.json`}
                             >
-                                <Button className={styles.button} variant="secondary"> Download </Button>
+                                <Button className={styles.button} variant="secondary">
+                                    {' '}
+                                    Download{' '}
+                                </Button>
                             </a>
                         </div>
-                    </>}
-                </Card.Body>
-            </Card>
-        
+                    </>
+                )}
+            </Card.Body>
+        </Card>
     )
 }
 

@@ -44,7 +44,10 @@ export const youtube = {
             label: editor.lang.youtube.button,
             toolbar: 'insert',
             command: 'youtube',
-            icon: window.location.origin + (window.location.href.indexOf('/meditor') >= 0 ? '/meditor' : '') + '/ckeditor/youtube.png',
+            icon:
+                window.location.origin +
+                (window.location.href.indexOf('/meditor') >= 0 ? '/meditor' : '') +
+                '/ckeditor/youtube.png',
         })
 
         CKEDITOR.dialog.add('youtube', function (instance) {
@@ -116,8 +119,15 @@ export const youtube = {
                                                 } else {
                                                     video = ytVidId(this.getValue())
 
-                                                    if (this.getValue().length === 0 || video === false) {
-                                                        alert(editor.lang.youtube.invalidUrl)
+                                                    if (
+                                                        this.getValue().length ===
+                                                            0 ||
+                                                        video === false
+                                                    ) {
+                                                        alert(
+                                                            editor.lang.youtube
+                                                                .invalidUrl
+                                                        )
                                                         return false
                                                     }
                                                 }
@@ -130,13 +140,19 @@ export const youtube = {
                                         width: '60px',
                                         label: editor.lang.youtube.txtWidth,
                                         default:
-                                            editor.config.youtube_width != null ? editor.config.youtube_width : '640',
+                                            editor.config.youtube_width != null
+                                                ? editor.config.youtube_width
+                                                : '640',
                                         validate: function () {
                                             if (this.getValue()) {
-                                                var width = parseInt(this.getValue()) || 0
+                                                var width =
+                                                    parseInt(this.getValue()) || 0
 
                                                 if (width === 0) {
-                                                    alert(editor.lang.youtube.invalidWidth)
+                                                    alert(
+                                                        editor.lang.youtube
+                                                            .invalidWidth
+                                                    )
                                                     return false
                                                 }
                                             } else {
@@ -151,13 +167,19 @@ export const youtube = {
                                         width: '60px',
                                         label: editor.lang.youtube.txtHeight,
                                         default:
-                                            editor.config.youtube_height != null ? editor.config.youtube_height : '360',
+                                            editor.config.youtube_height != null
+                                                ? editor.config.youtube_height
+                                                : '360',
                                         validate: function () {
                                             if (this.getValue()) {
-                                                var height = parseInt(this.getValue()) || 0
+                                                var height =
+                                                    parseInt(this.getValue()) || 0
 
                                                 if (height === 0) {
-                                                    alert(editor.lang.youtube.invalidHeight)
+                                                    alert(
+                                                        editor.lang.youtube
+                                                            .invalidHeight
+                                                    )
                                                     return false
                                                 }
                                             } else {
@@ -209,7 +231,9 @@ export const youtube = {
                                         id: 'chkOlderCode',
                                         type: 'checkbox',
                                         default:
-                                            editor.config.youtube_older != null ? editor.config.youtube_older : false,
+                                            editor.config.youtube_older != null
+                                                ? editor.config.youtube_older
+                                                : false,
                                         label: editor.lang.youtube.chkOlderCode,
                                     },
                                 ],
@@ -250,8 +274,15 @@ export const youtube = {
                                             if (this.getValue()) {
                                                 var str = this.getValue()
 
-                                                if (!/^(?:(?:([01]?\d|2[0-3]):)?([0-5]?\d):)?([0-5]?\d)$/i.test(str)) {
-                                                    alert(editor.lang.youtube.invalidTime)
+                                                if (
+                                                    !/^(?:(?:([01]?\d|2[0-3]):)?([0-5]?\d):)?([0-5]?\d)$/i.test(
+                                                        str
+                                                    )
+                                                ) {
+                                                    alert(
+                                                        editor.lang.youtube
+                                                            .invalidTime
+                                                    )
                                                     return false
                                                 }
                                             }
@@ -275,7 +306,12 @@ export const youtube = {
                     var content = ''
                     var responsiveStyle = ''
 
-                    if (this.getContentElement('youtubePlugin', 'txtEmbed').isEnabled()) {
+                    if (
+                        this.getContentElement(
+                            'youtubePlugin',
+                            'txtEmbed'
+                        ).isEnabled()
+                    ) {
                         content = this.getValueOf('youtubePlugin', 'txtEmbed')
                     } else {
                         var url = 'https://',
@@ -285,7 +321,12 @@ export const youtube = {
                         var width = this.getValueOf('youtubePlugin', 'txtWidth')
                         var height = this.getValueOf('youtubePlugin', 'txtHeight')
 
-                        if (this.getContentElement('youtubePlugin', 'chkPrivacy').getValue() === true) {
+                        if (
+                            this.getContentElement(
+                                'youtubePlugin',
+                                'chkPrivacy'
+                            ).getValue() === true
+                        ) {
                             url += 'www.youtube-nocookie.com/'
                         } else {
                             url += 'www.youtube.com/'
@@ -293,16 +334,31 @@ export const youtube = {
 
                         url += 'embed/' + video
 
-                        if (this.getContentElement('youtubePlugin', 'chkRelated').getValue() === false) {
+                        if (
+                            this.getContentElement(
+                                'youtubePlugin',
+                                'chkRelated'
+                            ).getValue() === false
+                        ) {
                             params.push('rel=0')
                         }
 
-                        if (this.getContentElement('youtubePlugin', 'chkAutoplay').getValue() === true) {
+                        if (
+                            this.getContentElement(
+                                'youtubePlugin',
+                                'chkAutoplay'
+                            ).getValue() === true
+                        ) {
                             params.push('autoplay=1')
                             paramAutoplay = 'autoplay'
                         }
 
-                        if (this.getContentElement('youtubePlugin', 'chkControls').getValue() === false) {
+                        if (
+                            this.getContentElement(
+                                'youtubePlugin',
+                                'chkControls'
+                            ).getValue() === false
+                        ) {
                             params.push('controls=0')
                         }
 
@@ -318,13 +374,24 @@ export const youtube = {
                             url = url + '?' + params.join('&')
                         }
 
-                        if (this.getContentElement('youtubePlugin', 'chkResponsive').getValue() === true) {
+                        if (
+                            this.getContentElement(
+                                'youtubePlugin',
+                                'chkResponsive'
+                            ).getValue() === true
+                        ) {
                             content +=
                                 '<div class="youtube-embed-wrapper" style="position:relative;padding-bottom:56.25%;padding-top:30px;height:0;overflow:hidden">'
-                            responsiveStyle = 'style="position:absolute;top:0;left:0;width:100%;height:100%"'
+                            responsiveStyle =
+                                'style="position:absolute;top:0;left:0;width:100%;height:100%"'
                         }
 
-                        if (this.getContentElement('youtubePlugin', 'chkOlderCode').getValue() === true) {
+                        if (
+                            this.getContentElement(
+                                'youtubePlugin',
+                                'chkOlderCode'
+                            ).getValue() === true
+                        ) {
                             url = url.replace('embed/', 'v/')
                             url = url.replace(/&/g, '&amp;')
 
@@ -340,11 +407,24 @@ export const youtube = {
                                     : 'en') +
                                 '&amp;version=3'
 
-                            content += '<object width="' + width + '" height="' + height + '" ' + responsiveStyle + '>'
-                            content += '<param name="movie" value="' + url + '"></param>'
-                            content += '<param name="allowFullScreen" value="true"></param>'
-                            content += '<param name="allowscriptaccess" value="always"></param>'
-                            content += '<embed src="' + url + '" type="application/x-shockwave-flash" '
+                            content +=
+                                '<object width="' +
+                                width +
+                                '" height="' +
+                                height +
+                                '" ' +
+                                responsiveStyle +
+                                '>'
+                            content +=
+                                '<param name="movie" value="' + url + '"></param>'
+                            content +=
+                                '<param name="allowFullScreen" value="true"></param>'
+                            content +=
+                                '<param name="allowscriptaccess" value="always"></param>'
+                            content +=
+                                '<embed src="' +
+                                url +
+                                '" type="application/x-shockwave-flash" '
                             content +=
                                 'width="' +
                                 width +
@@ -355,8 +435,16 @@ export const youtube = {
                                 ' allowscriptaccess="always" '
                             content += 'allowfullscreen="true"></embed>'
                             content += '</object>'
-                        } else if (this.getContentElement('youtubePlugin', 'chkNoEmbed').getValue() === true) {
-                            var imgSrc = 'https://img.youtube.com/vi/' + video + '/sddefault.jpg'
+                        } else if (
+                            this.getContentElement(
+                                'youtubePlugin',
+                                'chkNoEmbed'
+                            ).getValue() === true
+                        ) {
+                            var imgSrc =
+                                'https://img.youtube.com/vi/' +
+                                video +
+                                '/sddefault.jpg'
                             content +=
                                 '<a href="' +
                                 url +
@@ -372,7 +460,9 @@ export const youtube = {
                         } else {
                             content +=
                                 '<iframe ' +
-                                (paramAutoplay ? 'allow="' + paramAutoplay + ';" ' : '') +
+                                (paramAutoplay
+                                    ? 'allow="' + paramAutoplay + ';" '
+                                    : '') +
                                 'width="' +
                                 width +
                                 '" height="' +
@@ -384,7 +474,12 @@ export const youtube = {
                             content += 'frameborder="0" allowfullscreen></iframe>'
                         }
 
-                        if (this.getContentElement('youtubePlugin', 'chkResponsive').getValue() === true) {
+                        if (
+                            this.getContentElement(
+                                'youtubePlugin',
+                                'chkResponsive'
+                            ).getValue() === true
+                        ) {
                             content += '</div>'
                         }
                     }
@@ -430,7 +525,8 @@ function handleEmbedChange(el, api) {
  * @url: http://stackoverflow.com/a/10315969/624466
  */
 function ytVidId(url) {
-    var p = /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/
+    var p =
+        /^(?:https?:\/\/)?(?:www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/
     return url.match(p) ? RegExp.$1 : false
 }
 

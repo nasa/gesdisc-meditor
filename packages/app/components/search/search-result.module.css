@@ -7,7 +7,7 @@
     display: flex;
     align-items: center;
     padding: 10px;
-    transition: background .15s ease-in-out;
+    transition: background 0.15s ease-in-out;
 }
 
 .result:hover > div {
