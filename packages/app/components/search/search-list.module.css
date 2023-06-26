@@ -1,9 +1,8 @@
 .grid {
     display: grid;
-    grid-template-columns: 1fr minmax(130px, 200px) minmax(130px, 200px) minmax(
-            130px,
-            200px
-        ) minmax(65px, 150px);
+    grid-template-columns:
+        1fr minmax(130px, 200px) minmax(130px, 200px) minmax(130px, 200px)
+        minmax(65px, 150px);
     grid-auto-rows: 1fr;
 }
 
