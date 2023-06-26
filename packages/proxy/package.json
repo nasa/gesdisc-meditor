@@ -4,7 +4,8 @@
     "description": "mEditor's NGINX proxy",
     "main": "apiAdapter.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "format": "prettier --write ."
     },
     "author": "",
     "license": "ISC",
