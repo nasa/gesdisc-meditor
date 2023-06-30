@@ -6,7 +6,7 @@ Object {
 
 An action is required to transition the document to one of the [Draft, Approved] states. <p><strong>Latest Comment:</strong></p>",
   "cc": Array [
-    "\\"Eggs User\\" <eggs@mock.nasa.gov>",
+    "\\"Bacon User\\" <bacon@mock.nasa.gov>",
   ],
   "createdOn": "2022-01-01T00:00:00.000Z",
   "link": Object {
@@ -15,7 +15,8 @@ An action is required to transition the document to one of the [Draft, Approved]
   },
   "subject": "FAQs document is now Under Review",
   "to": Array [
-    "\\"Bacon User\\" <bacon@mock.nasa.gov>",
+    "\\"Eggs User\\" <eggs@mock.nasa.gov>",
+    "\\"Hashbrowns User\\" <hashbrowns@mock.nasa.gov>",
   ],
 }
 `;

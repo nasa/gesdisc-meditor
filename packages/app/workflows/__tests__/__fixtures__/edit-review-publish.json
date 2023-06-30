@@ -81,35 +81,40 @@
             "source": "Draft",
             "target": "Under Review",
             "label": "Submit for Review",
-            "notify": true
+            "notify": true,
+            "notifyRoles": "Reviewer"
         },
         {
             "role": "Reviewer",
             "source": "Under Review",
             "target": "Approved",
             "label": "Approve for Publication",
-            "notify": true
+            "notify": true,
+            "notifyRoles": "Publisher"
         },
         {
             "role": "Publisher",
             "source": "Approved",
             "target": "Published",
             "label": "Publish",
-            "notify": true
+            "notify": true,
+            "notifyRoles": "Publisher"
         },
         {
             "role": "Reviewer",
             "source": "Under Review",
             "target": "Draft",
             "label": "Needs more Work",
-            "notify": true
+            "notify": true,
+            "notifyRoles": "Reviewer"
         },
         {
             "role": "Publisher",
             "source": "Approved",
             "target": "Under Review",
             "label": "I don't like it",
-            "notify": true
+            "notify": true,
+            "notifyRoles": "Reviewer"
         }
     ],
     "x-meditor": {
