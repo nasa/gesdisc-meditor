@@ -15,7 +15,7 @@ const widgets = {
     'date-time': DateTimeWidget,
     concatenated: ConcatenatedWidget,
     htmltext: HtmlTextWidget,
-    titletext: TitlePropertyWidget,
+    titleproperty: TitlePropertyWidget,
 }
 
 export default widgets

@@ -11,7 +11,6 @@ function TitlePropertyWidget(props) {
         value,
         onChange,
         onBlur,
-        onFocus,
     } = props
 
     return (
@@ -24,7 +23,9 @@ function TitlePropertyWidget(props) {
             disabled={disabled || readonly}
             autoFocus={autofocus || false}
             value={value}
-            onBlur={onBlur && (event => onBlur(id, event.target.value.trim()))}
+            onBlur={event => {
+                onChange(event.target.value.trim())
+            }}
             onChange={event => onChange(event.target.value)}
         />
     )
