@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 
 export function useDebounce(value, delay) {
     // State and setters for debounced value

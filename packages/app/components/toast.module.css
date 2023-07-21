@@ -11,10 +11,10 @@
 }
 
 .body {
-    background: #43A047;
+    background: #43a047;
     border-radius: 3px;
-    border: 1px solid rgba(0, 0, 0, .1);
-    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, .1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
     margin-left: -50%;
     overflow: visible;
     position: relative;
@@ -22,7 +22,7 @@
 }
 
 .body.error {
-    background: #D32F2F;
+    background: #d32f2f;
 }
 
 .dismissButton {

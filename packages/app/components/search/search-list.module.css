@@ -1,6 +1,8 @@
 .grid {
     display: grid;
-    grid-template-columns: 1fr minmax(130px, 200px) minmax(130px, 200px) minmax(130px, 200px) minmax(65px, 150px);
+    grid-template-columns:
+        1fr minmax(130px, 200px) minmax(130px, 200px) minmax(130px, 200px)
+        minmax(65px, 150px);
     grid-auto-rows: 1fr;
 }
 
@@ -11,12 +13,12 @@
 
 .sort-asc {
     transform: rotate(180deg);
-    transition: transform .15s ease-in-out;
+    transition: transform 0.15s ease-in-out;
 }
 
 .sort-desc {
     transform: rotate(0deg);
-    transition: transform .15s ease-in-out;
+    transition: transform 0.15s ease-in-out;
 }
 
 .grid > div {
