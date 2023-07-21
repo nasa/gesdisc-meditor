@@ -11,6 +11,7 @@ jobs:
       contents: write
 
     strategy:
+      max-parallel: 1
       matrix:
         directory: ["packages/app", "packages/docs", "packages/proxy"]
 
