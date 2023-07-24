@@ -1,4 +1,4 @@
-name: Continuous Integration
+name: Run Unit Tests
 
 # This action works with pull requests and pushes to branches other than main
 on:
