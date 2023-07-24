@@ -3,9 +3,6 @@ name: Continuous Integration
 # This action works with pull requests and pushes to branches other than main
 on:
   pull_request:
-  push:
-    branches-ignore:
-      - main
 
 jobs:
   app-jest:
