@@ -3,7 +3,7 @@ import { clearEmpties } from '../object'
 describe('clearEmpties', () => {
     test('modifies related documents when a Model is edited', async () => {
         const testObject = {
-            foo: 'bar',
+            foo: 'baz',
             bacon: [
                 'eggs',
                 undefined,
