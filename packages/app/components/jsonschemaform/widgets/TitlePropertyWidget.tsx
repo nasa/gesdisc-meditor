@@ -25,6 +25,7 @@ function TitlePropertyWidget(props) {
             value={value}
             onBlur={event => {
                 onChange(event.target.value.trim())
+                onBlur(id, event.target.value)
             }}
             onChange={event => onChange(event.target.value)}
         />
