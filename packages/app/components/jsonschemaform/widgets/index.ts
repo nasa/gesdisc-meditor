@@ -5,6 +5,7 @@ import MultiSelectWidget from './MultiSelectWidget'
 import DateTimeWidget from './DateTimeWidget'
 import ConcatenatedWidget from './ConcatenatedWidget'
 import HtmlTextWidget from './HtmlTextWidget'
+import TitlePropertyWidget from './TitlePropertyWidget'
 
 const widgets = {
     ckeditor: CKEditorWidget,
@@ -14,6 +15,7 @@ const widgets = {
     'date-time': DateTimeWidget,
     concatenated: ConcatenatedWidget,
     htmltext: HtmlTextWidget,
+    titleproperty: TitlePropertyWidget,
 }
 
 export default widgets
