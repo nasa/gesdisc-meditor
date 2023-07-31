@@ -1,31 +1,29 @@
 import compile from 'monquery'
+import type { Model } from './types'
+import type { ErrorData } from '../declarations'
+import { searchModelsDb } from './db'
+import log from '../lib/log'
 
-export function searchWithMonquery(searchQuery: string) {
+/**this searvice takes lucene query string and converts it to mongoDB query*/
+
+export function searchwithMonquery(searchQuery) {
     let search = compile(searchQuery)
-    switch (search.type) {
-        case 'field':
-            var obj = {}
-            var val
 
-            if (search.cmp) {
-                var op = '$' + search.cmp
-                val = {}
-                val[op] = search.value
-            } else {
-                val = search.value
-            }
-
-            obj[search.name] = val
-            return obj
-
-        case 'op':
-            var obj = {}
-            var op = '$' + search.op
-
-            obj[op] = [compile(search.left), compile(search.right)]
-
-            return obj
-    }
+    return search
 }
 
-export default searchWithMonquery
+/*this function throws an error if there is a model users and workflows. since we do not want this models to be searched.*/
+export async function getModel(modelName: string): Promise<ErrorData<Model>> {
+    try {
+        const [modelError, model] = await getModel(modelName)
+
+        if (model.name.includes('Users' || 'Workflows')) {
+            throw modelError
+        }
+
+        return [null, model]
+    } catch (error) {
+        log.error(error)
+        return [error, null]
+    }
+}
