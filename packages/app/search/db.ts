@@ -1,7 +1,7 @@
 import type { Db } from 'mongodb'
 import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
-import type { Model } from './types'
-import type { DocumentsSearchOptions } from './types'
+import type { Model } from '../models/types'
+import type { DocumentsSearchOptions } from '../models/types'
 import { searchwithMonquery } from './service'
 
 export const MODELS_COLLECTION = 'Models'

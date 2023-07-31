@@ -1,5 +1,5 @@
 import compile from 'monquery'
-import type { Model } from './types'
+import type { Model } from '../models/types'
 import type { ErrorData } from '../declarations'
 import { searchModelsDb } from './db'
 import log from '../lib/log'
