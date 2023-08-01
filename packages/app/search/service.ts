@@ -1,27 +1,23 @@
 import compile from 'monquery'
 import type { Model } from '../models/types'
 import type { ErrorData } from '../declarations'
-import { searchModelsDb } from './db'
 import log from '../lib/log'
+import { ErrorCode, HttpException } from '../utils/errors'
 
 /**this searvice takes lucene query string and converts it to mongoDB query*/
 
-export function searchwithMonquery(searchQuery) {
-    let search = compile(searchQuery)
-
-    return search
-}
-
-/*this function throws an error if there is a model users and workflows. since we do not want this models to be searched.*/
-export async function getModel(modelName: string): Promise<ErrorData<Model>> {
+export function searchwithMonquery(searchQuery: string) {
     try {
-        const [modelError, model] = await getModel(modelName)
-
-        if (model.name.includes('Users' || 'Workflows')) {
-            throw modelError
+        if (!searchQuery) {
+            throw new HttpException(
+                ErrorCode.BadRequest,
+                'Search query should be in correctly typed'
+            )
         }
 
-        return [null, model]
+        let search = compile(searchQuery)
+
+        return search
     } catch (error) {
         log.error(error)
         return [error, null]
