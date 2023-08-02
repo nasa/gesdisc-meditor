@@ -23,6 +23,8 @@ tags:
       x-displayName: History
     - name: publications
       x-displayName: Publications
+    - name: search
+      x-displayName: Search
 paths:
     /models:
         get:
@@ -525,6 +527,52 @@ paths:
                   required: true
                   schema:
                       type: string
+            responses:
+                '200':
+                    description: OK
+                '400':
+                    description: Bad Request
+                '500':
+                    description: Internal Server Error
+    /models/{modelName}/search:
+        get:
+            tags:
+                - search
+            summary: search documents
+            description: Search a model for documents using Lucene sytnax.
+            operationId: search
+            parameters:
+                - name: modelName
+                  in: path
+                  description: name of model
+                  required: true
+                  schema:
+                      type: string
+                - name: query
+                  in: query
+                  description: the Lucene query to run
+                  required: true
+                  schema:
+                      type: string
+                - name: format
+                  in: query
+                  description: the format of your search results
+                  required: false
+                  schema:
+                      enum: ['CSV', 'csv', 'JSON', 'json']
+                      type: string
+                - name: resultsPerPage
+                  in: query
+                  description: how many results per page you would like to view (defaults to 10)
+                  required: false
+                  schema:
+                      type: number
+                - name: pageNumber
+                  in: query
+                  description: the page number you wish to view (defaults to 1)
+                  required: false
+                  schema:
+                      type: number
             responses:
                 '200':
                     description: OK
