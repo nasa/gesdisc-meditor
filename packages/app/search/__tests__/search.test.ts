@@ -1,5 +1,3 @@
-import getDb from '../../lib/mongodb'
-import type { Db } from 'mongodb'
 import { searchwithMonquery } from '../service'
 
 describe('fields', function () {

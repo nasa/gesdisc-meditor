@@ -1,6 +1,4 @@
 import compile from 'monquery'
-import type { Model } from '../models/types'
-import type { ErrorData } from '../declarations'
 import log from '../lib/log'
 import { ErrorCode, HttpException } from '../utils/errors'
 
