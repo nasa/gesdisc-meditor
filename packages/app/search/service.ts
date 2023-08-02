@@ -4,14 +4,14 @@ import type { ErrorData } from '../declarations'
 import log from '../lib/log'
 import { ErrorCode, HttpException } from '../utils/errors'
 
-/**this searvice takes lucene query string and converts it to mongoDB query*/
+/**this searvice takes lucene query string and converts it to mongoDB query also throws an error if search query is mistyped*/
 
-export function searchwithMonquery(searchQuery: string) {
+export function searchwithMonquery(searchQuery) {
     try {
         if (!searchQuery) {
             throw new HttpException(
                 ErrorCode.BadRequest,
-                'Search query should be in correctly typed'
+                'Search query should be typed correctly'
             )
         }
 
