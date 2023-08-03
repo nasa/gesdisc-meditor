@@ -1,4 +1,5 @@
 import { getLoggedInUser } from 'auth/user'
+import { parameterWithInflection } from 'lib/grammar'
 import { userCanAccessModel } from 'models/service'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { searchInputApiSchema } from 'search/schema'
@@ -59,9 +60,9 @@ function formatZodError(error: ZodError) {
         //* We want spaces between errors but not for the last error.
         const maybeSpace = index + 1 === self.length ? '' : ' '
 
-        accumulator += `For query parameter ${current.path.toString()}: ${
-            current.message
-        }.${maybeSpace}`
+        accumulator += `For query ${parameterWithInflection(
+            current.path.length
+        )} ${current.path.toString()}: ${current.message}.${maybeSpace}`
 
         return accumulator
     }, ``)
