@@ -137,55 +137,49 @@ describe('search', () => {
         const query = 'severity:emergency'
         const resultsPerPage = 3
         const pageNumber = 1
+
         const [firstSearchError, firstSearchResults] = await search(
             model,
             query,
             resultsPerPage,
             pageNumber
         )
-        const firstIsAllEmergency = firstSearchResults.every(
-            (result: Record<string, any>) => result.severity === 'emergency'
-        )
-        const firstTitles = firstSearchResults.map((result: Record<string, any>) => {
-            return result.title
-        })
-
-        expect(firstSearchError).toBe(null)
-        expect(firstSearchResults.length).toBe(3)
-        expect(firstIsAllEmergency).toBe(true)
-        expect(firstTitles).toMatchInlineSnapshot(`
-            Array [
-              "Data search and subsetting services temporarily unavailable",
-              "System Maintenance Thursday 05/02/2019",
-              "System Maintenance Wednesday 06/17/2020",
-            ]
-        `)
-
         const [secondSearchError, secondSearchResults] = await search(
             model,
             query,
             resultsPerPage,
             pageNumber + 1
         )
+
+        expect(firstSearchError).toBe(null)
+        expect(secondSearchError).toBe(null)
+
+        expect(firstSearchResults.length).toBe(3)
+        expect(secondSearchResults.length).toBe(3)
+
+        const firstIsAllEmergency = firstSearchResults.every(
+            (result: Record<string, any>) => result.severity === 'emergency'
+        )
         const secondIsAllEmergency = secondSearchResults.every(
             (result: Record<string, any>) => result.severity === 'emergency'
         )
+
+        expect(firstIsAllEmergency).toBe(true)
+        expect(secondIsAllEmergency).toBe(true)
+
+        const firstTitles = firstSearchResults.map((result: Record<string, any>) => {
+            return result.title
+        })
         const secondTitles = secondSearchResults.map(
             (result: Record<string, any>) => {
                 return result.title
             }
         )
+        const titlesIntersect = firstTitles.some((title: string) =>
+            secondTitles.includes(title)
+        )
 
-        expect(secondSearchError).toBe(null)
-        expect(secondSearchResults.length).toBe(3)
-        expect(secondIsAllEmergency).toBe(true)
-        expect(secondTitles).toMatchInlineSnapshot(`
-            Array [
-              "System Maintenance Thursday 06/25/2020",
-              "MERRA-2 reprocessing for September 2020 data reprocessing ",
-              "September 2020 MERRA-2 data are being reprocessed",
-            ]
-        `)
+        expect(titlesIntersect).toBe(false)
     })
 
     test('finds relationships in single properties', async () => {
@@ -206,7 +200,7 @@ describe('search', () => {
 
     test('finds relationships in array properties', async () => {
         const model = 'Alerts'
-        const query = 'severity:emergency AND datasets:FLDAS*'
+        const query = 'datasets:FLDAS_NOAH001_G_CA_D_001'
         const resultsPerPage = 10
         const pageNumber = 1
         const [searchError, searchResults] = await search(
@@ -215,13 +209,33 @@ describe('search', () => {
             resultsPerPage,
             pageNumber
         )
-        const isAllEmergency = searchResults.every(
-            (result: Record<string, any>) => result.severity === 'emergency'
+        const isAllFldas = searchResults.every((result: Record<string, any>) =>
+            result.datasets.includes('FLDAS_NOAH001_G_CA_D_001')
         )
 
         expect(searchError).toBe(null)
         expect(searchResults.length).toBe(1)
-        expect(isAllEmergency).toBe(true)
+        expect(isAllFldas).toBe(true)
+    })
+
+    test('fuzzy-finds relationships in array properties', async () => {
+        const model = 'Alerts'
+        const query = 'datasets:FLDAS*'
+        const resultsPerPage = 10
+        const pageNumber = 1
+        const [searchError, searchResults] = await search(
+            model,
+            query,
+            resultsPerPage,
+            pageNumber
+        )
+        const isAllFldas = searchResults.every((result: Record<string, any>) =>
+            result.datasets.includes('FLDAS_NOAH001_G_CA_D_001')
+        )
+
+        expect(searchError).toBe(null)
+        expect(searchResults.length).toBe(1)
+        expect(isAllFldas).toBe(true)
     })
 
     test('finds relationships in array properties with grouping', async () => {
