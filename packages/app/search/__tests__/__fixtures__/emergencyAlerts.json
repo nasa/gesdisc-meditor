@@ -127,15 +127,7 @@
             "model": "Alerts",
             "modifiedOn": "2020-10-30T16:26:20.098Z",
             "modifiedBy": "shen5088",
-            "states": [
-                { "source": "Init", "target": "Draft", "modifiedOn": null },
-                {
-                    "source": "Draft",
-                    "target": "Deleted",
-                    "modifiedOn": "2020-10-30T16:35:32.381Z",
-                    "modifiedBy": "shen5088"
-                }
-            ],
+            "states": [{ "source": "Init", "target": "Draft", "modifiedOn": null }],
             "publishedTo": [
                 {
                     "url": "https://uui-test.gesdisc.eosdis.nasa.gov/information/alerts?title=MERRA-2%20September%202020%20data%20reprocessing%20",
@@ -144,9 +136,7 @@
                     "statusCode": 200,
                     "publishedOn": 1604075732797
                 }
-            ],
-            "deletedBy": "shen5088",
-            "deletedOn": "2020-10-30T16:35:32.494Z"
+            ]
         }
     },
     {
@@ -264,15 +254,7 @@
             "model": "Alerts",
             "modifiedOn": "2020-10-30T16:26:59.727Z",
             "modifiedBy": "shen5088",
-            "states": [
-                { "source": "Init", "target": "Draft", "modifiedOn": null },
-                {
-                    "source": "Draft",
-                    "target": "Deleted",
-                    "modifiedOn": "2020-10-30T16:36:42.119Z",
-                    "modifiedBy": "shen5088"
-                }
-            ],
+            "states": [{ "source": "Init", "target": "Draft", "modifiedOn": null }],
             "publishedTo": [
                 {
                     "url": "https://uui-test.gesdisc.eosdis.nasa.gov/information/alerts?title=MERRA-2%20reprocessing%20for%20September%202020%20data%20reprocessing%20",
@@ -281,9 +263,7 @@
                     "statusCode": 200,
                     "publishedOn": 1604075802498
                 }
-            ],
-            "deletedBy": "shen5088",
-            "deletedOn": "2020-10-30T16:36:42.231Z"
+            ]
         }
     },
     {
@@ -310,12 +290,6 @@
                     "target": "Hidden",
                     "modifiedOn": "2020-12-03T16:21:01.395Z",
                     "modifiedBy": "lena.iredell"
-                },
-                {
-                    "source": "Hidden",
-                    "target": "Deleted",
-                    "modifiedOn": "2020-12-03T16:21:30.937Z",
-                    "modifiedBy": "lena.iredell"
                 }
             ],
             "publishedTo": [
@@ -326,9 +300,7 @@
                     "statusCode": 200,
                     "publishedOn": 1607012491325
                 }
-            ],
-            "deletedBy": "lena.iredell",
-            "deletedOn": "2020-12-03T16:21:31.053Z"
+            ]
         }
     },
     {
@@ -664,6 +636,52 @@
                     "publishedOn": 1675373002038
                 }
             ]
+        }
+    },
+
+    {
+        "_id": "5fc91d1cfa2bf1032a365c7d",
+        "severity": "emergency",
+        "title": "Deleted Fixture",
+        "body": "<p>AIRS processing for both forward and Near-Real-Time streams had been suspended due to an issue with the dataset used to calculate solar azimuth and zenith angles in the AIRS and AMSU L1A geolocation processing. The issue has been resolved and processing began again. Data prior to December 1, 2020 were unaffected.</p>\n",
+        "start": "2020-12-03 12:00:00-05:00",
+        "expiration": "2020-12-11 12:00:00-05:00",
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2020-12-03T16:19:40.254Z",
+            "modifiedBy": "lena.iredell",
+            "states": [
+                { "source": "Init", "target": "Draft", "modifiedOn": null },
+                {
+                    "source": "Draft",
+                    "target": "Published",
+                    "modifiedOn": "2020-12-03T16:19:43.910Z",
+                    "modifiedBy": "lena.iredell"
+                },
+                {
+                    "source": "Published",
+                    "target": "Hidden",
+                    "modifiedOn": "2020-12-03T16:21:01.395Z",
+                    "modifiedBy": "lena.iredell"
+                },
+                {
+                    "source": "Hidden",
+                    "target": "Deleted",
+                    "modifiedOn": "2020-12-03T16:21:30.937Z",
+                    "modifiedBy": "lena.iredell"
+                }
+            ],
+            "publishedTo": [
+                {
+                    "url": "https://uui-test.gesdisc.eosdis.nasa.gov/information/alerts?title=AIRS%20processing%20resumes",
+                    "message": "Document was successfully removed from UUI-Test",
+                    "target": "uui",
+                    "statusCode": 200,
+                    "publishedOn": 1607012491325
+                }
+            ],
+            "deletedBy": "fixture.user",
+            "deletedOn": "2020-12-03T16:21:31.053Z"
         }
     }
 ]

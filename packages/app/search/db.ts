@@ -24,17 +24,23 @@ class searchDb {
     ): Promise<any> {
         //* The pipeline order matters: we have to sort and group by titleProperty first so that we're not matching old documents.
         const pipeline = [
+            // Do not match items that have been deleted.
+            {
+                $match: {
+                    'x-meditor.deletedOn': { $exists: false },
+                },
+            },
             // Sort descending by version (date).
             { $sort: { 'x-meditor.modifiedOn': -1 } },
             // Grab all fields in the most recent version.
             { $group: { _id: `$${titleProperty}`, doc: { $first: '$$ROOT' } } },
             // Put all fields of the most recent doc back into root of the document.
             { $replaceRoot: { newRoot: '$doc' } },
-            // compile Lucene syntax into MQL
+            // Compile Lucene syntax into MQL.
             { $match: this.compileQuery(query) },
-            // use a 1-based pageNumber for readability, but operate on a 0-based index
+            // Use a 1-based pageNumber for readability, but operate on a 0-based index.
             { $skip: resultsPerPage * (pageNumber - 1) },
-            // limit our results to the correct number
+            // Limit our results to the correct number.
             { $limit: resultsPerPage },
         ]
         const searchResults = await this.#db

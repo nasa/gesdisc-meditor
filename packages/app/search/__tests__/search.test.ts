@@ -257,4 +257,21 @@ describe('search', () => {
         expect(searchResults.length).toBe(2)
         expect(isAllEmergency).toBe(true)
     })
+
+    test('does not return soft-deleted results', async () => {
+        const model = 'Alerts'
+        const query = 'title:"Deleted Fixture"'
+        const resultsPerPage = 10
+        const pageNumber = 1
+        const [searchError, searchResults] = await search(
+            model,
+            query,
+            resultsPerPage,
+            pageNumber
+        )
+
+        expect(searchError).toBe(null)
+        expect(searchResults.length).toBe(0)
+        expect(searchResults).toStrictEqual([])
+    })
 })

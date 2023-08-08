@@ -51,6 +51,7 @@ async function respondAsCsv(
     // see https://juanjodiaz.github.io/json2csv/#/advanced-options/formatters if this is a requested feature
     // }
 
+    response.setHeader('Content-Type', 'text/csv')
     // a normal response is CSV with the HTTP status code
     return response
         .status(options.httpStatusCode)
