@@ -1,4 +1,7 @@
+import type { ErrorData } from 'declarations'
 import type { NextApiResponse } from 'next'
+import type { ZodError, ZodSchema } from 'zod'
+import { parameterWithInflection } from '../lib/grammar'
 
 export enum ErrorCode {
     NotFound = 'NotFound',
@@ -68,9 +71,18 @@ export class HttpException extends Error {
  * converts errors to a JSON api response
  * To prevent leaking implementation details to an end-user, if the error isn't an instance of HttpException, only return a generic error.
  */
-export function apiError(error: Error | HttpException, response: NextApiResponse) {
-    const safeError = error.cause
-        ? (error as HttpException)
+export function apiError(
+    error: Error | HttpException | ZodError,
+    response: NextApiResponse
+) {
+    let interstitialError = error
+
+    if (error.name === 'ZodError') {
+        interstitialError = formatZodError(error as ZodError)
+    }
+
+    const safeError = interstitialError.cause
+        ? (interstitialError as HttpException)
         : new HttpException(ErrorCode.InternalServerError, 'Internal Server Error')
 
     return response.status(safeError.cause.status).json({
@@ -96,4 +108,31 @@ export function errorMatchesErrorCode(
  */
 export function isNotFoundError(error?: Error | HttpException) {
     return errorMatchesErrorCode(error, ErrorCode.NotFound)
+}
+
+export function parseZodAsErrorData<T>(schema: ZodSchema, input: any): ErrorData<T> {
+    try {
+        const data = schema.parse(input)
+
+        return [null, data]
+    } catch (error) {
+        return [error, null]
+    }
+}
+
+function formatZodError(error: ZodError) {
+    const errorString = error.issues.reduce((accumulator, current, index, self) => {
+        //* We want spaces between errors but not for the last error.
+        const maybeSpace = index + 1 === self.length ? '' : ' '
+
+        accumulator += `For query ${parameterWithInflection(
+            current.path.length
+        )} ${current.path.toString()}: ${current.message}.${maybeSpace}`
+
+        return accumulator
+    }, ``)
+
+    return Error(errorString, {
+        cause: { status: 400 },
+    })
 }

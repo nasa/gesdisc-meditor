@@ -14,6 +14,7 @@
     },
     "dependencies": {
         "@gesdisc/meditor-components": "^1.0.9",
+        "@json2csv/node": "^7.0.1",
         "@rjsf/core": "^4.2.0",
         "@yaireo/tagify": "3.8.0",
         "bootstrap": "^4.5.0",
@@ -60,7 +61,7 @@
         "shortid": "^2.2.16",
         "use-immer": "^0.8.1",
         "uuid": "^8.2.0",
-        "zod": "^3.19.1"
+        "zod": "^3.21.4"
     },
     "devDependencies": {
         "@gesdisc/prettier-config": "^1.0.1",

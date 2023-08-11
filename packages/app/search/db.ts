@@ -1,11 +1,6 @@
 import type { Db } from 'mongodb'
+import compile from 'monquery'
 import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
-import type { Model } from '../models/types'
-import type { DocumentsSearchOptions } from '../models/types'
-import { searchwithMonquery } from './service'
-
-export const MODELS_COLLECTION = 'Models'
-export const MODELS_TITLE_PROPERTY = 'name'
 
 class searchDb {
     #db: Db
@@ -16,87 +11,53 @@ class searchDb {
         }
     }
 
-    /* *  This function go to database and return a query with results.*/
-    async searchQuery(query: string): Promise<Model> {
-        const searchResults = await this.#db
-            .collection(MODELS_COLLECTION)
-            .find({ query })
-            .sort({ 'x-meditor.modifiedOn': -1 })
-            .limit(1)
-            .toArray()
-
-        return searchwithMonquery(searchResults)[0]
+    compileQuery(query: string) {
+        return compile(query)
     }
 
-    /* *  This function do search for specific model*/
-    async searchModel(modelName: string): Promise<Model> {
-        const models = await this.#db
-            .collection(MODELS_COLLECTION)
-            .find({ [MODELS_TITLE_PROPERTY]: modelName })
-            .sort({ 'x-meditor.modifiedOn': -1 })
-            .limit(1)
-            .toArray()
-
-        return makeSafeObjectIDs(models)[0]
-    }
-
-    async searchModels(): Promise<Model[]> {
-        const models = await this.#db
-            .collection(MODELS_COLLECTION)
-            .aggregate(
-                [
-                    { $sort: { 'x-meditor.modifiedOn': -1 } }, // Sort descending by version (date)
-                    { $group: { _id: '$name', doc: { $first: '$$ROOT' } } }, // Grab all fields in the most recent version
-                    { $replaceRoot: { newRoot: '$doc' } }, // Put all fields of the most recent doc back into root of the document
-                ],
-                { allowDiskUse: true }
-            )
-            .toArray()
-
-        return makeSafeObjectIDs(models)
-    }
-
-    async searchDocumentsForModel(
+    async search(
         modelName: string,
-        searchOptions: DocumentsSearchOptions,
-        titleProperty: string
-    ): Promise<Document[]> {
+        titleProperty: string,
+        query: string,
+        resultsPerPage: number,
+        pageNumber: number
+    ): Promise<any> {
+        //* The pipeline order matters: we have to sort and group by titleProperty first so that we're not matching old documents.
         const pipeline = [
-            // filter out deleted documents
+            // Do not match items that have been deleted.
             {
                 $match: {
                     'x-meditor.deletedOn': { $exists: false },
                 },
             },
+            // Sort descending by version (date).
+            { $sort: { 'x-meditor.modifiedOn': -1 } },
+            // Grab all fields in the most recent version.
+            { $group: { _id: `$${titleProperty}`, doc: { $first: '$$ROOT' } } },
+            // Put all fields of the most recent doc back into root of the document.
+            { $replaceRoot: { newRoot: '$doc' } },
+            // Compile Lucene syntax into MQL.
+            { $match: this.compileQuery(query) },
+            // Use a 1-based pageNumber for readability, but operate on a 0-based index.
+            { $skip: resultsPerPage * (pageNumber - 1) },
+            // Limit our results to the correct number.
+            { $limit: resultsPerPage },
         ]
-
-        // if the user is searching the documents, we'll convert their query to the mongo equivalent
-        if (searchOptions?.filter) {
-            try {
-                // add another match to query for the user's filter
-                pipeline.push({
-                    $match: searchwithMonquery(searchOptions.filter),
-                })
-            } catch (err) {
-                console.error('Improperly formatted filter', err)
-            }
-        }
-
-        let documents = await this.#db
+        const searchResults = await this.#db
             .collection(modelName)
             .aggregate(pipeline, { allowDiskUse: true })
             .toArray()
 
-        return makeSafeObjectIDs(documents)
+        return makeSafeObjectIDs(searchResults)
     }
 }
 
 const db = new searchDb()
 
-async function searchModelsDb() {
+async function getSearchDb() {
     await db.connect(getDb)
 
     return db
 }
 
-export { searchModelsDb }
+export { getSearchDb }

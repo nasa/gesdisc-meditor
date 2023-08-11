@@ -1,0 +1,687 @@
+[
+    {
+        "_id": "5c50b3fa044b4bc1513df96f",
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2019-01-29T20:13:46.373Z",
+            "modifiedBy": "mpetrenk",
+            "states": [
+                {
+                    "source": "Init",
+                    "target": "Draft",
+                    "modifiedOn": "2019-01-29T20:13:46.373Z"
+                }
+            ],
+            "publishedTo": [
+                {
+                    "target": "GES DISC Web site (Test)",
+                    "link": "https://dev.gesdisc.eosdis.nasa.gov/uui/information/alerts?title=Data%20search%20and%20subsetting%20services%20temporarily%20unavailable",
+                    "publishedOn": "2020-01-28T20:09:18.064Z"
+                },
+                {
+                    "target": "GES DISC Web site (Test)",
+                    "link": "https://uui-test.gesdisc.eosdis.nasa.gov/information/alerts?title=Data%20search%20and%20subsetting%20services%20temporarily%20unavailable",
+                    "publishedOn": "2020-01-28T20:36:23.686Z"
+                }
+            ]
+        },
+        "title": "Data search and subsetting services temporarily unavailable",
+        "body": "<p>We are experiencing&nbsp;temporary problems with our data search capabilities. Data search and data subsetting services may be temporary unavailable or return 0 search results.</p>\n",
+        "expiration": "2019-01-30T05:00:00.000Z",
+        "start": "2018-06-05T04:00:00.000Z",
+        "severity": "emergency",
+        "tags": [],
+        "datasets": []
+    },
+    {
+        "_id": "5fc910a2fa2bf1002a355c7f",
+        "severity": "emergency",
+        "title": "AIRS processing resumes ",
+        "start": "2020-12-01 12:00:00-05:00",
+        "expiration": "2020-12-11 12:00:00-05:00",
+        "body": "<div style=\"box-sizing: border-box; font-family: &quot;Segoe UI&quot;, system-ui, &quot;Apple Color Emoji&quot;, &quot;Segoe UI Emoji&quot;, sans-serif; font-size: 17.5px; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: 400; letter-spacing: normal; orphans: 2; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px;\">AIRS processing for both forward and Near-Real-Time streams had been suspended due to an issue with the dataset used to calculate solar azimuth and zenith angles in the AIRS and AMSU L1A geolocation processing. The issue has been resolved and processing began again. Data prior to December 1, 2020 were unaffected.</div>\n",
+        "datasets": [
+            "AIRS2RET_006",
+            "AIRS3SPM_7.0",
+            "AIRS3ST8_006",
+            "AIRS2SPC_005",
+            "AIRS2CCF_NRT_006",
+            "AIRSAC3MNH3_3",
+            "AIRS3SPD_7.0",
+            "AIRS3SPM_006",
+            "AIRS2RET_7.0",
+            "AIRS2CCF_NRT_7.0",
+            "AIRS3SPD_006",
+            "AIRS2SUP_NRT_006",
+            "AIRS2CCF_006",
+            "AIRS2SUP_7.0",
+            "AIRS2SUP_NRT_7.0",
+            "AIRS2SUP_006",
+            "AIRS2CCF_7.0",
+            "AIRS2RET_NRT_7.0",
+            "AIRS3QP5_006",
+            "AIRS2RET_NRT_006",
+            "AIRSIL3MSOLR_6.1",
+            "AIRS2STC_005",
+            "AIRS3STD_7.0",
+            "AIRS3QPM_006",
+            "AIRS3STM_7.0",
+            "AIRS3SP8_006",
+            "AIRS3STD_006",
+            "AIRS3STM_006"
+        ],
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2020-12-03T16:21:54.696Z",
+            "modifiedBy": "lena.iredell",
+            "states": [
+                { "source": "Init", "target": "Draft", "modifiedOn": null },
+                {
+                    "source": "Draft",
+                    "target": "Published",
+                    "modifiedOn": "2020-12-03T16:21:58.808Z",
+                    "modifiedBy": "lena.iredell"
+                },
+                {
+                    "source": "Published",
+                    "target": "Hidden",
+                    "modifiedOn": "2020-12-08T16:30:59.551Z",
+                    "modifiedBy": "lena.iredell"
+                }
+            ],
+            "publishedTo": [
+                {
+                    "url": "https://disc.gsfc.nasa.gov/information/alerts?title=AIRS%20processing%20resumes%20",
+                    "message": "Document was successfully removed from UUI-OPS",
+                    "target": "uui",
+                    "statusCode": 200,
+                    "publishedOn": 1607445059876
+                }
+            ]
+        }
+    },
+    {
+        "_id": "5eea48536f5008001fbc5cd4",
+        "severity": "emergency",
+        "title": "System Maintenance Wednesday 06/17/2020",
+        "start": "2020-06-16 12:00:00-04:00",
+        "expiration": "2020-06-17 13:00:00-04:00",
+        "body": "<p>System maintenance will be performed Wednesday 06/17 beginning at 10:30am&nbsp;EDT and is expected to last through 11pm or longer. Users may experience problems when ordering data, searching for data files, and logging in. Thank you for your patience.&nbsp;</p>\n",
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2020-06-17T16:44:03.728Z",
+            "modifiedBy": "aritrivi",
+            "states": [{ "source": "Init", "target": "Draft", "modifiedOn": null }],
+            "publishedTo": [{}]
+        }
+    },
+    {
+        "_id": "5f9c3eac838d73002a140a13",
+        "severity": "emergency",
+        "title": "MERRA-2 September 2020 data reprocessing ",
+        "start": "2020-10-30 12:00:00-04:00",
+        "expiration": "2020-11-30 12:00:00-05:00",
+        "body": "<p>The MERRA-2 September 2020 data (released on October 20 2020) have&nbsp;been blocked temporally as an issue has been found.&nbsp; The MERRA-2 science team is&nbsp;reprocessing the data which&nbsp;will be republished later.&nbsp;&nbsp; &nbsp;</p>\n\n<p>If you have downloaded the data, please check September 2020 data file,&nbsp; the problem file is the one that&nbsp; the global attribute &ldquo;ProductionDateTime&quot; is&nbsp; before Oct 20 2020.&nbsp;&nbsp;</p>\n",
+        "tags": ["MERRA-2"],
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2020-10-30T16:26:20.098Z",
+            "modifiedBy": "shen5088",
+            "states": [{ "source": "Init", "target": "Draft", "modifiedOn": null }],
+            "publishedTo": [
+                {
+                    "url": "https://uui-test.gesdisc.eosdis.nasa.gov/information/alerts?title=MERRA-2%20September%202020%20data%20reprocessing%20",
+                    "message": "Document was successfully removed from UUI-Test",
+                    "target": "uui",
+                    "statusCode": 200,
+                    "publishedOn": 1604075732797
+                }
+            ]
+        }
+    },
+    {
+        "_id": "5ccc485352cdd976e520bdff",
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2019-05-03T13:55:31.159Z",
+            "modifiedBy": "mpetrenk",
+            "states": [
+                {
+                    "source": "Init",
+                    "target": "Draft",
+                    "modifiedOn": "2019-05-03T13:55:31.159Z"
+                }
+            ],
+            "publishedTo": [
+                {
+                    "target": "GES DISC Web site (Test)",
+                    "link": "https://dev.gesdisc.eosdis.nasa.gov/uui/information/alerts?title=System%20Maintenance%20Thursday%2005%2F02%2F2019",
+                    "publishedOn": "2020-01-28T20:09:18.452Z"
+                },
+                {
+                    "target": "GES DISC Web site (Test)",
+                    "link": "https://uui-test.gesdisc.eosdis.nasa.gov/information/alerts?title=System%20Maintenance%20Thursday%2005%2F02%2F2019",
+                    "publishedOn": "2020-01-28T20:36:24.060Z"
+                }
+            ]
+        },
+        "title": "System Maintenance Thursday 05/02/2019",
+        "body": "<p>System maintenance will be performed Thursday 05/02&nbsp;beginning at 5pm&nbsp;EDT and is expected to last through 11pm or longer. Users may experience problems when ordering data, searching for data files, and logging in. Thank you for your patience.&nbsp;</p>\n",
+        "expiration": "2019-05-03T04:00:00.000Z",
+        "start": "2019-05-01T04:00:00.000Z",
+        "severity": "emergency",
+        "tags": [],
+        "datasets": []
+    },
+    {
+        "_id": "5ef4b86b4cab6d001ff6812c",
+        "severity": "emergency",
+        "body": "<p>System maintenance is being performed Thursday 06/25/20 beginning at 10:30am&nbsp;EDT through the end of the day.&nbsp; Users may experience outages to Data Set Landing pages. Thank you for your patience.&nbsp;</p>\n",
+        "title": "System Maintenance Thursday 06/25/2020",
+        "start": "2020-06-25 12:00:00-04:00",
+        "expiration": "2020-06-26 12:00:00-04:00",
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2020-06-25T14:44:59.691Z",
+            "modifiedBy": "jmalfred",
+            "states": [
+                { "source": "Init", "target": "Draft", "modifiedOn": null },
+                {
+                    "source": "Draft",
+                    "target": "Published",
+                    "modifiedOn": "2020-06-25T14:45:16.423Z",
+                    "modifiedBy": "jmalfred"
+                }
+            ],
+            "publishedTo": [
+                {
+                    "url": "https://disc.gsfc.nasa.gov/information/alerts?title=System%20Maintenance%20Thursday%2006%2F25%2F2020",
+                    "message": "Document was sucessfully published to UUI-OPS",
+                    "target": "uui",
+                    "statusCode": 200,
+                    "publishedOn": 1593096317040
+                }
+            ]
+        }
+    },
+    {
+        "_id": "5fa04e4f838d73002a140a20",
+        "severity": "emergency",
+        "title": "September 2020 MERRA-2 data are being reprocessed",
+        "start": "2020-11-02 13:20:00-05:00",
+        "expiration": "2020-11-12 09:00:00-05:00",
+        "body": "<p>An issue has been found with September 2020 MERRA-2 data that had been released on October 20, 2020, so data from that period will not be available until it has been reprocessed by the MERRA-2 science team to correct the issue. If you have already obtained data from that period, we recommend that you do not use any of it for scientific purposes.&nbsp; Please do not include September 2020 in your selected date range for any MERRA-2 variables</p>\n\n<p>The reprocessed data will be designated as version 401, i.e. filenames will have a prefix of &#39;MERRA2_401&#39;. &nbsp;</p>\n\n<p>An announcement will be made on this site when the reprocessed September 2020 data is accessible for visualization and analysis.</p>\n",
+        "tags": ["giovanni"],
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2020-11-02T18:22:07.463Z",
+            "modifiedBy": "jimacker",
+            "states": [
+                { "source": "Init", "target": "Draft", "modifiedOn": null },
+                {
+                    "source": "Draft",
+                    "target": "Published",
+                    "modifiedOn": "2020-11-02T18:22:13.433Z",
+                    "modifiedBy": "jimacker"
+                },
+                {
+                    "source": "Published",
+                    "target": "Hidden",
+                    "modifiedOn": "2020-11-06T19:17:57.082Z",
+                    "modifiedBy": "jimacker"
+                }
+            ],
+            "publishedTo": [
+                {
+                    "url": "https://disc.gsfc.nasa.gov/information/alerts?title=September%202020%20MERRA-2%20data%20are%20being%20reprocessed",
+                    "message": "Document was successfully removed from UUI-OPS",
+                    "target": "uui",
+                    "statusCode": 200,
+                    "publishedOn": 1604690277402
+                }
+            ]
+        }
+    },
+    {
+        "_id": "5f9c3ed3838d73002a140a14",
+        "severity": "emergency",
+        "title": "MERRA-2 reprocessing for September 2020 data reprocessing ",
+        "start": "2020-10-30 12:00:00-04:00",
+        "expiration": "2020-11-30 12:00:00-05:00",
+        "body": "<p>The MERRA-2 September 2020 data (released on October 20 2020) have&nbsp;been blocked temporally as an issue has been found.&nbsp; The MERRA-2 science team is&nbsp;reprocessing the data which&nbsp;will be republished later.&nbsp;&nbsp; &nbsp;</p>\n\n<p>If you have downloaded the data, please check September 2020 data file,&nbsp; the problem file is the one that&nbsp; the global attribute &ldquo;ProductionDateTime&quot; is&nbsp; before Oct 20 2020.&nbsp;&nbsp;</p>\n",
+        "tags": ["MERRA-2"],
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2020-10-30T16:26:59.727Z",
+            "modifiedBy": "shen5088",
+            "states": [{ "source": "Init", "target": "Draft", "modifiedOn": null }],
+            "publishedTo": [
+                {
+                    "url": "https://uui-test.gesdisc.eosdis.nasa.gov/information/alerts?title=MERRA-2%20reprocessing%20for%20September%202020%20data%20reprocessing%20",
+                    "message": "Document was successfully removed from UUI-Test",
+                    "target": "uui",
+                    "statusCode": 200,
+                    "publishedOn": 1604075802498
+                }
+            ]
+        }
+    },
+    {
+        "_id": "5fc9101cfa2bf1002a355c7d",
+        "severity": "emergency",
+        "title": "AIRS processing resumes",
+        "body": "<p>AIRS processing for both forward and Near-Real-Time streams had been suspended due to an issue with the dataset used to calculate solar azimuth and zenith angles in the AIRS and AMSU L1A geolocation processing. The issue has been resolved and processing began again. Data prior to December 1, 2020 were unaffected.</p>\n",
+        "start": "2020-12-03 12:00:00-05:00",
+        "expiration": "2020-12-11 12:00:00-05:00",
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2020-12-03T16:19:40.254Z",
+            "modifiedBy": "lena.iredell",
+            "states": [
+                { "source": "Init", "target": "Draft", "modifiedOn": null },
+                {
+                    "source": "Draft",
+                    "target": "Published",
+                    "modifiedOn": "2020-12-03T16:19:43.910Z",
+                    "modifiedBy": "lena.iredell"
+                },
+                {
+                    "source": "Published",
+                    "target": "Hidden",
+                    "modifiedOn": "2020-12-03T16:21:01.395Z",
+                    "modifiedBy": "lena.iredell"
+                }
+            ],
+            "publishedTo": [
+                {
+                    "url": "https://uui-test.gesdisc.eosdis.nasa.gov/information/alerts?title=AIRS%20processing%20resumes",
+                    "message": "Document was successfully removed from UUI-Test",
+                    "target": "uui",
+                    "statusCode": 200,
+                    "publishedOn": 1607012491325
+                }
+            ]
+        }
+    },
+    {
+        "_id": "5fabf8fffa2bf1002a355040",
+        "severity": "emergency",
+        "title": "MERRA-2 reprocessing for September 2020 data",
+        "start": "2020-10-30 12:00:00-04:00",
+        "expiration": "2020-11-05 10:00:00-05:00",
+        "body": "<p>The MERRA-2 September 2020 data (released on October 20 2020) have&nbsp;been made unavailable, as an issue has been found with data from that month.&nbsp; Please do not include September 2020 when searching for the data.&nbsp; It is recommended to not use the data referenced in this alert for scientific purposes.&nbsp;</p>\n\n<p>The MERRA-2 science team is&nbsp;reprocessing the data which&nbsp;will be republished later.&nbsp; &nbsp;The reprocessed file will be in&nbsp;<strong>version 401</strong>, i.e.&nbsp; the filename will has a prefix as<strong> MERRA2_401</strong>&nbsp;.&nbsp;&nbsp;</p>\n\n<p>If you have downloaded the data, please check September 2020 data files; a problem file is one in which the global attribute &ldquo;ProductionDateTime&quot; is&nbsp; before October 20, 2020.&nbsp;&nbsp;</p>\n",
+        "tags": ["MERRA-2"],
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2020-11-11T14:45:19.413Z",
+            "modifiedBy": "shen5088",
+            "states": [{ "source": "Init", "target": "Draft", "modifiedOn": null }],
+            "publishedTo": [
+                {
+                    "url": "https://uui-test.gesdisc.eosdis.nasa.gov/information/alerts?title=MERRA-2%20reprocessing%20for%20September%202020%20data",
+                    "message": "Document was successfully published to UUI-Test",
+                    "target": "uui",
+                    "statusCode": 200,
+                    "publishedOn": 1605105919680
+                }
+            ]
+        }
+    },
+    {
+        "_id": "63dc29c72cd1d141df609cdd",
+        "severity": "emergency",
+        "datasets": [
+            "ACOS_L2_Lite_FP_9r",
+            "ACOS_L2S_9r",
+            "CMS_CH4_FLX_CA_1",
+            "CMS_CH4_FLX_MX_1",
+            "CMS_CH4_FLX_NAD_1",
+            "CMS_CTL_NA_GOSAT_FOOTPRINTS_1",
+            "CMS_CTL_NA_OCO2_FOOTPRINTS_1",
+            "CMS_CTL_NA_TCCON_FOOTPRINTS_1",
+            "CMS_CTL_SA_OCO2_FOOTPRINTS_1",
+            "CMS_HR_MNA_CH4_FLUX_1",
+            "CMS_OCE_BGC_CCS_1",
+            "CMSFluxFire_2",
+            "CMSFluxFirepost_1",
+            "CMSFluxFossilfuel_1",
+            "CMSFluxFossilFuelPrior_2",
+            "CMSFluxMISC_1",
+            "CMSFluxNBE_2",
+            "CMSFluxNBEPrior_2",
+            "CMSFluxNEE_1",
+            "CMSFluxOcean_1",
+            "CMSFluxOceanPrior_2",
+            "CMSFluxTotal_2",
+            "CMSFluxTotalpost_1",
+            "CMSFluxTotalprior_1",
+            "CMSGCH4F_1",
+            "CMSLakeHuronPPM_1",
+            "CMSLakeHuronPPY_1",
+            "CMSLakeMichiganPPM_1",
+            "CMSLakeMichiganPPY_1",
+            "CMSLakeSuperiorPPM_1",
+            "CMSLakeSuperiorPPY_1",
+            "FLDAS_NOAH001_G_CA_D_001",
+            "FLDAS_NOAH01_C_GL_M_001",
+            "FLDAS_NOAH01_C_GL_MA_001",
+            "FLDAS_NOAH01_C_GL_MC_001",
+            "FLDAS_NOAH01_CP_GL_M_001",
+            "GEOS_CASAGFED_3H_NEE_3",
+            "GEOS_CASAGFED_D_FIRE_3",
+            "GEOS_CASAGFED_M_FLUX_3",
+            "GLDAS_CLSM025_D_2.0",
+            "GLDAS_CLSM025_DA1_D_2.2",
+            "GLDAS_CLSM10_3H_2.0",
+            "GLDAS_CLSM10_3H_2.1",
+            "GLDAS_CLSM10_M_2.0",
+            "GLDAS_CLSM10_M_2.1",
+            "GLDAS_NOAH025_3H_2.0",
+            "GLDAS_NOAH025_3H_2.1",
+            "GLDAS_NOAH025_M_2.0",
+            "GLDAS_NOAH025_M_2.1",
+            "GLDAS_NOAH10_3H_2.0",
+            "GLDAS_NOAH10_3H_2.1",
+            "GLDAS_NOAH10_M_2.0",
+            "GLDAS_NOAH10_M_2.1",
+            "GLDAS_VIC10_3H_2.0",
+            "GLDAS_VIC10_3H_2.1",
+            "GLDAS_VIC10_M_2.0",
+            "GLDAS_VIC10_M_2.1",
+            "Global_Landslide_Nowcast_1.1",
+            "GPM_2ADPR_07",
+            "GPM_2AKa_07",
+            "GPM_2AKu_07",
+            "GPM_2BCMB_07",
+            "GPM_3IMERGDF_06",
+            "GPM_3IMERGHH_06",
+            "GPM_3IMERGHHE_06",
+            "GPM_3IMERGHHL_06",
+            "GPM_MERGIR_1",
+            "GRACEDADM_CLSM0125US_7D_4.0",
+            "GRACEDADM_CLSM025GL_7D_3.0",
+            "LPRM_AMSR2_A_SOILM3_001",
+            "LPRM_AMSR2_D_SOILM3_001",
+            "LPRM_AMSR2_DS_A_SOILM3_001",
+            "LPRM_AMSR2_DS_D_SOILM3_001",
+            "LPRM_AMSR2_DS_SOILM2_001",
+            "LPRM_AMSR2_SOILM2_001",
+            "M2C0NXASM_5.12.4",
+            "M2C0NXCTM_5.12.4",
+            "M2C0NXLND_5.12.4",
+            "M2I1NXASM_5.12.4",
+            "M2I1NXINT_5.12.4",
+            "M2I3NPASM_5.12.4",
+            "M2I3NVAER_5.12.4",
+            "M2I3NVASM_5.12.4",
+            "M2IMNXASM_5.12.4",
+            "M2IMNXGAS_5.12.4",
+            "M2IMNXINT_5.12.4",
+            "M2IMNXLFO_5.12.4",
+            "M2SMNXEDI_2",
+            "M2SMNXPCT_2",
+            "M2SMNXSLV_5.12.4",
+            "M2T1NXFLX_5.12.4",
+            "M2T1NXINT_5.12.4",
+            "M2T1NXRAD_5.12.4",
+            "M2T1NXSLV_5.12.4",
+            "M2T3NETRB_5.12.4",
+            "M2T3NPUDT_5.12.4",
+            "M2T3NVASM_5.12.4",
+            "ML1OA_005",
+            "ML1RADD_005",
+            "ML1RADG_005",
+            "ML1RADT_005",
+            "ML2BRO_005",
+            "ML2CH3CL_005",
+            "ML2CH3CN_005",
+            "ML2CH3OH_005",
+            "ML2CLO_005",
+            "ML2CO_005",
+            "ML2DGG_005",
+            "ML2DGM_005",
+            "ML2GPH_005",
+            "ML2H2O_005",
+            "ML2HCL_005",
+            "ML2HCN_005",
+            "ML2HNO3_005",
+            "ML2HO2_005",
+            "ML2HOCL_005",
+            "ML2IWC_005",
+            "ML2N2O_005",
+            "ML2O3_005",
+            "ML2OH_005",
+            "ML2RHI_005",
+            "ML2SO2_005",
+            "ML2T_005",
+            "ML3DBCH3CL_005",
+            "ML3DBCLO_005",
+            "ML3DBCO_005",
+            "ML3DBGPH_005",
+            "ML3DBH2O_005",
+            "ML3DBHCL_005",
+            "ML3DBHCN_005",
+            "ML3DBHNO3_005",
+            "ML3DBHOCL_005",
+            "ML3DBIWC_005",
+            "ML3DBN2O_005",
+            "ML3DBO3_005",
+            "ML3DBOH_005",
+            "ML3DBRHI_005",
+            "ML3DBSO2_005",
+            "ML3DBT_005",
+            "ML3DZCH3CL_005",
+            "ML3DZCLO_005",
+            "ML3DZOH_005",
+            "ML3DZO3_005",
+            "ML3DZN2O_005",
+            "ML3DZMHO2_005",
+            "ML3DZMBRO_005",
+            "ML3DZIWC_005",
+            "ML3DZHOCL_005",
+            "ML3DZHNO3_005",
+            "ML3DZHCN_005",
+            "ML3DZHCL_005",
+            "ML3DZH2O_005",
+            "ML3DZGPH_005",
+            "ML3DZCO_005",
+            "NEWS_WEB_ACLIM_1.0",
+            "NEWS_WEB_MCLIM_1.0",
+            "NLDAS_FORA0125_H_2.0",
+            "NLDAS_FORA0125_M_2.0",
+            "NLDAS_FORA0125_MC_2.0",
+            "NLDAS_FORB0125_H_2.0",
+            "NLDAS_FORB0125_M_2.0",
+            "NLDAS_FORB0125_MC_2.0",
+            "NLDAS_MOS0125_H_2.0",
+            "NLDAS_MOS0125_M_2.0",
+            "NLDAS_MOS0125_MC_2.0",
+            "NLDAS_NOAH0125_H_2.0",
+            "NLDAS_NOAH0125_M_2.0",
+            "NLDAS_NOAH0125_MC_2.0",
+            "NLDAS_VIC0125_H_2.0",
+            "NLDAS_VIC0125_M_2.0",
+            "NLDAS_VIC0125_MC_2.0",
+            "OCO2_L1B_Calibration_10r",
+            "OCO2_L1B_Science_10r",
+            "OCO2_L2_ABand_10r",
+            "OCO2_L2_CO2Prior_10r",
+            "OCO2_L2_Diagnostic_10r",
+            "OCO2_L2_IMAPDOAS_10r",
+            "OCO2_L2_Lite_FP_10r",
+            "OCO2_L2_Lite_SIF_10r",
+            "OCO2_L2_Met_10r",
+            "OCO2_L2_Standard_10r",
+            "OCO3_L1B_Calibration_10r",
+            "OCO3_L1B_Science_10r",
+            "OCO3_L2_ABand_10r",
+            "OCO3_L2_CO2Prior_10r",
+            "OCO3_L2_Diagnostic_10r",
+            "OCO3_L2_IMAPDOAS_10r",
+            "OCO3_L2_Lite_SIF_10r",
+            "OCO3_L2_Met_10r",
+            "OCO3_L2_Standard_10r",
+            "OMNO2_003",
+            "OMNO2d_003",
+            "OMPS_NPP_NMEV_L1B_2",
+            "OMPS_NPP_NMNO2_L2_2",
+            "OMPS_NPP_NMSO2_L2_2",
+            "OMPS_NPP_NMTO3_L2_2",
+            "OMSO2_003",
+            "OMSO2e_003",
+            "OMTO3_003",
+            "OMTO3e_003",
+            "OMUVB_003",
+            "OMUVBd_003",
+            "S5P_L2__AER_AI_1",
+            "S5P_L2__AER_AI_HiR_1",
+            "S5P_L2__AER_AI_HiR_2",
+            "S5P_L2__AER_LH_1",
+            "S5P_L2__AER_LH_HiR_1",
+            "S5P_L2__AER_LH_HiR_2",
+            "S5P_L2__CH4____1",
+            "S5P_L2__CH4____HiR_1",
+            "S5P_L2__CH4____HiR_2",
+            "S5P_L2__CO_____1",
+            "S5P_L2__CO_____HiR_1",
+            "S5P_L2__CO_____HiR_2",
+            "S5P_L2__HCHO___1",
+            "S5P_L2__HCHO___HiR_1",
+            "S5P_L2__HCHO___HiR_2",
+            "S5P_L2__NO2____1",
+            "S5P_L2__NO2____HiR_1",
+            "S5P_L2__NO2____HiR_2",
+            "S5P_L2__O3_TCL_1",
+            "S5P_L2__O3_TCL_2",
+            "S5P_L2__O3_TOT_1",
+            "S5P_L2__O3_TOT_HiR_1",
+            "S5P_L2__O3_TOT_HiR_2",
+            "S5P_L2__SO2____1",
+            "S5P_L2__SO2____HiR_1",
+            "S5P_L2__SO2____HiR_2",
+            "SNDR13CHRP1_2",
+            "SNDR13CHRP1AQCal_2",
+            "SNDR13CHRP1J1Cal_2",
+            "SNDR13CHRP1SNCal_2",
+            "SNDRAQIML2CCPRET_2",
+            "SNDRJ1IML2CCPRET_2",
+            "SNDRSNIML2CCPRET_2",
+            "TRPSDL2CH4AIRSFS_1",
+            "TRPSDL2CH4CRS1FS_1",
+            "TRPSDL2CH4CRSAUS_1",
+            "TRPSDL2CH4CRSFS_1",
+            "TRPSDL2COAIRSFS_1",
+            "TRPSDL2COCRS1FS_1",
+            "TRPSDL2COCRSAUS_1",
+            "TRPSDL2COCRSFS_1",
+            "TRPSDL2COCRSTS1_1",
+            "TRPSDL2COCRSTS2_1",
+            "TRPSDL2COCRSWCF_1",
+            "TRPSDL2COCRSWCFHI_1",
+            "TRPSDL2H2OAIRSFS_1",
+            "TRPSDL2H2OCRS1FS_1",
+            "TRPSDL2H2OCRSAUS_1",
+            "TRPSDL2H2OCRSFS_1",
+            "TRPSDL2HDOAIRSFS_1",
+            "TRPSDL2HDOCRS1FS_1",
+            "TRPSDL2HDOCRSAUS_1",
+            "TRPSDL2HDOCRSFS_1",
+            "TRPSDL2NH3AIRSFS_1",
+            "TRPSDL2NH3CRS1FS_1",
+            "TRPSDL2NH3CRSAUS_1",
+            "TRPSDL2NH3CRSFS_1",
+            "TRPSDL2NH3CRSWCF_1",
+            "TRPSDL2NH3CRSWCFHI_1",
+            "TRPSDL2O3AIRSFS_1",
+            "TRPSDL2O3AIRSOMIFS_1",
+            "TRPSDL2O3CRS1FS_1",
+            "TRPSDL2O3CRSAUS_1",
+            "TRPSDL2O3CRSFS_1",
+            "TRPSDL2O3CRSWCF_1",
+            "TRPSDL2O3CRSWCFHI_1",
+            "TRPSDL2O3OMIFS_1",
+            "TRPSDL2PANCRS1FS_1",
+            "TRPSDL2PANCRSAUS_1",
+            "TRPSDL2PANCRSFS_1",
+            "TRPSDL2PANCRSWCF_1",
+            "TRPSDL2PANCRSWCFHI_1",
+            "TRPSDL2TATMAIRSFS_1",
+            "TRPSDL2TATMCRS1FS_1",
+            "TRPSDL2TATMCRSAUS_1",
+            "TRPSDL2TATMCRSFS_1"
+        ],
+        "title": "Critical System Maintenance for Cloud Archive",
+        "start": "2023-01-26 12:00:00-05:00",
+        "expiration": "2023-02-01 12:00:00-05:00",
+        "body": "<p>We will be performing critical system maintenance in the Cloud archive beginning no earlier than January 27th 8AM EST (1300 UTC) with an expected completion on or before February 3rd 5PM EST (2200 UTC). During this time, Cloud-enabled data collections will not be updated with the most recent data. The access to data received before the maintenance window will be unaffected. The list of affected data collections can be found at <a href=\"https://disc.gsfc.nasa.gov/datasets?page=1&amp;features=Cloud%20Enabled\">https://disc.gsfc.nasa.gov/datasets?page=1&amp;features=Cloud%20Enabled</a>. Data access from on-premises servers will not be affected.</p>\n",
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2023-02-02T21:23:19.982Z",
+            "modifiedBy": "cloeser",
+            "states": [
+                { "source": "Init", "target": "Draft", "modifiedOn": null },
+                {
+                    "source": "Draft",
+                    "target": "Published",
+                    "modifiedOn": "2023-02-02T21:23:21.738Z",
+                    "modifiedBy": "cloeser"
+                }
+            ],
+            "publishedTo": [
+                {
+                    "url": "https://disc.gsfc.nasa.gov/information/alerts?title=Critical%20System%20Maintenance%20for%20Cloud%20Archive",
+                    "message": "Document was successfully published to UUI-OPS",
+                    "target": "uui",
+                    "statusCode": 200,
+                    "publishedOn": 1675373002038
+                }
+            ]
+        }
+    },
+
+    {
+        "_id": "5fc91d1cfa2bf1032a365c7d",
+        "severity": "emergency",
+        "title": "Deleted Fixture",
+        "body": "<p>AIRS processing for both forward and Near-Real-Time streams had been suspended due to an issue with the dataset used to calculate solar azimuth and zenith angles in the AIRS and AMSU L1A geolocation processing. The issue has been resolved and processing began again. Data prior to December 1, 2020 were unaffected.</p>\n",
+        "start": "2020-12-03 12:00:00-05:00",
+        "expiration": "2020-12-11 12:00:00-05:00",
+        "x-meditor": {
+            "model": "Alerts",
+            "modifiedOn": "2020-12-03T16:19:40.254Z",
+            "modifiedBy": "lena.iredell",
+            "states": [
+                { "source": "Init", "target": "Draft", "modifiedOn": null },
+                {
+                    "source": "Draft",
+                    "target": "Published",
+                    "modifiedOn": "2020-12-03T16:19:43.910Z",
+                    "modifiedBy": "lena.iredell"
+                },
+                {
+                    "source": "Published",
+                    "target": "Hidden",
+                    "modifiedOn": "2020-12-03T16:21:01.395Z",
+                    "modifiedBy": "lena.iredell"
+                },
+                {
+                    "source": "Hidden",
+                    "target": "Deleted",
+                    "modifiedOn": "2020-12-03T16:21:30.937Z",
+                    "modifiedBy": "lena.iredell"
+                }
+            ],
+            "publishedTo": [
+                {
+                    "url": "https://uui-test.gesdisc.eosdis.nasa.gov/information/alerts?title=AIRS%20processing%20resumes",
+                    "message": "Document was successfully removed from UUI-Test",
+                    "target": "uui",
+                    "statusCode": 200,
+                    "publishedOn": 1607012491325
+                }
+            ],
+            "deletedBy": "fixture.user",
+            "deletedOn": "2020-12-03T16:21:31.053Z"
+        }
+    }
+]

@@ -1,23 +1,54 @@
-import compile from 'monquery'
+import type { HttpException } from 'utils/errors'
+import type { ErrorData } from '../declarations'
 import log from '../lib/log'
-import { ErrorCode, HttpException } from '../utils/errors'
+import { getModel } from '../models/service'
+import { getSearchDb } from './db'
+import { searchInputServiceSchema } from './schema'
 
-/**this searvice takes lucene query string and converts it to mongoDB query also throws an error if search query is mistyped*/
-
-export function searchwithMonquery(searchQuery) {
+export async function search(
+    modelName: string,
+    query: string,
+    resultsPerPage: number,
+    pageNumber: number
+): Promise<ErrorData<any>> {
     try {
-        if (!searchQuery) {
-            throw new HttpException(
-                ErrorCode.BadRequest,
-                'Search query should be typed correctly'
-            )
+        const searchDb = await getSearchDb()
+        const parsedInput = searchInputServiceSchema.parse({
+            modelName,
+            pageNumber,
+            query,
+            resultsPerPage,
+        })
+        const [modelError, { titleProperty }] = await getModel(modelName)
+
+        if (modelError) {
+            throw modelError
         }
 
-        let search = compile(searchQuery)
+        const searchResults = await searchDb.search(
+            parsedInput.modelName,
+            titleProperty,
+            parsedInput.query,
+            parsedInput.resultsPerPage,
+            parsedInput.pageNumber
+        )
 
-        return search
+        return [null, searchResults]
     } catch (error) {
         log.error(error)
+
+        //* monquery throws an AssertionError for Lucene syntax errors.
+        if (error.name === 'AssertionError') {
+            return [formatAssertionError(error), null]
+        }
+
         return [error, null]
     }
+}
+
+//* This might be useful if directly integrated into the apiError function, but for now it's a one-off use case.
+function formatAssertionError(error: Error | HttpException) {
+    return Error(`Lucene syntax error: ${error.message}.`, {
+        cause: { status: 400 },
+    })
 }

@@ -101,7 +101,12 @@ class DocumentsDb {
             // Sort descending by version (date).
             { $sort: { 'x-meditor.modifiedOn': -1 } },
             // Grab all fields in the most recent version.
-            { $group: { _id: parsedInput.titleProperty, doc: { $first: '$$ROOT' } } },
+            {
+                $group: {
+                    _id: `$${parsedInput.titleProperty}`,
+                    doc: { $first: '$$ROOT' },
+                },
+            },
             // Put all fields of the most recent doc back into root of the document.
             { $replaceRoot: { newRoot: '$doc' } },
             // Each $addFields stage can add multiple fields, but if the values of one field are dependent on the values of another field, the second dependency needs to be separated into another $addFields stage.
