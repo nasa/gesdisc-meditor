@@ -9,6 +9,9 @@ jobs:
   create-jira-issue-from-github-issue:
     runs-on: ubuntu-latest
     steps:
+      - name: Log secret
+        run: echo "base url ${{ secrets.JIRA_BASE_URL }}"
+
       - name: Login to JIRA
         uses: atlassian/gajira-login@master
         env:
