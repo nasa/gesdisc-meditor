@@ -46,4 +46,5 @@ Thumbs.db
 
 # Docker Bind Mounts
 /mongo-data/
+/mongo-data-backup/
 /nats-data/
