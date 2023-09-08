@@ -1,4 +1,5 @@
-import Form from '@rjsf/core'
+import Form, { FormValidation } from '@rjsf/core'
+import jp from 'jsonpath'
 import filter from 'lodash/filter'
 import isEqual from 'lodash/isEqual'
 import uniqWith from 'lodash/uniqWith'
@@ -63,6 +64,14 @@ const JsonSchemaForm = ({
 
     const { _id, ...document } = formData
 
+    //* This function gets called with formEl.current.validate().
+    //* You can create any custom validation needed and add it to this stack.
+    function validate(formData: any, errors: FormValidation) {
+        validateCustomWidgets(formData, errors)
+
+        return errors
+    }
+
     return (
         <Form
             ref={formEl}
@@ -85,8 +94,38 @@ const JsonSchemaForm = ({
             }}
             noValidate={allowValidationErrors}
             noHtml5Validate={allowValidationErrors}
+            validate={validate}
         />
     )
 }
 
 export default JsonSchemaForm
+
+//* Validate custom widgets here because of this issue: https://github.com/rjsf-team/react-jsonschema-form/issues/2718
+function validateCustomWidgets(formData: any, errors: FormValidation) {
+    formData.templates?.forEach((template: any, index: number) => {
+        //* Macro templates can reference either the schema or layout (see macro ReadMe).
+        const isValid = [
+            validatePath(template.jsonpath, JSON.parse(formData.schema || '{}')),
+            validatePath(template.jsonpath, JSON.parse(formData.layout || '{}')),
+        ].some(result => result === true)
+
+        if (!isValid) {
+            errors.templates[index].jsonpath?.addError(
+                'This does not match a valid path in either the schema or the layout.'
+            )
+        }
+    })
+
+    return errors
+}
+
+function validatePath(jsonPath: string, json: object) {
+    try {
+        const hasValueAtPath = jp.query(json, jsonPath).length > 0
+
+        return hasValueAtPath
+    } catch {
+        return false
+    }
+}
