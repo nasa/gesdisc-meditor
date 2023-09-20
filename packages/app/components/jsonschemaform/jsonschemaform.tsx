@@ -1,4 +1,4 @@
-import Form, { FormValidation } from '@rjsf/core'
+import Form from '@rjsf/core'
 import jp from 'jsonpath'
 import filter from 'lodash/filter'
 import isEqual from 'lodash/isEqual'
@@ -7,6 +7,7 @@ import { useEffect, useRef } from 'react'
 import fields from './fields/'
 import templates from './templates/'
 import widgets from './widgets/'
+import type { FormValidation } from '@rjsf/core'
 
 const JsonSchemaForm = ({
     schema,
