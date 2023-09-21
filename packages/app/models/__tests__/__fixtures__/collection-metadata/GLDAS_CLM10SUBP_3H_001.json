@@ -158,8 +158,8 @@
             "Role": ["METADATA AUTHOR"],
             "Contact_Person": [
                 {
-                    "First_Name": "DAVID",
-                    "Last_Name": "SILBERSTEIN",
+                    "First_Name": "EGGS",
+                    "Last_Name": "USER",
                     "Address": [
                         {
                             "Street_Address": [
@@ -183,7 +183,7 @@
                             "Type": "Fax"
                         }
                     ],
-                    "Email": ["david.s.silberstein@nasa.gov"]
+                    "Email": ["eggs@nasa.gov"]
                 }
             ],
             "Personnel_Type": "Contact_Person"
