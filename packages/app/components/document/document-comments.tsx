@@ -11,7 +11,7 @@ import styles from './document-comments.module.css'
 
 const AVATAR_URL =
     'https://bugs.earthdata.nasa.gov/secure/useravatar?size=large&ownerId=${uid}'
-const DEFAULT_PARENT_ID = 'root'
+export const DEFAULT_PARENT_ID = 'root'
 const DEFAULT_COMMENT = {
     text: '',
     resolved: false,
@@ -154,9 +154,14 @@ const CommentCard = ({
 
                 {showCardActions && (
                     <div className={styles.cardActions}>
-                        <IconButton alt="Reply to comment" onClick={handleReplyTo}>
-                            <MdReply />
-                        </IconButton>
+                        {comment.parentId == DEFAULT_PARENT_ID && (
+                            <IconButton
+                                alt="Reply to comment"
+                                onClick={handleReplyTo}
+                            >
+                                <MdReply />
+                            </IconButton>
+                        )}
 
                         {user.uid == comment.userUid && (
                             <IconButton
