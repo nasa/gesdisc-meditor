@@ -99,10 +99,10 @@ const SearchStatusBar = ({
                             value={searchOptions.filter}
                             onChange={e => onFilterChange(e.target.value)}
                         >
-                            <option value=""></option>
+                            <option value="">Show All States</option>
 
                             {states.map(state => (
-                                <option key={state} value={`state:${state}`}>
+                                <option key={state} value={`state:"${state}"`}>
                                     {state}
                                 </option>
                             ))}
