@@ -54,7 +54,7 @@ Object {
 
 exports[`Documents getDocument returns document 1`] = `
 Object {
-  "body": "<p>All of the FLDAS products have been reprocessed for improvements and corrections in the file metadata, specifically in regards to the &lsquo;time&rsquo; metadata.&nbsp; All FLDAS data are now accessible and available for download at the GES DISC.&nbsp; If you downloaded FLDAS data before August 7, please be aware that the file metadata may be incorrect.&nbsp; Please contact the Help Desk at gsfc-nasa-disc@lists.nasa.gov if you have any questions.</p>
+  "body": "<p>All of the FLDAS products have been reprocessed for improvements and corrections in the file metadata, specifically in regards to the &lsquo;time&rsquo; metadata.&nbsp; All FLDAS data are now accessible and available for download at the GES DISC.&nbsp; If you downloaded FLDAS data before August 7, please be aware that the file metadata may be incorrect.&nbsp; Please contact the Help Desk if you have any questions.</p>
 ",
   "datasets": Array [
     "FLDAS_VIC025_A_SA_M_001",
@@ -116,7 +116,7 @@ Object {
 
 exports[`Documents getDocument returns document at version 1`] = `
 Object {
-  "body": "<p>All of the FLDAS products have been reprocessed for improvements and corrections in the file metadata, specifically in regards to the &lsquo;time&rsquo; metadata.&nbsp; All FLDAS data are now accessible and available for download at the GES DISC.&nbsp; If you downloaded FLDAS data before August 7, please be aware that the file metadata may be incorrect.&nbsp; Please contact the Help Desk at gsfc-nasa-disc@lists.nasa.gov if you have any questions.</p>
+  "body": "<p>All of the FLDAS products have been reprocessed for improvements and corrections in the file metadata, specifically in regards to the &lsquo;time&rsquo; metadata.&nbsp; All FLDAS data are now accessible and available for download at the GES DISC.&nbsp; If you downloaded FLDAS data before August 7, please be aware that the file metadata may be incorrect.&nbsp; Please contact the Help Desk if you have any questions.</p>
 ",
   "datasets": Array [
     "FLDAS_VIC025_A_SA_M_001",
