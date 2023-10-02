@@ -4,13 +4,14 @@ import log from '../lib/log'
 import { getModel } from '../models/service'
 import { getSearchDb } from './db'
 import { searchInputServiceSchema } from './schema'
+import type { PaginatedSearchResults } from './types'
 
 export async function search(
     modelName: string,
     query: string,
     resultsPerPage: number,
     pageNumber: number
-): Promise<ErrorData<any>> {
+): Promise<ErrorData<PaginatedSearchResults>> {
     try {
         const searchDb = await getSearchDb()
         const parsedInput = searchInputServiceSchema.parse({
@@ -25,15 +26,28 @@ export async function search(
             throw modelError
         }
 
-        const searchResults = await searchDb.search(
+        const [{ metadata, results }] = await searchDb.search(
             parsedInput.modelName,
             titleProperty,
             parsedInput.query,
             parsedInput.resultsPerPage,
             parsedInput.pageNumber
         )
+        const resultsCount = metadata.length ? metadata[0]?.resultsCount : 0
 
-        return [null, searchResults]
+        return [
+            null,
+            {
+                metadata: {
+                    pageCount: Math.max(Math.ceil(resultsCount / resultsPerPage), 1),
+                    pageNumber,
+                    query,
+                    resultsCount,
+                    resultsPerPage,
+                },
+                results,
+            },
+        ]
     } catch (error) {
         log.error(error)
 

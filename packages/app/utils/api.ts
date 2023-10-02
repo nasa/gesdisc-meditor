@@ -1,5 +1,6 @@
 import { AsyncParser } from '@json2csv/node'
 import type { NextApiRequest, NextApiResponse } from 'next'
+import get from 'lodash.get'
 
 const parser = new AsyncParser()
 
@@ -65,16 +66,24 @@ export async function respondAs(
     options: {
         format?: string
         httpStatusCode?: number // to pass a custom HTTP status code, defaults to `200`
+        payloadPath?: string | string[]
     }
 ) {
-    const { format = 'JSON', httpStatusCode = 200 } = options
+    const { httpStatusCode = 200 } = options
+    const responsePayload = options.payloadPath
+        ? get(payload, options.payloadPath)
+        : payload
 
-    switch (format.toLowerCase()) {
-        case 'csv':
-            return await respondAsCsv(payload, request, response, { httpStatusCode })
+    switch (options.format.toUpperCase()) {
+        case 'CSV':
+            return await respondAsCsv(responsePayload, request, response, {
+                httpStatusCode,
+            })
 
-        case 'json':
+        case 'JSON':
         default:
-            return respondAsJson(payload, request, response, { httpStatusCode })
+            return respondAsJson(responsePayload, request, response, {
+                httpStatusCode,
+            })
     }
 }

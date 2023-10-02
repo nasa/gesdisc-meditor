@@ -45,6 +45,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             return await respondAs(searchResults, req, res, {
                 format,
+                //* The union doesn't show it, but we have a transform on the Zod schema to uppercase this property.
+                //* Sending the metadata property to the CSV parser changes the column headers, so just send the results.
+                payloadPath: format === 'JSON' ? '' : 'results',
             })
         }
 
