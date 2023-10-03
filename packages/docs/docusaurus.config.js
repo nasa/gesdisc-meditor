@@ -9,7 +9,7 @@ const config = {
     title: 'mEditor Documentation',
     tagline: 'How to use the GES DISC Model Editor application and API',
     url: process.env.MEDITOR_ORIGIN || 'http://localhost',
-    baseUrl: '/meditor/docs',
+    baseUrl: '/meditor/docs/',
     onBrokenLinks: 'throw',
     onBrokenMarkdownLinks: 'warn',
     favicon: 'images/favicon.ico',

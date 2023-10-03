@@ -22,6 +22,7 @@ const sidebars = {
                 'user-guide/workflows-and-roles',
                 'user-guide/using-comments',
                 'user-guide/versions-and-history',
+                'user-guide/search-syntax',
             ],
         },
     ],
