@@ -1,64 +1,111 @@
+import type { User } from 'auth/types'
+import { getLoggedInUser } from 'auth/user'
 import type { NextPageContext } from 'next'
 import Link from 'next/link'
-import Button from 'react-bootstrap/Button'
+import { useState } from 'react'
 import ModelIcon from '../components/model-icon'
 import PageTitle from '../components/page-title'
 import UnderMaintenance from '../components/under-maintenance'
 import { getModelsWithDocumentCount } from '../models/service'
-import type { ModelCategory } from '../models/types'
-import { sortModels } from '../utils/sort'
+import type { Model, ModelCategory } from '../models/types'
 import styles from './dashboard.module.css'
 
 type DashboardPageProps = {
     modelCategories: ModelCategory[]
 }
+const collator = new Intl.Collator()
+const formatter = new Intl.ListFormat('en', { style: 'long', type: 'conjunction' })
 
 const DashboardPage = ({ modelCategories }: DashboardPageProps) => {
+    const [filterModelBy, setFilterModelBy] = useState<'hasRoles' | 'none'>(
+        'hasRoles'
+    )
+
     return (
-        <div>
+        <main>
             <PageTitle title="" />
 
-            {(!modelCategories || modelCategories.length < 0) && <UnderMaintenance />}
+            {!modelCategories.length && <UnderMaintenance />}
 
-            {modelCategories?.map(category => (
-                <div key={category.name} className={styles.category}>
-                    <h3>{category.name}</h3>
+            <article className={styles.card}>
+                <details open>
+                    <summary
+                        className={`${styles.summary} bg-secondary text-light rounded p-1 mb-3`}
+                    >
+                        <h2 className="m-0">Models</h2>
+                    </summary>
 
-                    <div className={styles.models}>
-                        {category.models
-                            .sort((a, b) => a.name.localeCompare(b.name))
-                            .map(model => (
-                                <div key={model.name} className={styles.model}>
-                                    <Link href={`/${model.name}`}>
-                                        <Button
-                                            variant="light"
-                                            className="dashboard-model"
-                                        >
-                                            <ModelIcon
-                                                name={model?.icon?.name}
-                                                color={model?.icon?.color}
-                                            />
-                                            <span>{model?.name}</span>
-                                            <span>
-                                                ({model?.['x-meditor']?.count})
-                                            </span>
-                                        </Button>
-                                    </Link>
-                                </div>
-                            ))}
+                    <div className={`${styles.filter} mb-3`}>
+                        <label htmlFor="filter-model">Filter by:</label>
+                        <select
+                            id="filter-model"
+                            className="form-control"
+                            defaultValue={'hasRoles'}
+                            onChange={e => setFilterModelBy(e.target.value as any)}
+                        >
+                            <option value="hasRoles">My Models</option>
+                            <option value="none">All Models</option>
+                        </select>
                     </div>
-                </div>
-            ))}
-        </div>
+
+                    {modelCategories.map(category => {
+                        if (filterModelBy === 'hasRoles' && !category.userHasRoles) {
+                            return null
+                        }
+
+                        return (
+                            <section className="mb-4">
+                                <h3 className="d-inline mb-0 ml-1">
+                                    {category.name}
+                                </h3>
+
+                                {category.models.map(model => {
+                                    if (
+                                        filterModelBy === 'hasRoles' &&
+                                        model.userRoles.length === 0
+                                    ) {
+                                        return null
+                                    }
+
+                                    return (
+                                        <div className="d-flex">
+                                            <Link
+                                                key={model.name}
+                                                href={`/${model.name}`}
+                                                className={styles.link}
+                                            >
+                                                <span className={styles.linkIcon}>
+                                                    <ModelIcon
+                                                        className="mr-3"
+                                                        name={model?.icon?.name}
+                                                        color={model?.icon?.color}
+                                                    />
+                                                    {`${model?.name} (${model?.count})`}
+                                                </span>
+                                                <span className="text-muted">
+                                                    {formatter.format(
+                                                        model.userRoles
+                                                    )}
+                                                </span>
+                                            </Link>
+                                        </div>
+                                    )
+                                })}
+                            </section>
+                        )
+                    })}
+                </details>
+            </article>
+        </main>
     )
 }
 
-export async function getServerSideProps(context: NextPageContext) {
+export async function getServerSideProps({ req, res }: NextPageContext) {
+    const user = await getLoggedInUser(req, res)
     // TODO: handle error when retrieving models with document count, show user an error message?
-    const [_error, modelsWithDocumentCount] = await getModelsWithDocumentCount()
-    const models = (modelsWithDocumentCount || []).sort(sortModels)
+    const [_error, modelsWithDocumentCount = []] = await getModelsWithDocumentCount()
 
-    if (!models.length) {
+    if (!modelsWithDocumentCount.length) {
         return {
             redirect: {
                 // base path is automatically applied (see next.config.js)
@@ -68,28 +115,65 @@ export async function getServerSideProps(context: NextPageContext) {
         }
     }
 
-    // get a unique list of category names from the models
-    const categories: string[] = models
-        .map(model => model.category) // retrieve just the category name
-        .filter(
-            (category, index, categories) => categories.indexOf(category) === index
-        ) // remove duplicates
-
-    const modelCategories: ModelCategory[] = categories.map(category => ({
-        name: category,
-        models: models.filter(model => model.category === category),
-    }))
-
     return {
-        // Next doesn't know how to process the Mongo _id property, as it's an object, not a string. So this hack parses ahead of time
-        // https://github.com/vercel/next.js/issues/11993
-        // TODO: review the above issue for solutions
-        props: JSON.parse(
-            JSON.stringify({
-                modelCategories,
-            })
-        ),
+        props: {
+            modelCategories: convertModelToDisplayModel(
+                getUniqueModelCategories(modelsWithDocumentCount),
+                modelsWithDocumentCount,
+                user
+            ),
+        },
     }
+}
+
+function getUniqueModelCategories(listOfModels: Model[]) {
+    const uniqueModelCategories = new Set()
+
+    for (const model of listOfModels) {
+        uniqueModelCategories.add(model.category)
+    }
+
+    return Array.from(uniqueModelCategories).sort(collator.compare) as string[]
+}
+
+function convertModelToDisplayModel(
+    categories: string[],
+    models: Model[],
+    user: User | undefined
+) {
+    const modelCategories = []
+    const modelsByCategory = new Map<ModelCategory['name'], ModelCategory['models']>()
+
+    categories?.forEach(category => modelsByCategory.set(category, []))
+
+    //* Removes unused data from models; puts user's roles on each model.
+    models?.forEach(({ category, ['x-meditor']: meta, icon, name }) => {
+        modelsByCategory.get(category).push({
+            category,
+            count: meta?.count,
+            icon,
+            name,
+            userRoles: user
+                ? user.roles.reduce((accumulator, current) => {
+                      if (current.model === name) {
+                          accumulator.push(current.role)
+                      }
+
+                      return accumulator
+                  }, [])
+                : [],
+        })
+    })
+
+    for (const [category, models] of modelsByCategory) {
+        modelCategories.push({
+            name: category,
+            models: models.sort((a, b) => collator.compare(a.name, b.name)),
+            userHasRoles: models.some(model => model.userRoles.length > 0),
+        })
+    }
+
+    return modelCategories
 }
 
 export default DashboardPage

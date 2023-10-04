@@ -16,6 +16,7 @@ import type {
 } from '../../models/types'
 import type { User } from '../../auth/types'
 import { isNotFoundError } from 'utils/errors'
+import Layout from 'components/layout'
 
 function getSearchOptionsFromParams(query: ParsedUrlQuery): DocumentsSearchOptions {
     return {
@@ -101,7 +102,7 @@ const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
     }
 
     return (
-        <div>
+        <Layout>
             <PageTitle title={modelName} />
 
             <SearchBar
@@ -146,7 +147,7 @@ const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
                     />
                 )}
             </div>
-        </div>
+        </Layout>
     )
 }
 

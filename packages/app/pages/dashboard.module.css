@@ -1,21 +1,51 @@
-.category {
-    padding: 16px 0;
+.card {
+    background-color: white;
+    padding: 1rem;
+}
+.summary::marker {
+    font-size: 1.2em;
 }
 
-.category h3 {
-    color: grey;
-    text-align: center;
+.summary h2 {
+    display: inline-block;
 }
 
-.models {
+.filter {
+    align-items: baseline;
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-end;
 }
 
-.model {
+.filter label {
+    flex: 0 1 auto;
+    margin-right: 0.5em;
+}
+
+.filter select {
+    flex: 0 1 max-content;
+}
+
+.link {
     display: flex;
-    flex-direction: column;
-    width: 150px;
-    margin: 10px;
+    justify-content: space-between;
+    padding: 0.625rem;
+    text-decoration: none;
+    width: 100%;
+}
+
+.link:hover,
+.link:focus {
+    background-color: #f0f0f0;
+}
+
+.link:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    outline: 0;
+}
+
+.linkIcon {
+    align-items: center;
+    display: flex;
+    flex: 1 1 max-content;
 }

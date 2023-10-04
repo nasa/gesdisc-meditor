@@ -61,7 +61,7 @@ const SUPPORTED_ICONS = {
     MdWarning,
 }
 
-const ModelIcon = ({ name = '', color = '#000' }) => {
+const ModelIcon = ({ name = '', color = '#000', className = '' }) => {
     if (!name.length) return <></>
 
     // TODO: Model schema's icon list should use `FaIcon` naming style instead of `fa-icon` naming style, then refactor this
@@ -94,7 +94,10 @@ const ModelIcon = ({ name = '', color = '#000' }) => {
     let Icon = SUPPORTED_ICONS[camelCasedIcon]
 
     return (
-        <span className={styles.container} style={{ background: `${color}` }}>
+        <span
+            className={`${styles.container} ${className}`}
+            style={{ background: `${color}` }}
+        >
             <Icon />
         </span>
     )

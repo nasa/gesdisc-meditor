@@ -11,7 +11,7 @@ import styles from './document-comments.module.css'
 
 const AVATAR_URL =
     'https://bugs.earthdata.nasa.gov/secure/useravatar?size=large&ownerId=${uid}'
-export const DEFAULT_PARENT_ID = 'root'
+const DEFAULT_PARENT_ID = 'root'
 const DEFAULT_COMMENT = {
     text: '',
     resolved: false,

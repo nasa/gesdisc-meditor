@@ -1,3 +1,4 @@
+import Layout from 'components/layout'
 import cloneDeep from 'lodash.clonedeep'
 import type { NextPageContext } from 'next'
 import { useRouter } from 'next/router'
@@ -262,7 +263,7 @@ const EditDocumentPage = ({
     }
 
     return (
-        <div>
+        <Layout>
             <PageTitle title={[documentTitle, modelName]} />
 
             {theme !== 'edpub' && (
@@ -382,7 +383,7 @@ const EditDocumentPage = ({
                     model.workflow.currentNode.allowValidationErrors
                 }
             />
-        </div>
+        </Layout>
     )
 }
 
