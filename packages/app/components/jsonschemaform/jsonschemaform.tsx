@@ -105,6 +105,11 @@ export default JsonSchemaForm
 //* Validate custom widgets here because of this issue: https://github.com/rjsf-team/react-jsonschema-form/issues/2718
 function validateCustomWidgets(formData: any, errors: FormValidation) {
     formData.templates?.forEach((template: any, index: number) => {
+        //* Another schema may have a `templates` property, but not intend it for macros. This attempts to guard against that.
+        if (!('jsonpath' in template)) {
+            return
+        }
+
         //* Macro templates can reference either the schema or layout (see macro ReadMe).
         const isValid = [
             validatePath(template.jsonpath, JSON.parse(formData.schema || '{}')),
