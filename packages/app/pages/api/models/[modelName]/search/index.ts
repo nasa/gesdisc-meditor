@@ -1,4 +1,4 @@
-import { getLoggedInUser } from 'auth/user'
+import { getLoggedInUser } from 'auth/service'
 import { userCanAccessModel } from 'models/service'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { searchInputApiSchema } from 'search/schema'

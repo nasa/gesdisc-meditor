@@ -1,7 +1,18 @@
 .card {
     background-color: white;
-    padding: 1rem;
+    max-height: 50vh;
+    overflow-y: auto;
+    margin: 1rem;
 }
+
+.details {
+    padding: 0 1rem 1rem;
+}
+
+.summary {
+    margin: 0 -1em;
+}
+
 .summary::marker {
     font-size: 1.2em;
 }
@@ -47,5 +58,9 @@
 .linkIcon {
     align-items: center;
     display: flex;
-    flex: 1 1 max-content;
+    flex: 1 1 min-content;
+}
+
+.linkInfo {
+    flex: 0 0 max-content;
 }
