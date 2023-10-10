@@ -1,24 +1,35 @@
+.main {
+    display: grid;
+    gap: 1rem;
+    min-height: 100vh;
+    padding: 1rem;
+}
+
+@media (min-width: 64em) {
+    .main {
+        grid-template-areas:
+            'main main top-aside'
+            'main main bottom-aside';
+        grid-template-columns: 1fr 1fr minmax(36rem, 1fr);
+        grid-auto-rows: minmax(3rem, 42vh);
+    }
+
+    .card:nth-of-type(1) {
+        grid-area: main;
+    }
+    .card:nth-of-type(2) {
+        grid-area: bottom-aside;
+    }
+
+    .card:nth-of-type(3) {
+        grid-area: top-aside;
+    }
+}
+
 .card {
     background-color: white;
-    max-height: 50vh;
     overflow-y: auto;
-    margin: 1rem;
-}
-
-.details {
-    padding: 0 1rem 1rem;
-}
-
-.summary {
-    margin: 0 -1em;
-}
-
-.summary::marker {
-    font-size: 1.2em;
-}
-
-.summary h2 {
-    display: inline-block;
+    padding: 1rem;
 }
 
 .filter {
@@ -55,12 +66,21 @@
     outline: 0;
 }
 
-.linkIcon {
+.linkIconText {
     align-items: center;
     display: flex;
-    flex: 1 1 min-content;
+    flex: 1 1 auto;
+    /* default is `auto`; allows this contianer to shrink for text-overflow */
+    min-width: 0;
 }
 
 .linkInfo {
     flex: 0 0 max-content;
+    margin-left: 1rem;
+}
+
+.truncate {
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }

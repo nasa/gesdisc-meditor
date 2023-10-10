@@ -3,8 +3,8 @@ import { getLoggedInUser } from 'auth/service'
 import type { IncomingMessage, ServerResponse } from 'http'
 import type { Model, ModelCategory } from 'models/types'
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { getDashboardDb } from './db'
 import { getDocumentsForModel } from 'documents/service'
+import { getCommentsForUser } from 'comments/service'
 
 const collator = new Intl.Collator()
 
@@ -22,8 +22,8 @@ async function getRecentDocumentsFromModels(modelNames: string[]) {
         if (result.status === 'fulfilled') {
             const [_error, documents] = result.value
 
-            // TODO implement pagination (in the getDocumentsForModel service) and use here
-            recentDocuments.push(...documents.slice(0, 100))
+            //! More useful would be getting "n" documents by status. Knowing what statuses (which are dynamic) to use is currently a blocker.
+            recentDocuments.push(...documents.slice(0, 30))
         }
     }
 
@@ -44,6 +44,16 @@ async function getModelsAccessibleByUser(
     const uniqueModels = getUniqueModelsFromUserRoles(user.roles)
 
     return uniqueModels
+}
+
+async function getUnresolvedCommentsForUser(uid: string) {
+    const [_error, allUserComments] = await getCommentsForUser(uid)
+
+    const unresolvedUserComments = allUserComments.filter(
+        comment => !comment.resolved
+    )
+
+    return unresolvedUserComments
 }
 
 function convertModelToDisplayModel(
@@ -111,4 +121,5 @@ export {
     getModelsAccessibleByUser,
     getRecentDocumentsFromModels,
     getUniqueModelCategories,
+    getUnresolvedCommentsForUser,
 }

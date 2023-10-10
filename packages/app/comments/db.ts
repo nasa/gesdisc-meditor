@@ -56,6 +56,17 @@ class CommentsDb {
         return makeSafeObjectIDs(comments)
     }
 
+    async getCommentsForUser(uid: string) {
+        const query: any[] = [{ $match: { userUid: uid } }]
+
+        const comments = await this.#db
+            .collection<DocumentComment>('Comments')
+            .aggregate(query, { allowDiskUse: true })
+            .toArray()
+
+        return makeSafeObjectIDs(comments)
+    }
+
     async insertOne(comment: NewDocumentComment): Promise<DocumentComment> {
         const { insertedId } = await this.#db
             .collection<NewDocumentComment>(this.#COMMENTS_COLLECTION)

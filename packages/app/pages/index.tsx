@@ -1,9 +1,11 @@
 import { getLoggedInUser } from 'auth/service'
+import type { User } from 'auth/types'
 import {
     convertModelToDisplayModel,
     getModelsAccessibleByUser,
     getRecentDocumentsFromModels,
     getUniqueModelCategories,
+    getUnresolvedCommentsForUser,
 } from 'dashboard/service'
 import type { Document } from 'documents/types'
 import type { NextPageContext } from 'next'
@@ -15,9 +17,11 @@ import UnderMaintenance from '../components/under-maintenance'
 import { getModelsWithDocumentCount } from '../models/service'
 import type { ModelCategory } from '../models/types'
 import styles from './dashboard.module.css'
+import type { DocumentComment } from '../comments/types'
 
 type DashboardPageProps = {
     modelCategories: ModelCategory[]
+    unresolvedUserComments: DocumentComment[]
     userRecentDocuments: Document[]
 }
 const listFormatter = new Intl.ListFormat('en-US', {
@@ -28,6 +32,7 @@ const timeFormatter = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' })
 
 const DashboardPage = ({
     modelCategories,
+    unresolvedUserComments,
     userRecentDocuments,
 }: DashboardPageProps) => {
     const userIconMap = useMemo(
@@ -60,145 +65,197 @@ const DashboardPage = ({
     )
 
     return (
-        <main>
+        <main className={styles.main}>
             <PageTitle title="" />
 
             {!modelCategories.length && <UnderMaintenance />}
 
             <article className={`${styles.card} rounded shadow-sm`}>
-                <details open className={styles.details}>
-                    <summary
-                        className={`${styles.summary} bg-secondary text-light rounded-top p-1 mb-3`}
+                <h2 className="h3 m-0 ml-1">{`Recent Documents: ${filterDocumentBy}`}</h2>
+
+                <div className={`${styles.filter} mb-3`}>
+                    <label htmlFor="filter-document-state">Filter by:</label>
+                    <select
+                        id="filter-document-state"
+                        className="form-control"
+                        defaultValue={filterDocumentBy}
+                        onChange={e => setFilterDocumentBy(e.target.value)}
                     >
-                        <h2 className="h4 m-0 ml-1">{`Recent Documents: ${filterDocumentBy}`}</h2>
-                    </summary>
+                        {userDocumentStates.map((state: string) => (
+                            <option value={state} key={state}>
+                                {state}
+                            </option>
+                        ))}
+                    </select>
+                </div>
 
-                    <div className={`${styles.filter} mb-3`}>
-                        <label htmlFor="filter-document-state">Filter by:</label>
-                        <select
-                            id="filter-document-state"
-                            className="form-control"
-                            defaultValue={filterDocumentBy}
-                            onChange={e => setFilterDocumentBy(e.target.value)}
-                        >
-                            {userDocumentStates.map((state: string) => (
-                                <option value={state} key={state}>
-                                    {state}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                {userRecentDocuments.map(document => {
+                    const { title, ['x-meditor']: meta } = document
+                    const { model, modifiedOn, state } = meta
 
-                    {userRecentDocuments.map(document => {
-                        const { title, ['x-meditor']: meta } = document
-                        const { model, modifiedOn, state } = meta
+                    if (state !== filterDocumentBy) {
+                        return null
+                    }
 
-                        if (state !== filterDocumentBy) {
-                            return null
-                        }
+                    return (
+                        <div className="d-flex" key={title}>
+                            <Link
+                                href={`/${globalThis.encodeURIComponent(
+                                    model
+                                )}/${globalThis.encodeURIComponent(title)}`}
+                                className={styles.link}
+                            >
+                                <span className={styles.linkIconText}>
+                                    <ModelIcon
+                                        aria-hidden="true"
+                                        className="mr-3"
+                                        name={userIconMap[model].name}
+                                        color={userIconMap[model].color}
+                                    />
+                                    <span
+                                        className={styles.truncate}
+                                        aria-hidden="true"
+                                    >
+                                        {title}
+                                    </span>
+                                    <span className="visually-hidden">{title}</span>
+                                </span>
+                                <time
+                                    dateTime={modifiedOn}
+                                    className={`text-muted text-right ${styles.linkInfo}`}
+                                    suppressHydrationWarning
+                                >
+                                    {timeFormatter.format(new Date(modifiedOn))}
+                                </time>
+                            </Link>
+                        </div>
+                    )
+                })}
+            </article>
 
+            <article className={`${styles.card} rounded shadow-sm`}>
+                <h2 className="h3 m-0 ml-1">My Unresolved Comments</h2>
+
+                {unresolvedUserComments.map(
+                    ({ createdOn, documentId, model, text }) => {
                         return (
-                            <div className="d-flex" key={title}>
+                            <div className="d-flex" key={documentId}>
                                 <Link
                                     href={`/${globalThis.encodeURIComponent(
                                         model
-                                    )}/${globalThis.encodeURIComponent(title)}`}
+                                    )}/${globalThis.encodeURIComponent(documentId)}`}
                                     className={styles.link}
                                 >
-                                    <span className={styles.linkIcon}>
+                                    <span className={styles.linkIconText}>
                                         <ModelIcon
+                                            aria-hidden="true"
                                             className="mr-3"
                                             name={userIconMap[model].name}
                                             color={userIconMap[model].color}
                                         />
-                                        {title}
+                                        <span
+                                            className={styles.truncate}
+                                            aria-hidden="true"
+                                        >
+                                            {text}
+                                        </span>
+                                        <span className="visually-hidden">
+                                            {text}
+                                        </span>
                                     </span>
-                                    <span className={`text-muted ${styles.linkInfo}`}>
-                                        {timeFormatter.format(new Date(modifiedOn))}
-                                    </span>
+                                    <time
+                                        dateTime={createdOn}
+                                        className={`text-muted  text-right ${styles.linkInfo}`}
+                                        suppressHydrationWarning
+                                    >
+                                        {timeFormatter.format(new Date(createdOn))}
+                                    </time>
                                 </Link>
                             </div>
                         )
-                    })}
-                </details>
+                    }
+                )}
             </article>
 
             <article className={`${styles.card} rounded shadow-sm`}>
-                <details open className={styles.details}>
-                    <summary
-                        className={`${styles.summary} bg-secondary text-light rounded-top p-1 mb-3`}
+                <h2 className="h3 m-0 ml-1">{`${
+                    filterModelBy === 'hasRoles' ? 'My Models' : 'All Models'
+                }`}</h2>
+
+                <div className={`${styles.filter} mb-3`}>
+                    <label htmlFor="filter-model">Filter by:</label>
+                    <select
+                        id="filter-model"
+                        className="form-control"
+                        defaultValue={'hasRoles'}
+                        onChange={e => setFilterModelBy(e.target.value as any)}
                     >
-                        <h2 className="h4 m-0 ml-1">{`${
-                            filterModelBy === 'hasRoles' ? 'My Models' : 'All Models'
-                        }`}</h2>
-                    </summary>
+                        <option value="hasRoles">My Models</option>
+                        <option value="none">All Models</option>
+                    </select>
+                </div>
 
-                    <div className={`${styles.filter} mb-3`}>
-                        <label htmlFor="filter-model">Filter by:</label>
-                        <select
-                            id="filter-model"
-                            className="form-control"
-                            defaultValue={'hasRoles'}
-                            onChange={e => setFilterModelBy(e.target.value as any)}
-                        >
-                            <option value="hasRoles">My Models</option>
-                            <option value="none">All Models</option>
-                        </select>
-                    </div>
+                {modelCategories.map(category => {
+                    if (filterModelBy === 'hasRoles' && !category.userHasRoles) {
+                        return null
+                    }
 
-                    {modelCategories.map(category => {
-                        if (filterModelBy === 'hasRoles' && !category.userHasRoles) {
-                            return null
-                        }
+                    return (
+                        <section className="mb-4" key={category.name}>
+                            <h3 className="h5 d-inline mb-0 ml-1">{category.name}</h3>
 
-                        return (
-                            <section className="mb-4" key={category.name}>
-                                <h3 className="h4 d-inline mb-0 ml-1">
-                                    {category.name}
-                                </h3>
+                            {category.models.map(model => {
+                                if (
+                                    filterModelBy === 'hasRoles' &&
+                                    model.userRoles.length === 0
+                                ) {
+                                    return null
+                                }
 
-                                {category.models.map(model => {
-                                    if (
-                                        filterModelBy === 'hasRoles' &&
-                                        model.userRoles.length === 0
-                                    ) {
-                                        return null
-                                    }
-
-                                    return (
-                                        <div className="d-flex" key={model.name}>
-                                            <Link
-                                                href={`/${model.name}`}
-                                                className={styles.link}
-                                            >
-                                                <span className={styles.linkIcon}>
-                                                    <ModelIcon
-                                                        className="mr-3"
-                                                        name={model?.icon?.name}
-                                                        color={model?.icon?.color}
-                                                    />
+                                return (
+                                    <div className="d-flex" key={model.name}>
+                                        <Link
+                                            href={`/${model.name}`}
+                                            className={styles.link}
+                                        >
+                                            <span className={styles.linkIconText}>
+                                                <ModelIcon
+                                                    aria-hidden="true"
+                                                    className="mr-3"
+                                                    name={model?.icon?.name}
+                                                    color={model?.icon?.color}
+                                                />
+                                                <span
+                                                    className={styles.truncate}
+                                                    aria-hidden="true"
+                                                >
                                                     {`${model?.name} (${model?.count})`}
                                                 </span>
-                                                <span className="text-muted">
-                                                    {listFormatter.format(
-                                                        model.userRoles
-                                                    )}
+                                                <span className="visually-hidden">
+                                                    {`${model?.name} (${model?.count})`}
                                                 </span>
-                                            </Link>
-                                        </div>
-                                    )
-                                })}
-                            </section>
-                        )
-                    })}
-                </details>
+                                            </span>
+                                            <span
+                                                className={`text-muted text-right ${styles.linkInfo}`}
+                                            >
+                                                {listFormatter.format(
+                                                    model.userRoles
+                                                )}
+                                            </span>
+                                        </Link>
+                                    </div>
+                                )
+                            })}
+                        </section>
+                    )
+                })}
             </article>
         </main>
     )
 }
 
 export async function getServerSideProps({ req, res }: NextPageContext) {
-    const user = await getLoggedInUser(req, res)
+    const user: User = await getLoggedInUser(req, res)
     // TODO: handle error when retrieving models with document count, show user an error message?
     const [_error, modelsWithDocumentCount = []] = await getModelsWithDocumentCount()
 
@@ -219,6 +276,7 @@ export async function getServerSideProps({ req, res }: NextPageContext) {
                 modelsWithDocumentCount,
                 user
             ),
+            unresolvedUserComments: await getUnresolvedCommentsForUser(user.uid),
             userRecentDocuments: await getRecentDocumentsFromModels(
                 await getModelsAccessibleByUser(req, res)
             ),
