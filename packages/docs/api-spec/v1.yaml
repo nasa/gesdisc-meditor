@@ -539,8 +539,8 @@ paths:
             tags:
                 - search
             summary: search documents
-            description: Search a model for documents using Lucene sytnax.
-            operationId: search
+            description: Search a model for documents using a [subset of the Lucene sytnax](/user-guide/search-syntax).
+            operationId: searchDocuments
             parameters:
                 - name: modelName
                   in: path

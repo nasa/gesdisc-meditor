@@ -103,15 +103,63 @@ describe('search', () => {
             resultsPerPage,
             pageNumber
         )
-        const isAllEmergency = searchResults.every(
+        const isAllEmergency = searchResults.results.every(
             (result: Record<string, any>) => result.severity === 'emergency'
         )
 
         expect(searchError).toBe(null)
-        expect(searchResults.length).toBe(10)
+        expect(searchResults.results.length).toBe(10)
         expect(isAllEmergency).toBe(true)
     })
 
+    test('returns pagination metadata', async () => {
+        const model = 'Alerts'
+        const query = 'severity:emergency'
+        const resultsPerPage = 10
+        const pageNumber = 1
+        const [searchError, searchResults] = await search(
+            model,
+            query,
+            resultsPerPage,
+            pageNumber
+        )
+
+        expect(searchError).toBe(null)
+        expect(searchResults.metadata).toMatchInlineSnapshot(`
+            Object {
+              "pageCount": 2,
+              "pageNumber": 1,
+              "query": "severity:emergency",
+              "resultsCount": 11,
+              "resultsPerPage": 10,
+            }
+        `)
+    })
+
+    test('returns pagination metadata for searches without results or out of bounds', async () => {
+        const model = 'Alerts'
+        const query = 'title:"Deleted Fixture"'
+        const resultsPerPage = 10
+        const pageNumber = 2
+        const [searchError, searchResults] = await search(
+            model,
+            query,
+            resultsPerPage,
+            pageNumber
+        )
+
+        expect(searchError).toBe(null)
+        expect(searchResults.results.length).toBe(0)
+        expect(searchResults.metadata).toMatchInlineSnapshot(`
+            Object {
+              "pageCount": 1,
+              "pageNumber": 2,
+              "query": "title:\\"Deleted Fixture\\"",
+              "resultsCount": 0,
+              "resultsPerPage": 10,
+            }
+        `)
+    })
     test('returns the correct number of paginated results', async () => {
         const model = 'Alerts'
         const query = 'severity:emergency'
@@ -123,12 +171,12 @@ describe('search', () => {
             resultsPerPage,
             pageNumber
         )
-        const isAllEmergency = searchResults.every(
+        const isAllEmergency = searchResults.results.every(
             (result: Record<string, any>) => result.severity === 'emergency'
         )
 
         expect(searchError).toBe(null)
-        expect(searchResults.length).toBe(3)
+        expect(searchResults.results.length).toBe(3)
         expect(isAllEmergency).toBe(true)
     })
 
@@ -154,23 +202,25 @@ describe('search', () => {
         expect(firstSearchError).toBe(null)
         expect(secondSearchError).toBe(null)
 
-        expect(firstSearchResults.length).toBe(3)
-        expect(secondSearchResults.length).toBe(3)
+        expect(firstSearchResults.results.length).toBe(3)
+        expect(secondSearchResults.results.length).toBe(3)
 
-        const firstIsAllEmergency = firstSearchResults.every(
+        const firstIsAllEmergency = firstSearchResults.results.every(
             (result: Record<string, any>) => result.severity === 'emergency'
         )
-        const secondIsAllEmergency = secondSearchResults.every(
+        const secondIsAllEmergency = secondSearchResults.results.every(
             (result: Record<string, any>) => result.severity === 'emergency'
         )
 
         expect(firstIsAllEmergency).toBe(true)
         expect(secondIsAllEmergency).toBe(true)
 
-        const firstTitles = firstSearchResults.map((result: Record<string, any>) => {
-            return result.title
-        })
-        const secondTitles = secondSearchResults.map(
+        const firstTitles = firstSearchResults.results.map(
+            (result: Record<string, any>) => {
+                return result.title
+            }
+        )
+        const secondTitles = secondSearchResults.results.map(
             (result: Record<string, any>) => {
                 return result.title
             }
@@ -195,7 +245,7 @@ describe('search', () => {
         )
 
         expect(searchError).toBe(null)
-        expect(searchResults.length).toBe(1)
+        expect(searchResults.results.length).toBe(1)
     })
 
     test('finds relationships in array properties', async () => {
@@ -209,12 +259,13 @@ describe('search', () => {
             resultsPerPage,
             pageNumber
         )
-        const isAllFldas = searchResults.every((result: Record<string, any>) =>
-            result.datasets.includes('FLDAS_NOAH001_G_CA_D_001')
+        const isAllFldas = searchResults.results.every(
+            (result: Record<string, any>) =>
+                result.datasets.includes('FLDAS_NOAH001_G_CA_D_001')
         )
 
         expect(searchError).toBe(null)
-        expect(searchResults.length).toBe(1)
+        expect(searchResults.results.length).toBe(1)
         expect(isAllFldas).toBe(true)
     })
 
@@ -229,12 +280,13 @@ describe('search', () => {
             resultsPerPage,
             pageNumber
         )
-        const isAllFldas = searchResults.every((result: Record<string, any>) =>
-            result.datasets.includes('FLDAS_NOAH001_G_CA_D_001')
+        const isAllFldas = searchResults.results.every(
+            (result: Record<string, any>) =>
+                result.datasets.includes('FLDAS_NOAH001_G_CA_D_001')
         )
 
         expect(searchError).toBe(null)
-        expect(searchResults.length).toBe(1)
+        expect(searchResults.results.length).toBe(1)
         expect(isAllFldas).toBe(true)
     })
 
@@ -249,12 +301,12 @@ describe('search', () => {
             resultsPerPage,
             pageNumber
         )
-        const isAllEmergency = searchResults.every(
+        const isAllEmergency = searchResults.results.every(
             (result: Record<string, any>) => result.severity === 'emergency'
         )
 
         expect(searchError).toBe(null)
-        expect(searchResults.length).toBe(2)
+        expect(searchResults.results.length).toBe(2)
         expect(isAllEmergency).toBe(true)
     })
 
@@ -270,8 +322,10 @@ describe('search', () => {
             pageNumber
         )
 
+        console.log(searchError)
+
         expect(searchError).toBe(null)
-        expect(searchResults.length).toBe(0)
-        expect(searchResults).toStrictEqual([])
+        expect(searchResults.results.length).toBe(0)
+        expect(searchResults.results).toStrictEqual([])
     })
 })

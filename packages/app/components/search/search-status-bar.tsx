@@ -30,7 +30,7 @@ const SearchStatusBar = ({
             .sort() || []
 
     // find fields in the layout that are marked as filters
-    let filterFields = []
+    let filterFields = {}
 
     try {
         filterFields = pickby(layout, field => 'ui:filter' in field)

@@ -38,11 +38,19 @@ class searchDb {
             { $replaceRoot: { newRoot: '$doc' } },
             // Compile Lucene syntax into MQL.
             { $match: this.compileQuery(query) },
-            // Use a 1-based pageNumber for readability, but operate on a 0-based index.
-            { $skip: resultsPerPage * (pageNumber - 1) },
-            // Limit our results to the correct number.
-            { $limit: resultsPerPage },
+            {
+                $facet: {
+                    metadata: [{ $count: 'resultsCount' }],
+                    results: [
+                        // Use a 1-based pageNumber for readability, but operate on a 0-based index.
+                        { $skip: resultsPerPage * (pageNumber - 1) },
+                        // Limit our results to the correct number.
+                        { $limit: resultsPerPage },
+                    ],
+                },
+            },
         ]
+
         const searchResults = await this.#db
             .collection(modelName)
             .aggregate(pipeline, { allowDiskUse: true })

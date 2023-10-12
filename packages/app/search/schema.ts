@@ -8,7 +8,9 @@ const searchInputApiSchema = z.object({
             z.literal('JSON'),
             z.literal('json'),
         ])
-        .optional(),
+        .transform(arg => arg.toUpperCase())
+        .optional()
+        .default('JSON'),
     modelName: z.string().min(1),
     pageNumber: z.coerce.number().min(1).default(1),
     query: z.string().min(1),

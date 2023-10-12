@@ -1,0 +1,111 @@
+---
+title: Search Syntax
+---
+
+## Apache Lucene
+
+The [Document Search](/meditor-api/search-documents) endpoint uses a subset of the [Apache Lucene query syntax](https://lucene.apache.org/core/2_9_4/queryparsersyntax.html). mEditor does not support the full Lucene search syntax, so we've detailed the supported subset below.
+
+### Terms and Phrases
+
+A single word is a Term, and a series of words is a Phrase.
+
+-   `OMI` is a Term.
+-   `OMI-Validation Requirements` is a Phrase.
+
+Terms do not require quotation marks, but phrases do. Any of these are valid:
+
+```bash
+
+curl '$MEDITOR_BASE_URL/api/models/Collection%20Metadata/search?query=Dataset_Citation.Dataset_Creator:"Carl%20Creator"'
+curl '$MEDITOR_BASE_URL/api/models/Collection%20Metadata/search?query=Dataset_Citation.Dataset_Creator:"Carl"'
+curl '$MEDITOR_BASE_URL/api/models/Collection%20Metadata/search?query=Dataset_Citation.Dataset_Creator:Carl'
+```
+
+_curl requires that spaces be URL-encoded as `%20`, but only the quotation marks `"` are of significance for this example._
+
+### Fields
+
+`{field name}:{term or phrase}`
+
+In the prior example we ran the following query: `?query=Dataset_Citation.Dataset_Creator:"Carl%20Creator"`. The colon `:` denotes the separator between field name and the term or phrase you are searching for.
+
+### Dot Notation
+
+Given this partial data structure:
+
+```json
+{
+  ...other properties
+  "Metadata_Dates": {
+    "Metadata_Creation": "2016-10-27",
+    "Metadata_Last_Revision": "2020-03-16",
+    "Data_Creation": "2020-01-30",
+    "Data_Last_Revision": "2020-01-30"
+  },
+  "Dataset_Citation": [
+    {
+      "Dataset_Publisher": "Goddard Earth Sciences Data and Information Services Center (GES DISC)",
+      "Data_Presentation_Form": "Digital Science Data",
+      "Persistent_Identifier": {
+        "HasDOI": true,
+        "Type": "DOI",
+        "Identifier": "10.5067/E7TYRXPJKWOQ"
+      },
+      "Dataset_Title": "GLDAS Noah Land Surface Model L4 3 hourly 0.25 x 0.25 degree V2.1",
+      "Dataset_Series_Name": "GLDAS_NOAH025_3H",
+      "Dataset_Release_Date": "2020-01-30",
+      "Dataset_Release_Place": "Greenbelt, Maryland, USA",
+      "Version": "2.1",
+      "Online_Resource": "https://disc.gsfc.nasa.gov/datacollection/GLDAS_NOAH025_3H_2.1.html"
+    }
+  ],
+  ...other properties
+}
+```
+
+You could search the `Metadata_Last_Revision` field with the following query:
+
+```bash
+
+curl '$MEDITOR_BASE_URL/api/models/Collection%20Metadata/search?query=Metadata_Dates.Metadata_Last_Revision:2020-03-16'
+```
+
+Notice that we navigate from `Metadata_Dates` down into `Metadata_Last_Revision` via `Metadata_Dates.Metadata_Last_Revision`. It is the `.` that enables that traversal, so we call this "dot notation." This also works when the data structure's field value resolves to a list of values, as does `Dataset_Citation`. To search for datasets released in Greenbelt, Maryland, USA, you could use this query:
+
+```bash
+
+curl '$MEDITOR_BASE_URL/api/models/Collection%20Metadata/search?query=Dataset_Citation.Dataset_Release_Place:"Greenbelt,%20Maryland,%20USA"'
+```
+
+_Notice the use of quotes `"` around the Phrase, since it contains spaces._
+
+### Wildcard Search Operator
+
+Often you will need to search for a term or phrase that is not an exact match, and wildcard searches enable that. Using the previous data structure, you could search the `Dataset_Release_Place` with any of the following:
+
+```bash
+
+# matches Greenbelt plus any text
+curl '$MEDITOR_BASE_URL/api/models/Collection%20Metadata/search?query=Dataset_Citation.Dataset_Release_Place:Greenbelt*'
+
+# matches Greenbelt, Maryland plus any text (like "USA")
+curl '$MEDITOR_BASE_URL/api/models/Collection%20Metadata/search?query=Dataset_Citation.Dataset_Release_Place:Greenbelt*Maryland*'
+```
+
+_Notice the lack of quotation marks surrounding the phrases. Phrases may not use quotation marks **and** the wildcard operator, so the wildcard operator is used to "fill in for" the space character (and in this case, a space and a comma)._
+
+### Logical Boolean Operators and Grouping
+
+You can use logical operators (AND, OR) in your queries and even organize them into logical groups with parenthesis `()`. From our previous search, we find that sometimes Maryland is abbreviated `MD` in our data. Again using the previous data structure as a reference, we could find the release place of `MD` or `Maryland` with the following:
+
+```bash
+
+# matches MD OR Maryland
+curl '$MEDITOR_BASE_URL/api/models/Collection%20Metadata/search?query=Dataset_Citation.Dataset_Release_Place:*MD*%20OR%20Dataset_Citation.Dataset_Release_Place:*Maryland*'
+
+# matches MD OR Maryland, AND must also be last revised 2020-03-16
+curl '$MEDITOR_BASE_URL/api/models/Collection%20Metadata/search?query=Dataset_Citation.Dataset_Release_Place:*MD*%20OR%20Dataset_Citation.Dataset_Release_Place:*Maryland*%20AND%20Metadata_Dates.Metadata_Last_Revision:"2020-03-16"'
+```
+
+_Though hard to see when surrounded by `%20`, the logical OR is `%20OR%20` and the logical and is `%20AND%20`. `%20` is how URL parsers encode the space character._
