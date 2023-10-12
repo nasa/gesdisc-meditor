@@ -21,7 +21,8 @@ const DocumentHeader = ({
     comments = [],
     history = [],
 }) => {
-    const numberOfComments = comments === null ? 0 : comments.length
+    const numberOfComments =
+        comments === null ? 0 : comments.filter(c => !c.resolved).length
     const numberOfHistoryEntries = history === null ? 0 : history.length
 
     return (
