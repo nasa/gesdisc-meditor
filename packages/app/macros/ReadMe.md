@@ -13,6 +13,8 @@ Macros are made with an internal DSL for running queries written into a model's 
 }
 ```
 
+The `jsonpath` can target either a model's `layout` or `schema`, with `schema` targets looking like `$.properties.{sub-properties}`. If targeting the layout, we're building something like a list of suggestions where the user can pick a suggestion or enter their own. If targeting the schema, the user must pick one of the presented options.
+
 The list macro defined above will generate a list of unique titles from within the `Keywords` collection in the database, replacing the data on the model at the `jsonpath` with its return value. In this case, `model.schema.properties.tags.items.enum` would have a value of `'placeholder'` initially, then get replaced with a list of unique news titles. This can be used in the UI to create comboboxes, selects, etc. Other macros follow this general syntax of `{macro name} {macro argument}`.
 
 ## 'list'
