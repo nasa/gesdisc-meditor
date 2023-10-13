@@ -7,7 +7,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula')
 /** @type {import('@docusaurus/types').Config} */
 const config = {
     title: 'mEditor Documentation',
-    tagline: 'How to use the GES DISC Model Editor application and API',
+    tagline: 'How to use the Model Editor application and API',
     url: process.env.MEDITOR_ORIGIN || 'http://localhost',
     baseUrl: '/meditor/docs/',
     onBrokenLinks: 'throw',

@@ -46,9 +46,8 @@
             "Role": ["METADATA AUTHOR"],
             "Contact_Person": [
                 {
-                    "First_Name": "JEROME",
-                    "Middle_Name": "M.",
-                    "Last_Name": "ALFRED",
+                    "First_Name": "HASHBROWN",
+                    "Last_Name": "USER",
                     "Address": [
                         {
                             "Street_Address": [
@@ -68,7 +67,7 @@
                             "Type": "Telephone"
                         }
                     ],
-                    "Email": ["jerome.m.alfred@nasa.gov"]
+                    "Email": ["hashbrown@nasa.gov"]
                 }
             ],
             "Personnel_Type": "Contact_Person"
@@ -181,7 +180,7 @@
                                     "Type": "Fax"
                                 }
                             ],
-                            "Email": ["gsfc-dl-help-disc@mail.nasa.gov"]
+                            "Email": ["bacon@mail.nasa.gov"]
                         }
                     ],
                     "Personnel_Type": "Contact_Group"

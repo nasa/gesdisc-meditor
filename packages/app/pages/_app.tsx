@@ -68,10 +68,7 @@ const App = ({ Component, pageProps, theme }: AppProps & PropsType) => {
                     content="Model Editor"
                 />
                 <meta property="og:site_name" content="mEditor" />
-                <meta
-                    property="og:url"
-                    content="https://lb.gesdisc.eosdis.nasa.gov/meditor"
-                />
+                <meta property="og:url" content="/meditor" />
 
                 <link rel="icon" type="image/x-icon" href="/meditor/favicon.ico" />
 

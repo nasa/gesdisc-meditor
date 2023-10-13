@@ -102,7 +102,7 @@ mEditor allows a user to log in through its user interface or through a POST req
 
 ### Login through UI
 
-To learn more about logging in through mEditor's UI, see [Logging In](https://lb.gesdisc.eosdis.nasa.gov/meditor/docs/user-guide/quick-start#logging-in) within the User Guide.
+To learn more about logging in through mEditor's UI, see [Logging In](https://github.com/nasa/gesdisc-meditor/blob/main/packages/docs/docs/user-guide/quick-start.mdx) within the User Guide.
 
 ### Login through API
 
