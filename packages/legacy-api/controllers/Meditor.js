@@ -55,6 +55,7 @@ async function handlePublicationAcknowledgements(message) {
                 [acknowledgement.statusCode == 200 ? 'publishedOn' : 'failedOn']:
                     Date.now(),
             }),
+            ...(acknowledgement.state && { state: acknowledgement.state }),
         }
 
         const db = client.db(DbName).collection(acknowledgement.model)
@@ -68,6 +69,9 @@ async function handlePublicationAcknowledgements(message) {
                 $pull: {
                     'x-meditor.publishedTo': {
                         target: acknowledgement.target,
+                        // if document is in "Published" state, this would clear out any publication statuses for **other** states
+                        // i.e. any publication statuses that are marked as "Draft" would be cleared out
+                        state: { $ne: acknowledgement.state },
                     },
                 },
             }
