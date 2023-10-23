@@ -276,7 +276,7 @@ export async function getServerSideProps({ req, res }: NextPageContext) {
                 modelsWithDocumentCount,
                 user
             ),
-            unresolvedUserComments: await getUnresolvedCommentsForUser(user.uid),
+            unresolvedUserComments: await getUnresolvedCommentsForUser(user?.uid),
             userRecentDocuments: await getRecentDocumentsFromModels(
                 await getModelsAccessibleByUser(req, res)
             ),

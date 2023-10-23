@@ -41,12 +41,12 @@ async function getModelsAccessibleByUser(
     response: NextApiResponse | ServerResponse
 ) {
     const user = await getLoggedInUser(request, response)
-    const uniqueModels = getUniqueModelsFromUserRoles(user.roles)
+    const uniqueModels = getUniqueModelsFromUserRoles(user?.roles)
 
     return uniqueModels
 }
 
-async function getUnresolvedCommentsForUser(uid: string) {
+async function getUnresolvedCommentsForUser(uid: string = '') {
     const [_error, allUserComments] = await getCommentsForUser(uid)
 
     const unresolvedUserComments = allUserComments.filter(
