@@ -30,7 +30,10 @@ function fromSecretOrEnv(key) {
     var SECRETS_DIR = '/run/secrets/'
 
     if (fs.existsSync(SECRETS_DIR + key)) {
-        return fs.readFileSync(SECRETS_DIR + key).toString()
+        return fs
+            .readFileSync(SECRETS_DIR + key)
+            .toString()
+            .trim()
     } else {
         return process.env[key] || process.env[key.toUpperCase()]
     }
