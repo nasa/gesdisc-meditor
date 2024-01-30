@@ -24,7 +24,7 @@ function connectToNats() {
     return {
         stan,
         // also returning a promise that resolves when NATS connects
-        stanConnectPromise: new Promise<Stan>(resolve => {
+        stanConnectPromise: new Promise<Stan>((resolve, reject) => {
             // wait for the connection to complete
             stan.on('connect', () => {
                 log.info('Connected to NATS')
@@ -33,6 +33,14 @@ function connectToNats() {
 
             stan.on('error', (error: any) => {
                 log.error(error) //? do anything beyond logging?
+
+                if (stan) {
+                    log.debug('Stan is being resolved...', JSON.stringify(stan))
+
+                    resolve(stan)
+                } else {
+                    process?.exit()
+                }
             })
         }),
     }
