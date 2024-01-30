@@ -35,7 +35,7 @@ function connectToNats() {
                 log.error(error) //? do anything beyond logging?
 
                 if (stan) {
-                    log.info('Stan is being resolved...', JSON.stringify(stan))
+                    log.debug('Stan is being resolved...', JSON.stringify(stan))
 
                     resolve(stan)
                 } else {

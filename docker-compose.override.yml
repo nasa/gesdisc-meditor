@@ -29,7 +29,7 @@ services:
   app:
     container_name: meditor_app
     build: packages/app
-    restart: on-failure:3
+    restart: on-failure
     env_file:
       - .env
     ports:
