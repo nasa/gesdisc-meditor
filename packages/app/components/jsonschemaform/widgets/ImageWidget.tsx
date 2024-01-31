@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import IconButton from '../components/IconButton'
 import { handleResponseErrors } from '../utils/error'
+import type { WidgetProps } from '@rjsf/utils'
 
 const UPLOAD_IDLE = ''
 const UPLOAD_IN_PROGRESS = 'uploading'
 const UPLOAD_FAILED = 'upload failed'
 
-function ImageWidget(props) {
+function ImageWidget(props: WidgetProps) {
     let fileEl = React.createRef<HTMLInputElement>()
 
     const [uploadState, setUploadState] = useState(UPLOAD_IDLE)
@@ -44,14 +45,7 @@ function ImageWidget(props) {
 
     return (
         <div className="image-widget-content">
-            <BaseInput
-                value={currentImagePath}
-                options={props.options}
-                id={props.id}
-                schema={props.schema}
-                readonly={props.readonly}
-                type="text"
-            />
+            <BaseInput {...props} value={currentImagePath} type="text" />
 
             {!props.readonly && (
                 <IconButton

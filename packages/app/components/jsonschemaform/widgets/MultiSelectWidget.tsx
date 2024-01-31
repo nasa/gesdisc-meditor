@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react'
 import Tagify from '@yaireo/tagify'
+import type { WidgetProps } from '@rjsf/utils'
 
 function optionHasValue(option) {
     if (!option) {
@@ -13,7 +14,7 @@ function optionHasValue(option) {
     return option != ''
 }
 
-function MultiSelectWidget(props) {
+function MultiSelectWidget(props: WidgetProps) {
     const {
         id,
         placeholder,
@@ -34,8 +35,8 @@ function MultiSelectWidget(props) {
 
         let tagifyOptions = {
             mode: !props.multiple ? 'select' : null,
-            whitelist:
-                (options.enum || options.enumOptions)?.filter(optionHasValue) || [],
+            whitelist: options.enumOptions /*
+                (options.enum || options.enumOptions)?.filter(optionHasValue) || [],*/,
             enforceWhitelist:
                 'enforceEnumOptions' in options ? options.enforceEnumOptions : true,
             keepInvalidTags:
@@ -66,8 +67,8 @@ function MultiSelectWidget(props) {
     useEffect(() => {
         if (!tagify) return
 
-        tagify.settings.whitelist =
-            (options.enum || options.enumOptions)?.filter(optionHasValue) || []
+        tagify.settings.whitelist = options.enumOptions /*?
+            (options.enum || options.enumOptions)?.filter(optionHasValue) || []*/
     }, [tagify, options.enum, options.enumOptions])
 
     let filteredValue = value && typeof value === 'string' ? [value] : value

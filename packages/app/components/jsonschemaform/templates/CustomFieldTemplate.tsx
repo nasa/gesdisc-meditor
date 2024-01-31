@@ -1,8 +1,6 @@
 import React from 'react'
 import IconButton from '../components/IconButton'
-import { utils } from '@rjsf/core'
-
-const { ADDITIONAL_PROPERTY_FLAG } = utils
+import { ADDITIONAL_PROPERTY_FLAG } from '@rjsf/utils'
 
 const REQUIRED_FIELD_SYMBOL = '*'
 
@@ -106,7 +104,7 @@ function WrapIfAdditional(props) {
     )
 }
 
-function CustomFieldTemplate(props) {
+export default function CustomFieldTemplate(props) {
     const {
         id,
         label,
@@ -139,5 +137,3 @@ function CustomFieldTemplate(props) {
         </WrapIfAdditional>
     )
 }
-
-export default CustomFieldTemplate

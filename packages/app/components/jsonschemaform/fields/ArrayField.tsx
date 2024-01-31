@@ -16,7 +16,7 @@ import {
     optionsList,
     retrieveSchema,
     toIdSchema,
-} from '@rjsf/core/lib/utils'
+} from '@rjsf/utils'
 import shortid from 'shortid'
 
 function ArrayFieldTitle({ TitleField, idSchema, title, required }) {

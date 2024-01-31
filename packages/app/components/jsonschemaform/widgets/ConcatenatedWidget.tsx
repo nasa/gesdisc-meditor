@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
+import type { WidgetProps } from '@rjsf/utils'
 
 const DEFAULT_DELIMETER = ' > '
 const ID_PREFIX = 'root_'
 
-function ConcatenatedWidget(props) {
+function ConcatenatedWidget(props: WidgetProps) {
     const { BaseInput } = props.registry.widgets
 
     const delimeter = props.options.delimeter || DEFAULT_DELIMETER
@@ -64,7 +65,7 @@ function ConcatenatedWidget(props) {
         setTimeout(() => {
             let fields = []
 
-            props.options.fields.forEach(field => {
+            Object.keys(props.registry.fields).forEach(field => {
                 let el = document.getElementById(ID_PREFIX + field)
 
                 if (!el) {
