@@ -83,8 +83,10 @@ const JsonSchemaForm = ({
             fields={fields as any}
             widgets={widgets}
             templates={{
+                ArrayFieldTemplate: templates.ArrayFieldTemplate,
                 ObjectFieldTemplate: templates.FlexLayoutTemplate,
                 FieldTemplate: templates.CustomFieldTemplate,
+                DescriptionFieldTemplate: templates.DescriptionFieldTemplate,
             }}
             liveValidate={liveValidate}
             onBlur={onBlur}
