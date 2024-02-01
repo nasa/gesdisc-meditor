@@ -97,7 +97,7 @@ function StringField(props) {
 
     return (
         <>
-            <RJSFStringField {...fieldProps} />
+            <RJSFStringField {...fieldProps} onBlur={handleBlur} />
 
             {linkIsValid === false && (
                 <div className="field-warning">
