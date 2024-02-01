@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react'
 import IconButton from '../components/IconButton'
 import { handleResponseErrors } from '../utils/error'
 import type { WidgetProps } from '@rjsf/utils'
+import { getTemplate } from '@rjsf/utils'
 
 const UPLOAD_IDLE = ''
 const UPLOAD_IN_PROGRESS = 'uploading'
 const UPLOAD_FAILED = 'upload failed'
 
-function ImageWidget(props: WidgetProps) {
+export default function ImageWidget(props: WidgetProps) {
     let fileEl = React.createRef<HTMLInputElement>()
 
     const [uploadState, setUploadState] = useState(UPLOAD_IDLE)
@@ -41,7 +42,7 @@ function ImageWidget(props: WidgetProps) {
             .catch(() => setUploadState(UPLOAD_FAILED))
     }
 
-    const { BaseInput } = props.registry.widgets
+    const BaseInput = getTemplate('BaseInputTemplate', props.registry)
 
     return (
         <div className="image-widget-content">
@@ -96,5 +97,3 @@ function ImageWidget(props: WidgetProps) {
         </div>
     )
 }
-
-export default ImageWidget

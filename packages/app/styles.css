@@ -164,24 +164,11 @@ fieldset.field-array fieldset.field-array {
     margin-left: 30px;
 }
 
-.array-item:hover > .array-item-toolbox > .btn-group > .array-item-remove {
-    opacity: 1;
-}
-
+.array-item-move-up,
+.array-item-move-down,
+.array-item-copy,
 .array-item-remove {
-    background: none;
-    border: none;
-    box-shadow: none;
-    color: rgba(0, 0, 0, 0.3);
-    flex: 0 1 40px !important;
-    opacity: 0;
-}
-
-.array-item-remove:hover {
-    background: none;
-    border: none;
-    box-shadow: none;
-    color: rgba(0, 0, 0, 1);
+    max-width: 50px;
 }
 
 .btn-info,

@@ -84,6 +84,7 @@ const JsonSchemaForm = ({
             widgets={widgets}
             templates={{
                 ArrayFieldTemplate: templates.ArrayFieldTemplate,
+                ArrayFieldItemTemplate: templates.ArrayFieldItemTemplate,
                 ObjectFieldTemplate: templates.FlexLayoutTemplate,
                 FieldTemplate: templates.CustomFieldTemplate,
                 DescriptionFieldTemplate: templates.DescriptionFieldTemplate,

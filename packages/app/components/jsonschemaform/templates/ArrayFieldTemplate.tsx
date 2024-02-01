@@ -7,6 +7,7 @@ import {
     RJSFSchema,
     StrictRJSFSchema,
 } from '@rjsf/utils'
+import AddButton from '../components/AddButton'
 
 /** The `ArrayFieldTemplate` component is the template used to render all items in an array.
  * This was created for mEditor use from the original ArrayFieldTemplate: https://github.com/rjsf-team/react-jsonschema-form/blob/main/packages/core/src/components/templates/ArrayFieldTemplate.tsx
@@ -33,10 +34,6 @@ export default function ArrayFieldTemplate<
         props.registry,
         uiOptions
     )
-    // Button templates are not overridden in the uiSchema
-    const {
-        ButtonTemplates: { AddButton },
-    } = props.registry.templates
 
     return (
         <fieldset className={props.className} id={props.idSchema.$id}>
@@ -69,11 +66,10 @@ export default function ArrayFieldTemplate<
 
             {props.canAdd && (
                 <AddButton
+                    title={props.uiSchema['ui:title'] || props.title}
                     className="array-item-add"
                     onClick={props.onAddClick}
                     disabled={props.disabled || props.readonly}
-                    uiSchema={props.uiSchema}
-                    registry={props.registry}
                 />
             )}
         </fieldset>

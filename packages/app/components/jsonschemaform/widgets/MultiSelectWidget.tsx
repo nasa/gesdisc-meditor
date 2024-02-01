@@ -35,8 +35,7 @@ function MultiSelectWidget(props: WidgetProps) {
 
         let tagifyOptions = {
             mode: !props.multiple ? 'select' : null,
-            whitelist: options.enumOptions /*
-                (options.enum || options.enumOptions)?.filter(optionHasValue) || [],*/,
+            whitelist: options.enumOptions?.filter(optionHasValue) ?? [],
             enforceWhitelist:
                 'enforceEnumOptions' in options ? options.enforceEnumOptions : true,
             keepInvalidTags:
@@ -67,8 +66,7 @@ function MultiSelectWidget(props: WidgetProps) {
     useEffect(() => {
         if (!tagify) return
 
-        tagify.settings.whitelist = options.enumOptions /*?
-            (options.enum || options.enumOptions)?.filter(optionHasValue) || []*/
+        tagify.settings.whitelist = options.enumOptions?.filter(optionHasValue) ?? []
     }, [tagify, options.enum, options.enumOptions])
 
     let filteredValue = value && typeof value === 'string' ? [value] : value

@@ -25,6 +25,7 @@ function TitlePropertyWidget(props: WidgetProps) {
             autoFocus={autofocus || false}
             value={value}
             onBlur={event => {
+                console.log('on blur')
                 onChange(event.target.value.trim())
                 onBlur(id, event.target.value)
             }}
