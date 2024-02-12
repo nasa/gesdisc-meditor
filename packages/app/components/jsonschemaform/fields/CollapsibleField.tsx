@@ -6,7 +6,7 @@
  * TODO: refactor to functional components, fix TS issues, and remove ts-nocheck
  */
 import React, { Component } from 'react'
-import { utils } from '@rjsf/core'
+import { deepEquals, getDefaultFormState } from '@rjsf/utils'
 import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md'
 import { keyExistsInSchema } from '../../../lib/utils'
 
@@ -201,7 +201,7 @@ class CollapsibleField extends Component {
         let {
             uiSchema: { collapse: { addToBottom = true } = {} },
         } = this.props
-        if (formData.some(v => utils.deepEquals(v, newVal))) {
+        if (formData.some(v => deepEquals(v, newVal))) {
             return formData
         } else {
             // newVal can be either array or a single element, concat flattens value
@@ -275,7 +275,7 @@ class CollapsibleField extends Component {
                     this.setState({ AddElement })
                 }
             } else {
-                let newVal = utils.getDefaultFormState(fieldSchema, {})
+                let newVal = getDefaultFormState(fieldSchema, {})
                 this.doAdd(addTo, formData, newVal)
             }
         })

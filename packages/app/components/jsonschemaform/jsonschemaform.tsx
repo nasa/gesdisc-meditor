@@ -7,7 +7,8 @@ import { useEffect, useRef } from 'react'
 import fields from './fields/'
 import templates from './templates/'
 import widgets from './widgets/'
-import type { FormValidation } from '@rjsf/core'
+import validator from '@rjsf/validator-ajv8'
+import type { FormValidation } from '@rjsf/utils'
 
 const JsonSchemaForm = ({
     schema,
@@ -81,8 +82,13 @@ const JsonSchemaForm = ({
             uiSchema={layout}
             fields={fields as any}
             widgets={widgets}
-            ObjectFieldTemplate={templates.FlexLayoutTemplate}
-            FieldTemplate={templates.CustomFieldTemplate}
+            templates={{
+                ArrayFieldTemplate: templates.ArrayFieldTemplate,
+                ArrayFieldItemTemplate: templates.ArrayFieldItemTemplate,
+                ObjectFieldTemplate: templates.FlexLayoutTemplate,
+                FieldTemplate: templates.CustomFieldTemplate,
+                DescriptionFieldTemplate: templates.DescriptionFieldTemplate,
+            }}
             liveValidate={liveValidate}
             onBlur={onBlur}
             onChange={onChange}
@@ -95,7 +101,15 @@ const JsonSchemaForm = ({
             }}
             noValidate={allowValidationErrors}
             noHtml5Validate={allowValidationErrors}
-            validate={validate}
+            validator={validator}
+            customValidate={validate}
+            // see https://rjsf-team.github.io/react-jsonschema-form/docs/api-reference/form-props/#experimental_defaultformstatebehavior
+            experimental_defaultFormStateBehavior={{
+                arrayMinItems: {
+                    populate: 'requiredOnly', // ignore minItems on a field when calculating defaults unless the field is required
+                },
+                emptyObjectFields: 'populateRequiredDefaults', // only set the default value when parent is required (for objects) or when the field is required (for primitives)
+            }}
         />
     )
 }

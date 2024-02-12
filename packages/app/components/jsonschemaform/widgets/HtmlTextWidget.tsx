@@ -1,6 +1,7 @@
 import React from 'react'
+import type { WidgetProps } from '@rjsf/utils'
 
-function HtmlTextWidget(props) {
+function HtmlTextWidget(props: WidgetProps) {
     const {
         value,
         readonly,

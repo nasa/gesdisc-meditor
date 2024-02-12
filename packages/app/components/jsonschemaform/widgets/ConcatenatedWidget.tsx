@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
+import type { WidgetProps } from '@rjsf/utils'
+import { getTemplate } from '@rjsf/utils'
 
 const DEFAULT_DELIMETER = ' > '
 const ID_PREFIX = 'root_'
 
-function ConcatenatedWidget(props) {
-    const { BaseInput } = props.registry.widgets
+export default function ConcatenatedWidget(props: WidgetProps) {
+    const BaseInput = getTemplate('BaseInputTemplate', props.registry)
 
     const delimeter = props.options.delimeter || DEFAULT_DELIMETER
 
@@ -64,27 +66,26 @@ function ConcatenatedWidget(props) {
         setTimeout(() => {
             let fields = []
 
-            props.options.fields.forEach(field => {
-                let el = document.getElementById(ID_PREFIX + field)
+            Array.isArray(props.options.fields) &&
+                props.options.fields.forEach(field => {
+                    let el = document.getElementById(ID_PREFIX + field)
 
-                if (!el) {
-                    console.error(
-                        `Cannot concatenate using field: '${field}'. That field was not found in this document.`
-                    )
-                    return
-                }
+                    if (!el) {
+                        console.error(
+                            `Cannot concatenate using field: '${field}'. That field was not found in this document.`
+                        )
+                        return
+                    }
 
-                fields.push(el)
+                    fields.push(el)
 
-                // update the concatenated value anytime this field blurs or changes
-                el.onblur = () => updateConcatenatedFieldValueFromFields(fields)
-                el.onchange = () => updateConcatenatedFieldValueFromFields(fields)
-                el.onkeyup = () => updateConcatenatedFieldValueFromFields(fields)
-            })
+                    // update the concatenated value anytime this field blurs or changes
+                    el.onblur = () => updateConcatenatedFieldValueFromFields(fields)
+                    el.onchange = () => updateConcatenatedFieldValueFromFields(fields)
+                    el.onkeyup = () => updateConcatenatedFieldValueFromFields(fields)
+                })
         }, 500)
     }
 
     return <BaseInput {...props} value={concatenatedValue} readonly={true} />
 }
-
-export default ConcatenatedWidget

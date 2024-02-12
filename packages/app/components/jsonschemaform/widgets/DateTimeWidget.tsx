@@ -1,8 +1,9 @@
 import React from 'react'
 import Flatpickr from 'react-flatpickr'
 import { format, zonedTimeToUtc } from 'date-fns-tz'
+import type { WidgetProps } from '@rjsf/utils'
 
-function DateTimeWidget(props) {
+function DateTimeWidget(props: WidgetProps) {
     const {
         id,
         placeholder,

@@ -1,6 +1,7 @@
 import React from 'react'
 import { CKEditor } from 'ckeditor4-react'
 import * as plugins from './ckeditor-plugins/'
+import type { WidgetProps } from '@rjsf/utils'
 
 function registerPluginsWithCkEditorInstance(CKEDITOR) {
     Object.keys(plugins).forEach(key => {
@@ -19,7 +20,7 @@ function registerPluginsWithCkEditorInstance(CKEDITOR) {
     })
 }
 
-function CKEditorWidget(props) {
+function CKEditorWidget(props: WidgetProps) {
     const config = {
         mathJaxLib:
             'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_HTML',

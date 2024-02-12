@@ -1,6 +1,7 @@
 import React from 'react'
+import type { WidgetProps } from '@rjsf/utils'
 
-function TitlePropertyWidget(props) {
+function TitlePropertyWidget(props: WidgetProps) {
     const {
         id,
         placeholder,
@@ -24,6 +25,7 @@ function TitlePropertyWidget(props) {
             autoFocus={autofocus || false}
             value={value}
             onBlur={event => {
+                console.log('on blur')
                 onChange(event.target.value.trim())
                 onBlur(id, event.target.value)
             }}

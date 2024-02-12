@@ -1,6 +1,7 @@
 import React from 'react'
+import type { WidgetProps } from '@rjsf/utils'
 
-function IconWidget(props) {
+function IconWidget(props: WidgetProps) {
     const {
         schema,
         id,
