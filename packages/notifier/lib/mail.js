@@ -67,7 +67,7 @@ export function sendMail(subject, text, html, to, cc = "") {
           },
         },
         Source: `${MAIL_FROM_USERNAME}@${HOST_NAME}` /* required */,
-        ReplyToAddresses: [],
+        ReplyToAddresses: [ `${MAIL_FROM_USERNAME}@${HOST_NAME}` ],
       };
 
       log.debug("Attempting to send message ", params);
