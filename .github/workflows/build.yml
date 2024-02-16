@@ -36,6 +36,8 @@ jobs:
 
   fetch-kion-token:
     if: ${{ needs.has-version-changed.outputs.version-changed == 'true' }}
+    needs: [has-version-changed]
+
     runs-on: ubuntu-latest
 
     outputs:
