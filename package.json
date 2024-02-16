@@ -1,6 +1,6 @@
 {
   "name": "meditor",
-  "version": "1.9.27",
+  "version": "1.9.28",
   "description": "mEditor, the model editor",
   "directories": {
     "example": "examples",

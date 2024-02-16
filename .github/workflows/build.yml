@@ -48,6 +48,7 @@ jobs:
         id: kion-token
         uses: JamesIves/fetch-api-data-action@v2
         with:
+          debug: true
           endpoint: "${{ secrets.KION_URL }}/temporary-credentials"
           configuration: '{ "method": "POST", "headers": {"Authorization": "Bearer ${{ secrets.KION_API_KEY }}", "Accept": "application/json", "Content-Type": "application/json"}, "body": {"account_number": "${{ secrets.AWS_ACCOUNT_ID_PROD }}", "iam_role_name": "mcp-tenantOperator"} }'
 
@@ -55,8 +56,8 @@ jobs:
         run: 'echo "${{ steps.kion-token.outputs.fetchApiData }}"'
 
   build:
-    if: ${{ needs.has-version-changed.outputs.version-changed == 'true' }}
-    needs: [has-version-changed]
+    if: ${{ success() }}
+    needs: [has-version-changed, fetch-kion-token]
 
     runs-on: ubuntu-latest
 
