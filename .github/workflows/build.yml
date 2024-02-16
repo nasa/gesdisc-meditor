@@ -48,6 +48,7 @@ jobs:
         id: kion-token
         uses: indiesdev/curl@v1.1
         with:
+          timeout: 15000
           url: ${{ secrets.KION_URL }}/temporary-credentials
           method: POST
           headers: '{ "Accept": "application/json", "Content-Type": "application/json" }'
