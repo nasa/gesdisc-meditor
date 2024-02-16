@@ -6,7 +6,38 @@ on:
     #branches: [main]
 
 jobs:
+  has-version-changed:
+    runs-on: ubuntu-latest
+
+    outputs:
+      version-changed: ${{ steps.version-check.outputs.changed }}
+
+    steps:
+      - name: Checkout latest code from branch
+        uses: actions/checkout@v3
+        with:
+          # Make sure the actual branch is checked out when running on pull requests
+          ref: ${{ github.head_ref }}
+          # Fetch only the changes to the previous commit
+          fetch-depth: 0
+
+      - name: Setup NodeJS 16
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: "npm"
+          cache-dependency-path: packages/app/package-lock.json
+
+      - name: Version Check
+        id: version-check
+        uses: EndBug/version-check@v2.1.3
+        with:
+          diff-search: true
+
   build:
+    if: ${{ needs.has-version-changed.outputs.version-changed == 'true' }}
+    needs: [has-version-changed]
+
     runs-on: ubuntu-latest
 
     strategy:
@@ -38,11 +69,5 @@ jobs:
           cache: "npm"
           cache-dependency-path: packages/app/package-lock.json
 
-      - name: Version Check
-        uses: EndBug/version-check@v2.1.3
-        with:
-          diff-search: true
-
       - name: Log when changed
-        if: steps.check.outputs.changed == 'true'
         run: 'echo "Version change found in commit ${{ steps.check.outputs.commit }}! New version: ${{ steps.check.outputs.version }} (${{ steps.check.outputs.type }})"'
