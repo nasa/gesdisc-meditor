@@ -34,14 +34,32 @@ jobs:
         with:
           diff-search: true
 
-  build:
+  fetch-kion-token:
     if: ${{ needs.has-version-changed.outputs.version-changed == 'true' }}
+    runs-on: ubuntu-latest
+
+    outputs:
+      kion-token: ${{ steps.kion-token.outputs.fetchApiData }}
+
+    steps:
+      - name: Fetch Kion Token
+        id: kion-token
+        uses: JamesIves/fetch-api-data-action@v2
+        with:
+          endpoint: "${{ secrets.KION_URL }}/temporary-credentials"
+          configuration: '{ "method": "POST", "headers": {"Authorization": "Bearer ${{ secrets.KION_API_KEY }}", "accept": "application/json", "Content-Type", "application/json"}, "body": {"account_number": "${{ secrets.AWS_ACCOUNT_ID_PROD }}", "iam_role_name": "mcp-tenantOperator"} }'
+
+      - name: Log
+        run: 'echo "${{ steps.kion-token.outputs.fetchApiData }}"'
+
+  build:
+    if: ${{ success() }}
     needs: [has-version-changed]
 
     runs-on: ubuntu-latest
 
     strategy:
-      max-parallel: 1
+      max-parallel: 6
       matrix:
         directory:
           [
@@ -68,6 +86,3 @@ jobs:
           node-version: 16
           cache: "npm"
           cache-dependency-path: packages/app/package-lock.json
-
-      - name: Log when changed
-        run: 'echo "Version change found in commit ${{ steps.check.outputs.commit }}! New version: ${{ steps.check.outputs.version }} (${{ steps.check.outputs.type }})"'
