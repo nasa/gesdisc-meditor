@@ -46,14 +46,24 @@ jobs:
     steps:
       - name: Fetch Kion Token
         id: kion-token
-        uses: JamesIves/fetch-api-data-action@v2
+        uses: indiesdev/curl@v1.1
         with:
-          debug: true
-          endpoint: "${{ secrets.KION_URL }}/temporary-credentials"
-          configuration: '{ "method": "POST", "headers": {"Authorization": "Bearer ${{ secrets.KION_API_KEY }}", "Accept": "application/json", "Content-Type": "application/json"}, "body": {"account_number": "${{ secrets.AWS_ACCOUNT_ID_PROD }}", "iam_role_name": "mcp-tenantOperator"} }'
+          url: ${{ secrets.KION_URL }}/temporary-credentials
+          method: POST
+          headers: '{ "Accept": "application/json", "Content-Type": "application/json" }'
+          body: '{"account_number": "${{ secrets.AWS_ACCOUNT_ID_PROD }}", "iam_role_name": "mcp-tenantOperator"}'
+          bearer-token: ${{ secrets.KION_API_KEY }}
+
+      #- name: Fetch Kion Token
+      #  id: kion-token
+      #  uses: JamesIves/fetch-api-data-action@v2
+      #  with:
+      #    debug: true
+      #    endpoint: ""
+      #    configuration: '{ "method": "POST", "headers": {}, "body": {"account_number": "${{ secrets.AWS_ACCOUNT_ID_PROD }}", "iam_role_name": "mcp-tenantOperator"} }'
 
       - name: Log
-        run: 'echo "${{ steps.kion-token.outputs.fetchApiData }}"'
+        run: 'echo "${{ steps.kion-token.outputs.response }}"'
 
   build:
     if: ${{ success() }}
