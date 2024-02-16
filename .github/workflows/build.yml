@@ -49,7 +49,7 @@ jobs:
         uses: JamesIves/fetch-api-data-action@v2
         with:
           endpoint: "${{ secrets.KION_URL }}/temporary-credentials"
-          configuration: '{ "method": "POST", "headers": {"Authorization": "Bearer ${{ secrets.KION_API_KEY }}", "accept": "application/json", "Content-Type", "application/json"}, "body": {"account_number": "${{ secrets.AWS_ACCOUNT_ID_PROD }}", "iam_role_name": "mcp-tenantOperator"} }'
+          configuration: '{ "method": "POST", "headers": {"Authorization": "Bearer ${{ secrets.KION_API_KEY }}", "accept": "application/json", "Content-Type", "application/json"} }'
 
       - name: Log
         run: 'echo "${{ steps.kion-token.outputs.fetchApiData }}"'
