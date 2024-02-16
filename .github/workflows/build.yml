@@ -53,7 +53,7 @@ jobs:
         run: 'echo "${{ steps.kion-token.outputs.fetchApiData }}"'
 
   build:
-    if: ${{ success() }}
+    if: ${{ needs.has-version-changed.outputs.version-changed == 'true' }}
     needs: [has-version-changed]
 
     runs-on: ubuntu-latest
