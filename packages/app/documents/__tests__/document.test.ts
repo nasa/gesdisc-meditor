@@ -1,4 +1,5 @@
 import type { Db } from 'mongodb'
+import { wait } from '../../utils/time'
 import * as emailNotifications from '../../email-notifications/service'
 import getDb from '../../lib/mongodb'
 import SpatialSearchIssue from '../../models/__tests__/__fixtures__/alerts/spatial_search_issue.json'
@@ -960,6 +961,9 @@ describe('Documents', () => {
 
             expect(error).toBeNull()
             expect(document).not.toBeNull()
+
+            //* Publishing is a side effect; we do not await it in our code.
+            await wait(1000)
             expect(queueSpy).toHaveBeenCalledTimes(1)
         })
     })
