@@ -1,16 +1,17 @@
 import log from '../lib/log'
-import natsClientPromise from '../lib/nats'
+import { connectToNats } from '../lib/nats'
 import type { QueueMessage } from './types'
 
 const NATS_QUEUE_PREFIX = 'meditor-'
 
-export function publishMessageToQueueChannel(
+export async function publishMessageToQueueChannel(
     channelName: string,
     message: QueueMessage
 ) {
+    await connectToNats()
+
     // we'll return a promise to indicate whether the publish succeeded or not
-    return new Promise<string>(async (resolve, reject) => {
-        const natsClient = await natsClientPromise
+    return new Promise<string>((resolve, reject) => {
         const fullChannelName = !channelName.startsWith(NATS_QUEUE_PREFIX)
             ? NATS_QUEUE_PREFIX + channelName
             : channelName // ensure the channel name follows the "meditor-NAME" pattern
@@ -18,7 +19,7 @@ export function publishMessageToQueueChannel(
         log.info(`Publishing message to channel ${fullChannelName}`)
         log.debug(message)
 
-        natsClient.publish(
+        globalThis.natsClient.publish(
             fullChannelName,
             JSON.stringify(message),
             (err: Error | undefined, guid: string) => {
