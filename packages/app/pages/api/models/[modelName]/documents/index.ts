@@ -54,7 +54,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const [documentError, data] = await createDocument(
                 parsedDocument,
                 modelName,
-                user
+                user,
+                req.query.initialState?.toString()
             )
 
             if (documentError) {

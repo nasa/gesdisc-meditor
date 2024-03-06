@@ -26,12 +26,14 @@ import type {
 const EMAIL_NOTIFICATIONS_QUEUE_CHANNEL =
     process.env.MEDITOR_NATS_NOTIFICATIONS_CHANNEL || 'meditor-notifications'
 const DELETED_STATE = 'Deleted'
-const GENERIC_WORKFLOW_EDGE = { source: 'Init', target: 'Draft' }
+const INIT_STATE = 'Init'
+const DRAFT_STATE = 'Draft'
 
 export async function createDocument(
     documentToCreate: any,
     modelName: string,
-    user: User
+    user: User,
+    initialState: string = DRAFT_STATE // the initial state the document will be created in
 ): Promise<ErrorData<{ insertedDocument: Document; location: string }>> {
     try {
         const { _id, ...document } = documentToCreate // remove the database _id property
@@ -49,9 +51,28 @@ export async function createDocument(
         }
 
         const { schema, titleProperty, workflow } = modelWithWorkflow
-        const { allowValidationErrors } = workflow.nodes.find(
-            node => node.id === 'Draft'
-        )
+        const initialNode = workflow.nodes.find(node => node.id === initialState)
+
+        // validate that the document's state exists as a node in the model's workflow
+        // ex. does "Modify-Review-Publish" workflow contain a "Draft" state?
+        if (!initialNode) {
+            throw new HttpException(
+                ErrorCode.BadRequest,
+                `The passed in state, ${initialState}, does not exist`
+            )
+        }
+
+        // validate that there is at least one edge going from "Init" to to the initialState
+        if (
+            !workflow.edges.some(
+                edge => edge.source === INIT_STATE && edge.target === initialState
+            )
+        ) {
+            throw new HttpException(
+                ErrorCode.BadRequest,
+                `The passed in state, ${initialState}, is not an initial node in the workflow`
+            )
+        }
 
         //* The schema does not allow for our 'x-meditor' metadata property, so we have to allow all additional properties.
         const schemaWithAdditionalProperties = {
@@ -60,7 +81,7 @@ export async function createDocument(
         }
         const { errors } = validate(document, schemaWithAdditionalProperties)
 
-        if (errors.length && !allowValidationErrors) {
+        if (errors.length && !initialNode.allowValidationErrors) {
             throw new HttpException(
                 ErrorCode.ValidationError,
                 `Document "${
@@ -72,7 +93,8 @@ export async function createDocument(
         }
 
         //* This logic (and associated TODO) is ported from Meditor.js, saveDocument. Minimal modifications were made.
-        const rootState = { ...GENERIC_WORKFLOW_EDGE }
+        const rootState = { source: INIT_STATE, target: initialState }
+
         // @ts-ignore
         rootState.modifiedOn = document['x-meditor'].modifiedOn
         document['x-meditor'].modifiedOn = new Date().toISOString()
