@@ -1,14 +1,207 @@
-import Form from '@rjsf/core'
+import Form, { FormProps, FormState } from '@rjsf/core'
 import jp from 'jsonpath'
 import filter from 'lodash/filter'
 import isEqual from 'lodash/isEqual'
 import uniqWith from 'lodash/uniqWith'
-import { useEffect, useRef } from 'react'
+import { ChangeEvent, useEffect, useRef } from 'react'
 import fields from './fields/'
 import templates from './templates/'
 import widgets from './widgets/'
 import validator from '@rjsf/validator-ajv8'
-import type { FormValidation } from '@rjsf/utils'
+import type {
+    ErrorSchema,
+    FormContextType,
+    FormValidation,
+    RJSFSchema,
+    StrictRJSFSchema,
+} from '@rjsf/utils'
+
+class ModifiedForm<
+    T = any,
+    S extends StrictRJSFSchema = RJSFSchema,
+    F extends FormContextType = any
+> extends Form {
+    // Before the constructor, referring to the superclass.
+    superOnBlur = this.onBlur
+    superOnChange = this.onChange
+
+    changeState: {
+        formData: T | undefined
+        newErrorSchema?: ErrorSchema<T>
+        id?: string
+    } = null
+    semaphore: 'lock' | 'unlock' = 'unlock'
+
+    constructor(props: FormProps<T, S, F>) {
+        super(props)
+    }
+
+    static debounce(fn: Function, delay = 300) {
+        let timerId: NodeJS.Timeout
+
+        return (...args: any[]) => {
+            globalThis.clearTimeout(timerId)
+
+            timerId = setTimeout(() => fn(...args), delay)
+        }
+    }
+
+    updateWithoutState(event: any) {
+        console.log('updateWithoutState')
+        // console.log(event)
+        // console.log(event.currentTarget)
+
+        if (event.target.value) {
+            event.target.defaultValue += event.data
+        }
+
+        event.stopPropagation()
+        this.notifyOfChange(event, event.currentTarget)
+        // event.target.dispatchEvent(new Event('change'))
+        // this.formElement.current.dispatchEvent(new Event('change'))
+    }
+
+    // updateWithoutStateChange(event: any) {
+    //     console.log(event)
+    //     // if (event.target.value) {
+    //     //     event.target.defaultValue += event.data
+    //     // }
+    //
+    //     // event.stopPropagation()
+    //     // event.target.dispatchEvent(new Event('change'))
+    //     // this.formElement.current.dispatchEvent(new Event('change'))
+    // }
+
+    notifyOfChange = ModifiedForm.debounce((event: any, form: HTMLFormElement) => {
+        console.log('notifyOfChange')
+        console.log(event)
+        console.log(form)
+
+        event.target.dispatchEvent(new Event('change', { bubbles: true }))
+        // form.dispatchEvent(new Event('change', { bubbles: true}))
+        // form.dispatchEvent(new CustomEvent('change', { bubbles: true }))
+    }, 500)
+
+    componentDidMount() {
+        this.formElement.current.addEventListener(
+            'input',
+            // this.updateWithoutState,
+            this.updateWithoutState.bind(this),
+            {
+                capture: true,
+            }
+        )
+
+        // this.formElement.current.addEventListener(
+        //     'change',
+        //     this.updateWithoutStateChange,
+        //     // this.updateWithoutState.bind(this),
+        //     {
+        //         capture: true,
+        //     }
+        // )
+        // this.formElement.current.addEventListener('input', this.notifyOfChange, {
+        //     capture: true,
+        // })
+    }
+
+    componentWillUnmount() {
+        this.formElement.current.removeEventListener(
+            'input',
+            // this.updateWithoutState,
+            this.updateWithoutState.bind(this),
+            { capture: true }
+        )
+
+        // this.formElement.current.removeEventListener(
+        //     'change',
+        //     this.updateWithoutStateChange,
+        //     // this.updateWithoutState.bind(this),
+        //     { capture: true }
+        // )
+        // this.formElement.current.removeEventListener('input', this.notifyOfChange, {
+        //     capture: true,
+        // })
+    }
+
+    // shouldComponentUpdate(
+    //     nextProps: FormProps<T, S, F>,
+    //     nextState: FormState<T, S, F>
+    // ): boolean {
+    //     console.log('shouldComponentUpdate')
+    //     console.log(`semaphore: ${this.semaphore}`)
+    //     if (this.semaphore === 'lock') {
+    //         return false
+    //         // return true
+    //     }
+    //
+    //     return super.shouldComponentUpdate(nextProps, nextState)
+    // }
+    //
+    // // @ts-expect-error
+    // getSnapshotBeforeUpdate(
+    //     prevProps: FormProps<T, S, F>,
+    //     prevState: FormState<T, S, F>
+    // ) {
+    //     console.log('getSnapshotBeforeUpdate')
+    //     console.log(`semaphore: ${this.semaphore}`)
+    //     if (this.semaphore === 'lock') {
+    //         return {
+    //             // nextState: { ...prevState, formData: this.changeState.formData },
+    //             shouldUpdate: false,
+    //         }
+    //     }
+    //
+    //     return super.getSnapshotBeforeUpdate(prevProps, prevState)
+    // }
+
+    // componentDidUpdate(
+    //     _: FormProps<T, S, F>,
+    //     prevState: FormState<T, S, F>,
+    //     snapshot:
+    //         | { nextState: FormState<T, S, F>; shouldUpdate: true }
+    //         | { shouldUpdate: false }
+    // ) {
+    //     console.log('componentDidUpdate')
+    //     console.log(`semaphore: ${this.semaphore}`)
+    //
+    //     if (this.semaphore === 'unlock') {
+    //         return super.componentDidUpdate(_, prevState, snapshot)
+    //     }
+    // }
+
+    // onChange = (
+    //     formData: T | undefined,
+    //     newErrorSchema?: ErrorSchema<T>,
+    //     id?: string
+    // ) => {
+    //     console.log('onChange')
+    //     this.semaphore = 'lock'
+    //     this.changeState = { formData, newErrorSchema, id }
+    //
+    //     // this.superOnChange(formData, newErrorSchema, id)
+    // }
+
+    onChange = ModifiedForm.debounce(
+        (formData: T | undefined, newErrorSchema?: ErrorSchema<T>, id?: string) => {
+            console.log('onChange')
+            // this.semaphore = 'lock'
+            // this.changeState = { formData, newErrorSchema, id }
+
+            this.superOnChange(formData, newErrorSchema, id)
+        },
+        500
+    )
+
+    // onBlur = (id: string, data: any) => {
+    //     console.log('onBlur')
+    //     this.semaphore = 'unlock'
+    //     // const { formData, newErrorSchema, id: changeId } = this.changeState
+    //     //
+    //     // this.superOnChange(formData, newErrorSchema, changeId)
+    //     this.superOnBlur(id, data)
+    // }
+}
 
 const JsonSchemaForm = ({
     schema,
@@ -75,7 +268,7 @@ const JsonSchemaForm = ({
     }
 
     return (
-        <Form
+        <ModifiedForm
             ref={formEl}
             schema={schema}
             formData={document}
