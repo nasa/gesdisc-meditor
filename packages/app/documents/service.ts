@@ -114,7 +114,7 @@ export async function createDocument(
         const [last] = insertedDocument['x-meditor'].states.slice(-1)
         const targetState = last.target
 
-        await safelyPublishDocumentChangeToQueue(
+        safelyPublishDocumentChangeToQueue(
             modelWithWorkflow,
             insertedDocument,
             targetState
@@ -457,7 +457,7 @@ export async function changeDocumentState(
         }
 
         if (!options?.disableQueuePublication) {
-            await safelyPublishDocumentChangeToQueue(model, document, newState)
+            safelyPublishDocumentChangeToQueue(model, document, newState)
         } else {
             log.debug(
                 'User requested to change document state without publishing the state change to the queue'
