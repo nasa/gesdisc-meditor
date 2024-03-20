@@ -14,6 +14,18 @@ function optionHasValue(option) {
     return option != ''
 }
 
+function getEnumOptionsAsLabelValue(
+    enumOptions: string[] | { label: string; value: string }[]
+) {
+    return (
+        enumOptions
+            ?.filter(optionHasValue)
+            .map(option =>
+                typeof option === 'string' ? { label: option, value: option } : option
+            ) ?? []
+    )
+}
+
 function MultiSelectWidget(props: WidgetProps) {
     const {
         id,
@@ -35,7 +47,7 @@ function MultiSelectWidget(props: WidgetProps) {
 
         let tagifyOptions = {
             mode: !props.multiple ? 'select' : null,
-            whitelist: options.enumOptions?.filter(optionHasValue) ?? [],
+            whitelist: getEnumOptionsAsLabelValue(options.enumOptions),
             enforceWhitelist:
                 'enforceEnumOptions' in options ? options.enforceEnumOptions : true,
             keepInvalidTags:
@@ -66,7 +78,7 @@ function MultiSelectWidget(props: WidgetProps) {
     useEffect(() => {
         if (!tagify) return
 
-        tagify.settings.whitelist = options.enumOptions?.filter(optionHasValue) ?? []
+        tagify.settings.whitelist = getEnumOptionsAsLabelValue(options.enumOptions)
     }, [tagify, options.enum, options.enumOptions])
 
     let filteredValue = value && typeof value === 'string' ? [value] : value

@@ -1,0 +1,122 @@
+{
+    "roles": ["Author", "Post-Publish Reviewer"],
+    "nodes": [
+        {
+            "privileges": [
+                {
+                    "privilege": ["create"],
+                    "role": "Author"
+                }
+            ],
+            "id": "Init",
+            "readyForUse": false
+        },
+        {
+            "privileges": [
+                {
+                    "privilege": ["edit", "comment"],
+                    "role": "Author"
+                }
+            ],
+            "id": "Draft",
+            "readyForUse": false
+        },
+        {
+            "id": "Another Init Node",
+            "allowValidationErrors": true
+        },
+        {
+            "privileges": [
+                {
+                    "privilege": ["comment", "edit"],
+                    "role": "Author"
+                }
+            ],
+            "id": "Published",
+            "readyForUse": false
+        },
+        {
+            "privileges": [
+                {
+                    "privilege": ["comment"],
+                    "role": "Post-Publish Reviewer"
+                },
+                {
+                    "privilege": ["edit", "comment"],
+                    "role": "Author"
+                }
+            ],
+            "id": "Hidden",
+            "readyForUse": false
+        },
+        {
+            "id": "Deleted",
+            "privileges": [
+                {
+                    "role": "Author",
+                    "privilege": ["edit", "comment"]
+                }
+            ]
+        }
+    ],
+    "edges": [
+        {
+            "label": "Add New",
+            "notify": false,
+            "role": "Author",
+            "source": "Init",
+            "target": "Draft"
+        },
+        {
+            "label": "Publish",
+            "notify": true,
+            "role": "Author",
+            "source": "Draft",
+            "target": "Published",
+            "notifyRoles": "Post-Publish Reviewer"
+        },
+        {
+            "label": "Delete Permanently",
+            "notify": false,
+            "role": "Author",
+            "source": "Draft",
+            "target": "Deleted"
+        },
+        {
+            "label": "Delete Permanently",
+            "notify": false,
+            "role": "Author",
+            "source": "Hidden",
+            "target": "Deleted"
+        },
+        {
+            "label": "Delete Permanently",
+            "notify": false,
+            "role": "Author",
+            "source": "Published",
+            "target": "Deleted",
+            "notifyRoles": "Post-Publish Reviewer"
+        },
+        {
+            "label": "Un-publish",
+            "notify": false,
+            "role": "Post-Publish Reviewer",
+            "source": "Published",
+            "target": "Hidden"
+        },
+        {
+            "role": "Author",
+            "source": "Init",
+            "target": "Another Init Node",
+            "label": "Create Another Init Node",
+            "notify": false
+        },
+        {
+            "role": "Author",
+            "source": "Another Init Node",
+            "target": "Draft",
+            "label": "Save as Draft"
+        }
+    ],
+    "name": "Two-Init-Nodes"
+}

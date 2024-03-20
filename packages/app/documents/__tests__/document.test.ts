@@ -38,6 +38,7 @@ import alertWithHistory from './__fixtures__/alertWithHistory.json'
 import alertWithPublication from './__fixtures__/alertWithPublication.json'
 import duplicateEdgesWorkflow from './__fixtures__/duplicate-edges-workflow.json'
 import workflowEdges from './__fixtures__/workflowEdges.json'
+import workflowWithTwoInitialNodes from './__fixtures__/workflow-with-two-initial-nodes.json'
 
 describe('Documents', () => {
     let db: Db
@@ -221,6 +222,74 @@ describe('Documents', () => {
             )
 
             expect(queueSpy).toHaveBeenCalledTimes(1)
+        })
+
+        test('allow creating with an initial state other than `Draft`', async () => {
+            const modelName = 'Testing Two Initial Nodes'
+            const { _id: _modelId, ...model } = alertsModel as any
+            const { _id: _documentId, ...document } = minimalAlert as any
+
+            await db.collection('Workflows').insertOne(workflowWithTwoInitialNodes)
+            await db.collection('Models').insertOne({
+                ...model,
+                name: modelName,
+                workflow: workflowWithTwoInitialNodes.name,
+            })
+
+            const [error, { insertedDocument }] = await createDocument(
+                document,
+                modelName,
+                user,
+                'Another Init Node'
+            )
+
+            expect(error).toBeNull()
+            expect(insertedDocument['x-meditor'].states[0].target).toEqual(
+                'Another Init Node'
+            )
+        })
+
+        test('should throw an error if initial state does not exist', async () => {
+            const modelName = 'Testing Two Initial Nodes'
+            const { _id: _modelId, ...model } = alertsModel as any
+            const { _id: _documentId, ...document } = minimalAlert as any
+
+            await db.collection('Workflows').insertOne(workflowWithTwoInitialNodes)
+            await db.collection('Models').insertOne({
+                ...model,
+                name: modelName,
+                workflow: workflowWithTwoInitialNodes.name,
+            })
+
+            const [error] = await createDocument(document, modelName, user, 'Foo')
+
+            expect(error).toMatchInlineSnapshot(
+                `[Error: The passed in state, Foo, does not exist]`
+            )
+        })
+
+        test('should throw an error if passed in state is not actually an initial state', async () => {
+            const modelName = 'Testing Two Initial Nodes'
+            const { _id: _modelId, ...model } = alertsModel as any
+            const { _id: _documentId, ...document } = minimalAlert as any
+
+            await db.collection('Workflows').insertOne(workflowWithTwoInitialNodes)
+            await db.collection('Models').insertOne({
+                ...model,
+                name: modelName,
+                workflow: workflowWithTwoInitialNodes.name,
+            })
+
+            const [error] = await createDocument(
+                document,
+                modelName,
+                user,
+                'Published'
+            )
+
+            expect(error).toMatchInlineSnapshot(
+                `[Error: The passed in state, Published, is not an initial node in the workflow]`
+            )
         })
     })
 
