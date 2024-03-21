@@ -1,4 +1,5 @@
-FROM python:3.9.1
+ARG REGISTRY
+FROM ${REGISTRY}python:3.9.1
 
 RUN mkdir -p /usr/src/app
 RUN apt-get update
