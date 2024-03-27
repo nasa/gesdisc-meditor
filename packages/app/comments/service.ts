@@ -136,3 +136,19 @@ export async function getCommentsForDocument(
         return [error, null]
     }
 }
+
+export async function getCommentsForUser(
+    uid: string
+): Promise<ErrorData<DocumentComment[]>> {
+    try {
+        const commentsDb = await getCommentsDb()
+
+        const comments = await commentsDb.getCommentsForUser(uid)
+
+        return [null, comments]
+    } catch (error) {
+        log.error(error)
+
+        return [error, null]
+    }
+}

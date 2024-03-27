@@ -82,28 +82,26 @@ const App = ({ Component, pageProps, theme }: AppProps & PropsType) => {
                 {theme !== 'edpub' && (
                     <Header user={user} isAuthenticated={isAuthenticated} />
                 )}
-                <Layout>
-                    {canLoadPage ? (
-                        <Component
-                            {...pageProps}
-                            isAuthenticated={isAuthenticated}
-                            theme={theme}
-                            user={user}
-                        />
-                    ) : (
-                        <></>
-                    )}
+                {canLoadPage ? (
+                    <Component
+                        {...pageProps}
+                        isAuthenticated={isAuthenticated}
+                        theme={theme}
+                        user={user}
+                    />
+                ) : (
+                    <></>
+                )}
 
-                    {/* todo: consider making this composable, returning children or login prompt? */}
-                    {router.pathname !== '/installation' && (
-                        <UserAuthentication
-                            isAuthenticated={isAuthenticated}
-                            onUserUpdate={setUser}
-                            user={user}
-                        />
-                    )}
-                    <Toast />
-                </Layout>
+                {/* todo: consider making this composable, returning children or login prompt? */}
+                {router.pathname !== '/installation' && (
+                    <UserAuthentication
+                        isAuthenticated={isAuthenticated}
+                        onUserUpdate={setUser}
+                        user={user}
+                    />
+                )}
+                <Toast />
             </AppStore>
         </>
     )

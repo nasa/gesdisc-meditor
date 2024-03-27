@@ -1,8 +1,9 @@
+import Layout from 'components/layout'
 import cloneDeep from 'lodash.clonedeep'
 import type { NextPageContext } from 'next'
 import { useRouter } from 'next/router'
 import { useContext, useEffect, useState } from 'react'
-import { getLoggedInUser } from '../../../auth/user'
+import { getLoggedInUser } from '../../../auth/service'
 import { getCommentsForDocument } from '../../../comments/service'
 import type { DocumentComment } from '../../../comments/types'
 import { AppContext } from '../../../components/app-store'
@@ -262,7 +263,7 @@ const EditDocumentPage = ({
     }
 
     return (
-        <div>
+        <Layout>
             <PageTitle title={[documentTitle, modelName]} />
 
             {theme !== 'edpub' && (
@@ -382,7 +383,7 @@ const EditDocumentPage = ({
                     model.workflow.currentNode.allowValidationErrors
                 }
             />
-        </div>
+        </Layout>
     )
 }
 
