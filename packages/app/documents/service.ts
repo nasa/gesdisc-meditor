@@ -22,6 +22,7 @@ import type {
     DocumentPublications,
     DocumentState,
 } from './types'
+import { JSONPatchDocument, immutableJSONPatch } from 'immutable-json-patch'
 
 const EMAIL_NOTIFICATIONS_QUEUE_CHANNEL =
     process.env.MEDITOR_NATS_NOTIFICATIONS_CHANNEL || 'meditor-notifications'
@@ -29,12 +30,14 @@ const DELETED_STATE = 'Deleted'
 const INIT_STATE = 'Init'
 const DRAFT_STATE = 'Draft'
 
+type InsertDocumentResponse = { insertedDocument: Document; location: string }
+
 export async function createDocument(
     documentToCreate: any,
     modelName: string,
     user: User,
     initialState: string = DRAFT_STATE // the initial state the document will be created in
-): Promise<ErrorData<{ insertedDocument: Document; location: string }>> {
+): Promise<ErrorData<InsertDocumentResponse>> {
     try {
         const { _id, ...document } = documentToCreate // remove the database _id property
 
@@ -362,6 +365,95 @@ export async function cloneDocument(
         }
 
         return createDocument(newDocument, modelName, user)
+    } catch (error) {
+        log.error(error)
+
+        return [error, null]
+    }
+}
+
+/**
+ * apply a set of JSON patch operations to a list of documents
+ */
+export async function patchDocuments(
+    documentTitles: Array<string>,
+    modelName: string,
+    user: User,
+    operations: JSONPatchDocument
+) {
+    try {
+        const result = await Promise.allSettled(
+            documentTitles.map(async title => {
+                //* perform the patch operations on the given document
+                const [error, document] = await patchDocument(
+                    title,
+                    modelName,
+                    user,
+                    operations
+                )
+
+                if (error) {
+                    throw error
+                }
+
+                return document
+            })
+        )
+
+        return [
+            null,
+            {
+                //* gather any rejected patch attempts
+                errors: result
+                    .filter(patch => patch.status === 'rejected')
+                    .map((patch: PromiseRejectedResult) => patch.reason.toString()),
+
+                //* gather all fulfilled patch attempts
+                successes: result
+                    .filter(patch => patch.status === 'fulfilled')
+                    .map(
+                        (patch: PromiseFulfilledResult<InsertDocumentResponse>) =>
+                            patch.value.location
+                    ),
+            },
+        ]
+    } catch (error) {
+        log.error(error)
+
+        return [error, null]
+    }
+}
+
+/**
+ * patch a single document given a list of JSON Patch operations
+ */
+export async function patchDocument(
+    documentTitle: string,
+    modelName: string,
+    user: User,
+    operations: JSONPatchDocument
+): Promise<ErrorData<InsertDocumentResponse>> {
+    try {
+        // get the existing document, we'll perform all patch operations on the database copy of a document
+        const [existingDocumentError, existingDocument] = await getDocument(
+            documentTitle,
+            modelName,
+            user
+        )
+
+        if (existingDocumentError) {
+            throw existingDocumentError
+        }
+
+        // apply JSON Patch operations to the document
+        const [patchErrors, patchedDocument] = jsonPatch(existingDocument, operations)
+
+        if (patchErrors) {
+            throw new HttpException(ErrorCode.BadRequest, patchErrors.message)
+        }
+
+        // all operations successfully made, save to db as a new document
+        return await createDocument(patchedDocument, modelName, user)
     } catch (error) {
         log.error(error)
 
@@ -724,4 +816,16 @@ function getWorkflowEdgesMatchingSourceAndTarget(
     return workflow.edges.filter(
         edge => edge.source === source && edge.target === target
     )
+}
+
+function jsonPatch(
+    document: Document,
+    operations: JSONPatchDocument
+): ErrorData<Document> {
+    try {
+        return [null, immutableJSONPatch(document, operations)]
+    } catch (err) {
+        console.error(err)
+        return [err, null]
+    }
 }
