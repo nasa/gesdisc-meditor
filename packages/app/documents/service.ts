@@ -10,13 +10,14 @@ import log from '../lib/log'
 import { getModel, getModelWithWorkflow } from '../models/service'
 import type { DocumentsSearchOptions, ModelWithWorkflow } from '../models/types'
 import { publishMessageToQueueChannel } from '../publication-queue/service'
-import { ErrorCode, HttpException } from '../utils/errors'
+import { ErrorCause, ErrorCode, HttpException } from '../utils/errors'
 import { formatValidationErrorMessage } from '../utils/jsonschema-validate'
 import { getTargetStatesFromWorkflow } from '../workflows/service'
 import type { Workflow, WorkflowEdge } from '../workflows/types'
 import { getDocumentsDb } from './db'
 import { legacyHandleModelChanges } from './service.legacy'
 import type {
+    BulkDocumentResponse,
     Document,
     DocumentHistory,
     DocumentPublications,
@@ -30,14 +31,12 @@ const DELETED_STATE = 'Deleted'
 const INIT_STATE = 'Init'
 const DRAFT_STATE = 'Draft'
 
-type InsertDocumentResponse = { insertedDocument: Document; location: string }
-
 export async function createDocument(
     documentToCreate: any,
     modelName: string,
     user: User,
     initialState: string = DRAFT_STATE // the initial state the document will be created in
-): Promise<ErrorData<InsertDocumentResponse>> {
+): Promise<ErrorData<{ insertedDocument: Document; location: string }>> {
     try {
         const { _id, ...document } = documentToCreate // remove the database _id property
 
@@ -375,7 +374,7 @@ export async function cloneDocument(
 /**
  * apply a set of JSON patch operations to a list of documents
  */
-export async function patchDocuments(
+export async function bulkPatchDocuments(
     documentTitles: Array<string>,
     modelName: string,
     user: User,
@@ -383,39 +382,28 @@ export async function patchDocuments(
 ) {
     try {
         const result = await Promise.allSettled(
-            documentTitles.map(async title => {
+            documentTitles.map(async (title): Promise<BulkDocumentResponse> => {
                 //* perform the patch operations on the given document
-                const [error, document] = await patchDocument(
+                const [error] = await patchDocument(
                     title,
                     modelName,
                     user,
                     operations
                 )
 
-                if (error) {
-                    throw error
+                return {
+                    title,
+                    status: error ? (error.cause as ErrorCause).status : 200,
+                    ...(error && { error: error.message }),
                 }
-
-                return document
             })
         )
 
         return [
             null,
-            {
-                //* gather any rejected patch attempts
-                errors: result
-                    .filter(patch => patch.status === 'rejected')
-                    .map((patch: PromiseRejectedResult) => patch.reason.toString()),
-
-                //* gather all fulfilled patch attempts
-                successes: result
-                    .filter(patch => patch.status === 'fulfilled')
-                    .map(
-                        (patch: PromiseFulfilledResult<InsertDocumentResponse>) =>
-                            patch.value.location
-                    ),
-            },
+            result.map(
+                item => (item as PromiseFulfilledResult<BulkDocumentResponse>).value
+            ),
         ]
     } catch (error) {
         log.error(error)
@@ -432,7 +420,7 @@ export async function patchDocument(
     modelName: string,
     user: User,
     operations: JSONPatchDocument
-): Promise<ErrorData<InsertDocumentResponse>> {
+): Promise<ErrorData<{ insertedDocument: Document; location: string }>> {
     try {
         // get the existing document, we'll perform all patch operations on the database copy of a document
         const [existingDocumentError, existingDocument] = await getDocument(
@@ -561,6 +549,56 @@ export async function changeDocumentState(
         }
 
         return [null, updatedDocument]
+    } catch (error) {
+        log.error(error)
+
+        return [error, null]
+    }
+}
+
+/**
+ * Apply a state transition to multiple documents at once. Modifying the state transitions the documents through a workflow.
+ *
+ * Example: publishing 1000 collections at once
+ */
+export async function bulkChangeDocumentState(
+    documentTitles: Array<string>,
+    modelName: string,
+    newState: string, // must be a string, not enum, due to states not existing at compile time,
+    user: User,
+    options?: {
+        disableEmailNotifications?: boolean
+    }
+): Promise<ErrorData<Document>> {
+    try {
+        const result = await Promise.allSettled(
+            documentTitles.map(async title => {
+                //* perform the change document state operations on the given document
+                const [error] = await changeDocumentState(
+                    title,
+                    modelName,
+                    newState,
+                    user,
+                    {
+                        disableEmailNotifications:
+                            options.disableEmailNotifications ?? true, // default to disabling email notifications
+                    }
+                )
+
+                return {
+                    title,
+                    status: error ? (error.cause as ErrorCause).status : 200,
+                    ...(error && { error: error.message }),
+                }
+            })
+        )
+
+        return [
+            null,
+            result.map(
+                item => (item as PromiseFulfilledResult<BulkDocumentResponse>).value
+            ),
+        ]
     } catch (error) {
         log.error(error)
 

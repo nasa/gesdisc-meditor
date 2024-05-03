@@ -9,7 +9,7 @@ export const getDocumentInputSchema = z.object({
     uid: z.string().min(1).optional(),
 })
 
-export const patchDocumentsHeadersSchema = z.object({
+export const bulkDocumentHeadersSchema = z.object({
     'if-match': z
         .string()
         .regex(
