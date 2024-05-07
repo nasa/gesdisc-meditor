@@ -1,0 +1,111 @@
+---
+title: Bulk Updates
+---
+
+## JSON Patch
+
+The [Bulk Documents] endpoint uses the [JSON Patch specification](https://jsonpatch.com/).
+
+This specification describes a set of instruction on how to modify a resource.
+
+### Identifying documents to update
+
+The bulk documents endpoint requires the inclusion of an `If-Match` headers, which is a comma-delimited list of the document titles to update.
+
+For example, to edit three documents, titled "A", "B", and "C", you would include the following header with your request:
+
+`If-Match: "A", "B", "C"`
+
+### Operations Syntax
+
+mEditor supports all of the supported JSON Patch operations found in the specification linked above.
+
+Additionally, you can include as many operations as you want in one request.
+
+Each operation object in the request body consists of 3 main attributes:
+[0] op — indicates the operation to perform. As per the specification, its value MUST be one of “add”, “remove”, “replace”, “move”, “copy”, or “test”
+[1] path — string containing a JSON-Pointer value that references the “target location” where the operation is performed
+[2] value — data to be operated for the given path
+
+#### "add"
+
+Adds a value to an object or inserts it into an array. In the case of an array, the value is inserted before the given index. The - character can be used instead of an index to insert at the end of an array.
+
+Example, add a "Science Keyword" to many collections at once:
+
+```
+If-Match: "GPM_3IMERGHH_06", "GPM_3IMERGHH_07"
+
+[
+    { "op": "add", "path": "/Science_Keywords/-", "value": "EARTH SCIENCE > ATMOSPHERE > PRECIPITATION" }
+]
+```
+
+#### "remove"
+
+Removes a value from an object or array.
+
+Example: Remove the `Dataset_Progress` field from a list of collections
+
+```
+If-Match: "GPM_3IMERGHH_06", "GPM_3IMERGHH_07"
+
+[
+    { "op": "remove", "path": "/Dataset_Progress" }
+]
+```
+
+#### "replace"
+
+Replaces a value. Equivalent to a “remove” followed by an “add”.
+
+Example: Replace the `Dataset_Progress` field in a list of collections
+
+```
+If-Match: "GPM_3IMERGHH_06", "GPM_3IMERGHH_07"
+
+[
+    { "op": "replace", "path": "/Dataset_Progress", "value": "COMPLETE" }
+]
+```
+
+#### "copy"
+
+Copies a value from one location to another within the JSON document. Both from and path are JSON Pointers.
+
+Example, renaming a field, copy the old field to the new field:
+
+```
+If-Match: "GPM_3IMERGHH_06", "GPM_3IMERGHH_07"
+
+[
+    { "op": "copy", "from": "/Dataset_Version", "path": "/Version" }
+]
+```
+
+#### "move"
+
+Moves a value from one location to the other. Both from and path are JSON Pointers.
+
+Example, same as above. Rename a field, though this time the old field is removed.
+
+```
+If-Match: "GPM_3IMERGHH_06", "GPM_3IMERGHH_07"
+
+[
+    { "op": "move", "from": "/Dataset_Version", "path": "/Version" }
+]
+```
+
+#### "test"
+
+Tests that the specified value is set in the document. If the test fails, then the patch as a whole should not apply.
+
+```
+If-Match: "GPM_3IMERGHH_06", "GPM_3IMERGHH_07"
+
+[
+    { "op": "test", "path": "/AwsEnabled", "value": true },
+    { "op": "replace", "path": "/Region", "value": "us-east-1" }
+]
+```

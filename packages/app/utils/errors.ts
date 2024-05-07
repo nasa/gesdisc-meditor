@@ -120,14 +120,17 @@ export function parseZodAsErrorData<T>(schema: ZodSchema, input: any): ErrorData
     }
 }
 
-function formatZodError(error: ZodError) {
+export function formatZodError(error: ZodError, messagePrefix?: string) {
     const errorString = error.issues.reduce((accumulator, current, index, self) => {
         //* We want spaces between errors but not for the last error.
         const maybeSpace = index + 1 === self.length ? '' : ' '
 
-        accumulator += `For query ${parameterWithInflection(
-            current.path.length
-        )} ${current.path.toString()}: ${current.message}.${maybeSpace}`
+        accumulator += `${
+            messagePrefix ??
+            `For query ${parameterWithInflection(
+                current.path.length
+            )} ${current.path.toString()}: `
+        }${current.message}.${maybeSpace}`
 
         return accumulator
     }, ``)

@@ -65,3 +65,9 @@ export interface DocumentMessage {
 export interface DocumentMessageModel {
     titleProperty: string
 }
+
+export type BulkDocumentResponse = {
+    title: string
+    status: number
+    error?: string
+}
