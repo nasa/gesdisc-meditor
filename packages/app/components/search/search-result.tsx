@@ -50,6 +50,8 @@ const SearchResult = ({
     return (
         <div className={styles.result}>
             <div>
+                {isLocalDocument && <input type="checkbox" />}
+                {!isLocalDocument && <input type="checkbox" />}
                 <Link
                     href={
                         isLocalDocument
