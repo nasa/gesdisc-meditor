@@ -735,17 +735,16 @@ export async function strictValidateDocument(
 ): Promise<ErrorData<Document>> {
     try {
         //* Get the model for its schema and title property.
-        const [modelWithWorkflowError, modelWithWorkflow] =
-            await getModelWithWorkflow(modelName, undefined, {
-                populateMacroTemplates: true,
-            })
+        const [modelError, model] = await getModel(modelName, {
+            includeId: false,
+            populateMacroTemplates: true,
+        })
 
-        if (modelWithWorkflowError) {
-            throw modelWithWorkflowError
+        if (modelError) {
+            throw modelError
         }
 
-        const { schema, titleProperty } = modelWithWorkflow
-
+        const { schema, titleProperty } = model
         const { errors } = validate(documentToValidate, {
             ...JSON.parse(schema),
             additionalProperties: false,

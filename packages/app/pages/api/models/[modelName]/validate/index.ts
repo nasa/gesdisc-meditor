@@ -21,20 +21,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     switch (req.method) {
-        //* GET returns the model's schema that will be used to valide the document.
-        case 'GET': {
-            const [modelWithWorkflowError, modelWithWorkflow] =
-                await getModelWithWorkflow(modelName, undefined, {
-                    populateMacroTemplates: true,
-                })
-
-            if (modelWithWorkflowError) {
-                return apiError(modelWithWorkflowError, res)
-            }
-
-            return respondAsJson(JSON.parse(modelWithWorkflow.schema), req, res)
-        }
-
         //* Unlike most POST endpoints, this allows unauthenticated access.
         case 'POST': {
             const [parsingError, parsedDocument] = safeParseJSON(req.body)
