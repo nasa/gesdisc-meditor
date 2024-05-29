@@ -39,6 +39,7 @@ const SearchList = ({
 }: SearchListProps) => {
     const [currentPage, setCurrentPage] = useState(0)
     const [localDocuments, setLocalDocuments] = useState([])
+    const [selectedDocuments, setSelectedDocuments] = useState([])
 
     const itemsPerPage = 50
     const offset = currentPage * itemsPerPage
@@ -91,6 +92,22 @@ const SearchList = ({
         )
     }
 
+    const toggleDocumentSelection = title => {
+        setSelectedDocuments(prevSelected =>
+            prevSelected.includes(title)
+                ? prevSelected.filter(docTitle => docTitle !== title)
+                : [...prevSelected, title]
+        )
+    }
+
+    const toggleAllSelection = () => {
+        if (listDocuments.length === selectedDocuments.length) {
+            setSelectedDocuments([])
+        } else {
+            setSelectedDocuments(documents.map(doc => doc.title))
+        }
+    }
+
     return (
         <div>
             <SearchStatusBar
@@ -102,6 +119,14 @@ const SearchList = ({
                 user={user}
                 searchOptions={searchOptions}
                 onFilterChange={onFilterChange}
+            />
+            <input
+                type="checkbox"
+                checked={
+                    listDocuments.length > 0 &&
+                    listDocuments.length === selectedDocuments.length
+                }
+                onChange={toggleAllSelection}
             />
 
             {listDocuments.length > 0 && (
@@ -132,6 +157,10 @@ const SearchList = ({
                                         document={document}
                                         modelName={model.name}
                                         onCloned={onRefreshList}
+                                        selectedDocuments={selectedDocuments}
+                                        toggleDocumentSelection={
+                                            toggleDocumentSelection
+                                        }
                                     />
                                 )
                             }

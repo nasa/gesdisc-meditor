@@ -21,6 +21,8 @@ interface SearchResultProps {
     onCloned?: Function
     onDelete?: Function
     isLocalDocument?: boolean
+    selectedDocuments?: any
+    toggleDocumentSelection?: Function
 }
 
 const SearchResult = ({
@@ -29,6 +31,8 @@ const SearchResult = ({
     onCloned,
     onDelete,
     isLocalDocument,
+    selectedDocuments,
+    toggleDocumentSelection,
 }: SearchResultProps) => {
     const { setSuccessNotification } = useContext(AppContext)
     const [showCloneDocumentModal, setShowCloneDocumentModal] = useState(false)
@@ -50,8 +54,20 @@ const SearchResult = ({
     return (
         <div className={styles.result}>
             <div>
-                {isLocalDocument && <input type="checkbox" />}
-                {!isLocalDocument && <input type="checkbox" />}
+                {isLocalDocument && (
+                    <input
+                        type="checkbox"
+                        checked={selectedDocuments.includes(document.localId)}
+                        onChange={() => toggleDocumentSelection(document.localId)}
+                    />
+                )}
+                {!isLocalDocument && (
+                    <input
+                        type="checkbox"
+                        checked={selectedDocuments.includes(document.title)}
+                        onChange={() => toggleDocumentSelection(document.title)}
+                    />
+                )}
                 <Link
                     href={
                         isLocalDocument
