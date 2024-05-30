@@ -53,12 +53,12 @@ const SearchResult = ({
                 <Link
                     href={
                         isLocalDocument
-                            ? `/${encodeURIComponent(document.model)}/new?localId=${
+                            ? `/${encodeURIComponent(modelName)}/new?localId=${
                                   document.localId
                               }`
-                            : `/${encodeURIComponent(
-                                  document.model
-                              )}/${encodeURIComponent(document.title)}`
+                            : `/${encodeURIComponent(modelName)}/${encodeURIComponent(
+                                  document.title
+                              )}`
                     }
                     legacyBehavior
                 >
