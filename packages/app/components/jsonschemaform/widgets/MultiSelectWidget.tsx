@@ -19,6 +19,7 @@ function getEnumOptionsAsLabelValue(
 ) {
     return (
         enumOptions
+            // @ts-ignore
             ?.filter(optionHasValue)
             .map(option =>
                 typeof option === 'string' ? { label: option, value: option } : option
