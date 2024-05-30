@@ -96,12 +96,15 @@ export async function createDocument(
         const rootState = { source: INIT_STATE, target: initialState }
 
         // @ts-ignore
-        rootState.modifiedOn = document['x-meditor'].modifiedOn
-        document['x-meditor'].modifiedOn = new Date().toISOString()
-        document['x-meditor'].modifiedBy = user.uid
-        // TODO: replace with actual model init state
-        document['x-meditor'].states = [rootState]
-        document['x-meditor'].publishedTo = []
+        rootState.modifiedOn =
+            document['x-meditor']?.modifiedOn ?? new Date().toISOString()
+
+        document['x-meditor'] = {
+            modifiedOn: new Date().toISOString(),
+            modifiedBy: user.uid,
+            states: [rootState], // TODO: replace with actual model init state
+            publishedTo: [],
+        }
 
         const insertedDocument = await documentsDb.insertDocument(document, modelName)
 

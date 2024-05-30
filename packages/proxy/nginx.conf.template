@@ -149,12 +149,6 @@ http {
         ### end of Next route migration
         ###
 
-        location /meditor/api/modules {
-            resolver 127.0.0.11 valid=30s;
-            set $upstream_modules meditor_modules;
-            proxy_pass http://$upstream_modules:8080;
-        }
-
         location /meditor/monitor/ {
             proxy_pass         http://monitor/;
             proxy_set_header   Connection "";
