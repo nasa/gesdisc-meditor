@@ -100,6 +100,7 @@ export async function createDocument(
             document['x-meditor']?.modifiedOn ?? new Date().toISOString()
 
         document['x-meditor'] = {
+            ...document['x-meditor'],
             modifiedOn: new Date().toISOString(),
             modifiedBy: user.uid,
             states: [rootState], // TODO: replace with actual model init state
