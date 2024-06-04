@@ -1,0 +1,7 @@
+{
+    "severity": "normal",
+    "title": "Forward stream data temporarily unavailable from AWS cloud",
+    "start": "2023-12-26 12:00:00-05:00",
+    "expiration": "2024-01-01 12:00:00-05:00",
+    "body": "<p>As of 9:00 AM Tuesday, December 26, 2023, granule ingest into AWS cloud was paused due to an ongoing operations issue. Users who use search interfaces, including Giovanni, will have issues discovering cloud-enabled data that have been archived in the past couple of days. This is not impacting users who directly access and download data from on-premises archive hosts at the GES DISC. We plan to resolve this issue and resume granule ingest by Sunday, December 31, 2023, though this is subject to change.</p>\n"
+}
