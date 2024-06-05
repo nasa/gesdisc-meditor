@@ -120,14 +120,17 @@ const SearchList = ({
                 searchOptions={searchOptions}
                 onFilterChange={onFilterChange}
             />
-            <input
-                type="checkbox"
-                checked={
-                    listDocuments.length > 0 &&
-                    listDocuments.length === selectedDocuments.length
-                }
-                onChange={toggleAllSelection}
-            />
+            <div className={styles.select}>
+                <input
+                    type="checkbox"
+                    checked={
+                        listDocuments.length > 0 &&
+                        listDocuments.length === selectedDocuments.length
+                    }
+                    onChange={toggleAllSelection}
+                />
+                <label>Select All</label>
+            </div>
 
             {listDocuments.length > 0 && (
                 <div className={styles.grid}>
@@ -148,6 +151,10 @@ const SearchList = ({
                                         isLocalDocument={true}
                                         modelName={model.name}
                                         onDelete={refreshLocalDocuments}
+                                        selectedDocuments={selectedDocuments}
+                                        toggleDocumentSelection={
+                                            toggleDocumentSelection
+                                        }
                                     />
                                 )
                             } else {
