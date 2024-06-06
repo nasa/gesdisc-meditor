@@ -28,3 +28,13 @@
 .grid > div:nth-child(5) {
     justify-self: center;
 }
+
+.select {
+    display: flex;
+    align-items: center;
+}
+
+.select > input {
+    margin-right: 10px;
+    margin-bottom: 7px;
+}
