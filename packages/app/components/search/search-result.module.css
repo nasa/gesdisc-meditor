@@ -17,3 +17,7 @@
 .result > div:last-child {
     justify-content: center;
 }
+
+.result > div > input {
+    margin-right: 10px;
+}
