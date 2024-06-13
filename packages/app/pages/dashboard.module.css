@@ -1,21 +1,87 @@
-.category {
-    padding: 16px 0;
+.main {
+    display: grid;
+    gap: 1rem;
+    min-height: 100vh;
+    padding: 1rem;
 }
 
-.category h3 {
-    color: grey;
-    text-align: center;
+.card {
+    background-color: white;
+    overflow-y: auto;
+    padding: 1rem;
 }
 
-.models {
+.filter {
+    align-items: baseline;
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-end;
 }
 
-.model {
+.filter label {
+    flex: 0 1 auto;
+    margin-right: 0.5em;
+}
+
+.filter select {
+    flex: 0 1 max-content;
+}
+
+.link {
     display: flex;
-    flex-direction: column;
-    width: 150px;
-    margin: 10px;
+    justify-content: space-between;
+    padding: 0.625rem;
+    text-decoration: none;
+    width: 100%;
+}
+
+.link:hover,
+.link:focus {
+    background-color: #f0f0f0;
+}
+
+.link:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    outline: 0;
+}
+
+.linkIconText {
+    align-items: center;
+    display: flex;
+    flex: 1 1 auto;
+    /* default is `auto`; allows this contianer to shrink for text-overflow */
+    min-width: 0;
+}
+
+.linkInfo {
+    flex: 0 0 max-content;
+    margin-left: 1rem;
+}
+
+.truncate {
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (min-width: 64em) {
+    .main {
+        grid-template-areas:
+            'main main top-aside'
+            'main main bottom-aside';
+        grid-template-columns: 1fr 1fr minmax(36rem, 1fr);
+        grid-auto-rows: minmax(3rem, 42vh);
+    }
+
+    .card:nth-of-type(1) {
+        grid-area: main;
+    }
+
+    .card:nth-of-type(2) {
+        grid-area: bottom-aside;
+    }
+
+    .card:nth-of-type(3) {
+        grid-area: top-aside;
+    }
 }
