@@ -18,6 +18,10 @@
     justify-content: center;
 }
 
-.result > div > input {
+.result > div > div > input {
     margin-right: 10px;
+}
+
+.result > div > div > label{
+    visibility: hidden;
 }
