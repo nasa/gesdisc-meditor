@@ -1,13 +1,11 @@
+import { BulkUpdateFormModal } from 'components/bulk-update-modal'
 import { useEffect, useState } from 'react'
+import { Button, Col, Row } from 'react-bootstrap'
 import { IoMdArrowDropdown } from 'react-icons/io'
-import { findUnsavedDocumentsByModel } from '../../lib/unsaved-changes'
-import type {
-    DocumentsSearchOptions,
-    Model,
-    ModelWithWorkflow,
-} from '../../models/types'
-import type { Document } from '../../documents/types'
 import type { User } from '../../auth/types'
+import type { Document } from '../../documents/types'
+import { findUnsavedDocumentsByModel } from '../../lib/unsaved-changes'
+import type { DocumentsSearchOptions, ModelWithWorkflow } from '../../models/types'
 import Pagination from '../pagination'
 import styles from './search-list.module.css'
 import SearchResult from './search-result'
@@ -40,6 +38,7 @@ const SearchList = ({
     const [currentPage, setCurrentPage] = useState(0)
     const [localDocuments, setLocalDocuments] = useState([])
     const [selectedDocuments, setSelectedDocuments] = useState([])
+    const [showBulkUpdate, setShowBulkUpdate] = useState(false)
 
     const itemsPerPage = 50
     const offset = currentPage * itemsPerPage
@@ -120,17 +119,38 @@ const SearchList = ({
                 searchOptions={searchOptions}
                 onFilterChange={onFilterChange}
             />
-            <div className={styles.select}>
-                <input
-                    type="checkbox"
-                    checked={
-                        listDocuments.length > 0 &&
-                        listDocuments.length === selectedDocuments.length
-                    }
-                    onChange={toggleAllSelection}
-                />
-                <label>Select All</label>
-            </div>
+            <Row className="justify-content-start align-items-center">
+                <Col md={1}>
+                    <div className={styles.select}>
+                        <input
+                            type="checkbox"
+                            checked={
+                                listDocuments.length > 0 &&
+                                listDocuments.length === selectedDocuments.length
+                            }
+                            onChange={toggleAllSelection}
+                        />
+                        <label>Select All</label>
+                    </div>
+                </Col>
+                <Col md={2}>
+                    <Button
+                        variant="secondary"
+                        onClick={() => setShowBulkUpdate(true)}
+                    >
+                        Bulk Update
+                    </Button>
+                </Col>
+            </Row>
+
+            <BulkUpdateFormModal
+                model={model}
+                show={showBulkUpdate}
+                onClose={setShowBulkUpdate}
+                modelName={model.name}
+                documents={selectedDocuments}
+                user={user}
+            ></BulkUpdateFormModal>
 
             {listDocuments.length > 0 && (
                 <div className={styles.grid}>

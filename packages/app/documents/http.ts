@@ -109,4 +109,54 @@ async function cloneDocument(
     }
 }
 
-export { createDocument, fetchDocument, fetchDocumentPublications, cloneDocument }
+async function bulkUpdateDocument(
+    modelName: string,
+    selectedDocuments: string[],
+    operations: any
+) {
+    try {
+        const documentTitles = `"${selectedDocuments.join('", "')}"`
+
+        console.log(documentTitles)
+
+        const formattedOperations = operations.map(operation => ({
+            ...operation,
+            path: '/' + operation.path.replace('.', '/'),
+        }))
+
+        console.log(formattedOperations)
+        console.log(formattedOperations)
+
+        const response = await fetch(
+            `/meditor/api/models/${encodeURIComponent(modelName)}/documents/bulk`,
+            {
+                method: 'PATCH',
+                headers: {
+                    'If-Match': documentTitles,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formattedOperations),
+            }
+        )
+
+        if (!response.ok) {
+            const { error }: APIError = await response.json()
+
+            throw new HttpException(ErrorCode.BadRequest, error)
+        }
+
+        const bulkUpdateResponse = await response.json()
+
+        return [null, bulkUpdateResponse]
+    } catch (error) {
+        return [error, null]
+    }
+}
+
+export {
+    bulkUpdateDocument,
+    cloneDocument,
+    createDocument,
+    fetchDocument,
+    fetchDocumentPublications,
+}
