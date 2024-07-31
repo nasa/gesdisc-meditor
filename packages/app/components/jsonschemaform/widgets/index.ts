@@ -7,6 +7,7 @@ import DateTimeWidget from './DateTimeWidget'
 import ConcatenatedWidget from './ConcatenatedWidget'
 import HtmlTextWidget from './HtmlTextWidget'
 import TitlePropertyWidget from './TitlePropertyWidget'
+import AnchorWidget from './AnchorWidget'
 
 const widgets: RegistryWidgetsType = {
     ckeditor: CKEditorWidget,
@@ -17,6 +18,7 @@ const widgets: RegistryWidgetsType = {
     concatenated: ConcatenatedWidget,
     htmltext: HtmlTextWidget,
     titleproperty: TitlePropertyWidget,
+    anchor: AnchorWidget,
 }
 
 export default widgets
