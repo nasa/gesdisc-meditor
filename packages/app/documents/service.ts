@@ -10,18 +10,20 @@ import log from '../lib/log'
 import { getModel, getModelWithWorkflow } from '../models/service'
 import type { DocumentsSearchOptions, ModelWithWorkflow } from '../models/types'
 import { publishMessageToQueueChannel } from '../publication-queue/service'
-import { ErrorCode, HttpException } from '../utils/errors'
+import { ErrorCause, ErrorCode, HttpException } from '../utils/errors'
 import { formatValidationErrorMessage } from '../utils/jsonschema-validate'
 import { getTargetStatesFromWorkflow } from '../workflows/service'
 import type { Workflow, WorkflowEdge } from '../workflows/types'
 import { getDocumentsDb } from './db'
 import { legacyHandleModelChanges } from './service.legacy'
 import type {
+    BulkDocumentResponse,
     Document,
     DocumentHistory,
     DocumentPublications,
     DocumentState,
 } from './types'
+import { JSONPatchDocument, immutableJSONPatch } from 'immutable-json-patch'
 
 const EMAIL_NOTIFICATIONS_QUEUE_CHANNEL =
     process.env.MEDITOR_NATS_NOTIFICATIONS_CHANNEL || 'meditor-notifications'
@@ -370,6 +372,84 @@ export async function cloneDocument(
 }
 
 /**
+ * apply a set of JSON patch operations to a list of documents
+ */
+export async function bulkPatchDocuments(
+    documentTitles: Array<string>,
+    modelName: string,
+    user: User,
+    operations: JSONPatchDocument
+) {
+    try {
+        const result = await Promise.allSettled(
+            documentTitles.map(async (title): Promise<BulkDocumentResponse> => {
+                //* perform the patch operations on the given document
+                const [error] = await patchDocument(
+                    title,
+                    modelName,
+                    user,
+                    operations
+                )
+
+                return {
+                    title,
+                    status: error ? (error.cause as ErrorCause).status : 200,
+                    ...(error && { error: error.message }),
+                }
+            })
+        )
+
+        return [
+            null,
+            result.map(
+                item => (item as PromiseFulfilledResult<BulkDocumentResponse>).value
+            ),
+        ]
+    } catch (error) {
+        log.error(error)
+
+        return [error, null]
+    }
+}
+
+/**
+ * patch a single document given a list of JSON Patch operations
+ */
+export async function patchDocument(
+    documentTitle: string,
+    modelName: string,
+    user: User,
+    operations: JSONPatchDocument
+): Promise<ErrorData<{ insertedDocument: Document; location: string }>> {
+    try {
+        // get the existing document, we'll perform all patch operations on the database copy of a document
+        const [existingDocumentError, existingDocument] = await getDocument(
+            documentTitle,
+            modelName,
+            user
+        )
+
+        if (existingDocumentError) {
+            throw existingDocumentError
+        }
+
+        // apply JSON Patch operations to the document
+        const [patchErrors, patchedDocument] = jsonPatch(existingDocument, operations)
+
+        if (patchErrors) {
+            throw new HttpException(ErrorCode.BadRequest, patchErrors.message)
+        }
+
+        // all operations successfully made, save to db as a new document
+        return await createDocument(patchedDocument, modelName, user)
+    } catch (error) {
+        log.error(error)
+
+        return [error, null]
+    }
+}
+
+/**
  * one of the central parts of mEditor, responsible for transitioning a document through a workflow by changing it's state.
  *
  * after changing the document state, will notify the user and send out a publication message
@@ -469,6 +549,56 @@ export async function changeDocumentState(
         }
 
         return [null, updatedDocument]
+    } catch (error) {
+        log.error(error)
+
+        return [error, null]
+    }
+}
+
+/**
+ * Apply a state transition to multiple documents at once. Modifying the state transitions the documents through a workflow.
+ *
+ * Example: publishing 1000 collections at once
+ */
+export async function bulkChangeDocumentState(
+    documentTitles: Array<string>,
+    modelName: string,
+    newState: string, // must be a string, not enum, due to states not existing at compile time,
+    user: User,
+    options?: {
+        disableEmailNotifications?: boolean
+    }
+): Promise<ErrorData<Document>> {
+    try {
+        const result = await Promise.allSettled(
+            documentTitles.map(async title => {
+                //* perform the change document state operations on the given document
+                const [error] = await changeDocumentState(
+                    title,
+                    modelName,
+                    newState,
+                    user,
+                    {
+                        disableEmailNotifications:
+                            options.disableEmailNotifications ?? true, // default to disabling email notifications
+                    }
+                )
+
+                return {
+                    title,
+                    status: error ? (error.cause as ErrorCause).status : 200,
+                    ...(error && { error: error.message }),
+                }
+            })
+        )
+
+        return [
+            null,
+            result.map(
+                item => (item as PromiseFulfilledResult<BulkDocumentResponse>).value
+            ),
+        ]
     } catch (error) {
         log.error(error)
 
@@ -724,6 +854,18 @@ function getWorkflowEdgesMatchingSourceAndTarget(
     return workflow.edges.filter(
         edge => edge.source === source && edge.target === target
     )
+}
+
+function jsonPatch(
+    document: Document,
+    operations: JSONPatchDocument
+): ErrorData<Document> {
+    try {
+        return [null, immutableJSONPatch(document, operations)]
+    } catch (err) {
+        console.error(err)
+        return [err, null]
+    }
 }
 
 /**

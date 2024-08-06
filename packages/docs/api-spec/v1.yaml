@@ -126,6 +126,87 @@ paths:
                     description: Not Found
                 '500':
                     description: Internal Server Error
+    /models/{modelName}/documents/bulk:
+        patch:
+            tags:
+                - documents
+            summary: make bulk updates to one or more documents
+            description: Make bulk updates to one or more documents
+            operationId: bulkPatchDocument
+            parameters:
+                - name: modelName
+                  in: path
+                  description: name of model
+                  required: true
+                  schema:
+                      type: string
+                - name: If-Match
+                  in: header
+                  description: A comma-delimited list of document titles to update
+                  example: '"News Article", "Another News Article"'
+                  required: true
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: array
+                            items:
+                                oneOf:
+                                    - $ref: '#/components/schemas/AddPatchOperation'
+                                    - $ref: '#/components/schemas/RemovePatchOperation'
+                                    - $ref: '#/components/schemas/ReplacePatchOperation'
+                                    - $ref: '#/components/schemas/CopyPatchOperation'
+                                    - $ref: '#/components/schemas/MovePatchOperation'
+                                    - $ref: '#/components/schemas/TestPatchOperation'
+                description: a list of patch operations to perform (see https://jsonpatch.com/ for more details)
+                required: true
+            responses:
+                '200':
+                    description: OK
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '404':
+                    description: Not Found
+                '500':
+                    description: Internal Server Error
+    /models/{modelName}/documents/bulk/change-document-state:
+        post:
+            tags:
+                - documents
+            summary: change many document's state
+            description: Change many document's state.
+            operationId: bulkChangeDocumentState
+            parameters:
+                - name: modelName
+                  in: path
+                  description: name of model
+                  required: true
+                  schema:
+                      type: string
+                - name: newState
+                  in: query
+                  description: the document's desired state
+                  required: true
+                  schema:
+                      type: string
+                - name: If-Match
+                  in: header
+                  description: A comma-delimited list of document titles to update
+                  example: '"News Article", "Another News Article"'
+                  required: true
+            responses:
+                '200':
+                    description: OK
+                '400':
+                    description: Bad Request
+                '401':
+                    description: Unauthorized
+                '404':
+                    description: Not Found
+                '500':
+                    description: Internal Server Error
     /models/{modelName}/documents/{documentTitle}:
         get:
             tags:
@@ -584,6 +665,7 @@ paths:
                     description: Bad Request
                 '500':
                     description: Internal Server Error
+                    
     /models/{modelName}/schema:
         get:
             tags:
@@ -629,3 +711,62 @@ paths:
                     description: Success (Validation Passes)
                 '400':
                     description: Bad Request (Validation Fails)
+
+components:
+    schemas:
+        PatchOperation:
+            type: object
+            required:
+                - op
+                - path
+            properties:
+                op:
+                    type: string
+                    enum: [add, remove, replace, copy, move, test]
+                    example: add
+                path:
+                    type: string
+                    example: /Path/To/Field
+
+        PatchWithValueOperation:
+            allOf: # Combines the PatchOperation and the inline model
+                - $ref: '#/components/schemas/PatchOperation'
+                - type: object
+            required:
+                - value
+            properties:
+                value:
+                    oneOf:
+                        - type: string
+                        - type: array
+                          items:
+                              type: integer
+
+        PatchWithFromOperation:
+            allOf: # Combines the PatchOperation and the inline model
+                - $ref: '#/components/schemas/PatchOperation'
+                - type: object
+            required:
+                - from
+            properties:
+                from:
+                    type: string
+                    example: /Path/To/Field
+
+        AddPatchOperation:
+            $ref: '#/components/schemas/PatchWithValueOperation'
+
+        RemovePatchOperation:
+            $ref: '#/components/schemas/PatchOperation'
+
+        ReplacePatchOperation:
+            $ref: '#/components/schemas/PatchWithValueOperation'
+
+        CopyPatchOperation:
+            $ref: '#/components/schemas/PatchWithFromOperation'
+
+        MovePatchOperation:
+            $ref: '#/components/schemas/PatchWithFromOperation'
+
+        TestPatchOperation:
+            $ref: '#/components/schemas/PatchWithValueOperation'
