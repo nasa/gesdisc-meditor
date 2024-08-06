@@ -322,8 +322,6 @@ describe('search', () => {
             pageNumber
         )
 
-        console.log(searchError)
-
         expect(searchError).toBe(null)
         expect(searchResults.results.length).toBe(0)
         expect(searchResults.results).toStrictEqual([])

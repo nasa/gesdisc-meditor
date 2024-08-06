@@ -1,73 +1,67 @@
 import { connect } from 'node-nats-streaming'
-import type { Stan } from 'node-nats-streaming'
 import log from './log'
 
 const clusterID = process.env.MEDITOR_NATS_CLUSTER_ID || 'test-cluster'
 const clientID = 'meditor-app'
 const server = process.env.MEDITOR_NATS_SERVER || 'nats://meditor_nats:4222'
 
-let natsClient: Stan
-let natsClientPromise: Promise<Stan>
-
-function connectToNats() {
+async function connectToNats() {
     log.info(
         `Connecting with client ${clientID} to NATS (Cluster: ${clusterID}, Server: ${server})`
     )
 
-    const stan = connect(clusterID, clientID, {
+    if (globalThis.natsClient) {
+        log.debug(`A global NATS client was found; returning early.`)
+
+        return
+    }
+
+    log.debug(
+        `A global NATS client was not found; attempting to connect ${clientID} to ${clusterID}.`
+    )
+
+    globalThis.natsClient = connect(clusterID, clientID, {
         url: server,
+        maxReconnectAttempts: -1,
     })
 
     // close connection when API shuts down
-    process?.on('SIGTERM', closeNatsConnection)
+    process.on('SIGTERM', event => {
+        log.error(
+            `Closing STAN connection because of ${JSON.stringify(
+                event,
+                undefined,
+                2
+            )}`
+        )
 
-    return {
-        stan,
-        // also returning a promise that resolves when NATS connects
-        stanConnectPromise: new Promise<Stan>((resolve, reject) => {
-            // wait for the connection to complete
-            stan.on('connect', () => {
-                log.info('Connected to NATS')
-                resolve(stan)
-            })
+        globalThis.natsClient.close()
+    })
 
-            stan.on('error', (error: any) => {
-                log.error(error) //? do anything beyond logging?
+    globalThis.natsClient.on('connect', () => {
+        log.info(
+            `onConnect: Connected client ${clientID} to NATS Streaming Server cluster ${clusterID} at ${server}.`
+        )
 
-                if (stan) {
-                    log.debug('Stan is being resolved...', JSON.stringify(stan))
+        return Promise.resolve()
+    })
 
-                    resolve(stan)
-                } else {
-                    process?.exit()
-                }
-            })
-        }),
-    }
+    globalThis.natsClient.on('error', (error: any) => {
+        log.error(`onError (connection): ${error}.`)
+
+        //! This is assumed to be an operational error that needs a NATS restart.
+        globalThis.natsClient.close()
+    })
+
+    globalThis.natsClient.on('close', (error?: string) => {
+        if (error) {
+            log.error(`onClose: ${error}.`)
+        }
+
+        log.warn(
+            `onClose: Disconnected client ${clientID} from NATS Streaming Server cluster ${clusterID} at ${server}.`
+        )
+    })
 }
 
-function closeNatsConnection() {
-    natsClient?.close()
-}
-
-if (process.env.NODE_ENV === 'development') {
-    // In development mode, use a global variable so that the value
-    // is preserved across module reloads caused by HMR (Hot Module Replacement).
-    if (!globalThis._natsClientPromise) {
-        const { stan, stanConnectPromise } = connectToNats()
-
-        natsClient = stan
-        // @ts-ignore in development
-        global._natsClientPromise = stanConnectPromise
-    }
-
-    // @ts-ignore in development
-    natsClientPromise = global._natsClientPromise
-} else {
-    const { stan, stanConnectPromise } = connectToNats()
-
-    natsClient = stan
-    natsClientPromise = stanConnectPromise
-}
-
-export { natsClientPromise as default }
+export { connectToNats }
