@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import type { WidgetProps } from '@rjsf/utils'
 import { getTemplate } from '@rjsf/utils'
+import { ID_PREFIX } from './constants'
 
 const DEFAULT_DELIMETER = ' > '
-const ID_PREFIX = 'root_'
 
 export default function ConcatenatedWidget(props: WidgetProps) {
     const BaseInput = getTemplate('BaseInputTemplate', props.registry)
