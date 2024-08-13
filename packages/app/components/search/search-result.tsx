@@ -62,6 +62,10 @@ const SearchResult = ({
                             checked={selectedDocuments.includes(document.localId)}
                             onChange={() => toggleDocumentSelection(document.localId)}
                         />
+                        <label
+                            className="visually-hidden"
+                            htmlFor={document.localId}
+                        ></label>
                         <label htmlFor={document.localId}></label>
                     </div>
                 )}
@@ -73,6 +77,10 @@ const SearchResult = ({
                             checked={selectedDocuments.includes(document.title)}
                             onChange={() => toggleDocumentSelection(document.title)}
                         />
+                        <label
+                            className="visually-hidden"
+                            htmlFor={document.title}
+                        ></label>
                         <label htmlFor={document.title}></label>
                     </div>
                 )}

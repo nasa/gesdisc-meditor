@@ -123,13 +123,14 @@ const SearchList = ({
             <div className={styles.select}>
                 <input
                     type="checkbox"
+                    id="select-all-checkbox"
                     checked={
                         listDocuments.length > 0 &&
                         listDocuments.length === selectedDocuments.length
                     }
                     onChange={toggleAllSelection}
                 />
-                <label>Select All</label>
+                <label htmlFor="select-all-checkbox">Select All</label>
             </div>
 
             {listDocuments.length > 0 && (
