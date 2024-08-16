@@ -17,9 +17,7 @@ interface SearchListProps {
     documents: Document[]
     model: ModelWithWorkflow
     user: User
-    searchOptions: DocumentsSearchOptions
     onAddNew: Function
-    onRefreshList: Function
     onSortChange: Function
     onFilterChange: Function
 }
@@ -31,9 +29,7 @@ const SearchList = ({
     documents,
     model,
     onAddNew,
-    onRefreshList,
     user,
-    searchOptions,
     onSortChange,
     onFilterChange,
 }: SearchListProps) => {
@@ -62,31 +58,8 @@ const SearchList = ({
                 style={{
                     cursor: sortBy ? 'pointer' : 'default',
                 }}
-                onClick={() => {
-                    if (!sortBy) return // this is an unsortable column
-
-                    const sortByDesc = '-' + sortBy
-                    onSortChange(
-                        searchOptions.sort == sortByDesc ? sortBy : sortByDesc
-                    )
-                }}
             >
                 {text}
-
-                {searchOptions.sort.indexOf(sortBy) >= 0 && (
-                    <IoMdArrowDropdown
-                        size="1.5em"
-                        className={
-                            styles[
-                                `sort-${
-                                    searchOptions.sort.charAt(0) == '-'
-                                        ? 'desc'
-                                        : 'asc'
-                                }`
-                            ]
-                        }
-                    />
-                )}
             </div>
         )
     }
@@ -100,7 +73,6 @@ const SearchList = ({
                 totalDocumentCount={listDocuments.length}
                 onAddNew={onAddNew}
                 user={user}
-                searchOptions={searchOptions}
                 onFilterChange={onFilterChange}
             />
 
@@ -131,7 +103,6 @@ const SearchList = ({
                                         key={document.title}
                                         document={document}
                                         modelName={model.name}
-                                        onCloned={onRefreshList}
                                     />
                                 )
                             }

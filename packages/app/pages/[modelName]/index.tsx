@@ -1,7 +1,7 @@
 import type { NextPageContext } from 'next'
 import { useRouter } from 'next/router'
 import type { ParsedUrlQuery } from 'querystring'
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import PageTitle from '../../components/page-title'
 import SearchBar from '../../components/search/search-bar'
 import SearchList from '../../components/search/search-list'
@@ -16,27 +16,13 @@ import type {
 } from '../../models/types'
 import type { User } from '../../auth/types'
 import { isNotFoundError } from 'utils/errors'
+import { AgGridReact } from 'ag-grid-react'
+import 'ag-grid-community/styles/ag-grid.css'
+import 'ag-grid-community/styles/ag-theme-quartz.css'
+import { format } from 'date-fns'
+import Link from 'next/link'
 
-function getSearchOptionsFromParams(query: ParsedUrlQuery): DocumentsSearchOptions {
-    return {
-        filter: query.filter?.toString() || '',
-        sort: query.sort?.toString() || '',
-        searchTerm: query.searchTerm?.toString() || '',
-    }
-}
-
-function getParamsFromSearchOptions(
-    searchOptions: DocumentsSearchOptions
-): URLSearchParams {
-    // remove empty items so we don't pollute the URL with empty params
-    const usedSearchOptions = Object.fromEntries(
-        Object.entries(searchOptions).filter(([_, v]) => v != null && v != '')
-    )
-
-    return new URLSearchParams({ ...usedSearchOptions })
-}
-
-interface ModelPageProps {
+type ModelPageProps = {
     user: User
     model: ModelWithWorkflow
     allModels: Model[]
@@ -46,58 +32,62 @@ interface ModelPageProps {
 /**
  * renders the model page with the model's documents in a searchable/filterable list
  */
-const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
+const ModelPage = (props: ModelPageProps) => {
     const router = useRouter()
     const modelName = router.query.modelName as string
-    const [searchOptions, setSearchOptions] = useState<DocumentsSearchOptions>(
-        getSearchOptionsFromParams(router.query)
-    )
 
-    const isFirstRun = useRef(true)
-    useEffect(() => {
-        if (isFirstRun.current) {
-            isFirstRun.current = false
-            return
-        }
+    const [searchTerm, setSearchTerm] = useState('')
 
-        refetchDocuments(searchOptions)
-    }, [searchOptions])
-
-    async function refetchDocuments(searchOptions: DocumentsSearchOptions) {
-        const queryParams = getParamsFromSearchOptions(searchOptions).toString()
-
-        router.push(`/${modelName}${queryParams && '?' + queryParams}`)
-    }
+    const [rowData, setRowData] = useState(props.documents)
+    const [colDefs, setColDefs] = useState([
+        {
+            field: props.model.titleProperty,
+            filter: true,
+            flex: 1,
+            cellRenderer: p => (
+                <Link
+                    href={`/${encodeURIComponent(
+                        p.data['x-meditor'].model
+                    )}/${encodeURIComponent(p.value)}`}
+                    legacyBehavior
+                >
+                    <a data-test="search-result-link">{p.value}</a>
+                </Link>
+            ),
+        },
+        { field: 'x-meditor.state', headerName: 'State' },
+        {
+            field: 'x-meditor.modifiedOn',
+            headerName: 'Modified On',
+            valueGetter: p =>
+                format(new Date(p.data['x-meditor'].modifiedOn), 'M/d/yy, h:mm aaa'),
+        },
+        { field: 'x-meditor.modifiedBy', headerName: 'Modified By' },
+    ])
 
     function addNewDocument() {
         router.push('/[modelName]/new', `/${modelName}/new`)
     }
 
     function handleSortChange(newSort) {
-        if (newSort == searchOptions.sort) return // don't update state if sort hasn't changed
+        console.log(newSort)
 
+        // TODO: alter URL to change search
+        /*
         setSearchOptions({
             ...searchOptions,
             sort: newSort,
-        })
+        })*/
     }
 
     function handleFilterChange(newFilter) {
-        if (newFilter == searchOptions.filter) return // don't update filter if it hasn't changed
-
+        // TODO: alter URL to change search
+        /*
         setSearchOptions({
             ...searchOptions,
             filter: newFilter,
         })
-    }
-
-    function handleSearchChange(newSearchTerm: string) {
-        if (newSearchTerm == searchOptions.searchTerm) return // don't update state if search term hasn't changed
-
-        setSearchOptions({
-            ...searchOptions,
-            searchTerm: newSearchTerm,
-        })
+        */
     }
 
     return (
@@ -105,18 +95,17 @@ const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
             <PageTitle title={modelName} />
 
             <SearchBar
-                allModels={allModels}
-                model={model}
+                allModels={props.allModels}
+                model={props.model}
                 modelName={modelName}
-                initialInput={searchOptions.searchTerm}
-                onInput={handleSearchChange}
+                onInput={setSearchTerm}
             />
 
             <div className="my-4">
-                {documents === null ? (
+                {props.documents === null ? (
                     <p className="text-center py-4 text-danger">
                         mEditor had an error getting documents for{' '}
-                        {model?.name || 'this model'}. Please verify that your{' '}
+                        {props.model?.name || 'this model'}. Please verify that your{' '}
                         <a
                             target="_blank"
                             rel="noopener noreferrer"
@@ -129,21 +118,30 @@ const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
                         the top of the page.
                     </p>
                 ) : (
-                    <SearchList
-                        documents={documents.map(document => ({
-                            ...document,
-                            ...document['x-meditor'], // bring x-meditor properties up a level
-                        }))}
-                        model={model}
-                        onAddNew={addNewDocument}
-                        user={user}
-                        onRefreshList={() => {
-                            refetchDocuments(searchOptions) // refetch using current search options
-                        }}
-                        searchOptions={searchOptions}
-                        onSortChange={handleSortChange}
-                        onFilterChange={handleFilterChange}
-                    />
+                    <>
+                        <div
+                            className="ag-theme-quartz" // applying the Data Grid theme
+                            style={{ height: 500 }} // the Data Grid will fill the size of the parent container
+                        >
+                            <AgGridReact
+                                rowData={rowData}
+                                columnDefs={colDefs as any}
+                                quickFilterText={searchTerm}
+                            />
+                        </div>
+
+                        <SearchList
+                            documents={props.documents.map(document => ({
+                                ...document,
+                                ...document['x-meditor'], // bring x-meditor properties up a level
+                            }))}
+                            model={props.model}
+                            onAddNew={addNewDocument}
+                            user={props.user}
+                            onSortChange={handleSortChange}
+                            onFilterChange={handleFilterChange}
+                        />
+                    </>
                 )}
             </div>
         </div>
@@ -151,6 +149,11 @@ const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
 }
 
 export async function getServerSideProps(ctx: NextPageContext) {
+    ctx.res.setHeader(
+        'Cache-Control',
+        'public, s-maxage=10, stale-while-revalidate=59'
+    )
+
     const modelName = ctx.query.modelName.toString()
 
     const [_modelsError, allModels] = await getModels() // TODO: handle getModels error?
@@ -162,13 +165,8 @@ export async function getServerSideProps(ctx: NextPageContext) {
         }
     }
 
-    const searchOptions = getSearchOptionsFromParams(ctx.query)
-
     // fetch documents, applying search, filter, or sort
-    const [documentsError, documents] = await getDocumentsForModel(
-        modelName,
-        searchOptions
-    )
+    const [documentsError, documents] = await getDocumentsForModel(modelName)
 
     const props = {
         allModels,

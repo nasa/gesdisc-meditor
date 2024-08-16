@@ -13,7 +13,6 @@ const SearchStatusBar = ({
     totalDocumentCount = 0,
     onAddNew,
     user,
-    searchOptions,
     onFilterChange,
 }) => {
     const offset = currentPage * itemsPerPage
@@ -86,7 +85,7 @@ const SearchStatusBar = ({
                         key={field}
                         label={field}
                         field={filterFields[field]}
-                        value={searchOptions?.filters?.[field] || ''}
+                        value={''}
                         onChange={(field, value) => onFilterChange(field, value)}
                     />
                 ))}
@@ -96,7 +95,7 @@ const SearchStatusBar = ({
                         Filter by:
                         <select
                             className="form-control"
-                            value={searchOptions.filter}
+                            value={''}
                             onChange={e => onFilterChange(e.target.value)}
                         >
                             <option value="">Show All States</option>

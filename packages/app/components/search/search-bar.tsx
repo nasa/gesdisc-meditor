@@ -1,13 +1,11 @@
 import Router from 'next/router'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, ChangeEvent } from 'react'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import Select from 'react-select'
 import styles from './search-bar.module.css'
 import ModelIcon from '../model-icon'
 import { MdSearch } from 'react-icons/md'
-import { useInput } from '../../lib/use-input.hook'
-import { useDebounce } from '../../lib/use-debounce.hook'
 import type { Model, ModelWithWorkflow } from '../../models/types'
 
 /**
@@ -25,21 +23,12 @@ type SearchBarProps = {
     allModels: Model[]
     model: ModelWithWorkflow
     modelName: string
-    initialInput: string
     onInput?: Function
 }
 
-const SearchBar = ({
-    allModels,
-    model,
-    modelName,
-    initialInput = '',
-    onInput,
-}: SearchBarProps) => {
-    const { value, bind, reset } = useInput(initialInput)
+const SearchBar = ({ allModels, model, modelName, onInput }: SearchBarProps) => {
     const [selectedModel, setSelectedModel] = useState(null)
     const [options, setOptions] = useState([])
-    const searchTerm = useDebounce(value, 200)
 
     /**
      * set models as selectable options in the dropdown and then select the matching model
@@ -69,19 +58,11 @@ const SearchBar = ({
     }, [allModels])
 
     /**
-     * notify when search changes
-     */
-    useEffect(() => {
-        onInput(searchTerm)
-    }, [searchTerm])
-
-    /**
      * route to the requested model when a different one is selected
      * @param selectedModel
      */
     function handleModelChange(selectedModel) {
         setSelectedModel(selectedModel)
-        reset()
         Router.push('/[modelName]', `/${selectedModel.name}`)
     }
 
@@ -105,7 +86,9 @@ const SearchBar = ({
                     name="search"
                     className={`form-control ${styles.input}`}
                     placeholder={`Search ${modelName} for...`}
-                    {...bind}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        onInput(e.target.value)
+                    }
                 />
 
                 <Button className={styles.button}>
