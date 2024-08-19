@@ -21,6 +21,8 @@ interface SearchResultProps {
     onCloned?: Function
     onDelete?: Function
     isLocalDocument?: boolean
+    selectedDocuments?: any
+    toggleDocumentSelection?: Function
 }
 
 const SearchResult = ({
@@ -29,6 +31,8 @@ const SearchResult = ({
     onCloned,
     onDelete,
     isLocalDocument,
+    selectedDocuments,
+    toggleDocumentSelection,
 }: SearchResultProps) => {
     const { setSuccessNotification } = useContext(AppContext)
     const [showCloneDocumentModal, setShowCloneDocumentModal] = useState(false)
@@ -50,6 +54,36 @@ const SearchResult = ({
     return (
         <div className={styles.result}>
             <div>
+                {isLocalDocument && (
+                    <div>
+                        <input
+                            id={document.localId}
+                            type="checkbox"
+                            checked={selectedDocuments.includes(document.localId)}
+                            onChange={() => toggleDocumentSelection(document.localId)}
+                        />
+                        <label
+                            className="visually-hidden"
+                            htmlFor={document.localId}
+                        ></label>
+                        <label htmlFor={document.localId}></label>
+                    </div>
+                )}
+                {!isLocalDocument && (
+                    <div>
+                        <input
+                            id={document.title}
+                            type="checkbox"
+                            checked={selectedDocuments.includes(document.title)}
+                            onChange={() => toggleDocumentSelection(document.title)}
+                        />
+                        <label
+                            className="visually-hidden"
+                            htmlFor={document.title}
+                        ></label>
+                        <label htmlFor={document.title}></label>
+                    </div>
+                )}
                 <Link
                     href={
                         isLocalDocument
