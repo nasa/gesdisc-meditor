@@ -3,6 +3,8 @@ import {
     flexRender,
     getCoreRowModel,
     getPaginationRowModel,
+    getSortedRowModel,
+    SortingState,
     useReactTable,
 } from '@tanstack/react-table'
 
@@ -15,6 +17,7 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { SearchPagination } from './search-pagination'
+import { useState } from 'react'
 
 interface SearchTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -25,11 +28,24 @@ export function SearchTable<TData, TValue>({
     columns,
     data,
 }: SearchTableProps<TData, TValue>) {
+    const [sorting, setSorting] = useState<SortingState>([
+        {
+            // default sorting
+            desc: true,
+            id: 'modifiedOn',
+        },
+    ])
+
     const table = useReactTable({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
+        onSortingChange: setSorting,
+        getSortedRowModel: getSortedRowModel(),
+        state: {
+            sorting,
+        },
     })
 
     return (
