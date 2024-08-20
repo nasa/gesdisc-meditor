@@ -11,9 +11,6 @@ import { getModels, getModelWithWorkflow } from '../../models/service'
 import type { Model, ModelWithWorkflow } from '../../models/types'
 import type { User } from '../../auth/types'
 import { isNotFoundError } from 'utils/errors'
-import { format } from 'date-fns'
-import Link from 'next/link'
-import DocumentStateBadge from 'components/document/document-state-badge'
 import { SearchTable } from '@/components/search/search-table'
 import { getColumns } from '@/components/search/search-columns'
 
@@ -90,6 +87,7 @@ const ModelPage = (props: ModelPageProps) => {
                         <SearchTable
                             columns={getColumns(modelName)}
                             data={props.documents}
+                            globalFilter={searchTerm}
                         />
 
                         <SearchList

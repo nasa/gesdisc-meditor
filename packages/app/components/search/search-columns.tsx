@@ -32,6 +32,7 @@ export function getColumns(modelName: string): ColumnDef<Document>[] {
         },
         {
             accessorKey: 'title',
+            filterFn: 'includesString',
             header: ({ column }) => {
                 return <SortableColumn name="Title" column={column} />
             },
@@ -48,6 +49,7 @@ export function getColumns(modelName: string): ColumnDef<Document>[] {
         },
         {
             accessorKey: 'x-meditor.state',
+            filterFn: 'includesString',
             header: ({ column }) => {
                 return <SortableColumn name="State" column={column} />
             },
@@ -66,6 +68,7 @@ export function getColumns(modelName: string): ColumnDef<Document>[] {
         },
         {
             id: 'modifiedBy',
+            filterFn: 'includesString',
             accessorKey: 'x-meditor.modifiedBy',
             header: ({ column }) => {
                 return <SortableColumn name="Modified By" column={column} />

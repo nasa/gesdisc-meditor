@@ -2,6 +2,7 @@ import {
     ColumnDef,
     flexRender,
     getCoreRowModel,
+    getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
     SortingState,
@@ -22,11 +23,15 @@ import { useState } from 'react'
 interface SearchTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
+    globalFilter?: string
+    onGlobalFilterChange?: () => {}
 }
 
 export function SearchTable<TData, TValue>({
     columns,
     data,
+    globalFilter,
+    onGlobalFilterChange,
 }: SearchTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([
         {
@@ -42,10 +47,17 @@ export function SearchTable<TData, TValue>({
         getCoreRowModel: getCoreRowModel(),
         getPaginationRowModel: getPaginationRowModel(),
         onSortingChange: setSorting,
+        onGlobalFilterChange: onGlobalFilterChange,
         getSortedRowModel: getSortedRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        globalFilterFn: 'includesString',
         state: {
             sorting,
+            globalFilter,
         },
+        debugTable: true,
+        debugHeaders: true,
+        debugColumns: false,
     })
 
     return (
