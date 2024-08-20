@@ -141,7 +141,7 @@ const DocumentStateBadge = ({
                 onMouseLeave={() => setShowPublicationStatusOverlay(false)}
             >
                 <StateBadge>
-                    {document?.state}
+                    {document?.state ?? document?.['x-meditor'].state}
 
                     {canShowPublicationStatus && (
                         <Badge

@@ -1,6 +1,5 @@
 import type { NextPageContext } from 'next'
 import { useRouter } from 'next/router'
-import type { ParsedUrlQuery } from 'querystring'
 import { useState } from 'react'
 import PageTitle from '../../components/page-title'
 import SearchBar from '../../components/search/search-bar'
@@ -9,18 +8,14 @@ import withAuthentication from '../../components/with-authentication'
 import { getDocumentsForModel } from '../../documents/service'
 import type { Document } from '../../documents/types'
 import { getModels, getModelWithWorkflow } from '../../models/service'
-import type {
-    DocumentsSearchOptions,
-    Model,
-    ModelWithWorkflow,
-} from '../../models/types'
+import type { Model, ModelWithWorkflow } from '../../models/types'
 import type { User } from '../../auth/types'
 import { isNotFoundError } from 'utils/errors'
-import { AgGridReact } from 'ag-grid-react'
-import 'ag-grid-community/styles/ag-grid.css'
-import 'ag-grid-community/styles/ag-theme-quartz.css'
 import { format } from 'date-fns'
 import Link from 'next/link'
+import DocumentStateBadge from 'components/document/document-state-badge'
+import { SearchTable } from '@/components/search/search-table'
+import { getColumns } from '@/components/search/search-columns'
 
 type ModelPageProps = {
     user: User
@@ -37,33 +32,6 @@ const ModelPage = (props: ModelPageProps) => {
     const modelName = router.query.modelName as string
 
     const [searchTerm, setSearchTerm] = useState('')
-
-    const [rowData, setRowData] = useState(props.documents)
-    const [colDefs, setColDefs] = useState([
-        {
-            field: props.model.titleProperty,
-            filter: true,
-            flex: 1,
-            cellRenderer: p => (
-                <Link
-                    href={`/${encodeURIComponent(
-                        p.data['x-meditor'].model
-                    )}/${encodeURIComponent(p.value)}`}
-                    legacyBehavior
-                >
-                    <a data-test="search-result-link">{p.value}</a>
-                </Link>
-            ),
-        },
-        { field: 'x-meditor.state', headerName: 'State' },
-        {
-            field: 'x-meditor.modifiedOn',
-            headerName: 'Modified On',
-            valueGetter: p =>
-                format(new Date(p.data['x-meditor'].modifiedOn), 'M/d/yy, h:mm aaa'),
-        },
-        { field: 'x-meditor.modifiedBy', headerName: 'Modified By' },
-    ])
 
     function addNewDocument() {
         router.push('/[modelName]/new', `/${modelName}/new`)
@@ -119,16 +87,10 @@ const ModelPage = (props: ModelPageProps) => {
                     </p>
                 ) : (
                     <>
-                        <div
-                            className="ag-theme-quartz" // applying the Data Grid theme
-                            style={{ height: 500 }} // the Data Grid will fill the size of the parent container
-                        >
-                            <AgGridReact
-                                rowData={rowData}
-                                columnDefs={colDefs as any}
-                                quickFilterText={searchTerm}
-                            />
-                        </div>
+                        <SearchTable
+                            columns={getColumns(modelName)}
+                            data={props.documents}
+                        />
 
                         <SearchList
                             documents={props.documents.map(document => ({

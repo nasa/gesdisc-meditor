@@ -16,7 +16,10 @@
         "jsx": "preserve",
         // allows `import type { foo }...` syntax on auto-import / quick fix
         "importsNotUsedAsValues": "error",
-        "incremental": true
+        "incremental": true,
+        "paths": {
+            "@/*": ["./*"]
+        }
     },
     "exclude": ["node_modules"],
     "include": ["next-env.d.ts", "declarations.d.ts", "**/*.ts", "**/*.tsx"]
