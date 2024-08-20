@@ -1,7 +1,11 @@
 import {
     ColumnDef,
+    ColumnFiltersState,
     flexRender,
     getCoreRowModel,
+    getFacetedMinMaxValues,
+    getFacetedRowModel,
+    getFacetedUniqueValues,
     getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
@@ -19,6 +23,7 @@ import {
 } from '@/components/ui/table'
 import { SearchPagination } from './search-pagination'
 import { useState } from 'react'
+import SearchColumnFilter from './search-column-filter'
 
 interface SearchTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -33,6 +38,7 @@ export function SearchTable<TData, TValue>({
     globalFilter,
     onGlobalFilterChange,
 }: SearchTableProps<TData, TValue>) {
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [sorting, setSorting] = useState<SortingState>([
         {
             // default sorting
@@ -42,22 +48,37 @@ export function SearchTable<TData, TValue>({
     ])
 
     const table = useReactTable({
-        data,
-        columns,
+        data, // each row of data (i.e. an array of documents)
+        columns, // column definitions that describe how each column should function (sort, filter, etc.)
         getCoreRowModel: getCoreRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
-        onSortingChange: setSorting,
-        onGlobalFilterChange: onGlobalFilterChange,
-        getSortedRowModel: getSortedRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        globalFilterFn: 'includesString',
         state: {
+            // initial state of the table
             sorting,
             globalFilter,
+            columnFilters,
         },
+
         debugTable: true,
         debugHeaders: true,
-        debugColumns: false,
+        debugColumns: true,
+
+        // support for pagination (https://tanstack.com/table/v8/docs/guide/pagination)
+        getPaginationRowModel: getPaginationRowModel(),
+
+        // support for sorting (https://tanstack.com/table/v8/docs/guide/sorting)
+        onSortingChange: setSorting,
+        getSortedRowModel: getSortedRowModel(),
+
+        // support for column search/filter (https://tanstack.com/table/v8/docs/guide/column-filtering)
+        onColumnFiltersChange: setColumnFilters,
+        getFilteredRowModel: getFilteredRowModel(),
+        getFacetedRowModel: getFacetedRowModel(), // client-side faceting
+        getFacetedUniqueValues: getFacetedUniqueValues(), // generate unique values for select filter/autocomplete
+        getFacetedMinMaxValues: getFacetedMinMaxValues(), // generate min/max values for range filter
+
+        // support for global search/filter (https://tanstack.com/table/v8/docs/guide/global-filtering)
+        onGlobalFilterChange: onGlobalFilterChange,
+        globalFilterFn: 'includesString',
     })
 
     return (
@@ -69,19 +90,45 @@ export function SearchTable<TData, TValue>({
                             <TableRow key={headerGroup.id}>
                                 {headerGroup.headers.map(header => {
                                     return (
-                                        <TableHead key={header.id}>
-                                            {header.isPlaceholder
-                                                ? null
-                                                : flexRender(
-                                                      header.column.columnDef.header,
-                                                      header.getContext()
-                                                  )}
+                                        <TableHead
+                                            key={header.id}
+                                            colSpan={header.colSpan}
+                                        >
+                                            {header.isPlaceholder ? null : (
+                                                <>
+                                                    <div
+                                                        {...{
+                                                            className:
+                                                                header.column.getCanSort()
+                                                                    ? 'cursor-pointer select-none'
+                                                                    : '',
+                                                            onClick:
+                                                                header.column.getToggleSortingHandler(),
+                                                        }}
+                                                    >
+                                                        {flexRender(
+                                                            header.column.columnDef
+                                                                .header,
+                                                            header.getContext()
+                                                        )}
+                                                    </div>
+
+                                                    {header.column.getCanFilter() ? (
+                                                        <div>
+                                                            <SearchColumnFilter
+                                                                column={header.column}
+                                                            />
+                                                        </div>
+                                                    ) : null}
+                                                </>
+                                            )}
                                         </TableHead>
                                     )
                                 })}
                             </TableRow>
                         ))}
                     </TableHeader>
+
                     <TableBody>
                         {table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map(row => (
