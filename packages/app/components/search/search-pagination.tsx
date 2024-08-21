@@ -1,7 +1,7 @@
-import { Row, Table } from '@tanstack/react-table'
-import { Button } from 'react-bootstrap'
-import { mkConfig, generateCsv, download } from 'export-to-csv'
-import { Document } from '@/documents/types'
+import { Table } from '@tanstack/react-table'
+import { Pagination } from 'react-bootstrap'
+
+const MAX_PAGES_VISIBLE = 5 // make sure this is an odd number!
 
 interface SearchPaginationProps<Document> {
     table: Table<Document>
@@ -10,42 +10,66 @@ interface SearchPaginationProps<Document> {
 export function SearchPagination<Document>({
     table,
 }: SearchPaginationProps<Document>) {
-    const ALL_LABEL = 'Show All (may be slow)'
+    const ALL_LABEL = 'All'
 
-    const csvConfig = mkConfig({
-        fieldSeparator: ',',
-        filename: 'sample', // export file name (without .csv)
-        decimalSeparator: '.',
-        useKeysAsHeaders: true,
-    })
+    function renderItems() {
+        let midPoint = (MAX_PAGES_VISIBLE - 1) / 2
+        let currentPage = table.getState().pagination.pageIndex
+        let startingPage = currentPage - midPoint < 0 ? 0 : currentPage - midPoint
+        let endingPage = startingPage + MAX_PAGES_VISIBLE - 1
+        let lastPage = table.getPageCount() - 1
 
-    const exportExcel = (rows: Row<Document>[]) => {
-        const rowData = rows.map(row => {
-            console.log(row.getAllCells())
-            const originalEntries = Object.entries(row.original)
-            const filteredEntries = originalEntries.filter(
-                ([key, value]) => typeof value === 'string'
+        if (endingPage > lastPage) {
+            startingPage = lastPage - MAX_PAGES_VISIBLE + 1
+            endingPage = lastPage
+        }
+
+        let items = []
+
+        for (let i = startingPage; i <= endingPage; i++) {
+            items.push(
+                <Pagination.Item
+                    key={i}
+                    active={i == currentPage}
+                    onClick={() => table.setPageIndex(i)}
+                >
+                    {i + 1}
+                </Pagination.Item>
             )
+        }
 
-            return Object.fromEntries(filteredEntries)
-        })
-
-        const csv = generateCsv(csvConfig)(rowData as any)
-        download(csvConfig)(csv)
+        return items
     }
 
     return (
-        <div className="flex items-center justify-between px-2 py-4">
-            <div>
-                <Button onClick={() => exportExcel(table.getFilteredRowModel().rows)}>
-                    Export to CSV
-                </Button>
-            </div>
+        <nav
+            className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4"
+            aria-label="Table navigation"
+        >
+            <span className="text-sm font-normal text-gray-500">
+                Showing
+                <span className="mx-1 font-semibold text-gray-900">
+                    {table.getState().pagination.pageIndex *
+                        table.getState().pagination.pageSize +
+                        1}{' '}
+                    -{' '}
+                    {Math.min(
+                        (table.getState().pagination.pageIndex + 1) *
+                            table.getState().pagination.pageSize,
+                        table.getFilteredRowModel().rows.length
+                    )}
+                </span>
+                of
+                <span className="mx-1 font-semibold text-gray-900">
+                    {table.getFilteredRowModel().rows.length}
+                </span>
+                documents
+            </span>
 
-            <div className="flex items-center space-x-6 lg:space-x-8">
-                <div className="flex items-center space-x-2">
-                    <p className="text-sm font-medium">Rows per page</p>
+            <div className="flex items-center space-x-2">
+                <p className="text-sm font-medium">Rows&nbsp;per&nbsp;page</p>
 
+                <div className="mr-4">
                     <select
                         className="form-control"
                         value={`${table.getState().pagination.pageSize}`}
@@ -65,50 +89,52 @@ export function SearchPagination<Document>({
                     </select>
                 </div>
 
-                <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-                    Page {table.getState().pagination.pageIndex + 1} of{' '}
-                    {table.getPageCount()}
-                </div>
-
-                <div className="flex items-center space-x-2">
-                    <Button
-                        variant="outline"
-                        className="hidden h-8 w-8 p-0 lg:flex"
+                <Pagination>
+                    <Pagination.First
                         onClick={() => table.setPageIndex(0)}
                         disabled={!table.getCanPreviousPage()}
-                    >
-                        <span className="sr-only">Go to first page</span>
-                        <span>&lt;&lt;</span>
-                    </Button>
-                    <Button
-                        variant="outline"
-                        className="h-8 w-8 p-0"
+                    />
+                    <Pagination.Prev
                         onClick={() => table.previousPage()}
                         disabled={!table.getCanPreviousPage()}
-                    >
-                        <span className="sr-only">Go to previous page</span>
-                        <span>&lt;</span>
-                    </Button>
-                    <Button
-                        variant="outline"
-                        className="h-8 w-8 p-0"
+                    />
+
+                    {table.getState().pagination.pageIndex >
+                        MAX_PAGES_VISIBLE - 1 && (
+                        <Pagination.Ellipsis
+                            onClick={() =>
+                                table.setPageIndex(
+                                    table.getState().pagination.pageIndex -
+                                        MAX_PAGES_VISIBLE
+                                )
+                            }
+                        />
+                    )}
+
+                    {renderItems()}
+
+                    {table.getState().pagination.pageIndex <
+                        MAX_PAGES_VISIBLE + 1 && (
+                        <Pagination.Ellipsis
+                            onClick={() =>
+                                table.setPageIndex(
+                                    table.getState().pagination.pageIndex +
+                                        MAX_PAGES_VISIBLE
+                                )
+                            }
+                        />
+                    )}
+
+                    <Pagination.Next
                         onClick={() => table.nextPage()}
                         disabled={!table.getCanNextPage()}
-                    >
-                        <span className="sr-only">Go to next page</span>
-                        <span>&gt;</span>
-                    </Button>
-                    <Button
-                        variant="outline"
-                        className="hidden h-8 w-8 p-0 lg:flex"
+                    />
+                    <Pagination.Last
                         onClick={() => table.setPageIndex(table.getPageCount() - 1)}
                         disabled={!table.getCanNextPage()}
-                    >
-                        <span className="sr-only">Go to last page</span>
-                        <span>&gt;&gt;</span>
-                    </Button>
-                </div>
+                    />
+                </Pagination>
             </div>
-        </div>
+        </nav>
     )
 }

@@ -3,7 +3,6 @@ import { useRouter } from 'next/router'
 import { useState } from 'react'
 import PageTitle from '../../components/page-title'
 import SearchBar from '../../components/search/search-bar'
-import SearchList from '../../components/search/search-list'
 import withAuthentication from '../../components/with-authentication'
 import { getDocumentsForModel } from '../../documents/service'
 import type { Document } from '../../documents/types'
@@ -29,31 +28,6 @@ const ModelPage = (props: ModelPageProps) => {
     const modelName = router.query.modelName as string
 
     const [searchTerm, setSearchTerm] = useState('')
-
-    function addNewDocument() {
-        router.push('/[modelName]/new', `/${modelName}/new`)
-    }
-
-    function handleSortChange(newSort) {
-        console.log(newSort)
-
-        // TODO: alter URL to change search
-        /*
-        setSearchOptions({
-            ...searchOptions,
-            sort: newSort,
-        })*/
-    }
-
-    function handleFilterChange(newFilter) {
-        // TODO: alter URL to change search
-        /*
-        setSearchOptions({
-            ...searchOptions,
-            filter: newFilter,
-        })
-        */
-    }
 
     return (
         <div>
@@ -85,21 +59,10 @@ const ModelPage = (props: ModelPageProps) => {
                 ) : (
                     <>
                         <SearchTable
+                            modelName={modelName}
                             columns={getColumns(modelName)}
                             data={props.documents}
                             globalFilter={searchTerm}
-                        />
-
-                        <SearchList
-                            documents={props.documents.map(document => ({
-                                ...document,
-                                ...document['x-meditor'], // bring x-meditor properties up a level
-                            }))}
-                            model={props.model}
-                            onAddNew={addNewDocument}
-                            user={props.user}
-                            onSortChange={handleSortChange}
-                            onFilterChange={handleFilterChange}
                         />
                     </>
                 )}

@@ -1,10 +1,3 @@
-import { clsx, type ClassValue } from 'clsx'
-import { twMerge } from 'tailwind-merge'
-
-export function cn(...inputs: ClassValue[]) {
-    return twMerge(clsx(inputs))
-}
-
 /**
  * given all of, or a portion of, a JSON schema, will do a deep search for a given key
  *
