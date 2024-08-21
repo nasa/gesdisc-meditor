@@ -160,9 +160,7 @@ export function SearchTable<TData, TValue>({
                 </Table>
             </div>
 
-            <div className="flex items-center justify-end space-x-2 py-4">
-                <SearchPagination table={table} />
-            </div>
+            <SearchPagination table={table} />
         </div>
     )
 }

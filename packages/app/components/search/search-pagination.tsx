@@ -1,16 +1,45 @@
-import { Table } from '@tanstack/react-table'
+import { Row, Table } from '@tanstack/react-table'
 import { Button } from 'react-bootstrap'
+import { mkConfig, generateCsv, download } from 'export-to-csv'
+import { Document } from '@/documents/types'
 
-interface SearchPaginationProps<TData> {
-    table: Table<TData>
+interface SearchPaginationProps<Document> {
+    table: Table<Document>
 }
 
-export function SearchPagination<TData>({ table }: SearchPaginationProps<TData>) {
+export function SearchPagination<Document>({
+    table,
+}: SearchPaginationProps<Document>) {
+    const ALL_LABEL = 'Show All (may be slow)'
+
+    const csvConfig = mkConfig({
+        fieldSeparator: ',',
+        filename: 'sample', // export file name (without .csv)
+        decimalSeparator: '.',
+        useKeysAsHeaders: true,
+    })
+
+    const exportExcel = (rows: Row<Document>[]) => {
+        const rowData = rows.map(row => {
+            console.log(row.getAllCells())
+            const originalEntries = Object.entries(row.original)
+            const filteredEntries = originalEntries.filter(
+                ([key, value]) => typeof value === 'string'
+            )
+
+            return Object.fromEntries(filteredEntries)
+        })
+
+        const csv = generateCsv(csvConfig)(rowData as any)
+        download(csvConfig)(csv)
+    }
+
     return (
-        <div className="flex items-center justify-between px-2">
-            <div className="flex-1 text-sm text-muted-foreground">
-                {table.getFilteredSelectedRowModel().rows.length} of{' '}
-                {table.getFilteredRowModel().rows.length} row(s) selected.
+        <div className="flex items-center justify-between px-2 py-4">
+            <div>
+                <Button onClick={() => exportExcel(table.getFilteredRowModel().rows)}>
+                    Export to CSV
+                </Button>
             </div>
 
             <div className="flex items-center space-x-6 lg:space-x-8">
@@ -20,9 +49,15 @@ export function SearchPagination<TData>({ table }: SearchPaginationProps<TData>)
                     <select
                         className="form-control"
                         value={`${table.getState().pagination.pageSize}`}
-                        onChange={value => table.setPageSize(Number(value))}
+                        onChange={e =>
+                            table.setPageSize(
+                                e.target.value === ALL_LABEL
+                                    ? 999999
+                                    : Number(e.target.value)
+                            )
+                        }
                     >
-                        {[10, 20, 30, 40, 50].map(pageSize => (
+                        {[50, 100, 500, ALL_LABEL].map(pageSize => (
                             <option key={pageSize} value={`${pageSize}`}>
                                 {pageSize}
                             </option>
