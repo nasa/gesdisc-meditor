@@ -34,6 +34,10 @@ def convertNotebookToHtml():
     
     # if we're including a github.com URL, we'll provide some additional links to the original github repo
     if notebookUrl.startswith('https://github.com'):
+        # make sure we are only rendering notebooks from the nasa organization
+        if not notebookUrl.startswith('https://github.com/nasa/'):
+            return "Invalid notebook URL, must be in the NASA organization", 400
+
         githubUrl = notebookUrl
         notebookUrl = notebookUrl.replace(
             "https://github.com", "https://raw.githubusercontent.com").replace("/blob/", "/")
