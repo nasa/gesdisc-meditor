@@ -59,7 +59,7 @@ const ModelPage = (props: ModelPageProps) => {
                 ) : (
                     <>
                         <SearchTable
-                            modelName={modelName}
+                            model={props.model}
                             columns={getColumns(modelName)}
                             data={props.documents}
                             globalFilter={searchTerm}

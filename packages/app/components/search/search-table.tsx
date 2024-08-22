@@ -15,7 +15,7 @@ import {
 } from '@tanstack/react-table'
 
 import { SearchPagination } from './search-pagination'
-import { useContext, useState } from 'react'
+import { useContext, useMemo, useState } from 'react'
 import { Button, Dropdown } from 'react-bootstrap'
 import { FaEye, FaFilter, FaTrash, FaWrench } from 'react-icons/fa'
 import { MdAdd } from 'react-icons/md'
@@ -23,9 +23,12 @@ import { LuFileSpreadsheet, LuFileJson } from 'react-icons/lu'
 import { download, generateCsv, mkConfig } from 'export-to-csv'
 import { Document } from '@/documents/types'
 import { AppContext } from '../app-store'
+import { ModelWithWorkflow } from '@/models/types'
+import { flattenSchema } from '@/utils/jsonschema'
+import { DropdownList } from '../dropdown-list'
 
 interface SearchTableProps<TData, TValue> {
-    modelName: string
+    model: ModelWithWorkflow
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
     globalFilter?: string
@@ -33,14 +36,18 @@ interface SearchTableProps<TData, TValue> {
 }
 
 export function SearchTable<Document, TValue>({
-    modelName,
+    model,
     columns,
     data,
     globalFilter,
     onGlobalFilterChange,
 }: SearchTableProps<Document, TValue>) {
+    const flattenedSchema = useMemo(() => {
+        return flattenSchema(JSON.parse(model.schema))
+    }, [model.schema])
     const { setSuccessNotification } = useContext(AppContext)
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+    const [showColumnsDropdown, setShowColumnsDropdown] = useState(false)
     const [sorting, setSorting] = useState<SortingState>([
         {
             // default sorting
@@ -86,7 +93,7 @@ export function SearchTable<Document, TValue>({
     const exportExcel = (rows: Row<Document>[]) => {
         const csvConfig = mkConfig({
             fieldSeparator: ',',
-            filename: modelName,
+            filename: model.name,
             decimalSeparator: '.',
             useKeysAsHeaders: true,
         })
@@ -102,7 +109,7 @@ export function SearchTable<Document, TValue>({
         const csv = generateCsv(csvConfig)(rowData)
         download(csvConfig)(csv)
 
-        setSuccessNotification(`Exported ${rows.length} rows to ${modelName}.csv`)
+        setSuccessNotification(`Exported ${rows.length} rows to ${model.name}.csv`)
     }
 
     const exportJson = (rows: Row<Document>[]) => {
@@ -111,10 +118,14 @@ export function SearchTable<Document, TValue>({
         )}`
         const el = document.createElement('a')
         el.setAttribute('href', dataStr)
-        el.setAttribute('download', `${modelName}.json`)
+        el.setAttribute('download', `${model.name}.json`)
         el.click()
 
-        setSuccessNotification(`Exported ${rows.length} rows to ${modelName}.json`)
+        setSuccessNotification(`Exported ${rows.length} rows to ${model.name}.json`)
+    }
+
+    const toggleVisibleColumn = (key: string) => {
+        console.log('toggle visible column ', key)
     }
 
     /*
@@ -152,7 +163,6 @@ export function SearchTable<Document, TValue>({
                                 <Dropdown.Header>Exports</Dropdown.Header>
 
                                 <Dropdown.Item
-                                    href="#/action-1"
                                     className="flex items-center"
                                     onClick={() =>
                                         exportExcel(table.getFilteredRowModel().rows)
@@ -163,7 +173,6 @@ export function SearchTable<Document, TValue>({
                                 </Dropdown.Item>
 
                                 <Dropdown.Item
-                                    href="#/action-1"
                                     className="flex items-center"
                                     onClick={() =>
                                         exportJson(table.getFilteredRowModel().rows)
@@ -177,11 +186,7 @@ export function SearchTable<Document, TValue>({
 
                                 <Dropdown.Header>Bulk Actions</Dropdown.Header>
 
-                                <Dropdown.Item
-                                    href="#/action-1"
-                                    className="flex items-center"
-                                    disabled
-                                >
+                                <Dropdown.Item className="flex items-center" disabled>
                                     <FaTrash className="mr-1" />
                                     Delete
                                 </Dropdown.Item>
@@ -196,13 +201,33 @@ export function SearchTable<Document, TValue>({
                             Filters
                         </Button>
 
-                        <Button
-                            variant="light"
-                            className="flex items-center justify-center"
+                        <Dropdown
+                            onToggle={setShowColumnsDropdown}
+                            show={showColumnsDropdown}
                         >
-                            <FaEye className="mr-2" />
-                            Columns
-                        </Button>
+                            <Dropdown.Toggle
+                                variant="light"
+                                id="actions-dropdown"
+                                className="flex items-center justify-center"
+                            >
+                                <FaEye className="mr-2" />
+                                Columns
+                            </Dropdown.Toggle>
+
+                            <Dropdown.Menu as={DropdownList}>
+                                <Dropdown.Header>
+                                    Select visible columns
+                                </Dropdown.Header>
+
+                                {flattenedSchema.map(item => {
+                                    return (
+                                        <a href="javascript:;" key={item.key}>
+                                            {item.key}
+                                        </a>
+                                    )
+                                })}
+                            </Dropdown.Menu>
+                        </Dropdown>
                     </div>
                 </div>
 
