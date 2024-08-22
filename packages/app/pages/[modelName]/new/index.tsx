@@ -1,3 +1,4 @@
+import Layout from 'components/layout'
 import format from 'date-fns/format'
 import omitBy from 'lodash.omitby'
 import type { NextPageContext } from 'next'
@@ -137,7 +138,7 @@ const NewDocumentPage = ({ user, model }: NewDocumentPageProps) => {
     }
 
     return (
-        <div>
+        <Layout>
             <PageTitle title={['Add New', modelName]} />
 
             <Breadcrumbs>
@@ -199,7 +200,7 @@ const NewDocumentPage = ({ user, model }: NewDocumentPageProps) => {
                     }
                 />
             )}
-        </div>
+        </Layout>
     )
 }
 
