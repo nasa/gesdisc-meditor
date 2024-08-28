@@ -28,6 +28,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 ...(req.query.searchTerm && {
                     searchTerm: req.query.searchTerm.toString(),
                 }),
+                ...(req.query.includeFields && {
+                    fields: req.query.includeFields.toString().split(','),
+                }),
             })
 
             if (error) {

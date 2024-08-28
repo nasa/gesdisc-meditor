@@ -12,6 +12,7 @@ import type { User } from '../../auth/types'
 import { isNotFoundError } from 'utils/errors'
 import { SearchTable } from '@/components/search/search-table'
 import { getColumns } from '@/components/search/search-columns'
+import { getCookie } from 'cookies-next'
 
 type ModelPageProps = {
     user: User
@@ -87,6 +88,11 @@ export async function getServerSideProps(ctx: NextPageContext) {
             notFound: true,
         }
     }
+
+    // if user has preferences for adding additional columns to the view, include them here
+    const includeColumns = JSON.parse(
+        getCookie('includeColumns', ctx)?.toString() ?? ''
+    )
 
     // fetch documents, applying search, filter, or sort
     const [documentsError, documents] = await getDocumentsForModel(modelName)

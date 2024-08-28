@@ -11,21 +11,36 @@ import {
     getSortedRowModel,
     Row,
     SortingState,
+    Table,
     useReactTable,
+    VisibilityState,
 } from '@tanstack/react-table'
 
 import { SearchPagination } from './search-pagination'
 import { useContext, useMemo, useState } from 'react'
-import { Button, Dropdown } from 'react-bootstrap'
+import { Button, Dropdown, Form } from 'react-bootstrap'
 import { FaEye, FaFilter, FaTrash, FaWrench } from 'react-icons/fa'
 import { MdAdd } from 'react-icons/md'
 import { LuFileSpreadsheet, LuFileJson } from 'react-icons/lu'
 import { download, generateCsv, mkConfig } from 'export-to-csv'
-import { Document } from '@/documents/types'
 import { AppContext } from '../app-store'
 import { ModelWithWorkflow } from '@/models/types'
 import { flattenSchema } from '@/utils/jsonschema'
 import { DropdownList } from '../dropdown-list'
+import { xMeditorSchema } from '@/models/constants'
+import { Document } from '@/documents/types'
+import { useRouter } from 'next/router'
+import { useCookie } from '@/lib/use-cookie.hook'
+
+function findColumnByKey(table: Table<any>, key: string) {
+    return (
+        table
+            .getAllColumns()
+            // the schema key is dot-separated `.` whereas the TanStack table uses `_`
+            // we'll convert to `_` to make sure we match correctly
+            .find(c => c.id === key.replace(/\./g, '_'))
+    )
+}
 
 interface SearchTableProps<TData, TValue> {
     model: ModelWithWorkflow
@@ -42,12 +57,23 @@ export function SearchTable<Document, TValue>({
     globalFilter,
     onGlobalFilterChange,
 }: SearchTableProps<Document, TValue>) {
+    const router = useRouter()
     const flattenedSchema = useMemo(() => {
-        return flattenSchema(JSON.parse(model.schema))
+        const schema = JSON.parse(model.schema)
+
+        return flattenSchema({
+            ...schema,
+            properties: {
+                ...xMeditorSchema, // add x-meditor fields
+                ...schema.properties,
+            },
+        })
     }, [model.schema])
+
     const { setSuccessNotification } = useContext(AppContext)
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
     const [showColumnsDropdown, setShowColumnsDropdown] = useState(false)
+    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
     const [sorting, setSorting] = useState<SortingState>([
         {
             // default sorting
@@ -55,6 +81,10 @@ export function SearchTable<Document, TValue>({
             id: 'modifiedOn',
         },
     ])
+
+    const [includeColumns, setIncludeColumns] = useCookie<{
+        [key: string]: string[]
+    }>('includeColumns', {})
 
     const table = useReactTable<Document>({
         data, // each row of data (i.e. an array of documents)
@@ -65,11 +95,8 @@ export function SearchTable<Document, TValue>({
             sorting,
             globalFilter,
             columnFilters,
+            columnVisibility,
         },
-
-        debugTable: true,
-        debugHeaders: true,
-        debugColumns: true,
 
         // support for pagination (https://tanstack.com/table/v8/docs/guide/pagination)
         getPaginationRowModel: getPaginationRowModel(),
@@ -84,6 +111,9 @@ export function SearchTable<Document, TValue>({
         getFacetedRowModel: getFacetedRowModel(), // client-side faceting
         getFacetedUniqueValues: getFacetedUniqueValues(), // generate unique values for select filter/autocomplete
         getFacetedMinMaxValues: getFacetedMinMaxValues(), // generate min/max values for range filter
+
+        // support for toggling visibility of columns
+        onColumnVisibilityChange: setColumnVisibility,
 
         // support for global search/filter (https://tanstack.com/table/v8/docs/guide/global-filtering)
         onGlobalFilterChange: onGlobalFilterChange,
@@ -124,8 +154,22 @@ export function SearchTable<Document, TValue>({
         setSuccessNotification(`Exported ${rows.length} rows to ${model.name}.json`)
     }
 
-    const toggleVisibleColumn = (key: string) => {
-        console.log('toggle visible column ', key)
+    const toggleVisibleColumn = async (key: string, visible: boolean) => {
+        const column = findColumnByKey(table, key)
+
+        if (!column) {
+            // we don't have this column yet, add it to local storage, refresh the page
+            setIncludeColumns({
+                ...includeColumns,
+                [model.name]: includeColumns[model.name]
+                    ? [...includeColumns[model.name], key]
+                    : [key],
+            })
+
+            router.reload()
+        }
+
+        column?.toggleVisibility(visible)
     }
 
     /*
@@ -214,16 +258,34 @@ export function SearchTable<Document, TValue>({
                                 Columns
                             </Dropdown.Toggle>
 
-                            <Dropdown.Menu as={DropdownList}>
+                            <Dropdown.Menu
+                                as={DropdownList}
+                                style={{ maxWidth: '300px' }}
+                            >
                                 <Dropdown.Header>
                                     Select visible columns
                                 </Dropdown.Header>
 
                                 {flattenedSchema.map(item => {
                                     return (
-                                        <a href="javascript:;" key={item.key}>
-                                            {item.key}
-                                        </a>
+                                        <Form.Check
+                                            key={item.key}
+                                            type="checkbox"
+                                            label={item.key}
+                                            className="py-1 px-4 ml-3"
+                                            checked={
+                                                findColumnByKey(
+                                                    table,
+                                                    item.key
+                                                )?.getIsVisible() ?? false
+                                            }
+                                            onChange={e =>
+                                                toggleVisibleColumn(
+                                                    item.key,
+                                                    !!e.target.checked
+                                                )
+                                            }
+                                        />
                                     )
                                 })}
                             </Dropdown.Menu>

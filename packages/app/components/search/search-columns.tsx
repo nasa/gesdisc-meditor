@@ -48,6 +48,7 @@ export function getColumns(modelName: string): ColumnDef<Document>[] {
             ),
         },
         {
+            id: 'state',
             accessorKey: 'x-meditor.state',
             filterFn: 'includesString',
             header: ({ column }) => {

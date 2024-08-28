@@ -288,6 +288,19 @@ class DocumentsDb {
         const sortDir =
             (searchOptions?.sort || this.#DEFAULT_SORT).charAt(0) == '-' ? -1 : 1
 
+        // since documents can be so large, only include a handful of needed fields
+        const $project = {
+            _id: 0,
+            title: `$${titleProperty}`, // add a title field that matches the `titleProperty` field
+            [titleProperty]: 1,
+            'x-meditor': 1,
+        }
+
+        // dynamically populate which fields we'll include
+        searchOptions?.includeFields?.forEach(field => {
+            $project[field] = 1
+        })
+
         const pipeline = [
             // filter out deleted documents
             {
@@ -296,15 +309,8 @@ class DocumentsDb {
                 },
             },
 
-            // since documents can be so large, only include a handful of needed fields
-            // TODO: once pagination is added to the API, this shouldn't be needed anymore
             {
-                $project: {
-                    _id: 0,
-                    title: `$${titleProperty}`, // add a title field that matches the `titleProperty` field
-                    [titleProperty]: 1,
-                    'x-meditor': 1,
-                },
+                $project,
             },
 
             // make sure we only return the latest version of each document (collection holds document history)
