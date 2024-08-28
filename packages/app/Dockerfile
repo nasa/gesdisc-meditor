@@ -9,13 +9,14 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install
 COPY . .
+RUN npm run build
 
 EXPOSE 3000
 EXPOSE 4000
 
 CMD if [ "$NODE_ENV" = "production" ]; \
   then \
-  npm run build && npm run start; \
+  npm run start; \
   else \
   npm run dev; \
   fi
