@@ -46,6 +46,14 @@ const JSONPatchOperation = (props: Props) => {
     // Initial schema template
     const [initialSchema, setInitialSchema] = useState({})
 
+    //initialize schema on mount
+    useEffect(() => {
+        if (properties.length > 0) {
+            const defaultproperty = properties[0]
+            handlePropertySelect({ target: { value: defaultproperty } })
+        }
+    })
+
     const handlePropertySelect = (e: any) => {
         const property = e.target.value
         console.log(property)
