@@ -14,17 +14,17 @@ import styles from './document-header.module.css'
 import DocumentStateBadge from './document-state-badge'
 
 type PropsType = {
-    activePanel: string
-    document: Document
-    isJsonPanelOpen: boolean
-    model: ModelWithWorkflow
-    version: any
-    toggleJsonDiffer: () => void
-    togglePanelOpen: (panel: string) => void
-    privileges: string[]
-    comments: DocumentComment[]
-    history: DocumentHistory[]
-    collaborators: Collaborator[]
+    activePanel?: string
+    document?: Document
+    isJsonPanelOpen?: boolean
+    model?: ModelWithWorkflow
+    version?: any
+    toggleJsonDiffer?: () => void
+    togglePanelOpen?: (panel: string) => void
+    privileges?: string[]
+    comments?: DocumentComment[]
+    history?: DocumentHistory[]
+    collaborators?: Collaborator[]
 }
 
 const DocumentHeader = ({
@@ -33,8 +33,8 @@ const DocumentHeader = ({
     isJsonPanelOpen = false,
     model,
     version = null,
-    toggleJsonDiffer,
-    togglePanelOpen,
+    toggleJsonDiffer = () => {},
+    togglePanelOpen = () => {},
     privileges = [],
     comments = [],
     history = [],

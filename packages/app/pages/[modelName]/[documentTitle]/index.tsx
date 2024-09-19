@@ -269,7 +269,7 @@ const EditDocumentPage = ({
         refreshDataInPlace(router)
     }
 
-    function togglePanel(panel) {
+    function togglePanel(panel: string) {
         setActivePanel(panel === activePanel ? null : panel)
     }
 
