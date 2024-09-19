@@ -1,3 +1,8 @@
+import { adaptUserToCollaborator } from 'collaboration/adapters'
+import { updateCollaborators } from 'collaboration/http'
+import { filterActiveUser } from 'collaboration/lib'
+import { getDocumentCollaborators } from 'collaboration/service'
+import type { Collaborator } from 'collaboration/types'
 import cloneDeep from 'lodash.clonedeep'
 import type { NextPageContext } from 'next'
 import { useRouter } from 'next/router'
@@ -45,6 +50,7 @@ type PropsType = {
     theme: any
     user: any
     version: string
+    collaborators: Collaborator[]
 }
 
 const EditDocumentPage = ({
@@ -55,6 +61,7 @@ const EditDocumentPage = ({
     comments,
     documentHistory,
     pageDocument,
+    collaborators,
 }: PropsType) => {
     const router = useRouter()
     const params = router.query
@@ -68,6 +75,7 @@ const EditDocumentPage = ({
     const [toggleJSON, setToggleJSON] = useState(false)
     // todo: remove this hack when this page is refactored
     const [sourceChangeBlock, setSourceChangeBlock] = useState(false)
+    const [clientCollaborators, setClientCollaborators] = useState(collaborators)
 
     const [activePanel, setActivePanel] = useLocalStorage<DocumentPanels>(
         'documentEditActivePanel',
@@ -78,6 +86,53 @@ const EditDocumentPage = ({
     useEffect(() => {
         refreshDataInPlace(router)
     }, [formData.state, refreshDataInPlace])
+
+    useEffect(() => {
+        const privileges = user.privilegesForModelAndWorkflowNode(
+            modelName,
+            model.workflow.currentNode
+        )
+        // @ts-expect-error
+        const { userActivation } = globalThis.navigator
+
+        let intervalId: null | ReturnType<typeof globalThis.setInterval>
+        let consecutiveErrorCount = 0
+
+        if (userActivation) {
+            handleCollaborators()
+            intervalId = globalThis.setInterval(handleCollaborators, 3000)
+        }
+
+        async function handleCollaborators() {
+            // No need to keep triggering a re-render / sending a network request if collaboration isn't working.
+            if (consecutiveErrorCount > 5) {
+                console.warn(
+                    `Collaboration featured are disabled for document ${documentTitle}.`
+                )
+                return globalThis.clearInterval(intervalId)
+            }
+
+            const collaborator = adaptUserToCollaborator(
+                user,
+                privileges,
+                userActivation.hasBeenActive,
+                userActivation.isActive
+            )
+
+            const [error, collaborators] = await updateCollaborators(
+                collaborator,
+                documentTitle,
+                modelName
+            )
+
+            consecutiveErrorCount = error ? consecutiveErrorCount + 1 : 0
+
+            setClientCollaborators(filterActiveUser(collaborators, user))
+        }
+        return () => {
+            globalThis.clearInterval(intervalId)
+        }
+    }, [documentTitle, model, modelName, user])
 
     const currentPrivileges = model.workflow
         ? user.privilegesForModelAndWorkflowNode(
@@ -287,6 +342,7 @@ const EditDocumentPage = ({
                 privileges={currentPrivileges}
                 comments={comments}
                 history={documentHistory}
+                collaborators={clientCollaborators}
             />
 
             <div
@@ -419,11 +475,18 @@ export async function getServerSideProps(ctx: NextPageContext) {
         decodeURIComponent(modelName.toString())
     )
 
+    // We only get the document collaborators here, because the browser's heuristics are needed to determine hasBeenActive and isActive.
+    const [collaboratorsError, collaborators] = await getDocumentCollaborators(
+        decodeURIComponent(documentTitle.toString()),
+        decodeURIComponent(modelName.toString())
+    )
+
     const props = {
         comments: !!commentsError ? null : treeify(comments),
         pageDocument: adaptDocumentToLegacyDocument(pageDocument),
         documentHistory: !!documentHistoryError ? null : documentHistory,
         model: modelWithWorkflow,
+        collaborators: filterActiveUser(collaborators, user),
     }
 
     return { props }

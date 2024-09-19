@@ -1,3 +1,7 @@
+import type { Collaborator } from 'collaboration/types'
+import type { DocumentComment } from 'comments/types'
+import type { Document, DocumentHistory } from 'documents/types'
+import type { ModelWithWorkflow } from 'models/types'
 import Badge from 'react-bootstrap/Badge'
 import Button from 'react-bootstrap/Button'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
@@ -8,6 +12,20 @@ import { MdComment, MdCompare, MdHistory } from 'react-icons/md'
 import ModelIcon from '../model-icon'
 import styles from './document-header.module.css'
 import DocumentStateBadge from './document-state-badge'
+
+type PropsType = {
+    activePanel: string
+    document: Document
+    isJsonPanelOpen: boolean
+    model: ModelWithWorkflow
+    version: any
+    toggleJsonDiffer: () => void
+    togglePanelOpen: (panel: string) => void
+    privileges: string[]
+    comments: DocumentComment[]
+    history: DocumentHistory[]
+    collaborators: Collaborator[]
+}
 
 const DocumentHeader = ({
     activePanel = null,
@@ -20,19 +38,87 @@ const DocumentHeader = ({
     privileges = [],
     comments = [],
     history = [],
-}) => {
+    collaborators = [],
+}: PropsType) => {
     const numberOfComments =
         comments === null ? 0 : comments.filter(c => !c.resolved).length
     const numberOfHistoryEntries = history === null ? 0 : history.length
+    const sortedCollaborators = [...collaborators]
+        .sort(({ hasBeenActive }) => (hasBeenActive ? -1 : 0))
+        .sort(({ isActive }) => (isActive ? -1 : 0))
+    const priorityCollaborators = sortedCollaborators.slice(0, 4)
+    const plusCollaborators = sortedCollaborators.slice(4)
 
     return (
-        <div>
-            <div className={styles.title}>
-                <ModelIcon name={model?.icon?.name} color={model?.icon?.color} />
-                {model?.name}
+        <div className={styles.header}>
+            <div className={styles.titleDescription}>
+                <div className={styles.title}>
+                    <ModelIcon name={model?.icon?.name} color={model?.icon?.color} />
+                    <h2 className="h3">{model?.name}</h2>
+                </div>
+
+                <div className={styles.description}>{model?.description}</div>
             </div>
 
-            <div className={styles.description}>{model?.description}</div>
+            <h3 className="sr-only">Collaborators</h3>
+            <div className={styles.collaborators}>
+                {priorityCollaborators.map(
+                    ({
+                        initials,
+                        uid,
+                        hasBeenActive,
+                        isActive,
+                        firstName,
+                        lastName,
+                    }) => {
+                        return (
+                            <span
+                                key={uid}
+                                className={`${styles.collaborator}`}
+                                data-has-been-active={hasBeenActive}
+                                data-is-active={isActive}
+                                title={`${firstName} ${lastName} (${
+                                    isActive
+                                        ? 'actively collaborating'
+                                        : hasBeenActive
+                                        ? 'recently collaborating'
+                                        : 'viewing'
+                                })`}
+                            >
+                                <span aria-hidden="true">{initials}</span>
+                                <span className="sr-only">{`${firstName} ${lastName} ${
+                                    isActive
+                                        ? 'is actively collaborating on'
+                                        : hasBeenActive
+                                        ? 'has recently been collaborating on'
+                                        : 'is viewing'
+                                } this document.`}</span>
+                            </span>
+                        )
+                    }
+                )}
+                {plusCollaborators.length ? (
+                    <span
+                        className={styles.collaborator}
+                        title={plusCollaborators
+                            .map(
+                                ({ firstName, lastName, isActive, hasBeenActive }) =>
+                                    `${firstName} ${lastName} (${
+                                        isActive
+                                            ? 'actively collaborating'
+                                            : hasBeenActive
+                                            ? 'recently collaborating'
+                                            : 'viewing'
+                                    })`
+                            )
+                            .join(', ')}
+                    >
+                        {plusCollaborators.length < 10
+                            ? `+${plusCollaborators.length}`
+                            : `++`}
+                    </span>
+                ) : null}
+            </div>
 
             {document && (
                 <div className={styles.subheader}>
