@@ -28,3 +28,29 @@ export async function updateCollaborators(
         return [error, null]
     }
 }
+
+export async function getCollaborators(
+    documentTitle: string,
+    modelName: string
+): Promise<ErrorData<Collaborator[]>> {
+    try {
+        const response = await fetch(
+            `/meditor/api/collaboration/models/${encodeURIComponent(
+                modelName
+            )}/documents/${encodeURIComponent(documentTitle)}`,
+            { method: 'GET' }
+        )
+
+        if (!response.ok) {
+            const { error }: APIError = await response.json()
+
+            throw new HttpException(ErrorCode.InternalServerError, error)
+        }
+
+        const collaborators = await response.json()
+
+        return [null, collaborators]
+    } catch (error) {
+        return [error, null]
+    }
+}

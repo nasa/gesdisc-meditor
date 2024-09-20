@@ -1,5 +1,5 @@
 import { adaptUserToCollaborator } from 'collaboration/adapters'
-import { updateCollaborators } from 'collaboration/http'
+import { getCollaborators, updateCollaborators } from 'collaboration/http'
 import { filterActiveUser } from 'collaboration/lib'
 import { getDocumentCollaborators } from 'collaboration/service'
 import type { Collaborator } from 'collaboration/types'
@@ -7,6 +7,7 @@ import cloneDeep from 'lodash.clonedeep'
 import type { NextPageContext } from 'next'
 import { useRouter } from 'next/router'
 import { useContext, useEffect, useState } from 'react'
+import type { HttpException } from 'utils/errors'
 import { getLoggedInUser } from '../../../auth/user'
 import { getCommentsForDocument } from '../../../comments/service'
 import type { DocumentComment } from '../../../comments/types'
@@ -98,12 +99,15 @@ const EditDocumentPage = ({
         let intervalId: null | ReturnType<typeof globalThis.setInterval>
         let consecutiveErrorCount = 0
 
-        if (userActivation) {
-            handleCollaborators()
-            intervalId = globalThis.setInterval(handleCollaborators, 3000)
-        }
+        handleCollaborators()
+        intervalId = globalThis.setInterval(handleCollaborators, 3000)
 
         async function handleCollaborators() {
+            // No need to trigger a request if the document is not visible.
+            if (globalThis.document.hidden) {
+                return
+            }
+
             // No need to keep triggering a re-render / sending a network request if collaboration isn't working.
             if (consecutiveErrorCount > 5) {
                 console.warn(
@@ -112,18 +116,31 @@ const EditDocumentPage = ({
                 return globalThis.clearInterval(intervalId)
             }
 
-            const collaborator = adaptUserToCollaborator(
-                user,
-                privileges,
-                userActivation.hasBeenActive,
-                userActivation.isActive
-            )
+            let collaborators: Collaborator[]
+            let error: Error | HttpException
 
-            const [error, collaborators] = await updateCollaborators(
-                collaborator,
-                documentTitle,
-                modelName
-            )
+            if (userActivation) {
+                const collaborator = adaptUserToCollaborator(
+                    user,
+                    privileges,
+                    userActivation.hasBeenActive,
+                    userActivation.isActive
+                )
+
+                const [updateError, collaboratorsWithUser] =
+                    await updateCollaborators(collaborator, documentTitle, modelName)
+
+                collaborators = collaboratorsWithUser
+                error = updateError
+            } else {
+                const [getError, collaboratorsWithoutUser] = await getCollaborators(
+                    documentTitle,
+                    modelName
+                )
+
+                collaborators = collaboratorsWithoutUser
+                error = getError
+            }
 
             consecutiveErrorCount = error ? consecutiveErrorCount + 1 : 0
 
