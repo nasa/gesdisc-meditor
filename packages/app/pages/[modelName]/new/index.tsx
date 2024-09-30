@@ -149,7 +149,7 @@ const NewDocumentPage = ({ user, model }: NewDocumentPageProps) => {
                 <Breadcrumb title="New" />
             </Breadcrumbs>
 
-            <DocumentHeader model={model} togglePanelOpen toggleJsonDiffer />
+            <DocumentHeader model={model} />
 
             <Form
                 model={model}
