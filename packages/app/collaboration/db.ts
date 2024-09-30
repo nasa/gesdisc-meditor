@@ -6,7 +6,8 @@ import { ErrorCode, HttpException } from 'utils/errors'
 class CollaboratorsDb {
     #COLLECTION = 'Collaborators'
     #db: Db
-    #durationSeconds = 60 * 10
+    // Use a short duration so that collaborators are removed quickly when they close the page.
+    #durationSeconds = 10
     #indexName = 'active_collaborators'
 
     async connect(connectDb: () => Promise<Db>) {

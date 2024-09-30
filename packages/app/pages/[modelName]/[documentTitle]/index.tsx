@@ -2,7 +2,7 @@ import { adaptUserToCollaborator } from 'collaboration/adapters'
 import { getCollaborators, updateCollaborators } from 'collaboration/http'
 import { filterActiveUser } from 'collaboration/lib'
 import { getDocumentCollaborators } from 'collaboration/service'
-import type { Collaborator } from 'collaboration/types'
+import type { Collaborator, UserActivation } from 'collaboration/types'
 import cloneDeep from 'lodash.clonedeep'
 import type { NextPageContext } from 'next'
 import { useRouter } from 'next/router'
@@ -94,7 +94,7 @@ const EditDocumentPage = ({
             model.workflow.currentNode
         )
         // @ts-expect-error
-        const { userActivation } = globalThis.navigator
+        const userActivation: UserActivation = globalThis.navigator?.userActivation
 
         let intervalId: null | ReturnType<typeof globalThis.setInterval>
         let consecutiveErrorCount = 0

@@ -1,5 +1,4 @@
 import type { User } from 'auth/types'
-import type { ObjectId } from 'mongodb'
 
 export type Collaborator = {
     firstName: User['firstName']
@@ -10,3 +9,5 @@ export type Collaborator = {
     privileges: string[]
     uid: User['uid']
 }
+
+export type UserActivation = { hasBeenActive: boolean; isActive: boolean }
