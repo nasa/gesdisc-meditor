@@ -33,6 +33,8 @@ const JSONPatchOperation = (props: Props) => {
     const [formData, setFormData] = useState({})
 
     const schema = JSON.parse(model.schema)
+    // Initial schema template
+    const [initialSchema, setInitialSchema] = useState({})
 
     useEffect(() => {
         updateOperations({
@@ -43,16 +45,13 @@ const JSONPatchOperation = (props: Props) => {
         })
     }, [operation, path, pathValue])
 
-    // Initial schema template
-    const [initialSchema, setInitialSchema] = useState({})
-
     //initialize schema on mount
     useEffect(() => {
         if (properties.length > 0) {
             const defaultproperty = properties[0]
             handlePropertySelect({ target: { value: defaultproperty } })
         }
-    })
+    }, [properties])
 
     const handlePropertySelect = (e: any) => {
         const property = e.target.value
@@ -80,9 +79,16 @@ const JSONPatchOperation = (props: Props) => {
         })
 
         setFormData({})
-
+       
         setPath(property)
     }
+
+    // Handle form data change to update pathValue in the parent
+    const handleFormDataChange = (data: any) => {
+        if (data && data.formData.pathValue !== pathValue) {
+            setPathValue(data.formData.pathValue); 
+        }
+    };
 
     return (
         <>
@@ -147,6 +153,7 @@ const JSONPatchOperation = (props: Props) => {
                                 schema={initialSchema}
                                 formData={formData}
                                 layout={model.layout}
+                                onChange={handleFormDataChange}
                             ></JsonSchemaForm>
                         </Form.Group>
                     </Col>

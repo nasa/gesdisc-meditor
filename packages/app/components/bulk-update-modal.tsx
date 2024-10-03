@@ -128,7 +128,7 @@ const BulkUpdateFormModal = (props: any) => {
                 if (item.status !== 200) {
                     return item.error
                 }
-            })
+            }).filter(Boolean); // Filter out any undefined errors
 
             console.log(responseErrors)
 
@@ -141,10 +141,12 @@ const BulkUpdateFormModal = (props: any) => {
             } else if (responseErrors.length > 0) {
                 setErrorNotification(responseErrors.join('\n'))
             } else {
-                onComplete()
+                setSuccessNotification('Documents updated successfully!');
+                onClose(false) //close the model here
             }
         } catch (error) {
             console.error(error)
+            setErrorNotification('An unexpected error occurred.')
         }
     }
 
