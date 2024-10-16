@@ -124,11 +124,13 @@ const BulkUpdateFormModal = (props: any) => {
                 operation
             )
 
-            const responseErrors = response.map(item => {
-                if (item.status !== 200) {
-                    return item.error
-                }
-            }).filter(Boolean); // Filter out any undefined errors
+            const responseErrors = response
+                .map(item => {
+                    if (item.status !== 200) {
+                        return item.error
+                    }
+                })
+                .filter(Boolean) // Filter out any undefined errors
 
             console.log(responseErrors)
 
@@ -141,7 +143,9 @@ const BulkUpdateFormModal = (props: any) => {
             } else if (responseErrors.length > 0) {
                 setErrorNotification(responseErrors.join('\n'))
             } else {
-                setSuccessNotification('Documents updated successfully!');
+                setSuccessNotification(
+                    `${documents.length} Documents updated successfully!`
+                )
                 onClose(false) //close the model here
             }
         } catch (error) {
