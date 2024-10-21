@@ -100,14 +100,14 @@ const JSONPatchOperation = (props: Props) => {
         })
 
         setFormData({})
-       
+
         setPath(property)
     }
 
     // Handle form data change to update pathValue in the parent
     const handleFormDataChange = (data: any) => {
         if (data && data.formData.pathValue !== pathValue) {
-            setPathValue(data.formData.pathValue); 
+            setPathValue(data.formData.pathValue);
             const errors = validateAgainstSchema(data.formData, initialSchema);
             setValidationErrors(errors);
         }
@@ -170,9 +170,9 @@ const JSONPatchOperation = (props: Props) => {
             </Row>
             {validationErrors.length > 0 && (
                 <div className="alert alert-danger">
-                        {validationErrors.map((error) => (
-                            [error]
-                        ))}   
+                    {validationErrors.map((error) => (
+                        [error]
+                    ))}
                 </div>
             )}
             {path && (
