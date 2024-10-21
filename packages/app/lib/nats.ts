@@ -10,12 +10,20 @@ async function connectToNats() {
         `Connecting with client ${clientID} to NATS (Cluster: ${clusterID}, Server: ${server})`
     )
 
-    if (!globalThis.natsClient) {
-        globalThis.natsClient = connect(clusterID, clientID, {
-            url: server,
-            maxReconnectAttempts: -1,
-        })
+    if (globalThis.natsClient) {
+        log.debug(`A global NATS client was found; returning early.`)
+
+        return
     }
+
+    log.debug(
+        `A global NATS client was not found; attempting to connect ${clientID} to ${clusterID}.`
+    )
+
+    globalThis.natsClient = connect(clusterID, clientID, {
+        url: server,
+        maxReconnectAttempts: -1,
+    })
 
     // close connection when API shuts down
     process.on('SIGTERM', event => {

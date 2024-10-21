@@ -55,18 +55,34 @@ const SearchResult = ({
         <div className={styles.result}>
             <div>
                 {isLocalDocument && (
-                    <input
-                        type="checkbox"
-                        checked={selectedDocuments.includes(document.localId)}
-                        onChange={() => toggleDocumentSelection(document.localId)}
-                    />
+                    <div>
+                        <input
+                            id={document.localId}
+                            type="checkbox"
+                            checked={selectedDocuments.includes(document.localId)}
+                            onChange={() => toggleDocumentSelection(document.localId)}
+                        />
+                        <label
+                            className="visually-hidden"
+                            htmlFor={document.localId}
+                        ></label>
+                        <label htmlFor={document.localId}></label>
+                    </div>
                 )}
                 {!isLocalDocument && (
-                    <input
-                        type="checkbox"
-                        checked={selectedDocuments.includes(document.title)}
-                        onChange={() => toggleDocumentSelection(document.title)}
-                    />
+                    <div>
+                        <input
+                            id={document.title}
+                            type="checkbox"
+                            checked={selectedDocuments.includes(document.title)}
+                            onChange={() => toggleDocumentSelection(document.title)}
+                        />
+                        <label
+                            className="visually-hidden"
+                            htmlFor={document.title}
+                        ></label>
+                        <label htmlFor={document.title}></label>
+                    </div>
                 )}
                 <Link
                     href={

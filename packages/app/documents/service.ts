@@ -867,3 +867,50 @@ function jsonPatch(
         return [err, null]
     }
 }
+
+/**
+ * Validates a document against its schema strictly, allowing no additiona properties.
+ */
+export async function strictValidateDocument(
+    documentToValidate: any,
+    modelName: string
+): Promise<ErrorData<Document>> {
+    try {
+        //* Get the model for its schema and title property.
+        const [modelError, model] = await getModel(modelName, {
+            includeId: false,
+            populateMacroTemplates: true,
+        })
+
+        if (modelError) {
+            throw modelError
+        }
+
+        const { schema, titleProperty } = model
+        const { errors } = validate(documentToValidate, {
+            ...JSON.parse(schema),
+            additionalProperties: false,
+        })
+
+        //* Unlike most use-cases, we don't want to throw for a validation error; we just return it.
+        if (errors.length) {
+            const validationError = new HttpException(
+                ErrorCode.ValidationError,
+                `Document "${
+                    documentToValidate[titleProperty]
+                }" does not validate against the schema for model "${modelName}": ${JSON.stringify(
+                    errors.map(formatValidationErrorMessage)
+                )}`
+            )
+
+            return [validationError, null]
+        }
+
+        return [null, documentToValidate]
+    } catch (error) {
+        log.error(error)
+
+        return [error, null]
+    }
+}
+

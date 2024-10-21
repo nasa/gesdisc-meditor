@@ -77,6 +77,7 @@ function CKEditorWidget(props: WidgetProps) {
                 event.editor.setReadOnly(props.readonly || false)
             }}
             onBeforeLoad={CKEDITOR => {
+                CKEDITOR.config.versionCheck = false
                 CKEDITOR.disableAutoInline = true
 
                 registerPluginsWithCkEditorInstance(CKEDITOR)

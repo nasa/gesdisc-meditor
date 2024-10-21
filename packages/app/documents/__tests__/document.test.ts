@@ -1,5 +1,4 @@
 import type { Db } from 'mongodb'
-import { wait } from '../../utils/time'
 import * as emailNotifications from '../../email-notifications/service'
 import getDb from '../../lib/mongodb'
 import SpatialSearchIssue from '../../models/__tests__/__fixtures__/alerts/spatial_search_issue.json'
@@ -13,6 +12,7 @@ import collectionMetadataModel from '../../models/__tests__/__fixtures__/models/
 import faqsModel from '../../models/__tests__/__fixtures__/models/faqs.json'
 import modelsModel from '../../models/__tests__/__fixtures__/models/models.json'
 import * as publicationQueue from '../../publication-queue/service'
+import { wait } from '../../utils/time'
 import editPublishCmrWorkflow from '../../workflows/__tests__/__fixtures__/edit-publish-cmr.json'
 import editPublishWorkflow from '../../workflows/__tests__/__fixtures__/edit-publish.json'
 import editReviewPublishWorkflow from '../../workflows/__tests__/__fixtures__/edit-review-publish.json'
@@ -30,16 +30,18 @@ import {
     getDocumentPublications,
     getDocumentsForModel,
     isPublishableWithWorkflowSupport,
+    strictValidateDocument,
 } from '../service'
 import alertFromGql from './__fixtures__/alertFromGql.json'
+import alertOnlyDocument from './__fixtures__/alertOnlyDocument.json'
 import alertsAfterCreateDocumentModification from './__fixtures__/alerts-after-createDocument-modifies-state.json'
 import alertsAfterV1Modification from './__fixtures__/alerts-after-v1-putDocument-modifies-state.json'
 import alertsBeforeModification from './__fixtures__/alerts-before-modified-state.json'
 import alertWithHistory from './__fixtures__/alertWithHistory.json'
 import alertWithPublication from './__fixtures__/alertWithPublication.json'
 import duplicateEdgesWorkflow from './__fixtures__/duplicate-edges-workflow.json'
-import workflowEdges from './__fixtures__/workflowEdges.json'
 import workflowWithTwoInitialNodes from './__fixtures__/workflow-with-two-initial-nodes.json'
+import workflowEdges from './__fixtures__/workflowEdges.json'
 
 describe('Documents', () => {
     let db: Db
@@ -1206,6 +1208,46 @@ describe('Documents', () => {
             expect(cloneError).toBeNull()
             expect(clone).toBeDefined()
             expect(clone.title).toEqual('Eggs')
+        })
+    })
+
+    describe('validateDocument', () => {
+        it(`returns no error and the original document when validation passes`, async () => {
+            const [error, document] = await strictValidateDocument(
+                alertOnlyDocument,
+                'Alerts'
+            )
+
+            expect(error).toBeNull()
+            expect(document).toEqual(alertOnlyDocument)
+        })
+
+        it(`returns errors and no document when validation fails`, async () => {
+            const docClone = JSON.parse(JSON.stringify(alertOnlyDocument)) //* structuredClone requires NodeJS > 17
+            docClone.severity = 'pretty serious'
+
+            const [error, document] = await strictValidateDocument(docClone, 'Alerts')
+
+            expect(error).toMatchInlineSnapshot(
+                `[Error: Document "Forward stream data temporarily unavailable from AWS cloud" does not validate against the schema for model "Alerts": [{"property":"instance.severity","name":"enum","argument":["normal","emergency"],"message":"is not one of enum values","stack":"instance.severity is not one of enum values"}]]`
+            )
+            expect(document).toBeNull()
+        })
+
+        it(`does not allow additional properties`, async () => {
+            const docWithMetadata = await db
+                .collection('Alerts')
+                .findOne({ title: 'TRMM GrADS DODS Server' })
+
+            const [error, document] = await strictValidateDocument(
+                docWithMetadata,
+                'Alerts'
+            )
+
+            expect(error).toMatchInlineSnapshot(
+                `[Error: Document "TRMM GrADS DODS Server" does not validate against the schema for model "Alerts": [{"property":"instance","name":"additionalProperties","argument":"_id","message":"is not allowed to have the additional property \\"_id\\"","stack":"instance is not allowed to have the additional property \\"_id\\""},{"property":"instance","name":"additionalProperties","argument":"x-meditor","message":"is not allowed to have the additional property \\"x-meditor\\"","stack":"instance is not allowed to have the additional property \\"x-meditor\\""}]]`
+            )
+            expect(document).toBeNull()
         })
     })
 })

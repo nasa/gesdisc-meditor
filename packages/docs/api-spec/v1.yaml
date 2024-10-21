@@ -25,6 +25,10 @@ tags:
       x-displayName: Publications
     - name: search
       x-displayName: Search
+    - name: schema
+      x-displayName: Schema
+    - name: validate
+      x-displayName: Validate
 paths:
     /models:
         get:
@@ -661,6 +665,52 @@ paths:
                     description: Bad Request
                 '500':
                     description: Internal Server Error
+    /models/{modelName}/schema:
+        get:
+            tags:
+                - schema
+            summary: get model's schema
+            description: Gets the schema for the model to which the document belongs.
+            operationId: getDocumentSchema
+            parameters:
+                - name: modelName
+                  in: path
+                  description: name of model
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                '200':
+                    description: OK
+                '404':
+                    description: Not Found
+                '500':
+                    description: Internal Server Error
+    /models/{modelName}/validate:
+        post:
+            tags:
+                - validate
+            summary: validate a document against its model's schema
+            description: Strictly validate a document againt the schema stored in mEditor for the document's model.
+            operationId: validateDocument
+            parameters:
+                - name: modelName
+                  in: path
+                  description: name of model
+                  required: true
+                  schema:
+                      type: string
+            requestBody:
+                content:
+                    application/json: {}
+                description: document to validate
+                required: true
+            responses:
+                '200':
+                    description: Success (Validation Passes)
+                '400':
+                    description: Bad Request (Validation Fails)
+
 components:
     schemas:
         PatchOperation:

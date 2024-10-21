@@ -1,5 +1,3 @@
-version: "3.3"
-
 services:
   notebookviewer:
     container_name: meditor_notebookviewer
@@ -37,6 +35,7 @@ services:
     volumes:
       - ./packages/app:/usr/src/app
       - /usr/src/app/node_modules
+      - /usr/src/app/.next
 
   docs:
     container_name: meditor_docs
