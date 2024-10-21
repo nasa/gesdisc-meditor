@@ -39,23 +39,23 @@ const JSONPatchOperation = (props: Props) => {
 
     // Validation function
     const validateAgainstSchema = (data: any, schema: any) => {
-        const errors: string[] = [];
+        const errors: string[] = []
 
         for (const key in schema.properties) {
-            const propertySchema = schema.properties[key];
-            const value = data[key];
+            const propertySchema = schema.properties[key]
+            const value = data[key]
 
             if (propertySchema.required && value === undefined) {
-                errors.push(`${key} is required`);
+                errors.push(`${key} is required`)
             }
 
             if (propertySchema.type && typeof value !== propertySchema.type) {
-                errors.push(`${key} should be of type ${propertySchema.type}`);
+                errors.push(`${key} should be of type ${propertySchema.type}`)
             }
         }
 
-        return errors;
-    };
+        return errors
+    }
 
     useEffect(() => {
         updateOperations({
@@ -107,11 +107,11 @@ const JSONPatchOperation = (props: Props) => {
     // Handle form data change to update pathValue in the parent
     const handleFormDataChange = (data: any) => {
         if (data && data.formData.pathValue !== pathValue) {
-            setPathValue(data.formData.pathValue);
-            const errors = validateAgainstSchema(data.formData, initialSchema);
-            setValidationErrors(errors);
+            setPathValue(data.formData.pathValue)
+            const errors = validateAgainstSchema(data.formData, initialSchema)
+            setValidationErrors(errors)
         }
-    };
+    }
 
     return (
         <>
@@ -170,9 +170,7 @@ const JSONPatchOperation = (props: Props) => {
             </Row>
             {validationErrors.length > 0 && (
                 <div className="alert alert-danger">
-                    {validationErrors.map((error) => (
-                        [error]
-                    ))}
+                    {validationErrors.map(error => [error])}
                 </div>
             )}
             {path && (

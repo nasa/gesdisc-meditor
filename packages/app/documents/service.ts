@@ -913,4 +913,3 @@ export async function strictValidateDocument(
         return [error, null]
     }
 }
-
