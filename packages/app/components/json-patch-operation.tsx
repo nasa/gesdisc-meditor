@@ -31,10 +31,31 @@ const JSONPatchOperation = (props: Props) => {
     const [path, setPath] = useState('')
     const [pathValue, setPathValue] = useState('')
     const [formData, setFormData] = useState({})
+    const [validationErrors, setValidationErrors] = useState([])
 
     const schema = JSON.parse(model.schema)
     // Initial schema template
     const [initialSchema, setInitialSchema] = useState({})
+
+    // Validation function
+    const validateAgainstSchema = (data: any, schema: any) => {
+        const errors: string[] = [];
+
+        for (const key in schema.properties) {
+            const propertySchema = schema.properties[key];
+            const value = data[key];
+
+            if (propertySchema.required && value === undefined) {
+                errors.push(`${key} is required`);
+            }
+
+            if (propertySchema.type && typeof value !== propertySchema.type) {
+                errors.push(`${key} should be of type ${propertySchema.type}`);
+            }
+        }
+
+        return errors;
+    };
 
     useEffect(() => {
         updateOperations({
@@ -87,6 +108,8 @@ const JSONPatchOperation = (props: Props) => {
     const handleFormDataChange = (data: any) => {
         if (data && data.formData.pathValue !== pathValue) {
             setPathValue(data.formData.pathValue); 
+            const errors = validateAgainstSchema(data.formData, initialSchema);
+            setValidationErrors(errors);
         }
     };
 
@@ -145,6 +168,13 @@ const JSONPatchOperation = (props: Props) => {
                     </Button>
                 </Col>
             </Row>
+            {validationErrors.length > 0 && (
+                <div className="alert alert-danger">
+                        {validationErrors.map((error) => (
+                            [error]
+                        ))}   
+                </div>
+            )}
             {path && (
                 <Row>
                     <Col>
