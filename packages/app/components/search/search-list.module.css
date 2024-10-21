@@ -36,5 +36,8 @@
 
 .select > input {
     margin-right: 10px;
-    margin-bottom: 7px;
+}
+
+.select > label {
+    margin-bottom: 0px;
 }
