@@ -65,6 +65,15 @@ body {
     margin-bottom: 2rem;
 }
 
+.form-group label:has(input[type='checkbox']) {
+    align-content: baseline;
+    display: flex;
+}
+
+.form-group input[type='checkbox'] {
+    margin-inline-end: 0.5ch;
+}
+
 .form-control {
     color: #000;
 }
