@@ -52,7 +52,6 @@
 }
 
 .pastState {
-    color: grey;
     display: flex;
     padding-top: 10px;
     padding-left: 20px;
@@ -78,7 +77,6 @@
 
 .pastState:first-child:before {
     content: '';
-    border-left: 1px solid grey;
     position: absolute;
     top: -4px;
     height: 20px;
@@ -89,10 +87,24 @@
     display: none;
 }
 
-.pastState svg {
+.dotCircleIcon {
     position: absolute;
     top: 10px;
     left: 0;
+    color: grey;
+}
+
+.arrowRightIcon {
+    color: grey;
+    margin: 0 3px;
+}
+
+.stateTransition{
+    margin-bottom: 4px;
+}
+
+.stateModifier {
+    color: grey;
 }
 
 .activeHistory {

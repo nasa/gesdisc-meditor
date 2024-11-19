@@ -1,6 +1,6 @@
 import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
-import { FaRegDotCircle } from 'react-icons/fa'
+import { FaRegDotCircle, FaArrowRight } from 'react-icons/fa'
 import { IoMdEye, IoMdEyeOff } from 'react-icons/io'
 import { useLocalStorage } from '../../lib/use-localstorage.hook'
 import styles from './document-history.module.css'
@@ -13,16 +13,30 @@ const sortByLastModifiedDesc = (a, b) => {
     return dateA > dateB ? -1 : dateA < dateB ? 1 : 0
 }
 
+const formatDate = (date) => {
+    date = new Date(date)
+
+    // Format the date to a more readable format
+    const formattedDate = date.toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    });
+    return formattedDate
+}
+
 const PastState = ({ state }) => (
     <div className={styles.pastState}>
         <div>
-            <FaRegDotCircle />
-
+            <FaRegDotCircle className={styles.dotCircleIcon}/>
             <div>
-                <div>{state.source}</div>
-                <div>
+                <div className={styles.stateTransition}>{state.source}  <FaArrowRight className={styles.arrowRightIcon}/>  {state.target}</div>
+                <div className={styles.stateModifier}>
                     <em>
-                        {state.modifiedBy} on {state.modifiedOn}
+                        {state.modifiedBy} on {formatDate(state.modifiedOn)}
                     </em>
                 </div>
             </div>
@@ -39,7 +53,7 @@ const DocumentHistory = ({
     const [historyPreferences, setHistoryPreferences] = useLocalStorage(
         'historyPreferences',
         {
-            showDetails: false,
+            showDetails: true,      // Initial value if historyPreferences.showDetails not set on local storage.
         }
     )
 
@@ -112,7 +126,7 @@ const DocumentHistory = ({
                         <Card.Body>
                             <div className={styles.body}>
                                 <div className={styles.meta}>
-                                    <a>{item.modifiedOn}</a>
+                                    <a>{formatDate(item.modifiedOn)}</a>
                                     {item.modifiedBy}
                                 </div>
 
@@ -130,7 +144,6 @@ const DocumentHistory = ({
                                     }`}
                                 >
                                     {item.states
-                                        ?.sort(sortByLastModifiedDesc)
                                         .map(state => (
                                             <PastState
                                                 state={state}
