@@ -1,5 +1,7 @@
 import Fuse from 'fuse.js'
+import { immutableJSONPatch, JSONPatchDocument } from 'immutable-json-patch'
 import { validate } from 'jsonschema'
+import { getWebhookConfig, invokeWebhook } from 'webhooks/service'
 import type { User, UserRole } from '../auth/types'
 import type { ErrorData } from '../declarations'
 import {
@@ -23,7 +25,6 @@ import type {
     DocumentPublications,
     DocumentState,
 } from './types'
-import { JSONPatchDocument, immutableJSONPatch } from 'immutable-json-patch'
 
 const EMAIL_NOTIFICATIONS_QUEUE_CHANNEL =
     process.env.MEDITOR_NATS_NOTIFICATIONS_CHANNEL || 'meditor-notifications'
@@ -101,7 +102,6 @@ export async function createDocument(
         rootState.modifiedOn = document['x-meditor'].modifiedOn
         document['x-meditor'].modifiedOn = new Date().toISOString()
         document['x-meditor'].modifiedBy = user.uid
-        // TODO: replace with actual model init state
         document['x-meditor'].states = [rootState]
         document['x-meditor'].publishedTo = []
 
@@ -115,6 +115,35 @@ export async function createDocument(
         //* We don't have consistency in [x-meditor] for all records, so the insertedDocument might not have a `state` property in metadata. Calling `getDocument` would return us the document's current state as [x-meditor].state because it is dynamically computed, but that call requires a lot of other information. At this point, it's simpler to use duplicated business logic here:
         const [last] = insertedDocument['x-meditor'].states.slice(-1)
         const targetState = last.target
+
+        // Get the optional webhook URL from the workflow.
+        const [firstCurrentEdge] = modelWithWorkflow.workflow.currentEdges
+        const [_webhookConfigError, webhookConfig = null] = getWebhookConfig(
+            firstCurrentEdge.webhookURL
+        )
+
+        // If there is a webhook URL, get the underlying webhook config and invoke it.
+        if (webhookConfig) {
+            const [_error, response] = await invokeWebhook(webhookConfig, {
+                model: modelWithWorkflow,
+                document: insertedDocument,
+                state: targetState,
+            })
+
+            // NOTE: Right now, we're not doing anything with the webhook response; a future story would be to include this and the previous document status notifications into document history. While we're changing document history, we should make sure that "Init" state is represented:
+            /** 
+            "states": [
+                {
+                    "source": "Init",
+                    "target": "Draft",
+                    "modifiedOn": "2027-08-03T16:57:26.401Z",
+                    "modifiedBy": "username"
+                }
+            ]
+            */
+
+            log.debug(response)
+        }
 
         safelyPublishDocumentChangeToQueue(
             modelWithWorkflow,
@@ -534,6 +563,35 @@ export async function changeDocumentState(
             log.debug(
                 'User requested to change document state without sending email notifications'
             )
+        }
+
+        // Get the optional webhook URL from the workflow.
+        const [firstCurrentEdge] = model.workflow.currentEdges
+        const [_webhookConfigError, webhookConfig = null] = getWebhookConfig(
+            firstCurrentEdge.webhookURL
+        )
+
+        // If there is a webhook URL, get the underlying webhook config and invoke it.
+        if (webhookConfig) {
+            const [_error, response] = await invokeWebhook(webhookConfig, {
+                model,
+                document,
+                state: newState,
+            })
+
+            // NOTE: Right now, we're not doing anything with the webhook response; a future story would be to include this and the previous document status notifications into document history. While we're changing document history, we should make sure that "Init" state is represented:
+            /** 
+            "states": [
+                {
+                    "source": "Init",
+                    "target": "Draft",
+                    "modifiedOn": "2027-08-03T16:57:26.401Z",
+                    "modifiedBy": "username"
+                }
+            ]
+            */
+
+            log.debug(response)
         }
 
         if (!options?.disableQueuePublication) {

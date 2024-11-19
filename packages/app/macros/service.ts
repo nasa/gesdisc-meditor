@@ -1,4 +1,5 @@
 import cloneDeep from 'lodash.clonedeep'
+import { getAllWebhookURLs } from 'webhooks/service'
 import type { ErrorData } from '../declarations'
 import log from '../lib/log'
 import type { Model, PopulatedTemplate, Template } from '../models/types'
@@ -119,8 +120,26 @@ async function listUniqueFieldValues(
     }
 }
 
+async function getWebhookConfig(): Promise<ErrorData<PopulatedTemplate['result']>> {
+    try {
+        // NOTE: Get only the webhook URLs to avoid exposing the bearer tokens to the frontend.
+        const [error, webhookURLs] = getAllWebhookURLs()
+
+        if (error) {
+            throw error
+        }
+
+        return [null, webhookURLs]
+    } catch (error) {
+        log.error(error)
+
+        return [error, null]
+    }
+}
+
 //* The exported "runModelTemplate" below and these macro names (consumed programmatically in "runModelTemplate" are the exposed interface that mEditor template macros will use. See the ReadMe in this file for more context.
 macros.set('list', listUniqueFieldValues)
 macros.set('listDependenciesByTitle', listDependenciesByTitle)
+macros.set('webhooks', getWebhookConfig)
 
 export { runModelTemplates }

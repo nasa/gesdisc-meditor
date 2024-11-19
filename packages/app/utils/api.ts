@@ -6,6 +6,11 @@ const parser = new AsyncParser()
 
 type Serializable = string | object | number | boolean
 
+enum MIMETypes {
+    Text = 'text/plain',
+    JSON = 'application/json',
+}
+
 export function respondAsJson(
     payload: Serializable,
     request: NextApiRequest,
@@ -85,5 +90,19 @@ export async function respondAs(
             return respondAsJson(responsePayload, request, response, {
                 httpStatusCode,
             })
+    }
+}
+
+export async function parseResponse(response: Response) {
+    const [mimeType = null, _mediaTypeOrBoundary] = response.headers
+        .get('content-type')
+        ?.split(';')
+
+    switch (mimeType) {
+        case MIMETypes.JSON:
+            return await response.json()
+        case MIMETypes.Text:
+        default:
+            return await response.text()
     }
 }
