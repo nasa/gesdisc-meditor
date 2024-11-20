@@ -7,33 +7,37 @@ import styles from './document-history.module.css'
 import DocumentStateBadge from './document-state-badge'
 
 const sortByLastModifiedDesc = (a, b) => {
+    // Used to sort the history details in descending order. NO LONGER USED
     let dateA = new Date(a.modifiedOn)
     let dateB = new Date(b.modifiedOn)
 
     return dateA > dateB ? -1 : dateA < dateB ? 1 : 0
 }
 
-const formatDate = (date) => {
+const formatDate = date => {
     date = new Date(date)
 
     // Format the date to a more readable format
-    const formattedDate = date.toLocaleString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    });
+    const formattedDate = date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+    })
     return formattedDate
 }
 
 const PastState = ({ state }) => (
     <div className={styles.pastState}>
         <div>
-            <FaRegDotCircle className={styles.dotCircleIcon}/>
+            <FaRegDotCircle className={styles.dotCircleIcon} />
             <div>
-                <div className={styles.stateTransition}>{state.source}  <FaArrowRight className={styles.arrowRightIcon}/>  {state.target}</div>
+                <div className={styles.stateTransition}>
+                    {state.source} <FaArrowRight className={styles.arrowRightIcon} />{' '}
+                    {state.target}
+                </div>
                 <div className={styles.stateModifier}>
                     <em>
                         {state.modifiedBy} on {formatDate(state.modifiedOn)}
@@ -53,7 +57,7 @@ const DocumentHistory = ({
     const [historyPreferences, setHistoryPreferences] = useLocalStorage(
         'historyPreferences',
         {
-            showDetails: true,      // Initial value if historyPreferences.showDetails not set on local storage.
+            showDetails: true, // Initial value if historyPreferences.showDetails not set on local storage.
         }
     )
 
@@ -143,13 +147,12 @@ const DocumentHistory = ({
                                             : ''
                                     }`}
                                 >
-                                    {item.states
-                                        .map(state => (
-                                            <PastState
-                                                state={state}
-                                                key={state.source + state.modifiedOn}
-                                            />
-                                        ))}
+                                    {item.states.map(state => (
+                                        <PastState
+                                            state={state}
+                                            key={state.source + state.modifiedOn}
+                                        />
+                                    ))}
                                 </div>
                             )}
                         </Card.Body>
