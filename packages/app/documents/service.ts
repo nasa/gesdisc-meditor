@@ -64,7 +64,7 @@ export async function createDocument(
             )
         }
 
-        // validate that there is at least one edge going from "Init" to to the initialState
+        // validate that there is at least one edge going from "Init" to the initialState
         if (
             !workflow.edges.some(
                 edge => edge.source === INIT_STATE && edge.target === initialState
@@ -95,11 +95,16 @@ export async function createDocument(
         }
 
         //* This logic (and associated TODO) is ported from Meditor.js, saveDocument. Minimal modifications were made.
-        const rootState = { source: INIT_STATE, target: initialState }
+        const modifiedDate = new Date().toISOString()
 
-        // @ts-ignore
-        rootState.modifiedOn = document['x-meditor'].modifiedOn
-        document['x-meditor'].modifiedOn = new Date().toISOString()
+        //* Create the INITAL state history for a NEW document or an Edited/Saved document which creates a new DB object of the document.
+        const rootState = {
+            source: INIT_STATE,
+            target: initialState,
+            modifiedOn: modifiedDate,
+        }
+
+        document['x-meditor'].modifiedOn = modifiedDate
         document['x-meditor'].modifiedBy = user.uid
         // TODO: replace with actual model init state
         document['x-meditor'].states = [rootState]
