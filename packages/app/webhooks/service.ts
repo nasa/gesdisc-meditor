@@ -29,24 +29,6 @@ function getAllWebhookConfigs(): ErrorData<WebhookConfig[]> {
     }
 }
 
-function getAllWebhookURLs(): ErrorData<string[]> {
-    try {
-        const [error, webhooks] = getAllWebhookConfigs()
-
-        if (error) {
-            throw error
-        }
-
-        const webhookURLs = webhooks.map(webhook => webhook.URL)
-
-        return [null, webhookURLs]
-    } catch (error) {
-        log.error(error)
-
-        return [error, null]
-    }
-}
-
 function getWebhookConfig(URL: WebhookConfig['URL']): ErrorData<WebhookConfig> {
     try {
         const [error, webhooks] = getAllWebhookConfigs()
@@ -90,4 +72,4 @@ async function invokeWebhook(
     }
 }
 
-export { getAllWebhookURLs, getWebhookConfig, invokeWebhook }
+export { getAllWebhookConfigs, getWebhookConfig, invokeWebhook }
