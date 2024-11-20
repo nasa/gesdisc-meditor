@@ -95,12 +95,16 @@ export async function createDocument(
         }
 
         //* This logic (and associated TODO) is ported from Meditor.js, saveDocument. Minimal modifications were made.
-        const modDate = new Date().toISOString()
+        const modifiedDate = new Date().toISOString()
 
         //* Create the INITAL state history for a NEW document or an Edited/Saved document which creates a new DB object of the document.
-        const rootState = { source: INIT_STATE, target: initialState, modifiedOn: modDate }
+        const rootState = {
+            source: INIT_STATE,
+            target: initialState,
+            modifiedOn: modifiedDate,
+        }
 
-        document['x-meditor'].modifiedOn = modDate
+        document['x-meditor'].modifiedOn = modifiedDate
         document['x-meditor'].modifiedBy = user.uid
         // TODO: replace with actual model init state
         document['x-meditor'].states = [rootState]
