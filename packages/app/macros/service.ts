@@ -1,5 +1,5 @@
 import cloneDeep from 'lodash.clonedeep'
-import { getAllWebhookURLs } from 'webhooks/service'
+import { getAllWebhookURLs } from '../webhooks/service'
 import type { ErrorData } from '../declarations'
 import log from '../lib/log'
 import type { Model, PopulatedTemplate, Template } from '../models/types'

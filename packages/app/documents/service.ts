@@ -1,7 +1,7 @@
 import Fuse from 'fuse.js'
 import { immutableJSONPatch, JSONPatchDocument } from 'immutable-json-patch'
 import { validate } from 'jsonschema'
-import { getWebhookConfig, invokeWebhook } from 'webhooks/service'
+import { getWebhookConfig, invokeWebhook } from '../webhooks/service'
 import type { User, UserRole } from '../auth/types'
 import type { ErrorData } from '../declarations'
 import {
