@@ -63,7 +63,7 @@ async function invokeWebhook(
         })
 
         if (!response.ok) {
-            throw new HttpException(ErrorCode.BadRequest, response.statusText)
+            throw new HttpException(response.status, response.statusText)
         }
 
         return [null, await parseResponse(response)]

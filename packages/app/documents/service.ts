@@ -124,7 +124,7 @@ export async function createDocument(
 
         // If there is a webhook URL, get the underlying webhook config and invoke it.
         if (webhookConfig) {
-            const [_error, response] = await invokeWebhook(webhookConfig, {
+            const [error, response] = await invokeWebhook(webhookConfig, {
                 model: modelWithWorkflow,
                 document: insertedDocument,
                 state: targetState,
@@ -142,7 +142,13 @@ export async function createDocument(
             ]
             */
 
-            log.debug(response)
+            if (error) {
+                log.error(error)
+            }
+
+            if (response) {
+                log.debug(response)
+            }
         }
 
         safelyPublishDocumentChangeToQueue(
@@ -573,7 +579,7 @@ export async function changeDocumentState(
 
         // If there is a webhook URL, get the underlying webhook config and invoke it.
         if (webhookConfig) {
-            const [_error, response] = await invokeWebhook(webhookConfig, {
+            const [error, response] = await invokeWebhook(webhookConfig, {
                 model,
                 document,
                 state: newState,
@@ -591,7 +597,13 @@ export async function changeDocumentState(
             ]
             */
 
-            log.debug(response)
+            if (error) {
+                log.error(error)
+            }
+
+            if (response) {
+                log.debug(response)
+            }
         }
 
         if (!options?.disableQueuePublication) {

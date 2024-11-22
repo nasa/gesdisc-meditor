@@ -18,17 +18,22 @@ export interface ErrorCause {
     code: ErrorCode
 }
 
+export type HttpExceptionStatus = 400 | 401 | 403 | 404 | 405 | 500
+
 export class HttpException extends Error {
     cause: ErrorCause
 
-    constructor(code: ErrorCode, message: string) {
+    constructor(codeOrStatus: ErrorCode | number, message: string) {
         super(message)
 
-        this.cause = this.mapCodeToCause(code)
+        this.cause =
+            typeof codeOrStatus === 'number'
+                ? this.#mapStatusToCause(codeOrStatus)
+                : this.mapCodeToCause(codeOrStatus)
     }
 
     private mapCodeToCause(code: ErrorCode): ErrorCause {
-        let status
+        let status: number
 
         switch (code) {
             case ErrorCode.NotFound:
@@ -58,6 +63,53 @@ export class HttpException extends Error {
 
             default:
                 status = 500 // unknown error
+        }
+
+        return {
+            status,
+            code,
+        }
+    }
+
+    #mapStatusToCause(maybeStatus: HttpExceptionStatus | number) {
+        let code: ErrorCode
+        let status: HttpExceptionStatus
+
+        switch (maybeStatus) {
+            case 400:
+                code = ErrorCode.BadRequest
+                status = maybeStatus
+                break
+
+            case 401:
+                code = ErrorCode.Unauthorized
+                status = maybeStatus
+                break
+
+            case 403:
+                code = ErrorCode.ForbiddenError
+                status = maybeStatus
+                break
+
+            case 404:
+                code = ErrorCode.NotFound
+                status = maybeStatus
+                break
+
+            case 405:
+                code = ErrorCode.MethodNotAllowed
+                status = maybeStatus
+                break
+
+            case 500:
+                code = ErrorCode.InternalServerError
+                status = maybeStatus
+                break
+
+            default:
+                code = ErrorCode.InternalServerError
+                status = 500
+                break
         }
 
         return {
