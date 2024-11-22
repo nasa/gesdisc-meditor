@@ -1,6 +1,6 @@
 import { getLoggedInUser } from 'auth/user'
 import { strictValidateDocument } from 'documents/service'
-import { getModelWithWorkflow, userCanAccessModel } from 'models/service'
+import { userCanAccessModel } from 'models/service'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { respondAsJson } from 'utils/api'
 import { apiError, ErrorCode, HttpException } from 'utils/errors'
