@@ -59,6 +59,10 @@ export async function getModel(
             // execute the macro templates for this model and get their values
             const [error, populatedTemplates] = await runModelTemplates(model)
 
+            if (error) {
+                throw error
+            }
+
             // parse the schema into an object
             let schema =
                 typeof model.schema === 'string'

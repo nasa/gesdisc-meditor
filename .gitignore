@@ -47,3 +47,7 @@ Thumbs.db
 # Docker Bind Mounts
 /mongo-data/
 /nats-data/
+
+# Python
+env
+venv
