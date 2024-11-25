@@ -3,7 +3,7 @@ import type { NextApiResponse } from 'next'
 import type { ZodError, ZodSchema } from 'zod'
 import { parameterWithInflection } from '../lib/grammar'
 
-export enum ErrorCode {
+export enum ErrorStatusText {
     NotFound = 'NotFound',
     BadRequest = 'BadRequest',
     ValidationError = 'ValidationError',
@@ -15,15 +15,15 @@ export enum ErrorCode {
 
 export interface ErrorCause {
     status: number
-    code: ErrorCode
+    code: ErrorStatusText
 }
 
-export type HttpExceptionStatus = 400 | 401 | 403 | 404 | 405 | 500
+export type ErrorStatusCode = 400 | 401 | 403 | 404 | 405 | 500
 
 export class HttpException extends Error {
     cause: ErrorCause
 
-    constructor(codeOrStatus: ErrorCode | number, message: string) {
+    constructor(codeOrStatus: ErrorStatusText | number, message: string) {
         super(message)
 
         this.cause =
@@ -32,32 +32,32 @@ export class HttpException extends Error {
                 : this.mapCodeToCause(codeOrStatus)
     }
 
-    private mapCodeToCause(code: ErrorCode): ErrorCause {
-        let status: number
+    private mapCodeToCause(code: ErrorStatusText): ErrorCause {
+        let status: ErrorStatusCode
 
         switch (code) {
-            case ErrorCode.NotFound:
+            case ErrorStatusText.NotFound:
                 status = 404
                 break
 
-            case ErrorCode.BadRequest:
-            case ErrorCode.ValidationError:
+            case ErrorStatusText.BadRequest:
+            case ErrorStatusText.ValidationError:
                 status = 400
                 break
 
-            case ErrorCode.MethodNotAllowed:
+            case ErrorStatusText.MethodNotAllowed:
                 status = 405
                 break
 
-            case ErrorCode.Unauthorized:
+            case ErrorStatusText.Unauthorized:
                 status = 401
                 break
 
-            case ErrorCode.ForbiddenError:
+            case ErrorStatusText.ForbiddenError:
                 status = 403
                 break
 
-            case ErrorCode.InternalServerError:
+            case ErrorStatusText.InternalServerError:
                 status = 500
                 break
 
@@ -71,43 +71,43 @@ export class HttpException extends Error {
         }
     }
 
-    #mapStatusToCause(maybeStatus: HttpExceptionStatus | number) {
-        let code: ErrorCode
-        let status: HttpExceptionStatus
+    #mapStatusToCause(maybeStatus: ErrorStatusCode | number) {
+        let code: ErrorStatusText
+        let status: ErrorStatusCode
 
         switch (maybeStatus) {
             case 400:
-                code = ErrorCode.BadRequest
+                code = ErrorStatusText.BadRequest
                 status = maybeStatus
                 break
 
             case 401:
-                code = ErrorCode.Unauthorized
+                code = ErrorStatusText.Unauthorized
                 status = maybeStatus
                 break
 
             case 403:
-                code = ErrorCode.ForbiddenError
+                code = ErrorStatusText.ForbiddenError
                 status = maybeStatus
                 break
 
             case 404:
-                code = ErrorCode.NotFound
+                code = ErrorStatusText.NotFound
                 status = maybeStatus
                 break
 
             case 405:
-                code = ErrorCode.MethodNotAllowed
+                code = ErrorStatusText.MethodNotAllowed
                 status = maybeStatus
                 break
 
             case 500:
-                code = ErrorCode.InternalServerError
+                code = ErrorStatusText.InternalServerError
                 status = maybeStatus
                 break
 
             default:
-                code = ErrorCode.InternalServerError
+                code = ErrorStatusText.InternalServerError
                 status = 500
                 break
         }
@@ -135,7 +135,10 @@ export function apiError(
 
     const safeError = interstitialError.cause
         ? (interstitialError as HttpException)
-        : new HttpException(ErrorCode.InternalServerError, 'Internal Server Error')
+        : new HttpException(
+              ErrorStatusText.InternalServerError,
+              'Internal Server Error'
+          )
 
     return response.status(safeError.cause.status).json({
         status: safeError.cause.status,
@@ -150,7 +153,7 @@ export function apiError(
  */
 export function errorMatchesErrorCode(
     error: Error | HttpException | undefined,
-    errorCode: ErrorCode
+    errorCode: ErrorStatusText
 ) {
     return error && error instanceof HttpException && error.cause.code === errorCode
 }
@@ -159,7 +162,7 @@ export function errorMatchesErrorCode(
  * helper function as this is a fairly common use-case
  */
 export function isNotFoundError(error?: Error | HttpException) {
-    return errorMatchesErrorCode(error, ErrorCode.NotFound)
+    return errorMatchesErrorCode(error, ErrorStatusText.NotFound)
 }
 
 export function parseZodAsErrorData<T>(schema: ZodSchema, input: any): ErrorData<T> {

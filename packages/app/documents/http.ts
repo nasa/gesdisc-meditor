@@ -1,5 +1,5 @@
 import type { APIError, ErrorData } from '../declarations'
-import { ErrorCode, HttpException } from '../utils/errors'
+import { ErrorStatusText, HttpException } from '../utils/errors'
 import type { Document, DocumentPublications } from './types'
 
 async function createDocument(
@@ -16,7 +16,7 @@ async function createDocument(
             const { status, error }: APIError = await response.json()
 
             //? This would be a bit harder to do with positional arguments, but perhaps we can accept either an error code OR a status code, where the class has a `mapStatusToErrorCode` method or something.
-            throw new HttpException(ErrorCode.BadRequest, error) // TODO: figure out proper error code using the status
+            throw new HttpException(ErrorStatusText.BadRequest, error) // TODO: figure out proper error code using the status
         }
 
         const createdDocument = await response.json()
@@ -44,7 +44,7 @@ async function fetchDocument(
         if (!response.ok) {
             const { status, error }: APIError = await response.json()
 
-            throw new HttpException(ErrorCode.BadRequest, error) // TODO: figure out proper error code using the status
+            throw new HttpException(ErrorStatusText.BadRequest, error) // TODO: figure out proper error code using the status
         }
 
         const document = await response.json()
@@ -69,7 +69,7 @@ async function fetchDocumentPublications(
         if (!response.ok) {
             const { status, error }: APIError = await response.json()
 
-            throw new HttpException(ErrorCode.BadRequest, error) // TODO: figure out proper error code using the status
+            throw new HttpException(ErrorStatusText.BadRequest, error) // TODO: figure out proper error code using the status
         }
 
         const publications = await response.json()
@@ -98,7 +98,7 @@ async function cloneDocument(
         if (!response.ok) {
             const { error }: APIError = await response.json()
 
-            throw new HttpException(ErrorCode.BadRequest, error) // TODO: figure out proper error code using the status
+            throw new HttpException(ErrorStatusText.BadRequest, error) // TODO: figure out proper error code using the status
         }
 
         const newDocument = await response.json()

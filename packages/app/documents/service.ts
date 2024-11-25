@@ -12,7 +12,7 @@ import log from '../lib/log'
 import { getModel, getModelWithWorkflow } from '../models/service'
 import type { DocumentsSearchOptions, ModelWithWorkflow } from '../models/types'
 import { publishMessageToQueueChannel } from '../publication-queue/service'
-import { ErrorCause, ErrorCode, HttpException } from '../utils/errors'
+import { ErrorCause, ErrorStatusText, HttpException } from '../utils/errors'
 import { formatValidationErrorMessage } from '../utils/jsonschema-validate'
 import { getTargetStatesFromWorkflow } from '../workflows/service'
 import type { Workflow, WorkflowEdge } from '../workflows/types'
@@ -60,7 +60,7 @@ export async function createDocument(
         // ex. does "Modify-Review-Publish" workflow contain a "Draft" state?
         if (!initialNode) {
             throw new HttpException(
-                ErrorCode.BadRequest,
+                ErrorStatusText.BadRequest,
                 `The passed in state, ${initialState}, does not exist`
             )
         }
@@ -72,7 +72,7 @@ export async function createDocument(
             )
         ) {
             throw new HttpException(
-                ErrorCode.BadRequest,
+                ErrorStatusText.BadRequest,
                 `The passed in state, ${initialState}, is not an initial node in the workflow`
             )
         }
@@ -86,7 +86,7 @@ export async function createDocument(
 
         if (errors.length && !initialNode.allowValidationErrors) {
             throw new HttpException(
-                ErrorCode.ValidationError,
+                ErrorStatusText.ValidationError,
                 `Document "${
                     document[titleProperty]
                 }" does not validate against the schema for model "${modelName}": ${JSON.stringify(
@@ -203,7 +203,7 @@ export async function getDocument(
 
         if (!document) {
             throw new HttpException(
-                ErrorCode.NotFound,
+                ErrorStatusText.NotFound,
                 `Requested document, ${documentTitle}, in model, ${modelName}, was not found`
             )
         }
@@ -357,7 +357,7 @@ export async function cloneDocument(
     try {
         if (!user) {
             throw new HttpException(
-                ErrorCode.Unauthorized,
+                ErrorStatusText.Unauthorized,
                 'User is not authenticated'
             )
         }
@@ -393,7 +393,7 @@ export async function cloneDocument(
 
         if (newDocumentAlreadyExists) {
             throw new HttpException(
-                ErrorCode.BadRequest,
+                ErrorStatusText.BadRequest,
                 `A document already exists with the title: '${newDocument[titleProperty]}'`
             )
         }
@@ -472,7 +472,7 @@ export async function patchDocument(
         const [patchErrors, patchedDocument] = jsonPatch(existingDocument, operations)
 
         if (patchErrors) {
-            throw new HttpException(ErrorCode.BadRequest, patchErrors.message)
+            throw new HttpException(ErrorStatusText.BadRequest, patchErrors.message)
         }
 
         // all operations successfully made, save to db as a new document
@@ -504,11 +504,14 @@ export async function changeDocumentState(
 ): Promise<ErrorData<Document>> {
     try {
         if (!newState) {
-            throw new HttpException(ErrorCode.BadRequest, 'No state provided')
+            throw new HttpException(ErrorStatusText.BadRequest, 'No state provided')
         }
 
         if (!user) {
-            throw new HttpException(ErrorCode.Unauthorized, 'User is not logged in')
+            throw new HttpException(
+                ErrorStatusText.Unauthorized,
+                'User is not logged in'
+            )
         }
 
         const documentsDb = await getDocumentsDb()
@@ -706,7 +709,7 @@ export async function constructNewDocumentState(
     //! can't transition to a state the document is already in
     if (newState === document['x-meditor'].state) {
         throw new HttpException(
-            ErrorCode.BadRequest,
+            ErrorStatusText.BadRequest,
             `Cannot transition to state [${newState}] as the document is in this state already`
         )
     }
@@ -714,7 +717,7 @@ export async function constructNewDocumentState(
     //! can't transition to a state that isn't in the workflow
     if (targetStates.indexOf(newState) < 0) {
         throw new HttpException(
-            ErrorCode.BadRequest,
+            ErrorStatusText.BadRequest,
             `Cannot transition to state [${newState}] as it is not a valid state in the workflow`
         )
     }
@@ -722,7 +725,7 @@ export async function constructNewDocumentState(
     //! can't transition to a state the user does not have permission to transition to
     if (document['x-meditor'].targetStates.indexOf(newState) < 0) {
         throw new HttpException(
-            ErrorCode.BadRequest,
+            ErrorStatusText.BadRequest,
             `User does not have the permissions to transition to state ${newState}.`
         )
     }
@@ -730,7 +733,7 @@ export async function constructNewDocumentState(
     //! can't transition if the workflow has two edges with the same source and same target (how do we know which edge to follow?)
     if (matchingEdges.length !== 1) {
         throw new HttpException(
-            ErrorCode.InternalServerError,
+            ErrorStatusText.InternalServerError,
             `Workflow, ${model.workflow.name}, is misconfigured! There are duplicate edges from '${document['x-meditor'].state}' to '${newState}'.`
         )
     }
@@ -965,7 +968,7 @@ export async function strictValidateDocument(
         //* Unlike most use-cases, we don't want to throw for a validation error; we just return it.
         if (errors.length) {
             const validationError = new HttpException(
-                ErrorCode.ValidationError,
+                ErrorStatusText.ValidationError,
                 `Document "${
                     documentToValidate[titleProperty]
                 }" does not validate against the schema for model "${modelName}": ${JSON.stringify(

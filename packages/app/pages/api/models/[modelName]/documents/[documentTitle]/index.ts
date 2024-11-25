@@ -3,7 +3,7 @@ import { getLoggedInUser } from 'auth/user'
 import { getDocument } from 'documents/service'
 import { userCanAccessModel } from 'models/service'
 import { respondAsJson } from 'utils/api'
-import { apiError, ErrorCode, HttpException } from 'utils/errors'
+import { apiError, ErrorStatusText, HttpException } from 'utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const documentTitle = decodeURIComponent(req.query.documentTitle.toString())
@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!userCanAccessModel(modelName, user)) {
         return apiError(
             new HttpException(
-                ErrorCode.ForbiddenError,
+                ErrorStatusText.ForbiddenError,
                 'User does not have access to the requested model'
             ),
             res

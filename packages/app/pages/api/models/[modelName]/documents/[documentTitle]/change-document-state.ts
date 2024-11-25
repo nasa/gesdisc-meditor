@@ -2,7 +2,11 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { getLoggedInUser } from '../../../../../../auth/user'
 import { changeDocumentState } from '../../../../../../documents/service'
 import { respondAsJson } from '../../../../../../utils/api'
-import { apiError, ErrorCode, HttpException } from '../../../../../../utils/errors'
+import {
+    apiError,
+    ErrorStatusText,
+    HttpException,
+} from '../../../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const documentTitle = decodeURIComponent(req.query.documentTitle.toString())
@@ -13,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method !== 'PUT' && req.method !== 'POST') {
         return apiError(
-            new HttpException(ErrorCode.MethodNotAllowed, 'Method not allowed'),
+            new HttpException(ErrorStatusText.MethodNotAllowed, 'Method not allowed'),
             res
         )
     }

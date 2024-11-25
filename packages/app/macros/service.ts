@@ -3,7 +3,7 @@ import { getAllWebhookConfigs } from '../webhooks/service'
 import type { ErrorData } from '../declarations'
 import log from '../lib/log'
 import type { Model, PopulatedTemplate, Template } from '../models/types'
-import { ErrorCode, HttpException } from '../utils/errors'
+import { ErrorStatusText, HttpException } from '../utils/errors'
 import { getMacrosDb } from './db'
 
 //* Macros are a map of external to internal: externally, mEditor can have template macros defined. Those macros have names. Internally, we make those macro names execute a function by mapping the macro name to a function via this map (e.g., macros.set('external-macro-name', internalMacroFunction)). See ReadMe in this file for more context.
@@ -29,7 +29,7 @@ async function runModelTemplates(
 
                 if (!macroService) {
                     throw new HttpException(
-                        ErrorCode.BadRequest,
+                        ErrorStatusText.BadRequest,
                         `Macro, ${macroName}, not supported.`
                     )
                 }
@@ -38,7 +38,7 @@ async function runModelTemplates(
 
                 if (error) {
                     throw new HttpException(
-                        ErrorCode.InternalServerError,
+                        ErrorStatusText.InternalServerError,
                         `Template macro ${macroName} did not run.`
                     )
                 }

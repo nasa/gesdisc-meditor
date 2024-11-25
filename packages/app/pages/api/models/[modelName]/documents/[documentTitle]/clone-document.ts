@@ -2,7 +2,11 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { getLoggedInUser } from '../../../../../../auth/user'
 import { cloneDocument } from '../../../../../../documents/service'
 import { respondAsJson } from '../../../../../../utils/api'
-import { apiError, ErrorCode, HttpException } from '../../../../../../utils/errors'
+import {
+    apiError,
+    ErrorStatusText,
+    HttpException,
+} from '../../../../../../utils/errors'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const documentTitle = decodeURIComponent(req.query.documentTitle.toString())
@@ -29,7 +33,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         default:
             return apiError(
-                new HttpException(ErrorCode.MethodNotAllowed, 'Method not allowed'),
+                new HttpException(
+                    ErrorStatusText.MethodNotAllowed,
+                    'Method not allowed'
+                ),
                 res
             )
     }

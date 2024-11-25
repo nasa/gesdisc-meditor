@@ -1,8 +1,8 @@
-import { ErrorCode, HttpException } from '../errors'
+import { ErrorStatusText, HttpException } from '../errors'
 
 describe('HttpExcpetion', () => {
     const message = "...that thing you tried to do? It didn't work out."
-    const code = ErrorCode.BadRequest
+    const code = ErrorStatusText.BadRequest
     const status = 400
 
     test('accepts error code and message', () => {

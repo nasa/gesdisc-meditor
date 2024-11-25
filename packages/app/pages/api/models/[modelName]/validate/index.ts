@@ -3,7 +3,7 @@ import { strictValidateDocument } from 'documents/service'
 import { getModelWithWorkflow, userCanAccessModel } from 'models/service'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { respondAsJson } from 'utils/api'
-import { apiError, ErrorCode, HttpException } from 'utils/errors'
+import { apiError, ErrorStatusText, HttpException } from 'utils/errors'
 import { safeParseJSON } from 'utils/json'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!userCanAccessModel(modelName, user)) {
         return apiError(
             new HttpException(
-                ErrorCode.ForbiddenError,
+                ErrorStatusText.ForbiddenError,
                 'User does not have access to the requested model'
             ),
             res

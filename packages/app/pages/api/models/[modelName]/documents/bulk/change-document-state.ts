@@ -4,7 +4,7 @@ import { bulkChangeDocumentState } from 'documents/service'
 import { respondAsJson } from 'utils/api'
 import {
     apiError,
-    ErrorCode,
+    ErrorStatusText,
     formatZodError,
     HttpException,
     parseZodAsErrorData,
@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method !== 'POST') {
         return apiError(
-            new HttpException(ErrorCode.MethodNotAllowed, 'Method not allowed'),
+            new HttpException(ErrorStatusText.MethodNotAllowed, 'Method not allowed'),
             res
         )
     }

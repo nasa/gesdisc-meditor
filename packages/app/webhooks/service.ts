@@ -1,7 +1,7 @@
 import type { ErrorData } from 'declarations'
 import log from '../lib/log'
 import { parseResponse } from '../utils/api'
-import { ErrorCode, HttpException, parseZodAsErrorData } from '../utils/errors'
+import { HttpException, parseZodAsErrorData } from '../utils/errors'
 import { safeParseJSON } from '../utils/json'
 import { WebhookConfigsSchema } from './schema'
 import type { WebhookConfig, WebhookPayload } from './types'

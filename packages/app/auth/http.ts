@@ -1,5 +1,5 @@
 import type { APIError, ErrorData } from '../declarations'
-import { ErrorCode, HttpException } from '../utils/errors'
+import { ErrorStatusText, HttpException } from '../utils/errors'
 import type { User } from './types'
 
 export async function getMe(): Promise<ErrorData<User>> {
@@ -9,7 +9,7 @@ export async function getMe(): Promise<ErrorData<User>> {
         if (!response.ok) {
             const { error }: APIError = await response.json()
 
-            throw new HttpException(ErrorCode.BadRequest, error) // TODO: figure out proper error code using the status
+            throw new HttpException(ErrorStatusText.BadRequest, error) // TODO: figure out proper error code using the status
         }
 
         const user = await response.json()

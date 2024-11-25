@@ -4,7 +4,7 @@ import type { ErrorData } from '../declarations'
 import { getDocumentsDb } from '../documents/db'
 import log from '../lib/log'
 import { runModelTemplates } from '../macros/service'
-import { ErrorCode, HttpException } from '../utils/errors'
+import { ErrorStatusText, HttpException } from '../utils/errors'
 import { isJson } from '../utils/jsonschema-validate'
 import { getWorkflowByDocumentState } from '../workflows/service'
 import { getModelsDb } from './db'
@@ -33,7 +33,10 @@ export async function getModel(
 ): Promise<ErrorData<Model>> {
     try {
         if (!modelName) {
-            throw new HttpException(ErrorCode.BadRequest, 'Model name is required')
+            throw new HttpException(
+                ErrorStatusText.BadRequest,
+                'Model name is required'
+            )
         }
 
         const modelsDb = await getModelsDb()
@@ -41,7 +44,7 @@ export async function getModel(
 
         if (!model) {
             throw new HttpException(
-                ErrorCode.NotFound,
+                ErrorStatusText.NotFound,
                 `Model not found: ${modelName}`
             )
         }
@@ -51,7 +54,7 @@ export async function getModel(
             // validate the model's schema before continuing
             if (!isJson(model.schema)) {
                 throw new HttpException(
-                    ErrorCode.BadRequest,
+                    ErrorStatusText.BadRequest,
                     `The schema for model, ${modelName}, contains invalid JSON`
                 )
             }

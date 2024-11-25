@@ -7,7 +7,7 @@ import type {
     Model,
     ModelWithWorkflow,
 } from '../models/types'
-import { ErrorCode, HttpException } from '../utils/errors'
+import { ErrorStatusText, HttpException } from '../utils/errors'
 import { convertLuceneQueryToMongo } from '../utils/search'
 import type { WorkflowEdge } from '../workflows/types'
 import { getDocumentInputSchema } from './schema'
@@ -330,7 +330,7 @@ class DocumentsDb {
                 })
             } catch (err) {
                 throw new HttpException(
-                    ErrorCode.BadRequest,
+                    ErrorStatusText.BadRequest,
                     'Improperly formatted filter'
                 )
             }

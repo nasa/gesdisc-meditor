@@ -4,7 +4,12 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { searchInputApiSchema } from 'search/schema'
 import { search } from 'search/service'
 import { respondAs } from 'utils/api'
-import { ErrorCode, HttpException, apiError, parseZodAsErrorData } from 'utils/errors'
+import {
+    ErrorStatusText,
+    HttpException,
+    apiError,
+    parseZodAsErrorData,
+} from 'utils/errors'
 import type { z } from 'zod'
 
 //* beef up apiError to format and handle ZodErrors; create a util to turn safeParse into ErrorData
@@ -23,7 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!userCanAccessModel(modelName.toString(), user)) {
         return apiError(
             new HttpException(
-                ErrorCode.ForbiddenError,
+                ErrorStatusText.ForbiddenError,
                 'User does not have access to the requested model.'
             ),
             res

@@ -7,7 +7,7 @@ import {
 import { respondAsJson } from '../../../../../../../../utils/api'
 import {
     apiError,
-    ErrorCode,
+    ErrorStatusText,
     HttpException,
 } from '../../../../../../../../utils/errors'
 
@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // user should be logged in for any comments related activity
     if (!user) {
         return apiError(
-            new HttpException(ErrorCode.Unauthorized, 'Unauthorized'),
+            new HttpException(ErrorStatusText.Unauthorized, 'Unauthorized'),
             res
         )
     }
