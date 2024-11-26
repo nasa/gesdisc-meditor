@@ -145,7 +145,7 @@ const DocumentStateBadge = ({
 
                     {canShowPublicationStatus && (
                         <Badge
-                            variant={
+                            bg={
                                 publicationStatus?.filter(status => status.failedOn)
                                     .length
                                     ? 'danger'
@@ -178,9 +178,11 @@ const DocumentStateBadge = ({
                                 setShowPublicationStatusOverlay(false)
                             }
                         >
-                            <Popover.Title as="h3">Publication Status</Popover.Title>
+                            <Popover.Header as="h3">
+                                Publication Status
+                            </Popover.Header>
 
-                            <Popover.Content>
+                            <Popover.Body>
                                 {publicationStatus &&
                                     publicationStatus.length <= 0 && (
                                         <div>
@@ -234,7 +236,7 @@ const DocumentStateBadge = ({
                                             )}
                                         </div>
                                     ))}
-                            </Popover.Content>
+                            </Popover.Body>
                         </Popover>
                     )
                 }}

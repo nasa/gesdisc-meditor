@@ -1,4 +1,5 @@
 module.exports = {
+    appDir: false,
     reactStrictMode: true,
     swcMinify: true,
     assetPrefix: '/meditor',

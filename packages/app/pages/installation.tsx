@@ -19,6 +19,7 @@ import { getModels } from '../models/service'
 import { fetchSeedDb } from '../setup/http'
 import type { UserDuringSetup } from '../setup/types'
 import styles from './installation.module.css'
+import { Row } from 'react-bootstrap'
 
 /**
  * renders the install page ONLY if there aren't any models created yet (fresh install)
@@ -194,7 +195,7 @@ const InstallationPage = () => {
                                             validated={validated}
                                             onSubmit={handleAddNewUser}
                                         >
-                                            <Form.Row>
+                                            <Row>
                                                 <Form.Group
                                                     as={Col}
                                                     md="4"
@@ -241,7 +242,7 @@ const InstallationPage = () => {
                                                         Add User
                                                     </Button>
                                                 </Form.Group>
-                                            </Form.Row>
+                                            </Row>
                                         </Form>
                                     </ListGroup.Item>
                                 )}

@@ -51,7 +51,7 @@ const DocumentHeader = ({
                                 onClick={() => togglePanelOpen('comments')}
                             >
                                 <MdComment />
-                                <Badge className={styles.badge} variant="light">
+                                <Badge className={styles.badge} bg="light">
                                     {numberOfComments}
                                 </Badge>
                                 <span className="sr-only">Show Comments Panel</span>
@@ -73,7 +73,7 @@ const DocumentHeader = ({
                             onClick={() => togglePanelOpen('history')}
                         >
                             <MdHistory />
-                            <Badge className={styles.badge} variant="light">
+                            <Badge className={styles.badge} bg="light">
                                 {numberOfHistoryEntries}
                             </Badge>
                             <span className="sr-only">Show History Panel</span>

@@ -1,26 +1,32 @@
 import Link from 'next/link'
 import styles from './breadcrumbs.module.css'
+import type { PropsWithChildren } from 'react'
 
-export const Breadcrumb = props => {
+type BreadcrumbProps = {
+    title: string
+    href?: string
+    as?: string
+}
+
+export const Breadcrumb: React.FC<BreadcrumbProps> = ({ title, href, as }) => {
     return (
         <li className={styles.li}>
-            {props.href ? (
-                <Link href={props.href} as={props.as} legacyBehavior>
-                    <a dangerouslySetInnerHTML={{ __html: props.title }} />
+            {href ? (
+                <Link href={href} as={as} legacyBehavior>
+                    <a dangerouslySetInnerHTML={{ __html: title }} />
                 </Link>
             ) : (
-                <span dangerouslySetInnerHTML={{ __html: props.title }} />
+                <span dangerouslySetInnerHTML={{ __html: title }} />
             )}
         </li>
     )
 }
 
-export const Breadcrumbs: React.FC = ({ children }) => {
+export const Breadcrumbs: React.FC<PropsWithChildren> = ({ children }) => {
     return (
         <div className={styles.breadcrumbs}>
             <ul className={styles.ul}>
                 <Breadcrumb title="Home" href="/" />
-
                 {children}
             </ul>
         </div>

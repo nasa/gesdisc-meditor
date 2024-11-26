@@ -38,7 +38,7 @@ export default function AnchorWidget({ options }: WidgetProps) {
 
     return (
         <a href={href} target="_blank" rel="noopener noreferrer">
-            {options.text || href}
+            <>{options.text || href}</>
         </a>
     )
 }
