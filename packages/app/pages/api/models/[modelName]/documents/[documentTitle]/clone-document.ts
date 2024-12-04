@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { getLoggedInUser } from '../../../../../../auth/user'
+import { getLoggedInUser } from '../../../../../../auth/service'
 import { cloneDocument } from '../../../../../../documents/service'
 import { respondAsJson } from '../../../../../../utils/api'
 import { apiError, ErrorCode, HttpException } from '../../../../../../utils/errors'

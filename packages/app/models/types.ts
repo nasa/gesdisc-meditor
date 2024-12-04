@@ -9,7 +9,11 @@ export interface DocumentsSearchOptions {
 
 export interface ModelCategory {
     name: string
-    models: Model[]
+    models: (Partial<Model> & {
+        count: ModelMetadata['count']
+        userRoles: string[]
+    })[]
+    userHasRoles: boolean
 }
 
 export interface Model {
