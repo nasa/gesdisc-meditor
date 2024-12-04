@@ -9,10 +9,10 @@ import { userCanAccessModel } from 'models/service'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { respondAsJson } from 'utils/api'
 import {
-    apiError,
     ErrorCode,
-    formatZodError,
     HttpException,
+    apiError,
+    formatZodError,
     parseZodAsErrorData,
 } from 'utils/errors'
 import type { ZodError } from 'zod'
@@ -59,6 +59,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 .split(',')
                 .map(title => title.trim().replace(/^"/, '').replace(/"$/, ''))
 
+            console.log(documentTitles)
+            console.log('req.body', req.body)
+            console.log('req.body typeof', typeof req.body)
+
             //* we'll also parse the list of operations the user requested, this will ensure they match the right format for the JSON patch spec
             const [parsingError, operations] = parseZodAsErrorData<JSONPatchDocument>(
                 patchDocumentsInputSchema,
@@ -66,6 +70,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             )
 
             if (parsingError) {
+                console.log(parsingError)
+
                 return apiError(parsingError, res)
             }
 
@@ -77,6 +83,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             )
 
             if (error) {
+                console.log('error in index.ts: ', error)
+
                 return apiError(error, res)
             }
 
