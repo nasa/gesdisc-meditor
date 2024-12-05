@@ -7,8 +7,8 @@ import { runModelTemplates } from '../macros/service'
 import { ErrorCode, HttpException } from '../utils/errors'
 import { isJson } from '../utils/jsonschema-validate'
 import { getWorkflowByDocumentState } from '../workflows/service'
-import { getModelsDb } from './db'
 import type { Model, ModelWithWorkflow } from './types'
+import { getDatabaseRepository } from 'database/repository.factory'
 
 const MODELS_REQUIRING_AUTHENTICATION = ['Users']
 
@@ -36,8 +36,8 @@ export async function getModel(
             throw new HttpException(ErrorCode.BadRequest, 'Model name is required')
         }
 
-        const modelsDb = await getModelsDb()
-        const model = await modelsDb.getModel(modelName)
+        const db = await getDatabaseRepository<Model>()
+        const model = await db.find('models', modelName, 'name')
 
         if (!model) {
             throw new HttpException(
@@ -149,8 +149,8 @@ export async function getModelWithWorkflow(
 
 export async function getModels(): Promise<ErrorData<Model[]>> {
     try {
-        const modelsDb = await getModelsDb()
-        const models = await modelsDb.getModels()
+        const db = await getDatabaseRepository<Model>()
+        const models = await db.findAll('models')
 
         return [null, models]
     } catch (error) {
