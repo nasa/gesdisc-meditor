@@ -11,7 +11,6 @@ import DocumentHeader from '../../../components/document/document-header'
 import Form from '../../../components/document/form'
 import FormActions from '../../../components/document/form-actions'
 import PageTitle from '../../../components/page-title'
-import withAuthentication from '../../../components/with-authentication'
 import { createDocument as httpCreateDocument } from '../../../documents/http'
 import {
     getNewUnsavedDocument,
@@ -221,4 +220,4 @@ export async function getServerSideProps(ctx: NextPageContext) {
     }
 }
 
-export default withAuthentication()(NewDocumentPage)
+export default NewDocumentPage

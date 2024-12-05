@@ -84,7 +84,7 @@ export async function updateCommentAsUser(
 
         const updatedComment = await commentsDb.updateCommentText(
             commentChanges._id,
-            commentChanges.text
+            commentChanges.text ?? ''
         )
 
         return [null, updatedComment]

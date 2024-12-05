@@ -1,4 +1,8 @@
-.body {
+.modal {
+    display: block;
+}
+
+.modalBody {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -8,10 +12,10 @@
     padding: 2rem !important;
 }
 
-.body p {
+.modalBody p {
     margin: 15px 0;
 }
 
-.body small {
+.modalBody small {
     margin-top: 15px;
 }

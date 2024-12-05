@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from 'react'
 import PageTitle from '../../components/page-title'
 import SearchBar from '../../components/search/search-bar'
 import SearchList from '../../components/search/search-list'
-import withAuthentication from '../../components/with-authentication'
 import { getDocumentsForModel } from '../../documents/service'
 import type { Document } from '../../documents/types'
 import { getModels, getModelWithWorkflow } from '../../models/service'
@@ -179,4 +178,4 @@ export async function getServerSideProps(ctx: NextPageContext) {
     return { props }
 }
 
-export default withAuthentication()(ModelPage)
+export default ModelPage

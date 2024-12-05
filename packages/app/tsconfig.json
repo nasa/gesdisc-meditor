@@ -14,10 +14,16 @@
         "resolveJsonModule": true,
         "isolatedModules": true,
         "jsx": "preserve",
-        // allows `import type { foo }...` syntax on auto-import / quick fix
-        "importsNotUsedAsValues": "error",
-        "incremental": true
+        "incremental": true,
+        "strictNullChecks": false, // TODO: set to true, fix resulting errors (mEditor was originally built without this check in place)
+        "plugins": [{ "name": "next" }]
     },
     "exclude": ["node_modules"],
-    "include": ["next-env.d.ts", "declarations.d.ts", "**/*.ts", "**/*.tsx"]
+    "include": [
+        "next-env.d.ts",
+        ".next/types/**/*.ts",
+        "declarations.d.ts",
+        "**/*.ts",
+        "**/*.tsx"
+    ]
 }

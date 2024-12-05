@@ -17,7 +17,6 @@ import FormActions from '../../../components/document/form-actions'
 import SourceDialog from '../../../components/document/source-dialog'
 import JsonDiffViewer from '../../../components/json-diff-viewer'
 import PageTitle from '../../../components/page-title'
-import withAuthentication from '../../../components/with-authentication'
 import { adaptDocumentToLegacyDocument } from '../../../documents/adapters'
 import {
     createDocument as httpCreateDocument,
@@ -429,4 +428,4 @@ export async function getServerSideProps(ctx: NextPageContext) {
     return { props }
 }
 
-export default withAuthentication()(EditDocumentPage)
+export default EditDocumentPage

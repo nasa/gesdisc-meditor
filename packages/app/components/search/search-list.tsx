@@ -1,11 +1,7 @@
 import { useEffect, useState } from 'react'
 import { IoMdArrowDropdown } from 'react-icons/io'
 import { findUnsavedDocumentsByModel } from '../../lib/unsaved-changes'
-import type {
-    DocumentsSearchOptions,
-    Model,
-    ModelWithWorkflow,
-} from '../../models/types'
+import type { DocumentsSearchOptions, ModelWithWorkflow } from '../../models/types'
 import type { Document } from '../../documents/types'
 import type { User } from '../../auth/types'
 import Pagination from '../pagination'
