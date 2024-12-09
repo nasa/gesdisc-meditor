@@ -73,6 +73,21 @@ class UsersDb {
             })
             .toArray()
     }
+
+    async getMeditorUserByUid(uid: string): Promise<Document> {
+        const user = await this.#db
+            // the mEditor user record is a generic, dynamic document, like any other model's document (see the "Users" model)
+            .collection<Document>(this.#USERS_COLLECTION)
+            .findOne(
+                {
+                    id: uid,
+                    'x-meditor.deletedOn': { $exists: false }, // filter out deleted users
+                },
+                { sort: { 'x-meditor.modifiedOn': -1 } }
+            )
+
+        return makeSafeObjectIDs(user)
+    }
 }
 
 const db = new UsersDb()

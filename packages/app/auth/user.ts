@@ -1,69 +1,48 @@
-import { getCookies } from 'cookies-next'
+import type { Session } from 'next-auth'
 import { onlyUnique } from '../utils/array'
 import type { WorkflowNode } from '../workflows/types'
-import type { User, UserRole } from './types'
-import type { IncomingMessage, ServerResponse } from 'http'
-import type { NextApiRequest, NextApiResponse } from 'next'
+import { getUsersDb } from './db'
+import { authOptions } from 'pages/api/auth/[...nextauth]'
+import { getServerSession } from 'next-auth'
+import { UserWithRoles } from './types'
 
-const LEGACY_API_HOST = process.env.API_HOST || 'meditor_legacy-api:8081'
-const LEGACY_MEDITOR_SESSION_COOKIE = '__mEditor'
+export async function getLoggedInUser(req: any, res: any): Promise<UserWithRoles> {
+    // TODO: figure out correct typings
+    const session = await getServerSession(req, res, authOptions)
 
-/**
- * for the time being, authentication is ONLY handled in the legacy API (/legacy-api)
- *
- * In the future, we'll want to use NextAuth (without breaking .netrc based logins). This function matches the parameter definition
- * of the "unstable_getServerSideSession" function in NextAuth and can be augmented.
- */
-export async function getLoggedInUser(
-    req: NextApiRequest | IncomingMessage,
-    res: NextApiResponse | ServerResponse
-) {
-    // smooths out the difference between Next's request / response type and the native HTTP versions
-    const cookies = getCookies({ req, res })
-
-    return getUserBySessionCookie(cookies)
-}
-
-/**
- * if the user has a mEditor session cookie, we'll use the legacy API to get the logged in user's information
- */
-export async function getUserBySessionCookie(cookies: {
-    [key: string]: string | undefined
-}) {
-    const legacySession = cookies[LEGACY_MEDITOR_SESSION_COOKIE]
-
-    if (!legacySession) {
-        // this user is not logged in using a legacy session cookie
+    if (!session?.user?.uid) {
+        // user is not logged in
         return
     }
 
-    const getMeResponse = await fetch(`http://${LEGACY_API_HOST}/meditor/api/me`, {
-        credentials: 'include',
-        headers: { Cookie: `${LEGACY_MEDITOR_SESSION_COOKIE}=${legacySession}` },
-    })
-
-    if (!getMeResponse.ok) {
-        // no legacy user found
-        return
-    }
-
-    const user = await getMeResponse.json()
+    const usersDb = await getUsersDb()
+    const mEditorUser = await usersDb.getMeditorUserByUid(session.user.uid)
 
     return {
-        ...user,
-        name: [user.firstName, user.lastName].join(' '),
+        ...session.user,
+        roles: mEditorUser.roles,
     }
 }
 
-export function rolesForModel(user: User, modelName: string): Array<string> {
-    return (user?.roles || ([] as UserRole[]))
+export async function rolesForModel(
+    session: Session,
+    modelName: string
+): Promise<Array<string>> {
+    if (!session.user?.uid) {
+        return []
+    }
+
+    const usersDb = await getUsersDb()
+    const mEditorUser = await usersDb.getMeditorUserByUid(session.user.uid)
+
+    return (mEditorUser?.roles ?? [])
         .filter(role => role.model === modelName) // only get roles for the requested model name
         .map(role => role.role) // retrieve the role name
         .filter(onlyUnique)
 }
 
-export function privilegesForModelAndWorkflowNode(
-    user: User,
+export async function privilegesForModelAndWorkflowNode(
+    session: Session,
     modelName: string,
     node: WorkflowNode
 ) {
@@ -72,7 +51,7 @@ export function privilegesForModelAndWorkflowNode(
     }
 
     let privileges = []
-    let roles = rolesForModel(user, modelName)
+    let roles = await rolesForModel(session, modelName)
 
     roles.forEach(role => {
         privileges = privileges.concat(

@@ -1,5 +1,4 @@
 import jsonpath from 'jsonpath'
-import type { User } from '../auth/types'
 import type { ErrorData } from '../declarations'
 import { getDocumentsDb } from '../documents/db'
 import log from '../lib/log'
@@ -9,6 +8,7 @@ import { isJson } from '../utils/jsonschema-validate'
 import { getWorkflowByDocumentState } from '../workflows/service'
 import { getModelsDb } from './db'
 import type { Model, ModelWithWorkflow } from './types'
+import type { UserWithRoles } from 'auth/types'
 
 const MODELS_REQUIRING_AUTHENTICATION = ['Users']
 
@@ -204,6 +204,6 @@ export async function getModelsWithDocumentCount(): Promise<ErrorData<Model[]>> 
 /**
  * if user is not authenticated, verify the requested model is not in the list of models requiring authentication
  */
-export function userCanAccessModel(modelName: string, user: User) {
+export function userCanAccessModel(modelName: string, user: UserWithRoles) {
     return !!user?.uid || !MODELS_REQUIRING_AUTHENTICATION.includes(modelName)
 }

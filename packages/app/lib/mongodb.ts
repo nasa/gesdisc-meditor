@@ -6,13 +6,9 @@
 import { Document, MongoClient, WithId } from 'mongodb'
 import log from './log'
 
-const uri =
-    (process.env.MONGO_URL ||
-        process.env.MONGOURL ||
-        'mongodb://meditor_database:27017/') + 'meditor'
+const uri = `mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_DATABASE}`
 
 let mongoClient: MongoClient
-
 let mongoClientPromise: Promise<MongoClient>
 
 if (process.env.NODE_ENV === 'development') {

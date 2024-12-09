@@ -8,10 +8,8 @@ import styles from './header.module.css'
 import { signOut, useSession } from 'next-auth/react'
 
 const Header = () => {
-    const { data, status } = useSession()
+    const { data: session, status } = useSession()
     const [userMenuOpen, setUserMenuOpen] = useState(false)
-
-    console.log('in the header ', data, status)
 
     return (
         <header className={styles.header}>
@@ -47,7 +45,7 @@ const Header = () => {
                                 style={{ color: '#607d8b' }}
                             >
                                 <MdPerson style={{ fontSize: '1.6em' }} />
-                                Hi, USER HERE
+                                Hi, {session.user?.name}
                             </Dropdown.Toggle>
 
                             <Dropdown.Menu>

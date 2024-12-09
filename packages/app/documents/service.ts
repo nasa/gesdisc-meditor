@@ -1,6 +1,6 @@
 import Fuse from 'fuse.js'
 import { validate } from 'jsonschema'
-import type { User, UserRole } from '../auth/types'
+import type { UserWithRoles, UserRole } from '../auth/types'
 import type { ErrorData } from '../declarations'
 import {
     constructEmailMessageForStateChange,
@@ -34,7 +34,7 @@ const DRAFT_STATE = 'Draft'
 export async function createDocument(
     documentToCreate: any,
     modelName: string,
-    user: User,
+    user: UserWithRoles,
     initialState: string = DRAFT_STATE // the initial state the document will be created in
 ): Promise<ErrorData<{ insertedDocument: Document; location: string }>> {
     try {
@@ -144,7 +144,7 @@ export async function createDocument(
 export async function getDocument(
     documentTitle: string,
     modelName: string,
-    user: User,
+    user: UserWithRoles,
     documentVersion?: string
 ): Promise<ErrorData<Document>> {
     try {
@@ -322,7 +322,7 @@ export async function cloneDocument(
     titleOfDocumentToClone: string,
     titleOfNewDocument: string,
     modelName: string,
-    user: User
+    user: UserWithRoles
 ): Promise<ErrorData<Document>> {
     try {
         if (!user) {
@@ -382,7 +382,7 @@ export async function cloneDocument(
 export async function bulkPatchDocuments(
     documentTitles: Array<string>,
     modelName: string,
-    user: User,
+    user: UserWithRoles,
     operations: JSONPatchDocument
 ) {
     try {
@@ -423,7 +423,7 @@ export async function bulkPatchDocuments(
 export async function patchDocument(
     documentTitle: string,
     modelName: string,
-    user: User,
+    user: UserWithRoles,
     operations: JSONPatchDocument
 ): Promise<ErrorData<{ insertedDocument: Document; location: string }>> {
     try {
@@ -463,7 +463,7 @@ export async function changeDocumentState(
     documentTitle: string,
     modelName: string,
     newState: string, // must be a string, not enum, due to states not existing at compile time,
-    user: User,
+    user: UserWithRoles,
 
     // changeDocumentState options
     options?: {
@@ -570,7 +570,7 @@ export async function bulkChangeDocumentState(
     documentTitles: Array<string>,
     modelName: string,
     newState: string, // must be a string, not enum, due to states not existing at compile time,
-    user: User,
+    user: UserWithRoles,
     options?: {
         disableEmailNotifications?: boolean
     }
@@ -625,7 +625,7 @@ export async function constructNewDocumentState(
     document: Document,
     model: ModelWithWorkflow,
     newState: string,
-    user: User
+    user: UserWithRoles
 ): Promise<DocumentState> {
     const targetStates = getTargetStatesFromWorkflow(
         document['x-meditor'].state,
@@ -684,7 +684,7 @@ export async function safelyNotifyOfStateChange(
     document: Document,
     newState: string,
     currentEdge: WorkflowEdge,
-    user: User
+    user: UserWithRoles
 ) {
     try {
         if (shouldNotifyUsersOfStateChange(newState, currentEdge)) {
@@ -761,7 +761,7 @@ export async function safelyPublishDocumentChangeToQueue(
 export async function safelyDeleteDocument(
     model: ModelWithWorkflow,
     document: Document,
-    user: User
+    user: UserWithRoles
 ) {
     try {
         log.debug(
@@ -840,7 +840,7 @@ export function createSourceToTargetStateMap(
  */
 export function findAllowedUserRolesForModel(
     modelName: string = '',
-    roles: User['roles'] = []
+    roles: UserRole[] = []
 ): UserRole['role'][] {
     return roles.reduce((accumulator, role) => {
         if (role.model === modelName) {

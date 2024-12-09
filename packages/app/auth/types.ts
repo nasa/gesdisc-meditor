@@ -1,23 +1,21 @@
-export interface User {
-    id: string // db id
-    uid: string // authentication provider's id (URS uid, Cognito id, etc.)
-    created: number
-    emailAddress: string
-    name: string
-    firstName: string
-    middleInitial?: string
-    lastName: string
-    studyArea?: string
-    lastAccessed: number
+import { User } from 'next-auth'
+
+export type UserWithRoles = User & {
+    firstName?: string
+    lastName?: string
+    uid?: string
     roles: UserRole[]
 }
 
-export interface UserRole {
+export type UserContactInformation = {
+    uid: string // authentication provider's id (URS uid, Cognito id, etc.)
+    emailAddress: string
+    name: string
+    firstName: string
+    lastName: string
+}
+
+export type UserRole = {
     model: string
     role: string
 }
-
-export type UserContactInformation = Pick<
-    User,
-    'uid' | 'emailAddress' | 'firstName' | 'lastName'
->

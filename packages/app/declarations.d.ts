@@ -3,6 +3,18 @@ import type { CKEditor } from 'ckeditor4-react'
 import { DetailedHTMLProps, HTMLAttributes } from 'react'
 import type { HttpException } from './utils/errors'
 import type { Stan } from 'node-nats-streaming'
+import 'next-auth'
+import type { User } from './auth/types'
+import type { User as NextAuthUser } from 'next-auth'
+
+// Read more at: https://next-auth.js.org/getting-started/typescript#module-augmentation
+declare module 'next-auth' {
+    interface Session {
+        user: NextAuthUser & {
+            uid?: string
+        }
+    }
+}
 
 declare global {
     export namespace JSX {
