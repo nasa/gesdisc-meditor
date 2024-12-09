@@ -3,6 +3,7 @@ import IconButton from '../components/IconButton'
 import { handleResponseErrors } from '../utils/error'
 import type { WidgetProps } from '@rjsf/utils'
 import { getTemplate } from '@rjsf/utils'
+import Image from 'next/image'
 
 const UPLOAD_IDLE = ''
 const UPLOAD_IN_PROGRESS = 'uploading'
@@ -86,7 +87,7 @@ export default function ImageWidget(props: WidgetProps) {
             {currentImagePath && (
                 <div style={{ marginTop: 10 }}>
                     <p>Preview:</p>
-                    <img
+                    <Image
                         id="preview"
                         src={currentImagePath}
                         alt="Preview"

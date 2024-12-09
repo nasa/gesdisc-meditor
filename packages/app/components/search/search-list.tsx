@@ -3,7 +3,7 @@ import { IoMdArrowDropdown } from 'react-icons/io'
 import { findUnsavedDocumentsByModel } from '../../lib/unsaved-changes'
 import type { DocumentsSearchOptions, ModelWithWorkflow } from '../../models/types'
 import type { Document } from '../../documents/types'
-import type { User } from '../../auth/types'
+import type { UserWithRoles } from '../../auth/types'
 import Pagination from '../pagination'
 import styles from './search-list.module.css'
 import SearchResult from './search-result'
@@ -12,7 +12,7 @@ import SearchStatusBar from './search-status-bar'
 interface SearchListProps {
     documents: Document[]
     model: ModelWithWorkflow
-    user: User
+    user: UserWithRoles
     searchOptions: DocumentsSearchOptions
     onAddNew: Function
     onRefreshList: Function

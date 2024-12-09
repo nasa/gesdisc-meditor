@@ -1,5 +1,5 @@
 import { validate } from 'jsonschema'
-import type { User } from '../auth/types'
+import type { UserWithRoles } from '../auth/types'
 import type { ErrorData } from '../declarations'
 import { ErrorCode, HttpException } from '../utils/errors'
 import { getCommentsDb } from './db'
@@ -16,7 +16,7 @@ import log from '../lib/log'
 
 export async function createCommentAsUser(
     newComment: CreateCommentUserInput,
-    user: User
+    user: UserWithRoles
 ): Promise<ErrorData<DocumentComment>> {
     try {
         const commentsDb = await getCommentsDb()
@@ -53,7 +53,7 @@ export async function createCommentAsUser(
 
 export async function updateCommentAsUser(
     commentChanges: UpdateCommentUserInput,
-    user: User
+    user: UserWithRoles
 ): Promise<ErrorData<DocumentComment>> {
     try {
         const commentsDb = await getCommentsDb()

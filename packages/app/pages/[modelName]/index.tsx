@@ -13,7 +13,7 @@ import type {
     Model,
     ModelWithWorkflow,
 } from '../../models/types'
-import type { User } from '../../auth/types'
+import type { UserWithRoles } from '../../auth/types'
 import { isNotFoundError } from 'utils/errors'
 
 function getSearchOptionsFromParams(query: ParsedUrlQuery): DocumentsSearchOptions {
@@ -36,7 +36,7 @@ function getParamsFromSearchOptions(
 }
 
 interface ModelPageProps {
-    user: User
+    user: UserWithRoles
     model: ModelWithWorkflow
     allModels: Model[]
     documents: Document[]
