@@ -1,12 +1,12 @@
 import jsonpath from 'jsonpath'
-import type { ErrorData } from '../declarations'
-import { getDocumentsDb } from '../documents/db'
 import log from '../lib/log'
-import { runModelTemplates } from '../macros/service'
 import { ErrorCode, HttpException } from '../utils/errors'
-import { isJson } from '../utils/jsonschema-validate'
-import { getWorkflowByDocumentState } from '../workflows/service'
+import { getDocumentsDb } from '../documents/db'
 import { getModelsDb } from './db'
+import { getWorkflowByDocumentState } from '../workflows/service'
+import { isJson } from '../utils/jsonschema-validate'
+import { runModelTemplates } from '../macros/service'
+import type { ErrorData } from '../declarations'
 import type { Model, ModelWithWorkflow } from './types'
 import type { UserWithRoles } from 'auth/types'
 
@@ -203,7 +203,8 @@ export async function getModelsWithDocumentCount(): Promise<ErrorData<Model[]>> 
 
 /**
  * if user is not authenticated, verify the requested model is not in the list of models requiring authentication
+ * this was a mEditor design decision early on to allow anonymous access to most documents
  */
-export function userCanAccessModel(modelName: string, user: UserWithRoles) {
-    return !!user?.uid || !MODELS_REQUIRING_AUTHENTICATION.includes(modelName)
+export async function userCanAccessModel(user: UserWithRoles, modelName: string) {
+    return user?.uid ? true : !MODELS_REQUIRING_AUTHENTICATION.includes(modelName)
 }

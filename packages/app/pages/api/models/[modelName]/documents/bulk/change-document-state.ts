@@ -1,29 +1,20 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import { getLoggedInUser } from 'auth/user'
+import assert from 'assert'
+import createError from 'http-errors'
 import { bulkChangeDocumentState } from 'documents/service'
-import { respondAsJson } from 'utils/api'
-import {
-    apiError,
-    ErrorCode,
-    formatZodError,
-    HttpException,
-    parseZodAsErrorData,
-} from 'utils/errors'
 import { bulkDocumentHeadersSchema } from 'documents/schema'
+import { formatZodError, withApiErrorHandler } from 'lib/with-api-error-handler'
+import { getLoggedInUser } from 'auth/user'
+import { parseZodAsErrorData } from 'utils/errors'
+import { respondAsJson } from 'utils/api'
+import type { NextApiRequest, NextApiResponse } from 'next'
 import type { ZodError } from 'zod'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+    assert(req.method === 'POST', new createError.MethodNotAllowed())
+
     const modelName = decodeURIComponent(req.query.modelName.toString())
     const newState = decodeURIComponent(req.query.state?.toString())
-
     const user = await getLoggedInUser(req, res)
-
-    if (req.method !== 'POST') {
-        return apiError(
-            new HttpException(ErrorCode.MethodNotAllowed, 'Method not allowed'),
-            res
-        )
-    }
 
     //* we enforce requiring the user to provide explicit identifiers for the documents to patch (we don't support all)
     //* the standard is to use an "If-Match" header: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-Match
@@ -33,10 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     )
 
     if (headersError) {
-        return apiError(
-            formatZodError(headersError as ZodError, '`If-Match` header: '), // format the ZodError so we can use a custom error message prefix
-            res
-        )
+        throw formatZodError(headersError as ZodError, '`If-Match` header: ') // format the ZodError so we can use a custom error message prefix
     }
 
     //* parse the document titles from 'If-Match'
@@ -57,8 +45,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     )
 
     if (error) {
-        return apiError(error, res)
+        throw error
     }
 
     return respondAsJson(result, req, res)
 }
+
+export default withApiErrorHandler(handler)

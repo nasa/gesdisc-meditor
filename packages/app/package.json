@@ -30,6 +30,7 @@
         "eslint-config-next": "^15.0.3",
         "fuse.js": "^6.6.2",
         "he": "^1.2.0",
+        "http-errors": "^2.0.0",
         "immer": "^9.0.6",
         "immutable-json-patch": "^6.0.1",
         "isomorphic-unfetch": "^3.0.0",

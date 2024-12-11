@@ -5,6 +5,7 @@ import UnderMaintenance from '../components/under-maintenance'
 import { getModelsWithDocumentCount } from '../models/service'
 import type { Model, ModelCategory } from '../models/types'
 import { sortModels } from '../utils/sort'
+import { getLoggedInUser } from 'auth/user'
 
 export interface DashboardPageProps {
     modelCategories: ModelCategory[]
@@ -37,6 +38,17 @@ export function sortModelsIntoCategories(models: Model[]): ModelCategory[] {
 }
 
 export async function getServerSideProps(ctx: NextPageContext) {
+    // Redirect to sign in page if logged out
+    //? Unlike other pages, the root path, /meditor doesn't seem to react at all to NextJS middleware
+    if (!(await getLoggedInUser(ctx.req, ctx.res))) {
+        return {
+            redirect: {
+                destination: '/signin',
+                permanent: false,
+            },
+        }
+    }
+
     // TODO: handle error when retrieving models with document count, show user an error message?
     const [_error, modelsWithDocumentCount] = await getModelsWithDocumentCount()
     const models = (modelsWithDocumentCount || []).sort(sortModels)

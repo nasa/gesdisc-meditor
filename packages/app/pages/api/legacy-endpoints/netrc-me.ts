@@ -1,24 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getLoggedInUser } from 'auth/user'
 import { respondAsJson } from 'utils/api'
-import { apiError, ErrorCode, HttpException } from 'utils/errors'
+import { withApiErrorHandler } from 'lib/with-api-error-handler'
+import createError from 'http-errors'
+import assert from 'assert'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const user = await getLoggedInUser(req, res)
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+    assert(req.method === 'GET', new createError.MethodNotAllowed())
 
-    if (!user) {
-        return apiError(
-            new HttpException(ErrorCode.Unauthorized, 'Unauthorized'),
-            res
-        )
-    }
-
-    switch (req.method) {
-        case 'GET': {
-            return respondAsJson(user, req, res)
-        }
-
-        default:
-            return res.status(405).end()
-    }
+    return respondAsJson(await getLoggedInUser(req, res), req, res)
 }
+
+export default withApiErrorHandler(handler)

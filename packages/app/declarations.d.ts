@@ -1,9 +1,9 @@
-import { JSX as LocalJSX } from '@gesdisc/meditor-components/loader'
-import type { CKEditor } from 'ckeditor4-react'
 import { DetailedHTMLProps, HTMLAttributes } from 'react'
-import type { HttpException } from './utils/errors'
-import type { Stan } from 'node-nats-streaming'
+import { HttpError } from 'http-errors'
+import { JSX as LocalJSX } from '@gesdisc/meditor-components/loader'
 import 'next-auth'
+import type { CKEditor } from 'ckeditor4-react'
+import type { Stan } from 'node-nats-streaming'
 import type { User as NextAuthUser } from 'next-auth'
 
 // Read more at: https://next-auth.js.org/getting-started/typescript#module-augmentation
@@ -30,7 +30,7 @@ export type APIError = {
     error: string
 }
 
-export type ErrorData<T> = [Error | HttpException | null, T | null]
+export type ErrorData<T> = [Error | HttpError | null, T | null]
 
 type gReactProps<T> = {
     [P in keyof T]?: DetailedHTMLProps<HTMLAttributes<T[P]>, T[P]>

@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { apiError } from 'utils/errors'
 import getModelHandler from '../models/[modelName]/'
 import { z } from 'zod'
+import { withApiErrorHandler } from 'lib/with-api-error-handler'
 
 const schema = z
     .object({
@@ -12,13 +12,11 @@ const schema = z
         modelName: name,
     }))
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    try {
-        // replaces query params with params mapped to RESTful names (e.g. "model" -> "modelName", etc.)
-        req.query = schema.parse(req.query)
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+    // replaces query params with params mapped to RESTful names (e.g. "model" -> "modelName", etc.)
+    req.query = schema.parse(req.query)
 
-        return getModelHandler(req, res)
-    } catch (err) {
-        return apiError(err, res)
-    }
+    return getModelHandler(req, res)
 }
+
+export default withApiErrorHandler(handler)

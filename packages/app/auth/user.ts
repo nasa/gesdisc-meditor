@@ -6,8 +6,10 @@ import { authOptions } from 'pages/api/auth/[...nextauth]'
 import { getServerSession } from 'next-auth'
 import { UserWithRoles } from './types'
 
-export async function getLoggedInUser(req: any, res: any): Promise<UserWithRoles> {
-    // TODO: figure out correct typings
+export async function getLoggedInUser(
+    req: any,
+    res: any
+): Promise<UserWithRoles | undefined> {
     const session = await getServerSession(req, res, authOptions)
 
     if (!session?.user?.uid) {

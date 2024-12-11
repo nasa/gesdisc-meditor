@@ -1,8 +1,9 @@
 import { basePath } from 'auth/providers/earthdata-login'
 import log from 'lib/log'
+import { withApiErrorHandler } from 'lib/with-api-error-handler'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     // construct our internal callback url to generate a NextAuth session after .netrc authentication to EDL
     const callbackUrl = `${process.env.HOST}/api/legacy-endpoints/netrc-callback`
 
@@ -20,3 +21,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // remember, on successful login, EDL will then redirect to our `callbackUrl` above
     res.redirect(302, earthdataAuthUrl)
 }
+
+export default withApiErrorHandler(handler)
