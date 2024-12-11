@@ -20,7 +20,7 @@ export async function getLoggedInUser(req: any, res: any): Promise<UserWithRoles
 
     return {
         ...session.user,
-        roles: mEditorUser.roles,
+        roles: mEditorUser?.roles ?? [],
     }
 }
 

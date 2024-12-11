@@ -41,6 +41,18 @@ module.exports = {
                 destination: '/api/legacy-endpoints/listModels',
             },
             {
+                source: '/api/login',
+                destination: '/api/legacy-endpoints/netrc-login',
+            },
+            {
+                source: '/api/logout',
+                destination: '/api/legacy-endpoints/netrc-logout',
+            },
+            {
+                source: '/api/me',
+                destination: '/api/legacy-endpoints/netrc-me',
+            },
+            {
                 source: '/api/putDocument',
                 destination: '/api/legacy-endpoints/putDocument',
             },

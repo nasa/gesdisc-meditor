@@ -18,9 +18,9 @@ export interface EarthdataUser {
     user_authorized_apps: number
 }
 
-const basePath = 'https://urs.earthdata.nasa.gov'
+export const basePath = 'https://urs.earthdata.nasa.gov'
 
-type EDLTokenSetParameters = Pick<
+export type EDLTokenSetParameters = Pick<
     TokenSetParameters,
     'access_token' | 'token_type' | 'refresh_token'
 > & {
