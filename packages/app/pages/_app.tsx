@@ -1,17 +1,17 @@
-import type { AppContext, AppProps } from 'next/app'
+import AppStore from '../components/app-store'
+import Head from 'next/head'
+import Header from '../components/header'
+import Layout from '../components/layout'
 import NextApp from 'next/app'
+import Toast from '../components/toast'
 import { SessionProvider } from 'next-auth/react'
+import { useEffect } from 'react'
+import '../styles.css'
+import type { AppContext, AppProps } from 'next/app'
 import {
     applyPolyfills,
     defineCustomElements,
 } from '@gesdisc/meditor-components/loader'
-import Head from 'next/head'
-import { useEffect } from 'react'
-import AppStore from '../components/app-store'
-import Header from '../components/header'
-import Layout from '../components/layout'
-import Toast from '../components/toast'
-import '../styles.css'
 
 type PropsType = {
     theme: Theme
@@ -50,8 +50,6 @@ const App = ({
     useEffect(() => {
         registerCustomElements()
     }, [])
-
-    console.log('in app ', session)
 
     return (
         <>

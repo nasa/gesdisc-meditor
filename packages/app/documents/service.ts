@@ -1,4 +1,14 @@
+import assert from 'assert'
+import createError from 'http-errors'
 import Fuse from 'fuse.js'
+import log from '../lib/log'
+import { formatValidationErrorMessage } from '../utils/jsonschema-validate'
+import { getDocumentsDb } from './db'
+import { getModel, getModelWithWorkflow } from '../models/service'
+import { getTargetStatesFromWorkflow } from '../workflows/service'
+import { immutableJSONPatch, JSONPatchDocument } from 'immutable-json-patch'
+import { legacyHandleModelChanges } from './service.legacy'
+import { publishMessageToQueueChannel } from '../publication-queue/service'
 import { validate } from 'jsonschema'
 import type { UserWithRoles, UserRole } from '../auth/types'
 import type { ErrorData } from '../declarations'
@@ -6,16 +16,9 @@ import {
     constructEmailMessageForStateChange,
     shouldNotifyUsersOfStateChange,
 } from '../email-notifications/service'
-import log from '../lib/log'
-import { getModel, getModelWithWorkflow } from '../models/service'
 import type { DocumentsSearchOptions, ModelWithWorkflow } from '../models/types'
-import { publishMessageToQueueChannel } from '../publication-queue/service'
-import { ErrorCause, ErrorCode, HttpException } from '../utils/errors'
-import { formatValidationErrorMessage } from '../utils/jsonschema-validate'
-import { getTargetStatesFromWorkflow } from '../workflows/service'
+
 import type { Workflow, WorkflowEdge } from '../workflows/types'
-import { getDocumentsDb } from './db'
-import { legacyHandleModelChanges } from './service.legacy'
 import type {
     BulkDocumentResponse,
     Document,
@@ -23,7 +26,6 @@ import type {
     DocumentPublications,
     DocumentState,
 } from './types'
-import { JSONPatchDocument, immutableJSONPatch } from 'immutable-json-patch'
 
 const EMAIL_NOTIFICATIONS_QUEUE_CHANNEL =
     process.env.MEDITOR_NATS_NOTIFICATIONS_CHANNEL || 'meditor-notifications'
@@ -57,24 +59,22 @@ export async function createDocument(
 
         // validate that the document's state exists as a node in the model's workflow
         // ex. does "Modify-Review-Publish" workflow contain a "Draft" state?
-        if (!initialNode) {
-            throw new HttpException(
-                ErrorCode.BadRequest,
+        assert(
+            initialNode,
+            new createError.BadRequest(
                 `The passed in state, ${initialState}, does not exist`
             )
-        }
+        )
 
         // validate that there is at least one edge going from "Init" to the initialState
-        if (
-            !workflow.edges.some(
+        assert(
+            workflow.edges.some(
                 edge => edge.source === INIT_STATE && edge.target === initialState
-            )
-        ) {
-            throw new HttpException(
-                ErrorCode.BadRequest,
+            ),
+            new createError.BadRequest(
                 `The passed in state, ${initialState}, is not an initial node in the workflow`
             )
-        }
+        )
 
         //* The schema does not allow for our 'x-meditor' metadata property, so we have to allow all additional properties.
         const schemaWithAdditionalProperties = {
@@ -83,16 +83,16 @@ export async function createDocument(
         }
         const { errors } = validate(document, schemaWithAdditionalProperties)
 
-        if (errors.length && !initialNode.allowValidationErrors) {
-            throw new HttpException(
-                ErrorCode.ValidationError,
+        assert(
+            !errors.length || initialNode.allowValidationErrors,
+            new createError.ValidationError(
                 `Document "${
                     document[titleProperty]
                 }" does not validate against the schema for model "${modelName}": ${JSON.stringify(
                     errors.map(formatValidationErrorMessage)
                 )}`
             )
-        }
+        )
 
         //* This logic (and associated TODO) is ported from Meditor.js, saveDocument. Minimal modifications were made.
         const modifiedDate = new Date().toISOString()
@@ -398,7 +398,7 @@ export async function bulkPatchDocuments(
 
                 return {
                     title,
-                    status: error ? (error.cause as ErrorCause).status : 200,
+                    status: error?.status ?? 200,
                     ...(error && { error: error.message }),
                 }
             })
@@ -592,7 +592,7 @@ export async function bulkChangeDocumentState(
 
                 return {
                     title,
-                    status: error ? (error.cause as ErrorCause).status : 200,
+                    status: error?.status ?? 200,
                     ...(error && { error: error.message }),
                 }
             })

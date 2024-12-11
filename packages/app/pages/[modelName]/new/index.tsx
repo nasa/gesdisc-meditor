@@ -1,17 +1,20 @@
+import DocumentHeader from '../../../components/document/document-header'
+import Form from '../../../components/document/form'
+import FormActions from '../../../components/document/form-actions'
 import format from 'date-fns/format'
 import omitBy from 'lodash.omitby'
-import type { NextPageContext } from 'next'
-import { useRouter } from 'next/router'
-import { useContext, useEffect, useState } from 'react'
+import PageTitle from '../../../components/page-title'
 import Spinner from 'react-bootstrap/Spinner'
 import { AiOutlineCheck } from 'react-icons/ai'
 import { AppContext } from '../../../components/app-store'
 import { Breadcrumb, Breadcrumbs } from '../../../components/breadcrumbs'
-import DocumentHeader from '../../../components/document/document-header'
-import Form from '../../../components/document/form'
-import FormActions from '../../../components/document/form-actions'
-import PageTitle from '../../../components/page-title'
 import { createDocument as httpCreateDocument } from '../../../documents/http'
+import { getLoggedInUser } from 'auth/user'
+import { getModelWithWorkflow } from '../../../models/service'
+import { privilegesForModelAndWorkflowNode } from 'auth/utilities'
+import { useContext, useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
+import type { NextPageContext } from 'next'
 import {
     getNewUnsavedDocument,
     removeUnsavedDocumentFromLS,
@@ -19,7 +22,6 @@ import {
     UNTITLED_DOCUMENT_TITLE,
     updateUnsavedDocumentInLS,
 } from '../../../lib/unsaved-changes'
-import { getModelWithWorkflow } from '../../../models/service'
 import type { ModelWithWorkflow } from '../../../models/types'
 
 interface NewDocumentPageProps {
@@ -204,6 +206,7 @@ const NewDocumentPage = ({ user, model }: NewDocumentPageProps) => {
 
 export async function getServerSideProps(ctx: NextPageContext) {
     const { modelName } = ctx.query
+    const user = await getLoggedInUser(ctx.req, ctx.res)
 
     const [_modelError, model] = await getModelWithWorkflow(
         modelName.toString(),
@@ -213,9 +216,16 @@ export async function getServerSideProps(ctx: NextPageContext) {
 
     //! TODO: handle a modelError
 
+    const currentPrivileges = privilegesForModelAndWorkflowNode(
+        user,
+        modelName.toString(),
+        model.workflow.currentNode
+    )
+
     return {
         props: {
             model,
+            currentPrivileges,
         },
     }
 }

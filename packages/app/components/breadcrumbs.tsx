@@ -26,7 +26,10 @@ export const Breadcrumbs: React.FC<PropsWithChildren> = ({ children }) => {
     return (
         <div className={styles.breadcrumbs}>
             <ul className={styles.ul}>
-                <Breadcrumb title="Home" href="/" />
+                <li className={styles.li}>
+                    <a href="/meditor">Home</a>
+                </li>
+
                 {children}
             </ul>
         </div>

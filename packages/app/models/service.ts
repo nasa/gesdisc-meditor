@@ -1,11 +1,11 @@
 import jsonpath from 'jsonpath'
 import log from '../lib/log'
-import { ErrorCode, HttpException } from '../utils/errors'
 import { getDocumentsDb } from '../documents/db'
 import { getModelsDb } from './db'
 import { getWorkflowByDocumentState } from '../workflows/service'
 import { isJson } from '../utils/jsonschema-validate'
 import { runModelTemplates } from '../macros/service'
+
 import type { ErrorData } from '../declarations'
 import type { Model, ModelWithWorkflow } from './types'
 import type { UserWithRoles } from 'auth/types'

@@ -1,20 +1,20 @@
-import type { NextPageContext } from 'next'
-import { useRouter } from 'next/router'
-import type { ParsedUrlQuery } from 'querystring'
-import { useEffect, useRef, useState } from 'react'
 import PageTitle from '../../components/page-title'
 import SearchBar from '../../components/search/search-bar'
 import SearchList from '../../components/search/search-list'
 import { getDocumentsForModel } from '../../documents/service'
-import type { Document } from '../../documents/types'
 import { getModels, getModelWithWorkflow } from '../../models/service'
+import { NotFound } from 'http-errors'
+import { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/router'
+import type { NextPageContext } from 'next'
+import type { ParsedUrlQuery } from 'querystring'
+import type { Document } from '../../documents/types'
 import type {
     DocumentsSearchOptions,
     Model,
     ModelWithWorkflow,
 } from '../../models/types'
 import type { UserWithRoles } from '../../auth/types'
-import { isNotFoundError } from 'utils/errors'
 
 function getSearchOptionsFromParams(query: ParsedUrlQuery): DocumentsSearchOptions {
     return {
@@ -155,7 +155,7 @@ export async function getServerSideProps(ctx: NextPageContext) {
     const [_modelsError, allModels] = await getModels() // TODO: handle getModels error?
     const [modelError, model] = await getModelWithWorkflow(modelName)
 
-    if (isNotFoundError(modelError)) {
+    if (modelError instanceof NotFound) {
         return {
             notFound: true,
         }

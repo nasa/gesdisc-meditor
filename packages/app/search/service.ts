@@ -1,9 +1,8 @@
-import type { HttpException } from 'utils/errors'
-import type { ErrorData } from '../declarations'
 import log from '../lib/log'
 import { getModel } from '../models/service'
 import { getSearchDb } from './db'
 import { searchInputServiceSchema } from './schema'
+import type { ErrorData } from '../declarations'
 import type { PaginatedSearchResults } from './types'
 
 export async function search(

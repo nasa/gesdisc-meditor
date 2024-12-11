@@ -1,5 +1,5 @@
 import type { APIError, ErrorData } from '../declarations'
-import { ErrorCode, HttpException } from '../utils/errors'
+
 import type { UserDuringSetup } from './types'
 
 async function fetchSeedDb(users: UserDuringSetup[]): Promise<ErrorData<null>> {

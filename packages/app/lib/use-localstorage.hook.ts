@@ -5,6 +5,10 @@ export const useLocalStorage = <V>(
     initialValue: V
 ): [V, (value: Function | any) => void] => {
     const [storedValue, setStoredValue] = useState(() => {
+        if (typeof localStorage === 'undefined') {
+            return initialValue
+        }
+
         const item = localStorage?.getItem(key)
         return item ? JSON.parse(item) : initialValue
     })

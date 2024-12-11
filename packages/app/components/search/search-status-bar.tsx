@@ -1,10 +1,11 @@
 import Alert from 'react-bootstrap/Alert'
-import styles from './search-status-bar.module.css'
 import Button from 'react-bootstrap/Button'
-import { MdAdd } from 'react-icons/md'
-import { useRouter } from 'next/router'
 import pickby from 'lodash.pickby'
 import SearchFilter from './search-filter'
+import styles from './search-status-bar.module.css'
+import { MdAdd } from 'react-icons/md'
+import { privilegesForModelAndWorkflowNode, rolesForModel } from 'auth/utilities'
+import { useRouter } from 'next/router'
 
 const SearchStatusBar = ({
     model,
@@ -42,14 +43,16 @@ const SearchStatusBar = ({
     })
 
     const currentPrivileges = model.workflow
-        ? user.privilegesForModelAndWorkflowNode(
-              modelName,
+        ? privilegesForModelAndWorkflowNode(
+              user,
+              modelName.toString(),
               model.workflow.currentNode
           )
         : []
+
     const currentEdges =
-        model.workflow.currentEdges?.filter(edge => {
-            return user.rolesForModel(modelName).includes(edge.role)
+        model.workflow.currentEdges?.filter(async edge => {
+            return rolesForModel(user, modelName.toString()).includes(edge.role)
         }) || []
 
     if (!totalDocumentCount) {

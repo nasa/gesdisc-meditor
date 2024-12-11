@@ -1,11 +1,12 @@
-import type { NextPageContext } from 'next'
 import ModelsByCategory from '../components/models-by-category'
 import PageTitle from '../components/page-title'
 import UnderMaintenance from '../components/under-maintenance'
-import { getModelsWithDocumentCount } from '../models/service'
-import type { Model, ModelCategory } from '../models/types'
-import { sortModels } from '../utils/sort'
+import { connectToNats } from 'lib/nats'
 import { getLoggedInUser } from 'auth/user'
+import { getModelsWithDocumentCount } from '../models/service'
+import { sortModels } from '../utils/sort'
+import type { NextPageContext } from 'next'
+import type { Model, ModelCategory } from '../models/types'
 
 export interface DashboardPageProps {
     modelCategories: ModelCategory[]
@@ -38,6 +39,11 @@ export function sortModelsIntoCategories(models: Model[]): ModelCategory[] {
 }
 
 export async function getServerSideProps(ctx: NextPageContext) {
+    //! this is an odd place to put this...but we need a persistent NATS subscription to handle acknowledgements
+    //! Next doesn't give us a central server, the only other option was creating a custom server
+    // TODO: can we move this out of the dashboard and into a more central location?
+    connectToNats()
+
     // Redirect to sign in page if logged out
     //? Unlike other pages, the root path, /meditor doesn't seem to react at all to NextJS middleware
     if (!(await getLoggedInUser(ctx.req, ctx.res))) {

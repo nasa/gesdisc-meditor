@@ -1,7 +1,7 @@
 import cloneDeep from 'lodash.clonedeep'
 import log from '../lib/log'
-import { ErrorCode, HttpException } from '../utils/errors'
 import { getDocumentsDbLegacy } from './db.legacy'
+
 import type { Document } from './types'
 
 const workflowRoot = 'Init'

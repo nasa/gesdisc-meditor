@@ -1,16 +1,16 @@
-import type { Db } from 'mongodb'
-import { ObjectId } from 'mongodb'
-import type { UserWithRoles } from '../auth/types'
+import createError from 'http-errors'
 import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
+import { convertLuceneQueryToMongo } from '../utils/search'
+import { getDocumentInputSchema } from './schema'
+import { ObjectId } from 'mongodb'
+import type { Db } from 'mongodb'
+import type { UserWithRoles } from '../auth/types'
 import type {
     DocumentsSearchOptions,
     Model,
     ModelWithWorkflow,
 } from '../models/types'
-import { ErrorCode, HttpException } from '../utils/errors'
-import { convertLuceneQueryToMongo } from '../utils/search'
 import type { WorkflowEdge } from '../workflows/types'
-import { getDocumentInputSchema } from './schema'
 import type {
     Document,
     DocumentHistory,
@@ -329,10 +329,7 @@ class DocumentsDb {
                     $match: convertLuceneQueryToMongo(searchOptions.filter),
                 })
             } catch (err) {
-                throw new HttpException(
-                    ErrorCode.BadRequest,
-                    'Improperly formatted filter'
-                )
+                throw new createError.BadRequest('Improperly formatted filter')
             }
         }
 

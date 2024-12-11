@@ -1,9 +1,8 @@
 import cloneDeep from 'lodash.clonedeep'
-import type { ErrorData } from '../declarations'
 import log from '../lib/log'
-import type { Model, PopulatedTemplate, Template } from '../models/types'
-import { ErrorCode, HttpException } from '../utils/errors'
 import { getMacrosDb } from './db'
+import type { ErrorData } from '../declarations'
+import type { Model, PopulatedTemplate, Template } from '../models/types'
 
 //* Macros are a map of external to internal: externally, mEditor can have template macros defined. Those macros have names. Internally, we make those macro names execute a function by mapping the macro name to a function via this map (e.g., macros.set('external-macro-name', internalMacroFunction)). See ReadMe in this file for more context.
 const macros = new Map<
