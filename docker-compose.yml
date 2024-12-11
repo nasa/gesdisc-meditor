@@ -8,8 +8,6 @@ services:
       - .env
     volumes:
       - ./packages/notebook-viewer:/usr/src/app
-    depends_on:
-      - legacy-api
 
   proxy:
     container_name: meditor_proxy
@@ -18,7 +16,6 @@ services:
     ports:
       - "127.0.0.1:80:8080"
     depends_on:
-      - legacy-api
       - nats
       - app
       - database
@@ -54,8 +51,6 @@ services:
             - .next/
         - action: rebuild
           path: package.json
-    depends_on:
-      - legacy-api
 
   docs:
     container_name: meditor_docs
@@ -65,21 +60,7 @@ services:
     ports:
       - "127.0.0.1:3030:3030"
     depends_on:
-      - legacy-api
       - app
-
-  legacy-api:
-    container_name: meditor_legacy-api
-    build: packages/legacy-api
-    restart: always
-    env_file:
-      - .env
-    volumes:
-      - ./packages/legacy-api:/usr/src/app
-      - /usr/src/app/node_modules
-    depends_on:
-      - database
-      - nats
 
   database:
     image: ${REGISTRY}mongo:4.1.4

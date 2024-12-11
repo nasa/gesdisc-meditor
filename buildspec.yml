@@ -25,13 +25,6 @@ batch:
           REPOSITORY_NAME: meditor/meditor_docs
           PACKAGE_PATH: packages/docs
       ignore-failure: false
-    - identifier: legacy_api
-      debug-session: false
-      env:
-        variables:
-          REPOSITORY_NAME: meditor/meditor_server
-          PACKAGE_PATH: packages/legacy-api
-      ignore-failure: false
     - identifier: notebook_viewer
       debug-session: false
       env:
