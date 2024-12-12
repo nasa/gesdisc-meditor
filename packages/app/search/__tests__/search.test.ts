@@ -1,8 +1,8 @@
-import getDb from '../../lib/mongodb'
 import alertsModel from '../../models/__tests__/__fixtures__/models/alerts.json'
+import emergencyAlerts from './__fixtures__/emergencyAlerts.json'
+import { getDb } from '../../lib/connections'
 import { getSearchDb } from '../db'
 import { search } from '../service'
-import emergencyAlerts from './__fixtures__/emergencyAlerts.json'
 
 describe('monquery', () => {
     let db: any

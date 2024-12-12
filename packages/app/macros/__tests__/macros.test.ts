@@ -1,10 +1,10 @@
-import jsonpath from 'jsonpath'
-import getDb from '../../lib/mongodb'
-import { getModel } from '../../models/service'
-import GLDAS_CLM10SUBP_3H_001 from '../../models/__tests__/__fixtures__/collection-metadata/GLDAS_CLM10SUBP_3H_001.json'
-import OML1BRVG_003 from '../../models/__tests__/__fixtures__/collection-metadata/OML1BRVG_003.json'
 import collectionMetadataModel from '../../models/__tests__/__fixtures__/models/collection-metadata.json'
 import faqsModelWithOneMacro from './__fixtures__/faqs-model-one-macro.json'
+import GLDAS_CLM10SUBP_3H_001 from '../../models/__tests__/__fixtures__/collection-metadata/GLDAS_CLM10SUBP_3H_001.json'
+import jsonpath from 'jsonpath'
+import OML1BRVG_003 from '../../models/__tests__/__fixtures__/collection-metadata/OML1BRVG_003.json'
+import { getDb } from '../../lib/connections'
+import { getModel } from '../../models/service'
 
 describe('Template Macros', () => {
     let db

@@ -1,5 +1,6 @@
+import { getDb } from '../lib/connections'
+import { makeSafeObjectIDs } from '../lib/mongodb'
 import type { Db } from 'mongodb'
-import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
 import type { Workflow } from './types'
 
 export const WORKFLOWS_COLLECTION = 'Workflows'

@@ -1,6 +1,7 @@
+import { getDb } from '../lib/connections'
+import { makeSafeObjectIDs } from '../lib/mongodb'
 import type { Db } from 'mongodb'
 import type { Document } from '../documents/types'
-import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
 import type { Model, ModelWithWorkflow } from '../models/types'
 import type { UserContactInformation } from './types'
 

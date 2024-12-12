@@ -1,5 +1,6 @@
 import log from '../lib/log'
-import { connectToNats } from '../lib/nats'
+import { connectToNats, getDb } from '../lib/connections'
+import { ObjectId } from 'mongodb'
 import type { QueueMessage } from './types'
 
 const NATS_QUEUE_PREFIX = 'meditor-'
@@ -34,4 +35,86 @@ export async function publishMessageToQueueChannel(
             }
         )
     })
+}
+
+/**
+ * handles success/failure messages received from the NATS acknowledgements queue
+ * @param {*} message
+ */
+export async function handlePublicationAcknowledgements(message) {
+    let acknowledgement
+
+    try {
+        acknowledgement = escape(JSON.parse(message.getData()))
+    } catch (err) {
+        // the subscriber sent us a message that wasn't JSON parseable
+        log.error('Failed to parse the following publication acknowledgement:')
+        log.error(message.getData())
+
+        message.ack() // acknowledge the message so NATS doesn't keep trying to send it
+        return
+    }
+
+    log.debug('Acknowledgement received, processing now ', acknowledgement)
+
+    const db = await getDb()
+
+    try {
+        const publicationStatus = {
+            ...(acknowledgement.url && { url: acknowledgement.url }),
+            ...(acknowledgement.redirectToUrl && {
+                redirectToUrl: acknowledgement.redirectToUrl,
+            }),
+            ...(acknowledgement.message && { message: acknowledgement.message }),
+            ...(acknowledgement.target && { target: acknowledgement.target }),
+            ...(acknowledgement.statusCode && {
+                statusCode: acknowledgement.statusCode,
+            }),
+            ...(acknowledgement.statusCode && {
+                [acknowledgement.statusCode == 200 ? 'publishedOn' : 'failedOn']:
+                    Date.now(),
+            }),
+            ...(acknowledgement.state && { state: acknowledgement.state }),
+        }
+
+        // remove any existing publication statuses for this target (for example: past failures)
+        await db.collection(acknowledgement.model).updateOne(
+            {
+                _id: new ObjectId(acknowledgement.id),
+            },
+            {
+                $pull: {
+                    'x-meditor.publishedTo': {
+                        target: acknowledgement.target,
+                        // if document is in "Published" state, this would clear out any publication statuses for **other** states
+                        // i.e. any publication statuses that are marked as "Draft" would be cleared out
+                        state: { $ne: acknowledgement.state },
+                    },
+                },
+            }
+        )
+
+        // update document state to reflect publication status
+        await db.collection(acknowledgement.model).updateOne(
+            {
+                _id: new ObjectId(acknowledgement.id),
+            },
+            {
+                $addToSet: {
+                    'x-meditor.publishedTo': publicationStatus,
+                },
+            }
+        )
+
+        log.debug(
+            'Successfully updated document with publication status ',
+            publicationStatus
+        )
+
+        message.ack()
+    } catch (err) {
+        // whoops, the message must be improperly formatted, throw an error and acknowledge so that NATS won't try to resend
+        console.error('Failed to process message', err)
+        message.ack()
+    }
 }

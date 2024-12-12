@@ -1,10 +1,9 @@
+import log from './log'
+import { Document, MongoClient, WithId } from 'mongodb'
 /**
  * MongoClient following the Vercel pattern
  * https://github.com/vercel/next.js/tree/canary/examples/with-mongodb
  */
-
-import { Document, MongoClient, WithId } from 'mongodb'
-import log from './log'
 
 const uri = `mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_DATABASE}`
 
@@ -43,4 +42,4 @@ function makeSafeObjectIDs(
     return !!records ? JSON.parse(JSON.stringify(records)) : records
 }
 
-export { getDb as default, makeSafeObjectIDs, mongoClientPromise }
+export { getDb, makeSafeObjectIDs, mongoClientPromise }

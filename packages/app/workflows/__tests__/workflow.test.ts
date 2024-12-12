@@ -1,6 +1,9 @@
-import type { Db } from 'mongodb'
-import getDb from '../../lib/mongodb'
 import collectionMetadataModel from '../../models/__tests__/__fixtures__/models/collection-metadata.json'
+import editPublishCmrWorkflow from './__fixtures__/edit-publish-cmr.json'
+import editPublishWorkflow from './__fixtures__/edit-publish.json'
+import modifyReviewPublishWorkflow from './__fixtures__/modify-review-publish.json'
+import { getDb } from '../../lib/connections'
+import type { Db } from 'mongodb'
 import {
     getTargetEdges,
     getTargetStatesFromWorkflow,
@@ -9,9 +12,6 @@ import {
     getWorkflowForModel,
     getWorkflowNodeAndEdgesForState,
 } from '../service'
-import editPublishCmrWorkflow from './__fixtures__/edit-publish-cmr.json'
-import editPublishWorkflow from './__fixtures__/edit-publish.json'
-import modifyReviewPublishWorkflow from './__fixtures__/modify-review-publish.json'
 
 describe('Workflows', () => {
     let db: Db

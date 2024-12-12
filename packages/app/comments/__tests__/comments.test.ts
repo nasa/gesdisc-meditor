@@ -1,15 +1,15 @@
-import type { Db } from 'mongodb'
-import BaconUser from '../../auth/__tests__/__fixtures__/bacon-user.json'
-import getDb from '../../lib/mongodb'
 import alertsModel from '../../models/__tests__/__fixtures__/models/alerts.json'
+import BaconUser from '../../auth/__tests__/__fixtures__/bacon-user.json'
+import mockComments from './__fixtures__/comments.json'
 import { getCommentsDb } from '../db'
+import { getDb } from '../../lib/connections'
+import type { Db } from 'mongodb'
 import {
     createCommentAsUser,
     getCommentForDocument,
     getCommentsForDocument,
     updateCommentAsUser,
 } from '../service'
-import mockComments from './__fixtures__/comments.json'
 
 const mockAlerts = [
     {

@@ -1,8 +1,8 @@
-import type { Db } from 'mongodb'
+import { getDb } from '../../lib/connections'
 import { getDocumentsForModel } from '../../documents/service'
 import { getModels } from '../../models/service'
 import { setUpNewInstallation } from '../service'
-import getDb from '../../lib/mongodb'
+import type { Db } from 'mongodb'
 
 const mockUser = { name: 'Test User', uid: 'testuser' }
 let lastModified: string
