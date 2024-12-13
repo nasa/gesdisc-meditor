@@ -200,6 +200,11 @@ describe('Documents', () => {
             //* Normalize by deleting properties that will always have a time-based fresh value.
             delete firstInsertedAlert._id
             delete firstInsertedAlert['x-meditor'].modifiedOn
+            //* Since change e3876fb4f226e6f0e84e24095e295dfea687089b we set the `modifiedOn` property of a document's root state.
+            firstInsertedAlert['x-meditor'].states.forEach(
+                stateEntry => delete stateEntry.modifiedOn
+            )
+
             expect(firstInsertedAlert).toMatchSnapshot()
             expect(await db.collection('Alerts').countDocuments()).toBe(11)
 
@@ -211,6 +216,11 @@ describe('Documents', () => {
             //* Normalize by deleting properties that will always have a time-based fresh value.
             delete secondInsertedAlert._id
             delete secondInsertedAlert['x-meditor'].modifiedOn
+            //* Since change e3876fb4f226e6f0e84e24095e295dfea687089b we set the `modifiedOn` property of a document's root state.
+            secondInsertedAlert['x-meditor'].states.forEach(
+                stateEntry => delete stateEntry.modifiedOn
+            )
+
             expect(secondInsertedAlert).toMatchSnapshot()
             expect(await db.collection('Alerts').countDocuments()).toBe(
                 baselineCount + 2
