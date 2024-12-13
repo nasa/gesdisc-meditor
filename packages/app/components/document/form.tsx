@@ -1,5 +1,6 @@
 import dynamic from 'next/dynamic'
 import { useState } from 'react'
+import Alert from 'react-bootstrap/Alert'
 import Button from 'react-bootstrap/Button'
 
 // JsonSchemaForm widgets rely heavily on global window, so we'll need to load them in separately
@@ -18,6 +19,7 @@ const Form = ({
     onChange = (data: any) => {},
 }) => {
     const [expandAll, setExpandAll] = useState(false)
+    const largeModel = model?.largeModel || false
 
     let layout = JSON.parse(model?.uiSchema || model?.layout || '{}')
     let formData = document?.doc || document || {}
@@ -54,6 +56,22 @@ const Form = ({
                 </Button>
             )}
 
+            {largeModel && (
+                <Alert variant="info">
+                    <p>
+                        mEditor&rsquo;s schema validator will provide degraded
+                        performance due to this model&rsquo;s size. To mitigate that,
+                        some default form behavior has been changed:
+                    </p>
+                    <ul>
+                        <li>
+                            text in text inputs may briefly dissapear, then reappear
+                        </li>
+                        <li>saving the document will take longer</li>
+                    </ul>
+                </Alert>
+            )}
+
             <JsonSchemaForm
                 schema={schema}
                 formData={formData}
@@ -64,6 +82,7 @@ const Form = ({
                 imageUploadUrl={process.env.NEXT_PUBLIC_IMAGE_UPLOAD_URL}
                 linkCheckerUrl="/meditor/api/validate/url-resolves"
                 allowValidationErrors={allowValidationErrors}
+                largeModel={largeModel}
             />
         </>
     )

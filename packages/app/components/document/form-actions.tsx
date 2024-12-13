@@ -2,8 +2,10 @@ import cloneDeep from 'lodash.clonedeep'
 import isEqual from 'lodash.isequal'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
+import Spinner from 'react-bootstrap/Spinner'
 import Button from 'react-bootstrap/Button'
 import { clearEmpties } from '../../utils/object'
+import { wait } from '../../utils/time'
 import styles from './form-actions.module.css'
 
 const DELETED_STATE = 'Deleted'
@@ -22,12 +24,14 @@ const FormActions = ({
     onDelete = null,
     CustomActions = null,
     allowValidationErrors = false,
+    largeModel = false,
 }) => {
     const canSave = privileges.includes('edit') || privileges.includes('create')
     const router = useRouter()
 
     const [initialFormData, setInitialFormData] = useState(null)
     const [isDirty, setIsDirty] = useState(false)
+    const [isSaving, setIsSaving] = useState(false)
 
     useEffect(() => {
         if (!formData) return
@@ -79,7 +83,12 @@ const FormActions = ({
         }
     }
 
-    function handleSave() {
+    async function handleSave(largeModel: boolean) {
+        if (largeModel) {
+            // This hack is in place to handle RJSF's ajv8 validator performance issues.
+            await wait(3000)
+        }
+
         let brokenLinks = localStorage.getItem('brokenLinks')
         let hasBrokenLinks =
             brokenLinks && Object.values(JSON.parse(brokenLinks)).includes('false')
@@ -189,9 +198,24 @@ const FormActions = ({
                     <Button
                         className={styles.button}
                         variant="secondary"
-                        onClick={handleSave}
+                        onClick={async () => {
+                            setIsSaving(true)
+
+                            await handleSave(largeModel)
+                        }}
                     >
                         Save
+                        {isSaving && (
+                            <Spinner
+                                animation="border"
+                                role="status"
+                                size="sm"
+                                variant="light"
+                                className="ml-2"
+                            >
+                                <span className="sr-only">Saving&hellip;</span>
+                            </Spinner>
+                        )}
                     </Button>
                 )}
 
