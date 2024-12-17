@@ -8,11 +8,6 @@ import {
     getCommentForDocument,
     updateCommentAsUser,
 } from '../../../../../../../../comments/service'
-import {
-    apiError,
-    ErrorCode,
-    HttpException,
-} from '../../../../../../../../utils/errors'
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const commentId = decodeURIComponent(req.query.commentId.toString())

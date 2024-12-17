@@ -60,7 +60,7 @@ export async function search(
 }
 
 //* This might be useful if directly integrated into the apiError function, but for now it's a one-off use case.
-function formatAssertionError(error: Error | HttpException) {
+function formatAssertionError(error: Error) {
     return Error(`Lucene syntax error: ${error.message}.`, {
         cause: { status: 400 },
     })

@@ -172,8 +172,7 @@ export async function getDocument(
         )
 
         if (!document) {
-            throw new HttpException(
-                ErrorCode.NotFound,
+            throw new createError.NotFound(
                 `Requested document, ${documentTitle}, in model, ${modelName}, was not found`
             )
         }
@@ -326,10 +325,7 @@ export async function cloneDocument(
 ): Promise<ErrorData<Document>> {
     try {
         if (!user) {
-            throw new HttpException(
-                ErrorCode.Unauthorized,
-                'User is not authenticated'
-            )
+            throw new createError.Unauthorized('User is not authenticated')
         }
 
         const documentsDb = await getDocumentsDb()
@@ -362,8 +358,7 @@ export async function cloneDocument(
         )
 
         if (newDocumentAlreadyExists) {
-            throw new HttpException(
-                ErrorCode.BadRequest,
+            throw new createError.BadRequest(
                 `A document already exists with the title: '${newDocument[titleProperty]}'`
             )
         }
@@ -442,7 +437,7 @@ export async function patchDocument(
         const [patchErrors, patchedDocument] = jsonPatch(existingDocument, operations)
 
         if (patchErrors) {
-            throw new HttpException(ErrorCode.BadRequest, patchErrors.message)
+            throw new createError.BadRequest(patchErrors.message)
         }
 
         // all operations successfully made, save to db as a new document
@@ -474,11 +469,11 @@ export async function changeDocumentState(
 ): Promise<ErrorData<Document>> {
     try {
         if (!newState) {
-            throw new HttpException(ErrorCode.BadRequest, 'No state provided')
+            throw new createError.BadRequest('No state provided')
         }
 
         if (!user) {
-            throw new HttpException(ErrorCode.Unauthorized, 'User is not logged in')
+            throw new createError.Unauthorized('User is not logged in')
         }
 
         const documentsDb = await getDocumentsDb()
@@ -640,32 +635,28 @@ export async function constructNewDocumentState(
 
     //! can't transition to a state the document is already in
     if (newState === document['x-meditor'].state) {
-        throw new HttpException(
-            ErrorCode.BadRequest,
+        throw new createError.BadRequest(
             `Cannot transition to state [${newState}] as the document is in this state already`
         )
     }
 
     //! can't transition to a state that isn't in the workflow
     if (targetStates.indexOf(newState) < 0) {
-        throw new HttpException(
-            ErrorCode.BadRequest,
+        throw new createError.BadRequest(
             `Cannot transition to state [${newState}] as it is not a valid state in the workflow`
         )
     }
 
     //! can't transition to a state the user does not have permission to transition to
     if (document['x-meditor'].targetStates.indexOf(newState) < 0) {
-        throw new HttpException(
-            ErrorCode.BadRequest,
+        throw new createError.BadRequest(
             `User does not have the permissions to transition to state ${newState}.`
         )
     }
 
     //! can't transition if the workflow has two edges with the same source and same target (how do we know which edge to follow?)
     if (matchingEdges.length !== 1) {
-        throw new HttpException(
-            ErrorCode.InternalServerError,
+        throw new createError.InternalServerError(
             `Workflow, ${model.workflow.name}, is misconfigured! There are duplicate edges from '${document['x-meditor'].state}' to '${newState}'.`
         )
     }
@@ -899,8 +890,7 @@ export async function strictValidateDocument(
 
         //* Unlike most use-cases, we don't want to throw for a validation error; we just return it.
         if (errors.length) {
-            const validationError = new HttpException(
-                ErrorCode.ValidationError,
+            const validationError = new createError.ValidationError(
                 `Document "${
                     documentToValidate[titleProperty]
                 }" does not validate against the schema for model "${modelName}": ${JSON.stringify(

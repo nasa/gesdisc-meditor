@@ -1,3 +1,4 @@
+import createError from 'http-errors'
 import log from '../lib/log'
 import { getModel } from '../models/service'
 import { getWorkflowsDb } from './db'
@@ -30,8 +31,7 @@ export async function getWorkflow(
         const workflow = await workflowsDb.getWorkflow(workflowName)
 
         if (!workflow) {
-            throw new HttpException(
-                ErrorCode.NotFound,
+            throw new createError.NotFound(
                 `The requested workflow, ${workflowName}, was not found.`
             )
         }
@@ -97,8 +97,7 @@ export function getWorkflowEdgeMatchingSourceAndTarget(
 
     //! if we find more than one edge, the workflow is misconfigured, this is a FATAL error and we should immediately throw
     if (matchingEdges.length > 1) {
-        throw new HttpException(
-            ErrorCode.InternalServerError,
+        throw new createError.InternalServerError(
             `The workflow, ${workflow.name}, is misconfigured due to having duplicate edges for [source=${source}, target=${target}].`
         )
     }

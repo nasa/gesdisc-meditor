@@ -1,4 +1,5 @@
 import cloneDeep from 'lodash.clonedeep'
+import createError from 'http-errors'
 import log from '../lib/log'
 import { getMacrosDb } from './db'
 import type { ErrorData } from '../declarations'
@@ -26,8 +27,7 @@ async function runModelTemplates(
                 const macroService = macros.get(macroName)
 
                 if (!macroService) {
-                    throw new HttpException(
-                        ErrorCode.BadRequest,
+                    throw new createError.BadRequest(
                         `Macro, ${macroName}, not supported.`
                     )
                 }
@@ -35,8 +35,7 @@ async function runModelTemplates(
                 const [error, filledTemplate] = await macroService(macroArgument)
 
                 if (error) {
-                    throw new HttpException(
-                        ErrorCode.InternalServerError,
+                    throw new createError.InternalServerError(
                         `Template macro ${macroName} did not run.`
                     )
                 }
