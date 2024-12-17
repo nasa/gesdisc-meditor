@@ -1,5 +1,5 @@
 .badge {
-    background-color: #e0e0e0;
+    background-color: #e0e0e0 !important;
     font-size: 1em;
     font-weight: normal;
     margin: 0 10px;
@@ -16,10 +16,10 @@
 }
 
 .badge-warning {
-    background: #f5d2d3;
+    background: #f5d2d3 !important;
 }
 
 .badge-info {
-    background: #17a2b8;
+    background: #17a2b8 !important;
     color: #fff;
 }

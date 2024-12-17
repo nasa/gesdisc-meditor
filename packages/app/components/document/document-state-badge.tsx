@@ -1,14 +1,14 @@
-import omitBy from 'lodash.omitby'
-import { useEffect, useRef, useState } from 'react'
 import Badge from 'react-bootstrap/Badge'
 import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
+import omitBy from 'lodash.omitby'
 import Overlay from 'react-bootstrap/Overlay'
 import Popover from 'react-bootstrap/Popover'
-import { fetchDocumentPublications } from '../../documents/http'
-import { getRandomIntInclusive } from '../../utils/math'
 import StateBadge from '../state-badge'
 import styles from './document-state-badge.module.css'
+import { fetchDocumentPublications } from '../../documents/http'
+import { getRandomIntInclusive } from '../../utils/math'
+import { useEffect, useRef, useState } from 'react'
 
 const POLL_FOR_PUBLICATIONSTATUS_MILLIS = 3000
 const REDIRECT_TO_URL_DELAY_MILLIS = 10000
@@ -151,6 +151,7 @@ const DocumentStateBadge = ({
                                     ? 'danger'
                                     : 'primary'
                             }
+                            text="light"
                             className={styles.publicationBadge}
                         >
                             {publicationStatus?.length || '0'}
