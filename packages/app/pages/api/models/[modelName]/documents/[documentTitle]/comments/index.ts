@@ -1,6 +1,6 @@
 import assert from 'assert'
 import createError from 'http-errors'
-import { getLoggedInUser } from '../../../../../../../auth/user'
+import { getServerSession } from '../../../../../../../auth/user'
 import { respondAsJson } from '../../../../../../../utils/api'
 import { withApiErrorHandler } from 'lib/with-api-error-handler'
 import type { NextApiRequest, NextApiResponse } from 'next'
@@ -10,9 +10,9 @@ import {
 } from '../../../../../../../comments/service'
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-    const user = await getLoggedInUser(req, res)
+    const session = await getServerSession(req, res)
 
-    assert(user, new createError.Unauthorized())
+    assert(session.user, new createError.Unauthorized())
 
     const documentTitle = decodeURIComponent(req.query.documentTitle.toString())
     const modelName = decodeURIComponent(req.query.modelName.toString())
@@ -38,7 +38,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
                     documentId: documentTitle,
                     model: modelName,
                 },
-                user
+                session.user
             )
 
             if (error) {

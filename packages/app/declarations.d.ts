@@ -1,17 +1,21 @@
 import { DetailedHTMLProps, HTMLAttributes } from 'react'
 import { HttpError } from 'http-errors'
 import { JSX as LocalJSX } from '@gesdisc/meditor-components/loader'
+import { UserRole } from 'auth/types'
 import 'next-auth'
 import type { CKEditor } from 'ckeditor4-react'
 import type { Stan } from 'node-nats-streaming'
 import type { User as NextAuthUser } from 'next-auth'
 
+export type User = NextAuthUser & {
+    uid?: string
+    roles?: UserRole[]
+}
+
 // Read more at: https://next-auth.js.org/getting-started/typescript#module-augmentation
 declare module 'next-auth' {
     interface Session {
-        user: NextAuthUser & {
-            uid?: string
-        }
+        user: User
     }
 }
 

@@ -9,11 +9,12 @@ import { AiOutlineCheck } from 'react-icons/ai'
 import { AppContext } from '../../../components/app-store'
 import { Breadcrumb, Breadcrumbs } from '../../../components/breadcrumbs'
 import { createDocument as httpCreateDocument } from '../../../documents/http'
-import { getLoggedInUser } from 'auth/user'
 import { getModelWithWorkflow } from '../../../models/service'
+import { getServerSession } from 'auth/user'
 import { privilegesForModelAndWorkflowNode } from 'auth/utilities'
 import { useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
+import { useSession } from 'next-auth/react'
 import type { NextPageContext } from 'next'
 import {
     getNewUnsavedDocument,
@@ -25,11 +26,11 @@ import {
 import type { ModelWithWorkflow } from '../../../models/types'
 
 interface NewDocumentPageProps {
-    user: any
     model: ModelWithWorkflow
 }
 
-const NewDocumentPage = ({ user, model }: NewDocumentPageProps) => {
+const NewDocumentPage = ({ model }: NewDocumentPageProps) => {
+    const { data: session } = useSession()
     const router = useRouter()
 
     const params = router.query
@@ -39,7 +40,7 @@ const NewDocumentPage = ({ user, model }: NewDocumentPageProps) => {
     const [localChanges, setLocalChanges] = useState(
         localId
             ? retrieveUnsavedDocumentFromLS(modelName, localId)
-            : getNewUnsavedDocument(modelName, user.uid)
+            : getNewUnsavedDocument(modelName, session?.user.uid)
     )
 
     const [autosavingTimer, setAutosavingTimer] = useState(null)
@@ -50,8 +51,9 @@ const NewDocumentPage = ({ user, model }: NewDocumentPageProps) => {
     const [form, setForm] = useState(null)
     const { setSuccessNotification, setErrorNotification } = useContext(AppContext)
 
-    const currentPrivileges = model.workflow
-        ? user.privilegesForModelAndWorkflowNode(
+    const currentPrivileges = session?.user
+        ? privilegesForModelAndWorkflowNode(
+              session.user,
               modelName,
               model.workflow.currentNode
           )
@@ -206,7 +208,7 @@ const NewDocumentPage = ({ user, model }: NewDocumentPageProps) => {
 
 export async function getServerSideProps(ctx: NextPageContext) {
     const { modelName } = ctx.query
-    const user = await getLoggedInUser(ctx.req, ctx.res)
+    const session = await getServerSession(ctx.req, ctx.res)
 
     const [_modelError, model] = await getModelWithWorkflow(
         modelName.toString(),
@@ -217,7 +219,7 @@ export async function getServerSideProps(ctx: NextPageContext) {
     //! TODO: handle a modelError
 
     const currentPrivileges = privilegesForModelAndWorkflowNode(
-        user,
+        session.user,
         modelName.toString(),
         model.workflow.currentNode
     )

@@ -1,7 +1,7 @@
 import assert from 'assert'
 import createError from 'http-errors'
 import { getDocument } from '../../../../../../../documents/service'
-import { getLoggedInUser } from '../../../../../../../auth/user'
+import { getServerSession } from '../../../../../../../auth/user'
 import { respondAsJson } from '../../../../../../../utils/api'
 import { withApiErrorHandler } from 'lib/with-api-error-handler'
 import type { NextApiRequest, NextApiResponse } from 'next'
@@ -12,12 +12,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const documentTitle = decodeURIComponent(req.query.documentTitle.toString())
     const documentVersion = decodeURIComponent(req.query.documentVersion.toString())
     const modelName = decodeURIComponent(req.query.modelName.toString())
-    const user = await getLoggedInUser(req, res)
+    const session = await getServerSession(req, res)
 
     const [error, document] = await getDocument(
         documentTitle,
         modelName,
-        user,
+        session.user,
         documentVersion
     )
 

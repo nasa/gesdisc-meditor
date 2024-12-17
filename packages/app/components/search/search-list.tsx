@@ -1,18 +1,16 @@
-import { useEffect, useState } from 'react'
-import { IoMdArrowDropdown } from 'react-icons/io'
-import { findUnsavedDocumentsByModel } from '../../lib/unsaved-changes'
-import type { DocumentsSearchOptions, ModelWithWorkflow } from '../../models/types'
-import type { Document } from '../../documents/types'
-import type { UserWithRoles } from '../../auth/types'
 import Pagination from '../pagination'
-import styles from './search-list.module.css'
 import SearchResult from './search-result'
 import SearchStatusBar from './search-status-bar'
+import styles from './search-list.module.css'
+import { findUnsavedDocumentsByModel } from '../../lib/unsaved-changes'
+import { IoMdArrowDropdown } from 'react-icons/io'
+import { useEffect, useState } from 'react'
+import type { DocumentsSearchOptions, ModelWithWorkflow } from '../../models/types'
+import type { Document } from '../../documents/types'
 
 interface SearchListProps {
     documents: Document[]
     model: ModelWithWorkflow
-    user: UserWithRoles
     searchOptions: DocumentsSearchOptions
     onAddNew: Function
     onRefreshList: Function
@@ -28,7 +26,6 @@ const SearchList = ({
     model,
     onAddNew,
     onRefreshList,
-    user,
     searchOptions,
     onSortChange,
     onFilterChange,
@@ -112,7 +109,6 @@ const SearchList = ({
                 itemsPerPage={itemsPerPage}
                 totalDocumentCount={listDocuments.length}
                 onAddNew={onAddNew}
-                user={user}
                 searchOptions={searchOptions}
                 onFilterChange={onFilterChange}
             />

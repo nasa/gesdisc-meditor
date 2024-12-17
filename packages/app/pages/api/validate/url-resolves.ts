@@ -1,7 +1,7 @@
 import assert from 'assert'
 import createError from 'http-errors'
 import log from 'lib/log'
-import { getLoggedInUser } from '../../../auth/user'
+import { getServerSession } from '../../../auth/user'
 import { withApiErrorHandler } from 'lib/with-api-error-handler'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
@@ -10,8 +10,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     // this doesn't really need to be a secure endpoint BUT this is just an extra step to ensure no anonymous users are
     // hitting the link checker API
-    const user = await getLoggedInUser(req, res)
-    assert(user, new createError.Unauthorized())
+    const session = await getServerSession(req, res)
+    assert(session.user, new createError.Unauthorized())
 
     let isValid
 

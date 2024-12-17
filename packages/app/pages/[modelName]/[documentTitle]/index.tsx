@@ -15,8 +15,8 @@ import { AppContext } from '../../../components/app-store'
 import { Breadcrumb, Breadcrumbs } from '../../../components/breadcrumbs'
 import { getCommentsForDocument } from '../../../comments/service'
 import { getDocument, getDocumentHistory } from '../../../documents/service'
-import { getLoggedInUser } from '../../../auth/user'
 import { getModelWithWorkflow } from '../../../models/service'
+import { getServerSession } from '../../../auth/user'
 import { privilegesForModelAndWorkflowNode } from 'auth/utilities'
 import { refreshDataInPlace } from '../../../lib/next'
 import { treeify } from '../../../lib/treeify'
@@ -43,14 +43,12 @@ type PropsType = {
     pageDocument: LegacyDocumentWithMetadata
     model: ModelWithWorkflow
     theme: any
-    user: any
     version: string
     currentPrivileges: any[]
 }
 
 const EditDocumentPage = ({
     model,
-    user,
     version = null,
     theme,
     comments,
@@ -320,7 +318,6 @@ const EditDocumentPage = ({
                     onClose={closePanel}
                 >
                     <DocumentComments
-                        user={user}
                         comments={comments}
                         saveComment={handleSaveComment}
                         resolveComment={resolveComment}
@@ -384,12 +381,12 @@ const EditDocumentPage = ({
 export async function getServerSideProps(ctx: NextPageContext) {
     const { documentTitle, modelName } = ctx.query
     const { req, res } = ctx
-    const user = await getLoggedInUser(req, res)
+    const session = await getServerSession(req, res)
 
     const [pageDocumentError, pageDocument] = await getDocument(
         decodeURIComponent(documentTitle.toString()),
         decodeURIComponent(modelName.toString()),
-        user
+        session.user
     )
 
     // No point in displaying the page if our core resource has errored or is missing.
@@ -415,7 +412,7 @@ export async function getServerSideProps(ctx: NextPageContext) {
     )
 
     const currentPrivileges = privilegesForModelAndWorkflowNode(
-        user,
+        session.user,
         modelName.toString(),
         modelWithWorkflow.workflow.currentNode
     )

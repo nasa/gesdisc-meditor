@@ -1,6 +1,7 @@
-import NextAuth, { AuthOptions } from 'next-auth'
 import EarthdataLoginProvider from 'auth/providers/earthdata-login'
 import log from 'lib/log'
+import NextAuth, { AuthOptions } from 'next-auth'
+import { getUsersDb } from 'auth/db'
 
 export const authOptions: AuthOptions = {
     // use our mEditor logger for NextAuth log messages
@@ -44,6 +45,12 @@ export const authOptions: AuthOptions = {
         async session({ session, token }) {
             // add user uid to the session
             session.user.uid = token.sub
+
+            const usersDb = await getUsersDb()
+            const mEditorUser = await usersDb.getMeditorUserByUid(session.user.uid)
+
+            session.user.roles = mEditorUser?.roles ?? []
+
             return session
         },
     },

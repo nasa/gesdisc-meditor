@@ -1,14 +1,14 @@
-import { getLoggedInUser } from 'auth/user'
-import { userCanAccessModel } from 'models/service'
-import type { NextApiRequest, NextApiResponse } from 'next'
-import { searchInputApiSchema } from 'search/schema'
-import { search } from 'search/service'
-import { respondAs } from 'utils/api'
-import { parseZodAsErrorData } from 'utils/errors'
-import type { z } from 'zod'
 import assert from 'assert'
-import { withApiErrorHandler } from 'lib/with-api-error-handler'
 import createError from 'http-errors'
+import { getServerSession } from 'auth/user'
+import { parseZodAsErrorData } from 'utils/errors'
+import { respondAs } from 'utils/api'
+import { search } from 'search/service'
+import { searchInputApiSchema } from 'search/schema'
+import { userCanAccessModel } from 'models/service'
+import { withApiErrorHandler } from 'lib/with-api-error-handler'
+import type { NextApiRequest, NextApiResponse } from 'next'
+import type { z } from 'zod'
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     assert(req.method === 'GET', new createError.MethodNotAllowed())
@@ -22,10 +22,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     }
 
     const { query, format, modelName, resultsPerPage, pageNumber } = parsedData
-    const user = await getLoggedInUser(req, res)
+    const session = await getServerSession(req, res)
 
     assert(
-        await userCanAccessModel(user, modelName.toString()),
+        await userCanAccessModel(session.user, modelName.toString()),
         new createError.Forbidden('User does not have access to the requested model')
     )
 

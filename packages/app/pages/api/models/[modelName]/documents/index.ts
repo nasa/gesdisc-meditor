@@ -1,19 +1,19 @@
-import { getLoggedInUser } from 'auth/user'
+import assert from 'assert'
+import createError from 'http-errors'
 import { createDocument, getDocumentsForModel } from 'documents/service'
-import { userCanAccessModel } from 'models/service'
-import type { NextApiRequest, NextApiResponse } from 'next'
+import { getServerSession } from 'auth/user'
 import { respondAsJson } from 'utils/api'
 import { safeParseJSON } from 'utils/json'
-import assert from 'assert'
+import { userCanAccessModel } from 'models/service'
 import { withApiErrorHandler } from 'lib/with-api-error-handler'
-import createError from 'http-errors'
+import type { NextApiRequest, NextApiResponse } from 'next'
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const modelName = decodeURIComponent(req.query.modelName.toString())
-    const user = await getLoggedInUser(req, res)
+    const session = await getServerSession(req, res)
 
     assert(
-        await userCanAccessModel(user, modelName),
+        await userCanAccessModel(session.user, modelName),
         new createError.Forbidden('User does not have access to the requested model')
     )
 
@@ -44,7 +44,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             const [documentError, data] = await createDocument(
                 parsedDocument,
                 modelName,
-                user,
+                session.user,
                 req.query.initialState?.toString()
             )
 

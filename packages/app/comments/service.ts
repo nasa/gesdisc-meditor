@@ -3,8 +3,7 @@ import createError from 'http-errors'
 import log from '../lib/log'
 import { getCommentsDb } from './db'
 import { validate } from 'jsonschema'
-import type { UserWithRoles } from '../auth/types'
-import type { ErrorData } from '../declarations'
+import type { ErrorData, User } from '../declarations'
 import type {
     CreateCommentUserInput,
     DocumentComment,
@@ -17,7 +16,7 @@ import {
 
 export async function createCommentAsUser(
     newComment: CreateCommentUserInput,
-    user: UserWithRoles
+    user: User
 ): Promise<ErrorData<DocumentComment>> {
     try {
         const commentsDb = await getCommentsDb()
@@ -53,7 +52,7 @@ export async function createCommentAsUser(
 
 export async function updateCommentAsUser(
     commentChanges: UpdateCommentUserInput,
-    user: UserWithRoles
+    user: User
 ): Promise<ErrorData<DocumentComment>> {
     try {
         const commentsDb = await getCommentsDb()

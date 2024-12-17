@@ -4,8 +4,8 @@ import { getDb } from '../lib/connections'
 import { getDocumentInputSchema } from './schema'
 import { makeSafeObjectIDs } from '../lib/mongodb'
 import { ObjectId } from 'mongodb'
+import { User } from 'declarations'
 import type { Db } from 'mongodb'
-import type { UserWithRoles } from '../auth/types'
 import type {
     DocumentsSearchOptions,
     Model,
@@ -71,7 +71,7 @@ class DocumentsDb {
             [key: WorkflowEdge['source']]: WorkflowEdge['target'][]
         },
         titleProperty: string,
-        uid?: UserWithRoles['uid']
+        uid?: User['uid']
     ) {
         // Parse input to make sure DB calls are with expected inputs.
         const parsedInput = getDocumentInputSchema.parse({

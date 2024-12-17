@@ -1,3 +1,8 @@
+import he from 'he'
+import log from '../lib/log'
+import mustache from 'mustache'
+import { getUsersDb } from '../auth/db'
+import { User } from 'declarations'
 import type { ModelWithWorkflow } from '../models/types'
 import {
     getNodesFromEdges,
@@ -5,20 +10,16 @@ import {
     getTargetUserRoles,
 } from '../workflows/service'
 import type { WorkflowEdge } from '../workflows/types'
-import { getUsersDb } from '../auth/db'
-import type { UserContactInformation, UserWithRoles } from '../auth/types'
-import mustache from 'mustache'
+import type { UserContactInformation } from '../auth/types'
 import type { Document } from '../documents/types'
-import he from 'he'
 import type { EmailMessage, EmailMessageLink } from './types'
-import log from '../lib/log'
 
 export async function constructEmailMessageForStateChange(
     model: ModelWithWorkflow,
     document: Document,
     newState: string,
     currentEdge: WorkflowEdge,
-    user: UserWithRoles
+    user: User
 ): Promise<EmailMessage> {
     // if the workflow does not have it's own email message configured, we'll use this default message
     const DEFAULT_EMAIL_TEMPLATE =
@@ -220,7 +221,7 @@ export async function populateEmailMessageTemplate(
     targetNodes: string[],
     currentEdge: WorkflowEdge,
     authorUid: string,
-    user: UserWithRoles,
+    user: User,
     defaultEmailTemplate: string
 ) {
     const usersDb = await getUsersDb()
@@ -247,8 +248,8 @@ export async function populateEmailMessageTemplate(
             author: authorUid,
             role: currentEdge.role,
             label: currentEdge.label,
-            userFirstName: user.firstName ?? user.name,
-            userLastName: user.lastName ?? '',
+            userFirstName: user.name.split(' ').slice(0, -1).join(' '),
+            userLastName: user.name.split(' ').slice(-1).join(' '),
             targets: targetNodes.join(', '),
             target: currentEdge.target,
             modelNotificationTemplate,

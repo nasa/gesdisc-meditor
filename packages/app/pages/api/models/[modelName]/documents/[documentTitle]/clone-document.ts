@@ -1,10 +1,10 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import { getLoggedInUser } from '../../../../../../auth/user'
-import { cloneDocument } from '../../../../../../documents/service'
-import { respondAsJson } from '../../../../../../utils/api'
 import assert from 'assert'
-import { withApiErrorHandler } from 'lib/with-api-error-handler'
 import createError from 'http-errors'
+import { cloneDocument } from '../../../../../../documents/service'
+import { getServerSession } from '../../../../../../auth/user'
+import { respondAsJson } from '../../../../../../utils/api'
+import { withApiErrorHandler } from 'lib/with-api-error-handler'
+import type { NextApiRequest, NextApiResponse } from 'next'
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     assert(req.method === 'POST', new createError.MethodNotAllowed())
@@ -12,13 +12,13 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const documentTitle = decodeURIComponent(req.query.documentTitle.toString())
     const modelName = decodeURIComponent(req.query.modelName.toString())
     const newTitle = decodeURIComponent(req.query.newTitle.toString())
-    const user = await getLoggedInUser(req, res)
+    const session = await getServerSession(req, res)
 
     const [error, document] = await cloneDocument(
         documentTitle,
         newTitle,
         modelName,
-        user
+        session.user
     )
 
     if (error) {

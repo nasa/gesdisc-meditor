@@ -1,7 +1,7 @@
 import assert from 'assert'
 import createError from 'http-errors'
-import { getLoggedInUser } from 'auth/user'
 import { getModel, userCanAccessModel } from 'models/service'
+import { getServerSession } from 'auth/user'
 import { respondAsJson } from 'utils/api'
 import { withApiErrorHandler } from 'lib/with-api-error-handler'
 import type { NextApiRequest, NextApiResponse } from 'next'
@@ -11,10 +11,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const modelName = decodeURIComponent(req.query.modelName.toString())
     const disableMacros = 'disableMacros' in req.query
-    const user = await getLoggedInUser(req, res)
+    const session = await getServerSession(req, res)
 
     assert(
-        await userCanAccessModel(user, modelName),
+        await userCanAccessModel(session.user, modelName),
         new createError.Forbidden('User does not have access to the requested model')
     )
 

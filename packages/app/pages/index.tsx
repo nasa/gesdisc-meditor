@@ -1,8 +1,8 @@
 import ModelsByCategory from '../components/models-by-category'
 import PageTitle from '../components/page-title'
 import UnderMaintenance from '../components/under-maintenance'
-import { getLoggedInUser } from 'auth/user'
 import { getModelsWithDocumentCount } from '../models/service'
+import { getServerSession } from 'auth/user'
 import { sortModels } from '../utils/sort'
 import type { NextPageContext } from 'next'
 import type { Model, ModelCategory } from '../models/types'
@@ -48,7 +48,7 @@ export function sortModelsIntoCategories(models: Model[]): ModelCategory[] {
 export async function getServerSideProps(ctx: NextPageContext) {
     // Redirect to sign in page if logged out
     //? Unlike other pages, the root path, /meditor doesn't seem to react at all to NextJS middleware
-    if (!(await getLoggedInUser(ctx.req, ctx.res))) {
+    if (!(await getServerSession(ctx.req, ctx.res))) {
         return {
             redirect: {
                 destination: '/signin',

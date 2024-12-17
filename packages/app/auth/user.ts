@@ -1,24 +1,12 @@
-import { getServerSession } from 'next-auth'
-import { getUsersDb } from './db'
-import { UserWithRoles } from './types'
+import { getServerSession as getServerSessionNextAuth } from 'next-auth'
 import { authOptions } from 'pages/api/auth/[...nextauth]'
 
-export async function getLoggedInUser(
-    req: any,
-    res: any
-): Promise<UserWithRoles | undefined> {
-    const session = await getServerSession(req, res, authOptions)
-
-    if (!session?.user?.uid) {
-        // user is not logged in
-        return
-    }
-
-    const usersDb = await getUsersDb()
-    const mEditorUser = await usersDb.getMeditorUserByUid(session.user.uid)
-
-    return {
-        ...session.user,
-        roles: mEditorUser?.roles ?? [],
-    }
+/**
+ * a wrapper over the NextAuth getServerSession
+ *
+ *? This doesn't seem necessary but the API has changed multiple times and is a bit verbose to use as every page would need to import
+ *? both getServerSession() and authOptions. This simplifies it a bit and abstracts away NextAuth from being used throughout the app
+ */
+export async function getServerSession(req: any, res: any) {
+    return getServerSessionNextAuth(req, res, authOptions)
 }

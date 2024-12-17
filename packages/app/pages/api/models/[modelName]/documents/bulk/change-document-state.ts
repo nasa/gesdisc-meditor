@@ -3,7 +3,7 @@ import createError from 'http-errors'
 import { bulkChangeDocumentState } from 'documents/service'
 import { bulkDocumentHeadersSchema } from 'documents/schema'
 import { formatZodError, withApiErrorHandler } from 'lib/with-api-error-handler'
-import { getLoggedInUser } from 'auth/user'
+import { getServerSession } from 'auth/user'
 import { parseZodAsErrorData } from 'utils/errors'
 import { respondAsJson } from 'utils/api'
 import type { NextApiRequest, NextApiResponse } from 'next'
@@ -14,7 +14,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const modelName = decodeURIComponent(req.query.modelName.toString())
     const newState = decodeURIComponent(req.query.state?.toString())
-    const user = await getLoggedInUser(req, res)
+    const session = await getServerSession(req, res)
 
     //* we enforce requiring the user to provide explicit identifiers for the documents to patch (we don't support all)
     //* the standard is to use an "If-Match" header: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-Match
@@ -37,7 +37,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         documentTitles,
         modelName,
         newState,
-        user,
+        session.user,
         {
             // disable email notifications by default, this is a bulk endpoint which will spam the userbase
             disableEmailNotifications: req.query.notify?.toString() !== 'true',

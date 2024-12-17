@@ -6,6 +6,7 @@ import styles from './search-status-bar.module.css'
 import { MdAdd } from 'react-icons/md'
 import { privilegesForModelAndWorkflowNode, rolesForModel } from 'auth/utilities'
 import { useRouter } from 'next/router'
+import { useSession } from 'next-auth/react'
 
 const SearchStatusBar = ({
     model,
@@ -13,13 +14,15 @@ const SearchStatusBar = ({
     itemsPerPage,
     totalDocumentCount = 0,
     onAddNew,
-    user,
     searchOptions,
     onFilterChange,
 }) => {
+    const { data: session, status } = useSession()
     const offset = currentPage * itemsPerPage
     const router = useRouter()
     const { modelName } = router.query
+
+    console.log(session)
 
     const schema = JSON.parse(model?.schema || '{}')
     const layout = JSON.parse(model?.uiSchema || model?.layout || '{}')
@@ -42,17 +45,17 @@ const SearchStatusBar = ({
         filterFields[field].schema = schema?.properties?.[field]
     })
 
-    const currentPrivileges = model.workflow
-        ? privilegesForModelAndWorkflowNode(
-              user,
-              modelName.toString(),
-              model.workflow.currentNode
-          )
-        : []
+    const currentPrivileges = privilegesForModelAndWorkflowNode(
+        session.user,
+        modelName.toString(),
+        model.workflow.currentNode
+    )
 
     const currentEdges =
         model.workflow.currentEdges?.filter(async edge => {
-            return rolesForModel(user, modelName.toString()).includes(edge.role)
+            return rolesForModel(session.user, modelName.toString()).includes(
+                edge.role
+            )
         }) || []
 
     if (!totalDocumentCount) {

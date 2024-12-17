@@ -1,27 +1,27 @@
-import { getLoggedInUser } from 'auth/user'
+import assert from 'assert'
+import createError from 'http-errors'
+import { bulkPatchDocuments } from 'documents/service'
+import { formatZodError, withApiErrorHandler } from 'lib/with-api-error-handler'
+import { getServerSession } from 'auth/user'
+import { parseZodAsErrorData } from 'utils/errors'
+import { respondAsJson } from 'utils/api'
+import { userCanAccessModel } from 'models/service'
 import {
     bulkDocumentHeadersSchema,
     patchDocumentsInputSchema,
 } from 'documents/schema'
-import { bulkPatchDocuments } from 'documents/service'
 import type { JSONPatchDocument } from 'immutable-json-patch'
-import { userCanAccessModel } from 'models/service'
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { respondAsJson } from 'utils/api'
-import { parseZodAsErrorData } from 'utils/errors'
 import type { ZodError } from 'zod'
-import assert from 'assert'
-import { formatZodError, withApiErrorHandler } from 'lib/with-api-error-handler'
-import createError from 'http-errors'
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     assert(req.method === 'PATCH', new createError.MethodNotAllowed())
 
     const modelName = decodeURIComponent(req.query.modelName.toString())
-    const user = await getLoggedInUser(req, res)
+    const session = await getServerSession(req, res)
 
     assert(
-        await userCanAccessModel(user, modelName),
+        await userCanAccessModel(session.user, modelName),
         new createError.Forbidden('User does not have access to the requested model')
     )
 
@@ -54,7 +54,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const [error, result] = await bulkPatchDocuments(
         documentTitles,
         modelName,
-        user,
+        session.user,
         operations
     )
 

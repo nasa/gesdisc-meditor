@@ -1,8 +1,11 @@
 import { onlyUnique } from 'utils/array'
-import { UserWithRoles } from './types'
+import { User } from 'declarations'
 import { WorkflowNode } from 'workflows/types'
 
-export function rolesForModel(user: UserWithRoles, modelName: string): Array<string> {
+export function rolesForModel(
+    user: User | undefined,
+    modelName: string
+): Array<string> {
     return (user?.roles ?? [])
         .filter(role => role.model === modelName) // only get roles for the requested model name
         .map(role => role.role) // retrieve the role name
@@ -10,11 +13,11 @@ export function rolesForModel(user: UserWithRoles, modelName: string): Array<str
 }
 
 export function privilegesForModelAndWorkflowNode(
-    user: UserWithRoles,
+    user: User | undefined,
     modelName: string,
     node: WorkflowNode
 ) {
-    if (!node?.privileges) {
+    if (!user || !node?.privileges) {
         return []
     }
 

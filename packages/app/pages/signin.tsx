@@ -1,14 +1,14 @@
+import Button from 'react-bootstrap/Button'
 import Dashboard, { sortModelsIntoCategories } from './index'
+import styles from './signin.module.css'
+import { getModelsWithDocumentCount } from '../models/service'
+import { getProviders, signIn } from 'next-auth/react'
+import { getServerSession } from '../auth/user'
+import { MdPerson } from 'react-icons/md'
+import { sortModels } from '../utils/sort'
 import type { DashboardPageProps } from './index'
 import type { GetServerSidePropsContext } from 'next'
 import type { Provider } from 'next-auth/providers'
-import { getModelsWithDocumentCount } from '../models/service'
-import { getProviders, signIn } from 'next-auth/react'
-import { getLoggedInUser } from '../auth/user'
-import { sortModels } from '../utils/sort'
-import Button from 'react-bootstrap/Button'
-import { MdPerson } from 'react-icons/md'
-import styles from './signin.module.css'
 
 export interface SignInPageProps extends DashboardPageProps {
     providers: Provider[]
@@ -75,9 +75,9 @@ const LoginDialog = ({ providers }: { providers: Provider[] }) => {
 }
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-    const user = await getLoggedInUser(ctx.req, ctx.res)
+    const session = await getServerSession(ctx.req, ctx.res)
 
-    if (user) {
+    if (!session) {
         // already have a session, redirect to the dashboard
         return {
             redirect: {

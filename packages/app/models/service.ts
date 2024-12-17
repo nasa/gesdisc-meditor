@@ -7,9 +7,8 @@ import { getWorkflowByDocumentState } from '../workflows/service'
 import { isJson } from '../utils/jsonschema-validate'
 import { runModelTemplates } from '../macros/service'
 
-import type { ErrorData } from '../declarations'
+import type { ErrorData, User } from '../declarations'
 import type { Model, ModelWithWorkflow } from './types'
-import type { UserWithRoles } from 'auth/types'
 
 const MODELS_REQUIRING_AUTHENTICATION = ['Users']
 
@@ -202,6 +201,6 @@ export async function getModelsWithDocumentCount(): Promise<ErrorData<Model[]>> 
  * if user is not authenticated, verify the requested model is not in the list of models requiring authentication
  * this was a mEditor design decision early on to allow anonymous access to most documents
  */
-export async function userCanAccessModel(user: UserWithRoles, modelName: string) {
+export async function userCanAccessModel(user: User, modelName: string) {
     return user?.uid ? true : !MODELS_REQUIRING_AUTHENTICATION.includes(modelName)
 }

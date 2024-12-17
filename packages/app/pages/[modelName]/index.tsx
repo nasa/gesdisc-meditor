@@ -14,7 +14,6 @@ import type {
     Model,
     ModelWithWorkflow,
 } from '../../models/types'
-import type { UserWithRoles } from '../../auth/types'
 
 function getSearchOptionsFromParams(query: ParsedUrlQuery): DocumentsSearchOptions {
     return {
@@ -36,7 +35,6 @@ function getParamsFromSearchOptions(
 }
 
 interface ModelPageProps {
-    user: UserWithRoles
     model: ModelWithWorkflow
     allModels: Model[]
     documents: Document[]
@@ -45,7 +43,7 @@ interface ModelPageProps {
 /**
  * renders the model page with the model's documents in a searchable/filterable list
  */
-const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
+const ModelPage = ({ model, allModels, documents }: ModelPageProps) => {
     const router = useRouter()
     const modelName = router.query.modelName as string
     const [searchOptions, setSearchOptions] = useState<DocumentsSearchOptions>(
@@ -135,7 +133,6 @@ const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
                         }))}
                         model={model}
                         onAddNew={addNewDocument}
-                        user={user}
                         onRefreshList={() => {
                             refetchDocuments(searchOptions) // refetch using current search options
                         }}

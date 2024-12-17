@@ -1,10 +1,10 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import { getLoggedInUser } from '../../../../../../auth/user'
-import { changeDocumentState } from '../../../../../../documents/service'
-import { respondAsJson } from '../../../../../../utils/api'
 import assert from 'assert'
-import { withApiErrorHandler } from 'lib/with-api-error-handler'
 import createError from 'http-errors'
+import { changeDocumentState } from '../../../../../../documents/service'
+import { getServerSession } from '../../../../../../auth/user'
+import { respondAsJson } from '../../../../../../utils/api'
+import { withApiErrorHandler } from 'lib/with-api-error-handler'
+import type { NextApiRequest, NextApiResponse } from 'next'
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     assert(
@@ -16,7 +16,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const modelName = decodeURIComponent(req.query.modelName.toString())
     const newState = decodeURIComponent(req.query.state?.toString())
 
-    const user = await getLoggedInUser(req, res)
+    const session = await getServerSession(req, res)
 
     const shouldUpdateDocument =
         req.method === 'PUT' && req.body && Object.keys(req.body).length > 0
@@ -26,7 +26,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         documentTitle,
         modelName,
         newState,
-        user,
+        session.user,
         {
             disableEmailNotifications: req.query.notify?.toString() === 'false',
 
