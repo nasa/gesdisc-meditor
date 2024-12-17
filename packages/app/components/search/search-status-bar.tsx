@@ -46,14 +46,14 @@ const SearchStatusBar = ({
     })
 
     const currentPrivileges = privilegesForModelAndWorkflowNode(
-        session.user,
+        session?.user,
         modelName.toString(),
         model.workflow.currentNode
     )
 
     const currentEdges =
         model.workflow.currentEdges?.filter(async edge => {
-            return rolesForModel(session.user, modelName.toString()).includes(
+            return rolesForModel(session?.user, modelName.toString()).includes(
                 edge.role
             )
         }) || []

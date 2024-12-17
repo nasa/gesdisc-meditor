@@ -98,8 +98,7 @@ const NewDocumentPage = ({ model }: NewDocumentPageProps) => {
         )
 
         if (error) {
-            setErrorNotification('Failed to create the document')
-
+            setErrorNotification(error.message ?? 'Failed to create the document')
             return
         }
 

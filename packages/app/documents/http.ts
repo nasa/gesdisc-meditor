@@ -2,6 +2,17 @@ import createError from 'http-errors'
 import type { APIError, ErrorData } from '../declarations'
 import type { Document, DocumentPublications } from './types'
 
+async function getApiError(response: Response) {
+    try {
+        // see if we can parse the error as JSON
+        const { status, error }: APIError = await response.json()
+
+        return createError(status, error)
+    } catch (err) {
+        return createError(500, 'An unknown error occurred, please notify mEditor')
+    }
+}
+
 async function createDocument(
     document: any,
     modelName: string
@@ -13,9 +24,7 @@ async function createDocument(
         )
 
         if (!response.ok) {
-            const { status, error }: APIError = await response.json()
-
-            throw createError(status, error)
+            throw await getApiError(response)
         }
 
         const createdDocument = await response.json()
@@ -41,9 +50,7 @@ async function fetchDocument(
         )
 
         if (!response.ok) {
-            const { status, error }: APIError = await response.json()
-
-            throw createError(status, error)
+            throw await getApiError(response)
         }
 
         const document = await response.json()
@@ -66,9 +73,7 @@ async function fetchDocumentPublications(
         )
 
         if (!response.ok) {
-            const { status, error }: APIError = await response.json()
-
-            throw createError(status, error)
+            throw await getApiError(response)
         }
 
         const publications = await response.json()
@@ -95,9 +100,7 @@ async function cloneDocument(
         )
 
         if (!response.ok) {
-            const { status, error }: APIError = await response.json()
-
-            throw createError(status, error)
+            throw await getApiError(response)
         }
 
         const newDocument = await response.json()

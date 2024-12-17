@@ -120,8 +120,7 @@ const EditDocumentPage = ({
         )
 
         if (error) {
-            setErrorNotification('Failed to update the document')
-
+            setErrorNotification(error.message ?? 'Failed to update the document')
             return
         }
 

@@ -85,7 +85,7 @@ export async function createDocument(
 
         assert(
             !errors.length || initialNode.allowValidationErrors,
-            new createError.ValidationError(
+            new createError.BadRequest(
                 `Document "${
                     document[titleProperty]
                 }" does not validate against the schema for model "${modelName}": ${JSON.stringify(
@@ -890,7 +890,7 @@ export async function strictValidateDocument(
 
         //* Unlike most use-cases, we don't want to throw for a validation error; we just return it.
         if (errors.length) {
-            const validationError = new createError.ValidationError(
+            const validationError = new createError.BadRequest(
                 `Document "${
                     documentToValidate[titleProperty]
                 }" does not validate against the schema for model "${modelName}": ${JSON.stringify(
