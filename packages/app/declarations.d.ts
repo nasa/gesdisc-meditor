@@ -21,7 +21,12 @@ declare module 'next-auth' {
 
 declare global {
     export namespace JSX {
-        interface IntrinsicElements extends StencilToReact {}
+        interface IntrinsicElements extends StencilToReact {
+            'code-editor': React.DetailedHTMLProps<
+                React.HTMLAttributes<HTMLElement>,
+                HTMLElement
+            >
+        }
     }
 
     var CKEDITOR: CKEditor
