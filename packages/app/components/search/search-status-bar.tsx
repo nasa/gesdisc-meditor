@@ -22,8 +22,6 @@ const SearchStatusBar = ({
     const router = useRouter()
     const { modelName } = router.query
 
-    console.log(session)
-
     const schema = JSON.parse(model?.schema || '{}')
     const layout = JSON.parse(model?.uiSchema || model?.layout || '{}')
 
