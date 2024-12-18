@@ -11,10 +11,17 @@ services:
 
   proxy:
     container_name: meditor_proxy
-    build: packages/proxy
+    image: caddy:2.7-alpine
     restart: on-failure
     ports:
       - "127.0.0.1:80:8080"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    environment:
+      - APP_HOST=${APP_HOST:-meditor_app}
+      - DOCS_HOST=${DOCS_HOST:-meditor_docs}
+      - MONITOR_HOST=${MONITOR_HOST:-meditor_monitor}
+      - NOTEBOOKVIEWER_HOST=${NOTEBOOKVIEWER_HOST:-meditor_notebookviewer}
     depends_on:
       - nats
       - app
@@ -40,7 +47,7 @@ services:
     env_file:
       - .env
     ports:
-      - "127.0.0.1:4000:4000"
+      - "127.0.0.1:3000:3000"
     develop:
       watch:
         - action: sync
@@ -50,7 +57,7 @@ services:
             - node_modules/
             - .next/
         - action: rebuild
-          path: package.json
+          path: ./packages/app/package.json
 
   docs:
     container_name: meditor_docs

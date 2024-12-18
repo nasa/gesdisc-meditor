@@ -1,0 +1,32 @@
+{
+    http_port 8080
+    debug
+}
+
+:8080 {
+    log {
+        output stdout
+        format console
+        level INFO
+    }
+
+    handle /meditor* {
+        reverse_proxy {$APP_HOST}:3000
+    }
+
+    handle /meditor/docs* {
+        reverse_proxy {$DOCS_HOST}:3030
+    }
+
+    handle /meditor/notebookviewer* {
+        reverse_proxy {$NOTEBOOKVIEWER_HOST}:8080
+    }
+
+    handle /meditor/monitor* {
+        reverse_proxy {$MONITOR_HOST}:9000
+    }
+
+    handle /meditor/monitor/api/websocket* {
+        reverse_proxy {$MONITOR_HOST}:9000
+    }
+}
