@@ -1,6 +1,6 @@
 import { connectToNats } from './nats'
 
-await connectToNats()
+connectToNats()
 
 export { connectToNats }
 export * from './mongodb'

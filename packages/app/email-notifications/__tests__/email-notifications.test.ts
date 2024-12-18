@@ -259,7 +259,7 @@ describe('Email Notifications', () => {
                 targetNodes,
                 currentEdge,
                 'hashbrowns',
-                baconUser,
+                baconUser.uid,
                 defaultEmailTemplate
             )
 
@@ -279,7 +279,7 @@ describe('Email Notifications', () => {
                 targetNodes,
                 currentEdge,
                 'hashbrowns',
-                baconUser,
+                baconUser.uid,
                 defaultEmailTemplate
             )
 
@@ -330,7 +330,7 @@ describe('Email Notifications', () => {
                 targetNodes,
                 currentEdge,
                 'hashbrowns',
-                baconUser,
+                baconUser.uid,
                 defaultEmailTemplate
             )
 
@@ -363,6 +363,7 @@ describe('Email Notifications', () => {
         beforeEach(() => {
             dateSpy = jest
                 .spyOn(global, 'Date')
+                // @ts-expect-error Date expects to return a Date not a string, we're mocking the date so this is expected
                 .mockImplementation(() => mockDate as unknown as string)
         })
 
@@ -376,6 +377,7 @@ describe('Email Notifications', () => {
                 'FAQs',
                 baconUser
             )
+
             const emailMessage = await constructEmailMessageForStateChange(
                 model,
                 faq,

@@ -126,7 +126,7 @@ describe('search', () => {
 
         expect(searchError).toBe(null)
         expect(searchResults.metadata).toMatchInlineSnapshot(`
-            Object {
+            {
               "pageCount": 2,
               "pageNumber": 1,
               "query": "severity:emergency",
@@ -151,10 +151,10 @@ describe('search', () => {
         expect(searchError).toBe(null)
         expect(searchResults.results.length).toBe(0)
         expect(searchResults.metadata).toMatchInlineSnapshot(`
-            Object {
+            {
               "pageCount": 1,
               "pageNumber": 2,
-              "query": "title:\\"Deleted Fixture\\"",
+              "query": "title:\"Deleted Fixture\"",
               "resultsCount": 0,
               "resultsPerPage": 10,
             }

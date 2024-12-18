@@ -51,7 +51,7 @@ describe('Workflows', () => {
             const [error, workflow] = await getWorkflow('Foo')
 
             expect(error).toMatchInlineSnapshot(
-                `[Error: The requested workflow, Foo, was not found.]`
+                `[NotFoundError: The requested workflow, Foo, was not found.]`
             )
             expect(workflow).toBeNull()
         })
@@ -161,7 +161,7 @@ describe('Workflows', () => {
             )
 
             expect(edge).toMatchInlineSnapshot(`
-                Object {
+                {
                   "label": "Publish",
                   "role": "Author",
                   "source": "Draft",

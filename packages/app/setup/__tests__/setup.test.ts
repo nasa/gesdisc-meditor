@@ -54,7 +54,7 @@ describe('Setup', () => {
         const [user] = users
 
         expect(error).toMatchInlineSnapshot(
-            `[Error: mEditor's DB has already been seeded.]`
+            `[BadRequestError: mEditor's DB has already been seeded.]`
         )
 
         //* verify that the user was only modified in the initial DB seed

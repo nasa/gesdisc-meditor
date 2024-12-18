@@ -35,7 +35,7 @@ describe('Template Macros', () => {
             expect(error).toBeNull()
             expect(jsonpath.value(schema, firstTemplate.jsonpath))
                 .toMatchInlineSnapshot(`
-                Array [
+                [
                   "GLDAS_CLM10SUBP_3H_001",
                   "OML1BRVG_003",
                 ]
@@ -68,7 +68,7 @@ describe('Template Macros', () => {
             expect(error).toBeNull()
             expect(jsonpath.value(schema, firstTemplate.jsonpath))
                 .toMatchInlineSnapshot(`
-                Array [
+                [
                   "GLDAS_CLM10SUBP_3H_001",
                   "OML1BRVG_003",
                 ]

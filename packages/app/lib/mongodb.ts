@@ -5,7 +5,10 @@ import { Document, MongoClient, WithId } from 'mongodb'
  * https://github.com/vercel/next.js/tree/canary/examples/with-mongodb
  */
 
-const uri = `mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_DATABASE}`
+const uri =
+    (process.env.MONGO_URL ||
+        process.env.MONGOURL ||
+        'mongodb://meditor_database:27017/') + 'meditor'
 
 let mongoClient: MongoClient
 let mongoClientPromise: Promise<MongoClient>

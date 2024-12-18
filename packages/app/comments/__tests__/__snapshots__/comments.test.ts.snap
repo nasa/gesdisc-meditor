@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Comments Service collection return all comments for an existing model and document with comments 1`] = `
-Array [
-  Object {
+[
+  {
     "createdBy": "Test User",
     "createdOn": "2022-10-04T14:52:31.105Z",
     "documentId": "Mock Alert w/ Comments & Troublesome Title",
@@ -15,7 +15,7 @@ Array [
     "userUid": "testuser",
     "version": "2022-08-15T15:17:04.357Z",
   },
-  Object {
+  {
     "createdBy": "Test User",
     "createdOn": "2022-10-05T19:54:15.575Z",
     "documentId": "Mock Alert w/ Comments & Troublesome Title",
@@ -28,7 +28,7 @@ Array [
     "userUid": "testuser",
     "version": "2022-08-15T15:17:04.357Z",
   },
-  Object {
+  {
     "createdBy": "Test User",
     "createdOn": "2022-10-07T14:20:51.049Z",
     "documentId": "Mock Alert w/ Comments & Troublesome Title",
@@ -42,8 +42,8 @@ Array [
 ]
 `;
 
-exports[`Comments Service collection returns no comments for an existing model and document without comments 1`] = `Array []`;
+exports[`Comments Service collection returns no comments for an existing model and document without comments 1`] = `[]`;
 
-exports[`Comments Service singleton returns no comment for an existing model and document without comments 1`] = `Object {}`;
+exports[`Comments Service singleton returns no comment for an existing model and document without comments 1`] = `{}`;
 
-exports[`Comments Service singleton returns one comment for an existing model and document with comments 1`] = `Object {}`;
+exports[`Comments Service singleton returns one comment for an existing model and document with comments 1`] = `{}`;

@@ -49,13 +49,17 @@ describe('Model', () => {
             const [error, model] = await getModel()
 
             expect(model).toBeNull()
-            expect(error).toMatchInlineSnapshot(`[Error: Model name is required]`)
+            expect(error).toMatchInlineSnapshot(
+                `[BadRequestError: Model name is required]`
+            )
         })
 
         it('should return an error for a model that does not exist', async () => {
             const [error, model] = await getModel('Foo')
 
-            expect(error).toMatchInlineSnapshot(`[Error: Model not found: Foo]`)
+            expect(error).toMatchInlineSnapshot(
+                `[NotFoundError: Model not found: Foo]`
+            )
             expect(model).toBeNull()
         })
     })
