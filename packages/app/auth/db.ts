@@ -75,6 +75,22 @@ class UsersDb {
             .toArray()
     }
 
+    async createUserAccount(userContactInformation: UserContactInformation) {
+        return await this.#db
+            .collection<Document>(this.#ACCOUNTS_COLLECTION)
+            .updateOne(
+                {
+                    uid: userContactInformation.uid,
+                },
+                {
+                    $set: userContactInformation,
+                },
+                {
+                    upsert: true,
+                }
+            )
+    }
+
     async getMeditorUserByUid(uid: string): Promise<Document> {
         const user = await this.#db
             // the mEditor user record is a generic, dynamic document, like any other model's document (see the "Users" model)

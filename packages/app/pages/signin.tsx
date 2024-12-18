@@ -77,7 +77,7 @@ const LoginDialog = ({ providers }: { providers: Provider[] }) => {
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
     const session = await getServerSession(ctx.req, ctx.res)
 
-    if (!session) {
+    if (session) {
         // already have a session, redirect to the dashboard
         return {
             redirect: {

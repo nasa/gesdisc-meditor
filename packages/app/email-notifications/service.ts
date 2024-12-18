@@ -51,7 +51,7 @@ export async function constructEmailMessageForStateChange(
         targetNodes,
         currentEdge,
         document['x-meditor'].modifiedBy,
-        user,
+        user.uid,
         DEFAULT_EMAIL_TEMPLATE
     )
 
@@ -221,10 +221,13 @@ export async function populateEmailMessageTemplate(
     targetNodes: string[],
     currentEdge: WorkflowEdge,
     authorUid: string,
-    user: User,
+    userUid: string,
     defaultEmailTemplate: string
 ) {
     const usersDb = await getUsersDb()
+    const [userContactInformation] = await usersDb.getContactInformationForUsers([
+        userUid,
+    ])
     const [author] = await usersDb.getContactInformationForUsers([authorUid])
 
     // the model can define a notification template to display after the normal email message
@@ -248,8 +251,9 @@ export async function populateEmailMessageTemplate(
             author: authorUid,
             role: currentEdge.role,
             label: currentEdge.label,
-            userFirstName: user.name.split(' ').slice(0, -1).join(' '),
-            userLastName: user.name.split(' ').slice(-1).join(' '),
+            userFirstName:
+                userContactInformation.firstName ?? userContactInformation.name,
+            userLastName: userContactInformation.lastName ?? '',
             targets: targetNodes.join(', '),
             target: currentEdge.target,
             modelNotificationTemplate,
