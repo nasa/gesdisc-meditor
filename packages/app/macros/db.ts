@@ -1,5 +1,5 @@
+import { getDb } from '../lib/connections'
 import type { Db } from 'mongodb'
-import getDb from '../lib/mongodb'
 
 class MacrosDb {
     #db: Db

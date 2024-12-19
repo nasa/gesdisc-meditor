@@ -1,3 +1,8 @@
+import he from 'he'
+import log from '../lib/log'
+import mustache from 'mustache'
+import { getUsersDb } from '../auth/db'
+import { User } from 'declarations'
 import type { ModelWithWorkflow } from '../models/types'
 import {
     getNodesFromEdges,
@@ -5,13 +10,9 @@ import {
     getTargetUserRoles,
 } from '../workflows/service'
 import type { WorkflowEdge } from '../workflows/types'
-import { getUsersDb } from '../auth/db'
-import type { User, UserContactInformation } from '../auth/types'
-import mustache from 'mustache'
+import type { UserContactInformation } from '../auth/types'
 import type { Document } from '../documents/types'
-import he from 'he'
 import type { EmailMessage, EmailMessageLink } from './types'
-import log from '../lib/log'
 
 export async function constructEmailMessageForStateChange(
     model: ModelWithWorkflow,
@@ -50,7 +51,7 @@ export async function constructEmailMessageForStateChange(
         targetNodes,
         currentEdge,
         document['x-meditor'].modifiedBy,
-        user,
+        user.uid,
         DEFAULT_EMAIL_TEMPLATE
     )
 
@@ -220,10 +221,13 @@ export async function populateEmailMessageTemplate(
     targetNodes: string[],
     currentEdge: WorkflowEdge,
     authorUid: string,
-    user: User,
+    userUid: string,
     defaultEmailTemplate: string
 ) {
     const usersDb = await getUsersDb()
+    const [userContactInformation] = await usersDb.getContactInformationForUsers([
+        userUid,
+    ])
     const [author] = await usersDb.getContactInformationForUsers([authorUid])
 
     // the model can define a notification template to display after the normal email message
@@ -247,8 +251,9 @@ export async function populateEmailMessageTemplate(
             author: authorUid,
             role: currentEdge.role,
             label: currentEdge.label,
-            userFirstName: user.firstName,
-            userLastName: user.lastName,
+            userFirstName:
+                userContactInformation.firstName ?? userContactInformation.name,
+            userLastName: userContactInformation.lastName ?? '',
             targets: targetNodes.join(', '),
             target: currentEdge.target,
             modelNotificationTemplate,

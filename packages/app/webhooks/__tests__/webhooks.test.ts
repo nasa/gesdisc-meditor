@@ -1,5 +1,5 @@
-import type { ModelWithWorkflow } from '../../models/types'
 import { getAllWebhookConfigs, getWebhookConfig, invokeWebhook } from '../service'
+import type { ModelWithWorkflow } from '../../models/types'
 
 describe('Webhook Service', () => {
     const env = process.env
@@ -38,12 +38,12 @@ describe('Webhook Service', () => {
 
             expect(error).toBeNull()
             expect(data).toMatchInlineSnapshot(`
-                Array [
-                  Object {
+                [
+                  {
                     "URL": "http://example.com/1",
                     "token": "an-example-token-for-endpoint-1",
                   },
-                  Object {
+                  {
                     "URL": "http://example.com/2",
                     "token": "an-example-token-for-endpoint-2",
                   },
@@ -63,7 +63,7 @@ describe('Webhook Service', () => {
 
             expect(error).toBeNull()
             expect(data).toMatchInlineSnapshot(`
-                Object {
+                {
                   "URL": "http://example.com/2",
                   "token": "an-example-token-for-endpoint-2",
                 }

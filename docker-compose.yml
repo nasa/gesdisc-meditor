@@ -1,13 +1,28 @@
 services:
   notebookviewer:
-    depends_on:
-      - legacy-api
+    container_name: meditor_notebookviewer
+    build: packages/notebook-viewer
+    environment:
+      - FLASK_ENV=development
+    env_file:
+      - .env
+    volumes:
+      - ./packages/notebook-viewer:/usr/src/app
 
   proxy:
+    container_name: meditor_proxy
+    image: caddy:2.7-alpine
+    restart: on-failure
     ports:
       - "127.0.0.1:80:8080"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    environment:
+      - APP_HOST=${APP_HOST:-meditor_app}
+      - DOCS_HOST=${DOCS_HOST:-meditor_docs}
+      - MONITOR_HOST=${MONITOR_HOST:-meditor_monitor}
+      - NOTEBOOKVIEWER_HOST=${NOTEBOOKVIEWER_HOST:-meditor_notebookviewer}
     depends_on:
-      - legacy-api
       - nats
       - app
       - database
@@ -16,29 +31,64 @@ services:
   notifier:
     depends_on:
       - nats
+    container_name: meditor_notifier
+    build: packages/notifier
+    restart: on-failure
+    env_file:
+      - .env
+    volumes:
+      - ./packages/notifier:/usr/src/app
+      - /usr/src/app/node_modules
 
   app:
-    depends_on:
-      - legacy-api
+    container_name: meditor_app
+    build: packages/app
+    restart: on-failure
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:3000:3000"
+    develop:
+      watch:
+        - action: sync
+          path: ./packages/app
+          target: /usr/src/app
+          ignore:
+            - node_modules/
+            - .next/
+        - action: rebuild
+          path: ./packages/app/package.json
 
   docs:
+    container_name: meditor_docs
+    build: packages/docs
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:3030:3030"
     depends_on:
-      - legacy-api
       - app
-
-  legacy-api:
-    depends_on:
-      - database
-      - nats
 
   database:
     image: ${REGISTRY}mongo:4.1.4
+    container_name: meditor_database
+    volumes:
+      - ./mongo-data:/data/db
+    ports:
+      - "127.0.0.1:27018:27017"
 
   nats:
     image: ${REGISTRY}nats-streaming:0.15.1
+    container_name: meditor_nats
+    volumes:
+      - ./nats-data:/nats/data
+    ports:
+      - "127.0.0.1:4222:4222"
+      - "127.0.0.1:8222:8222"
 
   monitor:
     image: ${REGISTRY}portainer/portainer:1.20.0
+    container_name: meditor_monitor
     command: -H unix:///var/run/docker.sock
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -46,6 +96,7 @@ services:
 
   agent:
     image: ${REGISTRY}portainer/agent:1.1.2
+    container_name: meditor_agent
     environment:
       AGENT_CLUSTER_ADDR: tasks.agent
     volumes:

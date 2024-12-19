@@ -5,8 +5,10 @@ import Dropdown from 'react-bootstrap/Dropdown'
 import Navbar from 'react-bootstrap/Navbar'
 import { MdFeedback, MdHelp, MdHome, MdPerson } from 'react-icons/md'
 import styles from './header.module.css'
+import { signOut, useSession } from 'next-auth/react'
 
-const Header = ({ user, isAuthenticated }) => {
+const Header = () => {
+    const { data: session, status } = useSession()
     const [userMenuOpen, setUserMenuOpen] = useState(false)
 
     return (
@@ -30,7 +32,7 @@ const Header = ({ user, isAuthenticated }) => {
                 </Navbar.Brand>
 
                 <div className="d-flex flex-row">
-                    {isAuthenticated && (
+                    {status === 'authenticated' && (
                         <Dropdown
                             onMouseEnter={() => setUserMenuOpen(true)}
                             onMouseLeave={() => setUserMenuOpen(false)}
@@ -43,16 +45,11 @@ const Header = ({ user, isAuthenticated }) => {
                                 style={{ color: '#607d8b' }}
                             >
                                 <MdPerson style={{ fontSize: '1.6em' }} />
-                                Hi, {user?.firstName}
+                                Hi, {session.user?.name}
                             </Dropdown.Toggle>
 
                             <Dropdown.Menu>
-                                <Dropdown.Item
-                                    href={
-                                        process.env.NEXT_PUBLIC_API_BASE_PATH +
-                                        '/logout'
-                                    }
-                                >
+                                <Dropdown.Item onClick={() => signOut()}>
                                     Logout
                                 </Dropdown.Item>
                             </Dropdown.Menu>

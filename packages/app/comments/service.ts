@@ -1,8 +1,9 @@
-import { validate } from 'jsonschema'
-import type { User } from '../auth/types'
-import type { ErrorData } from '../declarations'
-import { ErrorCode, HttpException } from '../utils/errors'
+import assert from 'assert'
+import createError from 'http-errors'
+import log from '../lib/log'
 import { getCommentsDb } from './db'
+import { validate } from 'jsonschema'
+import type { ErrorData, User } from '../declarations'
 import type {
     CreateCommentUserInput,
     DocumentComment,
@@ -12,7 +13,6 @@ import {
     NewDocumentCommentUserInputSchema,
     UpdateDocumentCommentUserInputSchema,
 } from './validation.schemas'
-import log from '../lib/log'
 
 export async function createCommentAsUser(
     newComment: CreateCommentUserInput,
@@ -21,18 +21,18 @@ export async function createCommentAsUser(
     try {
         const commentsDb = await getCommentsDb()
 
-        if (!user?.uid) {
-            throw new HttpException(ErrorCode.Unauthorized, 'Unauthorized')
-        }
+        assert(user?.uid, new createError.Unauthorized())
 
+        // TODO: use Zod here instead of JSONSchema validation
         const validationResult = validate(
             newComment,
             NewDocumentCommentUserInputSchema
         )
 
-        if (!validationResult.valid) {
-            throw new HttpException(ErrorCode.BadRequest, validationResult.toString())
-        }
+        assert(
+            validationResult.valid,
+            new createError.BadRequest(validationResult.toString())
+        )
 
         const comment = await commentsDb.insertOne({
             ...newComment, // validated user input
@@ -58,18 +58,17 @@ export async function updateCommentAsUser(
     try {
         const commentsDb = await getCommentsDb()
 
-        if (!user?.uid) {
-            throw new HttpException(ErrorCode.Unauthorized, 'Unauthorized')
-        }
+        assert(user?.uid, new createError.Unauthorized())
 
         const validationResult = validate(
             commentChanges,
             UpdateDocumentCommentUserInputSchema
         )
 
-        if (!validationResult.valid) {
-            throw new HttpException(ErrorCode.BadRequest, validationResult.toString())
-        }
+        assert(
+            validationResult.valid,
+            new createError.BadRequest(validationResult.toString())
+        )
 
         if (commentChanges.resolved) {
             // Resolving a comment is a special case since we need to resolve all the child comments as well.
@@ -84,7 +83,7 @@ export async function updateCommentAsUser(
 
         const updatedComment = await commentsDb.updateCommentText(
             commentChanges._id,
-            commentChanges.text
+            commentChanges.text ?? ''
         )
 
         return [null, updatedComment]

@@ -1,11 +1,7 @@
 import { useRouter } from 'next/router'
-import type { ReactNode } from 'react'
+import type { PropsWithChildren } from 'react'
 
-type PropsType = {
-    children: ReactNode
-}
-
-export default function Layout({ children }: PropsType) {
+export default function Layout({ children }: PropsWithChildren) {
     const router = useRouter()
 
     return router.pathname === '/installation' ? (

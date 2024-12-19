@@ -1,21 +1,20 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getModels } from '../../../models/service'
 import { respondAsJson } from '../../../utils/api'
-import { apiError } from '../../../utils/errors'
+import assert from 'assert'
+import createError from 'http-errors'
+import { withApiErrorHandler } from 'lib/with-api-error-handler'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    switch (req.method) {
-        case 'GET': {
-            const [error, models] = await getModels()
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+    assert(req.method === 'GET', new createError.MethodNotAllowed())
 
-            if (error) {
-                return apiError(error, res)
-            }
+    const [error, models] = await getModels()
 
-            return respondAsJson(models, req, res)
-        }
-
-        default:
-            return res.status(405).end()
+    if (error) {
+        throw error
     }
+
+    return respondAsJson(models, req, res)
 }
+
+export default withApiErrorHandler(handler)

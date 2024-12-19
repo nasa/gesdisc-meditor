@@ -1,5 +1,5 @@
-import { v4 as uuid } from 'uuid'
 import Template from './template'
+import { v4 as uuid } from 'uuid'
 
 export const UNTITLED_DOCUMENT_TITLE = 'Untitled Document'
 export const KEY_TEMPLATE = `meditor.{modelName}.{localId}`
@@ -35,7 +35,9 @@ export function retrieveUnsavedDocumentFromLS(
     modelName: string,
     localId: string
 ): UnsavedDocument {
-    return JSON.parse(localStorage.getItem(getLocalStorageKey(modelName, localId)))
+    return typeof localStorage !== 'undefined'
+        ? JSON.parse(localStorage.getItem(getLocalStorageKey(modelName, localId)))
+        : []
 }
 
 export function updateUnsavedDocumentInLS(document: UnsavedDocument) {

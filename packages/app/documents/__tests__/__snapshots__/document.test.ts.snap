@@ -1,22 +1,22 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Documents createDocument creates a new document for create or update operations 1`] = `
-Object {
+{
   "body": "<p>JS epoch / Unix time will overflow.</p>
 ",
-  "datasets": Array [],
+  "datasets": [],
   "expiration": "2038-01-19T03:04:07Z",
   "notes": "",
   "severity": "normal",
   "start": "1111-11-11T11:11:11Z",
-  "tags": Array [],
+  "tags": [],
   "title": "Year 2038 Problem",
-  "x-meditor": Object {
+  "x-meditor": {
     "model": "Alerts",
     "modifiedBy": "johndoe",
-    "publishedTo": Array [],
-    "states": Array [
-      Object {
+    "publishedTo": [],
+    "states": [
+      {
         "source": "Init",
         "target": "Draft",
       },
@@ -26,22 +26,22 @@ Object {
 `;
 
 exports[`Documents createDocument creates a new document for create or update operations 2`] = `
-Object {
+{
   "body": "<p>JS epoch / Unix time will overflow.</p>
 ",
-  "datasets": Array [],
+  "datasets": [],
   "expiration": "2038-01-19T03:04:07Z",
   "notes": "This has been called the Epochalypse.",
   "severity": "normal",
   "start": "1111-11-11T11:11:11Z",
-  "tags": Array [],
+  "tags": [],
   "title": "Year 2038 Problem",
-  "x-meditor": Object {
+  "x-meditor": {
     "model": "Alerts",
     "modifiedBy": "johndoe",
-    "publishedTo": Array [],
-    "states": Array [
-      Object {
+    "publishedTo": [],
+    "states": [
+      {
         "source": "Init",
         "target": "Draft",
       },
@@ -51,10 +51,10 @@ Object {
 `;
 
 exports[`Documents getDocument returns document 1`] = `
-Object {
+{
   "body": "<p>All of the FLDAS products have been reprocessed for improvements and corrections in the file metadata, specifically in regards to the &lsquo;time&rsquo; metadata.&nbsp; All FLDAS data are now accessible and available for download at the GES DISC.&nbsp; If you downloaded FLDAS data before August 7, please be aware that the file metadata may be incorrect.&nbsp; Please contact the Help Desk if you have any questions.</p>
 ",
-  "datasets": Array [
+  "datasets": [
     "FLDAS_VIC025_A_SA_M_001",
     "FLDAS_VIC025_A_WA_D_001",
     "FLDAS_NOAH01_A_SA_D_001",
@@ -83,40 +83,40 @@ Object {
   "expiration": "2018-09-09T04:00:00Z",
   "severity": "normal",
   "start": "2018-08-09T04:00:00Z",
-  "tags": Array [
+  "tags": [
     "hydrology",
     "fldas",
   ],
   "title": "Reprocessed FLDAS Data",
-  "x-meditor": Object {
+  "x-meditor": {
     "banTransitions": false,
     "model": "Alerts",
     "modifiedBy": "jdoe",
     "modifiedOn": "2018-08-09T14:26:07.541Z",
     "state": "Published",
-    "states": Array [
-      Object {
+    "states": [
+      {
         "modifiedOn": "2018-08-09T14:26:07.541Z",
         "source": "Init",
         "target": "Draft",
       },
-      Object {
+      {
         "modifiedOn": "2018-08-09T14:26:07.541Z",
         "source": "Approved",
         "target": "Published",
       },
     ],
-    "targetStates": Array [],
+    "targetStates": [],
     "titleProperty": "title",
   },
 }
 `;
 
 exports[`Documents getDocument returns document at version 1`] = `
-Object {
+{
   "body": "<p>All of the FLDAS products have been reprocessed for improvements and corrections in the file metadata, specifically in regards to the &lsquo;time&rsquo; metadata.&nbsp; All FLDAS data are now accessible and available for download at the GES DISC.&nbsp; If you downloaded FLDAS data before August 7, please be aware that the file metadata may be incorrect.&nbsp; Please contact the Help Desk if you have any questions.</p>
 ",
-  "datasets": Array [
+  "datasets": [
     "FLDAS_VIC025_A_SA_M_001",
     "FLDAS_VIC025_A_WA_D_001",
     "FLDAS_NOAH01_A_SA_D_001",
@@ -145,25 +145,25 @@ Object {
   "expiration": "2018-09-09T04:00:00Z",
   "severity": "normal",
   "start": "2018-08-09T04:00:00Z",
-  "tags": Array [
+  "tags": [
     "hydrology",
     "fldas",
   ],
   "title": "Reprocessed FLDAS Data",
-  "x-meditor": Object {
+  "x-meditor": {
     "banTransitions": false,
     "model": "Alerts",
     "modifiedBy": "jdoe",
     "modifiedOn": "2018-08-09T14:25:09.384Z",
     "state": "Draft",
-    "states": Array [
-      Object {
+    "states": [
+      {
         "modifiedOn": "2018-08-09T14:25:09.384Z",
         "source": "Init",
         "target": "Draft",
       },
     ],
-    "targetStates": Array [],
+    "targetStates": [],
     "titleProperty": "title",
   },
 }

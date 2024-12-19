@@ -1,22 +1,18 @@
+import assert from 'assert'
+import createError from 'http-errors'
+import { getServerSession } from '../../../../../../../auth/user'
+import { respondAsJson } from '../../../../../../../utils/api'
+import { withApiErrorHandler } from 'lib/with-api-error-handler'
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { getLoggedInUser } from '../../../../../../../auth/user'
 import {
     createCommentAsUser,
     getCommentsForDocument,
 } from '../../../../../../../comments/service'
-import { respondAsJson } from '../../../../../../../utils/api'
-import { apiError, ErrorCode, HttpException } from '../../../../../../../utils/errors'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const user = await getLoggedInUser(req, res)
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+    const session = await getServerSession(req, res)
 
-    // user should be logged in for any comments related activity
-    if (!user) {
-        return apiError(
-            new HttpException(ErrorCode.Unauthorized, 'Unauthorized'),
-            res
-        )
-    }
+    assert(session.user, new createError.Unauthorized())
 
     const documentTitle = decodeURIComponent(req.query.documentTitle.toString())
     const modelName = decodeURIComponent(req.query.modelName.toString())
@@ -29,7 +25,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             )
 
             if (error) {
-                return apiError(error, res)
+                throw error
             }
 
             return respondAsJson(comments, req, res)
@@ -42,17 +38,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     documentId: documentTitle,
                     model: modelName,
                 },
-                user
+                session.user
             )
 
             if (error) {
-                return apiError(error, res)
+                throw error
             }
 
             return respondAsJson(newComment, req, res)
         }
 
         default:
-            return res.status(405).end()
+            throw new createError.MethodNotAllowed()
     }
 }
+
+export default withApiErrorHandler(handler)

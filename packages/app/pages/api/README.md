@@ -6,4 +6,4 @@ For mEditor, this would follow this structure: /models/{modelName}/documents/{do
 
 ## Old API Redirects
 
-The old API is supported by using NGINX's `js_module`, expressed in `apiAdapter.js`. See `nginx.conf.template` and `apiAdapter.js` comments for more detailed context.
+The old API can be found in the `legacy-endpoints` folder. Each old API route is mapped to one of these endpoints in `next.config.js`.

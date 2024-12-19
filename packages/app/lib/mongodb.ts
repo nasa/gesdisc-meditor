@@ -1,10 +1,9 @@
+import log from './log'
+import { Document, MongoClient, WithId } from 'mongodb'
 /**
  * MongoClient following the Vercel pattern
  * https://github.com/vercel/next.js/tree/canary/examples/with-mongodb
  */
-
-import { MongoClient } from 'mongodb'
-import log from './log'
 
 const uri =
     (process.env.MONGO_URL ||
@@ -12,7 +11,6 @@ const uri =
         'mongodb://meditor_database:27017/') + 'meditor'
 
 let mongoClient: MongoClient
-
 let mongoClientPromise: Promise<MongoClient>
 
 if (process.env.NODE_ENV === 'development') {
@@ -41,8 +39,10 @@ const getDb = async (dbName?: string) => {
 
 // Next doesn't know how to process the Mongo _id property, as it's an object, not a string. So this hack parses ahead of time
 // https://github.com/vercel/next.js/issues/11993
-function makeSafeObjectIDs(records: Record<string, any> | Record<string, any>[]) {
+function makeSafeObjectIDs(
+    records: Record<string, any> | Record<string, any>[] | WithId<Document> | null
+) {
     return !!records ? JSON.parse(JSON.stringify(records)) : records
 }
 
-export { getDb as default, makeSafeObjectIDs, mongoClientPromise }
+export { getDb, makeSafeObjectIDs, mongoClientPromise }

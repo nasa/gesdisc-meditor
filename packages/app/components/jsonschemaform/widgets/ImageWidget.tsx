@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react'
 import IconButton from '../components/IconButton'
+import React, { useEffect, useState } from 'react'
+import { getTemplate } from '@rjsf/utils'
 import { handleResponseErrors } from '../utils/error'
 import type { WidgetProps } from '@rjsf/utils'
-import { getTemplate } from '@rjsf/utils'
 
 const UPLOAD_IDLE = ''
 const UPLOAD_IN_PROGRESS = 'uploading'

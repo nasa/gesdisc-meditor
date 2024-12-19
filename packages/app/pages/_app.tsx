@@ -1,18 +1,17 @@
-import type { AppContext, AppProps } from 'next/app'
+import AppStore from '../components/app-store'
+import Head from 'next/head'
+import Header from '../components/header'
+import Layout from '../components/layout'
 import NextApp from 'next/app'
+import Toast from '../components/toast'
+import { SessionProvider } from 'next-auth/react'
+import { useEffect } from 'react'
+import '../styles.css'
+import type { AppContext, AppProps } from 'next/app'
 import {
     applyPolyfills,
     defineCustomElements,
 } from '@gesdisc/meditor-components/loader'
-import Head from 'next/head'
-import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
-import AppStore from '../components/app-store'
-import Header from '../components/header'
-import Layout from '../components/layout'
-import Toast from '../components/toast'
-import UserAuthentication from '../components/user-authentication'
-import '../styles.css'
 
 type PropsType = {
     theme: Theme
@@ -43,15 +42,11 @@ function registerCustomElements() {
  * @param props.Component the active page
  * @param props.pageProps if page is using getInitialProps, pageProps will contain those
  */
-const App = ({ Component, pageProps, theme }: AppProps & PropsType) => {
-    const [user, setUser] = useState()
-    const router = useRouter()
-    const isAuthenticated = typeof user !== 'undefined' && user != null
-    const canLoadPage =
-        typeof user !== 'undefined' ||
-        router.pathname == '/' ||
-        router.pathname == '/installation'
-
+const App = ({
+    Component,
+    pageProps: { session, ...pageProps },
+    theme,
+}: AppProps & PropsType) => {
     useEffect(() => {
         registerCustomElements()
     }, [])
@@ -78,33 +73,21 @@ const App = ({ Component, pageProps, theme }: AppProps & PropsType) => {
                 />
             </Head>
 
-            <AppStore>
-                {theme !== 'edpub' && (
-                    <Header user={user} isAuthenticated={isAuthenticated} />
-                )}
-                <Layout>
-                    {canLoadPage ? (
+            <SessionProvider session={session} basePath="/meditor/api/auth">
+                <AppStore>
+                    {theme !== 'edpub' && <Header />}
+
+                    <Layout>
                         <Component
                             {...pageProps}
-                            isAuthenticated={isAuthenticated}
                             theme={theme}
-                            user={user}
+                            user={session?.user}
                         />
-                    ) : (
-                        <></>
-                    )}
 
-                    {/* todo: consider making this composable, returning children or login prompt? */}
-                    {router.pathname !== '/installation' && (
-                        <UserAuthentication
-                            isAuthenticated={isAuthenticated}
-                            onUserUpdate={setUser}
-                            user={user}
-                        />
-                    )}
-                    <Toast />
-                </Layout>
-            </AppStore>
+                        <Toast />
+                    </Layout>
+                </AppStore>
+            </SessionProvider>
         </>
     )
 }

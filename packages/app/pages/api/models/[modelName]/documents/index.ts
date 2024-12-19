@@ -1,24 +1,21 @@
-import { getLoggedInUser } from 'auth/user'
+import assert from 'assert'
+import createError from 'http-errors'
 import { createDocument, getDocumentsForModel } from 'documents/service'
-import { userCanAccessModel } from 'models/service'
-import type { NextApiRequest, NextApiResponse } from 'next'
+import { getServerSession } from 'auth/user'
 import { respondAsJson } from 'utils/api'
-import { apiError, ErrorCode, HttpException } from 'utils/errors'
 import { safeParseJSON } from 'utils/json'
+import { userCanAccessModel } from 'models/service'
+import { withApiErrorHandler } from 'lib/with-api-error-handler'
+import type { NextApiRequest, NextApiResponse } from 'next'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const modelName = decodeURIComponent(req.query.modelName.toString())
-    const user = await getLoggedInUser(req, res)
+    const session = await getServerSession(req, res)
 
-    if (!userCanAccessModel(modelName, user)) {
-        return apiError(
-            new HttpException(
-                ErrorCode.ForbiddenError,
-                'User does not have access to the requested model'
-            ),
-            res
-        )
-    }
+    assert(
+        await userCanAccessModel(session.user, modelName),
+        new createError.Forbidden('User does not have access to the requested model')
+    )
 
     switch (req.method) {
         case 'GET': {
@@ -31,35 +28,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             })
 
             if (error) {
-                return apiError(error, res)
+                throw error
             }
 
             return respondAsJson(documents, req, res)
         }
 
         case 'POST': {
-            if (!user) {
-                return apiError(
-                    new HttpException(ErrorCode.Unauthorized, 'Unauthorized'),
-                    res
-                )
-            }
-
             const [parsingError, parsedDocument] = safeParseJSON(req.body)
 
             if (parsingError) {
-                return apiError(parsingError, res)
+                throw parsingError
             }
 
             const [documentError, data] = await createDocument(
                 parsedDocument,
                 modelName,
-                user,
+                session.user,
                 req.query.initialState?.toString()
             )
 
             if (documentError) {
-                return apiError(documentError, res)
+                throw documentError
             }
 
             const { _id, ...apiSafeDocument } = data.insertedDocument
@@ -72,6 +62,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         default:
-            return res.status(405).end()
+            throw new createError.MethodNotAllowed()
     }
 }
+
+export default withApiErrorHandler(handler)

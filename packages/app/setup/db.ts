@@ -1,8 +1,8 @@
-import type { Db } from 'mongodb'
-import getDb from '../lib/mongodb'
 import exampleNews from './db-seed/example-news.json'
 import models from './db-seed/models.json'
 import workflows from './db-seed/workflows.json'
+import { getDb } from '../lib/connections'
+import type { Db } from 'mongodb'
 import type { UserDuringSetup } from './types'
 
 class SetupDb {

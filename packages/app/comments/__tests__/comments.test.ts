@@ -1,15 +1,15 @@
-import type { Db } from 'mongodb'
-import BaconUser from '../../auth/__tests__/__fixtures__/bacon-user.json'
-import getDb from '../../lib/mongodb'
 import alertsModel from '../../models/__tests__/__fixtures__/models/alerts.json'
+import BaconUser from '../../auth/__tests__/__fixtures__/bacon-user.json'
+import mockComments from './__fixtures__/comments.json'
 import { getCommentsDb } from '../db'
+import { getDb } from '../../lib/connections'
+import type { Db } from 'mongodb'
 import {
     createCommentAsUser,
     getCommentForDocument,
     getCommentsForDocument,
     updateCommentAsUser,
 } from '../service'
-import mockComments from './__fixtures__/comments.json'
 
 const mockAlerts = [
     {
@@ -100,7 +100,9 @@ describe('Comments Service', () => {
             {} as any // force logged out
         )
 
-        expect(error).toMatchInlineSnapshot(`[Error: Unauthorized]`)
+        expect(error).toMatchInlineSnapshot(
+            `[AssertionError: UnauthorizedError: Unauthorized]`
+        )
         expect(comment).toBeNull()
     })
 
@@ -108,7 +110,7 @@ describe('Comments Service', () => {
         const [error, comment] = await createCommentAsUser({} as any, BaconUser)
 
         expect(error).toMatchInlineSnapshot(`
-            [Error: 0: instance requires property "documentId"
+            [AssertionError: BadRequestError: 0: instance requires property "documentId"
             1: instance requires property "model"
             2: instance requires property "text"
             ]
@@ -157,7 +159,7 @@ describe('Comments Service', () => {
 
         expect(error).toBeNull()
         expect(newComment).toMatchInlineSnapshot(`
-            Object {
+            {
               "createdBy": "Bacon User",
               "documentId": "Bar",
               "model": "Foo",
@@ -179,7 +181,9 @@ describe('Comments Service', () => {
             {} as any // force logged out
         )
 
-        expect(error).toMatchInlineSnapshot(`[Error: Unauthorized]`)
+        expect(error).toMatchInlineSnapshot(
+            `[AssertionError: UnauthorizedError: Unauthorized]`
+        )
         expect(comment).toBeNull()
     })
 
@@ -187,7 +191,7 @@ describe('Comments Service', () => {
         const [error, comment] = await updateCommentAsUser({} as any, BaconUser)
 
         expect(error).toMatchInlineSnapshot(`
-            [Error: 0: instance is not any of [subschema 0],[subschema 1]
+            [AssertionError: BadRequestError: 0: instance is not any of [subschema 0],[subschema 1]
             ]
         `)
         expect(comment).toBeNull()

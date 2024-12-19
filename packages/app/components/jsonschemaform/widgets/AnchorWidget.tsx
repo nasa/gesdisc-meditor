@@ -1,6 +1,6 @@
-import type { WidgetProps } from '@rjsf/utils'
-import { useEffect, useState } from 'react'
 import { findAndReplace, macros } from './utils'
+import { useEffect, useState } from 'react'
+import type { WidgetProps } from '@rjsf/utils'
 
 /**
  * Schema Layout:
@@ -38,7 +38,7 @@ export default function AnchorWidget({ options }: WidgetProps) {
 
     return (
         <a href={href} target="_blank" rel="noopener noreferrer">
-            {options.text || href}
+            <>{(options.text as string) || href}</>
         </a>
     )
 }

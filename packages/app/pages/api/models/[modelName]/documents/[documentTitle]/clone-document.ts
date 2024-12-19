@@ -1,36 +1,32 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import { getLoggedInUser } from '../../../../../../auth/user'
+import assert from 'assert'
+import createError from 'http-errors'
 import { cloneDocument } from '../../../../../../documents/service'
+import { getServerSession } from '../../../../../../auth/user'
 import { respondAsJson } from '../../../../../../utils/api'
-import { apiError, ErrorCode, HttpException } from '../../../../../../utils/errors'
+import { withApiErrorHandler } from 'lib/with-api-error-handler'
+import type { NextApiRequest, NextApiResponse } from 'next'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+    assert(req.method === 'POST', new createError.MethodNotAllowed())
+
     const documentTitle = decodeURIComponent(req.query.documentTitle.toString())
     const modelName = decodeURIComponent(req.query.modelName.toString())
     const newTitle = decodeURIComponent(req.query.newTitle.toString())
-    const user = await getLoggedInUser(req, res)
+    const session = await getServerSession(req, res)
 
-    switch (req.method) {
-        case 'POST': {
-            const [error, document] = await cloneDocument(
-                documentTitle,
-                newTitle,
-                modelName,
-                user
-            )
+    const [error, document] = await cloneDocument(
+        documentTitle,
+        newTitle,
+        modelName,
+        session.user
+    )
 
-            if (error) {
-                return apiError(error, res)
-            }
-
-            // todo: discuss this vs createDocument's 201 w/ location header; api-safe?
-            return respondAsJson(document, req, res)
-        }
-
-        default:
-            return apiError(
-                new HttpException(ErrorCode.MethodNotAllowed, 'Method not allowed'),
-                res
-            )
+    if (error) {
+        throw error
     }
+
+    // todo: discuss this vs createDocument's 201 w/ location header; api-safe?
+    return respondAsJson(document, req, res)
 }
+
+export default withApiErrorHandler(handler)
