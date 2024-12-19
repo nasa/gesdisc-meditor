@@ -32,6 +32,7 @@ export interface WorkflowEdge {
     label: string
     notify?: boolean
     notifyRoles?: string
+    webhookURL?: string
 }
 
 export interface WorkflowState {
