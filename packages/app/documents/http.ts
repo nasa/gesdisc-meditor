@@ -9,7 +9,7 @@ async function getApiError(response: Response) {
 
         return createError(status, error)
     } catch (err) {
-        return createError(500, 'An unknown error occurred, please notify mEditor')
+        return createError(500, 'An unknown error occurred and has been logged')
     }
 }
 

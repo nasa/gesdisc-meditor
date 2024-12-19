@@ -23,6 +23,7 @@ export async function createCommentAsUser(
 
         assert(user?.uid, new createError.Unauthorized())
 
+        // TODO: use Zod here instead of JSONSchema validation
         const validationResult = validate(
             newComment,
             NewDocumentCommentUserInputSchema

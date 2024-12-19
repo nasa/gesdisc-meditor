@@ -102,8 +102,6 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 
     const providers = await getProviders()
 
-    console.log(JSON.stringify(providers))
-
     if (!Object.keys(providers).length) {
         //! Fatal error that only occurs if mEditor is misconfigured (no provider ENV variables setup)
         throw new Error('Failed to retrieve authentication providers')
