@@ -6,9 +6,7 @@ import re
 from lib.html_exporter import html_exporter
 
 # only notebooks from these domains are allowed
-DOMAIN_WHITELIST_REGEX = (
-    r"^https://([a-zA-Z0-9]+\.)*(nasa\.gov|github\.com|githubusercontent\.com)\/?.*"
-)
+DOMAIN_WHITELIST_REGEX = r"^https://([a-zA-Z0-9]+\.)*(nasa\.gov|github\.com|githubusercontent\.com/nasa)\/?.*"
 
 app = Flask("mEditor Notebook Viewer")
 
