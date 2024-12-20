@@ -24,7 +24,7 @@ http {
     }
 
     upstream monitor {
-        server ${MONITOR_HOST}:9000;
+        server ${MONITOR_HOST}:8000;
     }
 
     upstream notebookviewer {
