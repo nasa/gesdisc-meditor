@@ -1,12 +1,12 @@
+import Button from 'react-bootstrap/Button'
 import cloneDeep from 'lodash.clonedeep'
 import isEqual from 'lodash.isequal'
-import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
 import Spinner from 'react-bootstrap/Spinner'
-import Button from 'react-bootstrap/Button'
-import { clearEmpties } from '../../utils/object'
-import { wait } from '../../utils/time'
 import styles from './form-actions.module.css'
+import { clearEmpties } from '../../utils/object'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
+import { wait } from '../../utils/time'
 
 const DELETED_STATE = 'Deleted'
 const DELETE_CONFIRMATION =
@@ -86,7 +86,7 @@ const FormActions = ({
     async function handleSave(largeModel: boolean) {
         if (largeModel) {
             // This hack is in place to handle RJSF's ajv8 validator performance issues.
-            await wait(3000)
+            await wait(500)
         }
 
         let brokenLinks = localStorage.getItem('brokenLinks')

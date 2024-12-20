@@ -1,7 +1,6 @@
+import Button from 'react-bootstrap/Button'
 import dynamic from 'next/dynamic'
 import { useState } from 'react'
-import Alert from 'react-bootstrap/Alert'
-import Button from 'react-bootstrap/Button'
 
 // JsonSchemaForm widgets rely heavily on global window, so we'll need to load them in separately
 // as the server side doesn't have a window!
@@ -54,22 +53,6 @@ const Form = ({
                 >
                     {expandAll ? 'Collapse All' : 'Expand All'}
                 </Button>
-            )}
-
-            {largeModel && (
-                <Alert variant="info">
-                    <p>
-                        mEditor&rsquo;s schema validator will provide degraded
-                        performance due to this model&rsquo;s size. To mitigate that,
-                        some default form behavior has been changed:
-                    </p>
-                    <ul>
-                        <li>
-                            text in text inputs may briefly dissapear, then reappear
-                        </li>
-                        <li>saving the document will take longer</li>
-                    </ul>
-                </Alert>
             )}
 
             <JsonSchemaForm

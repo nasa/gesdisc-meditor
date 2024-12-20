@@ -17,7 +17,7 @@
         "@json2csv/node": "^7.0.1",
         "@rjsf/core": "^5.16.1",
         "@rjsf/utils": "^5.16.1",
-        "@rjsf/validator-ajv8": "^5.16.1",
+        "@rjsf/validator-ajv8": "^6.0.0-alpha.0",
         "@yaireo/tagify": "3.8.0",
         "bootstrap": "^4.5.0",
         "brace": "^0.11.1",
