@@ -38,7 +38,7 @@ services:
     image: ${REGISTRY}nats-streaming:0.15.1
 
   monitor:
-    image: ${REGISTRY}portainer/portainer:1.20.0
+    image: ${REGISTRY}portainer/portainer-ce:2.21.2
     command: -H unix:///var/run/docker.sock
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
