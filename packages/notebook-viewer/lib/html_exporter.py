@@ -4,7 +4,7 @@ from jinja2 import DictLoader
 # a custom template for NBConvert to support iframe embedding
 dl = DictLoader(
     {
-        'custom-template': """
+        "custom-template": """
 {%- extends 'lab/index.html.j2' -%}
 
 {% block extra_css %}
@@ -41,4 +41,4 @@ dl = DictLoader(
 )
 
 # create a HTML exporter using our custom template
-html_exporter = HTMLExporter(extra_loaders=[dl], template_file='custom-template')
+html_exporter = HTMLExporter(extra_loaders=[dl], template_file="custom-template")
