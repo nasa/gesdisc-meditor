@@ -38,6 +38,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             })
         }
 
+        // TODO: can we simplify this link checker by doing: assert(response.ok, new createError.BadRequest(response.statusText))?
+
         // if page 404'ed, link is invalid
         assert(response.status !== 404, new createError.BadRequest('Invalid URL'))
 

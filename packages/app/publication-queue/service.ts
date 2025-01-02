@@ -110,11 +110,11 @@ export async function handlePublicationAcknowledgements(message) {
             'Successfully updated document with publication status ',
             publicationStatus
         )
-
-        message.ack()
     } catch (err) {
-        // whoops, the message must be improperly formatted, throw an error and acknowledge so that NATS won't try to resend
+        // whoops, the message must be improperly formatted, throw an error
         console.error('Failed to process message', err)
+    } finally {
+        // acknowledge so that NATS won't try to resend
         message.ack()
     }
 }

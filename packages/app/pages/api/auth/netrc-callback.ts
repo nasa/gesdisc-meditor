@@ -1,11 +1,11 @@
-// pages/api/auth/custom-login.js
-import { basePath, EDLTokenSetParameters } from 'auth/providers/earthdata-login'
-import log from 'lib/log'
-import { withApiErrorHandler } from 'lib/with-api-error-handler'
-import { NextApiRequest, NextApiResponse } from 'next'
-import { encode } from 'next-auth/jwt'
-import createError from 'http-errors'
 import assert from 'assert'
+import createError from 'http-errors'
+import log from 'lib/log'
+import { basePath, EDLTokenSetParameters } from 'auth/providers/earthdata-login'
+import { encode } from 'next-auth/jwt'
+import { NextApiRequest, NextApiResponse } from 'next'
+import { withApiErrorHandler } from 'lib/with-api-error-handler'
+// pages/api/auth/custom-login.js
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     assert(req.method === 'GET', new createError.MethodNotAllowed())
@@ -20,7 +20,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         body: `grant_type=authorization_code&code=${
             req.query.code
         }&redirect_uri=${encodeURIComponent(
-            `${process.env.HOST}/api/legacy-endpoints/netrc-callback`
+            `${process.env.HOST}/api/auth/netrc-callback`
         )}`,
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
