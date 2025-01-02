@@ -5,7 +5,7 @@ import { formatZodError, withApiErrorHandler } from 'lib/with-api-error-handler'
 import { getServerSession } from 'auth/user'
 import { parseZodAsErrorData } from 'utils/errors'
 import { respondAsJson } from 'utils/api'
-import { userCanAccessModel } from 'models/service'
+import { withUserCanAccessModelCheck } from 'lib/with-user-can-access-model-check'
 import {
     bulkDocumentHeadersSchema,
     patchDocumentsInputSchema,
@@ -19,11 +19,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const modelName = decodeURIComponent(req.query.modelName.toString())
     const session = await getServerSession(req, res)
-
-    assert(
-        await userCanAccessModel(session.user, modelName),
-        new createError.Forbidden('User does not have access to the requested model')
-    )
 
     //* we enforce requiring the user to provide explicit identifiers for the documents to patch (we don't support all/*)
     //* the standard is to use an "If-Match" header: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/If-Match
@@ -65,4 +60,4 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     return respondAsJson(result, req, res)
 }
 
-export default withApiErrorHandler(handler)
+export default withApiErrorHandler(withUserCanAccessModelCheck(handler))

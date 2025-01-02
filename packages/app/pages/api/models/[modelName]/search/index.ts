@@ -1,12 +1,11 @@
 import assert from 'assert'
 import createError from 'http-errors'
-import { getServerSession } from 'auth/user'
 import { parseZodAsErrorData } from 'utils/errors'
 import { respondAs } from 'utils/api'
 import { search } from 'search/service'
 import { searchInputApiSchema } from 'search/schema'
-import { userCanAccessModel } from 'models/service'
 import { withApiErrorHandler } from 'lib/with-api-error-handler'
+import { withUserCanAccessModelCheck } from 'lib/with-user-can-access-model-check'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import type { z } from 'zod'
 
@@ -22,13 +21,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     }
 
     const { query, format, modelName, resultsPerPage, pageNumber } = parsedData
-    const session = await getServerSession(req, res)
-
-    assert(
-        await userCanAccessModel(session.user, modelName.toString()),
-        new createError.Forbidden('User does not have access to the requested model')
-    )
-
     const [error, searchResults] = await search(
         modelName,
         query,
@@ -48,4 +40,4 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     })
 }
 
-export default withApiErrorHandler(handler)
+export default withApiErrorHandler(withUserCanAccessModelCheck(handler))
