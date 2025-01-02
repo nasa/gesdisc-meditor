@@ -1,3 +1,4 @@
+import assert from 'assert'
 import he from 'he'
 import log from '../lib/log'
 import mustache from 'mustache'
@@ -37,10 +38,10 @@ export async function constructEmailMessageForStateChange(
         emailToUsers
     )
 
-    if (!emailToUsers.length && !emailCcUsers.length) {
-        // need at least one user to notify!
-        throw new Error('Could not find users to notify of the state change')
-    }
+    assert(
+        emailToUsers.length || emailCcUsers.length,
+        new Error('Could not find users to notify of the state change')
+    )
 
     const targetNodes = getNodesFromEdges(model.workflow.currentEdges)
 

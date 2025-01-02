@@ -1,5 +1,6 @@
 import createError from 'http-errors'
 import log from '../lib/log'
+import { assert } from 'console'
 import { parseResponse } from '../utils/api'
 import { parseZodAsErrorData } from '../utils/errors'
 import { safeParseJSON } from '../utils/json'
@@ -63,9 +64,7 @@ async function invokeWebhook(
             body: JSON.stringify(payload),
         })
 
-        if (!response.ok) {
-            throw new createError(response.status, response.statusText)
-        }
+        assert(response.ok, new createError(response.status, response.statusText))
 
         return [null, await parseResponse(response)]
     } catch (error) {

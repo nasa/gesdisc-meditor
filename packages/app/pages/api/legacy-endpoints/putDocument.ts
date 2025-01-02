@@ -1,8 +1,8 @@
+import assert from 'assert'
+import createError from 'http-errors'
+import { withApiErrorHandler } from 'lib/with-api-error-handler'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import putDocumentHandler from '../models/[modelName]/documents/'
-import { withApiErrorHandler } from 'lib/with-api-error-handler'
-import createError from 'http-errors'
-import assert from 'assert'
 
 // our new API supports uploading a document as JSON
 // however the legacy API only supported file based uploads, which are difficult to use
@@ -13,15 +13,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     //! Step 1: Extract the boundary from the Content-Type header
     const contentType = req.headers['content-type']
 
-    if (!contentType?.startsWith('multipart/form-data')) {
-        throw new createError.BadRequest('Invalid content type')
-    }
+    assert(
+        contentType?.startsWith('multipart/form-data'),
+        new createError.BadRequest('Invalid content type')
+    )
 
     const boundary = contentType.split('boundary=')[1]
 
-    if (!boundary) {
-        throw new createError.BadRequest('Boundary not found')
-    }
+    assert(boundary, new createError.BadRequest('Boundary not found'))
 
     //! Step 2: Split the raw data into parts
     const parts = req.body.toString().split(`--${boundary}`)

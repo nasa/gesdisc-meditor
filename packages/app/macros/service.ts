@@ -1,3 +1,4 @@
+import assert from 'assert'
 import cloneDeep from 'lodash.clonedeep'
 import createError from 'http-errors'
 import log from '../lib/log'
@@ -27,19 +28,19 @@ async function runModelTemplates(
                 const [macroName, macroArgument] = template.macro.split(/\s+/)
                 const macroService = macros.get(macroName)
 
-                if (!macroService) {
-                    throw new createError.BadRequest(
-                        `Macro, ${macroName}, not supported.`
-                    )
-                }
+                assert(
+                    macroService,
+                    new createError.BadRequest(`Macro, ${macroName}, not supported.`)
+                )
 
                 const [error, filledTemplate] = await macroService(macroArgument)
 
-                if (error) {
-                    throw new createError.InternalServerError(
+                assert(
+                    !error,
+                    new createError.InternalServerError(
                         `Template macro ${macroName} did not run.`
                     )
-                }
+                )
 
                 template.result = filledTemplate
 

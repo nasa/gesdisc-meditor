@@ -51,9 +51,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         },
     })
 
-    if (!userResult.ok) {
-        throw new createError.Unauthorized('Failed to retrieve user information')
-    }
+    assert(
+        userResult.ok,
+        new createError.Unauthorized('Failed to retrieve user information')
+    )
 
     const userInfo = await userResult.json()
     const maxAge = 30 * 24 * 60 * 60 // 30 days
