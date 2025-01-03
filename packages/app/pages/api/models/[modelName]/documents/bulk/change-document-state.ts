@@ -30,7 +30,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     //* parse the document titles from 'If-Match'
     const documentTitles = headers['if-match']
         .split(',')
-        .map(title => title.trim().replace(/^"/, '').replace(/"$/, ''))
+        .map(title => title.trim().replace(/^"/, '').replace(/"$/, '').toLowerCase())
 
     //* perform state updates for all documents
     const [error, result] = await bulkChangeDocumentState(

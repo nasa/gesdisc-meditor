@@ -206,11 +206,12 @@ export async function getDocument(
             user?.uid
         )
 
-        if (!document) {
-            throw new createError.NotFound(
+        assert(
+            document,
+            new createError.NotFound(
                 `Requested document, ${documentTitle}, in model, ${modelName}, was not found`
             )
-        }
+        )
 
         return [null, document]
     } catch (error) {
@@ -359,9 +360,7 @@ export async function cloneDocument(
     user: User
 ): Promise<ErrorData<Document>> {
     try {
-        if (!user) {
-            throw new createError.Unauthorized('User is not authenticated')
-        }
+        assert(user, new createError.Unauthorized('User is not authenticated'))
 
         const documentsDb = await getDocumentsDb()
 
@@ -392,11 +391,12 @@ export async function cloneDocument(
             titleProperty
         )
 
-        if (newDocumentAlreadyExists) {
-            throw new createError.BadRequest(
+        assert(
+            !newDocumentAlreadyExists,
+            new createError.BadRequest(
                 `A document already exists with the title: '${newDocument[titleProperty]}'`
             )
-        }
+        )
 
         return createDocument(newDocument, modelName, user)
     } catch (error) {
@@ -471,9 +471,7 @@ export async function patchDocument(
         // apply JSON Patch operations to the document
         const [patchErrors, patchedDocument] = jsonPatch(existingDocument, operations)
 
-        if (patchErrors) {
-            throw new createError.BadRequest(patchErrors.message)
-        }
+        assert(!patchErrors, new createError.BadRequest(patchErrors.message))
 
         // all operations successfully made, save to db as a new document
         return await createDocument(patchedDocument, modelName, user)
@@ -503,13 +501,8 @@ export async function changeDocumentState(
     }
 ): Promise<ErrorData<Document>> {
     try {
-        if (!newState) {
-            throw new createError.BadRequest('No state provided')
-        }
-
-        if (!user) {
-            throw new createError.Unauthorized('User is not logged in')
-        }
+        assert(newState, new createError.BadRequest('No state provided'))
+        assert(user, new createError.Unauthorized('User is not logged in'))
 
         const documentsDb = await getDocumentsDb()
         const [modelError, model] = await getModelWithWorkflow(modelName)
@@ -703,33 +696,33 @@ export async function constructNewDocumentState(
         newState
     )
 
-    //! can't transition to a state the document is already in
-    if (newState === document['x-meditor'].state) {
-        throw new createError.BadRequest(
+    assert(
+        newState !== document['x-meditor'].state,
+        new createError.BadRequest(
             `Cannot transition to state [${newState}] as the document is in this state already`
         )
-    }
+    )
 
-    //! can't transition to a state that isn't in the workflow
-    if (targetStates.indexOf(newState) < 0) {
-        throw new createError.BadRequest(
+    assert(
+        targetStates.indexOf(newState) >= 0,
+        new createError.BadRequest(
             `Cannot transition to state [${newState}] as it is not a valid state in the workflow`
         )
-    }
+    )
 
-    //! can't transition to a state the user does not have permission to transition to
-    if (document['x-meditor'].targetStates.indexOf(newState) < 0) {
-        throw new createError.BadRequest(
+    assert(
+        document['x-meditor'].targetStates.indexOf(newState) >= 0,
+        new createError.BadRequest(
             `User does not have the permissions to transition to state ${newState}.`
         )
-    }
+    )
 
-    //! can't transition if the workflow has two edges with the same source and same target (how do we know which edge to follow?)
-    if (matchingEdges.length !== 1) {
-        throw new createError.InternalServerError(
+    assert(
+        matchingEdges.length === 1,
+        new createError.InternalServerError(
             `Workflow, ${model.workflow.name}, is misconfigured! There are duplicate edges from '${document['x-meditor'].state}' to '${newState}'.`
         )
-    }
+    )
 
     // create the new document state!
     return {

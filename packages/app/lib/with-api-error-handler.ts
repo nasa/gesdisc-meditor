@@ -1,8 +1,8 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import { ZodError } from 'zod'
 import createError from 'http-errors'
-import { parameterWithInflection } from './grammar'
 import log from './log'
+import { NextApiRequest, NextApiResponse } from 'next'
+import { parameterWithInflection } from './grammar'
+import { ZodError } from 'zod'
 
 export function withApiErrorHandler(handler) {
     return async (req: NextApiRequest, res: NextApiResponse) => {
@@ -10,6 +10,7 @@ export function withApiErrorHandler(handler) {
             // Call the original handler
             await handler(req, res)
         } catch (err) {
+            console.error(err)
             // Any unhandled exceptions will be caught and reported as a clean JSON response
             return apiError(err, res)
         }

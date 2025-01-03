@@ -42,15 +42,15 @@ module.exports = {
             },
             {
                 source: '/api/login',
-                destination: '/api/legacy-endpoints/netrc-login',
+                destination: '/api/auth/netrc-login',
             },
             {
                 source: '/api/logout',
-                destination: '/api/legacy-endpoints/netrc-logout',
+                destination: '/api/auth/netrc-logout',
             },
             {
                 source: '/api/me',
-                destination: '/api/legacy-endpoints/netrc-me',
+                destination: '/api/auth/netrc-me',
             },
             {
                 source: '/api/putDocument',

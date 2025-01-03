@@ -1,3 +1,4 @@
+import assert from 'assert'
 import Button from 'react-bootstrap/Button'
 import Dashboard, { sortModelsIntoCategories } from './index'
 import styles from './signin.module.css'
@@ -102,10 +103,11 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 
     const providers = await getProviders()
 
-    if (!Object.keys(providers).length) {
-        //! Fatal error that only occurs if mEditor is misconfigured (no provider ENV variables setup)
-        throw new Error('Failed to retrieve authentication providers')
-    }
+    //! Fatal error that only occurs if mEditor is misconfigured (no provider ENV variables setup)
+    assert(
+        Object.keys(providers).length,
+        new Error('Failed to retrieve authentication providers')
+    )
 
     const modelCategories = sortModelsIntoCategories(models)
 

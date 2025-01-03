@@ -1,11 +1,11 @@
-import { basePath } from 'auth/providers/earthdata-login'
 import log from 'lib/log'
+import { basePath } from 'auth/providers/earthdata-login'
 import { withApiErrorHandler } from 'lib/with-api-error-handler'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     // construct our internal callback url to generate a NextAuth session after .netrc authentication to EDL
-    const callbackUrl = `${process.env.HOST}/api/legacy-endpoints/netrc-callback`
+    const callbackUrl = `${process.env.HOST}/api/auth/netrc-callback`
 
     // construct the redirect URL to urs.earthdata.nasa.gov
     // https://urs.earthdata.nasa.gov/documentation/for_integrators/api_documentation#POST/oauth/authorize

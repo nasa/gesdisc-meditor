@@ -1,8 +1,9 @@
 ARG REGISTRY
-FROM ${REGISTRY}python:3.9.1
+FROM ${REGISTRY}python:3.13.1-alpine
 
 RUN mkdir -p /usr/src/app
-RUN apt-get update
+RUN apk update
+RUN apk upgrade
 
 WORKDIR /usr/src/app
 
@@ -10,6 +11,6 @@ COPY . .
 
 RUN pip install -r requirements.txt
 
-CMD python -m flask run --host=0.0.0.0 --port 8080
+CMD ["gunicorn", "-b", "0.0.0.0:8080", "app:app"] 
 
 EXPOSE 8080

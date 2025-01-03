@@ -4,6 +4,7 @@ import UnderMaintenance from '../components/under-maintenance'
 import { getModelsWithDocumentCount } from '../models/service'
 import { getServerSession } from 'auth/user'
 import { sortModels } from '../utils/sort'
+import { useRouter } from 'next/router'
 import type { NextPageContext } from 'next'
 import type { Model, ModelCategory } from '../models/types'
 
@@ -12,11 +13,13 @@ export interface DashboardPageProps {
 }
 
 const DashboardPage = ({ modelCategories }: DashboardPageProps) => {
+    const router = useRouter()
+
     if (!modelCategories) {
         //? after upgrading to NextJS v15, hitting the back button to return to the homepage results in `undefined` props
         //? this is a quick fix to reload the page if we encounter that scenario, as modelCategories should never be undefined
         // TODO: figure out why NextJS v15 is not populating props correctly on back button click
-        window?.location.reload()
+        router.reload()
         return null // return null to render nothing until the page refreshes
     }
 
