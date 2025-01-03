@@ -99,6 +99,9 @@ const FormActions = ({
                 'There are broken links in your document, are you sure you want to save?'
             )
         ) {
+            // not saving because we need to address broken links
+            setIsSaving(false)
+
             return
         }
 
@@ -115,6 +118,9 @@ const FormActions = ({
             })
 
             if (errors.length) {
+                // not saving because we need to address errors
+                setIsSaving(false)
+
                 // errors are printed above the save button, pushing it down. scroll it back
                 setTimeout(() => {
                     let errorPanel = document.querySelector('.rjsf > .panel.errors')
