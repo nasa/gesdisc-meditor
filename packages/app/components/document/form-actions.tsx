@@ -1,10 +1,12 @@
+import Button from 'react-bootstrap/Button'
 import cloneDeep from 'lodash.clonedeep'
 import isEqual from 'lodash.isequal'
-import { useRouter } from 'next/router'
-import { useEffect, useState } from 'react'
-import Button from 'react-bootstrap/Button'
-import { clearEmpties } from '../../utils/object'
+import Spinner from 'react-bootstrap/Spinner'
 import styles from './form-actions.module.css'
+import { clearEmpties } from '../../utils/object'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
+import { wait } from '../../utils/time'
 
 const DELETED_STATE = 'Deleted'
 const DELETE_CONFIRMATION =
@@ -22,12 +24,14 @@ const FormActions = ({
     onDelete = null,
     CustomActions = null,
     allowValidationErrors = false,
+    largeModel = false,
 }) => {
     const canSave = privileges.includes('edit') || privileges.includes('create')
     const router = useRouter()
 
     const [initialFormData, setInitialFormData] = useState(null)
     const [isDirty, setIsDirty] = useState(false)
+    const [isSaving, setIsSaving] = useState(false)
 
     useEffect(() => {
         if (!formData) return
@@ -79,7 +83,12 @@ const FormActions = ({
         }
     }
 
-    function handleSave() {
+    async function handleSave(largeModel: boolean) {
+        if (largeModel) {
+            // This hack is in place to handle RJSF's ajv8 validator performance issues.
+            await wait(500)
+        }
+
         let brokenLinks = localStorage.getItem('brokenLinks')
         let hasBrokenLinks =
             brokenLinks && Object.values(JSON.parse(brokenLinks)).includes('false')
@@ -90,6 +99,9 @@ const FormActions = ({
                 'There are broken links in your document, are you sure you want to save?'
             )
         ) {
+            // not saving because we need to address broken links
+            setIsSaving(false)
+
             return
         }
 
@@ -106,6 +118,9 @@ const FormActions = ({
             })
 
             if (errors.length) {
+                // not saving because we need to address errors
+                setIsSaving(false)
+
                 // errors are printed above the save button, pushing it down. scroll it back
                 setTimeout(() => {
                     let errorPanel = document.querySelector('.rjsf > .panel.errors')
@@ -189,9 +204,24 @@ const FormActions = ({
                     <Button
                         className={styles.button}
                         variant="secondary"
-                        onClick={handleSave}
+                        onClick={async () => {
+                            setIsSaving(true)
+
+                            await handleSave(largeModel)
+                        }}
                     >
                         Save
+                        {isSaving && (
+                            <Spinner
+                                animation="border"
+                                role="status"
+                                size="sm"
+                                variant="light"
+                                className="ml-2"
+                            >
+                                <span className="sr-only">Saving&hellip;</span>
+                            </Spinner>
+                        )}
                     </Button>
                 )}
 

@@ -1,6 +1,6 @@
+import Button from 'react-bootstrap/Button'
 import dynamic from 'next/dynamic'
 import { useState } from 'react'
-import Button from 'react-bootstrap/Button'
 
 // JsonSchemaForm widgets rely heavily on global window, so we'll need to load them in separately
 // as the server side doesn't have a window!
@@ -18,6 +18,7 @@ const Form = ({
     onChange = (data: any) => {},
 }) => {
     const [expandAll, setExpandAll] = useState(false)
+    const largeModel = model?.largeModel || false
 
     let layout = JSON.parse(model?.uiSchema || model?.layout || '{}')
     let formData = document?.doc || document || {}
@@ -64,6 +65,7 @@ const Form = ({
                 imageUploadUrl={process.env.NEXT_PUBLIC_IMAGE_UPLOAD_URL}
                 linkCheckerUrl="/meditor/api/validate/url-resolves"
                 allowValidationErrors={allowValidationErrors}
+                largeModel={largeModel}
             />
         </>
     )

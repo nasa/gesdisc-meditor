@@ -60,6 +60,7 @@ const EditDocumentPage = ({
     const params = router.query
     const documentTitle = decodeURIComponent(params.documentTitle as string)
     const modelName = params.modelName as string
+    const largeModel = model?.largeModel || false
 
     const [currentVersion, setCurrentVersion] = useState(null)
     const [form, setForm] = useState(null)
@@ -372,6 +373,7 @@ const EditDocumentPage = ({
                 allowValidationErrors={
                     model.workflow.currentNode.allowValidationErrors
                 }
+                largeModel={largeModel}
             />
         </div>
     )
