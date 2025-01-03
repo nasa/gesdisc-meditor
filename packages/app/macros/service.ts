@@ -1,10 +1,11 @@
+import assert from 'assert'
 import cloneDeep from 'lodash.clonedeep'
-import { getAllWebhookConfigs } from '../webhooks/service'
-import type { ErrorData } from '../declarations'
+import createError from 'http-errors'
 import log from '../lib/log'
-import type { Model, PopulatedTemplate, Template } from '../models/types'
-import { ErrorCode, HttpException } from '../utils/errors'
+import { getAllWebhookConfigs } from '../webhooks/service'
 import { getMacrosDb } from './db'
+import type { ErrorData } from '../declarations'
+import type { Model, PopulatedTemplate, Template } from '../models/types'
 
 //* Macros are a map of external to internal: externally, mEditor can have template macros defined. Those macros have names. Internally, we make those macro names execute a function by mapping the macro name to a function via this map (e.g., macros.set('external-macro-name', internalMacroFunction)). See ReadMe in this file for more context.
 const macros = new Map<
@@ -27,21 +28,19 @@ async function runModelTemplates(
                 const [macroName, macroArgument] = template.macro.split(/\s+/)
                 const macroService = macros.get(macroName)
 
-                if (!macroService) {
-                    throw new HttpException(
-                        ErrorCode.BadRequest,
-                        `Macro, ${macroName}, not supported.`
-                    )
-                }
+                assert(
+                    macroService,
+                    new createError.BadRequest(`Macro, ${macroName}, not supported.`)
+                )
 
                 const [error, filledTemplate] = await macroService(macroArgument)
 
-                if (error) {
-                    throw new HttpException(
-                        ErrorCode.InternalServerError,
+                assert(
+                    !error,
+                    new createError.InternalServerError(
                         `Template macro ${macroName} did not run.`
                     )
-                }
+                )
 
                 template.result = filledTemplate
 

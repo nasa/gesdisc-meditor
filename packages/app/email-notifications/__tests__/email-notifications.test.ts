@@ -1,20 +1,20 @@
-import type { Db } from 'mongodb'
-import { getUsersDb } from '../../auth/db'
-import baconUser from '../../auth/__tests__/__fixtures__/bacon-user.json'
-import { getDocument } from '../../documents/service'
-import alertWithPublication from '../../documents/__tests__/__fixtures__/alertWithPublication.json'
-import getDb from '../../lib/mongodb'
-import { getModelWithWorkflow } from '../../models/service'
-import type { ModelWithWorkflow } from '../../models/types'
-import howDoIFAQ from '../../models/__tests__/__fixtures__/faqs/how-do-i.json'
 import alertsModel from '../../models/__tests__/__fixtures__/models/alerts.json'
+import alertWithPublication from '../../documents/__tests__/__fixtures__/alertWithPublication.json'
+import baconUser from '../../auth/__tests__/__fixtures__/bacon-user.json'
+import editPublishWorkflow from '../../workflows/__tests__/__fixtures__/edit-publish.json'
 import faqsModel from '../../models/__tests__/__fixtures__/models/faqs.json'
+import howDoIFAQ from '../../models/__tests__/__fixtures__/faqs/how-do-i.json'
+import modifyReviewPublishWorkflow from '../../workflows/__tests__/__fixtures__/modify-review-publish.json'
+import { getDb } from '../../lib/connections'
+import { getDocument } from '../../documents/service'
+import { getModelWithWorkflow } from '../../models/service'
+import { getUsersDb } from '../../auth/db'
+import type { Db } from 'mongodb'
+import type { ModelWithWorkflow } from '../../models/types'
 import {
     getNodesFromEdges,
     getWorkflowEdgeMatchingSourceAndTarget,
 } from '../../workflows/service'
-import editPublishWorkflow from '../../workflows/__tests__/__fixtures__/edit-publish.json'
-import modifyReviewPublishWorkflow from '../../workflows/__tests__/__fixtures__/modify-review-publish.json'
 import {
     constructEmailMessageForStateChange,
     formatUserForEmail,
@@ -259,7 +259,7 @@ describe('Email Notifications', () => {
                 targetNodes,
                 currentEdge,
                 'hashbrowns',
-                baconUser,
+                baconUser.uid,
                 defaultEmailTemplate
             )
 
@@ -279,7 +279,7 @@ describe('Email Notifications', () => {
                 targetNodes,
                 currentEdge,
                 'hashbrowns',
-                baconUser,
+                baconUser.uid,
                 defaultEmailTemplate
             )
 
@@ -330,7 +330,7 @@ describe('Email Notifications', () => {
                 targetNodes,
                 currentEdge,
                 'hashbrowns',
-                baconUser,
+                baconUser.uid,
                 defaultEmailTemplate
             )
 
@@ -363,6 +363,7 @@ describe('Email Notifications', () => {
         beforeEach(() => {
             dateSpy = jest
                 .spyOn(global, 'Date')
+                // @ts-expect-error Date expects to return a Date not a string, we're mocking the date so this is expected
                 .mockImplementation(() => mockDate as unknown as string)
         })
 
@@ -376,6 +377,7 @@ describe('Email Notifications', () => {
                 'FAQs',
                 baconUser
             )
+
             const emailMessage = await constructEmailMessageForStateChange(
                 model,
                 faq,

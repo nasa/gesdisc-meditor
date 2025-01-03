@@ -1,20 +1,19 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { setUpNewInstallation } from '../../../../setup/service'
-import { apiError } from '../../../../utils/errors'
+import { withApiErrorHandler } from 'lib/with-api-error-handler'
+import assert from 'assert'
+import createError from 'http-errors'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    switch (req.method) {
-        case 'POST': {
-            const [error] = await setUpNewInstallation(req.body)
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+    assert(req.method === 'POST', new createError.MethodNotAllowed())
 
-            if (!!error) {
-                return apiError(error, res)
-            }
+    const [error] = await setUpNewInstallation(req.body)
 
-            return res.status(204).end()
-        }
-
-        default:
-            return res.status(405).end()
+    if (!!error) {
+        throw error
     }
+
+    return res.status(204).end()
 }
+
+export default withApiErrorHandler(handler)

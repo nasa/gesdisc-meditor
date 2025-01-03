@@ -1,39 +1,39 @@
 import cloneDeep from 'lodash.clonedeep'
-import type { NextPageContext } from 'next'
-import { useRouter } from 'next/router'
-import { useContext, useEffect, useState } from 'react'
-import { getLoggedInUser } from '../../../auth/user'
-import { getCommentsForDocument } from '../../../comments/service'
-import type { DocumentComment } from '../../../comments/types'
-import { AppContext } from '../../../components/app-store'
-import { Breadcrumb, Breadcrumbs } from '../../../components/breadcrumbs'
 import DocumentComments from '../../../components/document/document-comments'
+import DocumentForm from '../../../components/document/form'
 import DocumentHeader from '../../../components/document/document-header'
 import DocumentHistory from '../../../components/document/document-history'
 import DocumentPanel from '../../../components/document/document-panel'
 import DocumentWorkflow from '../../../components/document/document-workflow'
-import DocumentForm from '../../../components/document/form'
 import FormActions from '../../../components/document/form-actions'
-import SourceDialog from '../../../components/document/source-dialog'
 import JsonDiffViewer from '../../../components/json-diff-viewer'
 import PageTitle from '../../../components/page-title'
-import withAuthentication from '../../../components/with-authentication'
+import SourceDialog from '../../../components/document/source-dialog'
+import styles from './document-edit.module.css'
 import { adaptDocumentToLegacyDocument } from '../../../documents/adapters'
+import { AppContext } from '../../../components/app-store'
+import { Breadcrumb, Breadcrumbs } from '../../../components/breadcrumbs'
+import { getCommentsForDocument } from '../../../comments/service'
+import { getDocument, getDocumentHistory } from '../../../documents/service'
+import { getModelWithWorkflow } from '../../../models/service'
+import { getServerSession } from '../../../auth/user'
+import { privilegesForModelAndWorkflowNode } from 'auth/utilities'
+import { refreshDataInPlace } from '../../../lib/next'
+import { treeify } from '../../../lib/treeify'
+import { useContext, useEffect, useState } from 'react'
+import { useLocalStorage } from '../../../lib/use-localstorage.hook'
+import { useRouter } from 'next/router'
+import type { NextPageContext } from 'next'
+import type { DocumentComment } from '../../../comments/types'
 import {
     createDocument as httpCreateDocument,
     fetchDocument,
 } from '../../../documents/http'
-import { getDocument, getDocumentHistory } from '../../../documents/service'
 import type {
     DocumentHistory as History,
     LegacyDocumentWithMetadata,
 } from '../../../documents/types'
-import { refreshDataInPlace } from '../../../lib/next'
-import { treeify } from '../../../lib/treeify'
-import { useLocalStorage } from '../../../lib/use-localstorage.hook'
-import { getModelWithWorkflow } from '../../../models/service'
 import type { ModelWithWorkflow } from '../../../models/types'
-import styles from './document-edit.module.css'
 
 export type DocumentPanels = 'comments' | 'history' | 'source' | 'workflow'
 
@@ -43,18 +43,18 @@ type PropsType = {
     pageDocument: LegacyDocumentWithMetadata
     model: ModelWithWorkflow
     theme: any
-    user: any
     version: string
+    currentPrivileges: any[]
 }
 
 const EditDocumentPage = ({
     model,
-    user,
     version = null,
     theme,
     comments,
     documentHistory,
     pageDocument,
+    currentPrivileges,
 }: PropsType) => {
     const router = useRouter()
     const params = router.query
@@ -78,13 +78,6 @@ const EditDocumentPage = ({
     useEffect(() => {
         refreshDataInPlace(router)
     }, [formData.state, refreshDataInPlace])
-
-    const currentPrivileges = model.workflow
-        ? user.privilegesForModelAndWorkflowNode(
-              modelName,
-              model.workflow.currentNode
-          )
-        : []
 
     function reloadDocument() {
         const parser = new URL(window.location.href)
@@ -127,8 +120,7 @@ const EditDocumentPage = ({
         )
 
         if (error) {
-            setErrorNotification('Failed to update the document')
-
+            setErrorNotification(error.message ?? 'Failed to update the document')
             return
         }
 
@@ -143,7 +135,7 @@ const EditDocumentPage = ({
 
         // only allow updating the document during a state change if the user has edit privileges
         // this leaves it up to the workflow to determine whether updating via state change is allowed
-        const canUpdateDocument = currentPrivileges?.includes('edit') && document
+        const canUpdateDocument = currentPrivileges.includes('edit') && document
 
         await fetch(
             `/meditor/api/models/${encodeURIComponent(
@@ -312,7 +304,7 @@ const EditDocumentPage = ({
                         document={formData}
                         onUpdateForm={setForm}
                         onChange={handleSourceChange}
-                        readOnly={!currentPrivileges?.includes('edit')}
+                        readOnly={!currentPrivileges.includes('edit')}
                         allowValidationErrors={
                             model.workflow.currentNode.allowValidationErrors
                         }
@@ -325,7 +317,6 @@ const EditDocumentPage = ({
                     onClose={closePanel}
                 >
                     <DocumentComments
-                        user={user}
                         comments={comments}
                         saveComment={handleSaveComment}
                         resolveComment={resolveComment}
@@ -389,12 +380,12 @@ const EditDocumentPage = ({
 export async function getServerSideProps(ctx: NextPageContext) {
     const { documentTitle, modelName } = ctx.query
     const { req, res } = ctx
-    const user = await getLoggedInUser(req, res)
+    const session = await getServerSession(req, res)
 
     const [pageDocumentError, pageDocument] = await getDocument(
         decodeURIComponent(documentTitle.toString()),
         decodeURIComponent(modelName.toString()),
-        user
+        session.user
     )
 
     // No point in displaying the page if our core resource has errored or is missing.
@@ -419,14 +410,21 @@ export async function getServerSideProps(ctx: NextPageContext) {
         decodeURIComponent(modelName.toString())
     )
 
+    const currentPrivileges = privilegesForModelAndWorkflowNode(
+        session.user,
+        modelName.toString(),
+        modelWithWorkflow.workflow.currentNode
+    )
+
     const props = {
         comments: !!commentsError ? null : treeify(comments),
         pageDocument: adaptDocumentToLegacyDocument(pageDocument),
         documentHistory: !!documentHistoryError ? null : documentHistory,
         model: modelWithWorkflow,
+        currentPrivileges,
     }
 
     return { props }
 }
 
-export default withAuthentication()(EditDocumentPage)
+export default EditDocumentPage

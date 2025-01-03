@@ -1,5 +1,6 @@
-import { connect } from 'node-nats-streaming'
 import log from './log'
+import { connect } from 'node-nats-streaming'
+import { handlePublicationAcknowledgements } from '../publication-queue/service'
 
 const clusterID = process.env.MEDITOR_NATS_CLUSTER_ID || 'test-cluster'
 const clientID = 'meditor-app'
@@ -43,6 +44,12 @@ async function connectToNats() {
             `onConnect: Connected client ${clientID} to NATS Streaming Server cluster ${clusterID} at ${server}.`
         )
 
+        // subscribe to publication acknowledgements
+        subscribeToChannel('meditor-Acknowledge').on(
+            'message',
+            handlePublicationAcknowledgements
+        )
+
         return Promise.resolve()
     })
 
@@ -62,6 +69,18 @@ async function connectToNats() {
             `onClose: Disconnected client ${clientID} from NATS Streaming Server cluster ${clusterID} at ${server}.`
         )
     })
+}
+
+function subscribeToChannel(channel) {
+    log.debug(`Subscribing to channel: ${channel}`)
+
+    let options = globalThis.natsClient.subscriptionOptions()
+    options.setDeliverAllAvailable()
+    options.setDurableName(`${clientID}-${channel}`)
+    options.setManualAckMode(true)
+    options.setAckWait(60 * 1000)
+
+    return globalThis.natsClient.subscribe(channel, options)
 }
 
 export { connectToNats }

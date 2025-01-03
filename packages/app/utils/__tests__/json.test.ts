@@ -5,7 +5,7 @@ test('returns tuple containing data on happy path', () => {
 
     expect(error).toBeNull()
     expect(data).toMatchInlineSnapshot(`
-        Object {
+        {
           "passed": true,
         }
     `)
@@ -18,13 +18,13 @@ test('handles arrays and objects', () => {
     expect(objectError).toBeNull()
     expect(arrayError).toBeNull()
     expect(objectData).toMatchInlineSnapshot(`
-        Object {
+        {
           "passed": true,
         }
     `)
     expect(arrayData).toMatchInlineSnapshot(`
-        Array [
-          Object {
+        [
+          {
             "passed": true,
           },
         ]
@@ -36,14 +36,14 @@ test('returns tuple containing error without throwing', () => {
 
     expect(data).toBeNull()
     expect(error).toMatchInlineSnapshot(
-        `[SyntaxError: Unexpected token p in JSON at position 2]`
+        `[SyntaxError: Expected property name or '}' in JSON at position 2 (line 1 column 3)]`
     )
 })
 
 test('handles primitive data types just like JSON.parse', () => {
     const [stringError, string] = safeParseJSON('string')
     expect(stringError).toMatchInlineSnapshot(
-        `[SyntaxError: Unexpected token s in JSON at position 0]`
+        `[SyntaxError: Unexpected token 's', "string" is not valid JSON]`
     )
     expect(string).toBeNull()
 
@@ -61,7 +61,7 @@ test('handles primitive data types just like JSON.parse', () => {
 
     const [undefinedError, undefinedVariable] = safeParseJSON(undefined)
     expect(undefinedError).toMatchInlineSnapshot(
-        `[SyntaxError: Unexpected token u in JSON at position 0]`
+        `[SyntaxError: "undefined" is not valid JSON]`
     )
     expect(undefinedVariable).toBeNull()
 

@@ -1,13 +1,14 @@
-import { format } from 'date-fns'
-import { useEffect, useState } from 'react'
 import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
+import IconButton from '../icon-button'
 import Image from 'react-bootstrap/Image'
+import styles from './document-comments.module.css'
+import { format } from 'date-fns'
 import { IoMdEye, IoMdEyeOff } from 'react-icons/io'
 import { MdCheck, MdClose, MdComment, MdEdit, MdReply, MdSend } from 'react-icons/md'
-import IconButton from '../icon-button'
-import styles from './document-comments.module.css'
+import { useEffect, useState } from 'react'
+import { useSession } from 'next-auth/react'
 
 const AVATAR_URL =
     'https://bugs.earthdata.nasa.gov/secure/useravatar?size=large&ownerId=${uid}'
@@ -21,10 +22,10 @@ const DEFAULT_COMMENT = {
 const CommentCard = ({
     comment,
     onSave,
-    user = null,
     onCancel = () => {},
     onResolve = _comment => {},
 }) => {
+    const { data: session, status } = useSession()
     const [newComment, setNewComment] = useState('')
     const [editing, setEditing] = useState(false)
     const [replyComment, setReplyComment] = useState(null)
@@ -163,7 +164,7 @@ const CommentCard = ({
                             </IconButton>
                         )}
 
-                        {user.uid == comment.userUid && (
+                        {session?.user?.uid == comment.userUid && (
                             <IconButton
                                 alt="Edit comment"
                                 onClick={() => setEditing(true)}
@@ -198,7 +199,6 @@ const CommentCard = ({
                     {comment.children.map(childComment => (
                         <CommentCard
                             key={childComment._id}
-                            user={user}
                             comment={childComment}
                             onSave={onSave}
                         />
@@ -209,7 +209,7 @@ const CommentCard = ({
     )
 }
 
-const DocumentComments = ({ user, comments = [], saveComment, resolveComment }) => {
+const DocumentComments = ({ comments = [], saveComment, resolveComment }) => {
     const [newComment, setNewComment] = useState(null)
     const [showAll, setShowAll] = useState(false)
 
@@ -286,7 +286,6 @@ const DocumentComments = ({ user, comments = [], saveComment, resolveComment }) 
                     {comments.filter(filterCommentByResolved).map(comment => (
                         <CommentCard
                             key={comment._id}
-                            user={user}
                             comment={comment}
                             onSave={updateComment}
                             onResolve={resolveComment}

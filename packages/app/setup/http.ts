@@ -1,5 +1,6 @@
+import createError from 'http-errors'
 import type { APIError, ErrorData } from '../declarations'
-import { ErrorCode, HttpException } from '../utils/errors'
+
 import type { UserDuringSetup } from './types'
 
 async function fetchSeedDb(users: UserDuringSetup[]): Promise<ErrorData<null>> {
@@ -14,8 +15,7 @@ async function fetchSeedDb(users: UserDuringSetup[]): Promise<ErrorData<null>> {
 
         if (!response.ok) {
             const { status, error }: APIError = await response.json()
-
-            throw new HttpException(ErrorCode.BadRequest, error) // TODO: figure out proper error code using the status
+            throw createError(status, error)
         }
 
         return [null, null]

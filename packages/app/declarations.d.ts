@@ -1,12 +1,32 @@
-import { JSX as LocalJSX } from '@gesdisc/meditor-components/loader'
-import type { CKEditor } from 'ckeditor4-react'
 import { DetailedHTMLProps, HTMLAttributes } from 'react'
-import type { HttpException } from './utils/errors'
+import { HttpError } from 'http-errors'
+import { JSX as LocalJSX } from '@gesdisc/meditor-components/loader'
+import { UserRole } from 'auth/types'
+import 'next-auth'
+import type { CKEditor } from 'ckeditor4-react'
 import type { Stan } from 'node-nats-streaming'
+import type { User as NextAuthUser } from 'next-auth'
+
+export type User = NextAuthUser & {
+    uid?: string
+    roles?: UserRole[]
+}
+
+// Read more at: https://next-auth.js.org/getting-started/typescript#module-augmentation
+declare module 'next-auth' {
+    interface Session {
+        user: User
+    }
+}
 
 declare global {
     export namespace JSX {
-        interface IntrinsicElements extends StencilToReact {}
+        interface IntrinsicElements extends StencilToReact {
+            'code-editor': React.DetailedHTMLProps<
+                React.HTMLAttributes<HTMLElement>,
+                HTMLElement
+            >
+        }
     }
 
     var CKEDITOR: CKEditor
@@ -19,7 +39,7 @@ export type APIError = {
     error: string
 }
 
-export type ErrorData<T> = [Error | HttpException | null, T | null]
+export type ErrorData<T> = [Error | HttpError | null, T | null]
 
 type gReactProps<T> = {
     [P in keyof T]?: DetailedHTMLProps<HTMLAttributes<T[P]>, T[P]>

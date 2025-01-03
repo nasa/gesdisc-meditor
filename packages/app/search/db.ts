@@ -1,6 +1,7 @@
-import type { Db } from 'mongodb'
 import compile from 'monquery'
-import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
+import { getDb } from '../lib/connections'
+import { makeSafeObjectIDs } from '../lib/mongodb'
+import type { Db } from 'mongodb'
 
 class searchDb {
     #db: Db

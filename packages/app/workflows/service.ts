@@ -1,10 +1,11 @@
-import type { ErrorData } from '../declarations'
-import { getModel } from '../models/service'
-import type { Workflow, WorkflowEdge } from './types'
-import { getWorkflowsDb } from './db'
-import { ErrorCode, HttpException } from '../utils/errors'
-import { onlyUnique } from '../utils/array'
+import assert from 'assert'
+import createError from 'http-errors'
 import log from '../lib/log'
+import { getModel } from '../models/service'
+import { getWorkflowsDb } from './db'
+import { onlyUnique } from '../utils/array'
+import type { ErrorData } from '../declarations'
+import type { Workflow, WorkflowEdge } from './types'
 
 export async function getWorkflowForModel(
     modelName: string
@@ -30,12 +31,12 @@ export async function getWorkflow(
         const workflowsDb = await getWorkflowsDb()
         const workflow = await workflowsDb.getWorkflow(workflowName)
 
-        if (!workflow) {
-            throw new HttpException(
-                ErrorCode.NotFound,
+        assert(
+            workflow,
+            new createError.NotFound(
                 `The requested workflow, ${workflowName}, was not found.`
             )
-        }
+        )
 
         return [null, workflow]
     } catch (error) {
@@ -97,12 +98,12 @@ export function getWorkflowEdgeMatchingSourceAndTarget(
     )
 
     //! if we find more than one edge, the workflow is misconfigured, this is a FATAL error and we should immediately throw
-    if (matchingEdges.length > 1) {
-        throw new HttpException(
-            ErrorCode.InternalServerError,
+    assert(
+        matchingEdges.length <= 1,
+        new createError.InternalServerError(
             `The workflow, ${workflow.name}, is misconfigured due to having duplicate edges for [source=${source}, target=${target}].`
         )
-    }
+    )
 
     return matchingEdges[0]
 }

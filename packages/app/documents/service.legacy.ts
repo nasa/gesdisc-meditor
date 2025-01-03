@@ -1,7 +1,8 @@
 import cloneDeep from 'lodash.clonedeep'
+import createError from 'http-errors'
 import log from '../lib/log'
-import { ErrorCode, HttpException } from '../utils/errors'
 import { getDocumentsDbLegacy } from './db.legacy'
+
 import type { Document } from './types'
 
 const workflowRoot = 'Init'
@@ -149,8 +150,7 @@ async function legacyHandleModelChanges(document: Document) {
     } catch (error) {
         log.error(error)
 
-        throw new HttpException(
-            ErrorCode.InternalServerError,
+        throw new createError.InternalServerError(
             `Updating state history for ${document.name} failed.`
         )
     }

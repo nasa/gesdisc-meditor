@@ -1,6 +1,7 @@
-import type { Db } from 'mongodb'
+import { getDb } from '../lib/connections'
+import { makeSafeObjectIDs } from '../lib/mongodb'
 import { ObjectID } from 'mongodb'
-import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
+import type { Db } from 'mongodb'
 import type { DocumentComment, NewDocumentComment } from './types'
 
 class CommentsDb {
