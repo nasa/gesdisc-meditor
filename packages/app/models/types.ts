@@ -25,6 +25,7 @@ export interface Model {
     workflow?: string
     notificationTemplate?: string
     templates?: Template[]
+    largeModel?: boolean
 }
 
 export interface ModelWithWorkflow extends Omit<Model, 'workflow'> {
