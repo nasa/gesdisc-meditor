@@ -1,59 +1,65 @@
-import type { NextPageContext } from 'next'
-import Link from 'next/link'
-import Button from 'react-bootstrap/Button'
-import ModelIcon from '../components/model-icon'
+import ModelsByCategory from '../components/models-by-category'
 import PageTitle from '../components/page-title'
 import UnderMaintenance from '../components/under-maintenance'
 import { getModelsWithDocumentCount } from '../models/service'
-import type { ModelCategory } from '../models/types'
+import { getServerSession } from 'auth/user'
 import { sortModels } from '../utils/sort'
-import styles from './dashboard.module.css'
+import { useRouter } from 'next/router'
+import type { NextPageContext } from 'next'
+import type { Model, ModelCategory } from '../models/types'
 
-type DashboardPageProps = {
+export interface DashboardPageProps {
     modelCategories: ModelCategory[]
 }
 
 const DashboardPage = ({ modelCategories }: DashboardPageProps) => {
+    const router = useRouter()
+
+    if (!modelCategories) {
+        //? after upgrading to NextJS v15, hitting the back button to return to the homepage results in `undefined` props
+        //? this is a quick fix to reload the page if we encounter that scenario, as modelCategories should never be undefined
+        // TODO: figure out why NextJS v15 is not populating props correctly on back button click
+        router.reload()
+        return null // return null to render nothing until the page refreshes
+    }
+
     return (
         <div>
             <PageTitle title="" />
 
             {(!modelCategories || modelCategories.length < 0) && <UnderMaintenance />}
 
-            {modelCategories?.map(category => (
-                <div key={category.name} className={styles.category}>
-                    <h3>{category.name}</h3>
-
-                    <div className={styles.models}>
-                        {category.models
-                            .sort((a, b) => a.name.localeCompare(b.name))
-                            .map(model => (
-                                <div key={model.name} className={styles.model}>
-                                    <Link href={`/${model.name}`}>
-                                        <Button
-                                            variant="light"
-                                            className="dashboard-model"
-                                        >
-                                            <ModelIcon
-                                                name={model?.icon?.name}
-                                                color={model?.icon?.color}
-                                            />
-                                            <span>{model?.name}</span>
-                                            <span>
-                                                ({model?.['x-meditor']?.count})
-                                            </span>
-                                        </Button>
-                                    </Link>
-                                </div>
-                            ))}
-                    </div>
-                </div>
-            ))}
+            <ModelsByCategory modelCategories={modelCategories} />
         </div>
     )
 }
 
-export async function getServerSideProps(context: NextPageContext) {
+export function sortModelsIntoCategories(models: Model[]): ModelCategory[] {
+    // get a unique list of category names from the models
+    const categories: string[] = models
+        .map(model => model.category) // retrieve just the category name
+        .filter(
+            (category, index, categories) => categories.indexOf(category) === index
+        ) // remove duplicates
+
+    return categories.map(category => ({
+        name: category,
+        models: models.filter(model => model.category === category),
+    }))
+}
+
+export async function getServerSideProps(ctx: NextPageContext) {
+    // Redirect to sign in page if logged out
+    //? Unlike other pages, the root path, /meditor doesn't seem to react at all to NextJS middleware
+    if (!(await getServerSession(ctx.req, ctx.res))) {
+        return {
+            redirect: {
+                destination: '/signin',
+                permanent: false,
+            },
+        }
+    }
+
     // TODO: handle error when retrieving models with document count, show user an error message?
     const [_error, modelsWithDocumentCount] = await getModelsWithDocumentCount()
     const models = (modelsWithDocumentCount || []).sort(sortModels)
@@ -68,17 +74,7 @@ export async function getServerSideProps(context: NextPageContext) {
         }
     }
 
-    // get a unique list of category names from the models
-    const categories: string[] = models
-        .map(model => model.category) // retrieve just the category name
-        .filter(
-            (category, index, categories) => categories.indexOf(category) === index
-        ) // remove duplicates
-
-    const modelCategories: ModelCategory[] = categories.map(category => ({
-        name: category,
-        models: models.filter(model => model.category === category),
-    }))
+    const modelCategories = sortModelsIntoCategories(models)
 
     return {
         // Next doesn't know how to process the Mongo _id property, as it's an object, not a string. So this hack parses ahead of time

@@ -1,38 +1,26 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import { getLoggedInUser } from 'auth/user'
-import { getModel, userCanAccessModel } from 'models/service'
+import assert from 'assert'
+import createError from 'http-errors'
+import { getModel } from 'models/service'
 import { respondAsJson } from 'utils/api'
-import { apiError, ErrorCode, HttpException } from 'utils/errors'
+import { withApiErrorHandler } from 'lib/with-api-error-handler'
+import { withUserCanAccessModelCheck } from 'lib/with-user-can-access-model-check'
+import type { NextApiRequest, NextApiResponse } from 'next'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+    assert(req.method === 'GET', new createError.MethodNotAllowed())
+
     const modelName = decodeURIComponent(req.query.modelName.toString())
-    const user = await getLoggedInUser(req, res)
 
-    if (!userCanAccessModel(modelName, user)) {
-        return apiError(
-            new HttpException(
-                ErrorCode.ForbiddenError,
-                'User does not have access to the requested model'
-            ),
-            res
-        )
+    const [error, model] = await getModel(modelName, {
+        includeId: false,
+        populateMacroTemplates: true,
+    })
+
+    if (error) {
+        throw error
     }
 
-    switch (req.method) {
-        case 'GET': {
-            const [error, model] = await getModel(modelName, {
-                includeId: false,
-                populateMacroTemplates: true,
-            })
-
-            if (error) {
-                return apiError(error, res)
-            }
-
-            return respondAsJson(JSON.parse(model.schema), req, res)
-        }
-
-        default:
-            return res.status(405).end()
-    }
+    return respondAsJson(JSON.parse(model.schema), req, res)
 }
+
+export default withApiErrorHandler(withUserCanAccessModelCheck(handler))

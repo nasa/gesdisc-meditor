@@ -1,4 +1,11 @@
-import Form from '@rjsf/core'
+import Form, { FormProps } from '@rjsf/core'
+import type {
+    FormContextType,
+    FormValidation,
+    RJSFSchema,
+    StrictRJSFSchema,
+} from '@rjsf/utils'
+import validator from '@rjsf/validator-ajv8'
 import jp from 'jsonpath'
 import filter from 'lodash/filter'
 import isEqual from 'lodash/isEqual'
@@ -7,8 +14,115 @@ import { useEffect, useRef } from 'react'
 import fields from './fields/'
 import templates from './templates/'
 import widgets from './widgets/'
-import validator from '@rjsf/validator-ajv8'
-import type { FormValidation } from '@rjsf/utils'
+
+class LargeModelForm<
+    T = any,
+    S extends StrictRJSFSchema = RJSFSchema,
+    F extends FormContextType = any
+> extends Form {
+    // Set a reference to the super's onChange method as a class field to prevent intermediate value errors.
+    superOnChange = this.onChange
+    // A list of element node names that we will target for overriding default behavior.
+    targetNodeNames = ['INPUT']
+    // A store of events that we conditionally re-propagate to RJSF.
+    eventStore = {}
+    // A store of state locks that get set on various events.
+    nodeShouldPropagateStore = {}
+
+    constructor(props: FormProps<T, S, F>) {
+        super(props)
+    }
+
+    componentDidMount() {
+        this.formElement.current.addEventListener('input', this.handleInput, {
+            capture: true,
+        })
+        this.formElement.current.addEventListener('change', this.handleChange, {
+            capture: true,
+        })
+        this.formElement.current.addEventListener('blur', this.handleBlur, {
+            capture: true,
+        })
+
+        if (super.componentDidMount) {
+            super.componentDidMount()
+        }
+    }
+
+    componentWillUnmount() {
+        this.formElement.current.removeEventListener('input', this.handleInput, {
+            capture: true,
+        })
+        this.formElement.current.removeEventListener('change', this.handleChange, {
+            capture: true,
+        })
+        this.formElement.current.removeEventListener('blur', this.handleBlur, {
+            capture: true,
+        })
+
+        if (super.componentWillUnmount) {
+            super.componentWillUnmount()
+        }
+    }
+
+    static debounce(fn: Function, delay = 600) {
+        let timerId: NodeJS.Timeout
+
+        return (...args: any[]) => {
+            globalThis.clearTimeout(timerId)
+
+            timerId = setTimeout(() => fn(...args), delay)
+        }
+    }
+
+    /*
+     * Targeting only nodes in our allowlist, we conditionally stop propagation so that the ajv8 validator does not get triggered.
+     * We state lock the event so that later logic does not propagate its change event.
+     */
+    handleInput = (event: any) => {
+        if (this.targetNodeNames.includes(event.target.nodeName)) {
+            event.stopPropagation()
+
+            this.nodeShouldPropagateStore[event.target.id] = false
+        }
+    }
+
+    /*
+     * Targeting only nodes in our allowlist, we conditionally stop propagation so that the ajv8 validator does not get triggered.
+     * We store the event for later propagation.
+     */
+    handleChange = (event: any) => {
+        if (
+            this.targetNodeNames.includes(event.target.nodeName) &&
+            !this.nodeShouldPropagateStore[event.target.id]
+        ) {
+            event.stopPropagation()
+
+            this.eventStore[event.target.id] = event
+
+            return
+        }
+    }
+
+    /*
+     * Targeting only nodes in our allowlist, we check to make sure node's event has been stored.
+     * Because the ajv8 validator is slow on large schemas, we wait until the `blur` event before triggering an update.
+     * We mark the node as ready to propagate, re-dispatching the event.
+     * Debounce this handler for rapid tabbing, which triggers unnecessary state updates.
+     */
+    handleBlur = LargeModelForm.debounce((event: any) => {
+        if (
+            this.targetNodeNames.includes(event.target.nodeName) &&
+            this.eventStore[event.target.id]
+        ) {
+            this.nodeShouldPropagateStore[event.target.id] = true
+
+            this.eventStore[event.target.id].target.dispatchEvent(
+                this.eventStore[event.target.id]
+            )
+        }
+    })
+}
 
 const JsonSchemaForm = ({
     schema,
@@ -18,9 +132,11 @@ const JsonSchemaForm = ({
     layout,
     liveValidate = false,
     allowValidationErrors = false,
-    onInit = (form: any) => {},
-    onChange = (event: any) => {},
+    largeModel = false,
+    onInit = (_form: any) => {},
+    onChange = (_event: any) => {},
 }) => {
+    const FormType = largeModel ? LargeModelForm : Form
     const formEl: any = useRef(null)
 
     useEffect(() => {
@@ -75,7 +191,7 @@ const JsonSchemaForm = ({
     }
 
     return (
-        <Form
+        <FormType
             ref={formEl}
             schema={schema}
             formData={document}

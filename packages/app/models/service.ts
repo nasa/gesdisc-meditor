@@ -1,16 +1,15 @@
+import assert from 'assert'
+import createError from 'http-errors'
 import jsonpath from 'jsonpath'
-import type { User } from '../auth/types'
-import type { ErrorData } from '../declarations'
-import { getDocumentsDb } from '../documents/db'
 import log from '../lib/log'
-import { runModelTemplates } from '../macros/service'
-import { ErrorCode, HttpException } from '../utils/errors'
-import { isJson } from '../utils/jsonschema-validate'
-import { getWorkflowByDocumentState } from '../workflows/service'
+import { getDocumentsDb } from '../documents/db'
 import { getModelsDb } from './db'
-import type { Model, ModelWithWorkflow } from './types'
+import { getWorkflowByDocumentState } from '../workflows/service'
+import { isJson } from '../utils/jsonschema-validate'
+import { runModelTemplates } from '../macros/service'
 
-const MODELS_REQUIRING_AUTHENTICATION = ['Users']
+import type { ErrorData } from '../declarations'
+import type { Model, ModelWithWorkflow } from './types'
 
 type getModelOptions = {
     populateMacroTemplates?: boolean
@@ -32,29 +31,22 @@ export async function getModel(
     options: getModelOptions = { includeId: true }
 ): Promise<ErrorData<Model>> {
     try {
-        if (!modelName) {
-            throw new HttpException(ErrorCode.BadRequest, 'Model name is required')
-        }
+        assert(modelName, new createError.BadRequest('Model name is required'))
 
         const modelsDb = await getModelsDb()
         const model = await modelsDb.getModel(modelName)
 
-        if (!model) {
-            throw new HttpException(
-                ErrorCode.NotFound,
-                `Model not found: ${modelName}`
-            )
-        }
+        assert(model, new createError.NotFound(`Model not found: ${modelName}`))
 
         // see top level documentation for description of macro templates
         if (options.populateMacroTemplates) {
             // validate the model's schema before continuing
-            if (!isJson(model.schema)) {
-                throw new HttpException(
-                    ErrorCode.BadRequest,
+            assert(
+                isJson(model.schema),
+                new createError.BadRequest(
                     `The schema for model, ${modelName}, contains invalid JSON`
                 )
-            }
+            )
 
             // execute the macro templates for this model and get their values
             const [error, populatedTemplates] = await runModelTemplates(model)
@@ -203,11 +195,4 @@ export async function getModelsWithDocumentCount(): Promise<ErrorData<Model[]>> 
 
         return [error, null]
     }
-}
-
-/**
- * if user is not authenticated, verify the requested model is not in the list of models requiring authentication
- */
-export function userCanAccessModel(modelName: string, user: User) {
-    return !!user?.uid || !MODELS_REQUIRING_AUTHENTICATION.includes(modelName)
 }

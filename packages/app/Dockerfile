@@ -1,5 +1,5 @@
 ARG REGISTRY
-FROM ${REGISTRY}node:16.11.1
+FROM ${REGISTRY}node:22.11.0
 
 ENV NPM_CONFIG_LOGLEVEL warn
 ARG node_env
@@ -18,5 +18,5 @@ CMD if [ "$NODE_ENV" = "production" ]; \
   then \
   npm run start; \
   else \
-  npm run dev; \
+  npm run docker:dev; \
   fi

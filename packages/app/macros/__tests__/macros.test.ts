@@ -1,11 +1,11 @@
-import jsonpath from 'jsonpath'
-import getDb from '../../lib/mongodb'
-import { getModel } from '../../models/service'
-import GLDAS_CLM10SUBP_3H_001 from '../../models/__tests__/__fixtures__/collection-metadata/GLDAS_CLM10SUBP_3H_001.json'
-import OML1BRVG_003 from '../../models/__tests__/__fixtures__/collection-metadata/OML1BRVG_003.json'
 import collectionMetadataModel from '../../models/__tests__/__fixtures__/models/collection-metadata.json'
-import { getAllWebhookURLs } from '../service'
 import faqsModelWithOneMacro from './__fixtures__/faqs-model-one-macro.json'
+import GLDAS_CLM10SUBP_3H_001 from '../../models/__tests__/__fixtures__/collection-metadata/GLDAS_CLM10SUBP_3H_001.json'
+import jsonpath from 'jsonpath'
+import OML1BRVG_003 from '../../models/__tests__/__fixtures__/collection-metadata/OML1BRVG_003.json'
+import { getAllWebhookURLs } from '../service'
+import { getDb } from '../../lib/connections'
+import { getModel } from '../../models/service'
 
 describe('Template Macros', () => {
     const env = process.env
@@ -45,7 +45,7 @@ describe('Template Macros', () => {
             expect(error).toBeNull()
             expect(jsonpath.value(schema, firstTemplate.jsonpath))
                 .toMatchInlineSnapshot(`
-                Array [
+                [
                   "GLDAS_CLM10SUBP_3H_001",
                   "OML1BRVG_003",
                 ]
@@ -78,7 +78,7 @@ describe('Template Macros', () => {
             expect(error).toBeNull()
             expect(jsonpath.value(schema, firstTemplate.jsonpath))
                 .toMatchInlineSnapshot(`
-                Array [
+                [
                   "GLDAS_CLM10SUBP_3H_001",
                   "OML1BRVG_003",
                 ]
@@ -97,7 +97,7 @@ describe('Template Macros', () => {
 
             expect(error).toBeNull()
             expect(webhookURLs).toMatchInlineSnapshot(`
-                Array [
+                [
                   "http://example.com/1",
                 ]
             `)
@@ -111,7 +111,7 @@ describe('Template Macros', () => {
 
             expect(stringError).toBeNull()
             expect(stringWebhookURLs).toMatchInlineSnapshot(`
-                Array [
+                [
                   "http://example.com/1",
                 ]
             `)
@@ -128,7 +128,7 @@ describe('Template Macros', () => {
 
             expect(literalError).toBeNull()
             expect(literalWebhookURLs).toMatchInlineSnapshot(`
-                Array [
+                [
                   "http://example.com/1",
                 ]
             `)
@@ -140,7 +140,7 @@ describe('Template Macros', () => {
             const [nullError, nullWebhookURLs] = await getAllWebhookURLs()
 
             expect(nullError).toBeNull()
-            expect(nullWebhookURLs).toMatchInlineSnapshot(`Array []`)
+            expect(nullWebhookURLs).toMatchInlineSnapshot(`[]`)
 
             // @ts-ignore
             delete process.env.UI_WEBHOOKS
@@ -148,7 +148,7 @@ describe('Template Macros', () => {
             const [unsetError, unsetWebhookURLs] = await getAllWebhookURLs()
 
             expect(unsetError).toBeNull()
-            expect(unsetWebhookURLs).toMatchInlineSnapshot(`Array []`)
+            expect(unsetWebhookURLs).toMatchInlineSnapshot(`[]`)
         })
     })
 })

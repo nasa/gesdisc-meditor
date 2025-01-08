@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import type { WidgetProps } from '@rjsf/utils'
+import React, { useEffect, useState } from 'react'
 import { getTemplate } from '@rjsf/utils'
 import { ID_PREFIX } from './constants'
+import type { WidgetProps } from '@rjsf/utils'
 
 const DEFAULT_DELIMETER = ' > '
 
@@ -82,7 +82,6 @@ export default function ConcatenatedWidget(props: WidgetProps) {
                     // update the concatenated value anytime this field blurs or changes
                     el.onblur = () => updateConcatenatedFieldValueFromFields(fields)
                     el.onchange = () => updateConcatenatedFieldValueFromFields(fields)
-                    el.onkeyup = () => updateConcatenatedFieldValueFromFields(fields)
                 })
         }, 500)
     }

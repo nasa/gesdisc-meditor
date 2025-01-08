@@ -1,21 +1,19 @@
-import type { NextPageContext } from 'next'
-import { useRouter } from 'next/router'
-import type { ParsedUrlQuery } from 'querystring'
-import { useEffect, useRef, useState } from 'react'
 import PageTitle from '../../components/page-title'
 import SearchBar from '../../components/search/search-bar'
 import SearchList from '../../components/search/search-list'
-import withAuthentication from '../../components/with-authentication'
 import { getDocumentsForModel } from '../../documents/service'
-import type { Document } from '../../documents/types'
 import { getModels, getModelWithWorkflow } from '../../models/service'
+import { NotFound } from 'http-errors'
+import { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/router'
+import type { NextPageContext } from 'next'
+import type { ParsedUrlQuery } from 'querystring'
+import type { Document } from '../../documents/types'
 import type {
     DocumentsSearchOptions,
     Model,
     ModelWithWorkflow,
 } from '../../models/types'
-import type { User } from '../../auth/types'
-import { isNotFoundError } from 'utils/errors'
 
 function getSearchOptionsFromParams(query: ParsedUrlQuery): DocumentsSearchOptions {
     return {
@@ -37,7 +35,6 @@ function getParamsFromSearchOptions(
 }
 
 interface ModelPageProps {
-    user: User
     model: ModelWithWorkflow
     allModels: Model[]
     documents: Document[]
@@ -46,7 +43,7 @@ interface ModelPageProps {
 /**
  * renders the model page with the model's documents in a searchable/filterable list
  */
-const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
+const ModelPage = ({ model, allModels, documents }: ModelPageProps) => {
     const router = useRouter()
     const modelName = router.query.modelName as string
     const [searchOptions, setSearchOptions] = useState<DocumentsSearchOptions>(
@@ -136,7 +133,6 @@ const ModelPage = ({ user, model, allModels, documents }: ModelPageProps) => {
                         }))}
                         model={model}
                         onAddNew={addNewDocument}
-                        user={user}
                         onRefreshList={() => {
                             refetchDocuments(searchOptions) // refetch using current search options
                         }}
@@ -156,7 +152,7 @@ export async function getServerSideProps(ctx: NextPageContext) {
     const [_modelsError, allModels] = await getModels() // TODO: handle getModels error?
     const [modelError, model] = await getModelWithWorkflow(modelName)
 
-    if (isNotFoundError(modelError)) {
+    if (modelError instanceof NotFound) {
         return {
             notFound: true,
         }
@@ -179,4 +175,4 @@ export async function getServerSideProps(ctx: NextPageContext) {
     return { props }
 }
 
-export default withAuthentication()(ModelPage)
+export default ModelPage

@@ -1,9 +1,8 @@
-import type { HttpException } from 'utils/errors'
-import type { ErrorData } from '../declarations'
 import log from '../lib/log'
 import { getModel } from '../models/service'
 import { getSearchDb } from './db'
 import { searchInputServiceSchema } from './schema'
+import type { ErrorData } from '../declarations'
 import type { PaginatedSearchResults } from './types'
 
 export async function search(
@@ -61,7 +60,7 @@ export async function search(
 }
 
 //* This might be useful if directly integrated into the apiError function, but for now it's a one-off use case.
-function formatAssertionError(error: Error | HttpException) {
+function formatAssertionError(error: Error) {
     return Error(`Lucene syntax error: ${error.message}.`, {
         cause: { status: 400 },
     })

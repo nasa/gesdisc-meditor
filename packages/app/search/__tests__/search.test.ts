@@ -1,8 +1,8 @@
-import getDb from '../../lib/mongodb'
 import alertsModel from '../../models/__tests__/__fixtures__/models/alerts.json'
+import emergencyAlerts from './__fixtures__/emergencyAlerts.json'
+import { getDb } from '../../lib/connections'
 import { getSearchDb } from '../db'
 import { search } from '../service'
-import emergencyAlerts from './__fixtures__/emergencyAlerts.json'
 
 describe('monquery', () => {
     let db: any
@@ -126,7 +126,7 @@ describe('search', () => {
 
         expect(searchError).toBe(null)
         expect(searchResults.metadata).toMatchInlineSnapshot(`
-            Object {
+            {
               "pageCount": 2,
               "pageNumber": 1,
               "query": "severity:emergency",
@@ -151,10 +151,10 @@ describe('search', () => {
         expect(searchError).toBe(null)
         expect(searchResults.results.length).toBe(0)
         expect(searchResults.metadata).toMatchInlineSnapshot(`
-            Object {
+            {
               "pageCount": 1,
               "pageNumber": 2,
-              "query": "title:\\"Deleted Fixture\\"",
+              "query": "title:\"Deleted Fixture\"",
               "resultsCount": 0,
               "resultsPerPage": 10,
             }

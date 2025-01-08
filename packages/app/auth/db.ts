@@ -1,6 +1,7 @@
+import { getDb } from '../lib/connections'
+import { makeSafeObjectIDs } from '../lib/mongodb'
 import type { Db } from 'mongodb'
 import type { Document } from '../documents/types'
-import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
 import type { Model, ModelWithWorkflow } from '../models/types'
 import type { UserContactInformation } from './types'
 
@@ -72,6 +73,37 @@ class UsersDb {
                 uid: 1,
             })
             .toArray()
+    }
+
+    async createUserAccount(userContactInformation: UserContactInformation) {
+        return await this.#db
+            .collection<Document>(this.#ACCOUNTS_COLLECTION)
+            .updateOne(
+                {
+                    uid: userContactInformation.uid,
+                },
+                {
+                    $set: userContactInformation,
+                },
+                {
+                    upsert: true,
+                }
+            )
+    }
+
+    async getMeditorUserByUid(uid: string): Promise<Document> {
+        const user = await this.#db
+            // the mEditor user record is a generic, dynamic document, like any other model's document (see the "Users" model)
+            .collection<Document>(this.#USERS_COLLECTION)
+            .findOne(
+                {
+                    id: uid,
+                    'x-meditor.deletedOn': { $exists: false }, // filter out deleted users
+                },
+                { sort: { 'x-meditor.modifiedOn': -1 } }
+            )
+
+        return makeSafeObjectIDs(user)
     }
 }
 

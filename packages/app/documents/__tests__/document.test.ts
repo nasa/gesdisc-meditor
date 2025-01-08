@@ -1,23 +1,33 @@
-import type { Db } from 'mongodb'
 import * as emailNotifications from '../../email-notifications/service'
-import getDb from '../../lib/mongodb'
-import SpatialSearchIssue from '../../models/__tests__/__fixtures__/alerts/spatial_search_issue.json'
-import GLDAS_CLM10SUBP_3H_001 from '../../models/__tests__/__fixtures__/collection-metadata/GLDAS_CLM10SUBP_3H_001.json'
-import OML1BRVG_003 from '../../models/__tests__/__fixtures__/collection-metadata/OML1BRVG_003.json'
-import TEST_NO_STATE from '../../models/__tests__/__fixtures__/collection-metadata/TEST_NO_STATE.json'
-import HowDoIFAQ from '../../models/__tests__/__fixtures__/faqs/how-do-i.json'
-import WhereDoIFAQ from '../../models/__tests__/__fixtures__/faqs/where-do-i.json'
-import alertsModel from '../../models/__tests__/__fixtures__/models/alerts.json'
-import collectionMetadataModel from '../../models/__tests__/__fixtures__/models/collection-metadata.json'
-import faqsModel from '../../models/__tests__/__fixtures__/models/faqs.json'
-import modelsModel from '../../models/__tests__/__fixtures__/models/models.json'
 import * as publicationQueue from '../../publication-queue/service'
-import { wait } from '../../utils/time'
+import alertFromGql from './__fixtures__/alertFromGql.json'
+import alertOnlyDocument from './__fixtures__/alertOnlyDocument.json'
+import alertsAfterCreateDocumentModification from './__fixtures__/alerts-after-createDocument-modifies-state.json'
+import alertsAfterV1Modification from './__fixtures__/alerts-after-v1-putDocument-modifies-state.json'
+import alertsBeforeModification from './__fixtures__/alerts-before-modified-state.json'
+import alertsModel from '../../models/__tests__/__fixtures__/models/alerts.json'
+import alertWithHistory from './__fixtures__/alertWithHistory.json'
+import alertWithPublication from './__fixtures__/alertWithPublication.json'
+import collectionMetadataModel from '../../models/__tests__/__fixtures__/models/collection-metadata.json'
+import duplicateEdgesWorkflow from './__fixtures__/duplicate-edges-workflow.json'
 import editPublishCmrWorkflow from '../../workflows/__tests__/__fixtures__/edit-publish-cmr.json'
 import editPublishWorkflow from '../../workflows/__tests__/__fixtures__/edit-publish.json'
 import editReviewPublishWorkflow from '../../workflows/__tests__/__fixtures__/edit-review-publish.json'
+import faqsModel from '../../models/__tests__/__fixtures__/models/faqs.json'
+import GLDAS_CLM10SUBP_3H_001 from '../../models/__tests__/__fixtures__/collection-metadata/GLDAS_CLM10SUBP_3H_001.json'
+import HowDoIFAQ from '../../models/__tests__/__fixtures__/faqs/how-do-i.json'
+import modelsModel from '../../models/__tests__/__fixtures__/models/models.json'
 import modifyReviewPublishWorkflow from '../../workflows/__tests__/__fixtures__/modify-review-publish.json'
+import OML1BRVG_003 from '../../models/__tests__/__fixtures__/collection-metadata/OML1BRVG_003.json'
+import SpatialSearchIssue from '../../models/__tests__/__fixtures__/alerts/spatial_search_issue.json'
+import TEST_NO_STATE from '../../models/__tests__/__fixtures__/collection-metadata/TEST_NO_STATE.json'
+import WhereDoIFAQ from '../../models/__tests__/__fixtures__/faqs/where-do-i.json'
+import workflowEdges from './__fixtures__/workflowEdges.json'
+import workflowWithTwoInitialNodes from './__fixtures__/workflow-with-two-initial-nodes.json'
 import { adaptDocumentToLegacyDocument } from '../adapters'
+import { getDb } from '../../lib/connections'
+import { wait } from '../../utils/time'
+import type { Db } from 'mongodb'
 import {
     changeDocumentState,
     cloneDocument,
@@ -32,16 +42,6 @@ import {
     isPublishableWithWorkflowSupport,
     strictValidateDocument,
 } from '../service'
-import alertFromGql from './__fixtures__/alertFromGql.json'
-import alertOnlyDocument from './__fixtures__/alertOnlyDocument.json'
-import alertsAfterCreateDocumentModification from './__fixtures__/alerts-after-createDocument-modifies-state.json'
-import alertsAfterV1Modification from './__fixtures__/alerts-after-v1-putDocument-modifies-state.json'
-import alertsBeforeModification from './__fixtures__/alerts-before-modified-state.json'
-import alertWithHistory from './__fixtures__/alertWithHistory.json'
-import alertWithPublication from './__fixtures__/alertWithPublication.json'
-import duplicateEdgesWorkflow from './__fixtures__/duplicate-edges-workflow.json'
-import workflowWithTwoInitialNodes from './__fixtures__/workflow-with-two-initial-nodes.json'
-import workflowEdges from './__fixtures__/workflowEdges.json'
 
 describe('Documents', () => {
     let db: Db
@@ -200,6 +200,11 @@ describe('Documents', () => {
             //* Normalize by deleting properties that will always have a time-based fresh value.
             delete firstInsertedAlert._id
             delete firstInsertedAlert['x-meditor'].modifiedOn
+            //* Since change e3876fb4f226e6f0e84e24095e295dfea687089b we set the `modifiedOn` property of a document's root state.
+            firstInsertedAlert['x-meditor'].states.forEach(
+                stateEntry => delete stateEntry.modifiedOn
+            )
+
             expect(firstInsertedAlert).toMatchSnapshot()
             expect(await db.collection('Alerts').countDocuments()).toBe(11)
 
@@ -211,6 +216,11 @@ describe('Documents', () => {
             //* Normalize by deleting properties that will always have a time-based fresh value.
             delete secondInsertedAlert._id
             delete secondInsertedAlert['x-meditor'].modifiedOn
+            //* Since change e3876fb4f226e6f0e84e24095e295dfea687089b we set the `modifiedOn` property of a document's root state.
+            secondInsertedAlert['x-meditor'].states.forEach(
+                stateEntry => delete stateEntry.modifiedOn
+            )
+
             expect(secondInsertedAlert).toMatchSnapshot()
             expect(await db.collection('Alerts').countDocuments()).toBe(
                 baselineCount + 2
@@ -267,7 +277,7 @@ describe('Documents', () => {
             const [error] = await createDocument(document, modelName, user, 'Foo')
 
             expect(error).toMatchInlineSnapshot(
-                `[Error: The passed in state, Foo, does not exist]`
+                `[AssertionError: BadRequestError: The passed in state, Foo, does not exist]`
             )
         })
 
@@ -291,7 +301,7 @@ describe('Documents', () => {
             )
 
             expect(error).toMatchInlineSnapshot(
-                `[Error: The passed in state, Published, is not an initial node in the workflow]`
+                `[AssertionError: BadRequestError: The passed in state, Published, is not an initial node in the workflow]`
             )
         })
     })
@@ -306,7 +316,7 @@ describe('Documents', () => {
             const allowedRoles = findAllowedUserRolesForModel('Alerts', userRoles)
 
             expect(allowedRoles).toMatchInlineSnapshot(`
-                Array [
+                [
                   "Author",
                   "Publisher",
                 ]
@@ -322,7 +332,7 @@ describe('Documents', () => {
             const allowedRoles = findAllowedUserRolesForModel('Alerts', userRoles)
 
             expect(allowedRoles).toMatchInlineSnapshot(`
-                Array [
+                [
                   "publisher",
                 ]
             `)
@@ -333,12 +343,12 @@ describe('Documents', () => {
         test('returns matching state map', () => {
             expect(createSourceToTargetStateMap(['Author'], workflowEdges))
                 .toMatchInlineSnapshot(`
-                Object {
-                  "Draft": Array [
+                {
+                  "Draft": [
                     "Under Review",
                     "Deleted",
                   ],
-                  "Init": Array [
+                  "Init": [
                     "Draft",
                   ],
                 }
@@ -346,16 +356,16 @@ describe('Documents', () => {
 
             expect(createSourceToTargetStateMap(['Publisher'], workflowEdges))
                 .toMatchInlineSnapshot(`
-                Object {
-                  "Approved": Array [
+                {
+                  "Approved": [
                     "Published",
                     "Under Review",
                   ],
-                  "Hidden": Array [
+                  "Hidden": [
                     "Published",
                     "Deleted",
                   ],
-                  "Published": Array [
+                  "Published": [
                     "Hidden",
                   ],
                 }
@@ -363,7 +373,7 @@ describe('Documents', () => {
 
             expect(
                 createSourceToTargetStateMap(['Admin'], workflowEdges)
-            ).toMatchInlineSnapshot(`Object {}`)
+            ).toMatchInlineSnapshot(`{}`)
         })
     })
 
@@ -480,22 +490,22 @@ describe('Documents', () => {
             )
 
             expect(collections[0]).toMatchInlineSnapshot(`
-                Object {
+                {
                   "Combined_EntryID": "GLDAS_CLM10SUBP_3H_001",
                   "title": "GLDAS_CLM10SUBP_3H_001",
-                  "x-meditor": Object {
+                  "x-meditor": {
                     "model": "Collection Metadata",
                     "modifiedBy": "jdoe",
                     "modifiedOn": "2022-04-03T02:00:45.335Z",
-                    "publishedTo": Array [
-                      Object {
+                    "publishedTo": [
+                      {
                         "message": "Document was successfully published to UUI-OPS",
                         "publishedOn": 1649077649811,
                         "statusCode": 200,
                         "target": "uui",
                         "url": "https://disc.gsfc.nasa.gov/information/collection-metadata?title=GLDAS_CLM10SUBP_3H_001",
                       },
-                      Object {
+                      {
                         "message": "Document GLDAS_CLM10SUBP_3H_001 with concept Id C1279404074-GES_DISC at revision 27 was published to CMR-PROD",
                         "publishedOn": 1649077649852,
                         "statusCode": 200,
@@ -503,20 +513,20 @@ describe('Documents', () => {
                       },
                     ],
                     "state": "Published",
-                    "states": Array [
-                      Object {
+                    "states": [
+                      {
                         "modifiedOn": null,
                         "source": "Init",
                         "target": "Draft",
                       },
-                      Object {
+                      {
                         "modifiedBy": "jdoe",
                         "modifiedOn": "2022-04-04T13:07:27.815Z",
                         "source": "Draft",
                         "target": "Published",
                       },
                     ],
-                    "targetStates": Array [
+                    "targetStates": [
                       "Deleted",
                     ],
                   },
@@ -626,7 +636,7 @@ describe('Documents', () => {
             )
 
             expect(collectionsError).toMatchInlineSnapshot(
-                `[Error: Improperly formatted filter]`
+                `[BadRequestError: Improperly formatted filter]`
             )
         })
 
@@ -679,36 +689,36 @@ describe('Documents', () => {
             )
 
             expect(history).toMatchInlineSnapshot(`
-                Array [
-                  Object {
+                [
+                  {
                     "modifiedBy": "jdoe",
                     "modifiedOn": "2018-08-09T14:26:07.541Z",
                     "state": "Published",
-                    "states": Array [
-                      Object {
+                    "states": [
+                      {
                         "modifiedOn": "2018-08-09T14:26:07.541Z",
                         "source": "Approved",
                         "target": "Published",
                       },
                     ],
                   },
-                  Object {
+                  {
                     "modifiedBy": "jdoe",
                     "modifiedOn": "2018-08-09T14:26:07.538Z",
                     "state": "Draft",
-                    "states": Array [],
+                    "states": [],
                   },
-                  Object {
+                  {
                     "modifiedBy": "jdoe",
                     "modifiedOn": "2018-08-09T14:25:10.834Z",
                     "state": "Draft",
-                    "states": Array [],
+                    "states": [],
                   },
-                  Object {
+                  {
                     "modifiedBy": "jdoe",
                     "modifiedOn": "2018-08-09T14:25:09.384Z",
                     "state": "Draft",
-                    "states": Array [],
+                    "states": [],
                   },
                 ]
             `)
@@ -733,11 +743,11 @@ describe('Documents', () => {
             )
 
             expect(versionHistory).toMatchInlineSnapshot(`
-                Object {
+                {
                   "modifiedBy": "jdoe",
                   "modifiedOn": "2018-08-09T14:25:09.384Z",
                   "state": "Draft",
-                  "states": Array [],
+                  "states": [],
                 }
             `)
         })
@@ -753,8 +763,8 @@ describe('Documents', () => {
             )
 
             expect(publications).toMatchInlineSnapshot(`
-                Array [
-                  Object {
+                [
+                  {
                     "message": "Document was successfully published to UUI-OPS",
                     "publishedOn": 1666203423780,
                     "statusCode": 200,
@@ -836,7 +846,9 @@ describe('Documents', () => {
                 'Foo',
                 user_noFAQRole
             )
-            expect(error).toMatchInlineSnapshot(`[Error: Model not found: Eggs]`)
+            expect(error).toMatchInlineSnapshot(
+                `[NotFoundError: Model not found: Eggs]`
+            )
             expect(document).toBeNull()
         })
 
@@ -848,7 +860,7 @@ describe('Documents', () => {
                 user_noFAQRole
             )
             expect(error).toMatchInlineSnapshot(
-                `[Error: Requested document, Bacon, in model, FAQs, was not found]`
+                `[NotFoundError: Requested document, Bacon, in model, FAQs, was not found]`
             )
             expect(document).toBeNull()
         })
@@ -859,7 +871,9 @@ describe('Documents', () => {
                 HowDoIFAQ.title,
                 'FAQs'
             )
-            expect(error).toMatchInlineSnapshot(`[Error: No state provided]`)
+            expect(error).toMatchInlineSnapshot(
+                `[BadRequestError: No state provided]`
+            )
             expect(document).toBeNull()
         })
 
@@ -871,7 +885,7 @@ describe('Documents', () => {
                 user_noFAQRole
             )
             expect(error).toMatchInlineSnapshot(
-                `[Error: Cannot transition to state [Draft] as the document is in this state already]`
+                `[BadRequestError: Cannot transition to state [Draft] as the document is in this state already]`
             )
             expect(document).toBeNull()
         })
@@ -884,7 +898,7 @@ describe('Documents', () => {
                 user_noFAQRole
             )
             expect(error).toMatchInlineSnapshot(
-                `[Error: Cannot transition to state [Foo] as it is not a valid state in the workflow]`
+                `[BadRequestError: Cannot transition to state [Foo] as it is not a valid state in the workflow]`
             )
             expect(document).toBeNull()
         })
@@ -897,7 +911,7 @@ describe('Documents', () => {
                 user_noFAQRole
             )
             expect(error).toMatchInlineSnapshot(
-                `[Error: User does not have the permissions to transition to state Under Review.]`
+                `[BadRequestError: User does not have the permissions to transition to state Under Review.]`
             )
             expect(document).toBeNull()
         })
@@ -935,7 +949,7 @@ describe('Documents', () => {
             )
 
             expect(error).toMatchInlineSnapshot(
-                `[Error: User does not have the permissions to transition to state Approved.]`
+                `[BadRequestError: User does not have the permissions to transition to state Approved.]`
             )
             expect(document).toBeNull()
         })
@@ -958,7 +972,7 @@ describe('Documents', () => {
 
             expect(document).toBeNull()
             expect(error).toMatchInlineSnapshot(
-                `[Error: Workflow, Duplicate Edges, is misconfigured! There are duplicate edges from 'Draft' to 'Under Review'.]`
+                `[InternalServerError: Workflow, Duplicate Edges, is misconfigured! There are duplicate edges from 'Draft' to 'Under Review'.]`
             )
         })
 
@@ -1155,7 +1169,9 @@ describe('Documents', () => {
             // @ts-expect-error
             const [error, document] = await cloneDocument('Bacon', 'Eggs', 'FAQs')
 
-            expect(error).toMatchInlineSnapshot(`[Error: User is not authenticated]`)
+            expect(error).toMatchInlineSnapshot(
+                `[UnauthorizedError: User is not authenticated]`
+            )
             expect(document).toBeNull()
         })
 
@@ -1168,7 +1184,7 @@ describe('Documents', () => {
             )
 
             expect(error).toMatchInlineSnapshot(
-                `[Error: Requested document, Bacon, in model, FAQs, was not found]`
+                `[NotFoundError: Requested document, Bacon, in model, FAQs, was not found]`
             )
             expect(document).toBeNull()
         })
@@ -1182,7 +1198,7 @@ describe('Documents', () => {
             )
 
             expect(error).toMatchInlineSnapshot(
-                `[Error: A document already exists with the title: 'Where do I?']`
+                `[BadRequestError: A document already exists with the title: 'Where do I?']`
             )
             expect(document).toBeNull()
         })
@@ -1229,7 +1245,7 @@ describe('Documents', () => {
             const [error, document] = await strictValidateDocument(docClone, 'Alerts')
 
             expect(error).toMatchInlineSnapshot(
-                `[Error: Document "Forward stream data temporarily unavailable from AWS cloud" does not validate against the schema for model "Alerts": [{"property":"instance.severity","name":"enum","argument":["normal","emergency"],"message":"is not one of enum values","stack":"instance.severity is not one of enum values"}]]`
+                `[BadRequestError: Document "Forward stream data temporarily unavailable from AWS cloud" does not validate against the schema for model "Alerts": [{"property":"instance.severity","name":"enum","argument":["normal","emergency"],"message":"is not one of enum values","stack":"instance.severity is not one of enum values"}]]`
             )
             expect(document).toBeNull()
         })
@@ -1245,7 +1261,7 @@ describe('Documents', () => {
             )
 
             expect(error).toMatchInlineSnapshot(
-                `[Error: Document "TRMM GrADS DODS Server" does not validate against the schema for model "Alerts": [{"property":"instance","name":"additionalProperties","argument":"_id","message":"is not allowed to have the additional property \\"_id\\"","stack":"instance is not allowed to have the additional property \\"_id\\""},{"property":"instance","name":"additionalProperties","argument":"x-meditor","message":"is not allowed to have the additional property \\"x-meditor\\"","stack":"instance is not allowed to have the additional property \\"x-meditor\\""}]]`
+                `[BadRequestError: Document "TRMM GrADS DODS Server" does not validate against the schema for model "Alerts": [{"property":"instance","name":"additionalProperties","argument":"_id","message":"is not allowed to have the additional property \\"_id\\"","stack":"instance is not allowed to have the additional property \\"_id\\""},{"property":"instance","name":"additionalProperties","argument":"x-meditor","message":"is not allowed to have the additional property \\"x-meditor\\"","stack":"instance is not allowed to have the additional property \\"x-meditor\\""}]]`
             )
             expect(document).toBeNull()
         })

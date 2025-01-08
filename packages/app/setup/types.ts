@@ -1,3 +1,3 @@
-import type { User } from '../auth/types'
+import { User } from 'declarations'
 
 export type UserDuringSetup = Pick<User, 'name' | 'uid'>

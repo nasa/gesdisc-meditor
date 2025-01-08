@@ -1,5 +1,6 @@
+import { getDb } from '../lib/connections'
+import { makeSafeObjectIDs } from '../lib/mongodb'
 import type { Db, UpdateResult } from 'mongodb'
-import getDb, { makeSafeObjectIDs } from '../lib/mongodb'
 import type { Document } from './types'
 
 /**

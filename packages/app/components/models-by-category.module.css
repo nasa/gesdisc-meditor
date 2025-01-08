@@ -1,0 +1,21 @@
+.category {
+    padding: 16px 0;
+}
+
+.category h3 {
+    color: grey;
+    text-align: center;
+}
+
+.models {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.model {
+    display: flex;
+    flex-direction: column;
+    width: 150px;
+    margin: 10px;
+}

@@ -1,3 +1,4 @@
+import { withApiErrorHandler } from 'lib/with-api-error-handler'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 const healthcheck = {
@@ -8,7 +9,7 @@ const healthcheck = {
     },
 }
 
-export default async function handler(_req: NextApiRequest, res: NextApiResponse) {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     //timeout for fetch request sice meditor_notifier is an internal service
     const controller = new AbortController()
 
@@ -33,3 +34,5 @@ export default async function handler(_req: NextApiRequest, res: NextApiResponse
         res.status(500).json({ message: 'Meditor API is not healthy', err })
     }
 }
+
+export default withApiErrorHandler(handler)

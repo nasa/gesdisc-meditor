@@ -1,41 +1,30 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import { getLoggedInUser } from 'auth/user'
+import assert from 'assert'
+import createError from 'http-errors'
 import { getDocument } from 'documents/service'
-import { userCanAccessModel } from 'models/service'
+import { getServerSession } from 'auth/user'
 import { respondAsJson } from 'utils/api'
-import { apiError, ErrorCode, HttpException } from 'utils/errors'
+import { withApiErrorHandler } from 'lib/with-api-error-handler'
+import { withUserCanAccessModelCheck } from 'lib/with-user-can-access-model-check'
+import type { NextApiRequest, NextApiResponse } from 'next'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+    assert(req.method === 'GET', new createError.MethodNotAllowed())
+
     const documentTitle = decodeURIComponent(req.query.documentTitle.toString())
     const modelName = decodeURIComponent(req.query.modelName.toString())
-    const user = await getLoggedInUser(req, res)
+    const session = await getServerSession(req, res)
 
-    if (!userCanAccessModel(modelName, user)) {
-        return apiError(
-            new HttpException(
-                ErrorCode.ForbiddenError,
-                'User does not have access to the requested model'
-            ),
-            res
-        )
+    const [error, document] = await getDocument(
+        documentTitle,
+        modelName,
+        session.user
+    )
+
+    if (error) {
+        throw error
     }
 
-    switch (req.method) {
-        case 'GET': {
-            const [error, document] = await getDocument(
-                documentTitle,
-                modelName,
-                user
-            )
-
-            if (error) {
-                return apiError(error, res)
-            }
-
-            return respondAsJson(document, req, res)
-        }
-
-        default:
-            return res.status(405).end()
-    }
+    return respondAsJson(document, req, res)
 }
+
+export default withApiErrorHandler(withUserCanAccessModelCheck(handler))

@@ -1,29 +1,28 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
+import assert from 'assert'
+import createError from 'http-errors'
 import { getDocumentHistoryByVersion } from '../../../../../../../../documents/service'
 import { respondAsJson } from '../../../../../../../../utils/api'
-import { apiError } from '../../../../../../../../utils/errors'
+import { withApiErrorHandler } from 'lib/with-api-error-handler'
+import type { NextApiRequest, NextApiResponse } from 'next'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+    assert(req.method === 'GET', new createError.MethodNotAllowed())
+
     const documentTitle = decodeURIComponent(req.query.documentTitle.toString())
     const modelName = decodeURIComponent(req.query.modelName.toString())
     const revisionId = decodeURIComponent(req.query.revisionId.toString())
 
-    switch (req.method) {
-        case 'GET': {
-            const [error, history] = await getDocumentHistoryByVersion(
-                revisionId,
-                documentTitle,
-                modelName
-            )
+    const [error, history] = await getDocumentHistoryByVersion(
+        revisionId,
+        documentTitle,
+        modelName
+    )
 
-            if (error) {
-                return apiError(error, res)
-            }
-
-            return respondAsJson(history, req, res)
-        }
-
-        default:
-            return res.status(405).end()
+    if (error) {
+        throw error
     }
+
+    return respondAsJson(history, req, res)
 }
+
+export default withApiErrorHandler(handler)

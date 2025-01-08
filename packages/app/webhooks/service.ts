@@ -1,9 +1,11 @@
-import type { ErrorData } from 'declarations'
+import createError from 'http-errors'
 import log from '../lib/log'
+import { assert } from 'console'
 import { parseResponse } from '../utils/api'
-import { ErrorCode, HttpException, parseZodAsErrorData } from '../utils/errors'
+import { parseZodAsErrorData } from '../utils/errors'
 import { safeParseJSON } from '../utils/json'
 import { WebhookConfigsSchema } from './schema'
+import type { ErrorData } from 'declarations'
 import type { WebhookConfig, WebhookPayload } from './types'
 
 const WEBHOOK_ENV_VAR = 'UI_WEBHOOKS'
@@ -62,9 +64,7 @@ async function invokeWebhook(
             body: JSON.stringify(payload),
         })
 
-        if (!response.ok) {
-            throw new HttpException(response.status, response.statusText)
-        }
+        assert(response.ok, new createError(response.status, response.statusText))
 
         return [null, await parseResponse(response)]
     } catch (error) {

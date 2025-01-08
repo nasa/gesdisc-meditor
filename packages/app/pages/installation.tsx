@@ -1,24 +1,25 @@
-import type { NextPageContext } from 'next'
-import { useRouter } from 'next/router'
-import pluralize from 'pluralize'
-import { useEffect, useState } from 'react'
 import Accordion from 'react-bootstrap/Accordion'
 import Alert from 'react-bootstrap/Alert'
 import Button from 'react-bootstrap/Button'
 import Card from 'react-bootstrap/Card'
 import Col from 'react-bootstrap/Col'
 import Form from 'react-bootstrap/Form'
-import ListGroup from 'react-bootstrap/ListGroup'
-import { FaDatabase } from 'react-icons/fa'
-import { MdDelete, MdNavigateNext } from 'react-icons/md'
 import IconButton from '../components/jsonschemaform/components/IconButton'
+import ListGroup from 'react-bootstrap/ListGroup'
 import Loading from '../components/loading'
 import PageTitle from '../components/page-title'
-import { refreshDataInPlace } from '../lib/next'
-import { getModels } from '../models/service'
-import { fetchSeedDb } from '../setup/http'
-import type { UserDuringSetup } from '../setup/types'
+import pluralize from 'pluralize'
+import Row from 'react-bootstrap/Row'
 import styles from './installation.module.css'
+import { FaDatabase } from 'react-icons/fa'
+import { fetchSeedDb } from '../setup/http'
+import { getModels } from '../models/service'
+import { MdDelete, MdNavigateNext } from 'react-icons/md'
+import { refreshDataInPlace } from '../lib/next'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
+import type { NextPageContext } from 'next'
+import type { UserDuringSetup } from '../setup/types'
 
 /**
  * renders the install page ONLY if there aren't any models created yet (fresh install)
@@ -194,7 +195,7 @@ const InstallationPage = () => {
                                             validated={validated}
                                             onSubmit={handleAddNewUser}
                                         >
-                                            <Form.Row>
+                                            <Row>
                                                 <Form.Group
                                                     as={Col}
                                                     md="4"
@@ -241,7 +242,7 @@ const InstallationPage = () => {
                                                         Add User
                                                     </Button>
                                                 </Form.Group>
-                                            </Form.Row>
+                                            </Row>
                                         </Form>
                                     </ListGroup.Item>
                                 )}

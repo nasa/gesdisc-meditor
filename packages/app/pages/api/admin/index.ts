@@ -1,8 +1,9 @@
+import { withApiErrorHandler } from 'lib/with-api-error-handler'
 import type { NextApiRequest, NextApiResponse } from 'next'
+import createError from 'http-errors'
 
-export default async function handler(_req: NextApiRequest, res: NextApiResponse) {
-    // TODO: implement
-    res.status(501).json({
-        message: 'Not Implemented',
-    })
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+    throw createError.NotImplemented()
 }
+
+export default withApiErrorHandler(handler)

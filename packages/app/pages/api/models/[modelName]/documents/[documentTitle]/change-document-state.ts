@@ -1,22 +1,22 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import { getLoggedInUser } from '../../../../../../auth/user'
+import assert from 'assert'
+import createError from 'http-errors'
 import { changeDocumentState } from '../../../../../../documents/service'
+import { getServerSession } from '../../../../../../auth/user'
 import { respondAsJson } from '../../../../../../utils/api'
-import { apiError, ErrorCode, HttpException } from '../../../../../../utils/errors'
+import { withApiErrorHandler } from 'lib/with-api-error-handler'
+import type { NextApiRequest, NextApiResponse } from 'next'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+    assert(
+        req.method === 'PUT' || req.method === 'POST',
+        new createError.MethodNotAllowed()
+    )
+
     const documentTitle = decodeURIComponent(req.query.documentTitle.toString())
     const modelName = decodeURIComponent(req.query.modelName.toString())
     const newState = decodeURIComponent(req.query.state?.toString())
 
-    const user = await getLoggedInUser(req, res)
-
-    if (req.method !== 'PUT' && req.method !== 'POST') {
-        return apiError(
-            new HttpException(ErrorCode.MethodNotAllowed, 'Method not allowed'),
-            res
-        )
-    }
+    const session = await getServerSession(req, res)
 
     const shouldUpdateDocument =
         req.method === 'PUT' && req.body && Object.keys(req.body).length > 0
@@ -26,7 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         documentTitle,
         modelName,
         newState,
-        user,
+        session.user,
         {
             disableEmailNotifications: req.query.notify?.toString() === 'false',
 
@@ -37,8 +37,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     )
 
     if (error) {
-        return apiError(error, res)
+        throw error
     }
 
     return respondAsJson(document, req, res)
 }
+
+export default withApiErrorHandler(handler)
