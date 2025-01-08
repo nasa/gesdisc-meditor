@@ -87,7 +87,7 @@ services:
       - "127.0.0.1:8222:8222"
 
   monitor:
-    image: ${REGISTRY}portainer/portainer:1.20.0
+    image: ${REGISTRY}portainer/portainer-ce:2.21.2
     container_name: meditor_monitor
     command: -H unix:///var/run/docker.sock
     volumes:
