@@ -3,9 +3,9 @@ import createError from 'http-errors'
 import jsonpath from 'jsonpath'
 import log from '../lib/log'
 import { getDocumentsDb } from '../documents/db'
-import { getModelsDb } from './db'
 import { getWorkflowByDocumentState } from '../workflows/service'
 import { isJson } from '../utils/jsonschema-validate'
+import { ModelRepository } from './repository'
 import { runModelTemplates } from '../macros/service'
 
 import type { ErrorData } from '../declarations'
@@ -33,8 +33,8 @@ export async function getModel(
     try {
         assert(modelName, new createError.BadRequest('Model name is required'))
 
-        const modelsDb = await getModelsDb()
-        const model = await modelsDb.getModel(modelName)
+        const modelRepository = new ModelRepository()
+        const model = await modelRepository.findByTitle(modelName)
 
         assert(model, new createError.NotFound(`Model not found: ${modelName}`))
 
@@ -145,8 +145,8 @@ export async function getModelWithWorkflow(
 
 export async function getModels(): Promise<ErrorData<Model[]>> {
     try {
-        const modelsDb = await getModelsDb()
-        const models = await modelsDb.getModels()
+        const modelRepository = new ModelRepository()
+        const models = await modelRepository.findAll()
 
         return [null, models]
     } catch (error) {

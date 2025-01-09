@@ -1,17 +1,38 @@
 import log from './log'
-import { Document, MongoClient, WithId } from 'mongodb'
-/**
- * MongoClient following the Vercel pattern
- * https://github.com/vercel/next.js/tree/canary/examples/with-mongodb
- */
+import { DatabaseConnection } from './database/types'
+import { Document, WithId } from 'mongodb'
+import {
+    DatabaseConnectionFactory,
+    DatabaseType,
+} from './database/connection-factory'
 
 const uri =
     (process.env.MONGO_URL ||
         process.env.MONGOURL ||
         'mongodb://meditor_database:27017/') + 'meditor'
 
-let mongoClient: MongoClient
-let mongoClientPromise: Promise<MongoClient>
+export async function createDatabaseConnection() {
+    const config = {
+        type: (process.env.DB_TYPE ?? 'mongodb') as DatabaseType,
+        mongodb: {
+            uri,
+            dbName: process.env.DB_NAME,
+            options: {
+                maxPoolSize: 10,
+            },
+        },
+    }
+
+    const connection = DatabaseConnectionFactory.create(
+        config.type,
+        config[config.type]
+    )
+
+    await connection.connect()
+    return connection
+}
+
+let connectionPromise: Promise<DatabaseConnection>
 
 if (process.env.NODE_ENV === 'development') {
     // In development mode, use a global variable so that the value
@@ -19,22 +40,19 @@ if (process.env.NODE_ENV === 'development') {
     if (!globalThis._mongoClientPromise) {
         log.info('Connecting to MongoDB (DEV): ', uri)
 
-        mongoClient = new MongoClient(uri)
-        // @ts-ignore in development
-        global._mongoClientPromise = mongoClient.connect()
+        global._connectionPromise = createDatabaseConnection()
     }
-    // @ts-ignore in development
-    mongoClientPromise = global._mongoClientPromise
+
+    connectionPromise = global._connectionPromise
 } else {
     log.info('Connecting to MongoDB: ', uri)
 
     // In production mode, it's best to not use a global variable.
-    mongoClient = new MongoClient(uri)
-    mongoClientPromise = mongoClient.connect()
+    connectionPromise = createDatabaseConnection()
 }
 
 const getDb = async (dbName?: string) => {
-    return (await mongoClientPromise).db(dbName || process.env.DB_NAME)
+    return await connectionPromise
 }
 
 // Next doesn't know how to process the Mongo _id property, as it's an object, not a string. So this hack parses ahead of time
@@ -45,4 +63,4 @@ function makeSafeObjectIDs(
     return !!records ? JSON.parse(JSON.stringify(records)) : records
 }
 
-export { getDb, makeSafeObjectIDs, mongoClientPromise }
+export { getDb, makeSafeObjectIDs, connectionPromise }
