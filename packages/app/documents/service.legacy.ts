@@ -1,7 +1,9 @@
 import cloneDeep from 'lodash.clonedeep'
 import createError from 'http-errors'
 import log from '../lib/log'
-import { getDocumentsDbLegacy } from './db.legacy'
+import { DocumentRepository } from './repository'
+import { ModelRepository } from 'models/repository'
+import { WorkflowRepository } from 'workflows/repository'
 
 import type { Document } from './types'
 
@@ -23,14 +25,18 @@ const workflowRootEdge = { source: 'Init', target: 'Draft' }
 //   7.c. Collapse duplicate adjacent transitions
 async function legacyHandleModelChanges(document: Document) {
     try {
-        //* Meta(data) is a catch-all map.
-        const meta: Record<string, any> = {}
-        const documentsDb = await getDocumentsDbLegacy()
         //* We're hardcoding this because we know the Models model's titleProperty is 'name'.
         const { name: documentTitle } = document
 
+        const documentRepository = new DocumentRepository(document.name, 'name')
+        const modelRepository = new ModelRepository()
+        const workflowRepository = new WorkflowRepository()
+
+        //* Meta(data) is a catch-all map.
+        const meta: Record<string, any> = {}
+
         //* The limit in this query is two, but a new Models model would have no "history" (no older record sharing the same title) in the DB.
-        const maybeTwoModels = await documentsDb.getModelWithMaybePrevious(
+        const maybeTwoModels = await modelRepository.getModelWithMaybePrevious(
             documentTitle
         )
 
@@ -46,7 +52,7 @@ async function legacyHandleModelChanges(document: Document) {
         meta.newModel = maybeTwoModels[0]
         meta.oldModel = maybeTwoModels[1]
         meta.workflows = (
-            await documentsDb.getModelWorkflows(
+            await workflowRepository.findByNames(
                 maybeTwoModels.map((entries: any) => entries.workflow)
             )
         ).reduce(function (accumulator: any, currentValue: any) {
@@ -67,8 +73,7 @@ async function legacyHandleModelChanges(document: Document) {
         )
 
         const updateQueue = []
-        const allCollectionRecords =
-            await documentsDb.getAllCollectionRecordsForModel(documentTitle)
+        const allCollectionRecords = await documentRepository.findAll()
 
         allCollectionRecords.forEach(document => {
             var oldHistory = cloneDeep(document['x-meditor']['states'])
@@ -134,8 +139,7 @@ async function legacyHandleModelChanges(document: Document) {
             }
             // Update the document in the database
             updateQueue.push(
-                documentsDb.updateHistory(
-                    documentTitle,
+                documentRepository.updateHistory(
                     document._id,
                     newStateHistory,
                     oldHistory

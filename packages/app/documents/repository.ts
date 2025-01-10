@@ -3,7 +3,7 @@ import { BaseRepository } from 'lib/database/base-repository'
 import { convertLuceneQueryToMongo } from 'utils/search'
 import { DocumentsSearchOptions } from 'models/types'
 import { getDocumentInputSchema } from './schema'
-import { UpdateQuery } from 'lib/database/types'
+import { UpdateResult } from 'mongodb'
 import { User } from 'declarations'
 import { WorkflowEdge } from 'workflows/types'
 import type { Document, DocumentState } from './types'
@@ -227,6 +227,26 @@ export class DocumentRepository extends BaseRepository<Document> {
         }
 
         return this.updateOneById(document._id, updateQuery)
+    }
+
+    /**
+     * TODO: LEGACY - in need of refactor or documentation
+     */
+    async updateHistory(
+        id: string,
+        newStateHistory: any,
+        oldHistory: any
+    ): Promise<UpdateResult> {
+        const db = await this.connectionPromise
+        return db.collection(this.collection).updateOne(
+            { _id: id },
+            {
+                $set: {
+                    'x-meditor.states': newStateHistory,
+                    'x-meditor.backupStates': oldHistory,
+                },
+            }
+        )
     }
 
     protected addStatesToDocumentQuery() {

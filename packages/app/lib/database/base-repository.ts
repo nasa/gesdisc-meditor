@@ -11,6 +11,7 @@ export interface DatabaseOperations<T> {
     deleteOneByTitle(title: string, userUid: string): Promise<void>
     existsByTitle(title: string): Promise<boolean>
     find(filter: Filter, sort?: Sort): Promise<T[]>
+    findAll(): Promise<T[]>
     findOne(filter: Filter): Promise<T | null>
     findOneById(id: string): Promise<T | null>
     findOneByTitle(title: string): Promise<T | null>
@@ -114,6 +115,17 @@ export class BaseRepository<T> implements DatabaseOperations<T> {
         ])
     }
 
+    /**
+     * Finds ALL documents in the collection, including all versions and deleted documents
+     */
+    async findAll(): Promise<T[]> {
+        const db = await this.connectionPromise
+        return db.collection(this.collection).find().toArray()
+    }
+
+    /**
+     * Finds the requested document matching the provided filter
+     */
     async findOne(filter: Filter): Promise<T | null> {
         const [document] = await this.find(filter)
         return document
