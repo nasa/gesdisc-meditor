@@ -1,7 +1,7 @@
 import assert from 'assert'
 import createError from 'http-errors'
 import log from '../lib/log'
-import { getCommentsDb } from './db'
+import { CommentRepository } from './repository'
 import { validate } from 'jsonschema'
 import type { ErrorData, User } from '../declarations'
 import type {
@@ -19,8 +19,6 @@ export async function createCommentAsUser(
     user: User
 ): Promise<ErrorData<DocumentComment>> {
     try {
-        const commentsDb = await getCommentsDb()
-
         assert(user?.uid, new createError.Unauthorized())
 
         // TODO: use Zod here instead of JSONSchema validation
@@ -34,7 +32,8 @@ export async function createCommentAsUser(
             new createError.BadRequest(validationResult.toString())
         )
 
-        const comment = await commentsDb.insertOne({
+        const commentRepository = new CommentRepository()
+        const comment = await commentRepository.create({
             ...newComment, // validated user input
             parentId: newComment.parentId || 'root', // TODO: Why not use undefined rather than 'root'? (refactor opportunity)
             userUid: user.uid,
@@ -56,8 +55,6 @@ export async function updateCommentAsUser(
     user: User
 ): Promise<ErrorData<DocumentComment>> {
     try {
-        const commentsDb = await getCommentsDb()
-
         assert(user?.uid, new createError.Unauthorized())
 
         const validationResult = validate(
@@ -70,10 +67,12 @@ export async function updateCommentAsUser(
             new createError.BadRequest(validationResult.toString())
         )
 
+        const commentRepository = new CommentRepository()
+
         if (commentChanges.resolved) {
             // Resolving a comment is a special case since we need to resolve all the child comments as well.
             // Can safely return early after resolving as the validation rules ensure we aren't calling update to resolve while also updating other properties.
-            const resolvedComment = await commentsDb.resolveComment(
+            const resolvedComment = await commentRepository.resolve(
                 commentChanges._id,
                 user.uid
             )
@@ -81,7 +80,7 @@ export async function updateCommentAsUser(
             return [null, resolvedComment]
         }
 
-        const updatedComment = await commentsDb.updateCommentText(
+        const updatedComment = await commentRepository.updateText(
             commentChanges._id,
             commentChanges.text ?? ''
         )
@@ -100,9 +99,9 @@ export async function getCommentForDocument(
     modelName: string
 ): Promise<ErrorData<DocumentComment>> {
     try {
-        const commentsDb = await getCommentsDb()
+        const commentRepository = new CommentRepository()
 
-        const comment = await commentsDb.getCommentForDocument(
+        const comment = await commentRepository.findOneForDocumentById(
             commentId,
             documentTitle,
             modelName
@@ -121,9 +120,9 @@ export async function getCommentsForDocument(
     modelName: string
 ): Promise<ErrorData<DocumentComment[]>> {
     try {
-        const commentsDb = await getCommentsDb()
+        const commentRepository = new CommentRepository()
 
-        const comments = await commentsDb.getCommentsForDocument(
+        const comments = await commentRepository.findForDocument(
             documentTitle,
             modelName
         )

@@ -15,6 +15,7 @@ export interface DatabaseOperations<T> {
     findOne(filter: Filter): Promise<T | null>
     findOneById(id: string): Promise<T | null>
     findOneByTitle(title: string): Promise<T | null>
+    update(filter: Filter, update: UpdateQuery<T>): Promise<void>
     updateOne(filter: Filter, update: UpdateQuery<T>): Promise<T | null>
     updateOneById(id: string, update: UpdateQuery<T>): Promise<T | null>
 }
@@ -69,6 +70,9 @@ export class BaseRepository<T> implements DatabaseOperations<T> {
         return this.findOneById(insertedId)
     }
 
+    /**
+     * Soft deletes the document matching the given filter
+     */
     async deleteOne(filter: Filter, userUid: string): Promise<void> {
         const db = await this.connectionPromise
         return db.collection(this.collection).updateMany(
@@ -153,6 +157,18 @@ export class BaseRepository<T> implements DatabaseOperations<T> {
         })
     }
 
+    /**
+     * Updates many documents matching the given filter
+     */
+    async update(filter: Filter, update: UpdateQuery<T>): Promise<void> {
+        const db = await this.connectionPromise
+
+        await db.collection(this.collection).update(filter, update)
+    }
+
+    /**
+     * Updates one document matching the given filter
+     */
     async updateOne(filter: Filter, update: UpdateQuery<T>): Promise<T | null> {
         const db = await this.connectionPromise
 
@@ -161,6 +177,9 @@ export class BaseRepository<T> implements DatabaseOperations<T> {
         return db.collection(this.collection).findOne(filter)
     }
 
+    /**
+     * Updates the document matching the given id
+     */
     async updateOneById(id: string, update: UpdateQuery<T>): Promise<T | null> {
         return this.updateOne(
             {
