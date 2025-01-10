@@ -37,7 +37,7 @@ let connectionPromise: Promise<DatabaseConnection>
 if (process.env.NODE_ENV === 'development') {
     // In development mode, use a global variable so that the value
     // is preserved across module reloads caused by HMR (Hot Module Replacement).
-    if (!globalThis._mongoClientPromise) {
+    if (!globalThis._connectionPromise) {
         log.info('Connecting to MongoDB (DEV): ', uri)
 
         global._connectionPromise = createDatabaseConnection()

@@ -2,8 +2,8 @@ import assert from 'assert'
 import he from 'he'
 import log from '../lib/log'
 import mustache from 'mustache'
-import { getUsersDb } from '../auth/db'
 import { User } from 'declarations'
+import { UserRepository } from '../auth/repository'
 import type { ModelWithWorkflow } from '../models/types'
 import {
     getNodesFromEdges,
@@ -139,7 +139,7 @@ export async function getUsersToNotifyOfStateChange(
         return []
     }
 
-    const usersDb = await getUsersDb()
+    const userRepository = new UserRepository()
 
     // get list of workflow edges the document can follow. For example. a document in "Under Review" state
     // can be "Approved" or "Rejected", so the target edges would be ["Approve", "Reject"]
@@ -158,7 +158,7 @@ export async function getUsersToNotifyOfStateChange(
     log.debug('Target roles ', targetRoles)
 
     // get users that have that role
-    const usersWithMatchingRoles = await usersDb.getUserIdsWithModelRoles(
+    const usersWithMatchingRoles = await userRepository.getUserIdsWithModelRoles(
         model,
         targetRoles
     )
@@ -169,7 +169,7 @@ export async function getUsersToNotifyOfStateChange(
     )
 
     // get contact information for users
-    const usersToNotify = await usersDb.getContactInformationForUsers(
+    const usersToNotify = await userRepository.getContactInformationForUsers(
         usersWithMatchingRoles
     )
 
@@ -189,14 +189,14 @@ export async function getUsersToCc(
     loggedInUserUid: string,
     ignoreUsers: UserContactInformation[] = []
 ) {
-    const usersDb = await getUsersDb()
+    const userRepository = new UserRepository()
 
     const ccs = [loggedInUserUid, originalAuthorUid]
         // remove any users in the ignore users array (or the users already in the TO: list)
         .filter(uid => !ignoreUsers.find(user => user.uid == uid))
 
     // fetch and return the users contact info
-    return usersDb.getContactInformationForUsers(ccs)
+    return userRepository.getContactInformationForUsers(ccs)
 }
 
 /**
@@ -225,11 +225,10 @@ export async function populateEmailMessageTemplate(
     userUid: string,
     defaultEmailTemplate: string
 ) {
-    const usersDb = await getUsersDb()
-    const [userContactInformation] = await usersDb.getContactInformationForUsers([
-        userUid,
-    ])
-    const [author] = await usersDb.getContactInformationForUsers([authorUid])
+    const userRepository = new UserRepository()
+    const [userContactInformation] =
+        await userRepository.getContactInformationForUsers([userUid])
+    const [author] = await userRepository.getContactInformationForUsers([authorUid])
 
     // the model can define a notification template to display after the normal email message
     // we'll pull that in here and render it ahead of time

@@ -1,4 +1,4 @@
-import { BaseRepository } from 'lib/database/base-repository'
+import { BaseRepository } from '../lib/database/base-repository'
 import type { DocumentComment } from './types'
 
 export class CommentRepository extends BaseRepository<DocumentComment> {

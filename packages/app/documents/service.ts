@@ -112,7 +112,7 @@ export async function createDocument(
         document['x-meditor'].states = [rootState]
         document['x-meditor'].publishedTo = []
 
-        const insertedDocument = await documentRepository.create(document)
+        const insertedDocument = await documentRepository.insertOne(document)
 
         // ToDo: Review this fn and see if there's a more maintainable answer to models changing workflows.
         if (modelName === 'Models') {

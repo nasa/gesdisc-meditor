@@ -1,12 +1,11 @@
-import { connectionPromise } from 'lib/mongodb'
+import { connectionPromise } from '../mongodb'
 import { DatabaseConnection, Filter, Sort, UpdateQuery } from './types'
 import { Document } from 'documents/types'
-import { WithId } from 'mongodb'
+import { UpdateOptions, WithId } from 'mongodb'
 
 export interface DatabaseOperations<T> {
     aggregate(pipeline: any[]): Promise<any[]>
     countAll(): Promise<number>
-    create(data: Partial<T>): Promise<T>
     deleteOne(filter: Filter, userUid: string): Promise<void>
     deleteOneByTitle(title: string, userUid: string): Promise<void>
     existsByTitle(title: string): Promise<boolean>
@@ -15,6 +14,8 @@ export interface DatabaseOperations<T> {
     findOne(filter: Filter): Promise<T | null>
     findOneById(id: string): Promise<T | null>
     findOneByTitle(title: string): Promise<T | null>
+    insertOne(data: Partial<T>): Promise<T>
+    insertMany(data: Partial<T>[]): Promise<void>
     update(filter: Filter, update: UpdateQuery<T>): Promise<void>
     updateOne(filter: Filter, update: UpdateQuery<T>): Promise<T | null>
     updateOneById(id: string, update: UpdateQuery<T>): Promise<T | null>
@@ -58,16 +59,6 @@ export class BaseRepository<T> implements DatabaseOperations<T> {
         ])
 
         return result[0]?.count ?? 0
-    }
-
-    /**
-     * Creates a new document and returns it
-     */
-    async create(data: Partial<T>): Promise<T> {
-        const db = await this.connectionPromise
-        const { insertedId } = await db.collection(this.collection).insertOne(data)
-
-        return this.findOneById(insertedId)
     }
 
     /**
@@ -158,6 +149,24 @@ export class BaseRepository<T> implements DatabaseOperations<T> {
     }
 
     /**
+     * Creates a new document and returns it
+     */
+    async insertOne(data: Partial<T>): Promise<T> {
+        const db = await this.connectionPromise
+        const { insertedId } = await db.collection(this.collection).insertOne(data)
+
+        return this.findOneById(insertedId)
+    }
+
+    /**
+     * Creates many documents at once
+     */
+    async insertMany(data: Partial<T>[]): Promise<void> {
+        const db = await this.connectionPromise
+        return db.collection(this.collection).insertMany(data)
+    }
+
+    /**
      * Updates many documents matching the given filter
      */
     async update(filter: Filter, update: UpdateQuery<T>): Promise<void> {
@@ -169,10 +178,14 @@ export class BaseRepository<T> implements DatabaseOperations<T> {
     /**
      * Updates one document matching the given filter
      */
-    async updateOne(filter: Filter, update: UpdateQuery<T>): Promise<T | null> {
+    async updateOne(
+        filter: Filter,
+        update: UpdateQuery<T>,
+        options?: UpdateOptions
+    ): Promise<T | null> {
         const db = await this.connectionPromise
 
-        await db.collection(this.collection).updateOne(filter, update)
+        await db.collection(this.collection).updateOne(filter, update, options)
 
         return db.collection(this.collection).findOne(filter)
     }

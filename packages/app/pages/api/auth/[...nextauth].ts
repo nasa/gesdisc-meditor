@@ -1,7 +1,7 @@
 import EarthdataLoginProvider from 'auth/providers/earthdata-login'
 import log from 'lib/log'
 import NextAuth, { AuthOptions } from 'next-auth'
-import { getUsersDb } from 'auth/db'
+import { UserRepository } from 'auth/repository'
 
 export const authOptions: AuthOptions = {
     // use our mEditor logger for NextAuth log messages
@@ -43,17 +43,19 @@ export const authOptions: AuthOptions = {
 
     callbacks: {
         async signIn(session) {
-            const usersDb = await getUsersDb()
+            const userRepository = new UserRepository()
             // @ts-expect-error TODO: the signIn callback doesn't seem to be using a type we can add to in declarations, so it's missing things like "uid" that show a TS error here
-            await usersDb.createUserAccount(session.user)
+            await userRepository.createUserAccount(session.user)
             return true // expects a bool, whether user can sign in or not
         },
         async session({ session, token }) {
             // add user uid to the session
             session.user.uid = token.sub
 
-            const usersDb = await getUsersDb()
-            const mEditorUser = await usersDb.getMeditorUserByUid(session.user.uid)
+            const userRepository = new UserRepository()
+            const mEditorUser = await userRepository.getMeditorUserByUid(
+                session.user.uid
+            )
 
             session.user.roles = mEditorUser?.roles ?? []
 

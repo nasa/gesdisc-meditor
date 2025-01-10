@@ -1,6 +1,6 @@
 import log from '../lib/log'
-import { connectToNats, getDb } from '../lib/connections'
-import { ObjectId } from 'mongodb'
+import { connectToNats } from '../lib/connections'
+import { DocumentRepository } from '../documents/repository'
 import type { QueueMessage } from './types'
 
 const NATS_QUEUE_PREFIX = 'meditor-'
@@ -57,7 +57,7 @@ export async function handlePublicationAcknowledgements(message) {
 
     log.debug('Acknowledgement received, processing now ', acknowledgement)
 
-    const db = await getDb()
+    const documentRepository = new DocumentRepository(acknowledgement.model)
 
     try {
         const publicationStatus = {
@@ -78,33 +78,24 @@ export async function handlePublicationAcknowledgements(message) {
         }
 
         // remove any existing publication statuses for this target (for example: past failures)
-        await db.collection(acknowledgement.model).updateOne(
-            {
-                _id: new ObjectId(acknowledgement.id),
-            },
-            {
-                $pull: {
-                    'x-meditor.publishedTo': {
-                        target: acknowledgement.target,
-                        // if document is in "Published" state, this would clear out any publication statuses for **other** states
-                        // i.e. any publication statuses that are marked as "Draft" would be cleared out
-                        state: { $ne: acknowledgement.state },
-                    },
+        await documentRepository.updateOneById(acknowledgement.id, {
+            $pull: {
+                'x-meditor.publishedTo': {
+                    target: acknowledgement.target,
+                    // if document is in "Published" state, this would clear out any publication statuses for **other** states
+                    // i.e. any publication statuses that are marked as "Draft" would be cleared out
+                    state: { $ne: acknowledgement.state },
                 },
-            }
-        )
+            },
+        })
 
         // update document state to reflect publication status
-        await db.collection(acknowledgement.model).updateOne(
-            {
-                _id: new ObjectId(acknowledgement.id),
+        // TODO: can we do both this and the above update at once?
+        await documentRepository.updateOneById(acknowledgement.id, {
+            $addToSet: {
+                'x-meditor.publishedTo': publicationStatus,
             },
-            {
-                $addToSet: {
-                    'x-meditor.publishedTo': publicationStatus,
-                },
-            }
-        )
+        })
 
         log.debug(
             'Successfully updated document with publication status ',

@@ -1,15 +1,10 @@
 import compile from 'monquery'
-import { getDb } from '../lib/connections'
-import { makeSafeObjectIDs } from '../lib/mongodb'
-import type { Db } from 'mongodb'
+import { BaseRepository } from '../lib/database/base-repository'
+import { Document } from '../documents/types'
 
-class searchDb {
-    #db: Db
-
-    async connect(connectDb: () => Promise<Db>) {
-        if (!this.#db) {
-            this.#db = await connectDb()
-        }
+export class SearchRepository extends BaseRepository<Document> {
+    constructor(collection: string, titleProperty: string) {
+        super(collection, titleProperty)
     }
 
     compileQuery(query: string) {
@@ -17,14 +12,12 @@ class searchDb {
     }
 
     async search(
-        modelName: string,
-        titleProperty: string,
         query: string,
         resultsPerPage: number,
         pageNumber: number
     ): Promise<any> {
         //* The pipeline order matters: we have to sort and group by titleProperty first so that we're not matching old documents.
-        const pipeline = [
+        return this.aggregate([
             // Do not match items that have been deleted.
             {
                 $match: {
@@ -34,7 +27,7 @@ class searchDb {
             // Sort descending by version (date).
             { $sort: { 'x-meditor.modifiedOn': -1 } },
             // Grab all fields in the most recent version.
-            { $group: { _id: `$${titleProperty}`, doc: { $first: '$$ROOT' } } },
+            { $group: { _id: `$${this.titleProperty}`, doc: { $first: '$$ROOT' } } },
             // Put all fields of the most recent doc back into root of the document.
             { $replaceRoot: { newRoot: '$doc' } },
             // Compile Lucene syntax into MQL.
@@ -50,23 +43,6 @@ class searchDb {
                     ],
                 },
             },
-        ]
-
-        const searchResults = await this.#db
-            .collection(modelName)
-            .aggregate(pipeline, { allowDiskUse: true })
-            .toArray()
-
-        return makeSafeObjectIDs(searchResults)
+        ])
     }
 }
-
-const db = new searchDb()
-
-async function getSearchDb() {
-    await db.connect(getDb)
-
-    return db
-}
-
-export { getSearchDb }

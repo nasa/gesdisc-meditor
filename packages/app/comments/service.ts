@@ -33,7 +33,7 @@ export async function createCommentAsUser(
         )
 
         const commentRepository = new CommentRepository()
-        const comment = await commentRepository.create({
+        const comment = await commentRepository.insertOne({
             ...newComment, // validated user input
             parentId: newComment.parentId || 'root', // TODO: Why not use undefined rather than 'root'? (refactor opportunity)
             userUid: user.uid,

@@ -1,4 +1,4 @@
-import { BaseRepository } from 'lib/database/base-repository'
+import { BaseRepository } from '../lib/database/base-repository'
 import { Workflow } from './types'
 
 export class WorkflowRepository extends BaseRepository<Workflow> {
