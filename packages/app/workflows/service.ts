@@ -2,8 +2,8 @@ import assert from 'assert'
 import createError from 'http-errors'
 import log from '../lib/log'
 import { getModel } from '../models/service'
-import { getWorkflowsDb } from './db'
 import { onlyUnique } from '../utils/array'
+import { WorkflowRepository } from './repository'
 import type { ErrorData } from '../declarations'
 import type { Workflow, WorkflowEdge } from './types'
 
@@ -28,8 +28,8 @@ export async function getWorkflow(
     workflowName: string
 ): Promise<ErrorData<Workflow>> {
     try {
-        const workflowsDb = await getWorkflowsDb()
-        const workflow = await workflowsDb.getWorkflow(workflowName)
+        const workflowRepository = new WorkflowRepository()
+        const workflow = await workflowRepository.findOneByTitle(workflowName)
 
         assert(
             workflow,

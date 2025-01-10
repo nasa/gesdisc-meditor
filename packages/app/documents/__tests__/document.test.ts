@@ -36,7 +36,6 @@ import {
     findAllowedUserRolesForModel,
     getDocument,
     getDocumentHistory,
-    getDocumentHistoryByVersion,
     getDocumentPublications,
     getDocumentsForModel,
     isPublishableWithWorkflowSupport,
@@ -723,10 +722,8 @@ describe('Documents', () => {
                 ]
             `)
         })
-    })
 
-    describe('getDocumentHistoryByVersion', () => {
-        test('returns document history', async () => {
+        test('returns document history by version', async () => {
             await db.collection('Alerts').insertMany(alertWithHistory)
 
             const [error, history] = await getDocumentHistory(
@@ -736,10 +733,10 @@ describe('Documents', () => {
 
             const [lastHistory] = history.slice(-1)
 
-            const [versionError, versionHistory] = await getDocumentHistoryByVersion(
-                lastHistory.modifiedOn,
+            const [versionError, versionHistory] = await getDocumentHistory(
                 'Reprocessed FLDAS Data',
-                'Alerts'
+                'Alerts',
+                lastHistory.modifiedOn
             )
 
             expect(versionHistory).toMatchInlineSnapshot(`

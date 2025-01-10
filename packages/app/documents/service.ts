@@ -2,8 +2,8 @@ import assert from 'assert'
 import createError from 'http-errors'
 import Fuse from 'fuse.js'
 import log from '../lib/log'
+import { DocumentRepository } from './repository'
 import { formatValidationErrorMessage } from '../utils/jsonschema-validate'
-import { getDocumentsDb } from './db'
 import { getModel, getModelWithWorkflow } from '../models/service'
 import { getTargetStatesFromWorkflow } from '../workflows/service'
 import { getWebhookConfig, invokeWebhook } from '../webhooks/service'
@@ -43,8 +43,6 @@ export async function createDocument(
     try {
         const { _id, ...document } = documentToCreate // remove the database _id property
 
-        const documentsDb = await getDocumentsDb()
-
         //* Get the model to validate its schema and the workflow so that we can find information about the draft node, which is the only node that applies to creating a document.
         const [modelWithWorkflowError, modelWithWorkflow] =
             await getModelWithWorkflow(modelName, undefined, {
@@ -55,6 +53,10 @@ export async function createDocument(
             throw modelWithWorkflowError
         }
 
+        const documentRepository = new DocumentRepository(
+            modelName,
+            modelWithWorkflow.titleProperty
+        )
         const { schema, titleProperty, workflow } = modelWithWorkflow
         const initialNode = workflow.nodes.find(node => node.id === initialState)
 
@@ -110,7 +112,7 @@ export async function createDocument(
         document['x-meditor'].states = [rootState]
         document['x-meditor'].publishedTo = []
 
-        const insertedDocument = await documentsDb.insertDocument(document, modelName)
+        const insertedDocument = await documentRepository.create(document)
 
         // ToDo: Review this fn and see if there's a more maintainable answer to models changing workflows.
         if (modelName === 'Models') {
@@ -183,7 +185,6 @@ export async function getDocument(
     documentVersion?: string
 ): Promise<ErrorData<Document>> {
     try {
-        const documentsDb = await getDocumentsDb()
         const userRolesForModel = findAllowedUserRolesForModel(modelName, user?.roles)
 
         const [modelError, model] = await getModelWithWorkflow(modelName)
@@ -197,12 +198,15 @@ export async function getDocument(
             model.workflow.edges
         )
 
-        const document = await documentsDb.getDocument(
+        const documentRepository = new DocumentRepository(
+            modelName,
+            model.titleProperty
+        )
+
+        const document = await documentRepository.findDocument(
             documentTitle,
             documentVersion,
-            modelName,
             sourceToTargetStateMap,
-            model.titleProperty,
             user?.uid
         )
 
@@ -227,19 +231,18 @@ export async function getDocumentsForModel(
     searchOptions?: DocumentsSearchOptions
 ): Promise<ErrorData<Document[]>> {
     try {
-        const documentsDb = await getDocumentsDb()
-
         const [modelError, model] = await getModelWithWorkflow(modelName) // need the model to get the related workflow and title property
 
         if (modelError) {
             throw modelError
         }
 
-        let documents = await documentsDb.getDocumentsForModel(
+        const documentRepository = new DocumentRepository(
             modelName,
-            searchOptions,
             model.titleProperty
         )
+
+        let documents = await documentRepository.find(searchOptions)
 
         if (searchOptions?.searchTerm) {
             // user is attempting a search. Mongo text search is VERY basic, so we'll utilize fuse.js to do the search
@@ -275,23 +278,27 @@ export async function getDocumentsForModel(
 
 export async function getDocumentHistory(
     documentTitle: string,
-    modelName: string
+    modelName: string,
+    versionId?: string
 ): Promise<ErrorData<DocumentHistory[]>> {
     try {
-        const documentsDb = await getDocumentsDb()
         const [modelError, model] = await getModel(modelName)
 
         if (modelError) {
             throw modelError
         }
 
-        const historyItems = await documentsDb.getDocumentHistory(
-            documentTitle,
+        const documentRepository = new DocumentRepository(
             modelName,
             model.titleProperty
         )
 
-        return [null, historyItems]
+        const historyItems = await documentRepository.historyByTitle(
+            documentTitle,
+            versionId
+        )
+
+        return [null, historyItems.map(formatHistoryItem)]
     } catch (error) {
         log.error(error)
 
@@ -299,31 +306,16 @@ export async function getDocumentHistory(
     }
 }
 
-export async function getDocumentHistoryByVersion(
-    versionId: string,
-    documentTitle: string,
-    modelName: string
-): Promise<ErrorData<DocumentHistory>> {
-    try {
-        const documentsDb = await getDocumentsDb()
-        const [modelError, model] = await getModel(modelName)
+function formatHistoryItem(item: any): DocumentHistory {
+    const [last = {}] = item['x-meditor'].states.slice(-1)
 
-        if (modelError) {
-            throw modelError
-        }
-
-        const historyItem = await documentsDb.getDocumentHistoryByVersion(
-            documentTitle,
-            modelName,
-            model.titleProperty,
-            versionId
-        )
-
-        return [null, historyItem]
-    } catch (error) {
-        log.error(error)
-
-        return [error, null]
+    return {
+        modifiedOn: item['x-meditor'].modifiedOn,
+        modifiedBy: item['x-meditor'].modifiedBy,
+        state: last.target,
+        states: item['x-meditor'].states.filter(
+            (state: { [key: string]: string }) => state.source !== 'Init'
+        ),
     }
 }
 
@@ -332,17 +324,19 @@ export async function getDocumentPublications(
     modelName: string
 ): Promise<ErrorData<DocumentPublications[]>> {
     try {
-        const documentsDb = await getDocumentsDb()
         const [modelError, model] = await getModel(modelName)
 
         if (modelError) {
             throw modelError
         }
 
-        const publications = await documentsDb.getDocumentPublications(
-            documentTitle,
+        const documentRepository = new DocumentRepository(
             modelName,
             model.titleProperty
+        )
+
+        const publications = await documentRepository.publicationsByTitle(
+            documentTitle
         )
 
         return [null, publications]
@@ -362,7 +356,11 @@ export async function cloneDocument(
     try {
         assert(user, new createError.Unauthorized('User is not authenticated'))
 
-        const documentsDb = await getDocumentsDb()
+        const [modelError, model] = await getModel(modelName)
+
+        if (modelError) {
+            throw modelError
+        }
 
         // get the document we'll be cloning
         const [documentToCloneError, documentToClone] = await getDocument(
@@ -384,11 +382,14 @@ export async function cloneDocument(
             [titleProperty]: titleOfNewDocument,
         }
 
-        // make sure no document exists with the new title
-        const newDocumentAlreadyExists = await documentsDb.documentExists(
-            newDocument[titleProperty],
+        const documentRepository = new DocumentRepository(
             modelName,
-            titleProperty
+            model.titleProperty
+        )
+
+        // make sure no document exists with the new title
+        const newDocumentAlreadyExists = await documentRepository.existsByTitle(
+            newDocument[titleProperty]
         )
 
         assert(
@@ -504,13 +505,17 @@ export async function changeDocumentState(
         assert(newState, new createError.BadRequest('No state provided'))
         assert(user, new createError.Unauthorized('User is not logged in'))
 
-        const documentsDb = await getDocumentsDb()
         const [modelError, model] = await getModelWithWorkflow(modelName)
 
         if (modelError) {
             // model must exist
             throw modelError
         }
+
+        const documentRepository = new DocumentRepository(
+            modelName,
+            model.titleProperty
+        )
 
         // fetch the requested document
         const [documentError, document] = await getDocument(
@@ -528,22 +533,11 @@ export async function changeDocumentState(
         const state = await constructNewDocumentState(document, model, newState, user)
 
         // got a new state, update the documents state in the database
-        await documentsDb.addDocumentStateChange(
+        const updatedDocument = await documentRepository.changeDocumentState(
             document,
             state,
             options?.dangerouslyUpdateDocumentProperties
         )
-
-        // get the updated document from the database
-        const [updatedDocumentError, updatedDocument] = await getDocument(
-            documentTitle,
-            modelName,
-            user
-        )
-
-        if (updatedDocumentError) {
-            throw updatedDocumentError
-        }
 
         // send email notification of state change
         if (!options?.disableEmailNotifications) {
@@ -784,14 +778,17 @@ export async function safelyPublishDocumentChangeToQueue(
 ) {
     try {
         if (isPublishableWithWorkflowSupport(model, state)) {
-            const documentsDb = await getDocumentsDb()
+            const documentRepository = new DocumentRepository(
+                model.name,
+                model.titleProperty
+            )
 
             // turns "Data Release" into "Data-Release"
             const channelName = model.name.replace(/ /g, '-')
 
             // before we publish, first delete existing publication statuses
             //? if we don't, user may be confused and think the old publication statuses still apply
-            await documentsDb.removeAllDocumentPublications(document._id, model.name)
+            await documentRepository.removePublicationsById(document._id)
 
             // publish the document state change to the right channel
             //? One or more subscribers can be subscribed to this particular channel, these are external subscribers
@@ -824,9 +821,12 @@ export async function safelyDeleteDocument(
             }`
         )
 
-        const documentsDb = await getDocumentsDb()
-        await documentsDb.deleteDocument(
-            model,
+        const documentRepository = new DocumentRepository(
+            model.name,
+            model.titleProperty
+        )
+
+        await documentRepository.deleteOneByTitle(
             document[model.titleProperty],
             user.uid
         )

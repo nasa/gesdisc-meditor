@@ -1,6 +1,6 @@
 import assert from 'assert'
 import createError from 'http-errors'
-import { getDocumentHistoryByVersion } from '../../../../../../../../documents/service'
+import { getDocumentHistory } from '../../../../../../../../documents/service'
 import { respondAsJson } from '../../../../../../../../utils/api'
 import { withApiErrorHandler } from 'lib/with-api-error-handler'
 import type { NextApiRequest, NextApiResponse } from 'next'
@@ -12,10 +12,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const modelName = decodeURIComponent(req.query.modelName.toString())
     const revisionId = decodeURIComponent(req.query.revisionId.toString())
 
-    const [error, history] = await getDocumentHistoryByVersion(
-        revisionId,
+    const [error, history] = await getDocumentHistory(
         documentTitle,
-        modelName
+        modelName,
+        revisionId
     )
 
     if (error) {

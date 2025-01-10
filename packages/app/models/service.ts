@@ -2,7 +2,7 @@ import assert from 'assert'
 import createError from 'http-errors'
 import jsonpath from 'jsonpath'
 import log from '../lib/log'
-import { getDocumentsDb } from '../documents/db'
+import { DocumentRepository } from 'documents/repository'
 import { getWorkflowByDocumentState } from '../workflows/service'
 import { isJson } from '../utils/jsonschema-validate'
 import { ModelRepository } from './repository'
@@ -34,7 +34,7 @@ export async function getModel(
         assert(modelName, new createError.BadRequest('Model name is required'))
 
         const modelRepository = new ModelRepository()
-        const model = await modelRepository.findByTitle(modelName)
+        const model = await modelRepository.findOneByTitle(modelName)
 
         assert(model, new createError.NotFound(`Model not found: ${modelName}`))
 
@@ -146,7 +146,7 @@ export async function getModelWithWorkflow(
 export async function getModels(): Promise<ErrorData<Model[]>> {
     try {
         const modelRepository = new ModelRepository()
-        const models = await modelRepository.findAll()
+        const models = await modelRepository.find()
 
         return [null, models]
     } catch (error) {
@@ -164,16 +164,14 @@ export async function getModelsWithDocumentCount(): Promise<ErrorData<Model[]>> 
             throw modelsError
         }
 
-        const documentsDb = await getDocumentsDb()
-
         // get a count of documents in each model
         const modelsWithDocumentCount = await Promise.all(
             models.map(async model => {
-                const documentCount =
-                    await documentsDb.getNumberOfUniqueDocumentsForModel(
-                        model.name,
-                        model.titleProperty
-                    )
+                const documentRepository = new DocumentRepository(
+                    model.name,
+                    model.titleProperty
+                )
+                const documentCount = await documentRepository.countAll()
 
                 return {
                     ...model,
