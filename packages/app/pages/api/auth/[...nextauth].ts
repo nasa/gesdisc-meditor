@@ -1,7 +1,7 @@
-import EarthdataLoginProvider from 'auth/providers/earthdata-login'
+import EarthdataLoginProvider from '../../../auth/providers/earthdata-login'
 import log from 'lib/log'
 import NextAuth, { AuthOptions } from 'next-auth'
-import { UserRepository } from 'auth/repository'
+import { UserRepository } from '../../../auth/repository'
 
 export const authOptions: AuthOptions = {
     // use our mEditor logger for NextAuth log messages

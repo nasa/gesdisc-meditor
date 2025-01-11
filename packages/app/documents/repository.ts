@@ -37,7 +37,7 @@ export class DocumentRepository extends BaseRepository<Document> {
         })
 
         // Get the requested document
-        const document = this.findOne([
+        const document = await this.findOne([
             // If given a document version, match by that, too.
             !!parsedInput.documentVersion
                 ? {

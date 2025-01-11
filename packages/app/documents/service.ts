@@ -242,7 +242,7 @@ export async function getDocumentsForModel(
             model.titleProperty
         )
 
-        let documents = await documentRepository.find(searchOptions)
+        let documents = await documentRepository.findAll(searchOptions)
 
         if (searchOptions?.searchTerm) {
             // user is attempting a search. Mongo text search is VERY basic, so we'll utilize fuse.js to do the search

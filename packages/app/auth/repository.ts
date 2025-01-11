@@ -92,7 +92,9 @@ export class UserRepository extends BaseRepository<User> {
 
     async getMeditorUserByUid(uid: string): Promise<Document> {
         return this.findOne({
-            id: uid,
+            $match: {
+                id: uid,
+            },
         })
     }
 }

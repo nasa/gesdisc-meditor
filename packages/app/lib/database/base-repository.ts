@@ -9,9 +9,9 @@ export interface DatabaseOperations<T> {
     deleteOne(filter: Filter, userUid: string): Promise<void>
     deleteOneByTitle(title: string, userUid: string): Promise<void>
     existsByTitle(title: string): Promise<boolean>
-    find(filter: Filter, sort?: Sort): Promise<T[]>
+    find(filter: Filter | Filter[], sort?: Sort): Promise<T[]>
     findAll(): Promise<T[]>
-    findOne(filter: Filter): Promise<T | null>
+    findOne(filter: Filter | Filter[]): Promise<T | null>
     findOneById(id: string): Promise<T | null>
     findOneByTitle(title: string): Promise<T | null>
     insertOne(data: Partial<T>): Promise<T>
@@ -101,12 +101,14 @@ export class BaseRepository<T> implements DatabaseOperations<T> {
     /**
      * Finds documents in the collection by a given filter and optional sort
      */
-    async find(filter: Filter = {}, sort?: Sort): Promise<T[]> {
+    async find(filter?: Filter | Filter[], sort?: Sort): Promise<T[]> {
+        const filterAsArray = Array.isArray(filter) ? filter : [filter]
+
         return this.aggregate<T>([
             ...this.noDeletedDocumentsQuery(),
-            filter,
+            ...(filter ? filterAsArray : []),
             ...this.latestVersionOfDocumentQuery(),
-            ...(sort && [{ $sort: sort }]),
+            ...(sort ? [{ $sort: sort }] : []),
         ])
     }
 
@@ -121,7 +123,7 @@ export class BaseRepository<T> implements DatabaseOperations<T> {
     /**
      * Finds the requested document matching the provided filter
      */
-    async findOne(filter: Filter): Promise<T | null> {
+    async findOne(filter: Filter | Filter[]): Promise<T | null> {
         const [document] = await this.find(filter)
         return document
     }

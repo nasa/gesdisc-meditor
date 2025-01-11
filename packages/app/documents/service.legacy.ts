@@ -2,8 +2,8 @@ import cloneDeep from 'lodash.clonedeep'
 import createError from 'http-errors'
 import log from '../lib/log'
 import { DocumentRepository } from './repository'
-import { ModelRepository } from 'models/repository'
-import { WorkflowRepository } from 'workflows/repository'
+import { ModelRepository } from '../models/repository'
+import { WorkflowRepository } from '../workflows/repository'
 
 import type { Document } from './types'
 

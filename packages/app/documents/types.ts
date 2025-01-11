@@ -7,6 +7,7 @@ export interface DocumentMetadata {
     states: DocumentState[]
     targetStates: string[]
     titleProperty: string
+    banTransitions: any // TODO: refactor to remove banTransitions or type this
 }
 
 export interface Document {

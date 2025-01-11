@@ -138,7 +138,7 @@ const EditDocumentPage = ({
         // this leaves it up to the workflow to determine whether updating via state change is allowed
         const canUpdateDocument = currentPrivileges.includes('edit') && document
 
-        await fetch(
+        const response = await fetch(
             `/meditor/api/models/${encodeURIComponent(
                 modelName
             )}/documents/${encodeURIComponent(
@@ -157,6 +157,12 @@ const EditDocumentPage = ({
                 }),
             }
         )
+
+        if (!response.ok) {
+            const { error } = await response.json()
+            setErrorNotification(error ?? 'Failed to update the document')
+            return
+        }
 
         state == 'Deleted'
             ? router.push('/[modelName]', `/${modelName}`)
