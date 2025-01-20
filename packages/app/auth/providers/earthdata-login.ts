@@ -1,5 +1,6 @@
 import type { OAuthConfig, OAuthUserConfig } from 'next-auth/providers/oauth'
 import type { TokenSetParameters } from 'openid-client'
+import { fromDockerSecretOrEnv } from 'pages/api/auth/[...nextauth]'
 
 export interface EarthdataUser {
     uid: string
@@ -62,7 +63,9 @@ export default function EarthdataLoginProvider<P extends EarthdataUser = any>(
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                         Authorization: Buffer.from(
-                            `${process.env.AUTH_CLIENT_ID}:${process.env.AUTH_CLIENT_SECRET}`
+                            `${fromDockerSecretOrEnv(
+                                'AUTH_CLIENT_ID'
+                            )}:${fromDockerSecretOrEnv('AUTH_CLIENT_SECRET')}`
                         ).toString('base64'),
                     },
                 })

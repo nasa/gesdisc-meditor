@@ -5,7 +5,7 @@ import { basePath, EDLTokenSetParameters } from 'auth/providers/earthdata-login'
 import { encode } from 'next-auth/jwt'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { withApiErrorHandler } from 'lib/with-api-error-handler'
-// pages/api/auth/custom-login.js
+import { fromDockerSecretOrEnv } from './[...nextauth]'
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     assert(req.method === 'GET', new createError.MethodNotAllowed())
@@ -25,7 +25,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
             Authorization: Buffer.from(
-                `${process.env.AUTH_CLIENT_ID}:${process.env.AUTH_CLIENT_SECRET}`
+                `${fromDockerSecretOrEnv('AUTH_CLIENT_ID')}:${fromDockerSecretOrEnv(
+                    'AUTH_CLIENT_SECRET'
+                )}`
             ).toString('base64'),
         },
     })
@@ -66,7 +68,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             sub: userInfo.sub,
             uid: userInfo.sub,
         },
-        secret: process.env.NEXTAUTH_SECRET!,
+        secret: fromDockerSecretOrEnv('NEXTAUTH_SECRET')!,
         maxAge,
     })
 

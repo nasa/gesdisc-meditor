@@ -1,7 +1,23 @@
 import EarthdataLoginProvider from 'auth/providers/earthdata-login'
 import log from 'lib/log'
 import NextAuth, { AuthOptions } from 'next-auth'
+import { existsSync, readFileSync } from 'fs'
 import { getUsersDb } from 'auth/db'
+
+export function fromDockerSecretOrEnv(key) {
+    const DOCKER_SECRETS_DIR = '/run/secrets/'
+
+    if (existsSync(DOCKER_SECRETS_DIR + key)) {
+        return readFileSync(DOCKER_SECRETS_DIR + key)
+            .toString()
+            .trim()
+    }
+
+    return process.env[key] || process.env[key.toUpperCase()]
+}
+
+const EDL_AUTH_CLIENT_ID = fromDockerSecretOrEnv('AUTH_CLIENT_ID')
+const EDL_AUTH_CLIENT_SECRET = fromDockerSecretOrEnv('AUTH_CLIENT_SECRET')
 
 export const authOptions: AuthOptions = {
     // use our mEditor logger for NextAuth log messages
@@ -31,11 +47,11 @@ export const authOptions: AuthOptions = {
     // configure one or more authentication providers
     providers: [
         // Earthdata Login Provider
-        ...(process.env.AUTH_CLIENT_ID && process.env.AUTH_CLIENT_SECRET
+        ...(EDL_AUTH_CLIENT_ID && EDL_AUTH_CLIENT_SECRET
             ? [
                   EarthdataLoginProvider({
-                      clientId: process.env.AUTH_CLIENT_ID,
-                      clientSecret: process.env.AUTH_CLIENT_SECRET,
+                      clientId: EDL_AUTH_CLIENT_ID,
+                      clientSecret: EDL_AUTH_CLIENT_SECRET,
                   }),
               ]
             : []),
@@ -61,7 +77,7 @@ export const authOptions: AuthOptions = {
         },
     },
 
-    secret: process.env.NEXTAUTH_SECRET!,
+    secret: fromDockerSecretOrEnv('NEXTAUTH_SECRET')!,
 }
 
 export default NextAuth(authOptions)
