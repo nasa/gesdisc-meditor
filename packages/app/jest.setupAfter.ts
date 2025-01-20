@@ -1,7 +1,7 @@
-import { mongoClientPromise } from './lib/mongodb'
+import { connectionPromise } from './lib/mongodb'
 
 afterAll(async () => {
     // close mongo connection after all tests run
-    const client = await mongoClientPromise
-    client.close()
+    const client = await connectionPromise
+    await client.disconnect()
 })

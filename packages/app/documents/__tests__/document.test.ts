@@ -25,9 +25,9 @@ import WhereDoIFAQ from '../../models/__tests__/__fixtures__/faqs/where-do-i.jso
 import workflowEdges from './__fixtures__/workflowEdges.json'
 import workflowWithTwoInitialNodes from './__fixtures__/workflow-with-two-initial-nodes.json'
 import { adaptDocumentToLegacyDocument } from '../adapters'
-import { getDb } from '../../lib/connections'
+import { connectionPromise } from '../../lib/connections'
+import { DatabaseConnection } from '../../lib/database/types'
 import { wait } from '../../utils/time'
-import type { Db } from 'mongodb'
 import {
     changeDocumentState,
     cloneDocument,
@@ -43,10 +43,10 @@ import {
 } from '../service'
 
 describe('Documents', () => {
-    let db: Db
+    let db: DatabaseConnection
 
     beforeEach(async () => {
-        db = await getDb()
+        db = await connectionPromise
 
         // mongo for some reason mutates the original object after insert...
         delete (editPublishCmrWorkflow as any)._id
