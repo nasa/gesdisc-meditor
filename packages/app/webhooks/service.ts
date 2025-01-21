@@ -1,12 +1,18 @@
 import createError from 'http-errors'
 import log from '../lib/log'
 import { assert } from 'console'
+import { decryptData, encryptData } from 'utils/encrypt'
 import { parseResponse } from '../utils/api'
 import { parseZodAsErrorData } from '../utils/errors'
 import { safeParseJSON } from '../utils/json'
 import { WebhookConfigsSchema } from './schema'
 import type { ErrorData } from 'declarations'
-import type { WebhookConfig, WebhookPayload } from './types'
+import {
+    AcknowledgementsBearerTokenDecryptedParts,
+    type WebhookAcknowledgementPayload,
+    type WebhookConfig,
+    type WebhookPayload,
+} from './types'
 
 const WEBHOOK_ENV_VAR = 'UI_WEBHOOKS'
 
@@ -54,6 +60,9 @@ async function invokeWebhook(
     payload: WebhookPayload
 ): Promise<ErrorData<any>> {
     try {
+        const payloadWithAcknowledgementUrl =
+            getPayloadWithAcknowledgementUrl(payload)
+
         const response = await fetch(webhook.URL, {
             method: 'POST',
             headers: {
@@ -61,7 +70,7 @@ async function invokeWebhook(
                 authorization: `Bearer ${webhook.token}`,
                 'content-type': 'application/json',
             },
-            body: JSON.stringify(payload),
+            body: JSON.stringify(payloadWithAcknowledgementUrl),
         })
 
         assert(response.ok, new createError(response.status, response.statusText))
@@ -69,6 +78,21 @@ async function invokeWebhook(
         return [null, await parseResponse(response)]
     } catch (error) {
         return [error, null]
+    }
+}
+
+function getPayloadWithAcknowledgementUrl(
+    payload: WebhookPayload
+): WebhookPayload & WebhookAcknowledgementPayload {
+    return {
+        ...payload,
+        url: `${process.env.HOST}/api/publication-acknowledgements`,
+
+        // provide a bearer token the acknowledger MUST include to allow for updating a documents publication status
+        bearerToken: encryptData<AcknowledgementsBearerTokenDecryptedParts>({
+            _id: payload.document._id,
+            modelName: payload.model.name,
+        }),
     }
 }
 

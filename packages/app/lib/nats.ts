@@ -1,6 +1,6 @@
 import log from './log'
 import { connect } from 'node-nats-streaming'
-import { handlePublicationAcknowledgements } from '../publication-queue/service'
+import { handlePublicationAcknowledgementFromNatsMessage } from '../publication-queue/service'
 
 const clusterID = process.env.MEDITOR_NATS_CLUSTER_ID || 'test-cluster'
 const clientID = 'meditor-app'
@@ -47,7 +47,7 @@ async function connectToNats() {
         // subscribe to publication acknowledgements
         subscribeToChannel('meditor-Acknowledge').on(
             'message',
-            handlePublicationAcknowledgements
+            handlePublicationAcknowledgementFromNatsMessage
         )
 
         return Promise.resolve()

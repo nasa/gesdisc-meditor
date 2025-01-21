@@ -11,3 +11,13 @@ export type WebhookPayload = {
     document: Document
     state: string
 }
+
+export type WebhookAcknowledgementPayload = {
+    url: string
+    bearerToken: string
+}
+
+export type AcknowledgementsBearerTokenDecryptedParts = {
+    _id: string
+    modelName: string
+}

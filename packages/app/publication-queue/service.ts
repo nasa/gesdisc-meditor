@@ -1,7 +1,7 @@
 import log from '../lib/log'
 import { connectToNats, getDb } from '../lib/connections'
 import { ObjectId } from 'mongodb'
-import type { QueueMessage } from './types'
+import type { PublicationAcknowledgement, QueueMessage } from './types'
 
 const NATS_QUEUE_PREFIX = 'meditor-'
 
@@ -41,20 +41,29 @@ export async function publishMessageToQueueChannel(
  * handles success/failure messages received from the NATS acknowledgements queue
  * @param {*} message
  */
-export async function handlePublicationAcknowledgements(message) {
-    let acknowledgement
-
+export async function handlePublicationAcknowledgementFromNatsMessage(message) {
     try {
-        acknowledgement = escape(JSON.parse(message.getData()))
+        // parse the message
+        const acknowledgement: PublicationAcknowledgement = JSON.parse(
+            message.getData()
+        )
+
+        handlePublicationAcknowledgement(acknowledgement)
     } catch (err) {
         // the subscriber sent us a message that wasn't JSON parseable
-        log.error('Failed to parse the following publication acknowledgement:')
+        log.error(
+            'Failed to parse the following publication acknowledgement from NATS:'
+        )
         log.error(message.getData())
-
-        message.ack() // acknowledge the message so NATS doesn't keep trying to send it
-        return
+    } finally {
+        // acknowledge so that NATS won't try to resend
+        message.ack()
     }
+}
 
+export async function handlePublicationAcknowledgement(
+    acknowledgement: PublicationAcknowledgement
+) {
     log.debug('Acknowledgement received, processing now ', acknowledgement)
 
     const db = await getDb()
@@ -113,8 +122,5 @@ export async function handlePublicationAcknowledgements(message) {
     } catch (err) {
         // whoops, the message must be improperly formatted, throw an error
         console.error('Failed to process message', err)
-    } finally {
-        // acknowledge so that NATS won't try to resend
-        message.ack()
     }
 }
