@@ -5,7 +5,8 @@ import type { ErrorData } from 'declarations'
  */
 function safeParseJSON(input: any): ErrorData<any> {
     try {
-        const data = typeof input === 'object' ? input : JSON.parse(input)
+        const data =
+            typeof input === 'object' ? input : JSON.parse(input.replace(/\\"/g, '"'))
 
         return [null, data]
     } catch (error) {
