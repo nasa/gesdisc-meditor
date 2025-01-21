@@ -1,19 +1,33 @@
 import EarthdataLoginProvider from 'auth/providers/earthdata-login'
 import log from 'lib/log'
 import NextAuth, { AuthOptions } from 'next-auth'
-import { existsSync, readFileSync } from 'fs'
+import { existsSync, readdirSync, readFileSync } from 'fs'
 import { getUsersDb } from 'auth/db'
 
 export function fromDockerSecretOrEnv(key) {
     const DOCKER_SECRETS_DIR = '/run/secrets/'
+    const normalizedKey = key.toLowerCase()
 
-    if (existsSync(DOCKER_SECRETS_DIR + key)) {
-        return readFileSync(DOCKER_SECRETS_DIR + key)
-            .toString()
-            .trim()
+    // Check Docker secrets (case-insensitively)
+    if (existsSync(DOCKER_SECRETS_DIR)) {
+        const secretFiles = readdirSync(DOCKER_SECRETS_DIR) // List all files in secrets dir
+        const matchingSecret = secretFiles.find(
+            file => file.toLowerCase() === normalizedKey
+        )
+
+        if (matchingSecret) {
+            return readFileSync(DOCKER_SECRETS_DIR + matchingSecret)
+                .toString()
+                .trim()
+        }
     }
 
-    return process.env[key] || process.env[key.toUpperCase()]
+    // Check environment variables (case-insensitively)
+    const envKey = Object.keys(process.env).find(
+        envVar => envVar.toLowerCase() === normalizedKey
+    )
+
+    return envKey ? process.env[envKey] : undefined
 }
 
 const EDL_AUTH_CLIENT_ID = fromDockerSecretOrEnv('AUTH_CLIENT_ID')
