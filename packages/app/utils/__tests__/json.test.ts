@@ -13,7 +13,8 @@ test('returns tuple containing data on happy path', () => {
 
 test('handles escaped JSON string', () => {
     const [error, data] = safeParseJSON(
-        '[{ "token":"bacon","URL":"http://localhost/eggs" }]'
+        // prettier-ignore
+        '[{ \"token\":\"bacon\",\"URL\":\"http://localhost/eggs\" }]'
     )
 
     expect(error).toBeNull()
