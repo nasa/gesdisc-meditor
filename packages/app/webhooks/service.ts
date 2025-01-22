@@ -63,6 +63,12 @@ async function invokeWebhook(
         const payloadWithAcknowledgementUrl =
             getPayloadWithAcknowledgementUrl(payload)
 
+        log.debug(
+            `Sending webhook payload to ${webhook.URL}: ${JSON.stringify(
+                payloadWithAcknowledgementUrl
+            )}`
+        )
+
         const response = await fetch(webhook.URL, {
             method: 'POST',
             headers: {
