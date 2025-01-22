@@ -13,6 +13,7 @@ export function encryptData<T>(data: T): string {
     encrypted += cipher.final('hex')
 
     // Return the IV and encrypted data as a single string
+    //? It is standard practice to transmit the IV alongside the ciphertext. Without the IV, the decryption process cannot reconstruct the original data.
     return `${iv.toString('hex')}:${encrypted}`
 }
 

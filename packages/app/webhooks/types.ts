@@ -13,8 +13,8 @@ export type WebhookPayload = {
 }
 
 export type WebhookAcknowledgementPayload = {
-    url: string
-    bearerToken: string
+    acknowledgementUrl: string
+    acknowledgementBearerToken: string
 }
 
 export type AcknowledgementsBearerTokenDecryptedParts = {

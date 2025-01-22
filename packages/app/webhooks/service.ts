@@ -1,7 +1,7 @@
 import createError from 'http-errors'
 import log from '../lib/log'
 import { assert } from 'console'
-import { decryptData, encryptData } from 'utils/encrypt'
+import { encryptData } from '../utils/encrypt'
 import { parseResponse } from '../utils/api'
 import { parseZodAsErrorData } from '../utils/errors'
 import { safeParseJSON } from '../utils/json'
@@ -73,7 +73,9 @@ async function invokeWebhook(
             body: JSON.stringify(payloadWithAcknowledgementUrl),
         })
 
-        assert(response.ok, new createError(response.status, response.statusText))
+        if (!response.ok) {
+            throw createError(response.status, response.statusText)
+        }
 
         return [null, await parseResponse(response)]
     } catch (error) {
@@ -86,13 +88,14 @@ function getPayloadWithAcknowledgementUrl(
 ): WebhookPayload & WebhookAcknowledgementPayload {
     return {
         ...payload,
-        url: `${process.env.HOST}/api/publication-acknowledgements`,
+        acknowledgementUrl: `${process.env.HOST}/api/publication-acknowledgements`,
 
         // provide a bearer token the acknowledger MUST include to allow for updating a documents publication status
-        bearerToken: encryptData<AcknowledgementsBearerTokenDecryptedParts>({
-            _id: payload.document._id,
-            modelName: payload.model.name,
-        }),
+        acknowledgementBearerToken:
+            encryptData<AcknowledgementsBearerTokenDecryptedParts>({
+                _id: payload.document._id,
+                modelName: payload.model.name,
+            }),
     }
 }
 

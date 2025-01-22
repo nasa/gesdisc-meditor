@@ -11,6 +11,22 @@ test('returns tuple containing data on happy path', () => {
     `)
 })
 
+test('handles escaped JSON string', () => {
+    const [error, data] = safeParseJSON(
+        '[{ "token":"bacon","URL":"http://localhost/eggs" }]'
+    )
+
+    expect(error).toBeNull()
+    expect(data).toMatchInlineSnapshot(`
+        [
+          {
+            "URL": "http://localhost/eggs",
+            "token": "bacon",
+          },
+        ]
+    `)
+})
+
 test('handles arrays and objects', () => {
     const [objectError, objectData] = safeParseJSON({ passed: true })
     const [arrayError, arrayData] = safeParseJSON([{ passed: true }])
