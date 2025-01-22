@@ -50,7 +50,7 @@ describe('Model', () => {
 
             expect(model).toBeNull()
             expect(error).toMatchInlineSnapshot(
-                `[BadRequestError: Model name is required]`
+                `[AssertionError: BadRequestError: Model name is required]`
             )
         })
 
@@ -58,7 +58,7 @@ describe('Model', () => {
             const [error, model] = await getModel('Foo')
 
             expect(error).toMatchInlineSnapshot(
-                `[NotFoundError: Model not found: Foo]`
+                `[AssertionError: NotFoundError: Model not found: Foo]`
             )
             expect(model).toBeNull()
         })
