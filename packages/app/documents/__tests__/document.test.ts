@@ -277,7 +277,7 @@ describe('Documents', () => {
             const [error] = await createDocument(document, modelName, user, 'Foo')
 
             expect(error).toMatchInlineSnapshot(
-                `[AssertionError: BadRequestError: The passed in state, Foo, does not exist]`
+                `[BadRequestError: The passed in state, Foo, does not exist]`
             )
         })
 
@@ -301,7 +301,7 @@ describe('Documents', () => {
             )
 
             expect(error).toMatchInlineSnapshot(
-                `[AssertionError: BadRequestError: The passed in state, Published, is not an initial node in the workflow]`
+                `[BadRequestError: The passed in state, Published, is not an initial node in the workflow]`
             )
         })
     })
@@ -847,7 +847,7 @@ describe('Documents', () => {
                 user_noFAQRole
             )
             expect(error).toMatchInlineSnapshot(
-                `[AssertionError: NotFoundError: Model not found: Eggs]`
+                `[NotFoundError: Model not found: Eggs]`
             )
             expect(document).toBeNull()
         })
@@ -860,7 +860,7 @@ describe('Documents', () => {
                 user_noFAQRole
             )
             expect(error).toMatchInlineSnapshot(
-                `[AssertionError: NotFoundError: Requested document, Bacon, in model, FAQs, was not found]`
+                `[NotFoundError: Requested document, Bacon, in model, FAQs, was not found]`
             )
             expect(document).toBeNull()
         })
@@ -872,7 +872,7 @@ describe('Documents', () => {
                 'FAQs'
             )
             expect(error).toMatchInlineSnapshot(
-                `[AssertionError: BadRequestError: No state provided]`
+                `[BadRequestError: No state provided]`
             )
             expect(document).toBeNull()
         })
@@ -885,7 +885,7 @@ describe('Documents', () => {
                 user_noFAQRole
             )
             expect(error).toMatchInlineSnapshot(
-                `[AssertionError: BadRequestError: Cannot transition to state [Draft] as the document is in this state already]`
+                `[BadRequestError: Cannot transition to state [Draft] as the document is in this state already]`
             )
             expect(document).toBeNull()
         })
@@ -898,7 +898,7 @@ describe('Documents', () => {
                 user_noFAQRole
             )
             expect(error).toMatchInlineSnapshot(
-                `[AssertionError: BadRequestError: Cannot transition to state [Foo] as it is not a valid state in the workflow]`
+                `[BadRequestError: Cannot transition to state [Foo] as it is not a valid state in the workflow]`
             )
             expect(document).toBeNull()
         })
@@ -911,7 +911,7 @@ describe('Documents', () => {
                 user_noFAQRole
             )
             expect(error).toMatchInlineSnapshot(
-                `[AssertionError: BadRequestError: User does not have the permissions to transition to state Under Review.]`
+                `[BadRequestError: User does not have the permissions to transition to state Under Review.]`
             )
             expect(document).toBeNull()
         })
@@ -949,7 +949,7 @@ describe('Documents', () => {
             )
 
             expect(error).toMatchInlineSnapshot(
-                `[AssertionError: BadRequestError: User does not have the permissions to transition to state Approved.]`
+                `[BadRequestError: User does not have the permissions to transition to state Approved.]`
             )
             expect(document).toBeNull()
         })
@@ -972,7 +972,7 @@ describe('Documents', () => {
 
             expect(document).toBeNull()
             expect(error).toMatchInlineSnapshot(
-                `[AssertionError: InternalServerError: Workflow, Duplicate Edges, is misconfigured! There are duplicate edges from 'Draft' to 'Under Review'.]`
+                `[InternalServerError: Workflow, Duplicate Edges, is misconfigured! There are duplicate edges from 'Draft' to 'Under Review'.]`
             )
         })
 
@@ -1170,7 +1170,7 @@ describe('Documents', () => {
             const [error, document] = await cloneDocument('Bacon', 'Eggs', 'FAQs')
 
             expect(error).toMatchInlineSnapshot(
-                `[AssertionError: UnauthorizedError: User is not authenticated]`
+                `[UnauthorizedError: User is not authenticated]`
             )
             expect(document).toBeNull()
         })
@@ -1184,7 +1184,7 @@ describe('Documents', () => {
             )
 
             expect(error).toMatchInlineSnapshot(
-                `[AssertionError: NotFoundError: Requested document, Bacon, in model, FAQs, was not found]`
+                `[NotFoundError: Requested document, Bacon, in model, FAQs, was not found]`
             )
             expect(document).toBeNull()
         })
@@ -1198,7 +1198,7 @@ describe('Documents', () => {
             )
 
             expect(error).toMatchInlineSnapshot(
-                `[AssertionError: BadRequestError: A document already exists with the title: 'Where do I?']`
+                `[BadRequestError: A document already exists with the title: 'Where do I?']`
             )
             expect(document).toBeNull()
         })

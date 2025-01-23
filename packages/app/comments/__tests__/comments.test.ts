@@ -100,9 +100,7 @@ describe('Comments Service', () => {
             {} as any // force logged out
         )
 
-        expect(error).toMatchInlineSnapshot(
-            `[AssertionError: UnauthorizedError: Unauthorized]`
-        )
+        expect(error).toMatchInlineSnapshot(`[UnauthorizedError: Unauthorized]`)
         expect(comment).toBeNull()
     })
 
@@ -110,7 +108,7 @@ describe('Comments Service', () => {
         const [error, comment] = await createCommentAsUser({} as any, BaconUser)
 
         expect(error).toMatchInlineSnapshot(`
-            [AssertionError: BadRequestError: 0: instance requires property "documentId"
+            [BadRequestError: 0: instance requires property "documentId"
             1: instance requires property "model"
             2: instance requires property "text"
             ]
@@ -181,9 +179,7 @@ describe('Comments Service', () => {
             {} as any // force logged out
         )
 
-        expect(error).toMatchInlineSnapshot(
-            `[AssertionError: UnauthorizedError: Unauthorized]`
-        )
+        expect(error).toMatchInlineSnapshot(`[UnauthorizedError: Unauthorized]`)
         expect(comment).toBeNull()
     })
 
@@ -191,7 +187,7 @@ describe('Comments Service', () => {
         const [error, comment] = await updateCommentAsUser({} as any, BaconUser)
 
         expect(error).toMatchInlineSnapshot(`
-            [AssertionError: BadRequestError: 0: instance is not any of [subschema 0],[subschema 1]
+            [BadRequestError: 0: instance is not any of [subschema 0],[subschema 1]
             ]
         `)
         expect(comment).toBeNull()

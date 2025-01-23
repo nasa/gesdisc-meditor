@@ -51,7 +51,7 @@ describe('Workflows', () => {
             const [error, workflow] = await getWorkflow('Foo')
 
             expect(error).toMatchInlineSnapshot(
-                `[AssertionError: NotFoundError: The requested workflow, Foo, was not found.]`
+                `[NotFoundError: The requested workflow, Foo, was not found.]`
             )
             expect(workflow).toBeNull()
         })
@@ -131,7 +131,7 @@ describe('Workflows', () => {
                     'Published'
                 )
             }).toThrowErrorMatchingInlineSnapshot(
-                `"InternalServerError: The workflow, Bacon Workflow, is misconfigured due to having duplicate edges for [source=Draft, target=Published]."`
+                `"The workflow, Bacon Workflow, is misconfigured due to having duplicate edges for [source=Draft, target=Published]."`
             )
         })
 
