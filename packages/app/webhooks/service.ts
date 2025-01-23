@@ -1,6 +1,5 @@
 import createError from 'http-errors'
 import log from '../lib/log'
-import { assert } from 'console'
 import { encryptData } from '../utils/encrypt'
 import { parseResponse } from '../utils/api'
 import { parseZodAsErrorData } from '../utils/errors'
@@ -8,7 +7,7 @@ import { safeParseJSON } from '../utils/json'
 import { WebhookConfigsSchema } from './schema'
 import type { ErrorData } from 'declarations'
 import {
-    AcknowledgementsBearerTokenDecryptedParts,
+    type AcknowledgementsBearerTokenDecryptedParts,
     type WebhookAcknowledgementPayload,
     type WebhookConfig,
     type WebhookPayload,
