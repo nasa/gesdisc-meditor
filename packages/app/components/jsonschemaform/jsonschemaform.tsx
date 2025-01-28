@@ -65,16 +65,6 @@ class LargeModelForm<
         }
     }
 
-    static debounce(fn: Function, delay = 600) {
-        let timerId: NodeJS.Timeout
-
-        return (...args: any[]) => {
-            globalThis.clearTimeout(timerId)
-
-            timerId = setTimeout(() => fn(...args), delay)
-        }
-    }
-
     /*
      * Targeting only nodes in our allowlist, we conditionally stop propagation so that the ajv8 validator does not get triggered.
      * We state lock the event so that later logic does not propagate its change event.
@@ -108,9 +98,8 @@ class LargeModelForm<
      * Targeting only nodes in our allowlist, we check to make sure node's event has been stored.
      * Because the ajv8 validator is slow on large schemas, we wait until the `blur` event before triggering an update.
      * We mark the node as ready to propagate, re-dispatching the event.
-     * Debounce this handler for rapid tabbing, which triggers unnecessary state updates.
      */
-    handleBlur = LargeModelForm.debounce((event: any) => {
+    handleBlur = (event: any) => {
         if (
             this.targetNodeNames.includes(event.target.nodeName) &&
             this.eventStore[event.target.id]
@@ -121,7 +110,7 @@ class LargeModelForm<
                 this.eventStore[event.target.id]
             )
         }
-    })
+    }
 }
 
 const JsonSchemaForm = ({
