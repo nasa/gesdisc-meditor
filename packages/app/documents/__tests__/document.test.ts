@@ -277,7 +277,7 @@ describe('Documents', () => {
             const [error] = await createDocument(document, modelName, user, 'Foo')
 
             expect(error).toMatchInlineSnapshot(
-                `[AssertionError: BadRequestError: The passed in state, Foo, does not exist]`
+                `[BadRequestError: The passed in state, Foo, does not exist]`
             )
         })
 
@@ -301,7 +301,7 @@ describe('Documents', () => {
             )
 
             expect(error).toMatchInlineSnapshot(
-                `[AssertionError: BadRequestError: The passed in state, Published, is not an initial node in the workflow]`
+                `[BadRequestError: The passed in state, Published, is not an initial node in the workflow]`
             )
         })
     })
