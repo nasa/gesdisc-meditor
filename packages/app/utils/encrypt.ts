@@ -1,13 +1,13 @@
 import crypto from 'crypto'
 
-const APP_SECRET = crypto.scryptSync(process.env.APP_SECRET!, 'salt', 32)
 const ALGORITHM = 'aes-256-cbc' // Encryption algorithm
 const IV_LENGTH = 16 // Length of the initialization vector
 
 export function encryptData<T>(data: T): string {
+    const appSecret = crypto.scryptSync(process.env.APP_SECRET, 'salt', 32)
     const serializedData = JSON.stringify(data) // Convert data to JSON string
     const iv = crypto.randomBytes(IV_LENGTH) // Initialization vector
-    const cipher = crypto.createCipheriv(ALGORITHM, APP_SECRET, iv)
+    const cipher = crypto.createCipheriv(ALGORITHM, appSecret, iv)
 
     let encrypted = cipher.update(serializedData, 'utf8', 'hex')
     encrypted += cipher.final('hex')
@@ -18,9 +18,10 @@ export function encryptData<T>(data: T): string {
 }
 
 export function decryptData<T>(encryptedToken: string): T {
+    const appSecret = crypto.scryptSync(process.env.APP_SECRET, 'salt', 32)
     const [ivHex, encrypted] = encryptedToken.split(':')
     const iv = Buffer.from(ivHex, 'hex')
-    const decipher = crypto.createDecipheriv(ALGORITHM, APP_SECRET, iv)
+    const decipher = crypto.createDecipheriv(ALGORITHM, appSecret, iv)
 
     let decrypted = decipher.update(encrypted, 'hex', 'utf8')
     decrypted += decipher.final('utf8')
