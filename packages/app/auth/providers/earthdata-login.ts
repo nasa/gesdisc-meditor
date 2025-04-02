@@ -19,8 +19,6 @@ export interface EarthdataUser {
     user_authorized_apps: number
 }
 
-export const basePath = 'https://urs.earthdata.nasa.gov'
-
 export type EDLTokenSetParameters = Pick<
     TokenSetParameters,
     'access_token' | 'token_type' | 'refresh_token'
@@ -42,7 +40,7 @@ export default function EarthdataLoginProvider<P extends EarthdataUser = any>(
         type: 'oauth',
         authorization: {
             // https://urs.earthdata.nasa.gov/documentation/for_integrators/api_documentation#GET/oauth/authorize
-            url: `${basePath}/oauth/authorize`,
+            url: 'https://urs.earthdata.nasa.gov/oauth/authorize',
             params: {
                 // disables the URS "splash screen" (the one that says "Redirecting...") for logged in users
                 splash: false,
@@ -55,20 +53,23 @@ export default function EarthdataLoginProvider<P extends EarthdataUser = any>(
              */
             async request({ params, provider }) {
                 // https://urs.earthdata.nasa.gov/documentation/for_integrators/api_documentation#/oauth/token
-                const result = await fetch(`${basePath}/oauth/token`, {
-                    method: 'POST',
-                    body: `grant_type=authorization_code&code=${
-                        params.code
-                    }&redirect_uri=${encodeURIComponent(provider.callbackUrl)}`,
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        Authorization: Buffer.from(
-                            `${fromDockerSecretOrEnv(
-                                'AUTH_CLIENT_ID'
-                            )}:${fromDockerSecretOrEnv('AUTH_CLIENT_SECRET')}`
-                        ).toString('base64'),
-                    },
-                })
+                const result = await fetch(
+                    'https://urs.earthdata.nasa.gov/oauth/token',
+                    {
+                        method: 'POST',
+                        body: `grant_type=authorization_code&code=${
+                            params.code
+                        }&redirect_uri=${encodeURIComponent(provider.callbackUrl)}`,
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            Authorization: Buffer.from(
+                                `${fromDockerSecretOrEnv(
+                                    'AUTH_CLIENT_ID'
+                                )}:${fromDockerSecretOrEnv('AUTH_CLIENT_SECRET')}`
+                            ).toString('base64'),
+                        },
+                    }
+                )
 
                 const {
                     access_token,
@@ -92,11 +93,14 @@ export default function EarthdataLoginProvider<P extends EarthdataUser = any>(
         userinfo: {
             async request(context) {
                 // https://urs.earthdata.nasa.gov/documentation/for_integrators/api_documentation#/api/users/%7Buserid%7D
-                const user = await fetch(`${basePath}${context.tokens.endpoint}`, {
-                    headers: {
-                        Authorization: `Bearer ${context.tokens.access_token}`,
-                    },
-                })
+                const user = await fetch(
+                    `https://urs.earthdata.nasa.gov${context.tokens.endpoint}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${context.tokens.access_token}`,
+                        },
+                    }
+                )
 
                 return await user.json()
             },

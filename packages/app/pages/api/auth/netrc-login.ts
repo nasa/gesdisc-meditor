@@ -1,5 +1,4 @@
 import log from 'lib/log'
-import { basePath } from 'auth/providers/earthdata-login'
 import { withApiErrorHandler } from 'lib/with-api-error-handler'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { fromDockerSecretOrEnv } from './[...nextauth]'
@@ -10,7 +9,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     // construct the redirect URL to urs.earthdata.nasa.gov
     // https://urs.earthdata.nasa.gov/documentation/for_integrators/api_documentation#POST/oauth/authorize
-    const earthdataAuthUrl = `${basePath}/oauth/authorize?client_id=${fromDockerSecretOrEnv(
+    const earthdataAuthUrl = `https://urs.earthdata.nasa.gov/oauth/authorize?client_id=${fromDockerSecretOrEnv(
         'AUTH_CLIENT_ID'
     )}&scope=openid&splash=false&response_type=code&redirect_uri=${encodeURIComponent(
         callbackUrl
