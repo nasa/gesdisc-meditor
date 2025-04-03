@@ -31,7 +31,6 @@ export async function getServerSession(req: any, res: any): Promise<Session> {
 export async function getNetrcServerSession(req: any, res: any): Promise<Session> {
     try {
         if (!req.cookies?.['__mEditorNetrcToken']) {
-            log.debug('No netrc token is present in the request')
             return
         }
 
