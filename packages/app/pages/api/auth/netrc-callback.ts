@@ -59,6 +59,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     )
 
     const userInfo = await userResult.json()
+
+    log.debug('User info returned from Earthdata Login: ', userInfo)
+
     const maxAge = 30 * 24 * 60 * 60 // 30 days
 
     const nextAuthToken = await encode({
@@ -73,7 +76,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     })
 
     res.setHeader('Set-Cookie', [
-        `next-auth.session-token=${nextAuthToken}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}`,
+        `next-auth.session-token=${nextAuthToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}`,
     ])
 
     res.status(200).json(userInfo)
