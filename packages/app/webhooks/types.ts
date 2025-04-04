@@ -21,3 +21,13 @@ export type AcknowledgementsBearerTokenDecryptedParts = {
     _id: string
     modelName: string
 }
+
+export type WebhookDbDocument = {
+    uid: string
+    responseData: any
+    statusCode: number
+    statusMessage: string
+    webhook: WebhookConfig
+    payload: WebhookPayload
+    isTimeout: boolean
+}
