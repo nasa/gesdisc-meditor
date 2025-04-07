@@ -19,6 +19,8 @@ export function withUserCanAccessModelCheck(
         const modelName = decodeURIComponent(req.query.modelName.toString()) // this intentionally should fail if used on an endpoint that doesn't include a modelName (developer issue not a user issue)
         const session = await getServerSession(req, res)
 
+        assert(session, new createError.Unauthorized())
+
         assert(
             await userCanAccessModel(session?.user, modelName),
             new createError.Forbidden(

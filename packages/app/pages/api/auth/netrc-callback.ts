@@ -78,7 +78,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     res.setHeader('Set-Cookie', [
         `next-auth.session-token=${nextAuthToken}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}`, // set a secure cookie for same domain access
-        `__mEditorNetrcToken=${nextAuthToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${oneDayInSeconds}`, // set a cookie for use only during .netrc logins with a shorter lifespan
+        `__mEditorNetrcToken=${nextAuthToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}`, // set a cookie for use only during .netrc logins
     ])
 
     res.status(200).json(userInfo)
