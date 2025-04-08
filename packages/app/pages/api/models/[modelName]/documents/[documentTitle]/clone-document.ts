@@ -4,6 +4,7 @@ import { cloneDocument } from '../../../../../../documents/service'
 import { getServerSession } from '../../../../../../auth/user'
 import { respondAsJson } from '../../../../../../utils/api'
 import { withApiErrorHandler } from 'lib/with-api-error-handler'
+import { withUserCanAccessModelCheck } from 'lib/with-user-can-access-model-check'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -29,4 +30,4 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     return respondAsJson(document, req, res)
 }
 
-export default withApiErrorHandler(handler)
+export default withApiErrorHandler(withUserCanAccessModelCheck(handler))
