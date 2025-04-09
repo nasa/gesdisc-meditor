@@ -1,15 +1,7 @@
 import assert from 'assert'
-import createError from 'http-errors'
 import Fuse from 'fuse.js'
-import log from '../lib/log'
-import { formatValidationErrorMessage } from '../utils/jsonschema-validate'
-import { getDocumentsDb } from './db'
-import { getModel, getModelWithWorkflow } from '../models/service'
-import { getTargetStatesFromWorkflow } from '../workflows/service'
-import { getWebhookConfig, invokeWebhook } from '../webhooks/service'
+import createError from 'http-errors'
 import { immutableJSONPatch, JSONPatchDocument } from 'immutable-json-patch'
-import { legacyHandleModelChanges } from './service.legacy'
-import { publishMessageToQueueChannel } from '../publication-queue/service'
 import { validate } from 'jsonschema'
 import type { UserRole } from '../auth/types'
 import type { ErrorData, User } from '../declarations'
@@ -17,8 +9,19 @@ import {
     constructEmailMessageForStateChange,
     shouldNotifyUsersOfStateChange,
 } from '../email-notifications/service'
+import log from '../lib/log'
+import { getModel, getModelWithWorkflow } from '../models/service'
 import type { DocumentsSearchOptions, ModelWithWorkflow } from '../models/types'
+import { formatValidationErrorMessage } from '../utils/jsonschema-validate'
+import {
+    getWebhookConfig,
+    safelyPublishWebhookInvocationToQueue,
+} from '../webhooks/service'
+import { getTargetStatesFromWorkflow } from '../workflows/service'
+import { getDocumentsDb } from './db'
+import { legacyHandleModelChanges } from './service.legacy'
 
+import { publishMessageToQueueChannel } from '../lib/nats'
 import type { Workflow, WorkflowEdge } from '../workflows/types'
 import type {
     BulkDocumentResponse,
@@ -127,33 +130,13 @@ export async function createDocument(
             firstCurrentEdge.webhookURL
         )
 
-        // If there is a webhook URL, get the underlying webhook config and invoke it.
+        // If there is a matching webhook URL, get the underlying webhook config and add the webhook request to the queue.
         if (webhookConfig) {
-            const [error, response] = await invokeWebhook(webhookConfig, {
+            safelyPublishWebhookInvocationToQueue(webhookConfig, {
                 model: modelWithWorkflow,
                 document: insertedDocument,
                 state: targetState,
             })
-
-            // NOTE: Right now, we're not doing anything with the webhook response; a future story would be to include this and the previous document status notifications into document history. While we're changing document history, we should make sure that "Init" state is represented:
-            /** 
-            "states": [
-                {
-                    "source": "Init",
-                    "target": "Draft",
-                    "modifiedOn": "2027-08-03T16:57:26.401Z",
-                    "modifiedBy": "username"
-                }
-            ]
-            */
-
-            if (error) {
-                log.error(error)
-            }
-
-            if (response) {
-                log.debug(response)
-            }
         }
 
         safelyPublishDocumentChangeToQueue(
@@ -570,33 +553,13 @@ export async function changeDocumentState(
             firstCurrentEdge.webhookURL
         )
 
-        // If there is a webhook URL, get the underlying webhook config and invoke it.
+        // If there is a matching webhook URL, get the underlying webhook config and add the webhook request to the queue.
         if (webhookConfig) {
-            const [error, response] = await invokeWebhook(webhookConfig, {
+            safelyPublishWebhookInvocationToQueue(webhookConfig, {
                 model,
                 document,
                 state: newState,
             })
-
-            // NOTE: Right now, we're not doing anything with the webhook response; a future story would be to include this and the previous document status notifications into document history. While we're changing document history, we should make sure that "Init" state is represented:
-            /** 
-            "states": [
-                {
-                    "source": "Init",
-                    "target": "Draft",
-                    "modifiedOn": "2027-08-03T16:57:26.401Z",
-                    "modifiedBy": "username"
-                }
-            ]
-            */
-
-            if (error) {
-                log.error(error)
-            }
-
-            if (response) {
-                log.debug(response)
-            }
         }
 
         if (!options?.disableQueuePublication) {

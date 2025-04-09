@@ -1,25 +1,28 @@
 import type { ErrorData } from 'declarations'
 import createError from 'http-errors'
+import { Message } from 'node-nats-streaming'
 import assert from 'node:assert'
 import { IncomingMessage } from 'node:http'
 import { request } from 'node:https'
 import process from 'node:process'
 import log from '../lib/log'
+import { publishMessageToQueueChannel } from '../lib/nats'
 import { encryptData } from '../utils/encrypt'
 import { parseZodAsErrorData } from '../utils/errors'
 import { safeParseJSON } from '../utils/json'
 import { wait } from '../utils/time'
-import { getWebhooksDb } from './db'
 import { WebhookConfigsSchema } from './schema'
 import {
+    QueueWebhookMessage,
     type AcknowledgementsBearerTokenDecryptedParts,
     type WebhookAcknowledgementPayload,
     type WebhookConfig,
     type WebhookPayload,
 } from './types'
 
-const RETRY_FAILED_WEBHOOKS_EVERY = 1000 * 10 // ten seconds
+const MAX_AGE_MILLISECONDS = 1000 * 60 * 60 * 24 * 10 // roughly ten days
 const WEBHOOK_ENV_VAR = 'UI_WEBHOOKS'
+const WEBHOOK_NATS_CHANNEL = 'webhooks'
 
 function getAllWebhookConfigs(): ErrorData<WebhookConfig[]> {
     try {
@@ -58,31 +61,15 @@ function getWebhookConfig(URL: WebhookConfig['URL']): ErrorData<WebhookConfig> {
 /**
  * WEBHOOKS
  * The basic flow is that on saveDocument or changeDocumentState, webhooks are invoked if a valid webhook configuration is found on the workflow edge we are crossing.
- * Our design for webhooks in mEditor is that
- * 1. sucessful responses are stored in the database for a short time (like 30 days) and then removed
- * 2. failed responses are stored in the database; a random failure is pulled from the database every "n" seconds and retried; if it is successful, it now falls under #1
- * 3. timeouts are thrown as an error, stored in the database, and never retried; deleted after a longer period of time (like 90 days)
  */
-
-// TODO:
-// timeouts ( 60 seconds) get logged as error, stored, not retried
-// write a test script to stress test this
-// TODO: Once Windmill is hosted on the LB, rewrite this using fetch.
+// TODO: Once Windmill is hosted on the LB, rewrite this using fetch (remove https.request).
 async function invokeWebhook(
     webhook: WebhookConfig,
     payload: WebhookPayload
 ): Promise<ErrorData<any>> {
     try {
-        const webhookDb = await getWebhooksDb()
         const payloadWithAcknowledgementUrl =
             getPayloadWithAcknowledgementUrl(payload)
-
-        log.debug(
-            `Sending webhook payload to ${webhook.URL}: ${JSON.stringify(
-                payloadWithAcknowledgementUrl
-            )}`
-        )
-
         const { hostname, pathname } = new URL(webhook.URL)
 
         let numIterations = 0
@@ -150,18 +137,23 @@ async function invokeWebhook(
             )
         )
 
-        await webhookDb.upsertResult({
-            uid: payload.document[payload.model.titleProperty],
-            responseData: response,
-            statusCode,
-            statusMessage,
-            webhook: { URL: webhook.URL }, // no need to store the token; we'll read it from the enviroment for retries in case of token invalidation
-            payload,
-            // isTimeout: !responseReady,
-            isTimeout: true,
-        })
+        // In this case, the response's status code did not indicate a successful response.
+        assert(
+            statusCode <= 300,
+            Error(
+                `Received status code ${statusCode} from invoking webhook URL ${webhook.URL}`
+            )
+        )
 
         const [parseError, data] = safeParseJSON(response)
+
+        log.debug(
+            `Response from webhook URL ${webhook.URL}: ${JSON.stringify(
+                data,
+                null,
+                4
+            )}`
+        )
 
         assert(!parseError, parseError)
 
@@ -187,32 +179,74 @@ function getPayloadWithAcknowledgementUrl(
     }
 }
 
-async function retryRandomWebhook() {
-    log.warn('retryRandomWebhook', Date.now())
-    const webhookDb = await getWebhooksDb()
-    const document = await webhookDb.getRandomFailedWebhook()
+/**
+ * This function is registered as the handler for webhook messages from the queue.
+ * We do not acknowledge on error / timeout so that failed invocations are retried according to the queue configuration.
+ * We do acknowledge when the webhook has succeeded, but we do nothing with the response otherwise (invoking webhooks is considered a side effect).
+ */
+async function handleWebhookInvocationFromQueue(message: Message) {
+    try {
+        const { config, payload }: QueueWebhookMessage = JSON.parse(
+            message.getData() as string
+        )
+        const dateOfFirstInvocation = message.getTimestamp()
+        const isExpired =
+            Date.now() > dateOfFirstInvocation.getTime() + MAX_AGE_MILLISECONDS
 
-    if (document) {
-        const [error, config] = getWebhookConfig(document.webhook.URL) // Get the current token from the environment.
+        // Get the config fresh from the environment in case a token has been invalidated or a URL has changed via environment configuration.
+        // The stored configuration is used to match against the current environment. The webhook environment variable accepts multiple configurations, so migrating from one endpoint to another should be done in phases:
+        // 1. add new config
+        // 2. ensure no failed webhoooks (see logs)
+        // 3. remove old config
+        const [configError, configFromEnv] = getWebhookConfig(config.URL)
+
+        // If the config stored on the message does not match a currently available URL, we raise an error.
+        assert(
+            !configError && !!configFromEnv,
+            Error(`The webhook URL ${config.URL} did not match a known config.`)
+        )
+
+        // Our NATS configuration intentionally does not have a maximum number of retries. To limit an infinite number of failed webhook invokations, we're going to use the date of the first message to roughly estimate when we should stop retrying.
+        if (isExpired) {
+            message.ack()
+
+            throw Error(
+                `The webhook for document ${
+                    payload.document[payload.model.titleProperty]
+                } has exceeded its max age. No more retries will be attempted.`
+            )
+        }
+
+        const [error, data] = await invokeWebhook(configFromEnv, payload)
 
         assert(!error, error)
 
-        await invokeWebhook(
-            { URL: document.webhook.URL, token: config.token },
-            document.payload
-        )
+        message.ack()
+    } catch (error) {
+        log.error(error)
     }
 }
 
-;(RETRY_FAILED_WEBHOOKS_EVERY => {
-    let id = null
-
-    // Only kick this off once.
-    if (!id) {
-        id = globalThis.setInterval(async () => {
-            await retryRandomWebhook()
-        }, RETRY_FAILED_WEBHOOKS_EVERY)
+/**
+ * Publishes to queue, but does not rethrow any errors. This function is a good choice when a queue publishing failure should not halt the functions lower in the call stack.
+ */
+function safelyPublishWebhookInvocationToQueue(
+    config: WebhookConfig,
+    payload: WebhookPayload
+) {
+    try {
+        // No need to await this side effect.
+        publishMessageToQueueChannel(WEBHOOK_NATS_CHANNEL, { config, payload })
+    } catch (error) {
+        log.error(error)
     }
-})(RETRY_FAILED_WEBHOOKS_EVERY)
+}
 
-export { getAllWebhookConfigs, getWebhookConfig, invokeWebhook }
+export {
+    getAllWebhookConfigs,
+    getWebhookConfig,
+    handleWebhookInvocationFromQueue,
+    invokeWebhook,
+    safelyPublishWebhookInvocationToQueue,
+    WEBHOOK_NATS_CHANNEL,
+}
