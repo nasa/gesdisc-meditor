@@ -5,6 +5,7 @@ import type {
     RJSFSchema,
     StrictRJSFSchema,
 } from '@rjsf/utils'
+import { getDefaultFormState } from '@rjsf/utils'
 import validator from '@rjsf/validator-ajv8'
 import jp from 'jsonpath'
 import filter from 'lodash/filter'
@@ -169,7 +170,8 @@ const JsonSchemaForm = ({
         }, 10)
     }
 
-    const { _id, ...document } = formData
+    const { _id, ...rawDocument } = formData || {}
+    const document = getDefaultFormState(schema, rawDocument, schema)  
 
     //* This function gets called with formEl.current.validate().
     //* You can create any custom validation needed and add it to this stack.
