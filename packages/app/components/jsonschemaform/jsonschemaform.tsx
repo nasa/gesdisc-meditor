@@ -170,8 +170,8 @@ const JsonSchemaForm = ({
         }, 10)
     }
 
-    const { _id, ...rawDocument } = formData || {}
-    const document = getDefaultFormState(schema, rawDocument, schema)  
+    const { _id, ...document } = formData
+    //const document = getDefaultFormState(schema, rawDocument, schema)  
 
     //* This function gets called with formEl.current.validate().
     //* You can create any custom validation needed and add it to this stack.
