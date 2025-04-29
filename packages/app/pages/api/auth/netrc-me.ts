@@ -10,6 +10,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     const session = await getServerSession(req, res)
 
+    assert(session?.user, new createError.Unauthorized())
+
     return respondAsJson(session.user, req, res)
 }
 

@@ -1,8 +1,8 @@
+import { baseDocumentSchema } from './_schemas'
+import { withApiErrorHandler } from 'lib/with-api-error-handler'
+import { z } from 'zod'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import cloneDocumentHandler from '../models/[modelName]/documents/[documentTitle]/clone-document'
-import { baseDocumentSchema } from './_schemas'
-import { z } from 'zod'
-import { withApiErrorHandler } from 'lib/with-api-error-handler'
 
 const schema = baseDocumentSchema
     .extend({
@@ -16,7 +16,10 @@ const schema = baseDocumentSchema
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     // replaces query params with params mapped to RESTful names (e.g. "model" -> "modelName", etc.)
-    req.query = schema.parse(req.query)
+    req.query = {
+        ...req.query,
+        ...schema.parse(req.query),
+    }
 
     return cloneDocumentHandler(req, res)
 }

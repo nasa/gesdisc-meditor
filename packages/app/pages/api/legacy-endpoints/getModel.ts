@@ -6,7 +6,10 @@ import getModelHandler from '../models/[modelName]/'
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     // replaces query params with params mapped to RESTful names (e.g. "model" -> "modelName", etc.)
     req.query.model = req.query.name
-    req.query = modelSchema.parse(req.query)
+    req.query = {
+        ...req.query,
+        ...modelSchema.parse(req.query),
+    }
 
     return getModelHandler(req, res)
 }

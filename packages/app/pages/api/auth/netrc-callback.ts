@@ -1,7 +1,7 @@
 import assert from 'assert'
 import createError from 'http-errors'
 import log from 'lib/log'
-import { basePath, EDLTokenSetParameters } from 'auth/providers/earthdata-login'
+import { EDLTokenSetParameters } from 'auth/providers/earthdata-login'
 import { encode } from 'next-auth/jwt'
 import { NextApiRequest, NextApiResponse } from 'next'
 import { withApiErrorHandler } from 'lib/with-api-error-handler'
@@ -15,7 +15,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     )
 
     // we've successfully logged in, now we need to fetch a token from Earthdata Login
-    const tokenResult = await fetch(`${basePath}/oauth/token`, {
+    const tokenResult = await fetch('https://urs.earthdata.nasa.gov/oauth/token', {
         method: 'POST',
         body: `grant_type=authorization_code&code=${
             req.query.code
@@ -47,7 +47,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     log.debug('Tokens returned from Earthdata Login: ', tokenParameters)
 
     // now that we have our access token, we can request the logged in users information!
-    const userResult = await fetch(`${basePath}/oauth/userinfo`, {
+    const userResult = await fetch('https://urs.earthdata.nasa.gov/oauth/userinfo', {
         headers: {
             Authorization: `${tokenParameters.token_type} ${tokenParameters.access_token}`,
         },
@@ -59,7 +59,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     )
 
     const userInfo = await userResult.json()
-    const maxAge = 30 * 24 * 60 * 60 // 30 days
+
+    log.debug('User info returned from Earthdata Login: ', userInfo)
+
+    const oneDayInSeconds = 24 * 60 * 60
+    const maxAge = 30 * oneDayInSeconds // 30 days
 
     const nextAuthToken = await encode({
         token: {
@@ -73,7 +77,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     })
 
     res.setHeader('Set-Cookie', [
-        `next-auth.session-token=${nextAuthToken}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}`,
+        `next-auth.session-token=${nextAuthToken}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}`, // set a secure cookie for same domain access
+        `__mEditorNetrcToken=${nextAuthToken}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}`, // set a cookie for use only during .netrc logins
     ])
 
     res.status(200).json(userInfo)
