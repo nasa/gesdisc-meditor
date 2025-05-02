@@ -1,5 +1,5 @@
 import * as emailNotifications from '../../email-notifications/service'
-import * as publicationQueue from '../../publication-queue/service'
+import * as nats from '../../lib/nats'
 import alertFromGql from './__fixtures__/alertFromGql.json'
 import alertOnlyDocument from './__fixtures__/alertOnlyDocument.json'
 import alertsAfterCreateDocumentModification from './__fixtures__/alerts-after-createDocument-modifies-state.json'
@@ -75,8 +75,8 @@ describe('Documents', () => {
     })
 
     describe('createDocument', () => {
-        const queueSpy = jest.spyOn<typeof publicationQueue, any>(
-            publicationQueue,
+        const queueSpy = jest.spyOn<typeof nats, any>(
+            nats,
             'publishMessageToQueueChannel'
         )
 
@@ -782,8 +782,8 @@ describe('Documents', () => {
             'constructEmailMessageForStateChange'
         )
 
-        const queueSpy = jest.spyOn<typeof publicationQueue, any>(
-            publicationQueue,
+        const queueSpy = jest.spyOn<typeof nats, any>(
+            nats,
             'publishMessageToQueueChannel'
         )
 
