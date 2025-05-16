@@ -1,56 +1,43 @@
 import assert from 'assert'
 import createError from 'http-errors'
-import log from 'lib/log'
+import log from '../../../lib/log'
 import { getServerSession } from '../../../auth/user'
-import { withApiErrorHandler } from 'lib/with-api-error-handler'
+import { withApiErrorHandler } from '../../../lib/with-api-error-handler'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     assert(req.method === 'POST', new createError.MethodNotAllowed())
 
-    // this doesn't really need to be a secure endpoint BUT this is just an extra step to ensure no anonymous users are
-    // hitting the link checker API
+    // This doesn't really need to be a secure endpoint, but this is just an extra step to ensure no anonymous users are hitting the link checker API.
     const session = await getServerSession(req, res)
     assert(session.user, new createError.Unauthorized())
 
-    let isValid
+    const invalidUrlError = new createError.BadRequest('Invalid URL')
+    let url: URL
+    let isValid: boolean
 
     try {
-        const url = req.body.url
+        url = new URL(req.body.url)
+        let response: Response
 
-        let regex = new RegExp(
-            /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi
-        )
-
-        assert(url && url.match(regex), new createError.BadRequest('Invalid URL'))
-
-        // try a HEAD request first
-        // this is the fastest way to check as we don't get the whole page back and most servers support this
-        let response = await fetch(url, {
+        // HEAD is the fastest way to do this, but some servers error on HEAD requests, so we set up a second request after this one.
+        response = await fetch(url, {
             method: 'HEAD',
         })
 
-        if (response.status >= 400 && response.status !== 404) {
-            // servers SHOULD respond with a 404 if the page doesn't exist
-            // this one didn't, so let's fallback to using the GET request method
+        // Allow for redirect response codes (3xx), but not client errors (4xx) except 404, or server errors (5xx). We do not refetch for 404s because we already know that doesn't resolve.
+        if (!response.ok && response.status !== 404) {
             response = await fetch(url, {
                 method: 'GET',
             })
         }
 
-        // TODO: can we simplify this link checker by doing: assert(response.ok, new createError.BadRequest(response.statusText))?
-
-        // if page 404'ed, link is invalid
-        assert(response.status !== 404, new createError.BadRequest('Invalid URL'))
-
-        // some other response came back, set link as invalid
-        assert(
-            response.status < 400,
-            new createError.BadRequest('Bad response from server')
-        )
+        // At this point, just check for an okay response. Some servers will use a 403 for a resource not behind authentication when they should use a 404. Even if we can't determine why the URL doesn't resolve, at this level we just care that it does not.
+        assert(response.ok, invalidUrlError)
 
         isValid = true
     } catch (err) {
+        log.debug(`Invalid URL: ${url}`)
         log.debug(err)
         isValid = false
     }
