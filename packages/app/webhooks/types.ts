@@ -21,3 +21,8 @@ export type AcknowledgementsBearerTokenDecryptedParts = {
     _id: string
     modelName: string
 }
+
+export type QueueWebhookMessage = {
+    config: WebhookConfig
+    payload: WebhookPayload
+}
