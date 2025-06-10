@@ -1,5 +1,5 @@
 ARG REGISTRY
-FROM ${REGISTRY}node:18.12.1 as base
+FROM ${REGISTRY}node:22.11.0 as base
 
 ENV NPM_CONFIG_LOGLEVEL=warn
 
