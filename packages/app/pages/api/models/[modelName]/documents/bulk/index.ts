@@ -49,7 +49,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const [error, result] = await bulkPatchDocuments(
         documentTitles,
         modelName,
-        session.user,
+        session?.user,
         operations
     )
 

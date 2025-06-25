@@ -27,7 +27,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         documentTitle,
         modelName,
         newState,
-        session.user,
+        session?.user,
         {
             disableEmailNotifications: req.query.notify?.toString() === 'false',
 

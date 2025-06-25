@@ -12,7 +12,7 @@ import {
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const session = await getServerSession(req, res)
 
-    assert(session.user, new createError.Unauthorized())
+    assert(session?.user, new createError.Unauthorized())
 
     const documentTitle = decodeURIComponent(req.query.documentTitle.toString())
     const modelName = decodeURIComponent(req.query.modelName.toString())
@@ -38,7 +38,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
                     documentId: documentTitle,
                     model: modelName,
                 },
-                session.user
+                session?.user
             )
 
             if (error) {
