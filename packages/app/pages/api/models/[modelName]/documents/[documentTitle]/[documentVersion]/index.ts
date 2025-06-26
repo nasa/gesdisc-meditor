@@ -17,7 +17,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const [error, document] = await getDocument(
         documentTitle,
         modelName,
-        session.user,
+        session?.user,
         documentVersion
     )
 

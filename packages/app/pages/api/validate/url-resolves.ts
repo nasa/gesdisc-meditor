@@ -10,7 +10,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
     // This doesn't really need to be a secure endpoint, but this is just an extra step to ensure no anonymous users are hitting the link checker API.
     const session = await getServerSession(req, res)
-    assert(session.user, new createError.Unauthorized())
+    assert(session?.user, new createError.Unauthorized())
 
     const invalidUrlError = new createError.BadRequest('Invalid URL')
     let url: URL

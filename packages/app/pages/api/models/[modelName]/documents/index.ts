@@ -38,7 +38,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             const [documentError, data] = await createDocument(
                 parsedDocument,
                 modelName,
-                session.user,
+                session?.user,
                 req.query.initialState?.toString()
             )
 

@@ -37,7 +37,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         documentTitles,
         modelName,
         newState,
-        session.user,
+        session?.user,
         {
             // disable email notifications by default, this is a bulk endpoint which will spam the userbase
             disableEmailNotifications: req.query.notify?.toString() !== 'true',

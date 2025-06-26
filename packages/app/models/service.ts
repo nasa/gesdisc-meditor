@@ -73,12 +73,12 @@ export async function getModel(
 
             // loop through each macro template and update any matching fields in the model
             populatedTemplates.forEach(template => {
-                // update any jsonpath matches in the schema with the template values
-                jsonpath.value(schema, template.jsonpath, template.result)
-
                 // if model has a layout, check in the layout for any matching jsonpath to update
+                // otherwise, update any jsonpath matches in the schema with the template values
                 if (layout && jsonpath.paths(layout, template.jsonpath).length) {
                     jsonpath.value(layout, template.jsonpath, template.result)
+                } else {
+                    jsonpath.value(schema, template.jsonpath, template.result)
                 }
             })
 

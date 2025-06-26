@@ -19,7 +19,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         documentTitle,
         newTitle,
         modelName,
-        session.user
+        session?.user
     )
 
     if (error) {

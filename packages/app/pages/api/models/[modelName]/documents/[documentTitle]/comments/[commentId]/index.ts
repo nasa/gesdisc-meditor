@@ -16,7 +16,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const session = await getServerSession(req, res)
 
     // user should be logged in for any comments related activity
-    assert(session.user, new createError.Unauthorized())
+    assert(session?.user, new createError.Unauthorized())
 
     switch (req.method) {
         case 'GET': {
@@ -41,7 +41,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
                     resolved: req.body.resolved,
                     text: req.body.text,
                 },
-                session.user
+                session?.user
             )
 
             if (error) {
