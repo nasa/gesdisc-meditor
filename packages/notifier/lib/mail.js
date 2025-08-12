@@ -67,7 +67,7 @@ export function sendMail(subject, text, html, to, cc = "") {
           },
         },
         Source: `${MAIL_FROM_USERNAME}@${HOST_NAME}` /* required */,
-        ReplyToAddresses: [ `${MAIL_FROM_USERNAME}@${HOST_NAME}` ],
+        ReplyToAddresses: [`${MAIL_FROM_USERNAME}@${HOST_NAME}`],
       };
 
       log.debug("Attempting to send message ", params);
@@ -77,7 +77,7 @@ export function sendMail(subject, text, html, to, cc = "") {
           params,
           (err, response) => {
             if (err) {
-              throw err;
+              reject(err);
             } else {
               resolve(response);
             }
@@ -88,7 +88,7 @@ export function sendMail(subject, text, html, to, cc = "") {
       }
     });
   } else {
-  /* Sending email in on-prem environment */
+    /* Sending email in on-prem environment */
     return new Promise((resolve, reject) => {
       const from = `${MAIL_FROM_NAME} <${MAIL_FROM_USERNAME}@${HOST_NAME}>`;
       const message = { from, subject, text, html, to, cc };
@@ -98,7 +98,7 @@ export function sendMail(subject, text, html, to, cc = "") {
       try {
         transporter.sendMail(message, (err, response) => {
           if (err) {
-            throw err;
+            reject(err);
           } else {
             resolve(response);
           }
