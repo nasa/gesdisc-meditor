@@ -2,6 +2,7 @@ from flask import Flask, request
 from urllib.request import urlopen
 import nbformat
 import urllib.parse
+import os.path
 import re
 from lib.html_exporter import html_exporter
 
@@ -35,8 +36,12 @@ def convertNotebookToHtml():
 
     # if we're including a github.com URL, we'll provide some additional links to the original github repo
     if notebookUrl.startswith("https://github.com"):
+        # Parse and normalize the URL
+        parsedUrl = urllib.parse.urlparse(notebookUrl)
+        normalizedPath = os.path.normpath(parsedUrl.path)
+
         # make sure we are only rendering notebooks from the nasa organization
-        if not notebookUrl.startswith("https://github.com/nasa/"):
+        if not normalizedPath.startswith("/nasa/"):
             return "Invalid notebook URL, must be in the NASA organization", 400
 
         githubUrl = notebookUrl
