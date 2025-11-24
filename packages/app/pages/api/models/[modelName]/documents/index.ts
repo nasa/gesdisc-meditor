@@ -48,7 +48,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
             const { _id, ...apiSafeDocument } = data.insertedDocument
 
-            res.setHeader('Location', data.location)
+            try {
+                res.setHeader('Location', data.location)
+            } catch (err) {}
 
             return respondAsJson(apiSafeDocument, req, res, {
                 httpStatusCode: 201,

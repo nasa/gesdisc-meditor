@@ -98,11 +98,32 @@ The theme is now set. If you also have `UI_ALLOWED_URL_THEME` set, please note T
 
 ## Authentication
 
-mEditor allows a user to log in through its user interface or through a POST request to its login endpoint. Earthdata Login and AWS Cognito are both supported for login through the UI. This guide assumes that you know how to set up AWS Cognito for login through the UI.
+mEditor allows a user to log in through its user interface or through a POST request to its login endpoint. Earthdata Login and AWS Cognito are both supported for login through the UI.
 
 ### Login through UI
 
 To learn more about logging in through mEditor's UI, see [Logging In](https://github.com/nasa/gesdisc-meditor/blob/main/packages/docs/docs/user-guide/quick-start.mdx) within the User Guide.
+
+#### Configuring Authentication Providers for UI Login
+
+mEditor supports both Earthdata Login (EDL) and AWS Cognito for OAuth-based UI login. At least one provider must be configured.
+
+**Earthdata Login (EDL):**
+
+-   Set `AUTH_CLIENT_ID` and `AUTH_CLIENT_SECRET` environment variables
+-   These are the OAuth client credentials from your Earthdata Login application
+
+**AWS Cognito:**
+
+-   Set `COGNITO_CLIENT_ID` and `COGNITO_CLIENT_SECRET` (required)
+-   Set either:
+    -   `COGNITO_ISSUER` (full URL: `https://cognito-idp.{region}.amazonaws.com/{userPoolId}`), or
+    -   `COGNITO_REGION` and `COGNITO_USER_POOL_ID` (issuer will be auto-constructed)
+-   For detailed setup instructions, see the [NextAuth.js Cognito provider documentation](https://next-auth.js.org/providers/cognito)
+-   Ensure your Cognito App Client is configured with:
+    -   Authorization code grant flow enabled
+    -   OAuth scopes: `email`, `openid`, `profile`
+    -   Callback URL: `{NEXTAUTH_URL}/callback/cognito` (e.g., `http://localhost:3000/meditor/api/auth/callback/cognito`)
 
 ### Login through API
 

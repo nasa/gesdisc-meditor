@@ -10,12 +10,19 @@ import type { User as NextAuthUser } from 'next-auth'
 export type User = NextAuthUser & {
     uid?: string
     roles?: UserRole[]
+    username?: string
 }
 
 // Read more at: https://next-auth.js.org/getting-started/typescript#module-augmentation
 declare module 'next-auth' {
     interface Session {
         user: User
+    }
+
+    interface User {
+        uid?: string
+        roles?: UserRole[]
+        username?: string
     }
 }
 
