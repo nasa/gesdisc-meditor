@@ -1,20 +1,25 @@
 import React from 'react'
 import Flatpickr from 'react-flatpickr'
-import { format, zonedTimeToUtc } from 'date-fns-tz'
+import { format, zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz'
 import type { WidgetProps } from '@rjsf/utils'
 
-function formatDate(date: string, dateFormatOption: any) {
+function formatDate(date: string, dateFormatOption: any, useUtc: boolean = false) {
     let dateValue
 
-    switch (dateFormatOption) {
-        case 'Z':
-            dateValue = zonedTimeToUtc(new Date(date), 'Etc/UTC').toISOString()
-            break
+    if (useUtc) {
+        // Convert to UTC
+        dateValue = zonedTimeToUtc(new Date(date), 'Etc/UTC').toISOString()
+    } else {
+        switch (dateFormatOption) {
+            case 'Z':
+                dateValue = zonedTimeToUtc(new Date(date), 'Etc/UTC').toISOString()
+                break
 
-        default:
-            dateValue = format(new Date(date), 'yyyy-MM-dd HH:mm:ssxxx')
+            default:
+                dateValue = format(new Date(date), 'yyyy-MM-dd HH:mm:ssxxx')
 
-            break
+                break
+        }
     }
 
     return dateValue
@@ -35,6 +40,7 @@ function DateTimeWidget(props: WidgetProps) {
     } = props
 
     const dateFormatOption = options?.dateFormat || ''
+    const useUtc = options?.useUtc || false
 
     return (
         <Flatpickr
@@ -49,15 +55,15 @@ function DateTimeWidget(props: WidgetProps) {
                 // @rsjf (or maybe our onBlur function) does not correctly handle the blur event for this component.
                 // Instead of onBlur, call onChange if there's a value.
                 if (event.target.value) {
-                    onChange(formatDate(event.target.value, dateFormatOption))
+                    onChange(formatDate(event.target.value, dateFormatOption, useUtc))
                 }
             }}
             onChange={(_selectedDates: any, date: string) => {
-                onChange(formatDate(date, dateFormatOption))
+                onChange(formatDate(date, dateFormatOption, useUtc))
             }}
             options={{
                 time_24hr: true,
-                dateFormat: 'Y-m-d H:i:S',
+                dateFormat: useUtc ? 'Y-m-d H:i:S (UTC)' : 'Y-m-d H:i:S',
                 allowInput: true,
                 enableTime: true,
                 minuteIncrement: 1,

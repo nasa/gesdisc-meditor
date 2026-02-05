@@ -44,7 +44,7 @@ function MultiSelectWidget(props: WidgetProps) {
     const inputEl = useRef(null)
 
     useEffect(() => {
-        if (tagify) return
+        if (!inputEl.current) return
 
         let tagifyOptions = {
             mode: !props.multiple ? 'select' : null,
@@ -60,8 +60,13 @@ function MultiSelectWidget(props: WidgetProps) {
             delimiters: null,
         }
 
-        setTagify(new Tagify(inputEl.current, tagifyOptions))
-    }, [inputEl, tagify, options.enum, options.enumOptions])
+        const tagifyInstance = new Tagify(inputEl.current, tagifyOptions)
+        setTagify(tagifyInstance)
+
+        return () => {
+            tagifyInstance.destroy()
+        }
+    }, [])
 
     useEffect(() => {
         if (!tagify) return
@@ -74,6 +79,12 @@ function MultiSelectWidget(props: WidgetProps) {
         tagify.on('add', handleTagsChanged)
         tagify.on('remove', handleTagsChanged)
         tagify.on('dropdown:select', handleTagsChanged)
+
+        return () => {
+            tagify.off('add', handleTagsChanged)
+            tagify.off('remove', handleTagsChanged)
+            tagify.off('dropdown:select', handleTagsChanged)
+        }
     }, [tagify, onChange])
 
     useEffect(() => {

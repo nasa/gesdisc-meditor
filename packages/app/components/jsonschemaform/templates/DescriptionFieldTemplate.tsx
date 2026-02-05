@@ -29,7 +29,9 @@ export default function DescriptionFieldTemplate<
                 </Tooltip>
             )}
         >
-            <FaQuestionCircle className="mr-2" />
+            <span className="d-inline-block">
+                <FaQuestionCircle className="mr-2" style={{ cursor: 'pointer' }} />
+            </span>
         </OverlayTrigger>
     )
 }
