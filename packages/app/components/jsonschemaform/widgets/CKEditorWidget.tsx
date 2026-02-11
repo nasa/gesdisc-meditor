@@ -86,8 +86,4 @@ function CKEditorWidget(props: WidgetProps) {
     )
 }
 
-CKEditorWidget.defaultProps = {
-    autofocus: false,
-}
-
 export default CKEditorWidget

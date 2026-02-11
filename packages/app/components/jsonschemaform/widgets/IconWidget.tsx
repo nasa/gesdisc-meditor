@@ -42,8 +42,4 @@ function IconWidget(props: WidgetProps) {
     )
 }
 
-IconWidget.defaultProps = {
-    autofocus: false,
-}
-
 export default IconWidget

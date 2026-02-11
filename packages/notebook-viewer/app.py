@@ -6,8 +6,6 @@ import os.path
 import re
 from lib.html_exporter import html_exporter
 
-# only notebooks from these domains are allowed
-DOMAIN_WHITELIST_REGEX = r"^https://([a-zA-Z0-9]+\.)*(nasa\.gov|github\.com|githubusercontent\.com/nasa)\/?.*"
 
 app = Flask("mEditor Notebook Viewer")
 
@@ -29,7 +27,7 @@ def convertNotebookToHtml():
         return "URL does not point to a Jupyter Notebook", 400
 
     # ensure the domain is in the whitelist
-    if not re.search(DOMAIN_WHITELIST_REGEX, notebookUrl):
+    if not is_allowed(notebookUrl):
         return "We cannot convert a notebook from the provided domain", 400
 
     githubUrl = ""
@@ -63,3 +61,29 @@ def convertNotebookToHtml():
     )
 
     return body
+
+def is_allowed(url: str) -> bool:
+    u = urllib.parse.urlsplit(url)
+
+    if u.scheme != "https":
+        return False
+
+    if u.username or u.password:
+        return False
+
+    host = (u.hostname or "").rstrip(".").lower()
+
+    if host == "nasa.gov" or host.endswith(".nasa.gov"):
+        return True
+
+    # allow github.com but ONLY /nasa/...
+    if host == "github.com":
+        parts = [p for p in u.path.split("/") if p]
+        return len(parts) >= 1 and parts[0].lower() == "nasa"
+
+    # allow raw.githubusercontent.com but ONLY /nasa/...
+    if host == "raw.githubusercontent.com":
+        parts = [p for p in u.path.split("/") if p]
+        return len(parts) >= 1 and parts[0].lower() == "nasa"
+
+    return False
