@@ -55,11 +55,17 @@ function DateTimeWidget(props: WidgetProps) {
                 // @rsjf (or maybe our onBlur function) does not correctly handle the blur event for this component.
                 // Instead of onBlur, call onChange if there's a value.
                 if (event.target.value) {
-                    onChange(formatDate(event.target.value, dateFormatOption, useUtc))
+                    onChange(
+                        formatDate(
+                            event.target.value,
+                            dateFormatOption,
+                            Boolean(useUtc)
+                        )
+                    )
                 }
             }}
             onChange={(_selectedDates: any, date: string) => {
-                onChange(formatDate(date, dateFormatOption, useUtc))
+                onChange(formatDate(date, dateFormatOption, Boolean(useUtc)))
             }}
             options={{
                 time_24hr: true,
