@@ -46,11 +46,4 @@ function HtmlTextWidget(props: WidgetProps) {
     )
 }
 
-HtmlTextWidget.defaultProps = {
-    required: false,
-    disabled: false,
-    readonly: false,
-    autofocus: false,
-}
-
 export default HtmlTextWidget
