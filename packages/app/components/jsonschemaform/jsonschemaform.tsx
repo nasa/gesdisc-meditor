@@ -15,6 +15,13 @@ import fields from './fields/'
 import templates from './templates/'
 import widgets from './widgets/'
 
+// Customize the validator to support ISO 8601-2 durations (with negative values)
+const customValidator = validator
+customValidator.ajv.addFormat(
+    'duration',
+    /^-?P(?!$)((\d+Y)?(\d+M)?(\d+D)?(T(?=\d)(\d+H)?(\d+M)?(\d+S)?)?|(\d+W)?)$/
+)
+
 class LargeModelForm<
     T = any,
     S extends StrictRJSFSchema = RJSFSchema,
@@ -206,7 +213,7 @@ const JsonSchemaForm = ({
             }}
             noValidate={allowValidationErrors}
             noHtml5Validate={allowValidationErrors}
-            validator={validator}
+            validator={customValidator}
             customValidate={validate}
             // see https://rjsf-team.github.io/react-jsonschema-form/docs/api-reference/form-props/#experimental_defaultformstatebehavior
             experimental_defaultFormStateBehavior={{
