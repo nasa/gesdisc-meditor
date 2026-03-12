@@ -10,17 +10,18 @@ const UPLOAD_FAILED = 'upload failed'
 
 export default function ImageWidget(props: WidgetProps) {
     let fileEl = React.createRef<HTMLInputElement>()
+    const formContext = props.registry?.formContext || {}
 
     const [uploadState, setUploadState] = useState(UPLOAD_IDLE)
     const [currentImagePath, setCurrentImagePath] = useState('')
     const [imageUploadUrl, setImageUploadUrl] = useState(
-        props.formContext.imageUploadUrl || '/images/upload'
+        formContext.imageUploadUrl || '/images/upload'
     )
 
     useEffect(() => {
         setCurrentImagePath(props.value)
-        setImageUploadUrl(props.formContext.imageUploadUrl)
-    }, [props.value, props.formContext.imageUploadUrl])
+        setImageUploadUrl(formContext.imageUploadUrl || '/images/upload')
+    }, [props.value, formContext.imageUploadUrl])
 
     function handleFileChanged(file) {
         setUploadState(UPLOAD_IN_PROGRESS)

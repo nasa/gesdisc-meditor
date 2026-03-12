@@ -17,6 +17,7 @@ const DocumentHeader = ({
     version = null,
     toggleJsonDiffer,
     togglePanelOpen,
+    showSourceOnly = false,
     privileges = [],
     comments = [],
     history = [],
@@ -59,47 +60,53 @@ const DocumentHeader = ({
                         </OverlayTrigger>
                     )}
 
-                    <OverlayTrigger
-                        overlay={
-                            <Tooltip id="history-tooltip">
-                                {activePanel === 'history' ? `Hide ` : `Show `}
-                                History Panel
-                            </Tooltip>
-                        }
-                    >
-                        <Button
-                            aria-pressed={activePanel === 'history'}
-                            variant="primary"
-                            onClick={() => togglePanelOpen('history')}
+                    {!showSourceOnly && (
+                        <OverlayTrigger
+                            overlay={
+                                <Tooltip id="history-tooltip">
+                                    {activePanel === 'history' ? `Hide ` : `Show `}
+                                    History Panel
+                                </Tooltip>
+                            }
                         >
-                            <MdHistory />
-                            <Badge className={styles.badge} bg="light">
-                                {numberOfHistoryEntries}
-                            </Badge>
-                            <span className="sr-only">Show History Panel</span>
-                        </Button>
-                    </OverlayTrigger>
+                            <Button
+                                aria-pressed={activePanel === 'history'}
+                                variant="primary"
+                                onClick={() => togglePanelOpen('history')}
+                            >
+                                <MdHistory />
+                                <Badge className={styles.badge} bg="light">
+                                    {numberOfHistoryEntries}
+                                </Badge>
+                                <span className="sr-only">Show History Panel</span>
+                            </Button>
+                        </OverlayTrigger>
+                    )}
 
-                    <OverlayTrigger
-                        overlay={
-                            <Tooltip id="compare-tooltip">
-                                {isJsonPanelOpen ? `Hide ` : `Show `}
-                                Compare Document Versions
-                            </Tooltip>
-                        }
-                    >
-                        <Button
-                            aria-pressed={isJsonPanelOpen}
-                            className="d-flex align-items-center"
-                            variant="primary"
-                            onClick={() => {
-                                toggleJsonDiffer()
-                            }}
+                    {!showSourceOnly && (
+                        <OverlayTrigger
+                            overlay={
+                                <Tooltip id="compare-tooltip">
+                                    {isJsonPanelOpen ? `Hide ` : `Show `}
+                                    Compare Document Versions
+                                </Tooltip>
+                            }
                         >
-                            <MdCompare style={{ fontSize: '1.6em' }} />
-                            <span className="sr-only">Compare Document Versions</span>
-                        </Button>
-                    </OverlayTrigger>
+                            <Button
+                                aria-pressed={isJsonPanelOpen}
+                                className="d-flex align-items-center"
+                                variant="primary"
+                                onClick={() => {
+                                    toggleJsonDiffer()
+                                }}
+                            >
+                                <MdCompare style={{ fontSize: '1.6em' }} />
+                                <span className="sr-only">
+                                    Compare Document Versions
+                                </span>
+                            </Button>
+                        </OverlayTrigger>
+                    )}
 
                     <OverlayTrigger
                         overlay={
@@ -143,7 +150,7 @@ const DocumentHeader = ({
                         </OverlayTrigger>
                     )}
 
-                    {model?.name && (
+                    {!showSourceOnly && model?.name && (
                         <DocumentStateBadge
                             document={document}
                             modelName={model.name}
@@ -152,12 +159,14 @@ const DocumentHeader = ({
                         />
                     )}
 
-                    <div>
-                        <em>
-                            (edited by {document?.modifiedBy} on{' '}
-                            {document?.modifiedOn})
-                        </em>
-                    </div>
+                    {!showSourceOnly && (
+                        <div>
+                            <em>
+                                (edited by {document?.modifiedBy} on{' '}
+                                {document?.modifiedOn})
+                            </em>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

@@ -23,7 +23,7 @@ const SourceDialog = ({ source, title, onChange }) => {
 
     // anytime the source changes, update our internal state
     useEffect(() => {
-        let currentSource = cloneDeep(source?.doc || {})
+        let currentSource = cloneDeep(source?.doc || source || {})
         delete currentSource['x-meditor']
         delete currentSource._id
         setCurrentSource(currentSource)

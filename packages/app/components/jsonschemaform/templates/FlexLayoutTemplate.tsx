@@ -8,7 +8,7 @@ export default function FlexLayoutTemplate(props: ObjectFieldTemplateProps) {
     return (
         <div className="container-fluid">
             <div className="row">
-                <TitleField {...props} id={props.idSchema.$id} />
+                <TitleField {...props} id={props.fieldPathId.$id} />
             </div>
 
             <div className="row">

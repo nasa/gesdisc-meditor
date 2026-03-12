@@ -1,20 +1,27 @@
-import React, { useState, useEffect } from 'react'
-import { default as RJSFStringField } from '@rjsf/core/lib/components/fields/StringField'
+import React, { useState, useEffect, useCallback } from 'react'
+import { getDefaultRegistry } from '@rjsf/core'
 import { MdWarning } from 'react-icons/md'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Tooltip from 'react-bootstrap/Tooltip'
+import type { FieldProps } from '@rjsf/utils'
 
 /**
- * overrides the original StringField to add custom features
- * @param {*} props
+ * Custom StringField that wraps RJSF's StringField to add link validation and HTML auto-detection
+ * @param props - The FieldProps for this field
  */
-function StringField(props) {
-    const [linkIsValid, setLinkIsValid] = useState(null)
-    let fieldProps = { ...props }
+function StringField(props: FieldProps) {
+    const [linkIsValid, setLinkIsValid] = useState<boolean | null>(null)
+    const { StringField: RJSFStringField } = getDefaultRegistry().fields
+    const formContext = props.registry?.formContext || {}
 
     // force the HtmlTextWidget if the field's value contains HTML (so it can render)
+    const fieldProps = { ...props }
     try {
-        if (props.formData.indexOf('</') >= 0 && !props?.uiSchema?.['ui:widget']) {
+        if (
+            typeof props.formData === 'string' &&
+            props.formData.indexOf('</') >= 0 &&
+            !props?.uiSchema?.['ui:widget']
+        ) {
             fieldProps.uiSchema = {
                 ...fieldProps.uiSchema,
                 'ui:widget': 'htmltext',
@@ -22,25 +29,7 @@ function StringField(props) {
         }
     } catch (err) {}
 
-    useEffect(() => {
-        validateNoBrokenLinks()
-    }, [])
-
-    useEffect(() => {
-        if (linkIsValid === null) return
-
-        let brokenLinks = {}
-
-        if (localStorage.getItem('brokenLinks')) {
-            brokenLinks = JSON.parse(localStorage.getItem('brokenLinks'))
-        }
-
-        brokenLinks[props.name] = linkIsValid.toString()
-
-        localStorage.setItem('brokenLinks', JSON.stringify(brokenLinks))
-    }, [linkIsValid])
-
-    function validateNoBrokenLinks() {
+    const validateNoBrokenLinks = useCallback(() => {
         let urlFields = ['uri', 'uri-reference', 'url']
 
         if (!props?.schema?.format || urlFields.indexOf(props.schema.format) < 0) {
@@ -58,7 +47,7 @@ function StringField(props) {
             return
         }
 
-        if (!props.formContext.linkCheckerApiUrl) {
+        if (!formContext.linkCheckerApiUrl) {
             // no link checker API URL configured, don't check URLs!
             return
         }
@@ -66,8 +55,8 @@ function StringField(props) {
         // ok we have a valid URL, let's test it
 
         let apiUrl =
-            props.formContext.linkCheckerApiUrl +
-            (props.formContext.linkCheckerApiUrl.substr(-1) != '/' ? '/' : '')
+            formContext.linkCheckerApiUrl +
+            (formContext.linkCheckerApiUrl.substr(-1) != '/' ? '/' : '')
 
         fetch(apiUrl, {
             method: 'POST',
@@ -82,18 +71,50 @@ function StringField(props) {
                     setLinkIsValid(true)
                 } else {
                     setLinkIsValid(false)
-                    console.debug(response.data?.validLink?.message)
                 }
             })
-    }
+            .catch(err => {
+                console.error('Link validation error:', err)
+            })
+    }, [
+        props.schema?.format,
+        props.formData,
+        props.rawErrors,
+        formContext.linkCheckerApiUrl,
+    ])
 
-    function handleBlur(args) {
+    useEffect(() => {
         validateNoBrokenLinks()
+    }, [props.formData, validateNoBrokenLinks])
 
-        if (props.onBlur) {
-            props.onBlur(args)
+    useEffect(() => {
+        if (linkIsValid === null || !props.name) return
+
+        let brokenLinks: Record<string, string> = {}
+
+        if (localStorage.getItem('brokenLinks')) {
+            try {
+                brokenLinks = JSON.parse(localStorage.getItem('brokenLinks') || '{}')
+            } catch {
+                brokenLinks = {}
+            }
         }
-    }
+
+        brokenLinks[props.name] = linkIsValid.toString()
+
+        localStorage.setItem('brokenLinks', JSON.stringify(brokenLinks))
+    }, [linkIsValid, props.name])
+
+    const handleBlur = useCallback(
+        (id: string, value: any) => {
+            validateNoBrokenLinks()
+
+            if (props.onBlur) {
+                props.onBlur(id, value)
+            }
+        },
+        [validateNoBrokenLinks, props]
+    )
 
     return (
         <>
@@ -104,16 +125,18 @@ function StringField(props) {
                     <OverlayTrigger
                         placement="left"
                         delay={{ show: 150, hide: 400 }}
-                        overlay={props => (
+                        overlay={overlayProps => (
                             <Tooltip
                                 id={`broken-link-tooltip-${fieldProps.name}`}
-                                {...props}
+                                {...overlayProps}
                             >
                                 URL doesn&apos;t exist
                             </Tooltip>
                         )}
                     >
-                        <MdWarning />
+                        <div>
+                            <MdWarning />
+                        </div>
                     </OverlayTrigger>
                 </div>
             )}

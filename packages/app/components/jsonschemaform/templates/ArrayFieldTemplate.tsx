@@ -2,7 +2,6 @@ import {
     getTemplate,
     getUiOptions,
     ArrayFieldTemplateProps,
-    ArrayFieldTemplateItemType,
     FormContextType,
     RJSFSchema,
     StrictRJSFSchema,
@@ -24,11 +23,6 @@ export default function ArrayFieldTemplate<
         S,
         F
     >('ArrayFieldDescriptionTemplate', props.registry, uiOptions)
-    const ArrayFieldItemTemplate = getTemplate<'ArrayFieldItemTemplate', T, S, F>(
-        'ArrayFieldItemTemplate',
-        props.registry,
-        uiOptions
-    )
     const ArrayFieldTitleTemplate = getTemplate<'ArrayFieldTitleTemplate', T, S, F>(
         'ArrayFieldTitleTemplate',
         props.registry,
@@ -36,33 +30,19 @@ export default function ArrayFieldTemplate<
     )
 
     return (
-        <fieldset className={props.className} id={props.idSchema.$id}>
-            <ArrayFieldTitleTemplate
-                idSchema={props.idSchema}
-                title={uiOptions.title || props.title}
-                required={props.required}
-                schema={props.schema}
-                uiSchema={props.uiSchema}
-                registry={props.registry}
-            />
-            <ArrayFieldDescriptionTemplate
-                idSchema={props.idSchema}
-                description={uiOptions.description || props.schema.description}
-                schema={props.schema}
-                uiSchema={props.uiSchema}
-                registry={props.registry}
-            />
-            <div className="row array-item-list">
-                {props.items &&
-                    props.items.map(
-                        ({
-                            key,
-                            ...itemProps
-                        }: ArrayFieldTemplateItemType<T, S, F>) => (
-                            <ArrayFieldItemTemplate key={key} {...itemProps} />
-                        )
-                    )}
-            </div>
+        <fieldset className={props.className} id={props.fieldPathId.$id}>
+            <legend style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                {uiOptions.title || props.title}
+                {props.required && <span className="required">*</span>}
+                <ArrayFieldDescriptionTemplate
+                    fieldPathId={props.fieldPathId}
+                    description={uiOptions.description || props.schema.description}
+                    schema={props.schema}
+                    uiSchema={props.uiSchema}
+                    registry={props.registry}
+                />
+            </legend>
+            <div className="row array-item-list">{props.items}</div>
 
             {props.canAdd && (
                 <AddButton

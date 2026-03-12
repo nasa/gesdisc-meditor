@@ -11,18 +11,26 @@ const DEFAULT_DIMENSIONS = {
     height: 800,
 }
 
-const DocumentPanel = ({ title, children, onClose, open = false, large = false }) => {
+const DocumentPanel = ({
+    title,
+    children,
+    onClose,
+    open = false,
+    large = false,
+    initialY = DEFAULT_DIMENSIONS.y,
+}) => {
     const [showRnd, setShowRnd] = useState(false)
     const [defaultDimensions, setDefaultDimensions] = useState(null)
 
     useEffect(() => {
         setDefaultDimensions({
             ...DEFAULT_DIMENSIONS,
+            y: initialY,
             ...(typeof window !== undefined && {
                 x: window.innerWidth - DEFAULT_DIMENSIONS.width - 30,
             }),
         })
-    }, [])
+    }, [initialY])
 
     useEffect(() => {
         if (open) {

@@ -20,20 +20,16 @@ export default function AnchorWidget({ options }: WidgetProps) {
     const [href, setHref] = useState(options.href as string)
 
     useEffect(() => {
-        // @ts-expect-error
         if (!!options.change.every) {
             setHref(
                 findAndReplace(
                     options.href as string,
-                    // @ts-expect-error
                     options.change.every as string,
-                    // @ts-expect-error
                     options.change.to as string[],
                     macros
                 )
             )
         }
-        // @ts-expect-error
     }, [options.href, options.change.every, options.change.to, setHref])
 
     return (

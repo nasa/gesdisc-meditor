@@ -112,13 +112,15 @@ form.rjsf button[type='submit'] {
     width: 100%;
 }
 
-.form-group.field {
+.form-group.field,
+.rjsf-field {
     display: flex;
     flex-direction: column;
     width: 100%;
 }
 
-.form-group.field-string {
+.form-group.field-string,
+.rjsf-field-string {
     position: relative;
 }
 
@@ -139,44 +141,56 @@ form.rjsf button[type='submit'] {
 }
 
 .form-group.field .checkbox,
-.form-group.field legend {
+.form-group.rjsf-field .checkbox,
+.form-group.field legend,
+.form-group.rjsf-field legend {
     text-transform: capitalize;
 }
 
-.form-group.field .control-label-container {
+.form-group.field .control-label-container,
+.form-group.rjsf-field .control-label-container {
     display: flex;
     align-items: center;
     margin-bottom: 0.5rem;
 }
 
-.form-group.field .control-label {
+.form-group.field .control-label,
+.form-group.rjsf-field .control-label {
     color: rgba(0, 0, 0, 0.6);
     margin-bottom: 0;
     margin-right: 10px;
 }
 
-.form-group.field .control-label ~ svg {
+.form-group.field .control-label ~ svg,
+.form-group.rjsf-field .control-label ~ svg {
     fill: rgba(0, 0, 0, 0.6);
 }
 
-.form-group.field legend {
+.form-group.field legend,
+.form-group.rjsf-field legend {
     border-bottom: none;
     font-size: 14px;
     font-weight: bold;
 }
 
-.form-group.field legend .required {
+.form-group.field legend .required,
+.form-group.rjsf-field legend .required {
     display: none;
 }
 
-fieldset.field-array fieldset.field-array {
+fieldset.field-array fieldset.field-array,
+fieldset.rjsf-field-array fieldset.rjsf-field-array {
     margin-left: 30px;
 }
 
 .array-item-move-up,
 .array-item-move-down,
 .array-item-copy,
-.array-item-remove {
+.array-item-remove,
+.rjsf-array-item-move-up,
+.rjsf-array-item-move-down,
+.rjsf-array-item-copy,
+.rjsf-array-item-remove {
     max-width: 50px;
 }
 
@@ -223,7 +237,8 @@ fieldset.field-array fieldset.field-array {
     margin-top: 0;
 }
 
-.array-item {
+.array-item,
+.rjsf-array-item {
     display: flex;
     width: 100%;
     padding: 0 20px;

@@ -26,13 +26,13 @@ function Label(props) {
 }
 
 function LabelInput(props) {
-    const { id, label, onChange } = props
+    const { id, label, onBlur } = props
     return (
         <input
             className="form-control"
             type="text"
             id={id}
-            onBlur={event => onChange(event.target.value)}
+            onBlur={onBlur}
             defaultValue={label}
         />
     )
@@ -50,8 +50,8 @@ function WrapIfAdditional(props) {
         classNames,
         disabled,
         label,
-        onKeyChange,
-        onDropPropertyClick,
+        onKeyRenameBlur,
+        onRemoveProperty,
         readonly,
         required,
         schema,
@@ -81,7 +81,7 @@ function WrapIfAdditional(props) {
                             label={label}
                             required={required}
                             id={`${id}-key`}
-                            onChange={onKeyChange}
+                            onBlur={onKeyRenameBlur}
                         />
                     </div>
                 </div>
@@ -96,7 +96,7 @@ function WrapIfAdditional(props) {
                         tabIndex="-1"
                         style={{ border: '0' }}
                         disabled={disabled || readonly}
-                        onClick={onDropPropertyClick(label)}
+                        onClick={onRemoveProperty}
                     />
                 </div>
             </div>
@@ -115,14 +115,20 @@ export default function CustomFieldTemplate(props) {
         hidden,
         required,
         displayLabel,
+        classNames,
     } = props
 
     if (hidden) {
         return <div className="hidden">{children}</div>
     }
 
+    // Ensure form-group class is added for backwards compatibility with existing styles
+    const wrapperClassNames = classNames?.includes('form-group')
+        ? classNames
+        : `form-group ${classNames || ''}`
+
     return (
-        <WrapIfAdditional {...props}>
+        <WrapIfAdditional {...props} classNames={wrapperClassNames}>
             {displayLabel && (
                 <Label
                     label={label}

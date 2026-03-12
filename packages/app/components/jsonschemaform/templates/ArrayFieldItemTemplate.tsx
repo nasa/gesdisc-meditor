@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react'
 import type {
-    ArrayFieldTemplateItemType,
+    ArrayFieldItemTemplateProps,
     FormContextType,
     RJSFSchema,
     StrictRJSFSchema,
@@ -14,26 +14,9 @@ export default function ArrayFieldItemTemplate<
     T = any,
     S extends StrictRJSFSchema = RJSFSchema,
     F extends FormContextType = any
->(props: ArrayFieldTemplateItemType<T, S, F>) {
-    const {
-        children,
-        className,
-        disabled,
-        hasToolbar,
-        hasMoveDown,
-        hasMoveUp,
-        hasRemove,
-        hasCopy,
-        index,
-        onCopyIndexClick,
-        onDropIndexClick,
-        onReorderClick,
-        readonly,
-        registry,
-        uiSchema,
-    } = props
-    const { CopyButton, MoveDownButton, MoveUpButton, RemoveButton } =
-        registry.templates.ButtonTemplates
+>(props: ArrayFieldItemTemplateProps<T, S, F>) {
+    const { children, className, disabled, hasToolbar, buttonsProps, readonly } =
+        props
     const btnStyle: CSSProperties = {
         flex: 1,
         paddingLeft: 6,
@@ -52,39 +35,43 @@ export default function ArrayFieldItemTemplate<
                             justifyContent: 'space-around',
                         }}
                     >
-                        {(hasMoveUp || hasMoveDown) && (
+                        {(buttonsProps.hasMoveUp || buttonsProps.hasMoveDown) && (
                             <IconButton
                                 icon="arrow-up"
                                 aria-label="Move up"
                                 className="array-item-move-up"
                                 tabIndex="-1"
                                 style={btnStyle}
-                                disabled={disabled || readonly || !hasMoveUp}
-                                onClick={onReorderClick(index, index - 1)}
+                                disabled={
+                                    disabled || readonly || !buttonsProps.hasMoveUp
+                                }
+                                onClick={buttonsProps.onMoveUpItem}
                             />
                         )}
-                        {(hasMoveUp || hasMoveDown) && (
+                        {(buttonsProps.hasMoveUp || buttonsProps.hasMoveDown) && (
                             <IconButton
                                 icon="arrow-down"
                                 className="array-item-move-down"
                                 aria-label="Move down"
                                 tabIndex="-1"
                                 style={btnStyle}
-                                disabled={disabled || readonly || !hasMoveDown}
-                                onClick={onReorderClick(index, index + 1)}
+                                disabled={
+                                    disabled || readonly || !buttonsProps.hasMoveDown
+                                }
+                                onClick={buttonsProps.onMoveDownItem}
                             />
                         )}
-                        {hasCopy && (
+                        {buttonsProps.hasCopy && (
                             <IconButton
                                 icon="copy"
                                 aria-label="Copy Item"
                                 tabIndex="-1"
                                 style={btnStyle}
                                 disabled={disabled || readonly}
-                                onClick={onCopyIndexClick(index)}
+                                onClick={buttonsProps.onCopyItem}
                             />
                         )}
-                        {hasRemove && (
+                        {buttonsProps.hasRemove && (
                             <IconButton
                                 type="danger"
                                 icon="times"
@@ -93,7 +80,7 @@ export default function ArrayFieldItemTemplate<
                                 tabIndex="-1"
                                 style={btnStyle}
                                 disabled={disabled || readonly}
-                                onClick={onDropIndexClick(index)}
+                                onClick={buttonsProps.onRemoveItem}
                             />
                         )}
                     </div>

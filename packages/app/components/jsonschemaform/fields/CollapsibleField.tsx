@@ -1,94 +1,103 @@
-// @ts-nocheck
 /**
  * react-jsonschema-form-extras CollapsibleField
- * refactored for RJSF v2, original https://github.com/RXNT/react-json-schema-form-extras
- *
- * TODO: refactor to functional components, fix TS issues, and remove ts-nocheck
+ * refactored for RJSF v6
+ * original: https://github.com/RXNT/react-json-schema-form-extras
  */
-import React, { Component } from 'react'
-import { deepEquals, getDefaultFormState } from '@rjsf/utils'
+import React, { useState, useEffect, useCallback } from 'react'
+import { deepEquals, getDefaultFormState, FieldProps } from '@rjsf/utils'
 import { MdKeyboardArrowUp, MdKeyboardArrowDown } from 'react-icons/md'
 import { keyExistsInSchema } from '../../../lib/utils'
 
-class CollapseMenuAction extends Component {
-    render() {
-        let { action, allActions = {} } = this.props
-        if (!action) {
-            return null
-        }
-        if (typeof action === 'string') {
-            return <div>{action}</div>
-        } else if (typeof action === 'object') {
-            const Component = allActions[action.component]
-            if (!Component) {
-                console.error(
-                    `Can't find ${action.component} in formContext.allActions`
-                )
-                return (
-                    <h2 className="warning bg-error" style={{ color: 'red' }}>
-                        Can&apos;t find <b>{action.component}</b> in{' '}
-                        <b>formContext</b>.<b>allActions</b>
-                    </h2>
-                )
-            }
-            return <Component {...action.props} />
-        }
-    }
+interface CollapseMenuActionProps {
+    action?: string | { component: string; props?: any }
+    allActions?: Record<string, React.ComponentType<any>>
 }
 
-function CollapseMenu(props) {
-    let {
-        uiSchema: {
-            collapse: {
-                icon: {
-                    enabled = 'glyphicon glyphicon-chevron-down',
-                    disabled = 'glyphicon glyphicon-chevron-right',
-                    add = 'glyphicon glyphicon-plus-sign',
-                } = {},
-                separate = false,
-                addTo,
-                wrapClassName = 'lead collapsible-section',
-                actions = [],
-                classNames = 'collapsible-heading',
-                collapseDivStyles: {
-                    collapseGlyphColor = 'black',
-                    collapseGlyphFontSize = '32px',
-                    addGlyphColor = 'black',
-                    glyphPadding = '0 10px 0 0',
-                    padding = '14px 0 14px 0',
-                    margin = '',
-                    marginLeft = '-5px',
-                    marginBottom = '5px',
-                    zIndex = -1,
-                    divCursor = 'pointer',
-                    addCursor = 'copy',
-                    leadFontWeight = '400',
-                } = {},
-            },
-        },
-        formContext = {},
-        onChange,
-        onAdd,
-        title,
-        name,
-        collapsed,
-    } = props
+function CollapseMenuAction({ action, allActions = {} }: CollapseMenuActionProps) {
+    if (!action) {
+        return null
+    }
+    if (typeof action === 'string') {
+        return <div>{action}</div>
+    } else if (typeof action === 'object') {
+        const Component = allActions[action.component]
+        if (!Component) {
+            console.error(`Can't find ${action.component} in formContext.allActions`)
+            return (
+                <h2 className="warning bg-error" style={{ color: 'red' }}>
+                    Can&apos;t find <b>{action.component}</b> in <b>formContext</b>.
+                    <b>allActions</b>
+                </h2>
+            )
+        }
+        return <Component {...action.props} />
+    }
+    return null
+}
 
-    const handleAdd = event => {
+interface CollapseMenuProps {
+    uiSchema: any
+    formContext: any
+    onChange: () => void
+    onAdd: (event: React.MouseEvent) => void
+    title?: string
+    name?: string
+    collapsed: boolean
+    required?: boolean
+}
+
+function CollapseMenu({
+    uiSchema,
+    formContext = {},
+    onChange,
+    onAdd,
+    title,
+    name,
+    collapsed,
+    required,
+}: CollapseMenuProps) {
+    const {
+        collapse: {
+            icon: {
+                enabled = 'glyphicon glyphicon-chevron-down',
+                disabled = 'glyphicon glyphicon-chevron-right',
+                add = 'glyphicon glyphicon-plus-sign',
+            } = {},
+            separate = false,
+            addTo,
+            wrapClassName = 'lead collapsible-section',
+            actions = [],
+            classNames = 'collapsible-heading',
+            collapseDivStyles: {
+                collapseGlyphColor = 'black',
+                collapseGlyphFontSize = '32px',
+                addGlyphColor = 'black',
+                glyphPadding = '0 10px 0 0',
+                padding = '14px 0 14px 0',
+                margin = '',
+                marginLeft = '-5px',
+                marginBottom = '5px',
+                zIndex = -1,
+                divCursor = 'pointer',
+                addCursor = 'copy',
+                leadFontWeight = '400',
+            } = {},
+        } = {},
+    } = uiSchema
+
+    const handleAdd = (event: React.MouseEvent) => {
         event.stopPropagation()
         onAdd(event)
     }
 
-    const iconStyle = {
+    const iconStyle: React.CSSProperties = {
         color: collapseGlyphColor,
         padding: glyphPadding,
     }
 
-    const iconSize = collapseGlyphFontSize
-
     return (
         <div
-            className={`${wrapClassName}`}
+            className={wrapClassName}
             style={{
                 fontWeight: leadFontWeight,
             }}
@@ -107,13 +116,19 @@ function CollapseMenu(props) {
             >
                 <a>
                     {collapsed ? (
-                        <MdKeyboardArrowUp size={iconSize} style={iconStyle} />
+                        <MdKeyboardArrowUp
+                            size={collapseGlyphFontSize}
+                            style={iconStyle}
+                        />
                     ) : (
-                        <MdKeyboardArrowDown size={iconSize} style={iconStyle} />
+                        <MdKeyboardArrowDown
+                            size={collapseGlyphFontSize}
+                            style={iconStyle}
+                        />
                     )}
                 </a>
                 <span>{title || name}</span>
-                {props.required && <span className="required">*</span>}&nbsp;
+                {required && <span className="required">*</span>}&nbsp;
                 {addTo && (
                     <a
                         onClick={handleAdd}
@@ -122,7 +137,7 @@ function CollapseMenu(props) {
                         <i style={{ cursor: addCursor }} className={add} />
                     </a>
                 )}
-                {actions.map((action, i) => (
+                {actions.map((action: any, i: number) => (
                     <CollapseMenuAction
                         key={i}
                         action={action}
@@ -136,198 +151,176 @@ function CollapseMenu(props) {
     )
 }
 
-class CollapseLegend extends Component {
-    render() {
-        let {
-            uiSchema: {
-                collapse: { legend },
-            },
-            formContext: { legends = {} } = {},
-        } = this.props
-        if (!legend) {
-            return null
-        }
-        if (typeof legend === 'string') {
-            return <div>{legend}</div>
-        } else if (typeof legend === 'object') {
-            const Component = legends[legend.component]
-            if (!Component) {
-                console.error(
-                    `Can't find ${legend.components} in formContext.legends`
-                )
-                return (
-                    <h2 className="warning bg-error" style={{ color: 'red' }}>
-                        Can&apos;t find <b>{legend.component}</b> in{' '}
-                        <b>formContext</b>.<b>legends</b>
-                    </h2>
-                )
-            }
-            return <Component {...legend.props} />
-        }
-        return <div>I&apos;m a legend</div>
-    }
+interface CollapseLegendProps {
+    uiSchema: any
+    registry: any
 }
 
-class CollapsibleField extends Component {
-    constructor(props) {
-        super(props)
+function CollapseLegend({ uiSchema, registry }: CollapseLegendProps) {
+    const formContext = registry?.formContext || {}
+    const { collapse: { legend } = {} } = uiSchema
 
-        let {
-            uiSchema: { collapse: { collapsed = true } = {} },
-        } = props
-
-        this.state = { collapsed }
+    if (!legend) {
+        return null
     }
-
-    componentDidMount() {
-        window.addEventListener('expandall', this.expandAll.bind(this))
-        window.addEventListener('collapseall', this.collapseAll.bind(this))
+    if (typeof legend === 'string') {
+        return <div>{legend}</div>
+    } else if (typeof legend === 'object') {
+        const { legends = {} } = formContext
+        const Component = legends[legend.component]
+        if (!Component) {
+            console.error(`Can't find ${legend.component} in formContext.legends`)
+            return (
+                <h2 className="warning bg-error" style={{ color: 'red' }}>
+                    Can&apos;t find <b>{legend.component}</b> in <b>formContext</b>.
+                    <b>legends</b>
+                </h2>
+            )
+        }
+        return <Component {...legend.props} />
     }
+    return <div>I&apos;m a legend</div>
+}
 
-    componentWillUnmount() {
-        window.removeEventListener('expandall', this.expandAll.bind(this))
-        window.removeEventListener('collapseall', this.collapseAll.bind(this))
-    }
+function CollapsibleField(props: FieldProps) {
+    const { schema, uiSchema, formData, registry, fieldPathId, name, onChange } =
+        props
 
-    expandAll() {
-        this.setState({ collapsed: false })
-    }
+    const { fields, formContext = {} } = registry
+    const initialCollapsed = uiSchema?.collapse?.collapsed ?? true
+    const [collapsed, setCollapsed] = useState(initialCollapsed)
+    const [AddElement, setAddElement] = useState<React.ComponentType | null>(null)
 
-    collapseAll() {
-        this.setState({ collapsed: true })
-    }
+    // Event handlers for expand/collapse all
+    useEffect(() => {
+        const handleExpandAll = () => setCollapsed(false)
+        const handleCollapseAll = () => setCollapsed(true)
 
-    appendToArray = (formData = [], newVal) => {
-        let {
-            uiSchema: { collapse: { addToBottom = true } = {} },
-        } = this.props
-        if (formData.some(v => deepEquals(v, newVal))) {
-            return formData
-        } else {
-            // newVal can be either array or a single element, concat flattens value
-            if (addToBottom) {
-                return formData.concat(newVal)
-            } else {
-                return [newVal].concat(formData)
+        window.addEventListener('expandall', handleExpandAll)
+        window.addEventListener('collapseall', handleCollapseAll)
+
+        return () => {
+            window.removeEventListener('expandall', handleExpandAll)
+            window.removeEventListener('collapseall', handleCollapseAll)
+        }
+    }, [])
+
+    const appendToArray = useCallback(
+        (data: any[] = [], newVal: any) => {
+            const addToBottom = uiSchema?.collapse?.addToBottom ?? true
+
+            if (data.some(v => deepEquals(v, newVal))) {
+                return data
             }
-        }
-    }
 
-    doAdd = (field, formData, newVal) => {
-        if (field === 'self') {
-            this.props.onChange(this.appendToArray(formData, newVal))
-        } else {
-            let fieldVal = this.appendToArray(formData[field], newVal)
-            let change = Object.assign({}, formData, { [field]: fieldVal })
-            this.props.onChange(change)
-        }
-    }
+            // newVal can be either array or a single element, concat flattens value
+            return addToBottom ? data.concat(newVal) : [newVal].concat(data)
+        },
+        [uiSchema]
+    )
 
-    handleAdd = () => {
-        this.setState({ collapsed: false })
-        this.forceUpdate(() => {
-            let {
-                schema,
-                uiSchema,
-                formData,
-                registry: { fields },
-            } = this.props
-            let {
-                collapse: { addTo, addElement },
-            } = uiSchema
+    const doAdd = useCallback(
+        (field: string, data: any, newVal: any) => {
+            const path = fieldPathId?.path || []
 
-            let fieldSchema =
+            if (field === 'self') {
+                onChange(appendToArray(data, newVal), path)
+            } else {
+                const fieldVal = appendToArray(data[field], newVal)
+                onChange(fieldVal, [...path, field])
+            }
+        },
+        [fieldPathId, onChange, appendToArray]
+    )
+
+    const handleAdd = useCallback(() => {
+        setCollapsed(false)
+
+        // Use setTimeout to ensure state update has taken effect
+        setTimeout(() => {
+            const { addTo, addElement } = uiSchema.collapse || {}
+
+            let fieldSchema: any =
                 addTo === 'self'
                     ? schema.items
-                    : schema.properties
-                    ? schema.properties[addTo]
-                        ? schema.properties[addTo].items
-                        : null
+                    : schema.properties?.[addTo]
+                    ? (schema.properties[addTo] as any)?.items
                     : null
+
             if (!fieldSchema) {
-                return false
+                return
             }
-            let fieldUiSchema = addTo === 'self' ? uiSchema : uiSchema[addTo]
+
+            const fieldUiSchema = addTo === 'self' ? uiSchema : uiSchema[addTo]
 
             if (addElement) {
                 if (typeof addElement === 'function') {
-                    let onSubmit = newVal => {
-                        this.setState({ AddElement: undefined })
-                        this.doAdd(addTo, formData, newVal)
+                    const onSubmit = (newVal: any) => {
+                        setAddElement(null)
+                        doAdd(addTo, formData, newVal)
                     }
-                    let AddElement = addElement(fieldSchema, fieldUiSchema, onSubmit)
-                    this.setState({ AddElement })
+                    const element = addElement(fieldSchema, fieldUiSchema, onSubmit)
+                    setAddElement(() => element)
                 } else {
-                    let FieldElement = fields[addElement]
-                    let onBlur = newVal => {
-                        this.setState({ AddElement: undefined })
-                        this.doAdd(addTo, formData, newVal)
+                    const FieldElement = fields[addElement]
+                    const onBlur = (newVal: any) => {
+                        setAddElement(null)
+                        doAdd(addTo, formData, newVal)
                     }
-                    let AddElement = () => (
+                    setAddElement(() => () => (
                         <FieldElement
+                            {...props}
                             schema={fieldSchema}
                             uiSchema={fieldUiSchema}
-                            onChange={formData => {
-                                onBlur(formData)
-                            }}
+                            onChange={(value: any) => onBlur(value)}
                         />
-                    )
-                    this.setState({ AddElement })
+                    ))
                 }
             } else {
-                let newVal = getDefaultFormState(fieldSchema, {})
-                this.doAdd(addTo, formData, newVal)
+                const newVal = getDefaultFormState(fieldSchema, {})
+                doAdd(addTo, formData, newVal)
             }
-        })
+        }, 0)
+    }, [uiSchema, schema, formData, fields, doAdd])
+
+    const handleCollapsed = useCallback(() => {
+        setCollapsed(prev => !prev)
+    }, [])
+
+    const { field } = uiSchema?.collapse || {}
+    const CollapseElement = fields?.[field]
+    const title = uiSchema['ui:title'] || schema.title || name
+    const customizedId = collapsed ? fieldPathId?.$id : undefined
+    const required = keyExistsInSchema('required', schema)
+
+    // Update uiSchema collapsed state (for external tracking if needed)
+    if (uiSchema?.collapse) {
+        uiSchema.collapse.collapsed = collapsed
     }
 
-    handleCollapsed = () => {
-        this.setState(function (state) {
-            return { collapsed: !state.collapsed }
-        })
+    if (!CollapseElement) {
+        console.error(`CollapsibleField: field "${field}" not found in registry`)
+        return null
     }
 
-    render() {
-        let {
-            schema: { title },
-            uiSchema,
-            registry: { fields },
-            idSchema: { $id } = {},
-            name,
-            formContext,
-        } = this.props
-        let { collapsed, AddElement } = this.state
-        let {
-            collapse: { field },
-        } = uiSchema
-        let CollapseElement = fields[field]
-        // uischema retains the value form the state
-        uiSchema.collapse.collapsed = this.state.collapsed
-
-        title = uiSchema['ui:title'] ? uiSchema['ui:title'] : title ? title : name
-        let customizedId = collapsed ? $id : undefined
-
-        let required = keyExistsInSchema('required', this.props.schema)
-
-        return (
-            <div id={customizedId}>
-                <CollapseMenu
-                    title={title}
-                    uiSchema={uiSchema}
-                    collapsed={collapsed}
-                    formContext={formContext}
-                    onAdd={this.handleAdd}
-                    onChange={this.handleCollapsed}
-                    required={required}
-                />
-                <div className={`form-group ${collapsed && 'collapsed'}`}>
-                    {AddElement && <AddElement />}
-                    <CollapseLegend {...this.props} />
-                    <CollapseElement {...this.props} />
-                </div>
+    return (
+        <div id={customizedId}>
+            <CollapseMenu
+                title={title}
+                uiSchema={uiSchema}
+                collapsed={collapsed}
+                formContext={formContext}
+                onAdd={handleAdd}
+                onChange={handleCollapsed}
+                required={required}
+            />
+            <div className={`form-group ${collapsed ? 'collapsed' : ''}`}>
+                {AddElement && <AddElement />}
+                <CollapseLegend uiSchema={uiSchema} registry={registry} />
+                <CollapseElement {...props} />
             </div>
-        )
-    }
+        </div>
+    )
 }
 
 export default CollapsibleField

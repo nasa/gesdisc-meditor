@@ -1,9 +1,11 @@
 import DocumentHeader from '../../../components/document/document-header'
+import DocumentPanel from '../../../components/document/document-panel'
 import Form from '../../../components/document/form'
 import FormActions from '../../../components/document/form-actions'
 import format from 'date-fns/format'
 import omitBy from 'lodash.omitby'
 import PageTitle from '../../../components/page-title'
+import SourceDialog from '../../../components/document/source-dialog'
 import Spinner from 'react-bootstrap/Spinner'
 import { AiOutlineCheck } from 'react-icons/ai'
 import { AppContext } from '../../../components/app-store'
@@ -44,6 +46,7 @@ const NewDocumentPage = ({ model }: NewDocumentPageProps) => {
     )
 
     const [autosavingTimer, setAutosavingTimer] = useState(null)
+    const [activePanel, setActivePanel] = useState<string | null>(null)
 
     const hasFormData =
         localChanges?.formData && Object.keys(localChanges.formData).length
@@ -138,6 +141,18 @@ const NewDocumentPage = ({ model }: NewDocumentPageProps) => {
         router.push('/[modelName]', `/${encodeURIComponent(modelName)}`)
     }
 
+    function togglePanel(panel: string) {
+        setActivePanel(panel === activePanel ? null : panel)
+    }
+
+    function closePanel() {
+        setActivePanel(null)
+    }
+
+    function handleSourceChange(newSource: any) {
+        onChange(newSource)
+    }
+
     return (
         <div>
             <PageTitle title={['Add New', modelName]} />
@@ -151,7 +166,14 @@ const NewDocumentPage = ({ model }: NewDocumentPageProps) => {
                 <Breadcrumb title="New" />
             </Breadcrumbs>
 
-            <DocumentHeader model={model} togglePanelOpen toggleJsonDiffer />
+            <DocumentHeader
+                model={model}
+                document={localChanges?.formData || {}}
+                activePanel={activePanel}
+                togglePanelOpen={togglePanel}
+                toggleJsonDiffer={() => {}}
+                showSourceOnly={true}
+            />
 
             <Form
                 model={model}
@@ -162,6 +184,19 @@ const NewDocumentPage = ({ model }: NewDocumentPageProps) => {
                     model.workflow.currentNode.allowValidationErrors
                 }
             />
+
+            <DocumentPanel
+                title="JSONEditor"
+                open={activePanel == 'source'}
+                onClose={closePanel}
+                initialY={45}
+            >
+                <SourceDialog
+                    source={localChanges?.formData}
+                    title={localChanges?.title}
+                    onChange={handleSourceChange}
+                />
+            </DocumentPanel>
 
             {form?.state && (
                 <FormActions

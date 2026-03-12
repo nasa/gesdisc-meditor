@@ -21,6 +21,8 @@ function registerPluginsWithCkEditorInstance(CKEDITOR) {
 }
 
 function CKEditorWidget(props: WidgetProps) {
+    const formContext = props.registry?.formContext || {}
+
     const config = {
         mathJaxLib:
             'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_HTML',
@@ -48,7 +50,7 @@ function CKEditorWidget(props: WidgetProps) {
         removeDialogTabs: 'image:advanced;link:upload;link:advanced',
         autoGrow_onStartup: true,
         autoGrow_bottomSpace: 30,
-        filebrowserUploadUrl: props.formContext.imageUploadUrl || '/images/upload',
+        filebrowserUploadUrl: formContext.imageUploadUrl || '/images/upload',
         filebrowserUploadMethod: 'form',
         extraPlugins: 'youtube,arcgisstorymap,indentblock,worldview,jupyterNotebook',
         extraAllowedContent: 'iframe(*)',
