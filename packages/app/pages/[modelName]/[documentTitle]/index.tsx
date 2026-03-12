@@ -17,7 +17,7 @@ import { getCommentsForDocument } from '../../../comments/service'
 import { getDocument, getDocumentHistory } from '../../../documents/service'
 import { getModelWithWorkflow } from '../../../models/service'
 import { getServerSession } from '../../../auth/user'
-import { privilegesForModelAndWorkflowNode } from 'auth/utilities'
+import { privilegesForModelAndWorkflowNode, rolesForModel } from 'auth/utilities'
 import { refreshDataInPlace } from '../../../lib/next'
 import { treeify } from '../../../lib/treeify'
 import { useContext, useEffect, useState } from 'react'
@@ -34,6 +34,7 @@ import type {
     LegacyDocumentWithMetadata,
 } from '../../../documents/types'
 import type { ModelWithWorkflow } from '../../../models/types'
+import type { WorkflowEdge } from '../../../workflows/types'
 
 export type DocumentPanels = 'comments' | 'history' | 'source' | 'workflow'
 
@@ -45,6 +46,7 @@ type PropsType = {
     theme: any
     version: string
     currentPrivileges: any[]
+    currentActions: WorkflowEdge[]
 }
 
 const EditDocumentPage = ({
@@ -55,6 +57,7 @@ const EditDocumentPage = ({
     documentHistory,
     pageDocument,
     currentPrivileges,
+    currentActions,
 }: PropsType) => {
     const router = useRouter()
     const params = router.query
@@ -367,8 +370,10 @@ const EditDocumentPage = ({
                 formData={formData}
                 onSave={saveDocument}
                 onUpdateState={updateDocumentState}
-                actions={model.workflow.currentEdges}
-                showActions={formData.targetStates?.length > 0}
+                actions={currentActions}
+                showActions={
+                    formData.targetStates?.length > 0 && currentActions.length > 0
+                }
                 confirmUnsavedChanges={true}
                 allowValidationErrors={
                     model.workflow.currentNode.allowValidationErrors
@@ -417,6 +422,11 @@ export async function getServerSideProps(ctx: NextPageContext) {
         modelName.toString(),
         modelWithWorkflow.workflow.currentNode
     )
+    const currentRoles = rolesForModel(session.user, modelName.toString())
+    const currentActions =
+        modelWithWorkflow.workflow.currentEdges?.filter(edge =>
+            currentRoles.includes(edge.role)
+        ) || []
 
     const props = {
         comments: !!commentsError ? null : treeify(comments),
@@ -424,6 +434,7 @@ export async function getServerSideProps(ctx: NextPageContext) {
         documentHistory: !!documentHistoryError ? null : documentHistory,
         model: modelWithWorkflow,
         currentPrivileges,
+        currentActions,
     }
 
     return { props }
