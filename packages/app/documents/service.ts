@@ -44,6 +44,16 @@ export async function createDocument(
     initialState: string = DRAFT_STATE // the initial state the document will be created in
 ): Promise<ErrorData<{ insertedDocument: Document; location: string }>> {
     try {
+        assert(user, new createError.Unauthorized('User is not authenticated'))
+
+        const userRolesForModel = findAllowedUserRolesForModel(modelName, user?.roles)
+
+        assert(
+            userRolesForModel.length > 0,
+            new createError.Forbidden(
+                `User does not have any roles for model "${modelName}"`
+            )
+        )
         const { _id, ...document } = documentToCreate // remove the database _id property
 
         const documentsDb = await getDocumentsDb()
