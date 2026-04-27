@@ -144,8 +144,12 @@ export const authOptions: AuthOptions = {
             }
 
             const usersDb = await getUsersDb()
-            await usersDb.createUserAccount(mapSessionToUser(session))
-            return true // expects a bool, whether user can sign in or not
+            const userAccount = await usersDb.createUserAccount(
+                mapSessionToUser(session)
+            )
+
+            // allow sign in if the user has any roles
+            return userAccount?.roles?.length // expects a bool, whether user can sign in or not
         },
         async session({ session, token }) {
             // add user uid to the session
