@@ -76,19 +76,19 @@ class UsersDb {
     }
 
     async createUserAccount(userContactInformation: UserContactInformation) {
-        return await this.#db
-            .collection<Document>(this.#ACCOUNTS_COLLECTION)
-            .updateOne(
-                {
-                    uid: userContactInformation.uid,
-                },
-                {
-                    $set: userContactInformation,
-                },
-                {
-                    upsert: true,
-                }
-            )
+        await this.#db.collection<Document>(this.#ACCOUNTS_COLLECTION).updateOne(
+            {
+                uid: userContactInformation.uid,
+            },
+            {
+                $set: userContactInformation,
+            },
+            {
+                upsert: true,
+            }
+        )
+
+        return this.getMeditorUserByUid(userContactInformation.uid)
     }
 
     async getMeditorUserByUid(uid: string): Promise<Document> {
