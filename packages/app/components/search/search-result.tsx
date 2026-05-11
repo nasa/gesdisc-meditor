@@ -14,9 +14,12 @@ import DocumentStateBadge from '../document/document-state-badge'
 import IconButton from '../icon-button'
 import StateBadge from '../state-badge'
 import styles from './search-result.module.css'
+import { useSession } from 'next-auth/react'
+import { privilegesForModelAndWorkflowNode, rolesForModel } from 'auth/utilities'
 
 interface SearchResultProps {
     document: Document | UnsavedDocument
+    model: any
     modelName: string
     onCloned?: Function
     onDelete?: Function
@@ -28,6 +31,7 @@ interface SearchResultProps {
 const SearchResult = ({
     document,
     modelName,
+    model,
     onCloned,
     onDelete,
     isLocalDocument,
@@ -36,6 +40,7 @@ const SearchResult = ({
 }: SearchResultProps) => {
     const { setSuccessNotification } = useContext(AppContext)
     const [showCloneDocumentModal, setShowCloneDocumentModal] = useState(false)
+    const { data: session } = useSession()
 
     function removeUnsavedDocument() {
         if (
@@ -50,6 +55,22 @@ const SearchResult = ({
         setSuccessNotification(`Successfully deleted document: '${document.title}'`)
         onDelete?.(document)
     }
+
+    const currentPrivileges = privilegesForModelAndWorkflowNode(
+        session?.user,
+        modelName.toString(),
+        model.workflow?.currentNode
+    )
+    console.log('privileges', currentPrivileges)
+
+    const currentEdges =
+        model.workflow.currentEdges?.filter(edge => {
+            return rolesForModel(session?.user, modelName.toString()).includes(
+                edge.role
+            )
+        }) || []
+
+    const canClone = currentPrivileges.includes('create') && currentEdges.length > 0
 
     return (
         <div className={styles.result}>
@@ -123,26 +144,35 @@ const SearchResult = ({
                     </IconButton>
                 )}
 
-                {!isLocalDocument && (
-                    <IconButton
-                        alt="Clone Document"
-                        onClick={() => setShowCloneDocumentModal(true)}
-                    >
-                        <FaRegClone />
-                    </IconButton>
+                {!isLocalDocument && canClone && (
+                    <>
+                        {console.log('CLONE RENDER CHECK', {
+                            modelName,
+                            canClone,
+                            document: document.title,
+                        })}
+                        <IconButton
+                            alt="Clone Document"
+                            onClick={() => setShowCloneDocumentModal(true)}
+                        >
+                            <FaRegClone />
+                        </IconButton>
+                    </>
                 )}
             </div>
 
-            <CloneDocumentModal
-                modelName={modelName}
-                documentTitle={document.title}
-                show={showCloneDocumentModal}
-                onCancel={() => setShowCloneDocumentModal(false)}
-                onSuccess={newDocument => {
-                    setShowCloneDocumentModal(false)
-                    onCloned()
-                }}
-            />
+            {canClone && (
+                <CloneDocumentModal
+                    modelName={modelName}
+                    documentTitle={document.title}
+                    show={showCloneDocumentModal}
+                    onCancel={() => setShowCloneDocumentModal(false)}
+                    onSuccess={newDocument => {
+                        setShowCloneDocumentModal(false)
+                        onCloned()
+                    }}
+                />
+            )}
         </div>
     )
 }

@@ -141,6 +141,7 @@ const SearchList = ({
                                     <SearchResult
                                         key={document.localId}
                                         document={document}
+                                        model={model}
                                         isLocalDocument={true}
                                         modelName={model.name}
                                         onDelete={refreshLocalDocuments}
@@ -155,6 +156,7 @@ const SearchList = ({
                                     <SearchResult
                                         key={document.title}
                                         document={document}
+                                        model={model}
                                         modelName={model.name}
                                         onCloned={onRefreshList}
                                         selectedDocuments={selectedDocuments}
