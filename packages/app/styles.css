@@ -307,3 +307,13 @@ fieldset.rjsf-field-array fieldset.rjsf-field-array {
 .modal-sm {
     max-width: 400px;
 }
+
+.collapsible-section + .form-group > .container-fluid > .row > legend,
+.collapsible-section + .form-group > fieldset > legend {
+    display: none !important;
+}
+
+.row > legend {
+    width: auto;
+    margin-right: 10px;
+}

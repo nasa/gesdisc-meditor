@@ -547,7 +547,8 @@ export async function changeDocumentState(
                 getWorkflowEdgesMatchingSourceAndTarget(
                     model.workflow,
                     document['x-meditor'].state,
-                    newState
+                    newState,
+                    findAllowedUserRolesForModel(modelName, user?.roles)
                 )[0],
                 user
             )
@@ -663,10 +664,12 @@ export async function constructNewDocumentState(
         model.workflow
     )
 
+    const userRoles = findAllowedUserRolesForModel(model.name, user?.roles)
     const matchingEdges = getWorkflowEdgesMatchingSourceAndTarget(
         model.workflow,
         document['x-meditor'].state,
-        newState
+        newState,
+        userRoles
     )
 
     assert(
@@ -881,10 +884,14 @@ export function findAllowedUserRolesForModel(
 function getWorkflowEdgesMatchingSourceAndTarget(
     workflow: Workflow,
     source: string,
-    target: string
+    target: string,
+    userRoles?: string[]
 ): WorkflowEdge[] {
     return workflow.edges.filter(
-        edge => edge.source === source && edge.target === target
+        edge =>
+            edge.source === source &&
+            edge.target === target &&
+            (!userRoles?.length || userRoles.includes(edge.role))
     )
 }
 

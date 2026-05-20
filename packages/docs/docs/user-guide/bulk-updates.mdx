@@ -2,11 +2,75 @@
 title: Bulk Updates
 ---
 
-## JSON Patch
+:::info
+mEditor supports bulk **updating** and bulk **state changes** for existing documents. Bulk **creation** of documents is not supported — documents must be created one at a time.
+:::
 
-The [Bulk Documents] endpoint uses the [JSON Patch specification](https://jsonpatch.com/).
+## Bulk State Change
 
-This specification describes a set of instruction on how to modify a resource.
+You can transition multiple documents through the workflow in a single request (e.g., publishing hundreds of documents at once).
+
+**Endpoint:** `POST /api/models/{modelName}/documents/bulk/change-document-state?newState={state}`
+
+### Identifying documents to update
+
+Like the bulk patch endpoint, documents are identified via an `If-Match` header containing a comma-delimited list of document titles:
+
+`If-Match: "A", "B", "C"`
+
+### Request
+
+No request body is required. Provide:
+
+-   **`modelName`** (path) — the name of the model whose documents you want to update
+-   **`newState`** (query) — the target workflow state (e.g., `Published`, `Draft`, `Under Review`)
+-   **`If-Match`** (header) — comma-delimited list of document titles to transition
+
+Example: publish two documents
+
+```
+POST /api/models/News/documents/bulk/change-document-state?newState=Published
+
+If-Match: "My First Article", "My Second Article"
+```
+
+### Response
+
+Returns an array of per-document results:
+
+```json
+[
+    { "title": "My First Article", "status": 200 },
+    { "title": "My Second Article", "status": 200 }
+]
+```
+
+If a state transition fails for a specific document, that document's entry will include an `error` field and a non-200 `status`, while the remaining documents are still processed:
+
+```json
+[
+    { "title": "My First Article", "status": 200 },
+    {
+        "title": "My Second Article",
+        "status": 400,
+        "error": "Transition to 'Published' is not allowed from current state 'Draft'"
+    }
+]
+```
+
+:::note
+Email notifications are **disabled by default** for bulk state changes to avoid spamming users.
+:::
+
+---
+
+## Bulk Patch (JSON Patch)
+
+Apply a set of [JSON Patch](https://jsonpatch.com/) operations to multiple existing documents at once.
+
+**Endpoint:** `PATCH /api/models/{modelName}/documents/bulk`
+
+The [JSON Patch specification](https://jsonpatch.com/) describes a set of instructions for how to modify a resource.
 
 ### Identifying documents to update
 

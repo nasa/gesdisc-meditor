@@ -128,7 +128,7 @@ function CollapseMenu({
                     )}
                 </a>
                 <span>{title || name}</span>
-                {required && <span className="required">*</span>}&nbsp;
+
                 {addTo && (
                     <a
                         onClick={handleAdd}
