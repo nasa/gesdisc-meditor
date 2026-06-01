@@ -1,0 +1,138 @@
+.page {
+    max-width: 920px;
+    margin: 36px auto;
+    padding: 0 20px 40px;
+}
+
+.sectionTitle {
+    margin-bottom: 6px;
+}
+
+.sectionSubtitle {
+    margin-bottom: 24px;
+    color: #5f6f79;
+}
+
+.card {
+    border: 1px solid #dbe3e8;
+    border-radius: 8px;
+    background: #ffffff;
+    padding: 20px;
+    margin-bottom: 18px;
+}
+
+.row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    min-width: 220px;
+    flex: 1;
+}
+
+.label {
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+    color: #31414b;
+}
+
+.input {
+    border: 1px solid #c9d6de;
+    border-radius: 6px;
+    padding: 8px 10px;
+    outline: none;
+}
+
+.input:focus {
+    border-color: #4f879f;
+}
+
+.tokenDisplay {
+    margin-top: 14px;
+    border: 1px solid #d9e8d0;
+    background: #f4fbef;
+    border-radius: 6px;
+    padding: 12px;
+}
+
+.tokenCode {
+    font-family: monospace;
+    word-break: break-all;
+    margin-bottom: 8px;
+}
+
+.list {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.list th,
+.list td {
+    text-align: left;
+    border-bottom: 1px solid #ecf0f3;
+    padding: 10px 6px;
+    vertical-align: middle;
+}
+
+.status {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.statusActive {
+    background: #e5f4ff;
+    color: #09568f;
+}
+
+.statusRevoked {
+    background: #f6e8e8;
+    color: #8c2d2d;
+}
+
+.statusExpired {
+    background: #f8f0dd;
+    color: #7a5d16;
+}
+
+.helpText {
+    margin-top: 8px;
+    color: #5f6f79;
+    font-size: 0.9rem;
+}
+
+.error {
+    color: #9d2a2a;
+}
+
+@media (max-width: 840px) {
+    .list,
+    .list thead,
+    .list tbody,
+    .list tr,
+    .list th,
+    .list td {
+        display: block;
+    }
+
+    .list thead {
+        display: none;
+    }
+
+    .list tr {
+        border-bottom: 1px solid #ecf0f3;
+        padding: 8px 0;
+    }
+
+    .list td {
+        border-bottom: none;
+        padding: 6px 0;
+    }
+}

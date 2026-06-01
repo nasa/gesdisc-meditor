@@ -49,6 +49,9 @@ const Header = () => {
                             </Dropdown.Toggle>
 
                             <Dropdown.Menu>
+                                <Dropdown.Item href="/meditor/settings">
+                                    Settings
+                                </Dropdown.Item>
                                 <Dropdown.Item onClick={() => signOut()}>
                                     Logout
                                 </Dropdown.Item>
