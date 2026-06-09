@@ -147,9 +147,15 @@ export const authOptions: AuthOptions = {
             const userAccount = await usersDb.createUserAccount(
                 mapSessionToUser(session)
             )
+            const canSignIn = userAccount?.roles?.length > 0
 
             // allow sign in if the user has any roles
-            return userAccount?.roles?.length // expects a bool, whether user can sign in or not
+            if (userAccount != null)
+                // if we got a mEditor user account back, enforce role requirement for sign in
+                return canSignIn
+            else {
+                return true // if no mEditor user account already exists, allow sign in in via EarthData.
+            }
         },
         async session({ session, token }) {
             // add user uid to the session
