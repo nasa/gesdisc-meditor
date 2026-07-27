@@ -464,7 +464,7 @@ export async function patchDocument(
         // apply JSON Patch operations to the document
         const [patchErrors, patchedDocument] = jsonPatch(existingDocument, operations)
 
-        assert(!patchErrors, new createError.BadRequest(patchErrors.message))
+        assert(!patchErrors, new createError.BadRequest(patchErrors?.message))
 
         // all operations successfully made, save to db as a new document
         return await createDocument(patchedDocument, modelName, user)

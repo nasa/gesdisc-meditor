@@ -14,6 +14,14 @@ import type { JSONPatchDocument } from 'immutable-json-patch'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import type { ZodError } from 'zod'
 
+export const config = {
+    api: {
+        bodyParser: {
+            sizeLimit: '10mb',
+        },
+    },
+}
+
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     assert(req.method === 'PATCH', new createError.MethodNotAllowed())
 

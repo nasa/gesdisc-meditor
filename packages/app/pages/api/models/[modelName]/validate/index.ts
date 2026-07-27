@@ -7,6 +7,14 @@ import { withApiErrorHandler } from 'lib/with-api-error-handler'
 import { withUserCanAccessModelCheck } from 'lib/with-user-can-access-model-check'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
+export const config = {
+    api: {
+        bodyParser: {
+            sizeLimit: '10mb',
+        },
+    },
+}
+
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     assert(req.method === 'POST', new createError.MethodNotAllowed())
 

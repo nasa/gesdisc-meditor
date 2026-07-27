@@ -4,6 +4,14 @@ import { withApiErrorHandler } from 'lib/with-api-error-handler'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import putDocumentHandler from '../models/[modelName]/documents/'
 
+export const config = {
+    api: {
+        bodyParser: {
+            sizeLimit: '10mb',
+        },
+    },
+}
+
 // our new API supports uploading a document as JSON
 // however the legacy API only supported file based uploads, which are difficult to use
 // we'll need to parse the file upload here and pass the resulting JSON on to the new RESTful API
