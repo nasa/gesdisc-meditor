@@ -726,7 +726,7 @@ export async function safelyNotifyOfStateChange(
                 user
             )
 
-            if (process.env.DISABLE_EMAIL_NOTIFICATIONS) {
+            if (process.env.DISABLE_EMAIL_NOTIFICATIONS?.toLowerCase() === 'true') {
                 log.warn(
                     `The 'DISABLE_EMAIL_NOTIFICATIONS' environment variable is set to 'true'!`
                 )
