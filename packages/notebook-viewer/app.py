@@ -1,5 +1,5 @@
 from flask import Flask, request
-from urllib.request import urlopen
+from urllib.request import build_opener, HTTPRedirectHandler
 import nbformat
 import urllib.parse
 import os.path
@@ -14,13 +14,21 @@ app = Flask("mEditor Notebook Viewer")
 def getNotebookAsHtml():
     return convertNotebookToHtml()
 
+class SafeRedirectHandler(HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        if not is_allowed(newurl):
+            raise ValueError("Redirect destination is not allowed")
+
+        return super().redirect_request(
+            req, fp, code, msg, headers, newurl
+        )
 
 def convertNotebookToHtml():
     # ensure the user passed in a notebook url
     if request.args.get("notebookUrl") is None:
         return "Missing a required URL parameter, `notebookUrl`", 400
 
-    notebookUrl = urllib.parse.unquote(request.args.get("notebookUrl"))
+    notebookUrl = request.args.get("notebookUrl")
 
     # ensure the extension is a notebook extension
     if not notebookUrl.endswith(".ipynb"):
@@ -34,36 +42,39 @@ def convertNotebookToHtml():
 
     # if we're including a github.com URL, we'll provide some additional links to the original github repo
     if notebookUrl.startswith("https://github.com"):
-        # Parse and normalize the URL
-        parsedUrl = urllib.parse.urlparse(notebookUrl)
-        normalizedPath = os.path.normpath(parsedUrl.path)
-
-        # make sure we are only rendering notebooks from the nasa organization
-        if not normalizedPath.startswith("/nasa/"):
-            return "Invalid notebook URL, must be in the NASA organization", 400
-
         githubUrl = notebookUrl
         notebookUrl = notebookUrl.replace(
             "https://github.com", "https://raw.githubusercontent.com"
         ).replace("/blob/", "/")
 
-    # read the notebook content in
-    response = urlopen(notebookUrl).read().decode()
+      # Fetch using redirect validation
+    try:
+        opener = build_opener(SafeRedirectHandler())
+        response = opener.open(notebookUrl).read().decode()
+    except Exception:
+        return "Unable to retrieve the notebook", 400
 
     # convert it to HTML
-    notebook = nbformat.reads(response, as_version=4)
-    (body, _resources) = html_exporter.from_notebook_node(
-        notebook,
-        resources={
-            "notebookUrl": notebookUrl,
-            "githubUrl": githubUrl,
-        },
-    )
+    try:
+        notebook = nbformat.reads(response, as_version=4)
+
+        (body, _resources) = html_exporter.from_notebook_node(
+            notebook,
+            resources={
+                "notebookUrl": notebookUrl,
+                "githubUrl": githubUrl,
+            },
+        )
+    except Exception:
+        return "Unable to process the notebook", 400
 
     return body
 
 def is_allowed(url: str) -> bool:
-    u = urllib.parse.urlsplit(url)
+    try:
+        u = urllib.parse.urlsplit(url)
+    except ValueError:
+        return False
 
     if u.scheme != "https":
         return False
@@ -72,18 +83,37 @@ def is_allowed(url: str) -> bool:
         return False
 
     host = (u.hostname or "").rstrip(".").lower()
+    path = u.path
+
+    # Reject dot-segment traversal and encoded dot segments
+    lower_path = path.lower()
+
+    if (
+        "/../" in lower_path
+        or "/./" in lower_path
+        or lower_path.endswith("/..")
+        or lower_path.endswith("/.")
+        or "%2e" in lower_path
+    ):
+        return False
 
     if host == "nasa.gov" or host.endswith(".nasa.gov"):
         return True
 
-    # allow github.com but ONLY /nasa/...
     if host == "github.com":
-        parts = [p for p in u.path.split("/") if p]
-        return len(parts) >= 1 and parts[0].lower() == "nasa"
+        parts = path.split("/")
 
-    # allow raw.githubusercontent.com but ONLY /nasa/...
+        return (
+            len(parts) >= 2
+            and parts[1].lower() == "nasa"
+        )
+
     if host == "raw.githubusercontent.com":
-        parts = [p for p in u.path.split("/") if p]
-        return len(parts) >= 1 and parts[0].lower() == "nasa"
+        parts = path.split("/")
+
+        return (
+            len(parts) >= 2
+            and parts[1].lower() == "nasa"
+        )
 
     return False
