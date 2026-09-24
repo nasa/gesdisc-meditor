@@ -41,4 +41,4 @@ dl = DictLoader(
 )
 
 # create a HTML exporter using our custom template
-html_exporter = HTMLExporter(extra_loaders=[dl], template_file="custom-template")
+html_exporter = HTMLExporter(extra_loaders=[dl], template_file="custom-template", sanitize_html=True,)
