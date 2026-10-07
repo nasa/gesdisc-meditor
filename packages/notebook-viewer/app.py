@@ -14,6 +14,7 @@ app = Flask("mEditor Notebook Viewer")
 def getNotebookAsHtml():
     return convertNotebookToHtml()
 
+#This class is a custom redirect safety check for Python’s urllib.
 class SafeRedirectHandler(HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         if not is_allowed(newurl):
