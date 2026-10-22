@@ -139,6 +139,7 @@ const SearchList = ({
                             if (document.localId) {
                                 return (
                                     <SearchResult
+                                        model={model}
                                         key={document.localId}
                                         document={document}
                                         isLocalDocument={true}
@@ -153,6 +154,7 @@ const SearchList = ({
                             } else {
                                 return (
                                     <SearchResult
+                                        model={model}
                                         key={document.title}
                                         document={document}
                                         modelName={model.name}

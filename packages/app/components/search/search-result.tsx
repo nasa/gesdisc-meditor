@@ -11,11 +11,14 @@ import type { Document } from '../../documents/types'
 import { AppContext } from '../app-store'
 import CloneDocumentModal from '../document/clone-document-modal'
 import DocumentStateBadge from '../document/document-state-badge'
+import { privilegesForModelAndWorkflowNode, rolesForModel } from 'auth/utilities'
+import { useSession } from 'next-auth/react'
 import IconButton from '../icon-button'
 import StateBadge from '../state-badge'
 import styles from './search-result.module.css'
 
 interface SearchResultProps {
+    model: any // what is the type of model here?
     document: Document | UnsavedDocument
     modelName: string
     onCloned?: Function
@@ -26,6 +29,7 @@ interface SearchResultProps {
 }
 
 const SearchResult = ({
+    model,
     document,
     modelName,
     onCloned,
@@ -36,6 +40,13 @@ const SearchResult = ({
 }: SearchResultProps) => {
     const { setSuccessNotification } = useContext(AppContext)
     const [showCloneDocumentModal, setShowCloneDocumentModal] = useState(false)
+    const { data: session, status } = useSession()
+
+    const currentPrivileges = privilegesForModelAndWorkflowNode(
+        session?.user,
+        modelName.toString(),
+        model.workflow.currentNode
+    )
 
     function removeUnsavedDocument() {
         if (
@@ -123,7 +134,7 @@ const SearchResult = ({
                     </IconButton>
                 )}
 
-                {!isLocalDocument && (
+                {!isLocalDocument && currentPrivileges.includes('create') && (
                     <IconButton
                         alt="Clone Document"
                         onClick={() => setShowCloneDocumentModal(true)}
